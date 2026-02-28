@@ -1,5 +1,5 @@
-	PAGE	90,132			;A2
-	TITLE	fastsm.SAL - fastopen SYSTEM MESSAGES
+	; PAGE	90,132;A2
+	; TITLE	fastsm.SAL - fastopen SYSTEM MESSAGES
 ;****************** START OF SPECIFICATIONS *****************************
 ; MODULE NAME: fastsm.SAL
 
@@ -93,36 +93,36 @@
 ;	     "Licensed Material - Property of Microsoft "
 ;
 ;****************** END OF SPECIFICATIONS *****************************
-	IF1				;					;AN000;
-	    %OUT    COMPONENT=fastopen, MODULE=fastsm.asm...
-	ENDIF				;					;AN000;
+	%if 1  ; IF1 - pass-specific;					;AN000;
+	    %warning COMPONENT=fastopen, MODULE=fastsm.asm...
+	%endif;					;AN000;
 ; =  =	=  =  =  =  =  =  =  =	=  =
 
-HEADER	MACRO	TEXT			;;					;AN000;
-.XLIST					;;
-	SUBTTL	TEXT
-.LIST					;;
-	PAGE				;;					;AN000;
-	ENDM				;;					;AN000;
+%macro HEADER 1;;					;AN000;
+; .XLIST;;
+	; SUBTTL	TEXT
+; .LIST;;
+	; PAGE;;					;AN000;
+	%endmacro;;					;AN000;
 ; =  =	=  =  =  =  =  =  =  =	=  =
-	INCLUDE SYSMSG.INC		;PERMIT SYSTEM MESSAGE HANDLER DEFINITION ;AN000;
+	%include "SYSMSG.INC";PERMIT SYSTEM MESSAGE HANDLER DEFINITION ;AN000;
 	MSG_UTILNAME <fastopen> 	;IDENTIFY THE COMPONENT 		;AN000;
 ; =  =	=  =  =  =  =  =  =  =	=  =
 	HEADER	<DEFINITION OF MESSAGES> ;					;AN000;
-CSEG_INIT    SEGMENT PARA PUBLIC 'CODE' ;
-	   ASSUME CS:CSEG_INIT		;ESTABLISHED BY CALLER
-	   ASSUME DS:CSEG_INIT		;ESTABLISHED BY CALLER
-	   ASSUME ES:CSEG_INIT		;ESTABLISHED BY CALLER
+SECTION .CSEG_INIT;
+	   ; ASSUME CS:CSEG_INIT;ESTABLISHED BY CALLER
+	   ; ASSUME DS:CSEG_INIT;ESTABLISHED BY CALLER
+	   ; ASSUME ES:CSEG_INIT;ESTABLISHED BY CALLER
 
-	   PUBLIC COPYRIGHT	   ;						;AN000;
+	   global COPYRIGHT;						;AN000;
 COPYRIGHT  DB	 "MS DOS FASTOPEN Utility " ;                 ;AN000;
-	   INCLUDE COPYRIGH.INC    ;						;AN000;
+	   %include "COPYRIGH.INC";						;AN000;
 	   HEADER <MESSAGE DATA AREAS> ;					;AN000;
 	   MSG_SERVICES <MSGDATA>  ;WORKAREAS FOR SYSTEM MESSAGE HANDLER	;AN000;
 ; =  =	=  =  =  =  =  =  =  =	=  =
 	   HEADER <SYSTEM MESSAGE HANDLER> ;					;AN000;
-	   PUBLIC SYSLOADMSG	   ;						;AN000;
-	   PUBLIC SYSDISPMSG	   ;						;AN000;
+	   global SYSLOADMSG;						;AN000;
+	   global SYSDISPMSG;						;AN000;
 
 
 	MSG_SERVICES <FASTOPEN.CLA,FASTOPEN.CL1,FASTOPEN.CL2> ;
@@ -134,12 +134,12 @@ COPYRIGHT  DB	 "MS DOS FASTOPEN Utility " ;                 ;AN000;
 				   ;DEFAULT=NO TIMEmsg
 				   ;DEFAULT=NO DATEmsg
 
-.xlist
-.xcref
+; .xlist
+; .xcref
 	MSG_SERVICES <LOADmsg,GETmsg,DISPLAYmsg,INPUTmsg,CHARmsg,NUMmsg> ;AN000;
-	include msgdcl.inc
-.cref
-.list
+	%include "msgdcl.inc"
+; .cref
+; .list
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-CSEG_INIT	ENDS			;
-	   END			   ;						;AN000;
+; END SECTION .CSEG_INIT;
+	   ; END;						;AN000;

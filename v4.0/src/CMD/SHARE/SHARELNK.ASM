@@ -1,25 +1,25 @@
-        PAGE    ,132                            ; 
+        ; PAGE    ,132; 
 ;       SCCSID = @(#)SHARELNK.asm 1.0 87/05/11
-TITLE   SHARELNK LINK FIX ROUTINES - Routines to resolve SHARE externals
-NAME    SHARELNK
+; TITLE   SHARELNK LINK FIX ROUTINES - Routines to resolve SHARE externals
+; NAME    SHARELNK
 
-.xlist
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+; .cref
+; .list
 
-CODE    SEGMENT BYTE PUBLIC 'CODE'
-code    ENDS
+SECTION .CODE
+; END SECTION .code
 
-include dosseg.asm
+%include "dosseg.asm"
 
 
-code    SEGMENT BYTE PUBLIC 'code'
-        ASSUME  CS:dosgroup
+SECTION .code
+        ; ASSUME  CS:dosgroup
 
-        PUBLIC  IRETT, SWAP_AREA_LEN, Hash_Temp
+        global IRETT, SWAP_AREA_LEN, Hash_Temp
 IRETT   DW      0
 SWAP_AREA_LEN  DW  0
 Hash_Temp   DW  0
@@ -209,5 +209,5 @@ procedure   swap_in_dos,FAR
         NOP
 endproc     swap_in_dos,FAR
 
-code    ENDS
-    END
+; END SECTION .code
+    ; END

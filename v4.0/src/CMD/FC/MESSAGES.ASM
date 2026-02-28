@@ -2,21 +2,21 @@
 ; message file for FC command
 ;
 
-CONST   SEGMENT WORD PUBLIC 'DATA'
-CONST   ENDS
+SECTION .CONST
+; END SECTION .CONST
 
-_BSS    SEGMENT WORD PUBLIC 'DATA'
-_BSS    ENDS
+SECTION ._BSS
+; END SECTION ._BSS
 
-_DATA   SEGMENT WORD PUBLIC 'DATA'
-_DATA   ENDS
+SECTION ._DATA
+; END SECTION ._DATA
 
-DGROUP  GROUP   CONST, _BSS, _DATA
+; DGROUP  GROUP   CONST, _BSS, _DATA
 
-        ASSUME  DS:DGROUP
+        ; ASSUME  DS:DGROUP
 
-_DATA   SEGMENT
-PUBLIC	_BadSw, _UseMes, _BadOpn, _LngFil, _NoDif, _NoMem, _Bad_ver, _ReSyncMes, _UnKnown
+SECTION ._DATA
+global _BadSw, _UseMes, _BadOpn, _LngFil, _NoDif, _NoMem, _Bad_ver, _ReSyncMes, _UnKnown
 
 _BadSw          DB      "Incompatible switches",0
 _Bad_ver        DB      "Incorrect DOS version",0
@@ -27,5 +27,5 @@ _NoDif          DB      "no differences encountered",0
 _NoMem          DB      "out of memory",0ah,0
 _ReSyncMes	DB	"Resync failed.  Files are too different\n",0
 _UnKnown	DB	"Unknown error",0
-_DATA   ENDS
-END
+; END SECTION ._DATA
+; END

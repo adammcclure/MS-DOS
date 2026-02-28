@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)IOCTL.INC	1.15 85/09/05
-TITLE	IOCTL - IOCTL system call
-NAME	IOCTL
+; TITLE	IOCTL - IOCTL system call
+; NAME	IOCTL
 
 ;
 ;
@@ -19,22 +19,22 @@ NAME	IOCTL
 
 
 
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-include ioctl.inc
-include ifssym.inc			 ;AN000;
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+%include "ioctl.inc"
+%include "ifssym.inc";AN000;
+; .cref
+; .list
 
 	i_need	THISCDS,DWORD
 	i_need	IOCALL,BYTE
@@ -245,7 +245,7 @@ BREAK <IOCTL - munge on a handle to do device specific stuff>
 ;
 
 	procedure   $IOCTL,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 	MOV	SI,DS			; Stash DS for calls 2,3,4 and 5
 	context DS
 	CMP	AL,3
@@ -261,7 +261,7 @@ ioctl_check_permissions:
 	CMP	AL,2
 	JAE	ioctl_control_string
 	CMP	AL,0
-	MOV	AL,BYTE PTR ES:[DI.sf_flags]; Get low byte of flags
+	MOV	AL,byte ES:[DI.sf_flags]; Get low byte of flags
 	JZ	ioctl_read		; read the byte
 	PUSH	DX			;AN000;MS.
 	AND	DH,0FEH 		;AN000;MS.allow DH=01H
@@ -279,9 +279,9 @@ ioctl_check_device:
 					;   device bit!! He can muck with the
 					;   others at will.
 	MOV	[EXTERR_LOCUS],errLOC_SerDev
-	MOV	BYTE PTR ES:[DI.sf_flags],DL  ;AC000;MS.; Set flags
+	MOV	byte ES:[DI.sf_flags],DL  ;AC000;MS.; Set flags
 do_exception:
-	OR	BYTE PTR ES:[DI.sf_flags+1],DH;AN000;MS.;set 100H bit for disk full
+	OR	byte ES:[DI.sf_flags+1],DH;AN000;MS.;set 100H bit for disk full
 
 	transfer    SYS_RET_OK
 
@@ -296,7 +296,7 @@ ioctl_read:
 	JZ	ioctl_no_high		; no
 	MOV	[EXTERR_LOCUS],errLOC_SerDev
 	LES	DI,ES:[DI.sf_devptr]	; Get device pointer
-	MOV	AH,BYTE PTR ES:[DI.SDEVATT+1]	; Get high byte
+	MOV	AH,byte ES:[DI.SDEVATT+1]	; Get high byte
 ioctl_no_high:
 	MOV	DX,AX
 	invoke	get_user_stack
@@ -426,7 +426,7 @@ GENERICIOCTL:
 	POP	ES				 ;AN000;IFS.
 	JZ	Do_GenIOCTL			 ;AN000;IFS.	 ; no
 callifs:
-	CMP	byte ptr [User_In_AX+1],69H  ;AN000;	     ;IFS.
+	CMP	byte [User_In_AX+1],69H  ;AN000;	     ;IFS.
 	JNZ	is44xx			     ;AN000;	     ;IFS.
 	MOV	AX,440DH		     ;AN000;	     ;IFS.
 	PUSH	AX			     ;AN000;	     ;IFS.
@@ -447,22 +447,22 @@ Do_GenIOCTL:
 	PUSH	ES			; DEVIOCALL2 expects Device header block
 	PUSH	DI			; in DS:SI
 	;set up Generic IOCTL Request Block
-	MOV	byte ptr IOCALL.ReqLen,(size IOCTL_Req)
-	MOV	byte ptr IOCALL.ReqFunc,GENIOCTL
-	MOV	byte ptr IOCALL.ReqUnit,BL
-	MOV	byte ptr IOCALL.MajorFunction,CH
-	MOV	byte ptr IOCALL.MinorFunction,CL
-	MOV	word ptr IOCALL.Reg_SI,SI
-	MOV	word ptr IOCALL.Reg_DI,DI
-	MOV	word ptr IOCALL.GenericIOCTL_Packet,DX
-	MOV	word ptr IOCALL.GenericIOCTL_Packet + 2,SI
+	MOV	byte IOCALL.ReqLen,(IOCTL_Req_size)
+	MOV	byte IOCALL.ReqFunc,GENIOCTL
+	MOV	byte IOCALL.ReqUnit,BL
+	MOV	byte IOCALL.MajorFunction,CH
+	MOV	byte IOCALL.MinorFunction,CL
+	MOV	word IOCALL.Reg_SI,SI
+	MOV	word IOCALL.Reg_DI,DI
+	MOV	word IOCALL.GenericIOCTL_Packet,DX
+	MOV	word IOCALL.GenericIOCTL_Packet + 2,SI
 
-	MOV	BX,offset DOSGROUP:IOCALL
+	MOV	BX,IOCALL
 
 	PUSH	SS
 	POP	ES
 
-ASSUME DS:NOTHING			; DS:SI -> Device header.
+; ASSUME DS:NOTHING; DS:SI -> Device header.
 	POP	SI
 	POP	DS
 	jmp	ioctl_do_IO		; Perform Call to device driver
@@ -486,16 +486,16 @@ ioctl_rem_media:
 	MOV	[IOCALL.REQFUNC],DEVRMD
 	MOV	AL,REMHL
 	MOV	AH,BL			; Unit number
-	MOV	WORD PTR [IOCALL.REQLEN],AX
+	MOV	word [IOCALL.REQLEN],AX
 	XOR	AX,AX
 	MOV	[IOCALL.REQSTAT],AX
 	PUSH	ES
 	POP	DS
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	SI,DI			; DS:SI -> driver
 	PUSH	SS
 	POP	ES
-	MOV	BX,OFFSET DOSGROUP:IOCALL   ; ES:BX -> Call header
+	MOV	BX,IOCALL   ; ES:BX -> Call header
 	SaveReg <DS,SI>
 	invoke	DEVIOCALL2
 	RestoreReg <SI,DS>
@@ -515,7 +515,7 @@ Ioctl_Drive_attr:
 	call	Get_Driver_BL
 	JC	ioctl_drv_err		; drive not valid
 	MOV	AX,[Temp_Var2]		;AN000;IFS.
-	mov	dx,word ptr es:[di.SDEVATT]	; get device attribute word
+	mov	dx,word es:[di.SDEVATT]	; get device attribute word
 	MOV	BL,AL			; Phys letter to BL (A=0)
 	LES	DI,[THISCDS]
 ;;;;;	TEST	ES:[DI.curdir_flags],curdir_isnet
@@ -524,11 +524,11 @@ Ioctl_Drive_attr:
 	OR	DX,1000h
 IOCTLShare:
 	Context DS
-ASSUME	DS:NOTHING
-	MOV	SI,OFFSET DOSGROUP:OPENBUF
+; ASSUME	DS:NOTHING
+	MOV	SI,OPENBUF
 	ADD	BL,"A"
 	MOV	[SI],BL
-	MOV	WORD PTR [SI+1],003AH	; ":",0
+	MOV	word [SI+1],003AH	; ":",0
 	MOV	AX,0300H
 	CLC
 	INT	int_IBM
@@ -581,20 +581,20 @@ ioctl_control_call:
 	MOV	AL,DRDWRHL
 ioctl_setup_pkt:
 	MOV	AH,BL			; Unit number
-	MOV	WORD PTR [IOCALL.REQLEN],AX
+	MOV	word [IOCALL.REQLEN],AX
 	XOR	AX,AX
 	MOV	[IOCALL.REQSTAT],AX
 	MOV	[IOMED],AL
 	MOV	[IOSCNT],CX
-	MOV	WORD PTR [IOXAD],DX
-	MOV	WORD PTR [IOXAD+2],SI
+	MOV	word [IOXAD],DX
+	MOV	word [IOXAD+2],SI
 	PUSH	ES
 	POP	DS
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	SI,DI			; DS:SI -> driver
 	PUSH	SS
 	POP	ES
-	MOV	BX,OFFSET DOSGROUP:IOCALL   ; ES:BX -> Call header
+	MOV	BX,IOCALL   ; ES:BX -> Call header
 ioctl_do_IO:
 	invoke	DEVIOCALL2
 	TEST	[IOCALL.REQSTAT],STERR	    ;Error?
@@ -613,7 +613,7 @@ device_err:
 
 Get_Driver_BL:
 	DOSAssume   CS,<DS>,"Get_Driver_BL"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 ; BL is drive number (0=default)
 ; Returns pointer to device in ES:DI, unit number in BL if carry clear
 ; No regs modified
@@ -701,22 +701,22 @@ GetOwner:
 ioctl_do_own:
 	MOV	AL,OWNHL
 	MOV	AH,BL			; Unit number
-	MOV	WORD PTR [IOCALL.REQLEN],AX
+	MOV	word [IOCALL.REQLEN],AX
 	XOR	AX,AX
 	MOV	[IOCALL.REQSTAT],AX
 	PUSH	ES
 	POP	DS
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	SI,DI			; DS:SI -> driver
 	PUSH	SS
 	POP	ES
-	MOV	BX,OFFSET DOSGROUP:IOCALL   ; ES:BX -> Call header
+	MOV	BX,IOCALL   ; ES:BX -> Call header
 	SaveReg <DS,SI>
 	invoke	DEVIOCALL2
 	RestoreReg <SI,DS>
 	test	[IOCALL.REQSTAT],STERR
 	jnz	ioctl_string_errj
-	MOV	AL,BYTE PTR [IOCALL.REQUNIT]	; Get owner returned by device
+	MOV	AL,byte [IOCALL.REQUNIT]	; Get owner returned by device
 						; owner returned is 1-based.
 	transfer    SYS_RET_OK
 
@@ -729,7 +729,7 @@ EndProc $IOCTL
 ;
 
 	procedure   TEST_IFS_REMOTE,NEAR  ;AN000;
-	ASSUME	DS:NOTHING,ES:NOTHING	  ;AN000;
+	; ASSUME	DS:NOTHING,ES:NOTHING;AN000;
 
 	TEST	ES:[DI.sf_flags],sf_isnet ;AN000;;IFS.	ifs ?
 	JZ	nonifs			  ;AN000;;IFS.	no
@@ -741,5 +741,5 @@ nonifs: 			       ;AN000;
 	return			       ;AN000;;IFS.
 EndProc TEST_IFS_REMOTE 	       ;AN000;
 
-CODE ENDS
-END
+; END SECTION .CODE
+; END

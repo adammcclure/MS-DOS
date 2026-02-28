@@ -1,20 +1,20 @@
 
 
 
-.seq
-stack       segment  Stack  'STACK' ; represents STACK                            ;AN000;
-stack       ends                                                             ;AN000;
+; .seq
+SECTION .stack; represents STACK                            ;AN000;
+; END SECTION .stack;AN000;
 
-cseg_main   segment   Public 'CODE'; represents MAIN
-cseg_main   ends
+SECTION .cseg_main; represents MAIN
+; END SECTION .cseg_main
 
-cseg_open   segment   Public 'CODE'; represents  FASTOPEN                          ;AN000;
-cseg_open   ends                                                             ;AN000;
+SECTION .cseg_open; represents  FASTOPEN                          ;AN000;
+; END SECTION .cseg_open;AN000;
 
-cseg_seek   segment   Public 'CODE'; represents FASTSEEK                           ;AN000;
-cseg_seek   ends                                                             ;AN000;
+SECTION .cseg_seek; represents FASTSEEK                           ;AN000;
+; END SECTION .cseg_seek;AN000;
 
-cseg_init   segment  Public 'CODE' ; represents INIT
-cseg_init   ends
+SECTION .cseg_init; represents INIT
+; END SECTION .cseg_init
 
 

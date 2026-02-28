@@ -30,124 +30,124 @@
 ;   07/01/86  0.03	Added structures for accessing memory
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 ;
 ;   Structures for accessing memory
 ;
-WordS	struc
-	LowByte 	db	?
-	HighByte	db	?
-WordS	ends
+struc WordS
+	LowByte: db 0
+	HighByte: db 0
+endstruc
 
-DwordS	struc
-	LowWord 	dw	?
-	HighWord	dw	?
-DwordS	ends
+struc DwordS
+	LowWord: dw 0
+	HighWord: dw 0
+endstruc
 
 ;
 ;   Structure for accessing stack frame pushed during trap exit from VM
 ;
 
-VM_TRAP_FRAME	struc
-VMTF_EIP	dw	?		; EIP (low)
-		dw	?		; EIP (high)
-VMTF_CS 	dw	?		; CS
-		dw	?		;   (padding)
-VMTF_EFLAGS	dw	?		; EFLAGS (low)
-VMTF_EFLAGShi	dw	?		; EFLAGS (high)
-VMTF_ESP	dw	?		; ESP (low)
-		dw	?		; ESP (high)
-VMTF_SS 	dw	?		; SS
-		dw	?		;   (padding)
-VMTF_ES 	dw	?		; ES
-		dw	?		;   (padding)
-VMTF_DS 	dw	?		; DS
-		dw	?		;   (padding)
-VMTF_FS 	dw	?		; FS
-		dw	?		;   (padding)
-VMTF_GS 	dw	?		; GS
-		dw	?		;   (padding)
-VM_TRAP_FRAME	ends
+struc VM_TRAP_FRAME
+VMTF_EIP: dw 0; EIP (low)
+		dw 0; EIP (high)
+VMTF_CS: dw 0; CS
+		dw 0;   (padding)
+VMTF_EFLAGS: dw 0; EFLAGS (low)
+VMTF_EFLAGShi: dw 0; EFLAGS (high)
+VMTF_ESP: dw 0; ESP (low)
+		dw 0; ESP (high)
+VMTF_SS: dw 0; SS
+		dw 0;   (padding)
+VMTF_ES: dw 0; ES
+		dw 0;   (padding)
+VMTF_DS: dw 0; DS
+		dw 0;   (padding)
+VMTF_FS: dw 0; FS
+		dw 0;   (padding)
+VMTF_GS: dw 0; GS
+		dw 0;   (padding)
+endstruc
 ;
 					; Used in EmMovCDTR (vminst.asm)
-MOV_CDTR_FRAME	 struc
-MCF_WBP 	dw	?		; Work BP
-MCF_WES 	dw	?		; Work ES
-MCF_EAX 	dw	?		; EAXlo
-		dw	?		; EAXhi
-MCF_ESI 	dw	?		; ESIlo
-		dw	?		; ESIhi
-MCF_EBX 	dw	?		; EBXlo
-		dw	?		; EBXhi
-MCF_EBP 	dw	?		; EBPlo
-		dw	?		; EBPhi
-MCF_VMERR	dw	?		; VM Error Code (low)
-		dw	?		; VM Error Code (high)
-MCF_VMEIP	dw	?		; VM EIP (low)
-		dw	?		; VM EIP (high)
-MCF_VMCS	dw	?		; VM CS
-		dw	?		;   (padding)
-MCF_VMEFLAGS	dw	?		; VM EFLAGS (low)
-MCF_VMEFLAGShi	dw	?		; VM EFLAGS (high)
-MCF_VMESP	dw	?		; VM ESP (low)
-		dw	?		; VM ESP (high)
-MCF_VMSS	dw	?		; VM SS
-		dw	?		;   (padding)
-MCF_VMES	dw	?		; VM ES
-		dw	?		;   (padding)
-MCF_VMDS	dw	?		; VM DS
-		dw	?		;   (padding)
-MCF_VMFS	dw	?		; VM FS
-		dw	?		;   (padding)
-MCF_VMGS	dw	?		; VM GS
-		dw	?		;   (padding)
-MOV_CDTR_FRAME	 ends
+struc MOV_CDTR_FRAME
+MCF_WBP: dw 0; Work BP
+MCF_WES: dw 0; Work ES
+MCF_EAX: dw 0; EAXlo
+		dw 0; EAXhi
+MCF_ESI: dw 0; ESIlo
+		dw 0; ESIhi
+MCF_EBX: dw 0; EBXlo
+		dw 0; EBXhi
+MCF_EBP: dw 0; EBPlo
+		dw 0; EBPhi
+MCF_VMERR: dw 0; VM Error Code (low)
+		dw 0; VM Error Code (high)
+MCF_VMEIP: dw 0; VM EIP (low)
+		dw 0; VM EIP (high)
+MCF_VMCS: dw 0; VM CS
+		dw 0;   (padding)
+MCF_VMEFLAGS: dw 0; VM EFLAGS (low)
+MCF_VMEFLAGShi: dw 0; VM EFLAGS (high)
+MCF_VMESP: dw 0; VM ESP (low)
+		dw 0; VM ESP (high)
+MCF_VMSS: dw 0; VM SS
+		dw 0;   (padding)
+MCF_VMES: dw 0; VM ES
+		dw 0;   (padding)
+MCF_VMDS: dw 0; VM DS
+		dw 0;   (padding)
+MCF_VMFS: dw 0; VM FS
+		dw 0;   (padding)
+MCF_VMGS: dw 0; VM GS
+		dw 0;   (padding)
+endstruc
 ;
 					; Used in EmProtIns (vminst.asm)
-PROT_INS_FRAME	 struc
-PIF_WBP 	dw	?		; Work BP
-PIF_WES 	dw	?		; Work ES
-PIF_AX		dw	?		; EAXlo
-PIF_DX		dw	?		; EDXlo
-PIF_ESI 	dw	?		; ESIlo
-		dw	?		; ESIhi
-PIF_EBX 	dw	?		; EBXlo
-		dw	?		; EBXhi
-PIF_EBP 	dw	?		; EBPlo
-		dw	?		; EBPhi
-PIF_VMERR	dw	?		; VM Error Code (low)
-		dw	?		; VM Error Code (high)
-PIF_VMEIP	dw	?		; VM EIP (low)
-		dw	?		; VM EIP (high)
-PIF_VMCS	dw	?		; VM CS
-		dw	?		;   (padding)
-PIF_VMEFLAGS	dw	?		; VM EFLAGS (low)
-PIF_VMEFLAGShi	dw	?		; VM EFLAGS (high)
-PIF_VMESP	dw	?		; VM ESP (low)
-		dw	?		; VM ESP (high)
-PIF_VMSS	dw	?		; VM SS
-		dw	?		;   (padding)
-PIF_VMES	dw	?		; VM ES
-		dw	?		;   (padding)
-PIF_VMDS	dw	?		; VM DS
-		dw	?		;   (padding)
-PIF_VMFS	dw	?		; VM FS
-		dw	?		;   (padding)
-PIF_VMGS	dw	?		; VM GS
-		dw	?		;   (padding)
-PROT_INS_FRAME	 ends
+struc PROT_INS_FRAME
+PIF_WBP: dw 0; Work BP
+PIF_WES: dw 0; Work ES
+PIF_AX: dw 0; EAXlo
+PIF_DX: dw 0; EDXlo
+PIF_ESI: dw 0; ESIlo
+		dw 0; ESIhi
+PIF_EBX: dw 0; EBXlo
+		dw 0; EBXhi
+PIF_EBP: dw 0; EBPlo
+		dw 0; EBPhi
+PIF_VMERR: dw 0; VM Error Code (low)
+		dw 0; VM Error Code (high)
+PIF_VMEIP: dw 0; VM EIP (low)
+		dw 0; VM EIP (high)
+PIF_VMCS: dw 0; VM CS
+		dw 0;   (padding)
+PIF_VMEFLAGS: dw 0; VM EFLAGS (low)
+PIF_VMEFLAGShi: dw 0; VM EFLAGS (high)
+PIF_VMESP: dw 0; VM ESP (low)
+		dw 0; VM ESP (high)
+PIF_VMSS: dw 0; VM SS
+		dw 0;   (padding)
+PIF_VMES: dw 0; VM ES
+		dw 0;   (padding)
+PIF_VMDS: dw 0; VM DS
+		dw 0;   (padding)
+PIF_VMFS: dw 0; VM FS
+		dw 0;   (padding)
+PIF_VMGS: dw 0; VM GS
+		dw 0;   (padding)
+endstruc
 ;
-GPFAULT_FRAME	struc
-GPF_ESI 	dw	?		; ESIlo
-		dw	?		; ESIhi
-GPF_EBX 	dw	?		; EBXlo
-		dw	?		; EBXhi
-GPF_EBP 	dw	?		; EBPlo
-		dw	?		; EBPhi
-GPFAULT_FRAME	ends
+struc GPFAULT_FRAME
+GPF_ESI: dw 0; ESIlo
+		dw 0; ESIhi
+GPF_EBX: dw 0; EBXlo
+		dw 0; EBXhi
+GPF_EBP: dw 0; EBPlo
+		dw 0; EBPhi
+endstruc
 ;
 ;   The following constants define the offset of the Virtual Mode trap stack
 ;   frame (from current SP assuming BP has been pushed) for the two cases:
@@ -159,14 +159,14 @@ VTFOE		equ	VTFO + 4	; as above, but including error code
 ;   These constants are used to sanity-check the value of SP when one of
 ;   the exception handlers has been entered:
 ;
-STACK	segment
-	extrn	kstack_top:byte
-STACK	ends
+SECTION .STACK
+	extern kstack_top
+; END SECTION .STACK
 
   ; Trap/no error
-VMT_STACK	equ	offset STACK:kstack_top - size VM_TRAP_FRAME - VTFO
+VMT_STACK	equ	kstack_top - VM_TRAP_FRAME_size - VTFO
   ; Trap w/error
-VMTERR_STACK	equ	offset STACK:kstack_top - size VM_TRAP_FRAME - VTFOE
+VMTERR_STACK	equ	kstack_top - VM_TRAP_FRAME_size - VTFOE
 
 ;******************************************************************************
 ;			    E R R O R	 C O D E S
@@ -203,4 +203,4 @@ ErrWrite	equ	0020h	    ; Attempt to write to protected area
 ErrDMA		equ	0021h	    ; Attempt to DMA into page frame (not for user)
 ErrINTProt	equ	0022h	    ; General Protected interrupt error
 
-.list	; end of VM386.INC
+; .list; end of VM386.INC

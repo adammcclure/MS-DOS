@@ -15,7 +15,7 @@
 ;;	 purpose of changing the ASCII-N string to an ASCII-Z string.
 ;;
 ;;****************************************************************************
-page					;;AN000;
+; page;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   GET_COUNTRY_DEFAULTS: Get country, keyboard and codepage for the
@@ -47,12 +47,12 @@ page					;;AN000;
 ;;   Note:  Index of the first item is the table is 1.
 ;;
 ;;****************************************************************************
-GET_COUNTRY_DEFAULTS	MACRO	VAR_TABLE, VAR_INDEX ;;AN000;
+%macro GET_COUNTRY_DEFAULTS 2;;AN000;
 
     MOV  BX, VAR_TABLE				 ;;AN000; Get which table to search
     MOV  AX, VAR_INDEX				 ;;AN000; Get where to start in the table
     CALL GET_CNTY_DEF_ROUTINE			 ;;AN000;
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 
 ;;************************************************************************;;
 ;;
@@ -72,14 +72,14 @@ GET_COUNTRY_DEFAULTS	MACRO	VAR_TABLE, VAR_INDEX ;;AN000;
 ;;	 is returned in the memory variable specified.
 ;;
 ;;****************************************************************************
-GET_DOS_COUNTRY  MACRO	BUFFER, VAR_COUNTRY	 ;;AN000;
+%macro GET_DOS_COUNTRY 2;;AN000;
 
 
 	PUSH	ES				 ;;AN000;
 	PUSH	DS				 ;;AN000;
 	POP	ES				 ;;AN000;
 
-	MOV	DI, OFFSET BUFFER		 ;;AN000; Get the address of the buffer
+	MOV	DI, BUFFER		 ;;AN000; Get the address of the buffer
 	MOV	AX, 6501H			 ;;AN000; Fn call 65h with ID value = 1
 	MOV	BX, -1				 ;;AN000; Code page of interest (current)
 	MOV	DX, -1				 ;;AN000; Get information for default country
@@ -91,7 +91,7 @@ GET_DOS_COUNTRY  MACRO	BUFFER, VAR_COUNTRY	 ;;AN000;
 
 	POP	ES				 ;;AN000;
 
-	ENDM					 ;;AN000;
+	%endmacro;;AN000;
 ;;****************************************************************************
 ;;
 ;;   GET_COUNTRY_INDEX: Scan CTY_TABLE for the specified country code and
@@ -113,13 +113,13 @@ GET_DOS_COUNTRY  MACRO	BUFFER, VAR_COUNTRY	 ;;AN000;
 ;;   Note:  The index of the first item in the table is 1.
 ;;
 ;;************************************************************************;;
-GET_COUNTRY_INDEX	MACRO	VAR_COUNTRY, VAR_TAB, VAR_INDEX  ;;AN000;
+%macro GET_COUNTRY_INDEX 3;;AN000;
 
     MOV  CX, VAR_COUNTRY			 ;;AN000; Get the country index
     CALL GET_CNTY_INDEX_ROUTINE 		 ;;AN000; Search the table for this value
     MOV  VAR_TAB, DX				 ;;AN000; Which table it was found in
     MOV  VAR_INDEX, BX				 ;;AN000; Which location in that table
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;****************************************************************************
 ;;
 ;;   GET_KEYBOARD_INDEX: Scan KYBD_TABLE for the specified keyboard code and
@@ -144,14 +144,14 @@ GET_COUNTRY_INDEX	MACRO	VAR_COUNTRY, VAR_TAB, VAR_INDEX  ;;AN000;
 ;;   Note:  The index of the first item in the table is 1.
 ;;
 ;;************************************************************************
-GET_KEYBOARD_INDEX	MACRO	NAME_KYBD, VAR_TABLE, VAR_INDEX, VAR_ALT ;;AN000;
+%macro GET_KEYBOARD_INDEX 4;;AN000;
 
-    MOV  DI, OFFSET NAME_KYBD			 ;;AN000; The name of the keyboard to search for
+    MOV  DI, NAME_KYBD			 ;;AN000; The name of the keyboard to search for
     CALL GET_KYBD_INDEX_ROUTINE 		 ;;AN000; Search for this keyboard code
     MOV  VAR_TABLE, DX				 ;;AN000; Which table the code was found in
     MOV  VAR_INDEX, BX				 ;;AN000; Which index in the table
     MOV  VAR_ALT, AL				 ;;AN000; Returned alternate keyboard byte
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   GET_KEYBOARD: Get the keyboard code and the alternate keyboard
@@ -177,14 +177,14 @@ GET_KEYBOARD_INDEX	MACRO	NAME_KYBD, VAR_TABLE, VAR_INDEX, VAR_ALT ;;AN000;
 ;;   Note: Index of the first item in the table is 1.
 ;;
 ;;****************************************************************************
-GET_KEYBOARD	MACRO	VAR_TABLE, VAR_INDEX, NAME_KYBD, VAR_ALT  ;;AN000;
+%macro GET_KEYBOARD 4;;AN000;
 
     MOV  AX, VAR_INDEX				 ;;AN000; Where to start the search
     MOV  CX, VAR_TABLE				 ;;AN000; Which table to search
-    MOV  DI, OFFSET NAME_KYBD			 ;;AN000; The name of the keyboard code returned
+    MOV  DI, NAME_KYBD			 ;;AN000; The name of the keyboard code returned
     CALL GET_KYBD_ROUTINE			 ;;AN000;
     MOV  VAR_ALT, AL				 ;;AN000; Returned alternate code
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   GET_ALT_KYBD_TABLE: Scan the ALT_KYB_TABLE for the specified keyboard,
@@ -207,28 +207,28 @@ GET_KEYBOARD	MACRO	VAR_TABLE, VAR_INDEX, NAME_KYBD, VAR_ALT  ;;AN000;
 ;;	 specified keyboard code is returned as well as the keyboard identifier.
 ;;
 ;;****************************************************************************
-GET_ALT_KYBD_TABLE	MACRO	NAME_KYBD, VAR_TABLE, VAR_KYB ;;AN000;
+%macro GET_ALT_KYBD_TABLE 3;;AN000;
 						 ;;
-    MOV  SI, OFFSET ALT_KYB_TAB_1		 ;;AN000; Offset of the data in the table
+    MOV  SI, ALT_KYB_TAB_1		 ;;AN000; Offset of the data in the table
     MOV  AL, ALT_KYB_TABLE			 ;;AN000; Number of entries in the table
     MOV  BX, 1					 ;;AN000; Index currently being scaned
 						 ;;
     MOV  DX, NAME_KYBD+2			 ;;AN000;
-    .WHILE <<WORD PTR [SI]> NE DX > AND 	 ;;AN000;
-    .WHILE < BL LE AL > 			 ;;AN000;
+    ; .WHILE <<WORD PTR [SI]> NE DX > AND;;AN000;
+    ; .WHILE < BL LE AL >;;AN000;
 	 INC  BL				 ;;AN000;
 	 ADD  SI, TYPE ALT_KYB_DEF		 ;;AN000;
     .ENDWHILE					 ;;AN000;
 						 ;;
-    .IF < BL GT AL >				 ;;AN000; Entry NOT found
+    ; .IF < BL GT AL >;;AN000; Entry NOT found
 	 MOV  VAR_KYB, 0			 ;;AN000;
 	 MOV  VAR_TABLE, 0			 ;;AN000; Pointer is 0 since entry not found
-    .ELSE					 ;;AN000;
+    ; .ELSE;;AN000;
 	 COPY_WORD   VAR_TABLE, [SI]+2		 ;;AN000; Copy the table entries
 	 COPY_BYTE   VAR_KYB, [SI]+4		 ;;AN000;
-    .ENDIF					 ;;AN000;
+    ; .ENDIF;;AN000;
 						 ;;
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   GET_ALT_KEYBOARD: Get the alternate keyboard code from the specified
@@ -252,33 +252,33 @@ GET_ALT_KYBD_TABLE	MACRO	NAME_KYBD, VAR_TABLE, VAR_KYB ;;AN000;
 ;;   NOTE:  The index of the first item is the table is 1.
 ;;
 ;;****************************************************************************
-GET_ALT_KEYBOARD	MACRO	VAR_TABLE, VAR_KYB, VAR_INDEX, NAME_KYBD ;;AN000;
+%macro GET_ALT_KEYBOARD 4;;AN000;
 
     MOV  AX, VAR_INDEX				 ;;AN000; Get the table index
     DEC  AX					 ;;AN000; Make the index start at 0
     MOV  SI, VAR_TABLE				 ;;AN000; Pointer to the table
     INC  SI					 ;;AN000; Adjust pointer for table length byte
-    .IF < VAR_KYB EQ ALT_FRENCH>		 ;;AN000;
+    ; .IF < VAR_KYB EQ ALT_FRENCH>;;AN000;
 	 MOV  CX, TYPE FR_STRUC 		 ;;AN000;
     .ELSEIF < VAR_KYB EQ ALT_ITALIAN >		 ;;AN000;
 	 MOV  CX, TYPE IT_STRUC 		 ;;AN000;
-    .ELSE					 ;;AN000;
+    ; .ELSE;;AN000;
 	 MOV  CX, TYPE UK_STRUC 		 ;;AN000;
-    .ENDIF					 ;;AN000;
+    ; .ENDIF;;AN000;
     MUL  CX					 ;;AN000;
     ADD  SI, AX 				 ;;AN000; Get the address of the required entry
 						 ;;
     PUSH ES					 ;;AN000;
     PUSH DS					 ;;AN000;
     POP  ES					 ;;AN000;
-    MOV  DI, OFFSET NAME_KYBD			 ;;AN000;
+    MOV  DI, NAME_KYBD			 ;;AN000;
     MOV  CX, LEN_ALT_KYBD_ID			 ;;AN000; Number of bytes in the keyboard code
     MOV  [DI], CX				 ;;AN000;
     ADD  DI, 2					 ;;AN000;
     CLD 					 ;;AN000;
     REP  MOVSB					 ;;AN000;
     POP  ES					 ;;AN000;
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;****************************************************************************
 ;;
 ;;   EXEC_PROGRAM: Loads another program into memory and begins execution.
@@ -310,18 +310,18 @@ GET_ALT_KEYBOARD	MACRO	VAR_TABLE, VAR_KYB, VAR_INDEX, NAME_KYBD ;;AN000;
 ;;	 call 4Ah - FREE_MEM) before invoking this function.
 ;;
 ;;************************************************************************;;
-EXEC_PROGRAM	MACRO  CHILD, NAME_COM, PARM_BLOCK, RE_DIR ;;AN000;
+%macro EXEC_PROGRAM 4;;AN000;
 
-    MOV  AX, OFFSET CHILD			 ;;AN000;
+    MOV  AX, CHILD			 ;;AN000;
     PUSH AX					 ;;AN000;
-    MOV  AX, OFFSET NAME_COM			 ;;AN000;
+    MOV  AX, NAME_COM			 ;;AN000;
     PUSH AX					 ;;AN000;
-    MOV  AX, OFFSET PARM_BLOCK			 ;;AN000;
+    MOV  AX, PARM_BLOCK			 ;;AN000;
     PUSH AX					 ;;AN000;
     MOV  AX, RE_DIR				 ;;AN000;
     PUSH AX					 ;;AN000;
     CALL EXEC_PROGRAM_ROUTINE			 ;;AN000;
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;*****************************************************************************
 ;;
 ;;   FREE_MEM: Free memory by modifying the memory block
@@ -343,7 +343,7 @@ EXEC_PROGRAM	MACRO  CHILD, NAME_COM, PARM_BLOCK, RE_DIR ;;AN000;
 ;;   IS RETURNED IN AX.
 ;;
 ;;****************************************************************************
-FREE_MEM  MACRO  address			 ;;AN000;
+%macro FREE_MEM 1;;AN000;
 	PUSH	ES				 ;;AN000;
 	MOV	AH,62H				 ;;AN000;
 	DOSCALL 				;;AN000; Get the current PSP segment
@@ -353,7 +353,7 @@ FREE_MEM  MACRO  address			 ;;AN000;
 	MOV	AH,4AH				;;AN000; free memory function
 	DOSCALL 				;;AN000;
 	POP	ES				;;AN000;
-	ENDM					;;AN000;
+	%endmacro;;AN000;
 ;;****************************************************************************
 ;;
 ;;   CLEAR_SCREEN: clear the screen to white on blue
@@ -370,7 +370,7 @@ FREE_MEM  MACRO  address			 ;;AN000;
 ;;	screen completely.
 ;;
 ;;****************************************************************************
-CLEAR_SCREEN	MACRO				;;AN000;
+%macro CLEAR_SCREEN 0;;AN000;
 	MOV	CX,0			;;AN000;
 	MOV	DX,184Fh		;;AN000;  scroll screen from (0,0) tO (24,79)
 	MOV	AX,0600h		;;AN000;  AH = 6, Scroll Function
@@ -381,7 +381,7 @@ CLEAR_SCREEN	MACRO				;;AN000;
 	MOV	BH,0			;;AN000; RKJ
 	MOV	AH,2			;;AN000; RKJ
 	INT	10H			;;AN000; RKJ
-	ENDM				;;AN000;
+	%endmacro;;AN000;
 ;;****************************************************************************
 ;;
 ;;   CLEAR_SCREEN2: clear the screen to white on black
@@ -398,7 +398,7 @@ CLEAR_SCREEN	MACRO				;;AN000;
 ;;	screen completely.
 ;;
 ;;****************************************************************************
-CLEAR_SCREEN2	MACRO			;;AN000;
+%macro CLEAR_SCREEN2 0;;AN000;
 	MOV	CX,0			;;AN000;
 	MOV	DX,184Fh		;;AN000;  scroll screen from (0,0) tO (24,79)
 	MOV	AX,0600h		;;AN000;  AH = 6, Scroll Function
@@ -409,7 +409,7 @@ CLEAR_SCREEN2	MACRO			;;AN000;
 	MOV	BH,0			;;AN000; RKJ
 	MOV	AH,2			;;AN000; RKJ
 	INT	10H			;;AN000; RKJ
-	ENDM				;;AN000;
+	%endmacro;;AN000;
 ;;****************************************************************************
 ;;
 ;;   POS_CURSOR: position the cursor to top left corner of screen
@@ -425,7 +425,7 @@ CLEAR_SCREEN2	MACRO			;;AN000;
 ;;   OPERATION: Homes the cursor using the BIOS function call.
 ;;
 ;;****************************************************************************
-POS_CURSOR	MACRO			;;AN085; SEH
+%macro POS_CURSOR 0;;AN085; SEH
 	PUSH	AX			;;AN085; SEH
 	PUSH	BX			;;AN085; SEH
 	PUSH	CX			;;AN085; SEH
@@ -444,7 +444,7 @@ POS_CURSOR	MACRO			;;AN085; SEH
 	POP	CX			;;AN085; SEH
 	POP	BX			;;AN085; SEH
 	POP	AX			;;AN085; SEH
-ENDM					;;AN085; SEH
+%endmacro;;AN085; SEH
 ;;****************************************************************************
 ;;
 ;;   BEEP:    Produce a tone on the PC speaker
@@ -461,14 +461,14 @@ ENDM					;;AN085; SEH
 ;;   BEEP CREATES A TONE USING THE PC SPEAKER
 ;;
 ;;****************************************************************************
-BEEP	MACRO	FREQ,DUR		;;AN000;
+%macro BEEP 2;;AN000;
 
 
 	MOV	DI, FREQ		;;AN000; set the frequency
 	MOV	BX, DUR 		;;AN000; set the duration
 	CALL	BEEP_ROUTINE		;;AN000;
 
-	ENDM				;;AN000;
+	%endmacro;;AN000;
 ;;**************************************************************************
 ;;
 ;;   GOTO : used instead of branching assembler intructions
@@ -483,9 +483,9 @@ BEEP	MACRO	FREQ,DUR		;;AN000;
 ;;
 ;;
 ;;**************************************************************************
-GOTO	MACRO	LABEL				;;AN000;
+%macro GOTO 1;;AN000;
 	JMP	LABEL				;;AN000; jump to label
-	ENDM					;;AN000;
+	%endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   BYTE_TO_CHAR:  Convert a 8-bit binary number to ASCII format.
@@ -503,14 +503,14 @@ GOTO	MACRO	LABEL				;;AN000;
 ;;	 stored.
 ;;
 ;;************************************************************************;;
-BYTE_TO_CHAR	 MACRO	 VAR_NUM, NAME_STR	;;AN000;
+%macro BYTE_TO_CHAR 2;;AN000;
 
 
 	MOV	AL, VAR_NUM			;;AN000;
 	MOV	AH, 0				;;AN000;
-	MOV	DI, OFFSET NAME_STR		;;AN000;
+	MOV	DI, NAME_STR		;;AN000;
 	CALL	BIN_TO_CHAR_ROUTINE		;;AN000;
-	ENDM					;;AN000;
+	%endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   WORD_TO_CHAR:  Convert a binary number to ASCII format.
@@ -528,11 +528,11 @@ BYTE_TO_CHAR	 MACRO	 VAR_NUM, NAME_STR	;;AN000;
 ;;	 stored.
 ;;
 ;;************************************************************************;;
-WORD_TO_CHAR	 MACRO	 VAR_NUM, NAME_STR	;;AN000;
+%macro WORD_TO_CHAR 2;;AN000;
 
 	MOV	AX, VAR_NUM			;;AN000;
-	MOV	DI, OFFSET NAME_STR		;;AN000;
+	MOV	DI, NAME_STR		;;AN000;
 	CALL	BIN_TO_CHAR_ROUTINE		;;AN000;
-	ENDM					;;AN000;
+	%endmacro;;AN000;
 
-INCLUDE  MACROS6.INC				;;AN000;
+%include "MACROS6.INC";;AN000;

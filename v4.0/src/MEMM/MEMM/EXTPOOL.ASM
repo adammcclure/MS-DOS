@@ -1,8 +1,8 @@
 
 
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	TITLE	EXTPOOL -  MODULE to manage a pool of extended memory
+	; TITLE	EXTPOOL -  MODULE to manage a pool of extended memory
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -32,17 +32,17 @@
 ;    blkmov to the memory.
 ;
 ;******************************************************************************
-.lfcond
-.386p
+; .lfcond
+CPU 386
 
-	page
+	; page
 ;******************************************************************************
 ;		P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
-	public	    pool_initialise
-	public	    get_buffer
+	global pool_initialise
+	global get_buffer
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
@@ -51,15 +51,15 @@
 ;******************************************************************************
 ;			INCLUDE FILES
 ;******************************************************************************
-    include  vdmseg.inc     ; segment definitions
+    %include "vdmseg.inc"; segment definitions
 
-	page
+	; page
 ;******************************************************************************
 ;			E X T E R N A L    R E F E R E N C E S
 ;******************************************************************************
 ;
 ;
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
@@ -70,7 +70,7 @@
 ;
 ;*************************************************************************
 
-LAST   SEGMENT
+SECTION .LAST
 
 ext_start   dw	    0000h	    ; start of the pool of extended memory
 	    dw	    0010h	    ; 24 bit address
@@ -78,15 +78,15 @@ ext_start   dw	    0000h	    ; start of the pool of extended memory
 ext_size    dw	    0		    ; size
 	    dw	    0		    ;
 
-LAST   ENDS
+; END SECTION .LAST
 
 ;*************************************************************************
 ;
 ; CODE
 ;
 ;*************************************************************************
-LAST   SEGMENT
-assume	cs:LAST, DS:DGROUP, ES:DGROUP
+SECTION .LAST
+; assume	cs:LAST, DS:DGROUP, ES:DGROUP
 
 
 ;******************************************************************************
@@ -104,7 +104,7 @@ assume	cs:LAST, DS:DGROUP, ES:DGROUP
 ;									      ;
 ;*****************************************************************************;
 
-Pool_Initialise     proc    near
+Pool_Initialise:
 ;
 	push	dx
 	push	cx
@@ -134,7 +134,7 @@ Pool_Initialise     proc    near
 ;
 	ret
 ;
-Pool_Initialise     endp
+; ENDP Pool_Initialise
 
 
 
@@ -152,7 +152,7 @@ Pool_Initialise     endp
 ;									      ;
 ;*****************************************************************************;
 
-Get_Buffer	    proc    near
+Get_Buffer:
 ;
     ;
     ; assume that the memory is present, put start address in dx:ax
@@ -165,13 +165,13 @@ Get_Buffer	    proc    near
 	push	eax
 	xor	eax,eax
 	mov	ax,cx
-	cmp	eax, dword ptr cs:[ext_size]
+	cmp	eax, dword cs:[ext_size]
 	ja	no_mem
     ;
     ; it does exist, adjust the size and the start address
     ;
-	sub	dword ptr cs:[ext_size],eax
-	add	dword ptr cs:[ext_start],eax
+	sub	dword cs:[ext_size],eax
+	add	dword cs:[ext_start],eax
 ;
 	pop	eax
 	clc
@@ -181,7 +181,7 @@ no_mem:
 	pop	eax
 	stc
 	ret
-Get_buffer	    endp
+; ENDP Get_buffer
 
-LAST   ENDS
-	end
+; END SECTION .LAST
+	; end

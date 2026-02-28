@@ -1,7 +1,7 @@
 
 
-        PAGE    ,132
-        TITLE   DOS - KEYB Command  -  Interrupt 48H Handler
+        ; PAGE    ,132
+        ; TITLE   DOS - KEYB Command  -  Interrupt 48H Handler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -45,21 +45,21 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-        INCLUDE KEYBEQU.INC            ;;
-        INCLUDE KEYBSHAR.INC           ;;
-        INCLUDE KEYBMAC.INC            ;;
-        INCLUDE KEYBCMD.INC            ;;
-        INCLUDE KEYBCPSD.INC           ;;
-        INCLUDE POSTEQU.inc            ;;
-        INCLUDE DSEG.inc               ;;
+        %include "KEYBEQU.INC";;
+        %include "KEYBSHAR.INC";;
+        %include "KEYBMAC.INC";;
+        %include "KEYBCMD.INC";;
+        %include "KEYBCPSD.INC";;
+        %include "POSTEQU.inc";;
+        %include "DSEG.inc";;
                                        ;;
-        PUBLIC KEYB_INT_48             ;;
+        global KEYB_INT_48;;
                                        ;;
-        EXTRN  ERROR_BEEP:NEAR         ;;
+        extern ERROR_BEEP;;
                                        ;;
-CODE    SEGMENT PUBLIC 'CODE'          ;;
+SECTION .CODE;;
                                        ;;
-        ASSUME  CS:CODE,DS:CODE,ES:DATA;;
+        ; ASSUME  CS:CODE,DS:CODE,ES:DATA;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -87,7 +87,7 @@ CODE    SEGMENT PUBLIC 'CODE'          ;;
 ;;   Program Code
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-KEYB_INT_48   PROC                     ;;
+KEYB_INT_48:;;
                                        ;;
         STI                            ;; allow NON-KB interrupts
         PUSH   BX                      ;;
@@ -136,9 +136,9 @@ INT48_PASS:                            ;;
         POP     DS                     ;;
                                        ;;;;;;;
 INT48_EXIT:                                 ;;
-        CMP   WORD PTR CS:SD.OLD_INT_48,0   ;; Q..are we the last in the chain?
+        CMP   word CS:SD.OLD_INT_48,0   ;; Q..are we the last in the chain?
         JNE   INT_48_JMP                    ;; N..call next in chain
-        CMP   WORD PTR CS:SD.OLD_INT_48+2,0 ;; Q..are we the last in the chain?
+        CMP   word CS:SD.OLD_INT_48+2,0 ;; Q..are we the last in the chain?
         JNE   INT_48_JMP                    ;; N..call next in chain
                                        ;;;;;;;
         POP    AX                      ;; restore regs
@@ -167,8 +167,8 @@ INT_48_JMP:                            ;;
                                        ;;
         JMP   CS:SD.OLD_INT_48         ;;
                                        ;;
-KEYB_INT_48   ENDP                     ;;
+; ENDP KEYB_INT_48;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-CODE   ENDS
-       END
+; END SECTION .CODE
+       ; END

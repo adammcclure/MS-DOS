@@ -1,9 +1,9 @@
 
 
-PAGE	60,132							;AN000;
-NAME	SELECT							;AN000;
-TITLE	SELECT0 - DOS - SELECT.EXE				;AN000;
-SUBTTL	select0.asm						;AN000;
+; PAGE	60,132;AN000;
+; NAME	SELECT;AN000;
+; TITLE	SELECT0 - DOS - SELECT.EXE;AN000;
+; SUBTTL	select0.asm;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	SELECT0.ASM : Copyright 1988 Microsoft
@@ -208,89 +208,89 @@ SUBTTL	select0.asm						;AN000;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CODE	  SEGMENT PARA PUBLIC 'CODE'                            ;AN000; Segment for CASS libraries
-CODE	  ENDS							;AN000;
+SECTION .CODE;AN000; Segment for CASS libraries
+; END SECTION .CODE;AN000;
 								;
-CODE_FAR  SEGMENT PARA PUBLIC 'CODE'                            ;AN000; Segment for miscellaneous routines
-CODE_FAR  ENDS							;AN000;
+SECTION .CODE_FAR;AN000; Segment for miscellaneous routines
+; END SECTION .CODE_FAR;AN000;
 								;
-_TEXT	segment byte public 'CODE'                              ;AN000;
-_TEXT	ends							;AN000;
-_DATA	segment word public 'DATA'                              ;AN000;
-_DATA	ends							;AN000;
-CONST	segment word public 'CONST'                             ;AN000;
-CONST	ends							;AN000;
-_BSS	segment word public 'BSS'                               ;AN000;
-_BSS	ends							;AN000;
+SECTION ._TEXT;AN000;
+; END SECTION ._TEXT;AN000;
+SECTION ._DATA;AN000;
+; END SECTION ._DATA;AN000;
+SECTION .CONST;AN000;
+; END SECTION .CONST;AN000;
+SECTION ._BSS;AN000;
+; END SECTION ._BSS;AN000;
 								;
 								;
-DATA	  SEGMENT BYTE PUBLIC 'DATA'                            ;AN000; Segment for Data values
-DATA	  ENDS							;AN000;
+SECTION .DATA;AN000; Segment for Data values
+; END SECTION .DATA;AN000;
 								;
-SELECT	SEGMENT PARA PUBLIC 'SELECT'                            ;AN000;
-SELECT	  ENDS							;AN000;
+SECTION .SELECT;AN000;
+; END SECTION .SELECT;AN000;
 
-SERVICE   SEGMENT PARA PUBLIC 'SERVICE'                         ;AN000; Segment for CAS_SERVICE routines
-SERVICE   ENDS							;AN000;
+SECTION .SERVICE;AN000; Segment for CAS_SERVICE routines
+; END SECTION .SERVICE;AN000;
 								;
-OUR_STACK SEGMENT BYTE	STACK					;AN000; Segment for Local Stack
-	  DB   512  DUP('IBM ')                                 ;AN000;
+SECTION .OUR_STACK;AN000; Segment for Local Stack
+	  times 512 db 'IBM ';AN000;
 LAST_STACK EQU $						;AN000;
-OUR_STACK ENDS							;AN000;
+; END SECTION .OUR_STACK;AN000;
 								;
-PARSER	  SEGMENT PARA PUBLIC 'PARSER'                          ;AN000; Segment for PARSE code
-PARSER	  ENDS							;AN000;
+SECTION .PARSER;AN000; Segment for PARSE code
+; END SECTION .PARSER;AN000;
 
-PCINPUT   SEGMENT PARA PUBLIC 'PCINPUT'                         ;AN072;
-PCINPUT   ENDS							;AN072;
+SECTION .PCINPUT;AN072;
+; END SECTION .PCINPUT;AN072;
 								;
-ZSEG	  SEGMENT PARA PUBLIC 'ZSEG'                            ;AN000; Dummy segment for End-of-Code
-ZSEG	  ENDS							;AN000;
+SECTION .ZSEG;AN000; Dummy segment for End-of-Code
+; END SECTION .ZSEG;AN000;
 								;
-AGROUP GROUP CODE,CODE_FAR,DATA,PARSER,SERVICE,SELECT,OUR_STACK,ZSEG  ;AN000;
+; AGROUP GROUP CODE,CODE_FAR,DATA,PARSER,SERVICE,SELECT,OUR_STACK,ZSEG;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.XLIST								;AN000;
-	INCLUDE PANEL.MAC					;AN000;
-	INCLUDE STRUC.INC					;AN000;
-	INCLUDE MACROS.INC					;AN000;
-	INCLUDE SYSMSG.INC					;AN000;
-	INCLUDE ROUT_EXT.INC					;AN000;
-	INCLUDE EXT.INC 					;AN000;
-	INCLUDE PAN-LIST.INC					;AN000;
-.LIST								;AN000;
+; .XLIST;AN000;
+	%include "PANEL.MAC";AN000;
+	%include "STRUC.INC";AN000;
+	%include "MACROS.INC";AN000;
+	%include "SYSMSG.INC";AN000;
+	%include "ROUT_EXT.INC";AN000;
+	%include "EXT.INC";AN000;
+	%include "PAN-LIST.INC";AN000;
+; .LIST;AN000;
 								;
-	EXTRN	DEALLOCATE_MEMORY_CALL:FAR			;AN000;
-	EXTRN	CHECK_VERSION:NEAR				;AN000;
+	extern DEALLOCATE_MEMORY_CALL;AN000;
+	extern CHECK_VERSION;AN000;
 								;
-	PUBLIC	INSTALL 					;AN000;
-	PUBLIC	SYSDISPMSG					;AN000;
-	PUBLIC	EXIT_SELECT					;AN000;
-	PUBLIC	EXIT_SELECT2					;AN000;
-	PUBLIC	INITIALIZATION					;AN000;
-	PUBLIC	ABORT_SELECT					;AN000;
+	global INSTALL;AN000;
+	global SYSDISPMSG;AN000;
+	global EXIT_SELECT;AN000;
+	global EXIT_SELECT2;AN000;
+	global INITIALIZATION;AN000;
+	global ABORT_SELECT;AN000;
 								;
 	MSG_UTILNAME <SELECT>					;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	SEGMENT PARA PUBLIC 'SELECT'                            ;AN000;
-	ASSUME	CS:SELECT,DS:DATA,SS:our_STACK			;AN000;
+SECTION .SELECT;AN000;
+	; ASSUME	CS:SELECT,DS:DATA,SS:our_STACK;AN000;
 								;
-OLD_STACK_SEG	DW	?					;AN000;
-OLD_STACK_OFF	DW	?					;AN000;
+OLD_STACK_SEG: dw 0;AN000;
+OLD_STACK_OFF: dw 0;AN000;
 								;
-	INCLUDE CASEXTRN.INC					;AN000;
+	%include "CASEXTRN.INC";AN000;
 								;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	Beginning of code
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INSTALL PROC	FAR						;AN000;
+INSTALL:;AN000;
 	CLI							;AN000;
 	MOV	AX,SS						;AN000;
 	MOV	OLD_STACK_SEG,AX				;AN000;
@@ -311,22 +311,22 @@ INSTALL PROC	FAR						;AN000;
 EXIT_SELECT:							;AN000;
 								;
 	FIND_FILE	     S_AUTO_REBOOT, 0			;AN000;DT Make sure INSTALL disk in drive
-	.IF < c >						;AN000;DT
-	   .REPEAT						;AN000;DT make sure diskette
+	; .IF < c >;AN000;DT
+	   ; .REPEAT;AN000;DT make sure diskette
 	      CLEAR_SCREEN					;AN000;DT with COMMAND.COM in drive
 	      DISPLAY_MESSAGE  19				;AN000;DT Insert INSTALL diskette
 	      GET_FUNCTION	   FK_ENT			;AN000;DT
 	      FIND_FILE 	   S_AUTO_REBOOT, 0		;AN000;DT
 		 .LEAVE < nc >					;AN000;DT
 		  HANDLE_ERROR	       ERR_DOS_DISK, 2		;AN000;DT
-	   .UNTIL						;AN000;DT
+	   ; .UNTIL;AN000;DT
 	   CLEAR_SCREEN2					;AN000;JW
-	.ENDIF							;AN000;
+	; .ENDIF;AN000;
 								;
 EXIT_SELECT2:							;AN000;
 								;
 	DEALLOCATE_MEMORY					;AN000;free up allocated segment
-	.IF < NC >						;AN000;
+	; .IF < NC >;AN000;
 	   CALL    RESTORE_INT_23				;AN074;SEH restore ctrl-break before exiting
 	   MOV	   AX,OLD_STACK_SEG				;AN000;
 	   MOV	   SS,AX					;AN000;
@@ -334,7 +334,7 @@ EXIT_SELECT2:							;AN000;
 	   CALL    CURSORON					;AN000;
 	   MOV	   AX,4C00H					;AN000;
 	   INT	   21H						;AN000;
-	 .ELSE							;AN000;
+	 ; .ELSE;AN000;
 ABORT_SELECT:							;AN000;exit without handling allocated memory
 	   CALL    RESTORE_INT_23				;AN074;SEH restore ctrl-break before exiting
 	   MOV	   AX,OLD_STACK_SEG				;AN000;
@@ -343,8 +343,8 @@ ABORT_SELECT:							;AN000;exit without handling allocated memory
 	   CALL    CURSORON					;AN000;
 	   MOV	   AX,4C00H					;AN000;
 	   INT	   21H						;AN000;
-	.ENDIF							;AN000;
-INSTALL ENDP							;AN000;
+	; .ENDIF;AN000;
+; ENDP INSTALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	Message Retriever code inserted at this point....
@@ -366,7 +366,7 @@ INITIALIZATION: 						;AN000;
 
 SELECT	ENDS							;AN000;
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-	END	INSTALL 					;AN000;
+	; END	INSTALL;AN000;
 

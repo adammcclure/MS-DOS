@@ -33,9 +33,9 @@
 ;                       - Jaywant H Bharadwaj
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 ;
 ;
 ; DMA related ports
@@ -96,33 +96,33 @@ DMA_M_WRITE	equ	4		; Write
 ;   386 code is dependent on this structure being 16 bytes long.
 ;
 
-DMARegRec	struc
+struc DMARegRec
 DMALinAdr	dd	00000000	; Channel Linear Base Register
 DMAPhyAdr	dd	00000000	; Channel Physical Base Register
 DMACount	dd	00000000	; Channel Count Register
-DMAPagePort	db	?		; byte addr of page reg
-DMABasePort	db	?		; byte addr of base addr reg
-DMACntPort	db	?		; byte addr of cnt addr reg
-DMAMode 	db	?		; Mode register
-DMARegRec	ends
+DMAPagePort: db 0; byte addr of page reg
+DMABasePort: db 0; byte addr of base addr reg
+DMACntPort: db 0; byte addr of cnt addr reg
+DMAMode: db 0; Mode register
+endstruc
 
-DMARegBuf	struc
-Chnl0	db	(size DMARegRec - 4) dup (00), DMA_P0, DMA_B0, DMA_C0, 0
-Chnl1	db	(size DMARegRec - 4) dup (00), DMA_P1, DMA_B1, DMA_C1, 0
-Chnl2	db	(size DMARegRec - 4) dup (00), DMA_P2, DMA_B2, DMA_C2, 0
-Chnl3	db	(size DMARegRec - 4) dup (00), DMA_P3, DMA_B3, DMA_C3, 0
-Chnl4	db	(size DMARegRec - 4) dup (00), DMA_P4, DMA_B4, DMA_C4, DMA_M_16BIT
-Chnl5	db	(size DMARegRec - 4) dup (00), DMA_P5, DMA_B5, DMA_C5, DMA_M_16BIT
-Chnl6	db	(size DMARegRec - 4) dup (00), DMA_P6, DMA_B6, DMA_C6, DMA_M_16BIT
-Chnl7	db	(size DMARegRec - 4) dup (00), DMA_P7, DMA_B7, DMA_C7, DMA_M_16BIT
+struc DMARegBuf
+Chnl0	db	(DMARegRec_size - 4) dup (00), DMA_P0, DMA_B0, DMA_C0, 0
+Chnl1	db	(DMARegRec_size - 4) dup (00), DMA_P1, DMA_B1, DMA_C1, 0
+Chnl2	db	(DMARegRec_size - 4) dup (00), DMA_P2, DMA_B2, DMA_C2, 0
+Chnl3	db	(DMARegRec_size - 4) dup (00), DMA_P3, DMA_B3, DMA_C3, 0
+Chnl4	db	(DMARegRec_size - 4) dup (00), DMA_P4, DMA_B4, DMA_C4, DMA_M_16BIT
+Chnl5	db	(DMARegRec_size - 4) dup (00), DMA_P5, DMA_B5, DMA_C5, DMA_M_16BIT
+Chnl6	db	(DMARegRec_size - 4) dup (00), DMA_P6, DMA_B6, DMA_C6, DMA_M_16BIT
+Chnl7	db	(DMARegRec_size - 4) dup (00), DMA_P7, DMA_B7, DMA_C7, DMA_M_16BIT
 DMAFF1	db	00		; Controller 1 FlipFlop State
 DMAFF2	db	00		; Controller 2 FlipFlop State
 DMA_Xfun	db	0	; Extended Operation Function
 DMA_Xchn	db	0	; Extended Operation Channel
-DMARegBuf	ends
+endstruc
 
 DMAREG_CTRL2_INDEX	equ	4 * 2	; 2 * 1st channel # on 2nd cntlr
 
 
-.list	; end of ELIM.INC
+; .list; end of ELIM.INC
 

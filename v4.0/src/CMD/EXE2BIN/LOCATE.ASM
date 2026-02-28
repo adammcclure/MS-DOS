@@ -1,5 +1,5 @@
 ;       SCCSID = @(#)locate.asm 4.3 85/09/13
-Title   LOCATE (EXE2BIN)
+; Title   LOCATE (EXE2BIN)
 
 ;   Loader for EXE files under 86-DOS
 ;   VER 1.5
@@ -29,17 +29,17 @@ Title   LOCATE (EXE2BIN)
 
 OLDLINK EQU     0                  ;1 to enable, 0 to disable
 
-        .xlist
+        ; .xlist
 
 ;       INCLUDE DOSSYM.INC              ; also versiona.inc
 ;       INCLUDE E2BMACRO.INC
 
-        .list
+        ; .list
 
-        subttl  Main Code Area
-        page
+        ; subttl  Main Code Area
+        ; page
 
-DATA    SEGMENT PUBLIC BYTE
+SECTION .DATA
 
 rev     db      "2.4"
 
@@ -51,56 +51,56 @@ per1    dW      0
 per2    db      0
 
 file1   db      (64+13) dup(?)
-fnptr   dw      offset file1    ; Ptr to filename in file1
-handle1 dw      1 dup(?)
+fnptr   dw      file1    ; Ptr to filename in file1
+handle1: times 1 dw 0
 
 file2   db      (64+13) dup(?)
-f2cspot dw      offset file2    ; Ptr to spot in file2, file1 maybe added
-handle2 dw      1 dup(?)
+f2cspot dw      file2    ; Ptr to spot in file2, file1 maybe added
+handle2: times 1 dw 0
 
 dma_buf db      80h dup(0)       ; DMA transfer buffer
 
 INBUF   DB      5,0
-        DB      5 DUP(?)
+        times 5 db 0
 
 ;The following locations must be defined for storing the header:
 
-RUNVAR  LABEL   BYTE            ;Start of RUN variables
-RELPT   DW      ?
-LASTP   LABEL   WORD
-RELSEG  DW      ?
-SIZ     LABEL   WORD            ;Share these locations
-PAGES   DW      ?
-RELCNT  DW      ?
-HEADSIZ DW      ?
-        DW      ?
-LOADLOW DW      ?
-INITSS  DW      ?
-INITSP  DW      ?
-        DW      ?
-INITIP  DW      ?
-INITCS  DW      ?
-RELTAB  DW      ?
+RUNVAR:;Start of RUN variables
+RELPT: dw 0
+LASTP:
+RELSEG: dw 0
+SIZ:;Share these locations
+PAGES: dw 0
+RELCNT: dw 0
+HEADSIZ: dw 0
+        dw 0
+LOADLOW: dw 0
+INITSS: dw 0
+INITSP: dw 0
+        dw 0
+INITIP: dw 0
+INITCS: dw 0
+RELTAB: dw 0
 RUNVARSIZ       EQU     $-RUNVAR
 
-DATA    ENDS
+; END SECTION .DATA
 
-STACK   SEGMENT WORD STACK
+SECTION .STACK
         DB   (362 - 80h) + 80H DUP (?)  ; (362 - 80h) is IBMs ROM requirement
                                         ; (New - Old) == size of growth
-STACK   ENDS
+; END SECTION .STACK
 
 
-ZLOAD   SEGMENT
-ZLOAD   ENDS
+SECTION .ZLOAD
+; END SECTION .ZLOAD
 LOAD    EQU     ZLOAD
 
 
-CODE    SEGMENT BYTE
+SECTION .CODE
 
-        ASSUME  CS:CODE,SS:STACK
+        ; ASSUME  CS:CODE,SS:STACK
 
-LOCATE  PROC    NEAR
+LOCATE:
 
 LOCSTRT:
         PUSH    DS
@@ -111,9 +111,9 @@ LOCSTRT:
         MOV     SI,81H
         MOV     BX,DATA
         MOV     ES,BX
-        MOV     BX,WORD PTR DS:[2]      ;Get size of memory
+        MOV     BX,word DS:[2]      ;Get size of memory
 
-        assume  es:data
+        ; assume  es:data
 
 
 
@@ -141,7 +141,7 @@ LOCSTRT:
         pop     ds
         MESSAGE msgNoFile               ;AC000;
 sj01:
-        mov     di,offset file1         ;   d = file1;
+        mov     di,file1         ;   d = file1;
 sj0:
         lodsb                           ;   while (!IsBlank(c=*p++)) {
         CALL    IsBlank
@@ -166,13 +166,13 @@ sj1:
         jmp     short sj0               ;       }
 sj2:
         dec     si                      ;   p--;
-        mov     byte ptr es:[di],00h    ;   *d = 0;
+        mov     byte es:[di],00h    ;   *d = 0;
         call    kill_bl                 ;   if (End(p))
         jnc     get_second
-        cmp     byte ptr [file1+1],':'  ; Drive spec on first file?
+        cmp     byte [file1+1],':'  ; Drive spec on first file?
         jnz     nsja                    ; no
-        mov     ax,word ptr file1       ; get drive stuff
-        mov     word ptr file2,ax
+        mov     ax,word file1       ; get drive stuff
+        mov     word file2,ax
         inc     f2cspot
         inc     f2cspot
 nsja:
@@ -181,13 +181,13 @@ nsja:
 
 get_second:
 ;----- Get the second file name
-        mov     di,offset file2         ;   d = file2
-        cmp     byte ptr [si+1],':'     ; Drive spec on second file?
+        mov     di,file2         ;   d = file2
+        cmp     byte [si+1],':'     ; Drive spec on second file?
         jz      sj3                     ; yes
-        cmp     byte ptr [file1+1],':'  ; Drive spec on first file?
+        cmp     byte [file1+1],':'  ; Drive spec on first file?
         jnz     sj3                     ; no
         push    ax                      ; Suck drive spec from file1
-        mov     ax,word ptr file1
+        mov     ax,word file1
         stosw
         mov     f2cspot,di
         pop     ax
@@ -208,14 +208,14 @@ sj4:
         stosb                           ;       *d++ = c;
         jmp     short sj3               ;       }
 sj5:
-        mov     byte ptr es:[di],00h    ;   *d = 0;
+        mov     byte es:[di],00h    ;   *d = 0;
         mov     ah,Set_DMA              ; Use find_first to see if file2 is
-        mov     dx,offset dma_buf       ; a directory.  If it isn't, go to
+        mov     dx,dma_buf       ; a directory.  If it isn't, go to
         push    es                      ; chex_ext.  If it is, put a back-
         pop     ds                      ; slash on the end of the string,
         int     21h                     ; set f2cspot to point to the spot
         mov     ah,Find_First           ; right after the backslash, and
-        mov     dx,offset file2         ; fall through to no_second so that
+        mov     dx,file2         ; fall through to no_second so that
         mov     cx,-1                   ; file1's name will be added to file2.
         int     21h
         jc      checkDrive
@@ -223,7 +223,7 @@ sj5:
         jNZ     DoDirectory
         jmp     Check_Ext
 CheckDrive:
-        CMP     BYTE PTR ES:[DI-1],':'
+        CMP     byte ES:[DI-1],':'
         JNZ     Check_Ext               ; if char is not a : then skip
         JMP     SetSecond               ; presume drive:
 DoDirectory:
@@ -237,7 +237,7 @@ SetSecond:
 no_second:
         PUSH    ES
         POP     DS
-        assume  ds:data
+        ; assume  ds:data
 
         mov     si,fnptr                ;   s = ptr to fname in file1;
         mov     di,f2cspot              ;   d = spot in file2 to cat file1;
@@ -253,30 +253,30 @@ sj6:                                    ;   while (TRUE) {
         stosb                           ;       *d++ = c;
         jmp     short sj6               ;       }
 sj7:
-        mov     byte ptr [di],00h       ;   *d = 0;
+        mov     byte [di],00h       ;   *d = 0;
 
 ;----- Check that files have an extension, otherwise set default
 check_ext:
         PUSH    ES
         POP     DS
-        assume  ds:data
+        ; assume  ds:data
 
         cmp     per1,0                  ;   if (per1 == NULL) {
         jNZ     file1_ok
-        mov     di,offset file1         ;       d = file1;
-        mov     si,offset file1_ext     ;       s = ".EXE";
+        mov     di,file1         ;       d = file1;
+        mov     si,file1_ext     ;       s = ".EXE";
         call    strcat                  ;       strcat (d, s);
 file1_ok:                               ;       }
         cmp     per2,-1                 ;   if (per2 != NULL) {
         je      file2_ok
-        mov     di,offset file2         ;       d = file2;
-        mov     si,offset file2_ext     ;       s = ".BIN";
+        mov     di,file2         ;       d = file2;
+        mov     si,file2_ext     ;       s = ".BIN";
         call    strcat                  ;       strcap (d, s);
         jmp     short file2_ok          ;       }
 
 ;-----------------------------------------------------------------------;
 file2_ok:
-        mov     dx,offset file1
+        mov     dx,file1
         mov     ax,(open SHL 8) + 0     ;for reading only
         INT     21H                     ;Open input file
         jc      bad_file
@@ -292,7 +292,7 @@ TOOBIG:
         MESSAGE msgOutOfMemory          ;AC000;
 
 EXELOAD:
-        MOV     DX,OFFSET RUNVAR        ;Read header in here
+        MOV     DX,RUNVAR        ;Read header in here
         MOV     CX,RUNVARSIZ            ;Amount of header info we need
         push    bx
         mov     bx,[handle1]
@@ -336,10 +336,10 @@ EXELOAD:
         OR      AX,AX                   ;If zero, use all of last page
         JZ      WHOLEP
 
-        IF      OLDLINK
+        %if OLDLINK
         CMP     AX,4                    ;Produced by old linker?
         JZ      WHOLEP                  ;If so, use all of last page too
-        ENDIF
+        %endif
 
         SUB     DX,200H                 ;Subtract last page
         ADD     DX,AX                   ;Add in byte count for last page
@@ -390,10 +390,10 @@ BINFIX:
 GETSEG:
         MESSAGE msgFixUp                ;AC000;
         MOV     AH,STD_CON_STRING_INPUT
-        MOV     DX,OFFSET INBUF
+        MOV     DX,INBUF
         INT     21H                      ;Get user response
-        MOV     SI,OFFSET INBUF+2
-        MOV     BYTE PTR [SI-1],0       ;Any digits?
+        MOV     SI,INBUF+2
+        MOV     byte [SI-1],0       ;Any digits?
         JZ      GETSEG
 DIGLP:
         LODSB
@@ -416,7 +416,7 @@ HAVDIG:
         JMP     DIGLP
 
 DIGERR:
-        CMP     BYTE PTR [SI-1],0DH     ;Is last char. a CR?
+        CMP     byte [SI-1],0DH     ;Is last char. a CR?
         JNZ     GETSEG
 LOADEXE:
         XCHG    BX,BP                   ;BX has LOAD, BP has fixup
@@ -456,9 +456,9 @@ HAVEXE:
         pop     cx
         pop     dx
 
-        MOV     DX,OFFSET RELPT         ;4-byte buffer for relocation address
+        MOV     DX,RELPT         ;4-byte buffer for relocation address
 RELOC:
-        MOV     DX,OFFSET RELPT         ;4-byte buffer for relocation address
+        MOV     DX,RELPT         ;4-byte buffer for relocation address
         MOV     CX,4
         MOV     AH,read
         push    bx
@@ -477,7 +477,7 @@ RDCMP:
         JNZ     RELOC
 STORE:
         MOV     AH,CREAT
-        MOV     DX,OFFSET file2
+        MOV     DX,file2
         xor     cx,cx
         INT     21H
         Jc      MKERR
@@ -511,11 +511,11 @@ MKERR:
         Call    TriageError
 
 
-LOCATE  ENDP
+; ENDP LOCATE
 
 ;----- concatenate two strings
-strcat  proc    near                    ;   while (*d)
-        cmp     byte ptr [di],0
+strcat:;   while (*d)
+        cmp     byte [di],0
         jz      atend
         inc     di                      ;       d++;
         jmp     strcat
@@ -525,10 +525,10 @@ atend:                                  ;   while (*d++ = *s++)
         or      al,al                   ;       ;
         jnz     atend
         ret
-strcat  endp
+; ENDP strcat
 
 ;----- Find the first non-ignorable char, return carry if CR found
-kill_bl proc    near
+kill_bl:
         cld
 sj10:                                   ;   while ( *p != 13 &&
         lodsb
@@ -544,9 +544,9 @@ BreakOut:
         stc
 sj11:
         ret
-kill_bl endp
+; ENDP kill_bl
 
-IsBlank proc    near
+IsBlank:
         cmp     al,13
         retz
         cmp     al,' '                  ; space
@@ -563,7 +563,7 @@ IsBlank proc    near
         retz
         cmp     al,'='                  ; equal sign
         return
-IsBlank Endp
+; ENDP IsBlank
 
 ;
 ; Take a default message pointer in DX and convert it to access-denied iff
@@ -586,7 +586,7 @@ NoMove:
         RestoreReg  <DS,ES,BP,DI,SI,CX,BX>
         popf
         return
-TriageError ENDP
+; ENDP TriageError
 
-CODE    ENDS
-        END     LOCATE
+; END SECTION .CODE
+        ; END     LOCATE

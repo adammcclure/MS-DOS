@@ -1,6 +1,6 @@
 
-	PAGE	,132
-	TITLE	DOS - KEYBOARD.SYS
+	; PAGE	,132
+	; TITLE	DOS - KEYBOARD.SYS
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - - NLS Support - KEYBOARD.SYS
@@ -13,16 +13,16 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-	INCLUDE KEYBSHAR.INC	       ;;
-	INCLUDE POSTEQU.INC	       ;;
-	INCLUDE KEYBMAC.INC	       ;;
+	%include "KEYBSHAR.INC";;
+	%include "POSTEQU.INC";;
+	%include "KEYBMAC.INC";;
 				       ;;
-	PUBLIC CF_LOGIC 	       ;;
-	PUBLIC CF_863_XLAT	       ;;
-	PUBLIC CF_850_XLAT	       ;;
+	global CF_LOGIC;;
+	global CF_863_XLAT;;
+	global CF_850_XLAT;;
 				       ;;
-CODE	SEGMENT PUBLIC 'CODE'          ;;
-	ASSUME CS:CODE,DS:CODE	       ;;
+SECTION .CODE;;
+	; ASSUME CS:CODE,DS:CODE;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Standard translate table options are a liner search table
 ;; (TYPE_2_TAB) and ASCII entries ONLY (ASCII_ONLY)
@@ -373,7 +373,7 @@ LOGIC_END:			       ;;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC CF_COMMON_XLAT		       ;;
+ global CF_COMMON_XLAT;;
 CF_COMMON_XLAT: 		       ;;
 				       ;;
    DW	   COMMON_XLAT_END-$	       ;; length of Common Tranlate Section
@@ -488,7 +488,7 @@ COM_DE_TH_END:			       ;;
    DW	 CF_000400-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 1			       ;; number of scans
-   DB	 53,'Ç'                        ;;
+   DB	 53,'¬Ç'                        ;;
 CF_000400:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -510,7 +510,7 @@ COM_AL_LO_END:			       ;;
    DW	 CF_002400-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 1			       ;; number of scans
-   DB	 53,'ê'                        ;;
+   DB	 53,'¬ê'                        ;;
 CF_002400:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -533,7 +533,7 @@ COM_AL_UP_END:			       ;;
    DB	 3			       ;; number of scans
    DB	 41,'#'                        ;;
    DB	 43,'<'                        ;;
-   DB	 86,'Æ'                        ;;
+   DB	 86,'¬Æ'                        ;;
 CF_004300:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -607,7 +607,7 @@ COM_NA_LO_3_END:		       ;;
    DB	 43,'>'                        ;;
    DB	 51,27H 		       ;;    single quote
    DB	 52,'.'                        ;;
-   DB	 86,'Ø'                        ;;
+   DB	 86,'¬Ø'                        ;;
 CF_005300:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -682,24 +682,24 @@ COM_NA_UP_3_END:		       ;;
    DW	 CF_007760-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 18			       ;; number of scans
-   DB	 2,'Ò'                         ;;
+   DB	 2,'√±'                         ;;
    DB	 3,'@'                         ;;
-   DB	 4,'ú'                         ;;
-   DB	 7,'™'                         ;;
-   DB	 9,'˝'                         ;;
-   DB	 11,'¨'                        ;;
-   DB	 12,'´'                        ;;
+   DB	 4,'¬ú'                         ;;
+   DB	 7,'¬™'                         ;;
+   DB	 9,'√Ω'                         ;;
+   DB	 11,'¬¨'                        ;;
+   DB	 12,'¬´'                        ;;
    DB	 26,'['                        ;;
    DB	 27,']'                        ;;
    DB	 39,'~'                        ;;
    DB	 40,'{'                        ;;
    DB	 41,'\'                        ;;
    DB	 43,'}'                        ;;
-   DB	 47,'Æ'                        ;;
-   DB	 48,'Ø'                        ;;
-   DB	 49,'¯'                        ;;
-   DB	 50,'Ê'                        ;;
-   DB	 86,'¯'                        ;;
+   DB	 47,'¬Æ'                        ;;
+   DB	 48,'¬Ø'                        ;;
+   DB	 49,'√∏'                        ;;
+   DB	 50,'√¶'                        ;;
+   DB	 86,'√∏'                        ;;
 CF_007760:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -721,23 +721,23 @@ COM_NA_TH_1_END:		       ;;
    DW	 CF_006500-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 17			       ;; number of scans
-   DB	 2,'Ò'                         ;;
+   DB	 2,'√±'                         ;;
    DB	 3,'@'                         ;;
-   DB	 4,'ú'                         ;;
-   DB	 7,'™'                         ;;
-   DB	 9,'˝'                         ;;
-   DB	 11,'¨'                        ;;
-   DB	 12,'´'                        ;;
+   DB	 4,'¬ú'                         ;;
+   DB	 7,'¬™'                         ;;
+   DB	 9,'√Ω'                         ;;
+   DB	 11,'¬¨'                        ;;
+   DB	 12,'¬´'                        ;;
    DB	 26,'['                        ;;
    DB	 27,']'                        ;;
    DB	 39,'~'                        ;;
    DB	 40,'{'                        ;;
    DB	 41,'}'                        ;;
    DB	 43,'#'                        ;;
-   DB	 47,'Æ'                        ;;
-   DB	 48,'Ø'                        ;;
-   DB	 49,'¯'                        ;;
-   DB	 50,'Ê'                        ;;
+   DB	 47,'¬Æ'                        ;;
+   DB	 48,'¬Ø'                        ;;
+   DB	 49,'√∏'                        ;;
+   DB	 50,'√¶'                        ;;
 CF_006500:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -759,23 +759,23 @@ COM_NA_TH_2_END:		       ;;
    DW	 CF_006300-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 17			       ;; number of scans
-   DB	 2,'Ò'                         ;;
+   DB	 2,'√±'                         ;;
    DB	 3,'@'                         ;;
-   DB	 4,'ú'                         ;;
-   DB	 7,'™'                         ;;
-   DB	 9,'˝'                         ;;
-   DB	 11,'¨'                        ;;
-   DB	 12,'´'                        ;;
+   DB	 4,'¬ú'                         ;;
+   DB	 7,'¬™'                         ;;
+   DB	 9,'√Ω'                         ;;
+   DB	 11,'¬¨'                        ;;
+   DB	 12,'¬´'                        ;;
    DB	 26,'['                        ;;
    DB	 27,']'                        ;;
    DB	 38,'~'                        ;;
    DB	 39,'{'                        ;;
    DB	 40,'}'                        ;;
    DB	 43,'#'                        ;;
-   DB	 47,'Æ'                        ;;
-   DB	 48,'Ø'                        ;;
-   DB	 49,'¯'                        ;;
-   DB	 50,'Ê'                        ;;
+   DB	 47,'¬Æ'                        ;;
+   DB	 48,'¬Ø'                        ;;
+   DB	 49,'√∏'                        ;;
+   DB	 50,'√¶'                        ;;
 CF_006300:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -797,14 +797,14 @@ COM_NA_TH_3_END:		       ;;
    DW	 CF_007100-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 21			       ;;
-   DB	 2,'Ò'                         ;;
+   DB	 2,'√±'                         ;;
    DB	 3,'@'                         ;;
-   DB	 4,'ú'                         ;;
-   DB	 7,'™'                         ;;
-   DB	 9,'Ê'                         ;;
-   DB	 11,'˝'                        ;;
-   DB	 16,'¨'                        ;;
-   DB	 17,'´'                        ;;
+   DB	 4,'¬ú'                         ;;
+   DB	 7,'¬™'                         ;;
+   DB	 9,'√¶'                         ;;
+   DB	 11,'√Ω'                        ;;
+   DB	 16,'¬¨'                        ;;
+   DB	 17,'¬´'                        ;;
    DB	 26,'['                        ;;
    DB	 27,']'                        ;;
    DB	 30,'<'                        ;;
@@ -815,9 +815,9 @@ COM_NA_TH_3_END:		       ;;
    DB	 44,'\'                        ;;
    DB	 45,'#'                        ;;
    DB	 46,'|'                        ;;
-   DB	 47,'Æ'                        ;;
-   DB	 48,'Ø'                        ;;
-   DB	 49,'¯'                        ;;
+   DB	 47,'¬Æ'                        ;;
+   DB	 48,'¬Ø'                        ;;
+   DB	 49,'√∏'                        ;;
 CF_007100:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -839,9 +839,9 @@ CF_COM_NA_TH_4_END:		       ;;
    DW	 CF_001100-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 3			       ;; number of scans
-   DB	 18,'Ç'                        ;;
-   DB	 24,'¢'                        ;;
-   DB	 22,'£'                        ;;
+   DB	 18,'¬Ç'                        ;;
+   DB	 24,'¬¢'                        ;;
+   DB	 22,'¬£'                        ;;
 CF_001100:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -863,7 +863,7 @@ COM_AC_LO_END:			       ;;
    DW	 CF_003100-$			;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 1			       ;; number of scans
-   DB	 18,'ê'                        ;;
+   DB	 18,'¬ê'                        ;;
 CF_003100:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -885,9 +885,9 @@ COM_AC_UP_END:			       ;;
    DW	 CF_001200-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 3			       ;; number of scans
-   DB	 30,'Ö'                        ;;
-   DB	 18,'ä'                        ;;
-   DB	 22,'ó'                        ;;
+   DB	 30,'¬Ö'                        ;;
+   DB	 18,'¬ä'                        ;;
+   DB	 22,'¬ó'                        ;;
 CF_001200:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -953,9 +953,9 @@ COM_GR_GR_END:			       ;;
    DW	 CF_001400-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 3			       ;; number of scans
-   DB	 18,'â'                        ;;
-   DB	 23,'ã'                        ;;
-   DB	 22,'Å'                        ;;
+   DB	 18,'¬â'                        ;;
+   DB	 23,'¬ã'                        ;;
+   DB	 22,'¬Å'                        ;;
 CF_001400:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -977,11 +977,11 @@ COM_DI_LO_END:			       ;;
    DW	 CF_001300-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 5			       ;; number of scans
-   DB	 30,'É'                        ;;
-   DB	 18,'à'                        ;;
-   DB	 23,'å'                        ;;
-   DB	 24,'ì'                        ;;
-   DB	 22,'ñ'                        ;;
+   DB	 30,'¬É'                        ;;
+   DB	 18,'¬à'                        ;;
+   DB	 23,'¬å'                        ;;
+   DB	 24,'¬ì'                        ;;
+   DB	 22,'¬ñ'                        ;;
 CF_001300:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1048,7 +1048,7 @@ COM_CI_CI_END:			       ;;
    DW	 CF_003300-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 1			       ;; number of scans
-   DB	 22,'ö'                        ;;
+   DB	 22,'¬ö'                        ;;
 CF_003300:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1070,7 +1070,7 @@ COM_DI_UP_END:			       ;;
    DW	 CF_001500-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 1			       ;; number of scans
-   DB	 46,'á'                        ;;
+   DB	 46,'¬á'                        ;;
 CF_001500:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1092,7 +1092,7 @@ COM_CE_LO_END:			       ;;
    DW	 CF_003400-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 1			       ;; number of scans
-   DB	 46,'Ä'                        ;;
+   DB	 46,'¬Ä'                        ;;
 CF_003400:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1111,7 +1111,7 @@ COMMON_XLAT_END:		       ;;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC CF_863_XLAT		       ;;
+ global CF_863_XLAT;;
 CF_863_XLAT:			       ;;
 				       ;;
    DW	   CP863_XLAT_END-$	       ;; length of 863 Tranlate Section
@@ -1133,7 +1133,7 @@ CF_863_XLAT:			       ;;
    DW	 CF_106300-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 8			       ;; number of scan
-   DB	 5,'õ'                         ;;
+   DB	 5,'¬õ'                         ;;
    DB	 6,98H			       ;;    international currency symbol
    DB	 8,0A0H 		       ;;    vertical line broken
    DB	 10,0A6H		       ;;    superscript 3
@@ -1162,7 +1162,7 @@ CP863_NA_TH_1_END:		       ;; Length of state section
    DW	 CF_106600-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 8			       ;; number of scan
-   DB	 5,'õ'                         ;;
+   DB	 5,'¬õ'                         ;;
    DB	 6,98H			       ;;    international currency symbol
    DB	 8,0A0H 		       ;;    vertical line broken
    DB	 12,0A6H		       ;;    superscript 3
@@ -1391,7 +1391,7 @@ CP863_XLAT_END: 		       ;;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC CF_850_XLAT		       ;;
+ global CF_850_XLAT;;
 CF_850_XLAT:			       ;;
 				       ;;
    DW	   CP850_XLAT_END-$	       ;; length of 850 Tranlate Section
@@ -1471,8 +1471,8 @@ CP850_NA_TH_2_END:		       ;;
    DW	 CF_201100-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 3			       ;; number of scans
-   DB	 30,'†'                        ;;
-   DB	 23,'°'                        ;;
+   DB	 30,'¬†'                        ;;
+   DB	 23,'¬°'                        ;;
    DB	 21,0ECH		       ;; y acute
 CF_201100:			       ;;
 				       ;;
@@ -1563,8 +1563,8 @@ CP850_AC_AC_END:		       ;;
    DW	 CF_201200-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 2			       ;; number of scans
-   DB	 23,'ç'                        ;;
-   DB	 24,'ï'                        ;;
+   DB	 23,'¬ç'                        ;;
+   DB	 24,'¬ï'                        ;;
 CF_201200:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1612,9 +1612,9 @@ CP850_GR_UP_END:		       ;;
    DW	 CF_201400-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 3			       ;; number of scans
-   DB	 30,'Ñ'                        ;;
-   DB	 24,'î'                        ;;
-   DB	 21,'ò'                        ;;
+   DB	 30,'¬Ñ'                        ;;
+   DB	 24,'¬î'                        ;;
+   DB	 21,'¬ò'                        ;;
 CF_201400:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1636,10 +1636,10 @@ CP850_DI_LO_END:		       ;;
    DW	 CF_203400-$		       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 4			       ;; number of scans
-   DB	 30,'é'                        ;;
+   DB	 30,'¬é'                        ;;
    DB	 18,0D3H		       ;;    E diaeresis
    DB	 23,0D8H		       ;;    I diaeresis
-   DB	 24,'ô'                        ;;
+   DB	 24,'¬ô'                        ;;
 CF_203400:			       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1765,5 +1765,5 @@ CP850_CE_CE_END:		       ;;
 				       ;;
 CP850_XLAT_END: 		       ;;
 
-CODE   ENDS
-       END
+; END SECTION .CODE
+       ; END

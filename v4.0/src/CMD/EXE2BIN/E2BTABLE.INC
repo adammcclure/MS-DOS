@@ -1,4 +1,4 @@
-data    segment
+SECTION .data
 
 ;
 ;*****************************************************************************
@@ -7,17 +7,17 @@ data    segment
 ;
 
 
-Define_Msg macro Message_Name                   ;                               ;AN000;
+%macro Define_Msg 1;                               ;AN000;
                                                 ;
 Create_Msg Message_Name,Message_Number,Handle,Sublist,Count,Class,Function,Input;AN000;
                                                 ;
-        endm                                    ;                               ;AN000;
+        %endmacro;                               ;AN000;
 
 ;-----------------------------------------------------------------------------
 
-Create_Msg macro Parm1,Parm2,Parm3,Parm4,Parm5,Parm6,Parm7,Parm8;               ;AN000;
+%macro Create_Msg 8;               ;AN000;
 
-Parm1   label   word                            ;                               ;AN000;
+Parm1:;                               ;AN000;
         dw      Parm2                           ;                               ;AN000;
         dw      Parm3                           ;                               ;AN000;
         dw      Parm4                           ;                               ;AN000;
@@ -25,16 +25,16 @@ Parm1   label   word                            ;                               
         db      Parm6                           ;                               ;AN000;
         db      Parm7                           ;                               ;AN000;
         dw      Parm8                           ;                               ;AN000;
-        endm                                    ;                               ;AN000;
+        %endmacro;                               ;AN000;
 
 
 ;---------------------------                    ;                               ;AN001;
-Sublist_msg_parserr     label   dword           ;                               ;AN001;
+Sublist_msg_parserr:;                               ;AN001;
                                                                                 ;AN001;
         db              Sublist_Length          ;11                             ;AN001;
         db              Reserved                ;0                              ;AN001;
-parsoff dw              ?                       ;off                            ;AN001;
-parseg  dw              ?                       ;                               ;AN001;
+parsoff: dw 0;off                            ;AN001;
+parseg: dw 0;                               ;AN001;
         db              0                       ;USE PERCENT ZERO               ;AN001;
         db              Left_Align+Char_Field_ASCIIZ ;type of data              ;AN001;
         db              128                     ;max width                      ;AN001;
@@ -42,13 +42,13 @@ parseg  dw              ?                       ;                               
         db              Blank                   ;pad char                       ;AN001;
 ;---------------------------                    ;                               ;AN001;
 
-Sublist_msg_exterror label word                                                 ;AN001;
+Sublist_msg_exterror:;AN001;
 
         db              Sublist_Length                                          ;AN001;
         db              Reserved                                                ;AN001;
-FileNamePointer         label dword                                             ;AN001;
-FileNameOffset  dw      ?                                                       ;AN001;
-FileNameSegment dw      ?                                                       ;AN001;
+FileNamePointer:;AN001;
+FileNameOffset: dw 0;AN001;
+FileNameSegment: dw 0;AN001;
         db              0                              ; SPECIAL %0 - Extended Errors only ;AN001;
         db              Left_Align+Char_Field_ASCIIZ                            ;AN001;
         db              132                                                     ;AN001;
@@ -186,4 +186,4 @@ Function        = No_Input                      ;                               
 Input           = N_A                           ;                               ;AN000;
         Define_Msg      msgNoFileName           ;                               ;AN000;
 ;----------------------                         ;
-data ends
+; END SECTION .data

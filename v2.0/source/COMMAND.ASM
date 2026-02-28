@@ -49,103 +49,103 @@
 ;               INTERNATIONAL SUPPORT
 ; Rev 2.11      COMMAND split into more pieces
 
-        INCLUDE DOSSYM.ASM
-        INCLUDE DEVSYM.ASM
-        INCLUDE COMSW.ASM
-        INCLUDE COMEQU.ASM
+        %include "DOSSYM.ASM"
+        %include "DEVSYM.ASM"
+        %include "COMSW.ASM"
+        %include "COMEQU.ASM"
 
-CODERES SEGMENT PUBLIC
-CODERES ENDS
+SECTION .CODERES
+; END SECTION .CODERES
 
-DATARES SEGMENT PUBLIC BYTE
-        EXTRN   COMBAD:BYTE,NEEDCOM:BYTE,DRVMSG:BYTE
-        EXTRN   DEFMSG:BYTE,PROMPT:BYTE,EXECEMES:BYTE,EXEBAD:BYTE
-        EXTRN   TOOBIG:BYTE,NOCOM:BYTE,RBADNAM:BYTE,INT_2E_RET:DWORD
-        EXTRN   NOHANDMES:BYTE,BMEMMES:BYTE,HALTMES:BYTE,FRETMES:BYTE
-        EXTRN   PARENT:WORD,HANDLE01:WORD,LOADING:BYTE,BATCH:WORD
-        EXTRN   TRNSEG:WORD,COMDRV:BYTE,MEMSIZ:WORD,SUM:WORD,EXTCOM:BYTE
-        EXTRN   IO_SAVE:WORD,PERMCOM:BYTE,SINGLECOM:WORD,VERVAL:WORD
-        EXTRN   PIPEFLAG:BYTE,SAVE_PDB:WORD,COMSPEC:BYTE,TRANS:WORD
-        EXTRN   TRANVARS:BYTE,LTPA:WORD,RSWITCHAR:BYTE,RDIRCHAR:BYTE
-        EXTRN   RETCODE:WORD,FORFLAG:BYTE
+SECTION .DATARES
+        extern COMBAD,NEEDCOM,DRVMSG
+        extern DEFMSG,PROMPT,EXECEMES,EXEBAD
+        extern TOOBIG,NOCOM,RBADNAM,INT_2E_RET
+        extern NOHANDMES,BMEMMES,HALTMES,FRETMES
+        extern PARENT,HANDLE01,LOADING,BATCH
+        extern TRNSEG,COMDRV,MEMSIZ,SUM,EXTCOM
+        extern IO_SAVE,PERMCOM,SINGLECOM,VERVAL
+        extern PIPEFLAG,SAVE_PDB,COMSPEC,TRANS
+        extern TRANVARS,LTPA,RSWITCHAR,RDIRCHAR
+        extern RETCODE,FORFLAG
 
-        IF      IBMVER
-        EXTRN   SYS_CALL:DWORD,ZEXEC:WORD,EXESEG:WORD,EXESUM:WORD
-        EXTRN   USER_SS:WORD,USER_SP:WORD
-        ENDIF
+        %if IBMVER
+        extern SYS_CALL,ZEXEC,EXESEG,EXESUM
+        extern USER_SS,USER_SP
+        %endif
 
-DATARES ENDS
+; END SECTION .DATARES
 
-ENVIRONMENT SEGMENT PUBLIC PARA        ; Default COMMAND environment
-ENVIRONMENT ENDS
+SECTION .ENVIRONMENT; Default COMMAND environment
+; END SECTION .ENVIRONMENT
 
-INIT    SEGMENT PUBLIC PARA
-        EXTRN   CONPROC:NEAR
-INIT    ENDS
+SECTION .INIT
+        extern CONPROC
+; END SECTION .INIT
 
-TAIL    SEGMENT PUBLIC PARA
-TAIL    ENDS
+SECTION .TAIL
+; END SECTION .TAIL
 
-TRANCODE        SEGMENT PUBLIC PARA
-TRANCODE        ENDS
+SECTION .TRANCODE
+; END SECTION .TRANCODE
 
-TRANDATA        SEGMENT PUBLIC BYTE
-        EXTRN   TRANDATAEND:BYTE
-TRANDATA        ENDS
+SECTION .TRANDATA
+        extern TRANDATAEND
+; END SECTION .TRANDATA
 
-TRANSPACE       SEGMENT PUBLIC BYTE
-        EXTRN   TRANSPACEEND:BYTE,HEADCALL:DWORD
-TRANSPACE       ENDS
+SECTION .TRANSPACE
+        extern TRANSPACEEND,HEADCALL
+; END SECTION .TRANSPACE
 
-TRANTAIL        SEGMENT PUBLIC PARA
-TRANTAIL        ENDS
+SECTION .TRANTAIL
+; END SECTION .TRANTAIL
 
-ZEXEC_CODE      SEGMENT PUBLIC PARA
-ZEXEC_CODE      ENDS
+SECTION .ZEXEC_CODE
+; END SECTION .ZEXEC_CODE
 
-ZEXEC_DATA      SEGMENT PUBLIC BYTE
-ZEXEC_DATA      ENDS
+SECTION .ZEXEC_DATA
+; END SECTION .ZEXEC_DATA
 
-RESGROUP        GROUP   CODERES,DATARES,ENVIRONMENT,INIT,TAIL
-TRANGROUP       GROUP   TRANCODE,TRANDATA,TRANSPACE,TRANTAIL
-EGROUP          GROUP   ZEXEC_CODE,ZEXEC_DATA
+; RESGROUP        GROUP   CODERES,DATARES,ENVIRONMENT,INIT,TAIL
+; TRANGROUP       GROUP   TRANCODE,TRANDATA,TRANSPACE,TRANTAIL
+; EGROUP          GROUP   ZEXEC_CODE,ZEXEC_DATA
 
-ENVIRONMENT SEGMENT PUBLIC PARA        ; Default COMMAND environment
+SECTION .ENVIRONMENT; Default COMMAND environment
 
-        PUBLIC  ECOMSPEC,ENVIREND,PATHSTRING
+        global ECOMSPEC,ENVIREND,PATHSTRING
 
         ORG     0
 ENVARENA DB     10H DUP (?)     ; Pad for mem arena
 PATHSTRING DB   "PATH="
-USERPATH LABEL  BYTE
+USERPATH:
 
         DB      0               ; Null path
         DB      "COMSPEC="
 ECOMSPEC DB     "/COMMAND.COM"
-        DB      134 DUP (0)
+        times 134 db 0
 
-ENVIREND        LABEL   BYTE
+ENVIREND:
 
 ENVIRONSIZ EQU  $-PATHSTRING
 ENVIRONSIZ2 EQU $-ECOMSPEC
-ENVIRONMENT ENDS
+; END SECTION .ENVIRONMENT
 
 
 ; START OF RESIDENT PORTION
 
-CODERES SEGMENT PUBLIC
+SECTION .CODERES
 
-        PUBLIC  GETCOMDSK2,LODCOM,THEADFIX,CONTCTERM,LOADCOM,INT_2E,LODCOM1
-        PUBLIC  CHKSUM,SETVECT,EXT_EXEC,TREMCHECK,RESTHAND,CONTC,RSTACK
-        PUBLIC  SAVHAND
+        global GETCOMDSK2,LODCOM,THEADFIX,CONTCTERM,LOADCOM,INT_2E,LODCOM1
+        global CHKSUM,SETVECT,EXT_EXEC,TREMCHECK,RESTHAND,CONTC,RSTACK
+        global SAVHAND
 
-        IF      IBMVER
-        PUBLIC  EXECHK,SYSCALL,EXEC_WAIT
-        ENDIF
+        %if IBMVER
+        global EXECHK,SYSCALL,EXEC_WAIT
+        %endif
 
-ASSUME  CS:RESGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  CS:RESGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-        EXTRN   RPRINT:NEAR,ASKEND:NEAR,DSKERR:NEAR
+        extern RPRINT,ASKEND,DSKERR
 
 
         ORG     0
@@ -154,16 +154,16 @@ ZERO    =       $
         ORG     100H
 
 PROGSTART:
-        JMP     RESGROUP:CONPROC
+        JMP     CONPROC
 
         DB      (80H - 3) DUP (?)
-RSTACK  LABEL   WORD
+RSTACK:
 
-IF IBMVER
+%if IBMVER
 SYSCALL:
         CMP     AH,EXEC
         JZ      do_exec
-        JMP     DWORD PTR [SYS_CALL]
+        JMP     dword [SYS_CALL]
 
 do_exec:
         PUSH    ES
@@ -187,14 +187,14 @@ do_exec:
         CMP     AX,BX           ; IF AX == BX then no stack switch!
         JZ      Get_mem
         MOV     SS,BX
-ASSUME  SS:RESGROUP
-        MOV     SP,OFFSET RESGROUP:RSTACK
+; ASSUME  SS:RESGROUP
+        MOV     SP,RSTACK
 
 Get_mem:
         MOV     BX,0FFFFH       ; allocate all of memory
         MOV     AH,ALLOC
         INT     int_command
-        MOV     AX,OFFSET EGROUP:ZEXECDATAEND + 15
+        MOV     AX,ZEXECDATAEND + 15
         MOV     CL,4
         SHR     AX,CL
         MOV     CX,AX          ; Save in CX
@@ -212,30 +212,30 @@ Get_mem:
         INT     int_command
         PUSH    CS
         POP     DS
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         CALL    EXECHK
         CMP     DX,[EXESUM]
         JZ      HAVEXEC         ; EXEC OK
-        MOV     DX,OFFSET RESGROUP:COMSPEC
+        MOV     DX,COMSPEC
         MOV     AX,OPEN SHL 8
         INT     int_command             ; Open COMMAND.COM
         JC      EXECMER
         MOV     BX,AX           ; Handle
-        MOV     DX,OFFSET RESGROUP:TRANSTART
-        ADD     DX,OFFSET TRANGROUP:EXECSTART - 100H
+        MOV     DX,TRANSTART
+        ADD     DX,EXECSTART - 100H
         XOR     CX,CX           ; Seek loc
         MOV     AX,LSEEK SHL 8
         INT     int_command
-        MOV     CX,OFFSET EGROUP:ZEXECCODEEND
+        MOV     CX,ZEXECCODEEND
         MOV     DS,[EXESEG]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     AH,READ
         INT     int_command
         PUSH    AX
         MOV     AH,CLOSE
         INT     int_command             ; Close COMMAND.COM
         POP     CX
-        CMP     CX,OFFSET EGROUP:ZEXECCODEEND
+        CMP     CX,ZEXECCODEEND
         JNZ     EXECMER         ; Size matched
 
         CALL    EXECHK
@@ -243,10 +243,10 @@ ASSUME  DS:NOTHING
         JNZ     EXECMER
 HAVEXEC:
         MOV     [LOADING],0             ; Flag to DSKERR
-        CALL    DWORD PTR [ZEXEC]
+        CALL    dword [ZEXEC]
         JMP     SHORT EXECRET
 execmer:
-        LDS     SI,DWORD PTR [user_Sp]
+        LDS     SI,dword [user_Sp]
         MOV     [SI.user_AX],exec_not_enough_memory
         PUSH    [SI.user_F]
         POPF
@@ -255,7 +255,7 @@ execmer:
         POP     [SI.user_F]
 execret:
         MOV     SS,[user_SS]
-ASSUME  SS:NOTHING
+; ASSUME  SS:NOTHING
         MOV     SP,[user_SP]
         POP     AX              ; PUSH    ES
         POP     BX              ; PUSH    DS
@@ -269,27 +269,27 @@ ASSUME  SS:NOTHING
         IRET
 
 EXECHK:
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         PUSH    DS
         MOV     DS,[EXESEG]
-        MOV     CX,OFFSET EGROUP:ZEXECCODEEND
+        MOV     CX,ZEXECCODEEND
         XOR     SI,SI
         JMP     CHECK_SUM
-ENDIF
+%endif
 
 EXEC_ERR:                       ; Select the correct error message
-        MOV     DX,OFFSET RESGROUP:RBADNAM
+        MOV     DX,RBADNAM
         CMP     AX,exec_file_not_found
         JZ      GOTEXECEMES
         CMP     AX,error_access_denied
         JZ      GOTEXECEMES
-        MOV     DX,OFFSET RESGROUP:TOOBIG
+        MOV     DX,TOOBIG
         CMP     AX,exec_not_enough_memory
         JZ      GOTEXECEMES
-        MOV     DX,OFFSET RESGROUP:EXEBAD
+        MOV     DX,EXEBAD
         CMP     AX,exec_bad_format
         JZ      GOTEXECEMES
-        MOV     DX,OFFSET RESGROUP:EXECEMES
+        MOV     DX,EXECEMES
 GOTEXECEMES:
         PUSH    CS
         POP     DS
@@ -305,7 +305,7 @@ EXT_EXEC:
 ;
         MOV     CX,CS
         MOV     SS,CX
-        MOV     SP,OFFSET RESGROUP:RSTACK
+        MOV     SP,RSTACK
 ;
 ; Oops!! We have to make sure that the EXEC code doesn't blop a newstack!
 ;
@@ -323,7 +323,7 @@ CONTC:
         STI
         MOV     AX,CS
         MOV     DS,AX
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         MOV     AH,DISK_RESET
         INT     int_command     ; Reset disks in case files were open
         TEST    [BATCH],-1
@@ -342,12 +342,12 @@ NOSETSING:
         JMP     LODCOM1
 DODAB:
         STC                     ; Tell DOS to abort
-ZZY     PROC    FAR
+ZZY:
         RET                     ; Leave flags on stack
-ZZY     ENDP
+; ENDP ZZY
 
 BADMEMERR:                              ; Allocation error loading transient
-        MOV     DX,OFFSET RESGROUP:BMEMMES
+        MOV     DX,BMEMMES
 FATALC:
         PUSH    CS
         POP     DS
@@ -356,32 +356,32 @@ FATALC:
         JZ      FATALRET
         CMP     [SINGLECOM],0                   ; If PERMCOM and SINGLECOM
         JNZ     FATALRET                        ; Must take INT_2E exit
-        MOV     DX,OFFSET RESGROUP:HALTMES
+        MOV     DX,HALTMES
         CALL    RPRINT
 STALL:
         JMP     STALL                           ; Crash the system nicely
 
 FATALRET:
-        MOV     DX,OFFSET RESGROUP:FRETMES
+        MOV     DX,FRETMES
         CALL    RPRINT
 FATALRET2:
         CMP     [PERMCOM],0                     ; If we get here and PERMCOM,
         JNZ     RET_2E                          ; must be INT_2E
-IF IBM
-        LDS     DX,DWORD PTR [SYS_CALL]
-ASSUME  DS:NOTHING
+%if IBM
+        LDS     DX,dword [SYS_CALL]
+; ASSUME  DS:NOTHING
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) + INT_COMMAND
         INT     int_command
-ENDIF
+%endif
         MOV     AX,[PARENT]
-        MOV     WORD PTR CS:[PDB_Parent_PID],AX
+        MOV     word CS:[PDB_Parent_PID],AX
         MOV     AX,(EXIT SHL 8)                 ; Return to lower level
         INT     int_command
 
 RET_2E:
         PUSH    CS
         POP     DS
-ASSUME  DS:RESGROUP,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:RESGROUP,ES:NOTHING,SS:NOTHING
         MOV     [SINGLECOM],0   ; Turn off singlecom
         MOV     ES,[LTPA]
         MOV     AH,DEALLOC
@@ -398,9 +398,9 @@ GOTECODE:
         JMP     [INT_2E_RET]    ;"IRET"
 
 INT_2E:                         ; Magic command executer
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
-        POP     WORD PTR [INT_2E_RET]
-        POP     WORD PTR [INT_2E_RET+2]    ;Get return address
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+        POP     word [INT_2E_RET]
+        POP     word [INT_2E_RET+2]    ;Get return address
         POP     AX              ;Chuck flags
         PUSH    CS
         POP     ES
@@ -422,18 +422,18 @@ LODCOM:                         ; Termination handler
         MOV     BX,0FFFFH
         MOV     AH,ALLOC
         INT     int_command
-        MOV     AX,OFFSET TRANGROUP:TRANSPACEEND + 15
+        MOV     AX,TRANSPACEEND + 15
         MOV     CL,4
         SHR     AX,CL
 
-        IF      IBM
+        %if IBM
         PUSH    AX
-        MOV     AX,OFFSET EGROUP:ZEXECDATAEND + 15
+        MOV     AX,ZEXECDATAEND + 15
         MOV     CL,4
         SHR     AX,CL
         POP     CX
         ADD     AX,CX
-        ENDIF
+        %endif
 
         ADD     AX,20H
         CMP     BX,AX           ; Is less than 512 byte buffer worth it?
@@ -449,28 +449,28 @@ MEMOK:
         ADD     BX,AX
         MOV     [MEMSIZ],BX
 
-        MOV     AX,OFFSET TRANGROUP:TRANSPACEEND + 15
+        MOV     AX,TRANSPACEEND + 15
         MOV     CL,4
         SHR     AX,CL
 
-        IF      IBM
+        %if IBM
         PUSH    AX
-        MOV     AX,OFFSET EGROUP:ZEXECDATAEND + 15
+        MOV     AX,ZEXECDATAEND + 15
         MOV     CL,4
         SHR     AX,CL
         POP     CX
         ADD     AX,CX
-        ENDIF
+        %endif
 
         SUB     BX,AX
         MOV     [TRNSEG],BX     ; Transient starts here
 LODCOM1:
         MOV     AX,CS
         MOV     SS,AX
-ASSUME  SS:RESGROUP
-        MOV     SP,OFFSET RESGROUP:RSTACK
+; ASSUME  SS:RESGROUP
+        MOV     SP,RSTACK
         MOV     DS,AX
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         CALL    HEADFIX     ; Make sure files closed stdin and stdout restored
         XOR     BP,BP           ; Flag command ok
         MOV     AX,-1
@@ -486,11 +486,11 @@ NOSETVER:
 NOSNG:
         CALL    SETVECT
 
-IF IBMVER
+%if IBMVER
         CALL    EXECHK          ; Check exe loader
         CMP     DX,[EXESUM]
         JNZ     BOGUS_COM
-ENDIF
+%endif
 
         CALL    CHKSUM          ; Check the transient
         CMP     DX,[SUM]
@@ -500,11 +500,11 @@ BOGUS_COM:
         CALL    LOADCOM
 CHKSAME:
 
-IF IBMVER
+%if IBMVER
         CALL    EXECHK
         CMP     DX,[EXESUM]
         JNZ     ALSO_BOGUS
-ENDIF
+%endif
 
         CALL    CHKSUM
         CMP     DX,[SUM]
@@ -521,26 +521,26 @@ HAVCOM:
         MOV     [RDIRCHAR],'\'          ; Select alt path separator
 USESLASH:
         MOV     [LOADING],0             ; Flag to DSKERR
-        MOV     SI,OFFSET RESGROUP:TRANVARS
-        MOV     DI,OFFSET TRANGROUP:HEADCALL
+        MOV     SI,TRANVARS
+        MOV     DI,HEADCALL
         MOV     ES,[TRNSEG]
         CLD
         MOV     CX,8
         REP     MOVSW                   ; Transfer INFO to transient
         MOV     AX,[MEMSIZ]
-        MOV     WORD PTR DS:[PDB_block_len],AX  ; Adjust my own header
-        JMP     DWORD PTR [TRANS]
+        MOV     word DS:[PDB_block_len],AX  ; Adjust my own header
+        JMP     dword [TRANS]
 
 ; Far call to REMCHECK for TRANSIENT
-TREMCHECK PROC   FAR
+TREMCHECK:
         CALL    REMCHECK
         RET
-TREMCHECK ENDP
+; ENDP TREMCHECK
 
 REMCHECK:
 ;All registers preserved. Returns zero if media removable, NZ if fixed
 ; AL is drive (0=DEF, 1=A,...)
-        IF      IBM
+        %if IBM
         PUSH    AX
         OR      AL,AL
         JNZ     GOTDRV2
@@ -564,29 +564,29 @@ NOT_SINGLE:
         OR      AL,AL           ; Know AL is non-zero
         JMP     SHORT SETNREM
 SETREM:
-        ELSE
+        %else
         PUSH    AX
-        ENDIF
+        %endif
 
         XOR     AX,AX           ;Zero
 
-        IF      IBM
+        %if IBM
 SETNREM:
-        ENDIF
+        %endif
 
         POP     AX
         RET
 
 ; Far call to HEADFIX for TRANSIENT
-THEADFIX PROC   FAR
+THEADFIX:
         CALL    HEADFIX
         RET
-THEADFIX ENDP
+; ENDP THEADFIX
 
 HEADFIX:
         XOR     BX,BX           ; Clean up header
         MOV     CX,[IO_SAVE]
-        MOV     DX,WORD PTR DS:[PDB_JFN_Table]
+        MOV     DX,word DS:[PDB_JFN_Table]
         CMP     CL,DL
         JZ      CHK1            ; Stdin matches
         MOV     AH,CLOSE
@@ -610,24 +610,24 @@ CLOSELOOP:
         RET
 
 SAVHAND:
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         PUSH    DS
         PUSH    BX              ; Set stdin to sterr, stdout to stderr
         PUSH    AX
         MOV     AH,GET_CURRENT_PDB
         INT     int_command             ; Get user's header
         MOV     DS,BX
-        MOV     AX,WORD PTR DS:[PDB_JFN_Table]
+        MOV     AX,word DS:[PDB_JFN_Table]
         MOV     [HANDLE01],AX           ; Save user's stdin, stdout
         MOV     AL,DS:[PDB_JFN_Table+2]
         MOV     AH,AL
-        MOV     WORD PTR DS:[PDB_JFN_Table],AX   ; Dup stderr
+        MOV     word DS:[PDB_JFN_Table],AX   ; Dup stderr
         POP     AX
         POP     BX
         POP     DS
         RET
 
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
 GETCOMDSK2:
         CALL    GETCOMDSK
         JMP     LODCOM1         ; Memory already allocated
@@ -640,32 +640,32 @@ RESTHAND:
         INT     int_command             ; Point to user's header
         MOV     AX,[HANDLE01]
         MOV     DS,BX
-ASSUME DS:NOTHING
-        MOV     WORD PTR DS:[PDB_JFN_Table],AX   ; Stuff his old 0 and 1
+; ASSUME DS:NOTHING
+        MOV     word DS:[PDB_JFN_Table],AX   ; Stuff his old 0 and 1
         POP     AX
         POP     BX
         POP     DS
         RET
-ASSUME DS:RESGROUP,SS:RESGROUP
+; ASSUME DS:RESGROUP,SS:RESGROUP
 
 HOPELESS:
-        MOV     DX,OFFSET RESGROUP:NOCOM
+        MOV     DX,NOCOM
         JMP     FATALC
 
 GETCOMDSK:
-        MOV     DX,OFFSET RESGROUP:NEEDCOM
+        MOV     DX,NEEDCOM
 GETCOMDSK3:
         MOV     AL,[COMDRV]
         CALL    REMCHECK
         JNZ     HOPELESS                ;Non-removable media
         CALL    RPRINT
-        MOV     DX,OFFSET RESGROUP:DRVMSG
+        MOV     DX,DRVMSG
         CMP     [COMDRV],0
         JNZ     GETCOM1
-        MOV     DX,OFFSET RESGROUP:DEFMSG
+        MOV     DX,DEFMSG
 GETCOM1:
         CALL    RPRINT
-        MOV     DX,OFFSET RESGROUP:PROMPT
+        MOV     DX,PROMPT
         CALL    RPRINT
         CALL    GetRawFlushedByte
         RET
@@ -680,13 +680,13 @@ GetRawFlushedByte:
 
 LOADCOM:                        ; Load in transient
         INC     BP              ; Flag command read
-        MOV     DX,OFFSET RESGROUP:COMSPEC
+        MOV     DX,COMSPEC
         MOV     AX,OPEN SHL 8
         INT     int_command             ; Open COMMAND.COM
         JNC     READCOM
         CMP     AX,open_too_many_open_files
         JNZ     TRYDOOPEN
-        MOV     DX,OFFSET RESGROUP:NOHANDMES
+        MOV     DX,NOHANDMES
         JMP     FATALC          ; Fatal, will never find a handle
 
 TRYDOOPEN:
@@ -695,27 +695,27 @@ TRYDOOPEN:
 
 READCOM:
         MOV     BX,AX           ; Handle
-        MOV     DX,OFFSET RESGROUP:TRANSTART
+        MOV     DX,TRANSTART
         XOR     CX,CX           ; Seek loc
         MOV     AX,LSEEK SHL 8
         INT     int_command
         JC      WRONGCOM1
-        MOV     CX,OFFSET TRANGROUP:TRANSPACEEND - 100H
+        MOV     CX,TRANSPACEEND - 100H
 
-        IF      IBM
+        %if IBM
         ADD     CX,15
         AND     CX,0FFF0H
-        ADD     CX,OFFSET EGROUP:ZEXECCODEEND
-        ENDIF
+        ADD     CX,ZEXECCODEEND
+        %endif
 
         PUSH    DS
         MOV     DS,[TRNSEG]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     DX,100H
         MOV     AH,READ
         INT     int_command
         POP     DS
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
 WRONGCOM1:
         PUSHF
         PUSH    AX
@@ -727,7 +727,7 @@ WRONGCOM1:
         CMP     AX,CX
         JZ      RET10           ; Size matched
 WRONGCOM:
-        MOV     DX,OFFSET RESGROUP:COMBAD
+        MOV     DX,COMBAD
         CALL    GETCOMDSK3
         JMP     SHORT LOADCOM   ; Try again
 
@@ -735,7 +735,7 @@ CHKSUM:                         ; Compute transient checksum
         PUSH    DS
         MOV     DS,[TRNSEG]
         MOV     SI,100H
-        MOV     CX,OFFSET TRANGROUP:TRANDATAEND - 100H
+        MOV     CX,TRANDATAEND - 100H
 
 CHECK_SUM:
         CLD
@@ -749,40 +749,40 @@ CHK:
 RET10:  RET
 
 SETVECT:                        ; Set useful vectors
-        MOV     DX,OFFSET RESGROUP:LODCOM
+        MOV     DX,LODCOM
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) OR 22H        ; Set Terminate address
         INT     int_command
-        MOV     DX,OFFSET RESGROUP:CONTC
+        MOV     DX,CONTC
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) OR 23H        ; Set Ctrl-C address
         INT     int_command
-        MOV     DX,OFFSET RESGROUP:DSKERR
+        MOV     DX,DSKERR
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) OR 24H        ; Set Hard Disk Error address
         INT     int_command
         RET
 
-CODERES ENDS
+; END SECTION .CODERES
 
 ; This TAIL segment is used to produce a PARA aligned label in the resident
 ; group which is the location where the transient segments will be loaded
 ; initial.
 
-TAIL    SEGMENT PUBLIC PARA
+SECTION .TAIL
         ORG     0
-TRANSTART       LABEL   WORD
-TAIL    ENDS
+TRANSTART:
+; END SECTION .TAIL
 
 ; This TAIL segment is used to produce a PARA aligned label in the transient
 ; group which is the location where the exec segments will be loaded
 ; initial.
 
-TRANTAIL    SEGMENT PUBLIC PARA
+SECTION .TRANTAIL
         ORG     0
-EXECSTART   LABEL   WORD
-TRANTAIL    ENDS
+EXECSTART:
+; END SECTION .TRANTAIL
 
-IF IBMVER
-        INCLUDE EXEC.ASM
-ENDIF
+%if IBMVER
+        %include "EXEC.ASM"
+%endif
 
-        END     PROGSTART
+        ; END     PROGSTART
                                                                                      

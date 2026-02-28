@@ -1,5 +1,5 @@
-	PAGE	60,132;
-	TITLE	EDLIN
+	; PAGE	60,132;
+	; TITLE	EDLIN
 
 ;======================= START OF SPECIFICATIONS =========================
 ;
@@ -93,35 +93,35 @@
 ;
 ;======================= END OF SPECIFICATIONS ===========================									;
 
-include edlequ.asm
+%include "edlequ.asm"
 
-SUBTTL	Contants and Data areas
-PAGE
-	extrn	parser_command:near		;an000;SYSPARSE
+; SUBTTL	Contants and Data areas
+; PAGE
+	extern parser_command;an000;SYSPARSE
 
-CODE	SEGMENT PUBLIC
-CODE	ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST	SEGMENT PUBLIC WORD
-CONST	ENDS
+SECTION .CONST
+; END SECTION .CONST
 
-cstack	segment stack
-cstack	ends
+SECTION .cstack
+; END SECTION .cstack
 
-DATA	SEGMENT PUBLIC WORD
-DATA	ENDS
+SECTION .DATA
+; END SECTION .DATA
 
-DG	GROUP	CODE,CONST,cstack,DATA
+; DG	GROUP	CODE,CONST,cstack,DATA
 
-CONST	SEGMENT PUBLIC WORD
+SECTION .CONST
 
-	public	bak,$$$file,delflg,loadmod,txt1,txt2
+	global bak,$$$file,delflg,loadmod,txt1,txt2
 
-	EXTRN	BADDRV_ptr:word,NDNAME_ptr:word,bad_vers_err:byte,opt_err_ptr:word
-	EXTRN	NOBAK_ptr:word,BADCOM_ptr:word,NEWFIL_ptr:word,DEST_ptr:word,MRGERR_ptr:word
-	EXTRN	NODIR_ptr:word,FILENM_ptr:word,ro_err_ptr:word,bcreat_ptr:word
-	EXTRN	TOO_MANY_ptr:word,lf_ptr:word,prompt_ptr:word
-	EXTRN	MemFul_Ptr:word
+	extern BADDRV_ptr,NDNAME_ptr,bad_vers_err,opt_err_ptr
+	extern NOBAK_ptr,BADCOM_ptr,NEWFIL_ptr,DEST_ptr,MRGERR_ptr
+	extern NODIR_ptr,FILENM_ptr,ro_err_ptr,bcreat_ptr
+	extern TOO_MANY_ptr,lf_ptr,prompt_ptr
+	extern MemFul_Ptr
 
 BAK	DB	".BAK",0
 
@@ -139,54 +139,54 @@ DELFLG	DB	0
 fNew	DB	0			; old file
 HAVEOF	DB	0
 
-CONST	ENDS
+; END SECTION .CONST
 
-cstack	segment stack
+SECTION .cstack
 	db  stksiz dup (?)
-cstack	ends
+; END SECTION .cstack
 
-DATA	SEGMENT PUBLIC WORD
+SECTION .DATA
 
-	extrn	arg_buf_ptr:word		;an000;
-	extrn	line_num_buf_ptr:word		;an000;
+	extern arg_buf_ptr;an000;
+	extern line_num_buf_ptr;an000;
 
-	public	path_name,ext_ptr,start,line_num,line_flag
-	public	arg_buf,wrt_handle,temp_path
-	public	current,pointer,qflg,editbuf,amnt_req,fname_len,delflg,lastlin
-	public	olddat,oldlen,newlen,srchflg,srchmod
-	public	comline,lstfnd,numpos,lstnum,last,srchcnt
-	public	rd_handle,haveof,ending,three4th,one4th
+	global path_name,ext_ptr,start,line_num,line_flag
+	global arg_buf,wrt_handle,temp_path
+	global current,pointer,qflg,editbuf,amnt_req,fname_len,delflg,lastlin
+	global olddat,oldlen,newlen,srchflg,srchmod
+	global comline,lstfnd,numpos,lstnum,last,srchcnt
+	global rd_handle,haveof,ending,three4th,one4th
 
-	public	lc_adj				;an000;page length adj. factor
-	public	lc_flag 			;an000;display cont. flag
-	public	pg_count			;an000;lines left on screen
-	public	Disp_Len			;an000;display length
-	public	Disp_Width			;an000;display width
-	public	continue			;an000;boolean T/F
-	public	temp_path			;an000;pointer to filespec buf
+	global lc_adj;an000;page length adj. factor
+	global lc_flag;an000;display cont. flag
+	global pg_count;an000;lines left on screen
+	global Disp_Len;an000;display length
+	global Disp_Width;an000;display width
+	global continue;an000;boolean T/F
+	global temp_path;an000;pointer to filespec buf
 
-Video_Buffer	label	word			;an000;buffer for video attr
+Video_Buffer:;an000;buffer for video attr
 	db	0				;an000;dms;
 	db	0				;an000;dms;
 	dw	14				;an000;dms;
 	dw	0				;an000;dms;
-	db	?				;an000;dms;
+	db 0;an000;dms;
 	db	0				;an000;dms;
-	dw	?				;an000;dms;# of colors
-	dw	?				;an000;dms;# of pixels in width
-	dw	?				;an000;dms;# of pixels in len.
-	dw	?				;an000;dms;# of chars in width
-	dw	?				;an000;dms;# of chars in length
+	dw 0;an000;dms;# of colors
+	dw 0;an000;dms;# of pixels in width
+	dw 0;an000;dms;# of pixels in len.
+	dw 0;an000;dms;# of chars in width
+	dw 0;an000;dms;# of chars in length
 
 
-video_org	db	?			;an000;original video mode on
+video_org: db 0;an000;original video mode on
 						;      entry to EDLIN.
-lc_adj		db	?			;an000;page length adj. factor
-lc_flag 	db	?			;an000;display cont. flag
-pg_count	db	?			;an000;lines left on screen
-Disp_Len	db	?			;an000;display length
-Disp_Width	db	?			;an000;display width
-continue	db	?			;an000;boolean T/F
+lc_adj: db 0;an000;page length adj. factor
+lc_flag: db 0;an000;display cont. flag
+pg_count: db 0;an000;lines left on screen
+Disp_Len: db 0;an000;display length
+Disp_Width: db 0;an000;display width
+continue: db 0;an000;boolean T/F
 
 
 ;-----------------------------------------------------------------------;
@@ -194,35 +194,35 @@ continue	db	?			;an000;boolean T/F
 ; must be placed in the correct position.  Currently Param4 is known to be a
 ; count and thus is treated specially.
 
-	public	param1,param2,Param3,param4,ParamCt
-PARAM1	DW	?
-PARAM2	DW	?
-PARAM3	DW	?
-PARAM4	DW	?
-ParamCt DW	?			; count of passed parameters
-	if	kanji			; Used in TESTKANJ:
-LBTbl	dd	?			;  long pointer to lead byte table
-	endif				;  in the dos (from syscall 63H)
+	global param1,param2,Param3,param4,ParamCt
+PARAM1: dw 0
+PARAM2: dw 0
+PARAM3: dw 0
+PARAM4: dw 0
+ParamCt: dw 0; count of passed parameters
+	%if kanji; Used in TESTKANJ:
+LBTbl: dd 0;  long pointer to lead byte table
+	%endif;  in the dos (from syscall 63H)
 
 ;-----------------------------------------------------------------------;
 
-PUBLIC PTR_1, PTR_2, PTR_3, OLDLEN, NEWLEN, LSTFND, LSTNUM, NUMPOS, SRCHCNT
-PUBLIC CURRENT, POINTER, ONE4TH, THREE4TH, LAST, ENDTXT, COPYSIZ
-PUBLIC COMLINE, LASTLIN, COMBUF, EDITBUF, EOL, QFLG, ENDING, SRCHFLG
-PUBLIC PATH_NAME, FNAME_LEN, RD_HANDLE, TEMP_PATH, WRT_HANDLE, EXT_PTR
-PUBLIC MRG_PATH_NAME, MRG_HANDLE, amnt_req, olddat, srchmod, MOVFLG, org_ds
-if	kanji
-public	lbtbl
-endif
+global PTR_1, PTR_2, PTR_3, OLDLEN, NEWLEN, LSTFND, LSTNUM, NUMPOS, SRCHCNT
+global CURRENT, POINTER, ONE4TH, THREE4TH, LAST, ENDTXT, COPYSIZ
+global COMLINE, LASTLIN, COMBUF, EDITBUF, EOL, QFLG, ENDING, SRCHFLG
+global PATH_NAME, FNAME_LEN, RD_HANDLE, TEMP_PATH, WRT_HANDLE, EXT_PTR
+global MRG_PATH_NAME, MRG_HANDLE, amnt_req, olddat, srchmod, MOVFLG, org_ds
+%if kanji
+global lbtbl
+%endif
 
 ;
 ; These comprise the known state of the internal buffer.  All editing
 ; functions must preserve these values.
 ;
-CURRENT     DW	    ?			; the 1-based index of the current line
-POINTER     DW	    ?			; pointer to the current line
-ENDTXT	    DW	    ?			; pointer to end of buffer. (at ^Z)
-LAST	    DW	    ?			; offset of last byte of memory
+CURRENT: dw 0; the 1-based index of the current line
+POINTER: dw 0; pointer to the current line
+ENDTXT: dw 0; pointer to end of buffer. (at ^Z)
+LAST: dw 0; offset of last byte of memory
 ;
 ; The label Start is the beginning of the in-core buffer.
 ;
@@ -230,62 +230,62 @@ LAST	    DW	    ?			; offset of last byte of memory
 ;
 ; Internal temporary pointers
 ;
-PTR_1		DW	    ?
-PTR_2		DW	    ?
-PTR_3		DW	    ?
+PTR_1: dw 0
+PTR_2: dw 0
+PTR_3: dw 0
 
-QFLG		DB	    ?			; TRUE => query for replacement
-OLDLEN	DW	    ?
-NEWLEN	DW	    ?
-LSTFND	DW	    ?
-LSTNUM	DW	    ?
-NUMPOS	DW	    ?
-SRCHCNT     DW	    ?
-ONE4TH	DW	    ?
-THREE4TH    DW	    ?
-COPYSIZ     DW	    ?			; total length to copy
-COPYLEN     DW	    ?			; single copy length
-COMLINE     DW	    ?
-LASTLIN     DW	    ?
+QFLG: db 0; TRUE => query for replacement
+OLDLEN: dw 0
+NEWLEN: dw 0
+LSTFND: dw 0
+LSTNUM: dw 0
+NUMPOS: dw 0
+SRCHCNT: dw 0
+ONE4TH: dw 0
+THREE4TH: dw 0
+COPYSIZ: dw 0; total length to copy
+COPYLEN: dw 0; single copy length
+COMLINE: dw 0
+LASTLIN: dw 0
 COMBUF	DB	    82H DUP (?)
-EDITBUF     DB	    258 DUP (?)
-EOL		DB	    ?
-ENDING	DB	    ?
-SRCHFLG     DB	    ?
-PATH_NAME   DB	    128 DUP(0)
-FNAME_LEN   DW	    ?
-RD_HANDLE   DW	    ?
-TEMP_PATH   DB	    128 DUP(?)
-WRT_HANDLE  DW	    ?
-EXT_PTR     DW	    ?
-MRG_PATH_NAME DB    128 DUP(?)
-MRG_HANDLE  DW	    ?
-amnt_req    dw	    ?			; amount of bytes requested to read
-olddat	db	    ?			; Used in replace and search, replace
+EDITBUF: times 258 db 0
+EOL: db 0
+ENDING: db 0
+SRCHFLG: db 0
+PATH_NAME: times 128 db 0
+FNAME_LEN: dw 0
+RD_HANDLE: dw 0
+TEMP_PATH: times 128 db 0
+WRT_HANDLE: dw 0
+EXT_PTR: dw 0
+MRG_PATH_NAME: times 128 db 0
+MRG_HANDLE: dw 0
+amnt_req: dw 0; amount of bytes requested to read
+olddat: db 0; Used in replace and search, replace
 					; by old data flag (1=yes)
-srchmod     db	    ?			; Search mode:	1=from current+1 to
+srchmod: db 0; Search mode:	1=from current+1 to
 					; end of buffer, 0=from beg.  of
 					; buffer to the end (old way).
-MOVFLG	    DB	    ?
-org_ds	    dw	    ?			;Orginal ds points to header block
+MOVFLG: db 0
+org_ds: dw 0;Orginal ds points to header block
 
-arg_buf db	258 dup (?)
+arg_buf: times 258 db 0
 
 EA_Flag 	db	False		;an000; dms;set to false
 
-EA_Buffer_Size	dw	?		;an000; dms;EA buffer's size
+EA_Buffer_Size: dw 0;an000; dms;EA buffer's size
 
-EA_Parm_List	label	word		;an000; dms;EA parms
-		dd	dg:Start	;an000; dms;ptr to EA's
+EA_Parm_List:;an000; dms;EA parms
+		dd	Start	;an000; dms;ptr to EA's
 		dw	0001h		;an000; dms;additional parms
 		db	06h		;an000; dms;
 		dw	0002h		;an000; dms;iomode
 
 
-line_num    dw	?
+line_num: dw 0
 
 line_flag   db	?,0
-	EVEN			;align on word boundaries
+	align 2;align on word boundaries
 ;
 ; Byte before start of data buffer must be < 40H  !!!!!!
 ;
@@ -294,55 +294,55 @@ line_flag   db	?,0
 				;of a two-byte seqence.  This
 				;double byte sequence will cause the back
 				;scan to stop here.
-START	LABEL	WORD
+START:
 
-DATA	ENDS
-
-
-CODE SEGMENT PUBLIC
-
-ASSUME	CS:DG,DS:NOTHING,ES:NOTHING,SS:CStack
+; END SECTION .DATA
 
 
+SECTION .CODE
 
-	extrn	pre_load_message:near		;an000;message loader
-	extrn	disp_fatal:near 		;an000;fatal message
-	extrn	printf:near			;an000;new PRINTF routine
-
-	extrn	findlin:near,shownum:near,loadbuf:near,crlf:near,lf:near
-	extrn	abortcom:near,delbak:near,unquote:near,kill_bl:near
-	extrn	make_caps:near,dispone:near,display:near,query:near
-	extrn	quit:near,make_cntrl:near,scanln:near,scaneof:near
-	extrn	fndfirst:near,fndnext:near,replace:near,memerr:near
-	extrn	xerror:near,bad_read:near,append:near
-	extrn	nocom:near,pager:near,list:near,search_from_curr:near
-	extrn	replac_from_curr:near,ewrite:near,wrt:near,delete:near
+; ASSUME	CS:DG,DS:NOTHING,ES:NOTHING,SS:CStack
 
 
-	extrn	filespec:byte			;an000;parser's filespec
-	extrn	parse_switch_b:byte		;an000;result of switch scan
 
-	public	std_printf,command,chkrange,comerr
+	extern pre_load_message;an000;message loader
+	extern disp_fatal;an000;fatal message
+	extern printf;an000;new PRINTF routine
+
+	extern findlin,shownum,loadbuf,crlf,lf
+	extern abortcom,delbak,unquote,kill_bl
+	extern make_caps,dispone,display,query
+	extern quit,make_cntrl,scanln,scaneof
+	extern fndfirst,fndnext,replace,memerr
+	extern xerror,bad_read,append
+	extern nocom,pager,list,search_from_curr
+	extern replac_from_curr,ewrite,wrt,delete
+
+
+	extern filespec;an000;parser's filespec
+	extern parse_switch_b;an000;result of switch scan
+
+	global std_printf,command,chkrange,comerr
 						;      exit from EDLIN
 
-	IF	KANJI
-	extrn	testkanj:near
-	ENDIF
+	%if KANJI
+	extern testkanj
+	%endif
 
 EDLIN:
 	JMP	SHORT SIMPED
 
-std_printf	proc	near			;ac000;convert to proc
+std_printf:;ac000;convert to proc
 
 	push	dx
 	call	printf
 	pop	dx				;an000;balance the push
 	ret
 
-std_printf	endp				;ac000;end proc
+; ENDP std_printf;ac000;end proc
 
 NONAME:
-	MOV	DX,OFFSET DG:NDNAME_ptr
+	MOV	DX,NDNAME_ptr
 	JMP	XERROR
 
 SIMPED:
@@ -354,9 +354,9 @@ SIMPED:
 
 	push	cs			;an000;exchange cs/ds
 	pop	ds			;an000;
-	assume	ds:dg,es:dg		;an000;establish addressibility
+	; assume	ds:dg,es:dg;an000;establish addressibility
 
-	MOV	dg:ENDING,0
+	MOV	ENDING,0
 	mov	sp,stack
 	call	EDLIN_DISP_GET			;an000;get current video
 						;      mode & set it to
@@ -387,7 +387,7 @@ VERS_OK:
 	pop	ax
 	OR	AL,AL
 	JZ	get_switch_char
-	MOV	DX,OFFSET DG:BADDRV_ptr
+	MOV	DX,BADDRV_ptr
 	JMP	xerror
 get_switch_char:
 	MOV	AX,(CHAR_OPER SHL 8)	;GET SWITCH CHARACTER
@@ -396,28 +396,28 @@ get_switch_char:
 	JNZ	CMD_LINE		;IF NOT / , THEN NOT PC
 	MOV	OPTCHAR,"/"		;IN PC, OPTION CHAR = /
 
-	IF	KANJI
+	%if KANJI
 	push	ds			; SAVE! all regs destroyed on this
 	push	es
 	push	si			; call !!
 	mov	ax,(ECS_call shl 8) or 00h  ; get kanji lead tbl
 	int	21h
-assume	ds:nothing
-assume	es:nothing
-	mov	word ptr [LBTbl],si
-	mov	word ptr [LBTbl+2],ds
+; assume	ds:nothing
+; assume	es:nothing
+	mov	word [LBTbl],si
+	mov	word [LBTbl+2],ds
 	pop	si
 	pop	es
 	pop	ds
-assume	ds:dg
-assume	es:dg
-	ENDIF
+; assume	ds:dg
+; assume	es:dg
+	%endif
 
 
 CMD_LINE:
 	push	cs
 	pop	es
-	ASSUME	ES:DG
+	; ASSUME	ES:DG
 
 ;----- Process any options ------------------------------------------;
 
@@ -475,20 +475,20 @@ $$EN3:
 	push	ds			;an000;save reg.
 	push	cs			;an000;set up addressibility
 	pop	ds			;an000;
-	assume	ds:dg			;an000;
+	; assume	ds:dg;an000;
 
 	push	ax			;an000;save reg.
-	mov	ax,offset dg:path_name	;an000;point to path_name
+	mov	ax,path_name	;an000;point to path_name
 	add	ax,[fname_len]		;an000;calculate end of path_name
 	mov	si,ax			;an000;point to end of path_name
 	pop	ax			;an000;restore reg.
 
 	MOV	CX,4			;compare 4 bytes
 	SUB	SI,4			;Point 4th to last char
-	MOV	DI,OFFSET DG:BAK	;Point to string ".BAK"
+	MOV	DI,BAK	;Point to string ".BAK"
 	REPE	CMPSB			;Compare the two strings
 	pop	ds
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	JNZ	NOTBAK
 	JMP	HAVBAK
 
@@ -501,7 +501,7 @@ NOTBAK:
 	push	ds
 	push	cs
 	pop	ds
-	ASSUME	DS:DG
+	; ASSUME	DS:DG
 
 ;=========================================================================
 ; implement EXTENDED OPEN
@@ -518,7 +518,7 @@ NOTBAK:
 
 ;=========================================================================
 	pop	ds
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	JC	CHK_OPEN_ERR		;an open error occurred
 	MOV	RD_HANDLE,AX		;Save the handle
 
@@ -543,7 +543,7 @@ $$IF12:
 ;======================= end NOTBAK ======================================
 
 Badopt:
-	MOV	DX,OFFSET DG:OPT_ERR_ptr;Bad option specified
+	MOV	DX,OPT_ERR_ptr;Bad option specified
 	JMP	XERROR
 
 ;=========================================================================
@@ -572,9 +572,9 @@ CHK_OPEN_ERR:
 	push	ds
 	push	cs
 	pop	ds
-	assume	ds:dg
+	; assume	ds:dg
 	mov	ax,(chmod shl 8)
-	MOV	DX,OFFSET DG:PATH_NAME
+	MOV	DX,PATH_NAME
 	int	21h
 	jc	FileCreationError
 	test	cx,attr_read_only
@@ -590,7 +590,7 @@ CheckFNF:
 	push	ds
 	push	cs
 	pop	ds
-	assume ds:dg
+	; assume ds:dg
 ;=========================================================================
 ; implement EXTENDED OPEN
 ;=========================================================================
@@ -604,7 +604,7 @@ CheckFNF:
 ;=========================================================================
 
 	pop	ds
-	assume	ds:nothing
+	; assume	ds:nothing
 	jc	CreateCheck
 	mov	bx,ax
 	mov	ah,close
@@ -612,12 +612,12 @@ CheckFNF:
 	push	ds
 	push	cs
 	pop	ds
-	assume	ds:dg
+	; assume	ds:dg
 	mov	ah,unlink
-	MOV	DX,OFFSET DG:PATH_NAME
+	MOV	DX,PATH_NAME
 	int	21h
 	pop	ds
-	assume	ds:nothing
+	; assume	ds:nothing
 	jc	FileCreationError	; This should NEVER be taken!!!
 	MOV	HAVEOF,0FFH		; Flag from a system 1.xx call
 	MOV	fNew,-1
@@ -627,23 +627,23 @@ CreateCheck:
 	cmp	ax,error_access_denied
 	jnz	BadDriveError
 DiskFull:
-	MOV	DX,OFFSET DG:nodir_ptr
+	MOV	DX,nodir_ptr
 	jmp	xerror
 
 FileCreationError:
-	mov	dx,offset dg:BCreat_PTR
+	mov	dx,BCreat_PTR
 	jmp	xerror
 
 ReadOnlyError:
-	MOV	DX,OFFSET DG:RO_ERR_ptr
+	MOV	DX,RO_ERR_ptr
 	jmp	xerror
 
 BadDriveError:
-	MOV	DX,OFFSET DG:BADDRV_PTR
+	MOV	DX,BADDRV_PTR
 	jmp	xerror
 
 TooManyError:
-	MOV	DX,OFFSET DG:TOO_MANY_ptr
+	MOV	DX,TOO_MANY_ptr
 	jmp	xerror
 
 
@@ -656,22 +656,22 @@ CREAT_ERR:
 	JMP	MAKFIL
 
 HAVBAK:
-	MOV	DX,OFFSET DG:NOBAK_ptr
+	MOV	DX,NOBAK_ptr
 	JMP	XERROR
 
 HAVFIL:
 	push	cs
 	pop	ds
-	ASSUME	DS:DG
+	; ASSUME	DS:DG
 	CMP	fNew,0
 	JZ	MakeBak
-	MOV	DX,OFFSET DG:NEWFIL_ptr ; Print new file message
+	MOV	DX,NEWFIL_ptr ; Print new file message
 	call	std_printf
 MakeBak:
-	MOV	SI,OFFSET DG:PATH_NAME
+	MOV	SI,PATH_NAME
 	MOV	CX,[FNAME_LEN]
 	PUSH	CX
-	MOV	DI,OFFSET DG:TEMP_PATH
+	MOV	DI,TEMP_PATH
 	REP	MOVSB
 	DEC	DI
 	MOV	DX,DI
@@ -685,7 +685,7 @@ FOUND_EXT:
 	CLD
 	INC	DI
 	MOV	[EXT_PTR],DI
-	MOV	SI,OFFSET DG:$$$FILE
+	MOV	SI,$$$FILE
 	MOV	CX,5
 	REP	MOVSB
 
@@ -702,7 +702,7 @@ MAKFIL:
 	cmp	EA_Flag,True		;an000;EA_Buffer used?
 ;	$if	e			;an000;yes
 	JNE $$IF14
-		mov	di,offset dg:EA_Parm_List ;an000; point to buffer
+		mov	di,EA_Parm_List ;an000; point to buffer
 ;	$else				;an000;
 	JMP SHORT $$EN14
 $$IF14:
@@ -736,27 +736,27 @@ GotSize:
 	pop	ds				;restore ds after size calc
 	DEC	CX
 	MOV	[LAST],CX
-	MOV	DI,OFFSET DG:START
+	MOV	DI,START
 	TEST	fNew,-1
 	JNZ	SAVEND
-	SUB	CX,OFFSET DG:START	;Available memory
+	SUB	CX,START	;Available memory
 	SHR	CX,1			;1/2 of available memory
 	MOV	AX,CX
 	SHR	CX,1			;1/4 of available memory
 	MOV	[ONE4TH],CX		;Save amount of 1/4 full
 	ADD	CX,AX			;3/4 of available memory
 	MOV	DX,CX
-	ADD	DX,OFFSET DG:START
+	ADD	DX,START
 	MOV	[THREE4TH],DX		;Save pointer to 3/4 full
-	MOV	DX,OFFSET DG:START
+	MOV	DX,START
 SAVEND:
 	CLD
-	MOV	BYTE PTR [DI],1AH
+	MOV	byte [DI],1AH
 	MOV	[ENDTXT],DI
-	MOV	BYTE PTR [COMBUF],128
-	MOV	BYTE PTR [EDITBUF],255
-	MOV	BYTE PTR [EOL],10
-	MOV	[POINTER],OFFSET DG:START
+	MOV	byte [COMBUF],128
+	MOV	byte [EDITBUF],255
+	MOV	byte [EOL],10
+	MOV	[POINTER],START
 	MOV	[CURRENT],1
 	MOV	ParamCt,1
 	MOV	[PARAM1],0		;M004 Leave room in memory, was -1
@@ -770,7 +770,7 @@ SAVEND:
 ;  DO NOT want this error, we just want as many lines as possible read in.
 ;  The twiddle of ENDING suppresses the memory error
 ;
-	MOV	BYTE PTR [ENDING],1	;Suppress memory errors
+	MOV	byte [ENDING],1	;Suppress memory errors
 	CALL	APPEND
 	MOV	ENDING,0		; restore correct initial value
 
@@ -785,19 +785,19 @@ COMMAND:
 	pop	ds				;an000;
 	push	cs				;an000;
 	pop	es				;an000;
-	assume	ds:dg,es:dg			;an000;
+	; assume	ds:dg,es:dg;an000;
 
 	MOV	SP, STACK
 	MOV	AX,(SET_INTERRUPT_VECTOR SHL 8) OR 23H
-	MOV	DX,OFFSET DG:ABORTCOM
+	MOV	DX,ABORTCOM
 	INT	21H
-	mov	dx,offset dg:prompt_ptr
+	mov	dx,prompt_ptr
 	call	std_printf
-	MOV	DX,OFFSET DG:COMBUF
+	MOV	DX,COMBUF
 	MOV	AH,STD_CON_STRING_INPUT
 	INT	21H
-	MOV	[COMLINE],OFFSET DG:COMBUF + 2
-	mov	dx,offset dg:lf_ptr
+	MOV	[COMLINE],COMBUF + 2
+	mov	dx,lf_ptr
 	call	std_printf
 PARSE:
 	MOV	[PARAM2],0
@@ -806,7 +806,7 @@ PARSE:
 	mov	[fourth],0		;reset the fourth parameter flag
 	MOV	QFLG,0
 	MOV	SI,[COMLINE]
-	MOV	BP,OFFSET DG:PARAM1
+	MOV	BP,PARAM1
 	XOR	DI,DI
 CHKLP:
 	CALL	GETNUM
@@ -835,11 +835,11 @@ DISPATCH:
 	ja	upcase
 	AND	AL,5FH
 UPCASE:
-	MOV	DI,OFFSET DG:COMTAB
+	MOV	DI,COMTAB
 	MOV	CX,NUMCOM
 	REPNE	SCASB
 	JNZ	COMERR
-	SUB	DI,1+OFFSET DG:COMTAB	; convert to index
+	SUB	DI,1+COMTAB	; convert to index
 	MOV	BX,DI
 	MOV	AX,[PARAM2]
 	OR	AX,AX
@@ -889,7 +889,7 @@ CHKRANGE:
 	JBE	RET1
 	POP	DX			; clean up return address
 COMERR:
-	MOV	DX,OFFSET DG:BADCOM_ptr
+	MOV	DX,BADCOM_ptr
 COMERR1:
 	call	std_printf
 	JMP	COMMAND
@@ -957,7 +957,7 @@ MAXLIN:
 	MOV	DX,1
 	MOV	AL,0Ah
 	PUSH	DI
-	MOV	DI,OFFSET DG:START
+	MOV	DI,START
 	MOV	CX,EndTxt
 	SUB	CX,DI
 MLoop:
@@ -1023,18 +1023,18 @@ ERROR1J:
 
 Break	<Move and Copy commands>
 
-PUBLIC MOVE
+global MOVE
 MOVE:
 	CMP	ParamCt,3
 	JNZ	ERRORJ
-	MOV	BYTE PTR [MOVFLG],1
+	MOV	byte [MOVFLG],1
 	JMP	SHORT BLKMOVE
 
-PUBLIC COPY
+global COPY
 COPY:
 	CMP	ParamCt,3
 	JB	ERRORJ
-	MOV	BYTE PTR [MOVFLG],0
+	MOV	byte [MOVFLG],0
 ;
 ; We are to move/copy a number of lines from one range to another.
 ;
@@ -1070,7 +1070,7 @@ BLKMOVE:
 ;
 	MOV	BX,[PARAM3]		; get destination of move/copy
 	OR	BX,BX			; must be specified (non-0)
-	MOV	DX,OFFSET DG:DEST_ptr
+	MOV	DX,DEST_ptr
 	JZ	ERROR1J 		; is 0 => error
 ;
 ; get arg 1 (defaulting if necessary) and range check it.
@@ -1196,7 +1196,7 @@ CopyText:
 ;
 ; If we are moving
 ;
-	CMP	BYTE PTR MovFlg,0
+	CMP	byte MovFlg,0
 	JZ	CopyDone
 ;
 ; Delete the source text between ptr_1 and ptr_2
@@ -1209,7 +1209,7 @@ CopyText:
 	SUB	CX,SI			; number of bytes to move
 	CLD				; forwards
 	REP	MOVSB
-	MOV	BYTE PTR ES:[DI],1Ah	; remember ^Z terminate
+	MOV	byte ES:[DI],1Ah	; remember ^Z terminate
 	MOV	EndTxt,DI		; new end of file
 ;
 ; May need to relocate current line (parameter 3).
@@ -1259,14 +1259,14 @@ SETPTS:
 NAMERR:
 	cmp	ax,error_file_not_found
 	jne	otherMergeErr
-	MOV	DX,OFFSET DG:FILENM_ptr
+	MOV	DX,FILENM_ptr
 	JMP	COMERR1
 
 otherMergeErr:
-	MOV	DX,OFFSET DG:BADDRV_ptr
+	MOV	DX,BADDRV_ptr
 	JMP	COMERR1
 
-PUBLIC MERGE
+global MERGE
 MERGE:
 	CMP	ParamCt,1
 	JZ	MergeOK
@@ -1274,7 +1274,7 @@ MERGE:
 MergeOK:
 	CALL	KILL_BL
 	DEC	SI
-	MOV	DI,OFFSET DG:MRG_PATH_NAME
+	MOV	DI,MRG_PATH_NAME
 	XOR	CX,CX
 	CLD
 MRG1:
@@ -1290,7 +1290,7 @@ MRG1:
 	STOSB
 	JMP	SHORT MRG1
 MRG2:
-	MOV	BYTE PTR[DI],0
+	MOV	byte[DI],0
 	DEC	SI
 	MOV	[COMLINE],SI
 
@@ -1312,7 +1312,7 @@ MRG2:
 
 	MOV	[MRG_HANDLE],AX
 	MOV	AX,(SET_INTERRUPT_VECTOR SHL 8) OR 23H
-	MOV	DX,OFFSET DG:ABORTMERGE
+	MOV	DX,ABORTMERGE
 	INT	21H
 	MOV	BX,[PARAM1]
 	OR	BX,BX
@@ -1335,7 +1335,7 @@ MRG:
 	MOV	CX,AX
 	CMP	DX,CX
 	JA	FILEMRG 			; M005
-	MOV	DX,OFFSET DG:MRGERR_ptr
+	MOV	DX,MRGERR_ptr
 	call	std_printf
 	MOV	CX,[POINTER]
 	JMP	SHORT RESTORE
@@ -1362,14 +1362,14 @@ RESTORE:
 	INT	21H
 	return
 
-PUBLIC INSERT
+global INSERT
 INSERT:
 	CMP	ParamCt,1
 	JBE	OKIns
 	JMP	ComErr
 OKIns:
 	MOV	AX,(SET_INTERRUPT_VECTOR SHL 8) OR 23H	;Set vector 23H
-	MOV	DX,OFFSET DG:ABORTINS
+	MOV	DX,ABORTINS
 	INT	21H
 	MOV	BX,[PARAM1]
 	OR	BX,BX
@@ -1384,12 +1384,12 @@ INS:
 INLP:
 	CALL	SETPTS			;Update the pointers into file
 	CALL	SHOWNUM
-	MOV	DX,OFFSET DG:EDITBUF
+	MOV	DX,EDITBUF
 	MOV	AH,STD_CON_STRING_INPUT
 	INT	21H
 	CALL	LF
-	MOV	SI,2 + OFFSET DG:EDITBUF
-	CMP	BYTE PTR [SI],1AH
+	MOV	SI,2 + EDITBUF
+	CMP	byte [SI],1AH
 	JZ	ENDINS
 ;-----------------------------------------------------------------------
 	call	unquote 		;scan for quote chars if any
@@ -1414,7 +1414,7 @@ MEMOK:
 	JMP	SHORT INLP
 
 ABORTMERGE:
-	MOV	DX,OFFSET DG:START
+	MOV	DX,START
 	MOV	AH,SET_DMA
 	INT	21H
 
@@ -1445,7 +1445,7 @@ END_INS:
 	DEC	DI
 	MOV	[ENDTXT],DI
 	MOV	AX,(SET_INTERRUPT_VECTOR SHL 8) OR 23H
-	MOV	DX,OFFSET DG:ABORTCOM
+	MOV	DX,ABORTCOM
 	INT	21H
 	return
 
@@ -1455,7 +1455,7 @@ FILLBUF:
 	MOV	ParamCt,1
 	CALL	APPEND
 	MOV	Param1,0
-PUBLIC ENDED
+global ENDED
 ENDED:
 
 ;Write text out to .$$$ file
@@ -1466,10 +1466,10 @@ CERR:	JMP	ComErr
 Ended1:
 	CMP	Param1,0
 	JNZ	Cerr
-	MOV	BYTE PTR [ENDING],1	;Suppress memory errors
+	MOV	byte [ENDING],1	;Suppress memory errors
 	MOV	BX,-1			;Write max. no of lines
 	CALL	WRT
-	TEST	BYTE PTR [HAVEOF],-1
+	TEST	byte [HAVEOF],-1
 	JZ	FILLBUF
 	MOV	DX,[ENDTXT]
 	MOV	CX,1
@@ -1492,24 +1492,24 @@ Ended1:
 ;Rename original file .BAK
 
 	MOV	DI,[EXT_PTR]
-	MOV	SI,OFFSET DG:BAK
+	MOV	SI,BAK
 	MOVSW
 	MOVSW
 	MOVSB
-	MOV	DX,OFFSET DG:PATH_NAME
-	MOV	DI,OFFSET DG:TEMP_PATH
+	MOV	DX,PATH_NAME
+	MOV	DI,TEMP_PATH
 	MOV	AH,RENAME
 	INT	21H
 	MOV	DI,[EXT_PTR]
-	MOV	SI,OFFSET DG:$$$FILE
+	MOV	SI,$$$FILE
 	MOVSW
 	MOVSW
 	MOVSB
 
 ;Rename .$$$ file to original name
 
-	MOV	DX,OFFSET DG:TEMP_PATH
-	MOV	DI,OFFSET DG:PATH_NAME
+	MOV	DX,TEMP_PATH
+	MOV	DI,PATH_NAME
 	MOV	AH,RENAME
 	INT	21H
 						;      mode
@@ -1532,7 +1532,7 @@ Ended1:
 ;
 ;=========================================================================
 
-EDLIN_DISP_GET	proc	near			;an000;video attributes
+EDLIN_DISP_GET:;an000;video attributes
 
 	push	ax				;an000;save affected regs.
 	push	bx				;an000;
@@ -1547,25 +1547,25 @@ EDLIN_DISP_GET	proc	near			;an000;video attributes
 	mov	ax,440Ch			;an000;generic ioctl
 	mov	bx,Std_Out			;an000;Console
 	mov	cx,(Display_Attr shl 8) or Get_Display ;an000;get display
-	mov	dx,offset dg:Video_Buffer	;an000;buffer for video attr.
+	mov	dx,Video_Buffer	;an000;buffer for video attr.
 	int	21h				;an000;
 ;	$if	nc				;an000;function returned a
 	JC $$IF17
 						;      buffer
 		mov	si,dx			;an000;get pointer
-		mov	ax,word ptr dg:[si].Display_Length_Char  ;an000;get video len.
+		mov	ax,word [si].Display_Length_Char  ;an000;get video len.
 		dec	ax			;an000;allow room for message
-		mov	dg:Disp_Len,al		;an000;put it into var.
-		mov	ax,word ptr dg:[si].Display_Width_Char ;an000;get video width
-		mov	dg:Disp_Width,al	;an000;put it into var.
+		mov	Disp_Len,al		;an000;put it into var.
+		mov	ax,word [si].Display_Width_Char ;an000;get video width
+		mov	Disp_Width,al	;an000;put it into var.
 ;	$else					;an000;function failed use
 	JMP SHORT $$EN17
 $$IF17:
 						;      default values
 		mov	al,Def_Disp_Len 	;an000;get default length
 		dec	al			;an000;leave room for messages
-		mov	dg:Disp_Len,al		;an000;use default length
-		mov	dg:Disp_Width,Def_Disp_Width;an000;use default width
+		mov	Disp_Len,al		;an000;use default length
+		mov	Disp_Width,Def_Disp_Width;an000;use default width
 ;	$endif					;an000;
 $$EN17:
 
@@ -1578,7 +1578,7 @@ $$EN17:
 
 	ret					;an000;return to caller
 
-EDLIN_DISP_GET	endp				;an000;end proc.
+; ENDP EDLIN_DISP_GET;an000;end proc.
 
 
 ;=========================================================================
@@ -1595,15 +1595,15 @@ EDLIN_DISP_GET	endp				;an000;end proc.
 ;	Date	   : 6/10/87
 ;=========================================================================
 
-EXT_OPEN1	proc	near			;an000;open for R/W
+EXT_OPEN1:;an000;open for R/W
 
-	assume	ds:dg
+	; assume	ds:dg
 	push	ds				;an000;save regs
 	push	si				;an000;
 
 	mov	ah,ExtOpen			;an000;extended open
 	mov	al,0				;an000;reserved by system
-	mov	si,offset dg:path_name		;an000;point to PATH_NAME
+	mov	si,path_name		;an000;point to PATH_NAME
 
 	int	21h				;an000;invoke function
 	pop	si				;an000;restore regs
@@ -1611,7 +1611,7 @@ EXT_OPEN1	proc	near			;an000;open for R/W
 
 	ret					;an000;return to caller
 
-EXT_OPEN1	endp				;an000;end proc.
+; ENDP EXT_OPEN1;an000;end proc.
 
 ;=========================================================================
 ; EXT_OPEN2  : This routine will attempt to create a file for read/write
@@ -1627,15 +1627,15 @@ EXT_OPEN1	endp				;an000;end proc.
 ;	Date	   : 6/10/87
 ;=========================================================================
 
-EXT_OPEN2	proc	near			;an000;create a file
+EXT_OPEN2:;an000;create a file
 
-	assume	ds:dg
+	; assume	ds:dg
 	push	ds				;an000;save regs
 	push	si				;an000;
 
 	mov	ah,ExtOpen			;an000;extended open
 	mov	al,0				;an000;reserved by system
-	mov	si,offset dg:temp_path		;an000;point to TEMP_PATH
+	mov	si,temp_path		;an000;point to TEMP_PATH
 
 	int	21h				;an000;invoke function
 
@@ -1644,7 +1644,7 @@ EXT_OPEN2	proc	near			;an000;create a file
 
 	ret					;an000;return to caller
 
-EXT_OPEN2	endp				;an000;end proc.
+; ENDP EXT_OPEN2;an000;end proc.
 
 ;=========================================================================
 ; EXT_OPEN3  : This routine will attempt to create a file for read
@@ -1660,15 +1660,15 @@ EXT_OPEN2	endp				;an000;end proc.
 ;	Date	   : 6/10/87
 ;=========================================================================
 
-EXT_OPEN3	proc	near			;an000;create a file
+EXT_OPEN3:;an000;create a file
 
-	assume	ds:dg
+	; assume	ds:dg
 	push	ds				;an000;save regs
 	push	si				;an000;
 
 	mov	ah,ExtOpen			;an000;extended open
 	mov	al,0				;an000;reserved by system
-	mov	si,offset dg:mrg_path_name	;an000;point to mrg_path_name
+	mov	si,mrg_path_name	;an000;point to mrg_path_name
 
 	int	21h				;an000;invoke function
 
@@ -1677,7 +1677,7 @@ EXT_OPEN3	proc	near			;an000;create a file
 
 	ret					;an000;return to caller
 
-EXT_OPEN3	endp				;an000;end proc.
+; ENDP EXT_OPEN3;an000;end proc.
 
 
 ;=========================================================================
@@ -1698,15 +1698,15 @@ EXT_OPEN3	endp				;an000;end proc.
 ;	Date	   : 6/11/87
 ;=========================================================================
 
-EDLIN_COMMAND		proc	near		;an000;interface parser
+EDLIN_COMMAND:;an000;interface parser
 
 	push	ax				;an000;save regs.
 	push	cx				;an000;
 	push	di				;an000
 	push	si				;an000;
 
-	mov	si,offset dg:filespec		;an000;get its offset
-	mov	di,offset dg:path_name		;an000;get its offset
+	mov	si,filespec		;an000;get its offset
+	mov	di,path_name		;an000;get its offset
 
 	mov	cx,00h				;an000;cx will count filespec
 						;      length
@@ -1741,7 +1741,7 @@ $$EN22:
 
 	ret					;an000;return to caller
 
-EDLIN_COMMAND		endp			;an000;end proc
+; ENDP EDLIN_COMMAND;an000;end proc
 
 ;=========================================================================
 ; Get_Extended_Attrib	: This routine gets the extended attributes of
@@ -1749,16 +1749,16 @@ EDLIN_COMMAND		endp			;an000;end proc
 ;
 ;=========================================================================
 
-Get_Extended_Attrib	proc	near		;an000; dms;
+Get_Extended_Attrib:;an000; dms;
 
 	mov	ax,5702h			;an000; dms;get extended attrib
 	mov	si,0ffffh			;an000; dms;all attribs
-	mov	cx,dg:EA_Buffer_Size		;an000; dms;buffer size
-	mov	di,offset dg:Start		;an000; dms;point to buffer
+	mov	cx,EA_Buffer_Size		;an000; dms;buffer size
+	mov	di,Start		;an000; dms;point to buffer
 	int	21h				;an000; dms;
 	ret					;an000; dms;
 
-Get_Extended_Attrib	endp			;an000; dms;
+; ENDP Get_Extended_Attrib;an000; dms;
 
 
 ;=========================================================================
@@ -1771,17 +1771,17 @@ Get_Extended_Attrib	endp			;an000; dms;
 ;
 ;=========================================================================
 
-Query_Extend_Attrib	proc	near		;an000; dms;
+Query_Extend_Attrib:;an000; dms;
 
 	mov	ax,5702h			;an000; dms;get extended attrib
 	mov	si,0ffffh			;an000; dms;all attribs
 	mov	cx,0000h			;an000; dms;get buffer size
-	mov	di,offset dg:Start		;an000; dms;point to buffer
+	mov	di,Start		;an000; dms;point to buffer
 	int	21h				;an000; dms;
-	mov	dg:EA_Buffer_Size,cx		;an000; dms;save buffer size
+	mov	EA_Buffer_Size,cx		;an000; dms;save buffer size
 	ret					;an000; dms;
 
-Query_Extend_Attrib	endp			;an000; dms;
+; ENDP Query_Extend_Attrib;an000; dms;
 
 
 ;=========================================================================
@@ -1793,7 +1793,7 @@ Query_Extend_Attrib	endp			;an000; dms;
 ;	Outputs : DX	 - paras available
 ;=========================================================================
 
-Calc_Memory_Avail	proc	near		;an000; dms;
+Calc_Memory_Avail:;an000; dms;
 
 	push	ds				;save ds for size calc
 	push	cx				;an000; dms;
@@ -1811,7 +1811,7 @@ Calc_Memory_Avail	proc	near		;an000; dms;
 
 	ret					;an000; dms;
 
-Calc_Memory_Avail	endp			;an000; dms;
+; ENDP Calc_Memory_Avail;an000; dms;
 
 ;=========================================================================
 ; EA_Fail_Exit		: This routine tells the user that there was
@@ -1822,9 +1822,9 @@ Calc_Memory_Avail	endp			;an000; dms;
 ;	Outputs : message
 ;=========================================================================
 
-EA_Fail_Exit		proc	near		;an000; dms;
+EA_Fail_Exit:;an000; dms;
 
-	mov	dx,offset dg:MemFul_Ptr 	;an000; dms;"Insufficient
+	mov	dx,MemFul_Ptr 	;an000; dms;"Insufficient
 
 	push	cs				;an000; dms;xchange ds/cs
 	pop	ds				;an000; dms;
@@ -1835,9 +1835,9 @@ EA_Fail_Exit		proc	near		;an000; dms;
 	int	21h				;an000; dms;
 	ret					;an000; dms;
 
-EA_Fail_Exit		endp			;an000; dms;
+; ENDP EA_Fail_Exit;an000; dms;
 
-CODE	ENDS
-	END	EDLIN
+; END SECTION .CODE
+	; END	EDLIN
 
 

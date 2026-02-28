@@ -1,55 +1,55 @@
-TITLE   PART3 - COMMAND Transient routines.
+; TITLE   PART3 - COMMAND Transient routines.
 
-        INCLUDE COMSW.ASM
+        %include "COMSW.ASM"
 
-.xlist
-.xcref
-        INCLUDE DOSSYM.ASM
-        INCLUDE DEVSYM.ASM
-        INCLUDE COMSEG.ASM
-.list
-.cref
+; .xlist
+; .xcref
+        %include "DOSSYM.ASM"
+        %include "DEVSYM.ASM"
+        %include "COMSEG.ASM"
+; .list
+; .cref
 
-        INCLUDE COMEQU.ASM
-
-
-DATARES SEGMENT PUBLIC
-        EXTRN   BATCH:WORD,BATLOC:DWORD
-        EXTRN   RETCODE:WORD,ECHOFLAG:BYTE
-        EXTRN   SINGLECOM:WORD,FORFLAG:BYTE,UFORDRV:BYTE
-        EXTRN   FORSET:BYTE,FORCOM:BYTE,FORVAR:BYTE,FORPTR:WORD
-        EXTRN   FORUFCB:BYTE,FORFCB:BYTE,RE_INSTR:BYTE,RE_OUT_APP:BYTE
-        EXTRN   RE_OUTSTR:BYTE,PIPEFLAG:BYTE
-
-DATARES ENDS
-
-TRANDATA        SEGMENT PUBLIC
-
-        EXTRN   BADLAB:BYTE,SYNTMES:BYTE,FORNESTMES:BYTE
-        EXTRN   NOTFND:BYTE,FULDIR:BYTE,IFTAB:BYTE
-TRANDATA        ENDS
-
-TRANSPACE       SEGMENT PUBLIC
-
-        EXTRN   BATHAND:WORD,RESSEG:WORD,DIRBUF:BYTE,COMBUF:BYTE
-        EXTRN   GOTOLEN:WORD,IFNOTFLAG:BYTE
-
-TRANSPACE       ENDS
+        %include "COMEQU.ASM"
 
 
-TRANCODE        SEGMENT PUBLIC BYTE
-ASSUME  CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+SECTION .DATARES
+        extern BATCH,BATLOC
+        extern RETCODE,ECHOFLAG
+        extern SINGLECOM,FORFLAG,UFORDRV
+        extern FORSET,FORCOM,FORVAR,FORPTR
+        extern FORUFCB,FORFCB,RE_INSTR,RE_OUT_APP
+        extern RE_OUTSTR,PIPEFLAG
 
-        EXTRN   SCANOFF:NEAR,DOCOM:NEAR,DOCOM1:NEAR,CERROR:NEAR
-        EXTRN   PRINT:NEAR,TCOMMAND:NEAR,DELIM:NEAR,GETBATBYT:NEAR
-        EXTRN   FCB_TO_ASCZ:NEAR
+; END SECTION .DATARES
 
-        PUBLIC  GOTO,$IF,IFERLEV,SHIFT,IFEXISTS
-        PUBLIC  STRCOMP,MesTran,$FOR,IFNOT
-        PUBLIC  FORPROC,BATOPEN,BATCLOSE
-        PUBLIC  IOSET,TESTDOREIN,TESTDOREOUT
+SECTION .TRANDATA
 
-        ASSUME  DS:RESGROUP
+        extern BADLAB,SYNTMES,FORNESTMES
+        extern NOTFND,FULDIR,IFTAB
+; END SECTION .TRANDATA
+
+SECTION .TRANSPACE
+
+        extern BATHAND,RESSEG,DIRBUF,COMBUF
+        extern GOTOLEN,IFNOTFLAG
+
+; END SECTION .TRANSPACE
+
+
+SECTION .TRANCODE
+; ASSUME  CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+
+        extern SCANOFF,DOCOM,DOCOM1,CERROR
+        extern PRINT,TCOMMAND,DELIM,GETBATBYT
+        extern FCB_TO_ASCZ
+
+        global GOTO,$IF,IFERLEV,SHIFT,IFEXISTS
+        global STRCOMP,MesTran,$FOR,IFNOT
+        global FORPROC,BATOPEN,BATCLOSE
+        global IOSET,TESTDOREIN,TESTDOREOUT
+
+        ; ASSUME  DS:RESGROUP
 FORTERM:
         MOV     [FORFLAG],0
         CMP     [SINGLECOM],0FF00H
@@ -59,19 +59,19 @@ NOFORP2:
         JMP     TCOMMAND
 
 FORPROC:
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         CMP     [FORUFCB],-1
         JZ      NORMFOR
-        MOV     DX,OFFSET TRANGROUP:DIRBUF
+        MOV     DX,DIRBUF
         PUSH    DS
         PUSH    CS
         POP     DS
-ASSUME  DS:TRANGROUP
+; ASSUME  DS:TRANGROUP
         MOV     AH,SET_DMA
         INT     int_command
         POP     DS
-ASSUME  DS:RESGROUP
-        MOV     DX,OFFSET RESGROUP:FORFCB
+; ASSUME  DS:RESGROUP
+        MOV     DX,FORFCB
         MOV     AH,DIR_SEARCH_NEXT
         CMP     [FORUFCB],0
         JZ      DOFORSRCH
@@ -83,12 +83,12 @@ DOFORSRCH:
         JNZ     FORTERM
         PUSH    DS
         POP     ES
-ASSUME  ES:RESGROUP
+; ASSUME  ES:RESGROUP
         PUSH    CS
         POP     DS
-ASSUME  DS:TRANGROUP
-        MOV     SI,OFFSET TRANGROUP:DIRBUF
-        MOV     DI,OFFSET RESGROUP:FORSET
+; ASSUME  DS:TRANGROUP
+        MOV     SI,DIRBUF
+        MOV     DI,FORSET
         MOV     [FORPTR],DI
         LODSB                   ;Get drive spec
         ADD     AL,'@'
@@ -100,16 +100,16 @@ ASSUME  DS:TRANGROUP
         STOSW
 NDRV8:
         CALL    FCB_TO_ASCZ
-        MOV     BYTE PTR ES:[DI-1],0DH
+        MOV     byte ES:[DI-1],0DH
         PUSH    ES
         POP     DS
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
 NORMFOR:
         PUSH    CS
         POP     ES
-ASSUME  ES:TRANGROUP
+; ASSUME  ES:TRANGROUP
         MOV     BX,[FORPTR]
-        CMP     BYTE PTR [BX],0
+        CMP     byte [BX],0
         JZ      FORTERM
         MOV     SI,BX
 PARMSUB0:
@@ -117,8 +117,8 @@ PARMSUB0:
         CMP     AL,0DH
         JNZ     PARMSUB0
         MOV     DX,SI           ; DX points to next parm
-        MOV     SI,OFFSET RESGROUP:FORCOM
-        MOV     DI,OFFSET TRANGROUP:COMBUF+2
+        MOV     SI,FORCOM
+        MOV     DI,COMBUF+2
         XOR     CX,CX
 TFORCOM:
         LODSB
@@ -151,37 +151,37 @@ NOFORPARM:
         TEST    [ECHOFLAG],-1
         PUSH    CS
         POP     DS
-ASSUME  DS:TRANGROUP
+; ASSUME  DS:TRANGROUP
         JZ      NOECHO3
-        MOV     BYTE PTR ES:[DI-1],'$'
-        MOV     DX,OFFSET TRANGROUP:COMBUF+2
+        MOV     byte ES:[DI-1],'$'
+        MOV     DX,COMBUF+2
         CALL    PRINT
-        MOV     BYTE PTR ES:[DI-1],0DH
+        MOV     byte ES:[DI-1],0DH
         JMP     DOCOM
 NOECHO3:
         JMP     DOCOM1
 
-ASSUME  DS:TRANGROUP,ES:TRANGROUP
+; ASSUME  DS:TRANGROUP,ES:TRANGROUP
 
 FORNESTERR:
         PUSH    DS
         MOV     DS,[RESSEG]
-ASSUME  DS:RESGROUP
-        MOV     DX,OFFSET TRANGROUP:FORNESTMES
+; ASSUME  DS:RESGROUP
+        MOV     DX,FORNESTMES
         CMP     [SINGLECOM],0FF00H
         JNZ     NOFORP3
         MOV     [SINGLECOM],-1          ; Cause termination
 NOFORP3:
         POP     DS
-ASSUME  DS:TRANGROUP
+; ASSUME  DS:TRANGROUP
         JMP     CERROR
 
 $FOR:
         MOV     SI,81H
         XOR     CX,CX
         MOV     ES,[RESSEG]
-ASSUME  ES:RESGROUP
-        MOV     DI,OFFSET RESGROUP:FORSET
+; ASSUME  ES:RESGROUP
+        MOV     DI,FORSET
         XOR     AL,AL
         MOV     [UFORDRV],AL
         XCHG    AL,[FORFLAG]
@@ -229,13 +229,13 @@ SETFORSCAN:
 NOFORSCAN:
         CALL    DELIM
         JNZ     FORSETLP
-        MOV     BYTE PTR ES:[DI-1],0DH
+        MOV     byte ES:[DI-1],0DH
         CALL    SCANOFF
         JMP     FORSETLP
 
 FORSETEND:
         MOV     AX,000DH
-        CMP     BYTE PTR ES:[DI-1],0DH
+        CMP     byte ES:[DI-1],0DH
         JNZ     FORSETTERM
         XOR     AX,AX
 FORSETTERM:
@@ -252,7 +252,7 @@ FOROK2:
         CMP     AL,0DH
 FORERRORJ3:
         JZ      FORERROR
-        MOV     DI,OFFSET RESGROUP:FORCOM
+        MOV     DI,FORCOM
 FORCOMLP:
         LODSB
         STOSB
@@ -267,10 +267,10 @@ NOFORP:
         retnz
         PUSH    ES
         POP     DS
-ASSUME  DS:RESGROUP
-        MOV     DI,OFFSET RESGROUP:FORFCB
-        MOV     SI,OFFSET RESGROUP:FORSET
-        CMP     BYTE PTR [SI+1],':'
+; ASSUME  DS:RESGROUP
+        MOV     DI,FORFCB
+        MOV     SI,FORSET
+        CMP     byte [SI+1],':'
         JNZ     NOSETUDRV
         INC     [UFORDRV]
 NOSETUDRV:
@@ -279,13 +279,13 @@ NOSETUDRV:
         return
 
 
-ASSUME  DS:TRANGROUP,ES:TRANGROUP
+; ASSUME  DS:TRANGROUP,ES:TRANGROUP
 
 IFERRORP:
         POP     AX
 IFERROR:
 FORERROR:
-        MOV     DX,OFFSET TRANGROUP:SYNTMES
+        MOV     DX,SYNTMES
         JMP     CERROR
 
 $IF:
@@ -296,7 +296,7 @@ IFREENT:
         CMP     AL,0DH
         JZ      IFERROR
         MOV     BP,SI
-        MOV     DI,OFFSET TRANGROUP:IFTAB     ; Prepare to search if table
+        MOV     DI,IFTAB     ; Prepare to search if table
         MOV     CH,0
 IFINDCOM:
         MOV     SI,BP
@@ -366,7 +366,7 @@ EQUAL_CHECK2:
         POP     DI
         REPE    CMPSB
         JZ      MATCH
-        CMP     BYTE PTR [SI-1],0DH
+        CMP     byte [SI-1],0DH
         JZ      IFERRORJ
 SKIPSTRINGEND:
         LODSB
@@ -386,7 +386,7 @@ MATCH:
         JMP     SHORT IFRET
 
 IFEXISTS:
-        MOV     DI,OFFSET TRANGROUP:DIRBUF
+        MOV     DI,DIRBUF
         MOV     AX,(PARSE_FILE_DESCRIPTOR SHL 8) OR 01H
         INT     int_command
         MOV     AH,FCB_OPEN
@@ -407,7 +407,7 @@ IFTRUE:
         SUB     DS:[80H],CL
         MOV     CL,DS:[80H]
         MOV     [COMBUF+1],CL
-        MOV     DI,OFFSET TRANGROUP:COMBUF+2
+        MOV     DI,COMBUF+2
         REP     MOVSB
         MOV     AL,0DH
         STOSB
@@ -431,27 +431,27 @@ GETNUMLP:
 GOTNUM:
         PUSH    DS
         MOV     DS,[RESSEG]
-ASSUME  DS:RESGROUP
-        MOV     AH,BYTE PTR [RETCODE]
+; ASSUME  DS:RESGROUP
+        MOV     AH,byte [RETCODE]
         POP     DS
-ASSUME  DS:TRANGROUP
+; ASSUME  DS:TRANGROUP
         XOR     AL,AL
         CMP     AH,BL
         JAE     IFRET
         DEC     AL
         JMP     SHORT IFRET
 
-ASSUME  DS:TRANGROUP
+; ASSUME  DS:TRANGROUP
 
 SHIFT:
         MOV     DS,[RESSEG]
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         MOV     AX,[BATCH]
         TEST    AX,-1
         retz
         MOV     ES,AX
         MOV     DS,AX
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
         XOR     CX,CX
         MOV     AX,CX
         MOV     DI,CX
@@ -462,31 +462,31 @@ ASSUME  DS:NOTHING,ES:NOTHING
         INC     SI
         MOV     CX,9
         REP     MOVSW                   ; Perform shift of existing parms
-        CMP     WORD PTR [DI],-1
+        CMP     word [DI],-1
         retz                            ; No new parm
         MOV     SI,[DI]
-        MOV     WORD PTR [DI],-1        ; Assume no parm
+        MOV     word [DI],-1        ; Assume no parm
         MOV     DS,[RESSEG]
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
 SKIPCRLP:
         LODSB
         CMP     AL,0DH
         JNZ     SKIPCRLP
-        CMP     BYTE PTR [SI],0
+        CMP     byte [SI],0
         retz                            ; End of parms
         MOV     ES:[DI],SI              ; Pointer to next parm as %9
         return
 
 
-ASSUME  DS:TRANGROUP,ES:TRANGROUP
+; ASSUME  DS:TRANGROUP,ES:TRANGROUP
 GOTO:
         MOV     DS,[RESSEG]
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         TEST    [BATCH],-1
         retz                    ; If not in batch mode, a nop
         XOR     DX,DX
-        MOV     WORD PTR [BATLOC],DX    ; Back to start
-        MOV     WORD PTR [BATLOC+2],DX
+        MOV     word [BATLOC],DX    ; Back to start
+        MOV     word [BATLOC+2],DX
         CALL    BATOPEN                 ; Find the batch file
         MOV     DI,FCB+1        ; Get the label
         MOV     CX,11
@@ -514,7 +514,7 @@ LABLKTST:
         CALL    BATCLOSE
         PUSH    CS
         POP     DS
-        MOV     DX,OFFSET TRANGROUP:BADLAB
+        MOV     DX,BADLAB
         JMP     CERROR
 
 CHKLABEL:
@@ -554,20 +554,20 @@ BATCLOSE:
 
 BATOPEN:
 ;Open the BATCH file, If open fails, AL is drive of batch file (A=1)
-ASSUME  DS:RESGROUP,ES:TRANGROUP
+; ASSUME  DS:RESGROUP,ES:TRANGROUP
         PUSH    DS
         MOV     DS,[BATCH]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         XOR     DX,DX
         MOV     AX,OPEN SHL 8
         INT     int_command             ; Open the batch file
         JC      SETERRDL
         POP     DS
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         MOV     [BATHAND],AX
         MOV     BX,AX
-        MOV     DX,WORD PTR [BATLOC]
-        MOV     CX,WORD PTR [BATLOC+2]
+        MOV     DX,word [BATLOC]
+        MOV     CX,word [BATLOC+2]
         MOV     AX,LSEEK SHL 8          ; Go to the right spot
         INT     int_command
         return
@@ -581,7 +581,7 @@ SETERRDL:
         return
 
 MESTRAN:
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
         LODSB
         CMP     AL,"$"
         retz
@@ -589,14 +589,14 @@ ASSUME  DS:NOTHING,ES:NOTHING
         JMP     MESTRAN
 IOSET:
 ; ALL REGISTERS PRESERVED
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         PUSH    DS
         PUSH    DX
         PUSH    AX
         PUSH    BX
         PUSH    CX
         MOV     DS,[RESSEG]
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         CMP     [PIPEFLAG],0
         JNZ     NOREDIR                 ; Don't muck up the pipe
         CALL    TESTDOREIN
@@ -607,17 +607,17 @@ NOREDIR:
         POP     AX
         POP     DX
         POP     DS
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         return
 
 TESTDOREIN:
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         CMP     [RE_INSTR],0
         retz
-        MOV     DX,OFFSET RESGROUP:RE_INSTR
+        MOV     DX,RE_INSTR
         MOV     AX,(OPEN SHL 8)
         INT     int_command
-        MOV     DX,OFFSET TRANGROUP:NOTFND
+        MOV     DX,NOTFND
         JC      REDIRERR
         MOV     BX,AX
         MOV     AL,0FFH
@@ -631,12 +631,12 @@ REDIRERR:
         JMP     CERROR
 
 TESTDOREOUT:
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         CMP     [RE_OUTSTR],0
         JZ      NOREOUT
         CMP     [RE_OUT_APP],0
         JZ      REOUTCRT
-        MOV     DX,OFFSET RESGROUP:RE_OUTSTR
+        MOV     DX,RE_OUTSTR
         MOV     AX,(OPEN SHL 8) OR 1
         INT     int_command
         JC      REOUTCRT
@@ -647,11 +647,11 @@ ASSUME  DS:RESGROUP
         INT     int_command
         JMP     SHORT SET_REOUT
 REOUTCRT:
-        MOV     DX,OFFSET RESGROUP:RE_OUTSTR
+        MOV     DX,RE_OUTSTR
         XOR     CX,CX
         MOV     AH,CREAT
         INT     int_command
-        MOV     DX,OFFSET TRANGROUP:FULDIR
+        MOV     DX,FULDIR
         JC      REDIRERR
         MOV     BX,AX
 SET_REOUT:
@@ -666,12 +666,13 @@ STRCOMP:
 ; SI,DI destroyed.
         CMPSB
         retnz                           ; Strings not equal
-        cmp     byte ptr [SI-1],0       ; Hit NUL terminator?
+        cmp     byte [SI-1],0       ; Hit NUL terminator?
         retz                            ; Yes, strings equal
         jmp     short STRCOMP           ; Equal so far, keep going
 
 
 
-TRANCODE        ENDS
-        END
-                                                                                                                    
+; END SECTION .TRANCODE
+        ; END
+                                                
+                                                                    

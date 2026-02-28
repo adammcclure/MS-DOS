@@ -1,9 +1,9 @@
 
 
-PAGE 55,132				;AN000;
-NAME	SELSERV 			;AN000;
-TITLE	SELSERV - SELECT Services	;AN000;
-SUBTTL	selserv.asm			;AN000;
+; PAGE 55,132;AN000;
+; NAME	SELSERV;AN000;
+; TITLE	SELSERV - SELECT Services;AN000;
+; SUBTTL	selserv.asm;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	ADJUST_CURELE
@@ -16,12 +16,12 @@ SUBTTL	selserv.asm			;AN000;
 ;	AX = adjusted index
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	SEGMENT PARA PUBLIC 'SELECT'    ;AN000;segment for far routine
-	ASSUME	CS:SELECT		;AN000;
+SECTION .SELECT;AN000;segment for far routine
+	; ASSUME	CS:SELECT;AN000;
 					;
-	EXTRN	WR_SCBID:WORD		;AN000;
+	extern WR_SCBID;AN000;
 					;
-SCROLL_ADJUST	LABEL	BYTE		;AN000;
+SCROLL_ADJUST:;AN000;
 	DB	1		 ;AN000;SCR_DOS_SUPPORT
 	DB	1		 ;AN000;SCR_CTY_KYB
 	DB	0		 ;AN000;SCR_CTY_1
@@ -54,9 +54,9 @@ SCROLL_ADJUST_LEN  EQU	($-SCROLL_ADJUST);AN000;
 ADJUST_ON	EQU	1	 ;AN000;
 ADJUST_OFF	EQU	0	 ;AN000;
 					;
-	PUBLIC	ADJUST_UP,ADJUST_DOWN	;AN000;
+	global ADJUST_UP,ADJUST_DOWN;AN000;
 					;
-ADJUST_UP	PROC			;AN000;
+ADJUST_UP:;AN000;
 	PUSH	BX			;AN000;
 	PUSH	CX			;AN000;
 	OR	AX,AX			;AN000;
@@ -71,7 +71,7 @@ ADJUST_UP	PROC			;AN000;
 AC_1:	POP	CX			;AN000;
 	POP	BX			;AN000;
 	RET				;AN000;
-ADJUST_UP	ENDP			;AN000;
+; ENDP ADJUST_UP;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	ADJUST_INDEX
@@ -81,7 +81,7 @@ ADJUST_UP	ENDP			;AN000;
 ;	AX = adjusted index
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ADJUST_DOWN	PROC			;AN000;
+ADJUST_DOWN:;AN000;
 	PUSH	BX			;AN000;
 	PUSH	CX			;AN000;
 	OR	AX,AX			;AN000;
@@ -96,13 +96,13 @@ ADJUST_DOWN	PROC			;AN000;
 AI_1:	POP	CX			;AN000;
 	POP	BX			;AN000;
 	RET				;AN000;
-ADJUST_DOWN	ENDP			;AN000;
+; ENDP ADJUST_DOWN;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS				;AN000;
-	END				;AN000;
+; END SECTION .SELECT;AN000;
+	; END;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

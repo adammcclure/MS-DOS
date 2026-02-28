@@ -1,10 +1,10 @@
 ;0
-page 80,132
+; page 80,132
 ;
-title CP/DOS DOSGETMACHINEMODE mapper
+; title CP/DOS DOSGETMACHINEMODE mapper
 ;
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -15,26 +15,26 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-	    public   dosgetmachinemode
-	    .sall
-	    .xlist
-	    include  macros.inc
-	    .list
+	    global dosgetmachinemode
+	    ; .sall
+	    ; .xlist
+	    %include "macros.inc"
+	    ; .list
 
-str	    struc
-modeaddr    dw	     ?
-str	    ends
+struc str
+modeaddr: dw 0
+endstruc
 
-dosgetmachinemode proc	far
+dosgetmachinemode:
 	Enter	DosGetMachMode	      ; push registers
 
 	sub	ax,ax		      ; set good return code
 
 	mexit			      ; pop registers
-	ret	size str - 6	      ; return garbage (Not supported in PCDOS)
+	ret	str_size - 6	      ; return garbage (Not supported in PCDOS)
 
-dosgetmachinemode endp
+; ENDP dosgetmachinemode
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

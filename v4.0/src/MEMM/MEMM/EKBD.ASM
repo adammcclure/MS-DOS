@@ -1,8 +1,8 @@
 
 
-	page	58,132
+	; page	58,132
 ;******************************************************************************
-	title	EKBD - get keyboard make codes
+	; title	EKBD - get keyboard make codes
 ;******************************************************************************
 ;   (C) Copyright MICROSOFT Corp. 1986
 ;
@@ -32,25 +32,25 @@
 ;			    or command codes.
 ;
 ;******************************************************************************
-	page
-.386P
+	; page
+CPU 386
 ;
-	include vdmseg.inc
-	include kbd.inc
+	%include "vdmseg.inc"
+	%include "kbd.inc"
 ;******************************************************************************
 ;	Public Declarations
 ;******************************************************************************
 ;
-	public	egetc			; get a character
-	public	WaitKBD 		; wait for keyboard ready
+	global egetc; get a character
+	global WaitKBD; wait for keyboard ready
 ;******************************************************************************
 ;	Externs
 ;******************************************************************************
-_TEXT	segment
-_TEXT	ends
+SECTION ._TEXT
+; END SECTION ._TEXT
 
-_DATA	segment
-_DATA	ends
+SECTION ._DATA
+; END SECTION ._DATA
 ;
 ;******************************************************************************
 ;	Equates
@@ -60,8 +60,8 @@ _DATA	ends
 ;******************************************************************************
 ;		LOCAL DATA
 ;******************************************************************************
-_DATA	segment
-_DATA	ends
+SECTION ._DATA
+; END SECTION ._DATA
 ;
 ;******************************************************************************
 ;
@@ -79,9 +79,9 @@ _DATA	ends
 ;	stack:
 ;
 ;******************************************************************************
-_TEXT	segment
-	ASSUME	CS:_TEXT, DS:DGROUP, ES:DGROUP
-egetc	proc	near
+SECTION ._TEXT
+	; ASSUME	CS:_TEXT, DS:DGROUP, ES:DGROUP
+egetc:
 ;
 	in	al,KbStatus		; get status
 	test	al,1			; q: is there anything out there?
@@ -108,7 +108,7 @@ enaKB:
 	popf
 kret:
 	ret
-egetc	endp
+; ENDP egetc
 ;
 ;******************************************************************************
 ;
@@ -123,7 +123,7 @@ egetc	endp
 ;	stack:
 ;
 ;******************************************************************************
-WaitKBD proc	near
+WaitKBD:
 	push	cx
 	xor	cx,cx			; do 65536 times
 wait:
@@ -133,7 +133,7 @@ wait:
 ;
 	pop	cx			; n: return
 	ret
-WaitKBD endp
+; ENDP WaitKBD
 
-_TEXT	ENDS
-	END
+; END SECTION ._TEXT
+	; END

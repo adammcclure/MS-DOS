@@ -1,5 +1,5 @@
 
-include MSBDS.INC				;include BDS struc		;an000; dms;
+%include "MSBDS.INC";include BDS struc		;an000; dms;
 
 
 
@@ -9,29 +9,29 @@ include MSBDS.INC				;include BDS struc		;an000; dms;
 ;				  INT 13h hook.
 ;=========================================================================
 
-I13_Handler	proc	far			;				;an000; dms;
+I13_Handler:;				;an000; dms;
 
 	jmp	I13_Handler_Start
 
 
-I13_Max_Head		db	?		;max head count on drive	;an000; dms;
-I13_SPT 		db	?		;max sectors/track count	;an000; dms;
-I13_BPS 		dw	?		;max number bytes/sector	;an000; dms;
+I13_Max_Head: db 0;max head count on drive	;an000; dms;
+I13_SPT: db 0;max sectors/track count	;an000; dms;
+I13_BPS: dw 0;max number bytes/sector	;an000; dms;
 I13_Bytes_Per_Para	dw	10h		;number of bytes per paragraph	;an000; dms;
 I13_Bytes_Per_EMS_Page	dw	4000h		;bytes per EMS page		;an000; dms;
-I13_Paras_Per_Sector	dw	?		;paras per sector		;an000; dms;
-I13_DD_Per_Sector	dw	?		;double words per sector	;an000; dms;
-I13_Operation		db	?		;INT 13h function		;an000; dms;
-I13_Sector_Count	db	?		;sector count			;an000; dms;
-I13_Track_Number	dw	?		;track number			;an000; dms;
-I13_Sector_Number	db	?		;sector number			;an000; dms;
-I13_Head_Number 	db	?		;head number			;an000; dms;
-I13_Drive_Number	db	?		;drive number			;an000; dms;
+I13_Paras_Per_Sector: dw 0;paras per sector		;an000; dms;
+I13_DD_Per_Sector: dw 0;double words per sector	;an000; dms;
+I13_Operation: db 0;INT 13h function		;an000; dms;
+I13_Sector_Count: db 0;sector count			;an000; dms;
+I13_Track_Number: dw 0;track number			;an000; dms;
+I13_Sector_Number: db 0;sector number			;an000; dms;
+I13_Head_Number: db 0;head number			;an000; dms;
+I13_Drive_Number: db 0;drive number			;an000; dms;
 I13_Sectors_To_Trf	db	1		;current sectors to trf 	;an000; dms;
-I13_Curr_Trf_Cnt	db	?		;total transfer count in secs	;an000; dms;
-I13_Trf_Off		dw	?		;current address for trf	;an000; dms;
-I13_Trf_Seg		dw	?						;an000; dms;
-I13_512_Byte_Buffer	db	512 dup(0)	;buffer for sector		;an000; dms;
+I13_Curr_Trf_Cnt: db 0;total transfer count in secs	;an000; dms;
+I13_Trf_Off: dw 0;current address for trf	;an000; dms;
+I13_Trf_Seg: dw 0;an000; dms;
+I13_512_Byte_Buffer: times 512 db 0;buffer for sector		;an000; dms;
 
 I13_Handler_Start:
 
@@ -63,7 +63,7 @@ I13_Handler_Request_Break:
 	ret 2					;return to caller		;an000; dms;
 						;clear the flags from the stack
 						;  and pass back ours
-I13_Handler	endp				;				;an000; dms;
+; ENDP I13_Handler;				;an000; dms;
 
 
 
@@ -79,7 +79,7 @@ I13_Handler	endp				;				;an000; dms;
 ;=========================================================================
 
 
-I13_Target_Source_Range_Ck	proc	near	;				;an000; dms;
+I13_Target_Source_Range_Ck:;				;an000; dms;
 
 	push	ax				;save regs			;an000; dms;
 	push	bx				;				;an000; dms;
@@ -89,7 +89,7 @@ I13_Target_Source_Range_Ck	proc	near	;				;an000; dms;
 
 	mov	ax,cs				;get cs addressibility		;an000; dms;
 	mov	ds,ax				;				;an000; dms;
-	mov	si,offset cs:Map_Table		;point to the map table 	;an000; dms;
+	mov	si,Map_Table		;point to the map table 	;an000; dms;
 
 	mov	cx,cs:Map_Count 		;get the number of phys. pages	;an000; dms;
 
@@ -132,7 +132,7 @@ I13_Target_Source_Exit:
 
 	ret					;				;an000; dms;
 
-I13_Target_Source_Range_Ck	endp		;				;an000; dms;
+; ENDP I13_Target_Source_Range_Ck;				;an000; dms;
 
 
 ;=========================================================================
@@ -152,7 +152,7 @@ I13_Target_Source_Range_Ck	endp		;				;an000; dms;
 ;=========================================================================
 
 
-I13_Request_Break_Up	proc	near		;				;an000; dms;
+I13_Request_Break_Up:;				;an000; dms;
 
 	push	bx				;save regs			;an000; dms;
 	push	cx				;				;an000; dms;
@@ -170,7 +170,7 @@ I13_Request_Break_Up	proc	near		;				;an000; dms;
 	mov	cs:I13_Sector_Count,al		;save sector count		;an000; dms;
 
 
-	mov	byte ptr cs:I13_Track_Number,ch ;save starting track number	;an000; dms;
+	mov	byte cs:I13_Track_Number,ch ;save starting track number	;an000; dms;
 	mov	ch,cl				;xchg bytes			;an000; dms;
 	shr	ch,1				;shift 6 bits			;an000; dms;
 	shr	ch,1				;				;an000; dms;
@@ -179,7 +179,7 @@ I13_Request_Break_Up	proc	near		;				;an000; dms;
 	shr	ch,1				;				;an000; dms;
 	shr	ch,1				;				;an000; dms;
 
-	mov	byte ptr cs:I13_Track_Number[+1],ch	;high byte for cylinder ;an000; dms;
+	mov	byte cs:I13_Track_Number[+1],ch	;high byte for cylinder ;an000; dms;
 	and	cl,00111111b			;get bits 0-5 for sector number ;an000; dms;
 
 	mov	cs:I13_Sector_Number,cl 	;save starting sector number	;an000; dms;
@@ -204,7 +204,7 @@ I13_Request_Read:
 	jc	I13_Request_Failed		;signal failure 		;an000; dms;
 	mov	ax,cs				;point to our buffer to the	;an000; dms;
 	mov	ds,ax				;  transfer			;an000; dms;
-	mov	si,offset cs:I13_512_Byte_Buffer;				;an000; dms;
+	mov	si,I13_512_Byte_Buffer;				;an000; dms;
 
 	mov	es,cs:I13_Trf_Seg		;restore seg to target		;an000; dms;
 	mov	di,cs:I13_Trf_Off		;restore off to target		;an000; dms;
@@ -228,7 +228,7 @@ I13_Request_Write:
 
 	mov	ax,cs				;point to 512 byte buffer	;an000; dms;
 	mov	es,ax				;				;an000; dms;
-	mov	di,offset cs:I13_512_Byte_Buffer;				;an000; dms;
+	mov	di,I13_512_Byte_Buffer;				;an000; dms;
 
 	mov	ds,cs:I13_Trf_Seg		;get source segment		;an000; dms;
 	mov	si,cs:I13_Trf_Off		;get source offset		;an000; dms;
@@ -273,7 +273,7 @@ I13_Request_Exit:
 
 	ret					;				;an000; dms;
 
-I13_Request_Break_Up	endp			;				;an000; dms;
+; ENDP I13_Request_Break_Up;				;an000; dms;
 
 
 
@@ -292,7 +292,7 @@ I13_Request_Break_Up	endp			;				;an000; dms;
 ;=========================================================================
 
 
-I13_Adjust	proc	near			;adjust values			;an000; dms;
+I13_Adjust:;adjust values			;an000; dms;
 
 	push	ax				;save regs			;an000; dms;
 
@@ -317,7 +317,7 @@ I13_Adjust_Exit:
 
 	ret					;				;an000; dms;
 
-I13_Adjust	endp				;				;an000; dms;
+; ENDP I13_Adjust;				;an000; dms;
 
 
 ;=========================================================================
@@ -334,7 +334,7 @@ I13_Adjust	endp				;				;an000; dms;
 ;		  CY			- bad read/write
 ;=========================================================================
 
-I13_Invoke	proc	near			;invoke INT 13h 		;an000; dms;
+I13_Invoke:;invoke INT 13h 		;an000; dms;
 
 	push	bx				;save regs			;an000; dms;
 	push	cx				;				;an000; dms;
@@ -343,8 +343,8 @@ I13_Invoke	proc	near			;invoke INT 13h 		;an000; dms;
 	mov	ah,cs:I13_Operation		;get function call		;an000; dms;
 	mov	al,cs:I13_Sectors_To_Trf	;get sectors to transfer	;an000; dms;
 
-	mov	ch,byte ptr cs:I13_Track_Number ;get track number		;an000; dms;
-	mov	cl,byte ptr cs:I13_Track_Number[+1]	;get high 2 bits	;an000; dms;
+	mov	ch,byte cs:I13_Track_Number ;get track number		;an000; dms;
+	mov	cl,byte cs:I13_Track_Number[+1]	;get high 2 bits	;an000; dms;
 	shl	cl,1				;put bit is positions 6&7	;an000; dms;
 	shl	cl,1				;				;an000; dms;
 	shl	cl,1				;				;an000; dms;
@@ -365,7 +365,7 @@ I13_Invoke	proc	near			;invoke INT 13h 		;an000; dms;
 
 	ret					;				;an000; dms;
 
-I13_Invoke	endp				;				;an000; dms;
+; ENDP I13_Invoke;				;an000; dms;
 
 
 ;=========================================================================
@@ -382,7 +382,7 @@ I13_Invoke	endp				;				;an000; dms;
 
 
 
-I13_Get_Dev_Parms	proc	near		;get sectors/track & head cnt.	;an000; dms;
+I13_Get_Dev_Parms:;get sectors/track & head cnt.	;an000; dms;
 
 	push	ax				;save regs			;an000; dms;
 	push	bx				;				;an000; dms;
@@ -398,10 +398,10 @@ I13_Get_Dev_Next_Entry:
 
 	cmp	ds:[di].Drivenum,dl		;do we have our drive?		;an000; dms;
 	je	I13_Get_Dev_Save_Parms		;yes get data			;an000; dms;
-	cmp	word ptr ds:[di].Link[+0],-1	;last entry in list?		;an000; dms;
+	cmp	word ds:[di].Link[+0],-1	;last entry in list?		;an000; dms;
 	je	I13_Get_Dev_Parms_Error_Exit	;yes - did not find drive	;an000; dms;
-	mov	ax,word ptr ds:[di].Link[+0]	;get offset of next entry	;an000; dms;
-	mov	bx,word ptr ds:[di].Link[+2]	;get segment of next entry	;an000; dms;
+	mov	ax,word ds:[di].Link[+0]	;get offset of next entry	;an000; dms;
+	mov	bx,word ds:[di].Link[+2]	;get segment of next entry	;an000; dms;
 	mov	ds,bx				;stuff into ds:di		;an000; dms;
 	mov	di,ax				;				;an000; dms;
 	jmp	I13_Get_Dev_Next_Entry		;continue			;an000; dms;
@@ -444,6 +444,6 @@ I13_Get_Dev_Parms_Exit:
 
 	ret					;				;an000; dms;
 
-I13_Get_Dev_Parms	endp			;				;an000; dms;
+; ENDP I13_Get_Dev_Parms;				;an000; dms;
 
 

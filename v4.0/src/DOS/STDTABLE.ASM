@@ -3,14 +3,14 @@
 ; Table Segment for MS-DOS DOS
 ;
 
-.xlist
-.xcref
-include stdsw.asm
-.cref
-.list
+; .xlist
+; .xcref
+%include "stdsw.asm"
+; .cref
+; .list
 
-TITLE   STDTABLE - Table segment for MS-DOS
-NAME    STDTABLE
+; TITLE   STDTABLE - Table segment for MS-DOS
+; NAME    STDTABLE
 
-include mstable.asm
-	END
+%include "mstable.asm"
+	; END

@@ -2,20 +2,20 @@
 ; Disk utilities of MSDOS
 ;
 
-INCLUDE DOSSEG.ASM
+%include "DOSSEG.ASM"
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-        ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+        ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.XLIST
-.xcref
-INCLUDE DOSSYM.ASM
-INCLUDE DEVSYM.ASM
-.cref
-.list
+; .XLIST
+; .xcref
+%include "DOSSYM.ASM"
+%include "DEVSYM.ASM"
+; .cref
+; .list
 
-TITLE   ROM - miscellaneous routines
-NAME    ROM
+; TITLE   ROM - miscellaneous routines
+; NAME    ROM
 
         i_need  CLUSNUM,WORD
         i_need  NEXTADD,WORD
@@ -37,19 +37,19 @@ NAME    ROM
         MOV     CX,1
         entry   GetRRPos
         MOV     DI,DX
-        CMP     BYTE PTR [DI],-1
+        CMP     byte [DI],-1
         JNZ     NORMFCB1
         ADD     DI,7
 NORMFCB1:
-        MOV     AX,WORD PTR [DI.fcb_RR]
-        MOV     DX,WORD PTR [DI.fcb_RR+2]
+        MOV     AX,word [DI.fcb_RR]
+        MOV     DX,word [DI.fcb_RR+2]
         return
-GET_random_record   ENDP
+; ENDP GET_random_record
 
-SUBTTL FNDCLUS -- Skip over allocation units
-PAGE
+; SUBTTL FNDCLUS -- Skip over allocation units
+; PAGE
         procedure   FNDCLUS,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       CX = No. of clusters to skip
@@ -90,12 +90,12 @@ NOCLUS:
         INC     CX
         DEC     DX
         return
-FNDCLUS ENDP
+; ENDP FNDCLUS
 
-SUBTTL BUFSEC -- BUFFER A SECTOR AND SET UP A TRANSFER
-PAGE
+; SUBTTL BUFSEC -- BUFFER A SECTOR AND SET UP A TRANSFER
+; PAGE
         procedure   BUFSEC,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       AH = priority of buffer
@@ -118,7 +118,7 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         MOV     BL,[SECCLUSPOS]
         CALL    FIGREC
         invoke  GETBUFFR
-        MOV     BYTE PTR [TRANS],1      ; A transfer is taking place
+        MOV     byte [TRANS],1      ; A transfer is taking place
         MOV     SI,[NEXTADD]
         MOV     DI,SI
         MOV     CX,[BYTCNT1]
@@ -128,12 +128,12 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         ADD     DI,BUFINSIZ             ; Point to buffer
         ADD     DI,[BYTSECPOS]
         return
-BUFSEC  ENDP
+; ENDP BUFSEC
 
-SUBTTL BUFRD, BUFWRT -- PERFORM BUFFERED READ AND WRITE
-PAGE
+; SUBTTL BUFRD, BUFWRT -- PERFORM BUFFERED READ AND WRITE
+; PAGE
         procedure   BUFRD,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Do a partial sector read via one of the system buffers
 ; ES:BP Points to DPB
@@ -144,7 +144,7 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         MOV     BX,ES
         MOV     ES,[DMAADD+2]
         MOV     DS,BX
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         XCHG    DI,SI
         SHR     CX,1
         JNC     EVENRD
@@ -163,10 +163,10 @@ RBUFPLACED:
         PUSH    SS
         POP     DS
         return
-BUFRD   ENDP
+; ENDP BUFRD
 
         procedure   BUFWRT,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Do a partial sector write via one of the system buffers
 ; ES:BP Points to DPB
@@ -182,7 +182,7 @@ NOREAD:
         PUSH    ES
         CALL    BUFSEC
         MOV     DS,[DMAADD+2]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         SHR     CX,1
         JNC     EVENWRT
         MOVSB
@@ -190,7 +190,7 @@ EVENWRT:
         REP     MOVSW
         POP     ES
         LDS     BX,[CURBUF]
-        MOV     BYTE PTR [BX.BUFDIRTY],1
+        MOV     byte [BX.BUFDIRTY],1
         LEA     SI,[BX.BufInSiz]
         SUB     DI,SI                   ; Position in buffer
         MOV     SI,DI
@@ -203,17 +203,17 @@ WBUFPLACED:
         PUSH    SS
         POP     DS
         return
-BUFWRT  ENDP
+; ENDP BUFWRT
 
-SUBTTL NEXTSEC -- Compute next sector to read or write
-PAGE
+; SUBTTL NEXTSEC -- Compute next sector to read or write
+; PAGE
         procedure   NEXTSEC,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Compute the next sector to read or write
 ; ES:BP Points to DPB
 
-        TEST    BYTE PTR [TRANS],-1
+        TEST    byte [TRANS],-1
         JZ      CLRET
         MOV     AL,[SECCLUSPOS]
         INC     AL
@@ -234,12 +234,12 @@ CLRET:
 NONEXT:
         STC
         return
-NEXTSEC ENDP
+; ENDP NEXTSEC
 
-SUBTTL OPTIMIZE -- DO A USER DISK REQUEST WELL
-PAGE
+; SUBTTL OPTIMIZE -- DO A USER DISK REQUEST WELL
+; PAGE
         procedure   OPTIMIZE,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       BX = Physical cluster
@@ -307,12 +307,12 @@ BLKDON:
         MOV     [SECCLUSPOS],AH
         MOV     CX,DX           ; Anyway, make the total equal to the request
         JMP     SHORT FINCLUS
-OPTIMIZE        ENDP
+; ENDP OPTIMIZE
 
-SUBTTL FIGREC -- Figure sector in allocation unit
-PAGE
+; SUBTTL FIGREC -- Figure sector in allocation unit
+; PAGE
         procedure   FIGREC,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DX = Physical cluster number
@@ -331,12 +331,12 @@ ASSUME  DS:NOTHING,ES:NOTHING
         ADD     DX,ES:[BP.dpb_first_sector]
         POP     CX
         return
-FIGREC  ENDP
+; ENDP FIGREC
 
-SUBTTL GETREC -- Figure record in file from fcb
-PAGE
+; SUBTTL GETREC -- Figure record in file from fcb
+; PAGE
         procedure   GETREC,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX point to FCB
@@ -347,7 +347,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ; No other registers affected.
 
         MOV     DI,DX
-        CMP     BYTE PTR [DI],-1        ; Check for extended FCB
+        CMP     byte [DI],-1        ; Check for extended FCB
         JNZ     NORMFCB2
         ADD     DI,7
 NORMFCB2:
@@ -361,12 +361,12 @@ NORMFCB2:
         MOV     DL,DH
         MOV     DH,0
         return
-GETREC  ENDP
+; ENDP GETREC
 
-SUBTTL ALLOCATE -- Assign disk space
-PAGE
+; SUBTTL ALLOCATE -- Assign disk space
+; PAGE
         procedure   ALLOCATE,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       BX = Last cluster of file (0 if null file)
@@ -418,7 +418,7 @@ FINDFRE:
         INC     DX              ; DX=records/cluster
         MUL     DX              ; AX=max no. of records in file
         MOV     CX,AX
-        SUB     CX,WORD PTR [RECPOS]    ; CX=max no. of records that could be written
+        SUB     CX,word [RECPOS]    ; CX=max no. of records that could be written
         JA      MAXREC
         XOR     CX,CX           ; If CX was negative, zero it
 MAXREC:
@@ -460,10 +460,10 @@ HAVFRE:
         OR      ES:[DI.fcb_LSTCLUS],BX      ; or the new guy in...
         POP     ES
         return
-ALLOCATE    ENDP
+; ENDP ALLOCATE
 
         procedure   RESTFATBYT,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
         PUSH    BX
         PUSH    DX
@@ -475,12 +475,12 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         POP     DX
         POP     BX
         return
-RESTFATBYT  ENDP
+; ENDP RESTFATBYT
 
-SUBTTL RELEASE -- DEASSIGN DISK SPACE
-PAGE
+; SUBTTL RELEASE -- DEASSIGN DISK SPACE
+; PAGE
         procedure   RELEASE,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       BX = Cluster in file
@@ -501,12 +501,12 @@ entry   RELBLKS
         MOV     BX,AX
         JB      RELEASE
 RET12:  return
-RELEASE ENDP
+; ENDP RELEASE
 
-SUBTTL GETEOF -- Find the end of a file
-PAGE
+; SUBTTL GETEOF -- Find the end of a file
+; PAGE
         procedure   GETEOF,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       ES:BP Points to DPB
@@ -521,10 +521,10 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         JAE     RET12
         MOV     BX,DI
         JMP     SHORT GETEOF
-GETEOF  ENDP
+; ENDP GETEOF
 
 do_ext
 
-CODE    ENDS
-    END
+; END SECTION .CODE
+    ; END
           

@@ -1,5 +1,5 @@
-	Page 60,132 ;	    SCCSID = @(#)msboot.asm	    1.1 85/05/13
-TITLE BOOT	SECTOR 1 OF TRACK 0 - BOOT LOADER
+	; Page 60,132;	    SCCSID = @(#)msboot.asm	    1.1 85/05/13
+; TITLE BOOT	SECTOR 1 OF TRACK 0 - BOOT LOADER
 
 ;   Rev 1.0 ChrisP, AaronR and others.	2.0 format boot
 ;
@@ -67,18 +67,18 @@ cbDirEnt    EQU 32
 DirOff	    EQU 500h
 IBMLOADSIZE equ 3			;J.K. Size of IBMLOAD module in sectors
 ROM_DISKRD  equ 2
-include version.inc
+%include "version.inc"
 
 ;
 ; Define the destination segment of the BIOS, including the initialization
 ; label
 ;
-SEGBIOS SEGMENT AT BIOSEG
-BIOS	LABEL	BYTE
-SEGBIOS ENDS
+SECTION .SEGBIOS
+BIOS:
+; END SECTION .SEGBIOS
 
-CODE	SEGMENT
-	ASSUME CS:CODE,DS:NOTHING,ES:NOTHING,SS:NOTHING
+SECTION .CODE
+	; ASSUME CS:CODE,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ;	 ORG	 DirOff + 1Ch
 ;BiosFS  LABEL	 WORD
@@ -87,7 +87,7 @@ CODE	SEGMENT
 
 DSKADR	=	1EH*4			;POINTER TO DRIVE PARAMETERS
 
-Public $START
+global $START
 $START:
 	JMP	START
 ;----------------------------------------------------------
@@ -97,11 +97,11 @@ $START:
 ;
 ;J.K. Extened_BPB
 
-if ibmcopyright
+%if ibmcopyright
 	  DB	  "IBM  "
-else
+%else
 	  DB	  "MSDOS"
-endif
+%endif
 	  DB	  "4.0"                 ;AN005;
 ByteSec   DW	  cbSec 		; SIZE OF A PHYSICAL SECTOR
 	  DB	  8			; SECTORS PER ALLOCATION UNIT
@@ -114,10 +114,10 @@ MEDIA	  DB	  0F8H			; MEDIA BYTE
 cSecFat   DW	  8			; NUMBER OF FAT SECTORS
 SECLIM	  DW	  17			; SECTORS PER TRACK
 HDLIM	  DW	  4			; NUMBER OF SURFACES
-Ext_cSecHid label dword
+Ext_cSecHid:
 cSecHid_L DW	  1			;AN000; NUMBER OF HIDDEN SECTORS
 cSecHid_H dw	  0			;AN000; high order word of Hiden Sectors
-Ext_cTotSec label dword
+Ext_cTotSec:
 ctotsec_L dw	  0			;AN000; 32 bit version of NUMBER OF SECTORS
 ctotsec_H dw	  0			;AN000; (when 16 bit version is zero)
 ;
@@ -133,15 +133,15 @@ Boot_System_id	db    'FAT12   '        ;AN000;
 ;
 
 ;
-Public UDATA
-UDATA	LABEL	byte
-Sec9	  equ	byte ptr UDATA+0	;11 byte diskette parm. table
-BIOS$_L   EQU	WORD PTR UDATA+11
-BIOS$_H   equ	word ptr UDATA+13	;AN000;
-CURTRK	  EQU	WORD PTR UDATA+15
-CURSEC	  EQU	BYTE PTR UDATA+17
-DIR$_L	  EQU	WORD PTR UDATA+18
-Dir$_H	  equ	word ptr UDATA+20	;AN000;
+global UDATA
+UDATA:
+Sec9	  equ	byte UDATA+0	;11 byte diskette parm. table
+BIOS$_L   EQU	word UDATA+11
+BIOS$_H   equ	word UDATA+13	;AN000;
+CURTRK	  EQU	word UDATA+15
+CURSEC	  EQU	byte UDATA+17
+DIR$_L	  EQU	word UDATA+18
+Dir$_H	  equ	word UDATA+20	;AN000;
 START:
 
 ;
@@ -151,11 +151,11 @@ START:
 	CLI				;Stop interrupts till stack ok
 	XOR	AX,AX
 	MOV	SS,AX			;Work in stack just below this routine
-	ASSUME	SS:CODE
+	; ASSUME	SS:CODE
 	MOV	SP,ORIGIN
 	PUSH	SS
 	POP	ES
-	ASSUME	ES:CODE
+	; ASSUME	ES:CODE
 ;
 ; We copy the disk parameter table into a local area.  We scan the table above
 ; for non-zero parameters.  Any we see get changed to their non-zero values.
@@ -165,31 +165,31 @@ START:
 ;by FORMAT.
 
 	MOV	BX,DSKADR
-	LDS	SI,DWORD PTR SS:[BX]	; get address of disk table
+	LDS	SI,dword SS:[BX]	; get address of disk table
 	PUSH	DS			; save original vector for possible
 	PUSH	SI			; restore
 	PUSH	SS
 	PUSH	BX
-	MOV	DI,offset Sec9
+	MOV	DI,Sec9
 	MOV	CX,11
 	CLD
-if	$ le BIOS$_L
-	%OUT Don't destroy unexcuted code yet!!!
-endif
+%if $ le BIOS$_L
+	%warning Don't destroy unexcuted code yet!!!
+%endif
 	repz	movsb			;AN000;
 	push	es			;AN000;
 	pop	ds			;AN000; DS = ES = code = 0.
-	assume	ds:code 		;AN000;
+	; assume	ds:code;AN000;
 ;	 mov	 byte ptr [di-2], 1	 ;AN000; Head settle time
 ;J.K. Change the head settle to 15 ms will slow the boot time quite a bit!!!
-	mov	byte ptr [di-2], 0fh	;AN002; Head settle time
+	mov	byte [di-2], 0fh	;AN002; Head settle time
 	mov	cx, SECLIM		;AN004;
-	mov	byte ptr [di-7], cl	;AN000; End of Track
+	mov	byte [di-7], cl	;AN000; End of Track
 ;
 ; Place in new disk parameter table vector.
 ;
 	MOV	[BX+2],AX
-	MOV	[BX],offset SEC9
+	MOV	[BX],SEC9
 ;
 ; We may now turn interrupts back on.  Before this, there is a small window
 ; when a reboot command may come in when the disk parameter table is garbage
@@ -255,14 +255,14 @@ Dir_Cont:				;AN000;
 ;
 	MOV	DI,BX
 	MOV	CX,11
-	MOV	SI,OFFSET BIO		; point to "ibmbio  com"
+	MOV	SI,BIO		; point to "ibmbio  com"
 	REPZ	CMPSB			; see if the same
 	JNZ	CKERR			; if not there advise the user
 ;
 ; Found the BIOS.  Check the second directory entry.
 ;
 	LEA	DI,[BX+20h]
-	MOV	SI,OFFSET DOS		; point to "ibmdos  com"
+	MOV	SI,DOS		; point to "ibmdos  com"
 	MOV	CX,11
 	REPZ	CMPSB
 	JZ	DoLoad
@@ -271,7 +271,7 @@ Dir_Cont:				;AN000;
 ; There has been some recoverable error.  Display a message and wait for a
 ; keystroke.
 ;
-CKERR:	MOV	SI,OFFSET SYSMSG	; point to no system message
+CKERR:	MOV	SI,SYSMSG	; point to no system message
 ErrOut: CALL	WRITE			; and write on the screen
 	XOR	AH,AH			; wait for response
 	INT	16H			; get character from keyboard
@@ -408,7 +408,7 @@ DISKOK:
 	MOV	DL,PhyDrv
 	MOV	bx,[BIOS$_L]		;AN000; J.K.I1.Get bios sector in bx
 	mov	ax,[BIOS$_H]		;AN000; J.K.I1.
-	JMP	FAR PTR BIOS		;CRANK UP THE DOS
+	JMP	far BIOS		;CRANK UP THE DOS
 
 WRITE:	LODSB				;GET NEXT CHARACTER
 	OR	AL,AL			;clear the high bit
@@ -494,22 +494,22 @@ DOCALL: MOV	AH,ROM_DISKRD		;AC000;=2
 	RET
 
 ;	 include ibmbtmes.inc
-	include boot.cl1			;AN003;
+	%include "boot.cl1";AN003;
 
 
-	IF IBMCOPYRIGHT
+	%if IBMCOPYRIGHT
 BIO	DB	"IBMBIO  COM"
 DOS	DB	"IBMDOS  COM"
-	ELSE
+	%else
 BIO	DB	"IO      SYS"
 DOS	DB	"MSDOS   SYS"
-	ENDIF
+	%endif
 
 Free	EQU (cbSec - 4) - ($-$start)		;AC000;
 ;Free	 EQU (cbSec - 5) - ($-$start)
-if Free LT 0
-    %out FATAL PROBLEM:boot sector is too large
-endif
+%if Free LT 0
+    %warning FATAL PROBLEM:boot sector is too large
+%endif
 
 	org	origin + (cbSec - 2)		;AN004;
 ;	 org	 origin + (cbSec - 5)
@@ -525,6 +525,6 @@ endif
 ; Boot sector signature
 	db	55h,0aah
 
-CODE	ENDS
-	END
+; END SECTION .CODE
+	; END
 

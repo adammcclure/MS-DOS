@@ -1,10 +1,10 @@
 ;0
-page 80,132
+; page 80,132
 ;
-title CP/DOS  DosAllocSeg  mapper
+; title CP/DOS  DosAllocSeg  mapper
 ;
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -28,21 +28,21 @@ dosxxx	segment byte public 'dos'
 ; *
 ; *************************************************************************
 ;
-	public	dosallocseg
-	.sall
-	.xlist
-	include macros.inc
-	.list
+	global dosallocseg
+	; .sall
+	; .xlist
+	%include "macros.inc"
+	; .list
 ;
-str	struc
-old_bp	 dw	 ?
-return	 dd	 ?
-ShareIndicator	dw	?	; whether segment will be shared
-SelectorPtr	dd	?	; selector allocated
-SegmentSize	dw	?	; number of bytes requested
-str	ends
+struc str
+old_bp: dw 0
+return: dd 0
+ShareIndicator: dw 0; whether segment will be shared
+SelectorPtr: dd 0; selector allocated
+SegmentSize: dw 0; number of bytes requested
+endstruc
 
-dosallocseg proc   far
+dosallocseg:
 	Enter	dosallocseg		 ; push registers
 
 	mov	bx,[bp].SegmentSize	 ; Get segment size
@@ -78,10 +78,10 @@ AllocDone:
 	sub	ax,ax			 ; set good return code
 ErrorExit:
 	mexit				 ; pop registers
-	ret	size str - 6		 ; return
+	ret	str_size - 6		 ; return
 
-dosallocseg endp
+; ENDP dosallocseg
 
-dosxxx	ends
+; END SECTION .dosxxx
 
-	end
+	; end

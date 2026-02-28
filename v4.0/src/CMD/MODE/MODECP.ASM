@@ -1,26 +1,26 @@
-.XLIST
-INCLUDE STRUC.INC
-.LIST
+; .XLIST
+%include "STRUC.INC"
+; .LIST
 
 
-;ษออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-set_submessage_ptr   MACRO submessage,message ;PUT pointer to "subMESSAGE" into submessage pointer field of "message".
+%macro set_submessage_ptr 2;PUT pointer to "subMESSAGE" into submessage pointer field of "message".
 
 MOV   AX,submessage			     ;AX=message number 		;AN001;
 MOV   DH,utility_msg_class		     ;DH=message class=utility class	;AN001;
 CALL  SYSGETMSG 			     ;DS:SI=>message piece				  ;AN001;
-MOV   BP,OFFSET sublist_&message	     ;address the sublist control block ;AN001;
+MOV   BP,sublist_&message	     ;address the sublist control block ;AN001;
 MOV   [BP].sublist_off,SI		     ;the sublist now points to the desired message piece ;AN001;
-ENDM												  ;AN001;
+%endmacro;AN001;
 
-;บ											  บ
-;ศออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
-      PAGE    ,132		      ;
-	TITLE	MODECP.SAL - CODEPAGE SUPPORT
-	INCLUDE MODECPRO.INC		;MODULE PROLOGUE
+      ; PAGE    ,132;
+	; TITLE	MODECP.SAL - CODEPAGE SUPPORT
+	%include "MODECPRO.INC";MODULE PROLOGUE
 ;THE FOLLOWING "INCLUDE MODECPEQ.INC" CONTAINS THE FOLLOWING DEFINITIONS:
 ; MACROS: HEADER, DOSCALL
 ; DOS FUNCTION CALLS EQUATES
@@ -32,55 +32,55 @@ ENDM												  ;AN001;
 ;      "CODEPAGE_PARMS" - INPUT PARM LIST FROM CALLER
 ;      "PACKET" AND "DES_STRT_PACKET" - BUFFERS USED
 ;	  BY THE SEVERAL CODEPAGE DOS IOCTL CALLS
-	INCLUDE MODECPEQ.INC		;MACROS,DOS EQUATES,STRUCS,OTHER EQUATES
+	%include "MODECPEQ.INC";MACROS,DOS EQUATES,STRUCS,OTHER EQUATES
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 	HEADER	<DESCRIPTIONS OF ALL MESSAGES USED BY MODECP.SAL>
-	INCLUDE MODECPMS.INC		;DESCRIPTIONS OF MESSAGES
+	%include "MODECPMS.INC";DESCRIPTIONS OF MESSAGES
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 	HEADER	<EXTRNS, LOCAL DATA AND OTHER WORKAREAS>
 ;	       $SALUT CP(4,16,22,38) ;(set preprocessor columns for indenting)
-PRINTF_CODE    SEGMENT WORD PUBLIC
-	       ASSUME CS:PRINTF_CODE ;"MODE" IS A ".COM" FILE;
-	       ASSUME DS:PRINTF_CODE ; AS SUCH, ALL FOUR SEG REGS
-	       ASSUME ES:PRINTF_CODE ; POINT TO THE ONE COMMON
-	       ASSUME SS:PRINTF_CODE ; SEGMENT, "PRINTF_CODE"
+SECTION .PRINTF_CODE
+	       ; ASSUME CS:PRINTF_CODE;"MODE" IS A ".COM" FILE;
+	       ; ASSUME DS:PRINTF_CODE; AS SUCH, ALL FOUR SEG REGS
+	       ; ASSUME ES:PRINTF_CODE; POINT TO THE ONE COMMON
+	       ; ASSUME SS:PRINTF_CODE; SEGMENT, "PRINTF_CODE"
 
 MODECP00       EQU   $		     ;UNREFERENCED, LOCATES REL ZERO IN LINK MAP
-	       PUBLIC MODECP00
+	       global MODECP00
 
 
-;ษอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-PUBLIC	 CLOSE			    ;EQU  3EH	;CLOSE A FILE HANDLE,make available to analyze_and_invoke, see modecpeq.inc
-PUBLIC	 DES_STRT_FL_CART	    ;EQU  0001H, means CARTRIDGE prepare
-PUBLIC	 DEV_OPEN_MODE		    ;make available to analyze_and_invoke, see modecpeq.inc
-PUBLIC	 OPEN			    ;make available to analyze_and_invoke, see modecpeq.inc
+global CLOSE;EQU  3EH	;CLOSE A FILE HANDLE,make available to analyze_and_invoke, see modecpeq.inc
+global DES_STRT_FL_CART;EQU  0001H, means CARTRIDGE prepare
+global DEV_OPEN_MODE;make available to analyze_and_invoke, see modecpeq.inc
+global OPEN;make available to analyze_and_invoke, see modecpeq.inc
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
-;ษอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-EXTRN	 cp_cb:WORD	   ;AN000;codepage_parms <>, see invoke
+extern cp_cb;AN000;codepage_parms <>, see invoke
 
-	       EXTRN NOERROR:BYTE    ;ERRORLEVEL RETURN CODE FLAG BYTE
+	       extern NOERROR;ERRORLEVEL RETURN CODE FLAG BYTE
 				     ; NORMAL VALUE IS "TRUE" (-1)
 				     ; IF ERROR OCCURS, SET IT TO "FALSE" (0)
-	       EXTRN PRINTF:NEAR     ;SENDS MESSAGES TO STDOUT OR STDERR
+	       extern PRINTF;SENDS MESSAGES TO STDOUT OR STDERR
 
-EXTRN	 SYSGETMSG:NEAR    ;AN001;message services routine to get the address of a message.  Used to get address of a submessage.
-EXTRN	 Utility_Msg_Class:ABS	  ;AN001;
-EXTRN	 sublist_cpmsg8:BYTE	;AN001;
-EXTRN	 sublist_cpmsg10:BYTE	 ;AN001;
-EXTRN	 sublist_cpmsg17:BYTE	 ;AN001;
+extern SYSGETMSG;AN001;message services routine to get the address of a message.  Used to get address of a submessage.
+extern Utility_Msg_Class;AN001;
+extern sublist_cpmsg8;AN001;
+extern sublist_cpmsg10;AN001;
+extern sublist_cpmsg17;AN001;
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-INCLUDE  common.stc	   ;AN001;includes the following structures
+%include "common.stc";AN001;includes the following structures
 
 
 ;bogus	  EQU	88H	 ;totally invalid value
@@ -118,21 +118,21 @@ INCLUDE  common.stc	   ;AN001;includes the following structures
 ;
 ;sublist_def  ENDS
 
-;ษอออออออออออออออออออออออออออออออออออ  D A T A	ออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  D A T A	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 
 				     ;ALL MESSAGES ARE IN THE MODEMES.ASM MODULE
 current_request   DB bogus	       ;see 'do_refresh' and 'des_end'
-dgroup	       group zseg,printf_code
-zseg	       segment para public
+; dgroup	       group zseg,printf_code
+SECTION .zseg
 ;		LOCAL WORKAREA
-BUF	       DB    512 DUP(0)      ;DEFAULT BUFFER AREA
-	       public buf	     ;not referenced, just shows up on mapf buf
+BUF: times 512 db 0;DEFAULT BUFFER AREA
+	       global buf;not referenced, just shows up on mapf buf
 END_OF_BUF     EQU   $
 zseg	       ends
 
-RESPONSE_LIST  LABEL WORD	     ;WHERE TO PUT THE RESULTS OF QUERY prepareS
+RESPONSE_LIST:;WHERE TO PUT THE RESULTS OF QUERY prepareS
 RES_NUM_ENTRIES EQU  12 	     ;NUMBER ENTRIES IN EACH HARDWARE AND prepare LISTS
 RES_LEN        DW    RES_END - RESPONSE_LIST - 2 ;BYTE SIZE OF RESPONSE AREA
 RES_HWCP       DW    RES_NUM_ENTRIES ;NUMBER OF HARDWARE CODE PAGES IN FOLLOWING LIST
@@ -142,38 +142,38 @@ RES_DSCP       DW    RES_NUM_ENTRIES ;NUMBER OF prepare CODE PAGES IN FOLLOWING 
 RES_END        EQU   $		     ;END OF QUERY prepare RESPONSE LIST
 
 
-OLDINT24       DD    ?		     ;ORIGINAL CONTENTS OF INT 24H VECTOR
+OLDINT24: dd 0;ORIGINAL CONTENTS OF INT 24H VECTOR
 CRITERROR      DW    0		     ;ERROR REPORTED IN DI TO INT 24H HANDLER
 
-DEVICE_STATUS  DW    ?		     ;FLAGS SET BY IOCTL (GET DEVICE INFO)
-DEV_HANDLE     DW    ?		     ;VALUE OF HANDLE RETURNED BY
+DEVICE_STATUS: dw 0;FLAGS SET BY IOCTL (GET DEVICE INFO)
+DEV_HANDLE: dw 0;VALUE OF HANDLE RETURNED BY
 				     ; OPEN TO DEVICE FOR IOCTL I/O
-FILE_HANDLE    DW    ?		     ;VALUE OF HANDLE RETURNED BY
+FILE_HANDLE: dw 0;VALUE OF HANDLE RETURNED BY
 				     ; OPEN TO FILESPEC.
 DEV_TYPE       DW    prepare_STRT    ;CX=xxx_DEV_TYPE * 256 + "prepare_STRT"
 				     ;THE HIGH BYTE IS JUST ZERO HERE, BUT
 				     ; THAT WILL BE OR'ED IN LATER
 PK	       PACKET <>	     ;SELECT, QUERY SELECTED, prepare END
 
-PUBLIC	       PK
+global PK
 
 DBCS_headr     DBCS_head <>
 
-PUBLIC	       DBCS_headr
+global DBCS_headr
 
 ;	THESE NEXT TWO WORDS MUST BE KEPT TOGETHER
 ;	THEY ARE REFERENCED AS A DWORD
-DBUF	       LABEL DWORD
+DBUF:
 BUF_OFF        DW    0		     ;OFFSET OF ALLOCATED BUFFER
-BUF_SEG        DW    ?		     ;SEGID OF ALLOCATED BUFFER
+BUF_SEG: dw 0;SEGID OF ALLOCATED BUFFER
 
 BUF_SIZ        DW    0FFFH	     ;REMEMBER HOW MUCH BUF IS AVAILABLE
 				     ; (IN PARAGRAPHS, NOT BYTES)
-BUF_BYTES      DW    ?		     ;NUMBER OF BYTES ACTUALLY IN THE BUFFER
+BUF_BYTES: dw 0;NUMBER OF BYTES ACTUALLY IN THE BUFFER
 PREPED	       DW    0		     ;COUNT OF CODEPAGES KNOWN TO DEVICE
 MINOR_VERSION  DB    0,0	     ;MINOR VERSION OF DOS
 STATUS_BREAK   DB    0		     ;SAVES THE CURRENT STATUS OF "BREAK"
-DEV_TABLE      LABEL BYTE	     ;TABLE OF SUPPORTED DEVICE NAMES
+DEV_TABLE:;TABLE OF SUPPORTED DEVICE NAMES
 CN	       DB    "CON",0
 LP	       DB    "PRN",0
 L1	       DB    "LPT1",0
@@ -184,7 +184,7 @@ C2	       DB    "COM2",0
 C3	       DB    "COM3",0
 C4	       DB    "COM4",0
 G1	       DB    "*",0
-END_DEV_TABLE  LABEL BYTE
+END_DEV_TABLE:
 DEV_TAB_PTRS   DW    CN,LP,L1,L2,L3,C1,C2,C3,C4,G1,END_DEV_TABLE
 NUM_TABL_ENTRIES EQU (($-DEV_TAB_PTRS)-2)/2 ;NUMBER OF DEVICE POINTERS
 ;THE ENTRIES IN THE NEXT TABLE MUST BE KEPT IN THE SAME ORDER AS THE
@@ -202,15 +202,15 @@ DEV_TYPES      DB    CON_DEV_TYPE    ;CN
 	       DB    GLOBAL_CP	     ;G1
 
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออออออ  D A T A	ออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  D A T A	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
 
-MODECP PROC NEAR	       ;SUBROUTINE ENTRY POINT
+MODECP:;SUBROUTINE ENTRY POINT
 
 
- PUBLIC MODECP
+ global MODECP
 			       ;REMEMBER WHAT THE CURRENT SETTING IS
 			       ; OF "BREAK"
  DOSCALL BREAK_CHECK,REQUEST_BREAK_STATE ;CURRENT STATE RETURNED IN DL
@@ -261,7 +261,7 @@ MODECP PROC NEAR	       ;SUBROUTINE ENTRY POINT
 ;      $ELSE		       ;SINCE NOT A DEVICE, MUST BE A FILE
        JMP SHORT $$EN2
 $$IF2:
-	  MOV	DX,OFFSET CPMSG15     ;PASS POINTER TO MSG PARM LIST
+	  MOV	DX,CPMSG15     ;PASS POINTER TO MSG PARM LIST
 	  CALL	SEND_MSG       ;"DEVICE NOT SUPPORTED FOR CODEPAGE"
 
 ;      $ENDIF		       ;OK FROM IOCTL, AND DEVICE OR FILE?
@@ -274,7 +274,7 @@ $$EN2:
 $$IF1:
        MOV   AX,CP_CB.cp_device   ;GET OFFSET TO ASCIIZ DEVICE NAME
        MOV   CPMSGLST2DEV,AX   ; TO MSG PARM LIST
-       MOV   DX,OFFSET CPMSG2	  ;PASS POINTER TO MSG PARM LIST
+       MOV   DX,CPMSG2	  ;PASS POINTER TO MSG PARM LIST
        CALL  SEND_MSG	       ;"FAILURE TO OPEN DEVICE"
 
 ;   $ENDIF		       ;DEVICE OPEN OK?
@@ -284,19 +284,19 @@ $$EN1:
  DOSCALL BREAK_CHECK,SET_BREAK_STATE ;RETURN TO USER DEFINED BREAK CONDITION
 
  RET			       ;RETURN TO CALLER
-MODECP ENDP
+; ENDP MODECP
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 
-SET_DEV_TYPE PROC NEAR
+SET_DEV_TYPE:
 
 
 
 ;INPUT: BX = OFFSET TO ASCIIZ OF DEVICE NAME
 
  MOV   CX,NUM_TABL_ENTRIES     ;SET LOOP COUNTER TO NUMBER OF DEVICE NAMES IN LIST
- MOV   SI,OFFSET DEV_TAB_PTRS  ;SET INDEX TO FIRST ENTRY IN TABLE OF POINTERS
- MOV   DI,OFFSET DEV_TYPES     ;SET INDEX TO FIRST ENTRY OF DEVICE TYPES
+ MOV   SI,DEV_TAB_PTRS  ;SET INDEX TO FIRST ENTRY IN TABLE OF POINTERS
+ MOV   DI,DEV_TYPES     ;SET INDEX TO FIRST ENTRY OF DEVICE TYPES
 ;$SEARCH		       ;LOOK THRU TABLE FOR MATCHING ENTRY
 $$DO7:
     PUSH  DS		       ;AN002;
@@ -316,7 +316,7 @@ $$DO7:
     POP   CX		       ;RESTORE COUNTER OF DEVICES
 ;$EXITIF E
  JNE $$IF7
-    MOV   AL,BYTE PTR[DI]      ;GET TYPE OF THIS DEVICE
+    MOV   AL,byte[DI]      ;GET TYPE OF THIS DEVICE
 ;$ORELSE
  JMP SHORT $$SR7
 $$IF7:
@@ -327,10 +327,10 @@ $$IF7:
     MOV   AL,UNK_DEV_TYPE      ;DEVICE NAME IS NOT IN THE ABOVE LIST
 ;$ENDSRCH
 $$SR7:
- MOV   BYTE PTR DEV_TYPE+BYTE,AL ;ADD DESCRIPTOR OF DEVICE TO DEV_TYPE WORD
+ MOV   byte DEV_TYPE+BYTE,AL ;ADD DESCRIPTOR OF DEVICE TO DEV_TYPE WORD
 
 RET
-SET_DEV_TYPE ENDP
+; ENDP SET_DEV_TYPE
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 ;SET_GLOBAL_CODEPAGE PROC NEAR
@@ -389,7 +389,7 @@ SET_DEV_TYPE ENDP
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
  HEADER <SELECT FUNCTION HANDLING ROUTINE ACCORDING TO 'request_typ'>
 
-FUNCTION_SELECT PROC NEAR
+FUNCTION_SELECT:
 
  MOV   AX,CP_CB.request_typ
  CMP   AX,PREPARE	       ;("prepare" IS INTERNAL USAGE ONLY; "PREPARE" IS WHAT CUSTOMER SEES)
@@ -426,13 +426,13 @@ $$EN14:
 $$EN12:
 
  RET
-FUNCTION_SELECT ENDP
+; ENDP FUNCTION_SELECT
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
  HEADER <'prepare' -  CODEPAGE FUNCTION>
 
-DO_prepare PROC NEAR
+DO_prepare:
 
-PUBLIC DO_prepare
+global DO_prepare
 
  MOV   BX,CP_CB.DES_PACK_PTR
  TEST  [BX].DES_STRT_PKFL,DES_STRT_FL_CART ;CARTRIDGE prepare?
@@ -440,7 +440,7 @@ PUBLIC DO_prepare
  JNZ $$IF21
     MOV   AX,CS 	       ;USE PREDEFINED AREA
     MOV   BUF_SEG,AX	       ;REMEMBER WHERE BUFFER IS
-    lea   dx,dgroup:BUF        ;buf is at end of allocated memory
+    lea   dx,BUF        ;buf is at end of allocated memory
     mov   BUF_OFF,dx
     mov   ax,ds:[6]	       ;get number bytes in this segment
     sub   ax,dx 	       ;get size of buf to segment end
@@ -480,7 +480,7 @@ $$EN23:
 ;   $ELSE		       ;SINCE FILE OPEN NOT OK
     JMP SHORT $$EN22
 $$IF22:
-       MOV   DX,OFFSET CPMSG1	  ;PASS OFFSET TO MSG PARM LIST
+       MOV   DX,CPMSG1	  ;PASS OFFSET TO MSG PARM LIST
        CALL  SEND_MSG	       ; "FAILURE TO OPEN CODEPAGE FONT FILE"
 
 ;   $ENDIF		       ;FILE OPEN OK?
@@ -505,20 +505,20 @@ $$EN29:
 ;$ENDIF 		       ;CARTRIDGE?
 $$EN21:
  RET
-DO_prepare ENDP
+; ENDP DO_prepare
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-DES_START PROC NEAR
+DES_START:
 
-PUBLIC DES_START
+global DES_START
 
  MOV   CX,DEV_TYPE	       ;CX=xxx_DEV_TYPE * 256 + "prepare_STRT"
  MOV   DX,CP_CB.DES_PACK_PTR   ;DS:DX=DATA BUFFER "DES_STRT_PACKET"
  CALL  DO_GENERIC_IOCTL
 
  RET
-DES_START ENDP
+; ENDP DES_START
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-DES_START_ERROR PROC NEAR
+DES_START_ERROR:
 ;AFTER DES_START, CARRY WAS SET ON, INDICATING AN ERROR
 ;		prepare START ERROR CODES:
 			       ;DS_ERR0 EQU 0	  PREVIOUS prepare DELETED
@@ -536,7 +536,7 @@ DES_START_ERROR PROC NEAR
  JNE $$IF33
 ;AC001;    MOV	 CPMSGLST17FUN,OFFSET CPMSG17_PREP ;MOVE "PREPARE" INTO MESSAGE
     set_submessage_ptr CPMSGxx_PREP,cpmsg17 ;MOVE "PREPARE" INTO MESSAGE ;AN002;
-    MOV   DX,OFFSET CPMSG17	;PASS OFFSET TO MSG PARM LIST
+    MOV   DX,CPMSG17	;PASS OFFSET TO MSG PARM LIST
 			       ;"DEVICE ERROR DURING PREPARE"
 
 ;$ELSE			       ;SINCE NOT ERROR CODE 0AH,
@@ -545,7 +545,7 @@ $$IF33:
     CMP   AX,DS_ERR0+MAPERR    ;PREVIOUS prepare DELETED?
 ;   $IF   E
     JNE $$IF35
-       MOV   DX,OFFSET CPMSG5	  ;PASS OFFSET TO MSG PARM LIST
+       MOV   DX,CPMSG5	  ;PASS OFFSET TO MSG PARM LIST
 			       ;"PREVIOUSLY PREPARED CODEPAGE DELETED"
 ;   $ELSE
     JMP SHORT $$EN35
@@ -557,13 +557,13 @@ $$IF35:
 ;      $IF   E
        JNE $$IF37
 $$LL37:
-	  MOV	DX,OFFSET CPMSG15     ;PASS OFFSET TO MSG PARM LIST
+	  MOV	DX,CPMSG15     ;PASS OFFSET TO MSG PARM LIST
 			       ;"Codepage operation not supported on this device",BEEP,CR,LF,EOM
 
 ;      $ELSE		       ;SINCE NOT THAT EITHER, ASSUME MUST BE CODE 8
        JMP SHORT $$EN37
 $$IF37:
-	  MOV	DX,OFFSET CPMSG19     ;PASS OFFSET TO MSG PARM LIST
+	  MOV	DX,CPMSG19     ;PASS OFFSET TO MSG PARM LIST
 			       ;"Current keyboard does not support this Codepage",BEEP,CR,LF,EOM
 ;      $ENDIF
 $$EN37:
@@ -576,15 +576,15 @@ $$EN33:
 
 
  RET
-DES_START_ERROR ENDP
+; ENDP DES_START_ERROR
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-MOVE_FILE PROC NEAR
+MOVE_FILE:
 
 ;CODEPAGE FILE IS OPEN, THE prepare START IS COMPLETED OK...
 
 dummy8:
-public	 dummy8
+global dummy8
 
 
 ;$SEARCH		       ;REPEAT READS UNTIL FILE COMPLETELY READ
@@ -646,7 +646,7 @@ $$IF46:
 			       ; CODE PAGE NOT FOUND IN FILE
 ;   $IF   E
     JNE $$IF48
-       MOV   DX,OFFSET CPMSG3	  ;"Missing from font file is either device or codepage"
+       MOV   DX,CPMSG3	  ;"Missing from font file is either device or codepage"
 ;   $ELSE		       ;SINCE NOT ERR 8
     JMP SHORT $$EN48
 $$IF48:
@@ -656,13 +656,13 @@ $$IF48:
        JNE $$IF50
 ;AC001;   MOV	CPMSGLST17FUN,OFFSET CPMSG17_WRIT ;"write of font file to device",EOM
 	  set_submessage_ptr  CPMSG17_WRIT,cpmsg17  ;"write of font file to device",EOM;AN001;
-	  MOV	DX,OFFSET CPMSG17     ;"DEVICE ERROR DURING %S"
+	  MOV	DX,CPMSG17     ;"DEVICE ERROR DURING %S"
 ;      $ELSE		       ;SINCE NOT ERR A NEITHER, MUST BE
        JMP SHORT $$EN50
 $$IF50:
 			       ; FILE CONTENTS NOT A FONT FILE,
 			       ; OR FILE CONTENTS STRUCTURE DAMAGED
-	  MOV	DX,OFFSET CPMSG4     ;"Font file contents invalid"
+	  MOV	DX,CPMSG4     ;"Font file contents invalid"
 ;      $ENDIF		       ;ERR "A"?
 $$EN50:
 ;   $ENDIF		       ;ERR 8?
@@ -677,7 +677,7 @@ $$IF42:
 $$EN42:
 ;   $IF   C		       ;IF READ ERROR
     JNC $$IF56
-       MOV   DX,OFFSET CPMSG20	   ;"ERROR DURING READ OF FONT FILE"
+       MOV   DX,CPMSG20	   ;"ERROR DURING READ OF FONT FILE"
        CALL  SEND_MSG	       ;DISPLAY THE ERROR MSG POINTED TO BY DX
 
 ;   $ENDIF		       ;READ ERROR?
@@ -686,14 +686,14 @@ $$IF56:
 $$SR42:
 
  RET
-MOVE_FILE ENDP
+; ENDP MOVE_FILE
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-DES_END PROC NEAR
+DES_END:
 
  MOV   CX,DEV_TYPE	       ;PICK UP DEVICE TYPE AS MAJOR CODE
  MOV   CL,prepare_END	       ;CX=xxx_DEV_TYPE * 256 + "prepare_END"
- MOV   DX,OFFSET PK	       ;DS:DX=DATA BUFFER, PROBABLY NOT USED
+ MOV   DX,PK	       ;DS:DX=DATA BUFFER, PROBABLY NOT USED
 			       ; THIS IS JUST A DUMMY BUFFER, NO DATA FOR IT
  CALL  DO_GENERIC_IOCTL
 
@@ -701,7 +701,7 @@ DES_END PROC NEAR
  JNC $$IF59
 ;AC001;    MOV	 CPMSGLST17FUN,OFFSET CPMSG17_PREP ;MOVE "PREPARE" INTO MESSAGE
     set_submessage_ptr	CPMSGxx_PREP,cpmsg17 ;MOVE "PREPARE" INTO MESSAGE
-    MOV   DX,OFFSET CPMSG17	;PASS OFFSET TO MSG PARM LIST
+    MOV   DX,CPMSG17	;PASS OFFSET TO MSG PARM LIST
     CALL  SEND_MSG	       ;"DEVICE ERROR DURING PREPARE"
 
 ;$ELSE			       ;SINCE NO ERROR DURING PREPARE END,
@@ -722,7 +722,7 @@ $$IF62:
 	  set_submessage_ptr  CPMSGxx_prep,cpmsg10 ;SET MSG TO SAY "PREPARE";AN001;
 ;      $ENDIF
 $$EN62:
-       MOV   DX,OFFSET CPMSG10	   ;PASS OFFSET TO MSG PARM LIST
+       MOV   DX,CPMSG10	   ;PASS OFFSET TO MSG PARM LIST
        CALL  printf		;"MODE PREPARE CODEPAGE FUNCTION COMPLETED"
 ;   $ENDIF
 $$IF61:
@@ -730,14 +730,14 @@ $$IF61:
 ;$ENDIF 		       ;ERROR DURING PREPARE END?
 $$EN59:
  RET
-DES_END ENDP
+; ENDP DES_END
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 ;	 'SELECT' - FUNCTION HANDLER
 
 
 
-DO_SELECT PROC NEAR
+DO_SELECT:
 
  CALL  setup_packet_for_DBCS   ;see if DBCS vectors needed, if so move them into the packet
  MOV   BX,CP_CB.DES_PACK_PTR   ;GET PACKET FROM INPUT PARMLIST
@@ -745,11 +745,11 @@ DO_SELECT PROC NEAR
  MOV   PK.PACKCPID,AX	       ; INTO PACKET EXPECTED BY SELECT FUNCTION
  MOV   CX,DEV_TYPE	       ;CX=xxx_DEV_TYPE * 256 + "MINOR CODE"
  MOV   CL,SELECT_CP	       ;SET MINOR CODE TO "SELECT"
- MOV   DX,OFFSET PK	       ;DS:DX=DATA BUFFER "PACKET"
+ MOV   DX,PK	       ;DS:DX=DATA BUFFER "PACKET"
  CALL  DO_GENERIC_IOCTL
 
 dummy10:
-public dummy10
+global dummy10
 
 ;$IF   C		       ;IF SELECT WAS NOT OK
  JNC $$IF67
@@ -762,7 +762,7 @@ public dummy10
     CMP   AX,IN_ERR7+MAPERR    ;CODE PAGE NOT PREPARED?
 ;   $IF   E
     JNE $$IF68
-       MOV   DX,OFFSET CPMSG18	   ;PASS OFFSET TO MSG PARM LIST
+       MOV   DX,CPMSG18	   ;PASS OFFSET TO MSG PARM LIST
 			       ;"SPECIFIED CODEPAGE NOT PREPARED"
 ;   $ELSE		       ;NOT ERR7, MUST BE SOMETHING ELSE
     JMP SHORT $$EN68
@@ -770,14 +770,14 @@ $$IF68:
        CMP   AX,IN_ERR8+MAPERR ;KEYBOARD SUPPORT THIS CODEPAGE?
 ;      $IF   E
        JNE $$IF70
-	  MOV	DX,OFFSET CPMSG19     ;"CURRENT KEYBOARD DOES NOT SUPPORT THIS CP"
+	  MOV	DX,CPMSG19     ;"CURRENT KEYBOARD DOES NOT SUPPORT THIS CP"
 ;      $ELSE		       ;SINCE NOT ERR8 EITHER, MUST BE DEVICE ERROR
        JMP SHORT $$EN70
 $$IF70:
 
 ;AC001;   MOV	CPMSGLST17FUN,OFFSET CPMSG17_ACT
 	  set_submessage_ptr  CPMSGxx_select,cpmsg17			   ;AN001;
-	  MOV	DX,OFFSET CPMSG17     ;"DEVICE ERROR DURING SELECT"
+	  MOV	DX,CPMSG17     ;"DEVICE ERROR DURING SELECT"
 ;      $ENDIF		       ;KEYB SUPPORT THIS CODEPAGE?
 $$EN70:
 ;   $ENDIF		       ;CP NOT PREPARED?
@@ -792,7 +792,7 @@ $$IF67:
     JNE $$IF75
 ;AC001;MOV   CPMSGLST10FUN,OFFSET CPMSG10_SELECT ;SET MSG TO SAY "SELECT"
        set_submessage_ptr  CPMSGxx_SELECT,cpmsg10 ;SET MSG TO SAY "SELECT"
-       MOV   DX,OFFSET CPMSG10	   ;PASS OFFSET TO MSG PARM LIST
+       MOV   DX,CPMSG10	   ;PASS OFFSET TO MSG PARM LIST
        CALL  printf		;"MODE SELECT CODEPAGE FUNCTION COMPLETED"
 ;   $ENDIF
 $$IF75:
@@ -801,35 +801,35 @@ $$IF75:
 $$EN67:
 
  RET
-DO_SELECT ENDP
+; ENDP DO_SELECT
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
-;ณ
-;ณ DO_REFRESH
-;ณ ----------
-;ณ
-;ณ  THIS EVENT WOULD BE REQUIRED IN CASE THE EXTERNAL DEVICE LOST ITS LOADABLE
-;ณ  FONT DESCRIPTIONS, AS PERHAPS IF THE PRINTER GOT TURNED OFF, FOR EXAMPLE.
-;ณ
-;ณ  The possible return codes for a REFRESH request will be returned only on a
-;ณ designate start and are defined as follows:
-;ณ
-;ณ 8008 - For DISPLAY.SYS this means that there is a keyboard/code page conflict.
-;ณ
-;ณ 800A - Device error.
-;ณ
-;ณ 800C - The device driver does not have a copy of the code page in memory.
-;ณ	  This could be due to the DEVICE= command in CONFIG.SYS not setting up
-;ณ	  the buffer, so all previous prepares were handled by downloading the
-;ณ	  code page directly to the printer.
-;ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+;ยณ
+;ยณ DO_REFRESH
+;ยณ ----------
+;ยณ
+;ยณ  THIS EVENT WOULD BE REQUIRED IN CASE THE EXTERNAL DEVICE LOST ITS LOADABLE
+;ยณ  FONT DESCRIPTIONS, AS PERHAPS IF THE PRINTER GOT TURNED OFF, FOR EXAMPLE.
+;ยณ
+;ยณ  The possible return codes for a REFRESH request will be returned only on a
+;ยณ designate start and are defined as follows:
+;ยณ
+;ยณ 8008 - For DISPLAY.SYS this means that there is a keyboard/code page conflict.
+;ยณ
+;ยณ 800A - Device error.
+;ยณ
+;ยณ 800C - The device driver does not have a copy of the code page in memory.
+;ยณ	  This could be due to the DEVICE= command in CONFIG.SYS not setting up
+;ยณ	  the buffer, so all previous prepares were handled by downloading the
+;ยณ	  code page directly to the printer.
+;ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 
 
  HEADER <'REFRESH' - RELOAD EXISTING FONTS>
 
 
-DO_REFRESH PROC NEAR
+DO_REFRESH:
 
 
  MOV   current_request,refresh_request
@@ -868,7 +868,7 @@ $$IF78:
     JNE $$IF80
 ;AC001;MOV   CPMSGLST17FUN,OFFSET CPMSG17_REFRESH   ;MOVE "Refresh" INTO MESSAGE
        set_submessage_ptr  CPMSGxx_REFRESH,cpmsg17   ;MOVE "Refresh" INTO MESSAGE ;AN001;
-       MOV   DX,OFFSET CPMSG17	   ;PASS OFFSET TO MSG PARM LIST
+       MOV   DX,CPMSG17	   ;PASS OFFSET TO MSG PARM LIST
 				  ;"Device error during REFRESH"
 
 ;   $ELSE			  ;SINCE NOT ERROR CODE 0AH,
@@ -877,7 +877,7 @@ $$IF80:
        CMP   AX,RS_ERRC+MAPERR
 ;      $IF   E			  ;IF driver unable to download because he has no buffer THEN
        JNE $$IF82
-	  MOV	DX,OFFSET CPMSG21     ;PASS OFFSET TO MSG PARM LIST
+	  MOV	DX,CPMSG21     ;PASS OFFSET TO MSG PARM LIST
 				  ;"Unable to perform REFRESH"
 ;      $ELSE
        JMP SHORT $$EN82
@@ -889,13 +889,13 @@ $$IF82:
 ;	  $IF	E
 	  JNE $$IF84
 $$LL84:
-	     MOV   DX,OFFSET CPMSG15	 ;PASS OFFSET TO MSG PARM LIST
+	     MOV   DX,CPMSG15	 ;PASS OFFSET TO MSG PARM LIST
 				  ;"Codepage operation not supported on this device",BEEP,CR,LF,EOM
 
 ;	  $ELSE 		  ;SINCE NOT THAT EITHER, ASSUME MUST BE CODE 8
 	  JMP SHORT $$EN84
 $$IF84:
-	     MOV   DX,OFFSET CPMSG19	 ;PASS OFFSET TO MSG PARM LIST
+	     MOV   DX,CPMSG19	 ;PASS OFFSET TO MSG PARM LIST
 				  ;"Current keyboard does not support this Codepage",BEEP,CR,LF,EOM
 ;	  $ENDIF
 $$EN84:
@@ -910,9 +910,9 @@ $$EN80:
 $$EN78:
 
  RET
-DO_REFRESH ENDP
+; ENDP DO_REFRESH
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-DEVICE_TO_BINARY PROC NEAR
+DEVICE_TO_BINARY:
 
  MOV   DX,DEVICE_STATUS        ;GET BITS DEFINING DEVICE
  OR    DX,BINARY_DEV	       ;TURN ON THE "BINARY" FLAG BIT
@@ -921,18 +921,18 @@ DEVICE_TO_BINARY PROC NEAR
  DOSCALL IOCTL,IOCTL_FUN_SET_INFO ;SET DEVICE TO "BINARY"
 
  RET
-DEVICE_TO_BINARY ENDP
+; ENDP DEVICE_TO_BINARY
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
  HEADER <'STATUS' - QUERY FUNCTION HANDLER>
 
-PUBLIC	 do_status
+global do_status
 
-DO_STATUS PROC NEAR
+DO_STATUS:
 
  CALL  setup_packet_for_DBCS
  MOV   CX,DEV_TYPE	       ;CX=xxx_DEV_TYPE * 256 + "MINOR CODE"
  MOV   CL,QUERY_SELECTED       ;SET MINOR CODE TO "QUERY SELECT"
- MOV   DX,OFFSET PK	       ;DS:DX=DATA BUFFER "PACKET"
+ MOV   DX,PK	       ;DS:DX=DATA BUFFER "PACKET"
  CALL  DO_GENERIC_IOCTL
 
 ;$IF   C
@@ -946,7 +946,7 @@ $$IF90:
     MOV   CPMSGLST6CP,AX       ;PASS CODEPAGE ID TO PRINTF
     MOV   AX,CP_CB.cp_device	  ;GET POINTER TO DEVICE NAME
     MOV   CPMSGLST6DEV,AX      ;OFFSET TO DEVICE NAME MOVED TO MSG PARM LST
-    MOV   DX,OFFSET CPMSG6     ;PASS OFFSET TO MSG PARM LIST
+    MOV   DX,CPMSG6     ;PASS OFFSET TO MSG PARM LIST
     CALL  printf		;DISPLAY THE MESSAGE:
 			       ; "CURRENTLY SELECTD CODEPAGE IS %D FOR DEVICE: %S",CR,LF,0
 
@@ -956,13 +956,13 @@ $$IF90:
 $$EN90:
 
  RET
-DO_STATUS ENDP
+; ENDP DO_STATUS
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-QUERY_LISTER PROC NEAR
+QUERY_LISTER:
 
  MOV   CX,DEV_TYPE	       ;CX=xxx_DEV_TYPE * 256 + "MINOR CODE"
  MOV   CL,QUERY_DES_LST        ;SET MINOR CODE TO "QUERY prepare LIST"
- MOV   DX,OFFSET RESPONSE_LIST ;DS:DX=DATA BUFFER
+ MOV   DX,RESPONSE_LIST ;DS:DX=DATA BUFFER
  CALL  DO_GENERIC_IOCTL
 
 ;$IF   C		       ;IF PROBLEM WITH QUERY LIST
@@ -972,7 +972,7 @@ QUERY_LISTER PROC NEAR
 ;$ELSE			       ;SINCE NO PROBLEM WITH QUERY LIST
  JMP SHORT $$EN93
 $$IF93:
-    MOV   SI,OFFSET RES_HWCP   ;START WITH THE LIST OF HARDWARE CODEPAGES
+    MOV   SI,RES_HWCP   ;START WITH THE LIST OF HARDWARE CODEPAGES
     MOV   CX,[SI]	       ;GET NUMBER OF HARDWARE CODEPAGES IN LIST IN PACKET
     ADD   SI,WORD	       ;START WITH THE FIRST CODEPAGE
 ;   $IF   NCXZ		       ;IF ANY HARDWARE CODEPAGES ARE PRESENT
@@ -1006,7 +1006,7 @@ $$IF97:
     JNZ $$IF99
        MOV   AX,CP_CB.cp_device   ;GET POINTER TO DEVICE NAME
        MOV   CPMSGLST7DEV,AX   ;OFFSET TO DEVICE NAME MOVED TO MSG PARM LST
-       MOV   DX,OFFSET CPMSG7	  ;PASS OFFSET TO MSG PARM LIST
+       MOV   DX,CPMSG7	  ;PASS OFFSET TO MSG PARM LIST
        CALL  printf		;DISPLAY THE MESSAGE:
 			       ; "NO CODEPAGES PREPARED FOR DEVICE: %S",CR,LF,0
 ;   $ENDIF		       ;PREPED PAGES?
@@ -1018,17 +1018,17 @@ $$EN93:
  JNE $$IF102
 ;AC001;    MOV	 CPMSGLST10FUN,OFFSET CPMSG10_QUERY ;SET MSG TO SAY "QUERY"
     set_submessage_ptr	cpmSGxx_QUERY,cpmsg10	    ;SET MSG TO SAY "QUERY" ;AN001;
-    MOV   DX,OFFSET CPMSG10	;PASS OFFSET TO MSG PARM LIST
+    MOV   DX,CPMSG10	;PASS OFFSET TO MSG PARM LIST
     CALL  printf		;"MODE QUERRY CODEPAGE FUNCTION COMPLETED"
 ;$ENDIF
 $$IF102:
 
  RET
-QUERY_LISTER ENDP
+; ENDP QUERY_LISTER
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 
-QUERY_ERROR PROC NEAR
+QUERY_ERROR:
 
 
 ;CARRY WAS SET AFTER "QUERY SELECT" OR "QUERY LIST".
@@ -1040,8 +1040,8 @@ QUERY_ERROR PROC NEAR
 			       ;CH=LOCUS
  CMP	AX,QS_ERR7+MAPERR      ;CODE PAGE NOT SELECTD?
 
- .IF <AX EQ <QS_ERR7+MAPERR>> THEN  ;CODE PAGE NOT SELECTD?	;AC665;
-    MOV   DX,OFFSET CPMSG16	;PASS OFFSET TO MSG PARM LIST
+ ; .IF <AX EQ <QS_ERR7+MAPERR>> THEN;CODE PAGE NOT SELECTD?	;AC665;
+    MOV   DX,CPMSG16	;PASS OFFSET TO MSG PARM LIST
 			       ;"NO CODEPAGE HAS BEEN SELECTED"
     CALL  SEND_MSG	       ;DISPLAY INDICATED ERROR MESSAGE
 
@@ -1049,24 +1049,24 @@ QUERY_ERROR PROC NEAR
     CALL  QUERY_LISTER	       ;LIST PREPPED CODEPAGES ANYWAY
 
  .ELSEIF <AX EQ DS_ERR16> OR   ;016H UNKNOWN COMMAND, i.e. device driver not loaded ;AN665;
- .IF <AX EQ DS_ERR1> THEN      ;;AN665;16=unknown command, 1=Invalid function number
-    MOV   DX,OFFSET CPMSG15    ;AN665;PASS OFFSET TO MSG PARM LIST, "Codepage operation not supported on this device"
+ ; .IF <AX EQ DS_ERR1> THEN;;AN665;16=unknown command, 1=Invalid function number
+    MOV   DX,CPMSG15    ;AN665;PASS OFFSET TO MSG PARM LIST, "Codepage operation not supported on this device"
     CALL  SEND_MSG		;DISPLAY INDICATED ERROR MESSAGE
 
- .ELSE			       ;NOT ERR7 or 16, MUST BE DEVICE ERROR ;AC665;
+ ; .ELSE;NOT ERR7 or 16, MUST BE DEVICE ERROR ;AC665;
 ;AC002;    MOV	 CPMSGLST17FUN,OFFSET CPMSG17_QUERY
     set_submessage_ptr	CPMSGxx_QUERY,cpmsg17
-    MOV   DX,OFFSET CPMSG17	;"DEVICE ERROR DURING QUERY"
+    MOV   DX,CPMSG17	;"DEVICE ERROR DURING QUERY"
 
- .ENDIF 		       ;CP NOT PREPARED?
+ ; .ENDIF;CP NOT PREPARED?
 
  RET
-QUERY_ERROR ENDP
+; ENDP QUERY_ERROR
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-DISPLAY_CPID PROC NEAR
+DISPLAY_CPID:
 ;INPUT: SI=OFFSET TO CODEPAGE ID WORD IN LIST
 
- MOV   DX,OFFSET CPMSG8        ;PASS OFFSET TO MSG PARM LIST
+ MOV   DX,CPMSG8        ;PASS OFFSET TO MSG PARM LIST
  CALL  printf			;DISPLAY THE MESSAGE:
 			       ; "%s CODEPAGES:"
  CLD			       ;REQUEST INCREMENT IF INDEX
@@ -1077,14 +1077,14 @@ $$DO104:
     CMP   AL,EMPTY
 ;   $IF   E
     JNE $$IF105
-       MOV   DX,OFFSET CPMSG14	   ;PASS OFFSET TO MSG PARM LIST
+       MOV   DX,CPMSG14	   ;PASS OFFSET TO MSG PARM LIST
 			       ; "  Codepage unprepared",CR,LF,0
 ;   $ELSE		       ;SINCE NOT EMPTY,
     JMP SHORT $$EN105
 $$IF105:
        INC   PREPED	       ;COUNT PREPED CODEPAGES
        MOV   CPMSGLST9CP,AX    ;PASS CODEPAGE ID TO PRINTF
-       MOV   DX,OFFSET CPMSG9	  ;PASS OFFSET TO MSG PARM LIST
+       MOV   DX,CPMSG9	  ;PASS OFFSET TO MSG PARM LIST
 			       ; "  Codepage %d",CR,LF,0
 ;   $ENDIF		       ;EMPTY?
 $$EN105:
@@ -1094,10 +1094,10 @@ $$EN105:
  LOOP $$DO104
 
  RET
-DISPLAY_CPID ENDP
+; ENDP DISPLAY_CPID
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
  HEADER <SUBROUTINES TO HANDLE MESSAGES TO STDOUT OR STDERR>
-SEND_MSG PROC NEAR	       ;USED TO SEND "ERROR" MESSAGES ONLY
+SEND_MSG:;USED TO SEND "ERROR" MESSAGES ONLY
 			       ;FOR NON-ERROR MESSAGES, CALL printf DIRECTLY.
 ;INPUT: DX=OFFSET TO PRINTF MESSAGE PARM LIST
 
@@ -1105,11 +1105,11 @@ SEND_MSG PROC NEAR	       ;USED TO SEND "ERROR" MESSAGES ONLY
  CALL  printf
 
  RET
-SEND_MSG ENDP
+; ENDP SEND_MSG
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-EX_ERR PROC NEAR
+EX_ERR:
 ;THE DOSCALL RESPONDED WITH CARRY, SO GET EXTENDED ERROR
- MOV   BX,WORD PTR MINOR_VERSION ;BX = 30 VERSION NUMBER (FOR 3.30)
+ MOV   BX,word MINOR_VERSION ;BX = 30 VERSION NUMBER (FOR 3.30)
  DOSCALL EXTERROR	       ;EXTENDED ERROR
 			       ;OUTPUT:
 			       ;AX=EXTENDED ERROR
@@ -1117,11 +1117,11 @@ EX_ERR PROC NEAR
 			       ;BL=SUGGESTED ACTION
 			       ;CH=LOCUS
  RET
-EX_ERR ENDP
+; ENDP EX_ERR
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-DO_GENERIC_IOCTL PROC NEAR
+DO_GENERIC_IOCTL:
 
-PUBLIC DO_GENERIC_IOCTL
+global DO_GENERIC_IOCTL
 
 ;INPUT CX=xxx_DEV_TYPE * 256 + "MINOR CODE"
 ;      DS:DX=DATA BUFFER
@@ -1131,10 +1131,10 @@ PUBLIC DO_GENERIC_IOCTL
  DOSCALL		       ;SELECT DEVICE WITH GENERIC_IOCTL
 
  RET
-DO_GENERIC_IOCTL ENDP
+; ENDP DO_GENERIC_IOCTL
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
  HEADER <INT 24H - CRITICAL ERROR HANDLER, AND SUBROUTINES>
-HANDLER24 PROC NEAR	       ;CRITICAL ERROR HANDLER FOR INT 24H
+HANDLER24:;CRITICAL ERROR HANDLER FOR INT 24H
 ;WHEN THE CRITICAL ERROR OCCURS, CONTROL IS TRANSFERRED TO INTERRUPT 24H.
 ;BP:SI POINTS TO THE DEVICE HEADER CONTROL BLOCK.
 
@@ -1148,23 +1148,23 @@ HANDLER24 PROC NEAR	       ;CRITICAL ERROR HANDLER FOR INT 24H
  MOV   AL,CRERR_FAIL	       ;REQUEST THE "FAIL" OPTION
 
  IRET			       ;RETURN FROM INTERRUPT
-HANDLER24 ENDP
+; ENDP HANDLER24
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-SAVE_VECTOR24 PROC NEAR
+SAVE_VECTOR24:
 ;GET THE ORIGINAL CONTENTS OF THE CRITICAL ERROR HANDLER VECTOR, 24H
 ; AND SAVE THEM IN THE DWORD AT "OLDINT24"
 
  PUSH  ES		       ;SAVE BASE SEGREG
  DOSCALL GET_VECTOR,INT24      ;GET ORIGINAL OWNER OF INT 24H VECTOR
 
- MOV   WORD PTR OLDINT24,BX    ;OUTPUT: ES:BX = CONTENTS OF VECTOR
- MOV   WORD PTR OLDINT24+WORD,ES
+ MOV   word OLDINT24,BX    ;OUTPUT: ES:BX = CONTENTS OF VECTOR
+ MOV   word OLDINT24+WORD,ES
  POP   ES		       ;RESTORE BASE SEGREG
 
  RET
-SAVE_VECTOR24 ENDP
+; ENDP SAVE_VECTOR24
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-RESTORE_OLD_INT24 PROC NEAR
+RESTORE_OLD_INT24:
 ;TAKE THE CONTENTS OF THE ORIGINAL INT24 VECTOR, SAVED IN "OLDINT24"
 ; AND RESTORE THE INT24 ENTRY IN VECTOR BACK TO ITS ORIGINAL CONTENTS.
 
@@ -1175,77 +1175,77 @@ RESTORE_OLD_INT24 PROC NEAR
  POP   DS		       ;RESTORE MY DATA SEGREG
 
  RET
-RESTORE_OLD_INT24 ENDP
+; ENDP RESTORE_OLD_INT24
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-HOOK_IN_MY_INT24 PROC NEAR
+HOOK_IN_MY_INT24:
 ;SET THE CRITICAL ERROR INTERRUPT HANDLER IN
 ;  VECTOR TABLE TO POINT TO "HANDLER24"
 
- MOV   DX,OFFSET HANDLER24     ;DS:DX = VECTOR TO INT HANDLER
+ MOV   DX,HANDLER24     ;DS:DX = VECTOR TO INT HANDLER
  DOSCALL SET_VECTOR,INT24      ;SET INT24 VECTOR TO POINT TO NEW HANDLER
 
  RET
-HOOK_IN_MY_INT24 ENDP
+; ENDP HOOK_IN_MY_INT24
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ					   ;AN000;
-;ณ
-;ณ
-;ณ  SETUP_PACKET_FOR_DBCS
-;ณ  ---------------------
-;ณ
-;ณ  Determine if need to include codepage information in the Invoke or Query
-;ณ  packet.
-;ณ
-;ณ
-;ณ
-;ณ  INPUT: Global access to "pk", the Invoke or Query packet.
-;ณ
-;ณ
-;ณ  RETURN: If needed, the DBCS vetcors are added to the packet and the packet
-;ณ	    size is incremented.
-;ณ
-;ณ  MESSAGES: none
-;ณ
-;ณ  REGISTER
-;ณ  USAGE:
-;ณ
-;ณ
-;ณ  SIDE EFFECT:
-;ณ
-;ณ
-;ณ  PSEUDO CODE:
-;ณ
-;ณ  set up for and call INT 21 function 6507
-;ณ  IF the length field of the DBCS table is non-zero THEN
-;ณ     add the length of the table to the length field of the packet
-;ณ  ENDIF
-;ณ
-;ณ
-;ณ  DATA STRUCTURES: PK - the vectors are moved into this structure beginning
-;ณ		     at PACKVECTOR1.  The count of the vectors is added to
-;ณ		     PACKLEN.
-;ณ
-;ณ		     DBCS_header - The return from function 6507.
-;ณ
-;ณ		     DBCS_table - the table of vectors pointed to by
-;ณ				  DBCS_header.table_ptr.
-;ณ
-;ณ
-;ณ  ASSUMPTIONS: No more than 12 (0CH) are in the DBCS table.
-;ณ
-;ณ		 The double word pointer returned by function 6507
-;ณ		 (DBCS_header.table_ptr) always points to the DBCS table.
-;ณ
-;ณ		 The first byte of the table (DBCS_table.table_len) is zero if
-;ณ		 DBCS support is not necessary.
-;ณ															   ;AN000;
-;ณ		 ES=DS. 												   ;AN000;
-;ณ															   ;AN000;
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ					   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร					   ;AN000;
+;ยณ
+;ยณ
+;ยณ  SETUP_PACKET_FOR_DBCS
+;ยณ  ---------------------
+;ยณ
+;ยณ  Determine if need to include codepage information in the Invoke or Query
+;ยณ  packet.
+;ยณ
+;ยณ
+;ยณ
+;ยณ  INPUT: Global access to "pk", the Invoke or Query packet.
+;ยณ
+;ยณ
+;ยณ  RETURN: If needed, the DBCS vetcors are added to the packet and the packet
+;ยณ	    size is incremented.
+;ยณ
+;ยณ  MESSAGES: none
+;ยณ
+;ยณ  REGISTER
+;ยณ  USAGE:
+;ยณ
+;ยณ
+;ยณ  SIDE EFFECT:
+;ยณ
+;ยณ
+;ยณ  PSEUDO CODE:
+;ยณ
+;ยณ  set up for and call INT 21 function 6507
+;ยณ  IF the length field of the DBCS table is non-zero THEN
+;ยณ     add the length of the table to the length field of the packet
+;ยณ  ENDIF
+;ยณ
+;ยณ
+;ยณ  DATA STRUCTURES: PK - the vectors are moved into this structure beginning
+;ยณ		     at PACKVECTOR1.  The count of the vectors is added to
+;ยณ		     PACKLEN.
+;ยณ
+;ยณ		     DBCS_header - The return from function 6507.
+;ยณ
+;ยณ		     DBCS_table - the table of vectors pointed to by
+;ยณ				  DBCS_header.table_ptr.
+;ยณ
+;ยณ
+;ยณ  ASSUMPTIONS: No more than 12 (0CH) are in the DBCS table.
+;ยณ
+;ยณ		 The double word pointer returned by function 6507
+;ยณ		 (DBCS_header.table_ptr) always points to the DBCS table.
+;ยณ
+;ยณ		 The first byte of the table (DBCS_table.table_len) is zero if
+;ยณ		 DBCS support is not necessary.
+;ยณ															   ;AN000;
+;ยณ		 ES=DS. 												   ;AN000;
+;ยณ															   ;AN000;
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร					   ;AN000;
 
-setup_packet_for_DBCS	PROC  NEAR
+setup_packet_for_DBCS:
 
-PUBLIC setup_packet_for_DBCS
+global setup_packet_for_DBCS
 
 PUSH  DS				  ;DS is used to address the DBCS vector table which is somewhere in IBMDOS
 
@@ -1254,26 +1254,26 @@ MOV   AX,6507H				  ;get ext country info, DBCS info
 MOV   BX,-1				  ;use codepage currently active for CON
 MOV   DX,-1				  ;use default contry ID
 MOV   CX,TYPE DBCS_head 		  ;length of data to be returned
-MOV   DI,OFFSET DBCS_headr		  ;DI=>buffer to fill with info ID and pointer to table
+MOV   DI,DBCS_headr		  ;DI=>buffer to fill with info ID and pointer to table
 INT   21H
 
 LDS   SI,DBCS_header.table_ptr		  ;DS:SI=>DBCS table,"DBCS_table" EQU DS:[SI]
-.IF <DBCS_table.table_len NE 0> THEN	  ;IF there are some vectors THEN
+; .IF <DBCS_table.table_len NE 0> THEN;IF there are some vectors THEN
    MOV	 CX,DBCS_table.table_len	  ;set length of the list of vectors
    ADD	 CS:pk.packlen,CX
    ADD	 SI,vector1			  ;DS:SI=>first DBCS vector
-   MOV	 DI,OFFSET pk			  ;ES:DI=>the query or invoke packet
+   MOV	 DI,pk			  ;ES:DI=>the query or invoke packet
    ADD	 DI,packvector1 		  ;ES:DI=>holder for first DBCS vector in the query/invoke packet
    REP	 MOVSB				  ;mov all the vectors and the two bytes of zeros into the packet
-.ENDIF
+; .ENDIF
 
 POP   DS				  ;restore to address stuff in MODE's segment
 
 RET
 
-setup_packet_for_DBCS	ENDP
+; ENDP setup_packet_for_DBCS
 
 
 PRINTF_CODE ENDS	       ;END OF MODECP.SAL MODULE
-END
+; END
 

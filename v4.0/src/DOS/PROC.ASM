@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)proc.asm	1.1 85/04/10
-TITLE	IBMPROC - process maintenance
-NAME	IBMPROC
+; TITLE	IBMPROC - process maintenance
+; NAME	IBMPROC
 
 ;
 ; Process related system calls and low level routines for DOS 2.X.
@@ -19,20 +19,20 @@ NAME	IBMPROC
 ;	Created: ARR 30 March 1983
 ;
 
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+; .cref
+; .list
 
 SAVEXIT 	EQU	10
 
@@ -47,8 +47,8 @@ SAVEXIT 	EQU	10
     i_need  OpenBuf,128
     I_need  EXTERR_LOCUS,BYTE		; Extended Error Locus
 
-SUBTTL $WAIT - return previous process error code
-PAGE
+; SUBTTL $WAIT - return previous process error code
+; PAGE
 ;
 ; process control data
 ;
@@ -60,16 +60,16 @@ PAGE
 ;	    INT     int_command
 ;	  AX has the exit code
 	procedure   $WAIT,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 	XOR	AX,AX
 	XCHG	AX,exit_code
 	transfer    SYS_RET_OK
 EndProc $WAIT
 
-include exec.asm
+%include "exec.asm"
 
-SUBTTL Terminate and stay resident handler
-PAGE
+; SUBTTL Terminate and stay resident handler
+; PAGE
 ;
 ; Input:    DX is  an  offset  from  CurrentPDB  at which to
 ;	    truncate the current block.
@@ -79,10 +79,10 @@ PAGE
 ;	    and restoring the vectors.
 ;
 	procedure   $Keep_process,NEAR
-	ASSUME DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 
 	PUSH	AX			; keep exit code around
-	MOV	BYTE PTR [Exit_type],Exit_keep_process
+	MOV	byte [Exit_type],Exit_keep_process
 	MOV	ES,[CurrentPDB]
 	CMP	DX,6h			; keep enough space around for system
 	JAE	Keep_shrink		; info
@@ -106,7 +106,7 @@ keep_done:
 EndProc $Keep_process
 
 	procedure   Stay_resident,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	MOV	AX,(Keep_process SHL 8) + 0 ; Lower part is return code
 	ADD	DX,15
 	RCR	DX,1
@@ -116,8 +116,8 @@ EndProc $Keep_process
 	transfer    COMMAND
 EndProc Stay_resident
 
-SUBTTL $EXIT - return to parent process
-PAGE
+; SUBTTL $EXIT - return to parent process
+; PAGE
 ;
 ;   Assembler usage:
 ;	    MOV     AL, code
@@ -127,13 +127,13 @@ PAGE
 ;	    None.
 ;
 	procedure   $EXIT,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	XOR	AH,AH
-	XCHG	AH,BYTE PTR [DidCTRLC]
+	XCHG	AH,byte [DidCTRLC]
 	OR	AH,AH
-	MOV	BYTE PTR [Exit_type],exit_terminate
+	MOV	byte [Exit_type],exit_terminate
 	JZ	exit_inner
-	MOV	BYTE PTR [Exit_type],exit_ctrl_c
+	MOV	byte [Exit_type],exit_ctrl_c
 
 	entry	Exit_inner
 
@@ -154,7 +154,7 @@ BREAK <$ABORT -- Terminate a process>
 ;	TO THE TERMINATE ADDRESS
 
 	procedure   $ABORT,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 	XOR	AL,AL
 	MOV	[exit_type],exit_abort
@@ -183,5 +183,5 @@ ASSUME	DS:NOTHING,ES:NOTHING
 	transfer    reset_environment
 EndProc $ABORT
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END

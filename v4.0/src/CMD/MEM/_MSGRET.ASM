@@ -1,6 +1,6 @@
-page	       60,132
-name	       _msgret
-title	       C to Message Retriever
+; page	       60,132
+; name	       _msgret
+; title	       C to Message Retriever
 ;-------------------------------------------------------------------
 ;
 ;	MODULE: 	_msgret
@@ -15,7 +15,7 @@ title	       C to Message Retriever
 ;
 ;-------------------------------------------------------------------
 
-	INCLUDE SYSMSG.INC		;PERMIT SYSTEM MESSAGE HANDLER DEFINITION ;AN000;
+	%include "SYSMSG.INC";PERMIT SYSTEM MESSAGE HANDLER DEFINITION ;AN000;
 
 	MSG_UTILNAME <MEM>		;IDENTIFY THE COMPONENT 		;AN000;
 
@@ -23,23 +23,23 @@ title	       C to Message Retriever
 ;-------------------------------------------------------------------
 
 
-_TEXT	SEGMENT BYTE PUBLIC 'CODE'
-_TEXT	ENDS
-_DATA	SEGMENT WORD PUBLIC 'DATA'
-_DATA	ENDS
-CONST	SEGMENT WORD PUBLIC 'CONST'
-CONST	ENDS
-_BSS	SEGMENT WORD PUBLIC 'BSS'
-_BSS	ENDS
+SECTION ._TEXT
+; END SECTION ._TEXT
+SECTION ._DATA
+; END SECTION ._DATA
+SECTION .CONST
+; END SECTION .CONST
+SECTION ._BSS
+; END SECTION ._BSS
 
-DGROUP	GROUP	CONST, _BSS, _DATA
-	ASSUME	CS: DGROUP, DS: DGROUP, SS: DGROUP, ES: NOTHING
+; DGROUP	GROUP	CONST, _BSS, _DATA
+	; ASSUME	CS: DGROUP, DS: DGROUP, SS: DGROUP, ES: NOTHING
 
-	public	data_sysloadmsg
-	public	data_sysdispmsg
-	public	data_sysgetmsg
+	global data_sysloadmsg
+	global data_sysdispmsg
+	global data_sysgetmsg
 
-_DATA	SEGMENT
+SECTION ._DATA
 
 	MSG_SERVICES <MSGDATA>
 	MSG_SERVICES <LOADmsg,FARmsg>
@@ -47,7 +47,7 @@ _DATA	SEGMENT
 	MSG_SERVICES <MEM.CLA,MEM.CLB,MEM.CL1,MEM.CL2,MEM.CTL>			     ;AN000;
 
 
-data_sysloadmsg proc far
+data_sysloadmsg:
 
 	push	bp			; save user's base pointer
 	mov	bp,sp			; set bp to current sp
@@ -103,10 +103,10 @@ data_sysloadmsg proc far
 	pop	bp			; restore user's bp
 	ret
 
-data_sysloadmsg endp
+; ENDP data_sysloadmsg
 
 
-data_sysdispmsg proc far
+data_sysdispmsg:
 
 	push	bp			; save user's base pointer
 	mov	bp,sp			; set bp to current sp
@@ -162,10 +162,10 @@ data_sysdispmsg proc far
 	pop	bp			; restore user's bp
 	ret
 
-data_sysdispmsg endp
+; ENDP data_sysdispmsg
 
 
-data_sysgetmsg	proc far
+data_sysgetmsg:
 
 	push	bp			; save user's base pointer
 	mov	bp,sp			; set bp to current sp
@@ -229,35 +229,35 @@ data_sysgetmsg	proc far
 	pop	bp			; restore user's bp
 	ret
 
-data_sysgetmsg	endp
+; ENDP data_sysgetmsg
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-_DATA	ends			; end code segment
+; END SECTION ._DATA; end code segment
 
-_TEXT	SEGMENT
+SECTION ._TEXT
 
-	assume cs:_TEXT
+	; assume cs:_TEXT
 
-	public	_sysdispmsg
-	public	_sysloadmsg
-	public	_sysgetmsg
+	global _sysdispmsg
+	global _sysloadmsg
+	global _sysgetmsg
 
-_sysdispmsg	proc	near
+_sysdispmsg:
 		call	data_sysdispmsg
 		ret
-_sysdispmsg	endp
+; ENDP _sysdispmsg
 
-_sysloadmsg	proc	near
+_sysloadmsg:
 		call	data_sysloadmsg
 		ret
-_sysloadmsg	endp
+; ENDP _sysloadmsg
 
-_sysgetmsg	proc	near
+_sysgetmsg:
 		call	data_sysgetmsg
 		ret
-_sysgetmsg	endp
+; ENDP _sysgetmsg
 
-_TEXT	ENDS
-	end
+; END SECTION ._TEXT
+	; end
 

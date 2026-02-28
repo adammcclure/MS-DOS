@@ -1,9 +1,9 @@
-page 80,132
+; page 80,132
 
-title CP/DOS DosBeep mapper
+; title CP/DOS DosBeep mapper
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -21,20 +21,20 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-        public  dosbeep
-        .sall
-        include macros.inc
+        global dosbeep
+        ; .sall
+        %include "macros.inc"
 
 inv_parm equ    0002h         ;invalid parameter return code
 
-str     struc
-old_bp  dw      ?
-return  dd      ?
-duratn  dw      ?       ; duration
-frqncy  dw      ?       ; frequency
-str     ends
+struc str
+old_bp: dw 0
+return: dd 0
+duratn: dw 0; duration
+frqncy: dw 0; frequency
+endstruc
 
-dosbeep proc    far
+dosbeep:
         Enter   DosBeep
 
         mov     al,10110110b      ; Set 8253 chip channel 2
@@ -88,10 +88,10 @@ del2:   dec     bx                ; a millisecond
 error:  mov     ax,inv_parm
 
 exit:   MExit                     ; pop registers
-        ret     size str - 6      ; return
+        ret     str_size - 6      ; return
 
-dosbeep endp
+; ENDP dosbeep
 
-dosxxx  ends
+; END SECTION .dosxxx
 
-        end
+        ; end

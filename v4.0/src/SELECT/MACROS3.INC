@@ -15,7 +15,7 @@
 ;;	 purpose of changing the ASCII-N string to an ASCII-Z string.
 ;;
 ;;****************************************************************************
-page					;AN000;
+; page;AN000;
 ;;************************************************************************;;
 ;;
 ;;   CHECK_DEFAULT_DRIVE:  Determine if default drive is drive A:
@@ -33,15 +33,15 @@ page					;AN000;
 ;;	 If the default drive is not drive A (AL <> 0), the carry flag is set.
 ;;
 ;;************************************************************************;;
-CHECK_DEFAULT_DRIVE	MACRO			 ;;AN000;
+%macro CHECK_DEFAULT_DRIVE 0;;AN000;
     MOV  AH, 19H				 ;;AN000; Fn. Number for getting current drive
     DOSCALL					 ;;AN000;
-    .IF < ZERO AL >				 ;;AN000; Is A the default drive?
+    ; .IF < ZERO AL >;;AN000; Is A the default drive?
 	 CLC					 ;;AN000; Yes!
-    .ELSE					 ;;AN000;
+    ; .ELSE;;AN000;
 	 STC					 ;;AN000; No!
-    .ENDIF					 ;;AN000;
-    ENDM					 ;;AN000;
+    ; .ENDIF;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   CHECK_DISK:  Check is the specified fixed disk is present.  If disk is
@@ -76,7 +76,7 @@ CHECK_DEFAULT_DRIVE	MACRO			 ;;AN000;
 ;;	 specified above.
 ;;
 ;;************************************************************************;;
-CHECK_DISK	MACRO	IMMED_DISK, VAR_DISK, VAR_STATUS, VAR_STATUS_2, BUFFER ;;AN000;
+%macro CHECK_DISK 5;;AN000;
 
     LEA  DI, BUFFER				;;AN000;
     MOV  AX, IMMED_DISK 			;;AN000;
@@ -84,7 +84,7 @@ CHECK_DISK	MACRO	IMMED_DISK, VAR_DISK, VAR_STATUS, VAR_STATUS_2, BUFFER ;;AN000;
     MOV  VAR_DISK, CX				;;AN000;
     MOV  VAR_STATUS, BX 			;;AN000;
     MOV  VAR_STATUS_2, DX			;;AN000;
-    ENDM					;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   CHECK_DISKETTE:  Check the type of diskettes attached to the system.
@@ -120,66 +120,66 @@ CHECK_DISK	MACRO	IMMED_DISK, VAR_DISK, VAR_STATUS, VAR_STATUS_2, BUFFER ;;AN000;
 ;;		7 = Other
 ;;
 ;;************************************************************************;;
-CHECK_DISKETTE	MACRO	VAR_DISK_A, VAR_DISK_B, VAR_TOT, BUFFER ;;AN000;
+%macro CHECK_DISKETTE 4;;AN000;
     INT     11H 				 ;;AN000; See how many diskette drives there are
-    .IF < BIT AL NAND DISKETTES_EXIST > 	 ;;AN000; Are there diskettes?
+    ; .IF < BIT AL NAND DISKETTES_EXIST >;;AN000; Are there diskettes?
 	 MOV	 AX, 0				 ;;AN000; There are no diskettes.
-    .ELSE					 ;;AN000;
+    ; .ELSE;;AN000;
 	 MOV	 CL,6				 ;;AN000; Number of bits to shift
 	 SHR	 AL,CL				 ;;AN000; Diskette bits are 6 and 7.  Shift to right
 	 MOV	 AH, 0				 ;;AN000; Clear the high byte
 	 INC	 AX				 ;;AN000; Make into the actual number of diskettes
-	 .IF < AX GT MAX_NUM_DISKETTE > 	 ;;AN000; Are there more then 2 diskette drives?
+	 ; .IF < AX GT MAX_NUM_DISKETTE >;;AN000; Are there more then 2 diskette drives?
 	      MOV     AX, MAX_NUM_DISKETTE	 ;;AN000; Yes, but we are only concern with two.
-	 .ENDIF 				 ;;AN000;
-    .ENDIF					 ;;AN000;
+	 ; .ENDIF;;AN000;
+    ; .ENDIF;;AN000;
     MOV     VAR_TOT, AL 			 ;;AN000; Store the number of diskette drives.
     ;;**********************************************************************
     ;; Examine diskette drive A first.
     ;;**********************************************************************
     MOV   VAR_DISK_A, E_DISKETTE_INV		 ;;AN000;
     MOV   VAR_DISK_B, E_DISKETTE_INV		 ;;AN000;
-    MOV   DI, OFFSET VAR_DISK_A 		 ;;AN000;
+    MOV   DI, VAR_DISK_A 		 ;;AN000;
     .FOR BL = 1 TO VAR_TOT			 ;;AN000;
 	 MOV  AX, 440DH 			 ;;AN000;
 	 MOV  CX, 0860H 			 ;;AN000;
-	 MOV  DX, OFFSET BUFFER 		 ;;AN000;
+	 MOV  DX, BUFFER 		 ;;AN000;
 	 DOSCALL				 ;;AN000;
-	 MOV  SI, OFFSET BUFFER + 1		 ;;AN000;
+	 MOV  SI, BUFFER + 1		 ;;AN000;
 	 MOV  AL, [SI]				 ;;AN000;
-	 .IF < AL EQ E_DISKETTE_1200 >		 ;;AN111;JW
+	 ; .IF < AL EQ E_DISKETTE_1200 >;;AN111;JW
 	    MOV  AL,E_DISKETTE_360		 ;;AN111;JW
-	 .ENDIF 				 ;;AN111;JW
-	 .IF < AL EQ E_DISKETTE_1440 >		 ;;AN000;
-	      .IF < <WORD PTR [SI+3]> NE E_1440_TRACKS > OR ;;AN000;
-	      .IF < <WORD PTR [SI+19]> NE E_1440_SECTORS >  ;;AN000;
+	 ; .ENDIF;;AN111;JW
+	 ; .IF < AL EQ E_DISKETTE_1440 >;;AN000;
+	      ; .IF < <WORD PTR [SI+3]> NE E_1440_TRACKS > OR;;AN000;
+	      ; .IF < <WORD PTR [SI+19]> NE E_1440_SECTORS >;;AN000;
 		   MOV	AL, E_DISKETTE_INV	 ;;AN000;
-	      .else				;yuk- don't have time to get this working on 1.4M drives
+	      ; .else;yuk- don't have time to get this working on 1.4M drives
 		   mov al, e_diskette_720	;so pretend there is no such thing
-	      .ENDIF				 ;;AN000;
-	 .ENDIF 				 ;;AN000;
+	      ; .ENDIF;;AN000;
+	 ; .ENDIF;;AN000;
 	 MOV  [DI], AL				 ;;AN000;
-	 MOV  DI, OFFSET VAR_DISK_B		 ;;AN000;
+	 MOV  DI, VAR_DISK_B		 ;;AN000;
     .NEXT BL					 ;;AN000;
     ;;**********************************************************************
     ;; Check for compatible A: to B: combinations ;AN000;JW
     ;;**********************************************************************
-    .IF < VAR_DISK_A eq E_DISKETTE_720 > or	 ;;AN000;JW
-    .IF < VAR_DISK_A eq E_DISKETTE_1440 >	 ;;AN000;JW
-       .IF < VAR_DISK_B eq E_DISKETTE_360 >	 ;;AN000;JW
+    ; .IF < VAR_DISK_A eq E_DISKETTE_720 > or;;AN000;JW
+    ; .IF < VAR_DISK_A eq E_DISKETTE_1440 >;;AN000;JW
+       ; .IF < VAR_DISK_B eq E_DISKETTE_360 >;;AN000;JW
 	  MOV  VAR_DISK_B, E_DISKETTE_INV	 ;;AN000;JW
 	  DEC  VAR_TOT				 ;;AN000;JW
-       .ENDIF					 ;;AN000;JW
-    .ENDIF					 ;;AN000;JW
-    .IF < VAR_DISK_A eq E_DISKETTE_360 >	 ;;AN000;JW
-       .IF < VAR_DISK_B eq E_DISKETTE_720 > or	 ;;AN000;JW
-       .IF < VAR_DISK_B eq E_DISKETTE_1440 >	 ;;AN000;JW
+       ; .ENDIF;;AN000;JW
+    ; .ENDIF;;AN000;JW
+    ; .IF < VAR_DISK_A eq E_DISKETTE_360 >;;AN000;JW
+       ; .IF < VAR_DISK_B eq E_DISKETTE_720 > or;;AN000;JW
+       ; .IF < VAR_DISK_B eq E_DISKETTE_1440 >;;AN000;JW
 	  MOV  VAR_DISK_B, E_DISKETTE_INV	 ;;AN000;JW
 	  DEC  VAR_TOT				 ;;AN000;JW
-       .ENDIF					 ;;AN000;JW
-    .ENDIF					 ;;AN000;JW
+       ; .ENDIF;;AN000;JW
+    ; .ENDIF;;AN000;JW
 						 ;;
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   CHECK_VALID_MEDIA:  Check if the diskettes attached will support
@@ -230,7 +230,7 @@ CHECK_DISKETTE	MACRO	VAR_DISK_A, VAR_DISK_B, VAR_TOT, BUFFER ;;AN000;
 ;;		  A or B or C
 ;;
 ;;************************************************************************;;
-CHECK_VALID_MEDIA	MACRO	VAR_DISK_A, VAR_DISK_B, VAR_TOT, VAR_DISK, VAR_DEF, VAR_INDEX, VAR_OPTION ;;AN111;JW
+%macro CHECK_VALID_MEDIA 7;;AN111;JW
 
     MOV  AL, VAR_DISK_A 			;;AN111;JW
     MOV  BL, VAR_DISK_B 			;;AN111;JW
@@ -239,7 +239,7 @@ CHECK_VALID_MEDIA	MACRO	VAR_DISK_A, VAR_DISK_B, VAR_TOT, VAR_DISK, VAR_DEF, VAR_
     MOV  VAR_DEF, CL				;;AN111;JW
     MOV  VAR_INDEX, DX				;;AN111;JW
     MOV  VAR_OPTION, DI 			;;AN111;JW
-    ENDM					;;AN111;JW
+    %endmacro;;AN111;JW
 ;;************************************************************************;;
 ;;
 ;;   SCAN_DISK_TABLE:  Scan the specified disk status table from the
@@ -271,13 +271,13 @@ CHECK_VALID_MEDIA	MACRO	VAR_DISK_A, VAR_DISK_B, VAR_TOT, VAR_DISK, VAR_DEF, VAR_
 ;;	Note:  The index of the first entry in the table is 1.
 ;;
 ;;************************************************************************;;
-SCAN_DISK_TABLE MACRO	IMMED_DISK, VAR_INDEX, VAR_RET	;;AN000;
+%macro SCAN_DISK_TABLE 3;;AN000;
 
     MOV  CX, IMMED_DISK 			;;AN000;
     MOV  AX, VAR_INDEX				;;AN000;
     CALL SCAN_DISK_TABLE_ROUTINE		;;AN000;
     MOV  VAR_RET, AX				;;AN000;
-    ENDM					;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   UPDATE_DISK_TABLE:  Update the specifed disk status table for the
@@ -304,13 +304,13 @@ SCAN_DISK_TABLE MACRO	IMMED_DISK, VAR_INDEX, VAR_RET	;;AN000;
 ;;	 from pre-defined locations as specified above.
 ;;
 ;;************************************************************************;;
-UPDATE_DISK_TABLE	MACRO	IMMED_DISK, VAR_INDEX, VAR_REF	;;AN000;
+%macro UPDATE_DISK_TABLE 3;;AN000;
 
     MOV  CX, IMMED_DISK 			;;AN000;
     MOV  AX, VAR_INDEX				;;AN000;
     CALL UPDATE_DISK_TABLE_ROUTINE		;;AN000;
     MOV  VAR_REF, AX				;;AN000;
-    ENDM					;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   GET_PARTITION_SIZE:  Return DOS and EDOS partition size in ASCII-N format.
@@ -331,7 +331,7 @@ UPDATE_DISK_TABLE	MACRO	IMMED_DISK, VAR_INDEX, VAR_REF	;;AN000;
 ;;	 any partition is zero, a zero string length is returned.
 ;;
 ;;************************************************************************;;
-GET_PARTITION_SIZE	MACRO	VAR_TOT, VAR_DOS, NAME_DOS, NAME_EDOS ;;AN000;
+%macro GET_PARTITION_SIZE 4;;AN000;
 						 ;;
     PUSH VAR_TOT				 ;;AN000; Save the variable
     MOV  AX, VAR_DOS				 ;;AN000; Size of the DOS partition.
@@ -339,7 +339,7 @@ GET_PARTITION_SIZE	MACRO	VAR_TOT, VAR_DOS, NAME_DOS, NAME_EDOS ;;AN000;
     WORD_TO_CHAR     VAR_TOT, NAME_EDOS 	 ;;AN000; Convert binay values to ASCII
     WORD_TO_CHAR     VAR_DOS, NAME_DOS		 ;;AN000;
     POP  VAR_TOT				 ;;AN000;
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************;;
 ;;
 ;;   CHECK_MACHINE: Return the model byte
@@ -357,26 +357,26 @@ GET_PARTITION_SIZE	MACRO	VAR_TOT, VAR_DOS, NAME_DOS, NAME_EDOS ;;AN000;
 ;;	 and placed in the supplied variable. The ps2 flag is also set.
 ;;
 ;;************************************************************************;;
-CHECK_MACHINE  MACRO MAC_TYPE, P_FLAG		 ;;AN000;JW
+%macro CHECK_MACHINE 2;;AN000;JW
 						 ;;
 	MOV  AH,0C0H				 ;;AN000; INT 15H system config request
 	INT  15H				 ;;AN000; system services
-	.IF < nc >				 ;;AN000;
-	   MOV	AH,ES: BYTE PTR [BX+2]		 ;;AN000; get the model byte
-	.ELSE					 ;;AN000;
+	; .IF < nc >;;AN000;
+	   MOV	AH,ES: byte [BX+2]		 ;;AN000; get the model byte
+	; .ELSE;;AN000;
 	   MOV	AH,00				 ;;AN000;
-	.ENDIF					 ;;AN000;
+	; .ENDIF;;AN000;
 	MOV  MAC_TYPE,AH			 ;;AN000; save the model byte
 	MOV  P_FLAG,E_YES			 ;;AN000;
 						 ;;
-	.IF < AH eq 0 > or			 ;;AN000; if old pc
-	.IF < AH eq 0FBH > or			 ;;AN000; if pc XT
-	.IF < AH eq 0F9H > or			 ;;AN000; if pc convertible
-	.IF < AH eq 0FCH > and			 ;;AN000; if pc AT and
-	.IF <<ES:BYTE PTR [BX+3]> le 02 >	 ;;AN000;   sub-model byte le 2
+	; .IF < AH eq 0 > or;;AN000; if old pc
+	; .IF < AH eq 0FBH > or;;AN000; if pc XT
+	; .IF < AH eq 0F9H > or;;AN000; if pc convertible
+	; .IF < AH eq 0FCH > and;;AN000; if pc AT and
+	; .IF <<ES:BYTE PTR [BX+3]> le 02 >;;AN000;   sub-model byte le 2
 	   MOV	P_FLAG,E_NO			 ;;AN000;     not a ps2
-	.ENDIF					 ;;AN000;
-	ENDM					 ;;AN000;
+	; .ENDIF;;AN000;
+	%endmacro;;AN000;
 
-INCLUDE  MACROS4.INC				 ;AN000;
+%include "MACROS4.INC";AN000;
 

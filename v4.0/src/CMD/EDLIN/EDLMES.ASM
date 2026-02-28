@@ -1,5 +1,5 @@
-	PAGE	60,132;
-	title	EDLIN Messages
+	; PAGE	60,132;
+	; title	EDLIN Messages
 ;======================= START OF SPECIFICATIONS =========================
 ;
 ; MODULE NAME: EDLMES.SAL
@@ -53,12 +53,12 @@
 ;		      N. P
 ;======================= END OF SPECIFICATIONS ===========================
 
-.xlist
+; .xlist
 
-include sysmsg.inc				;an000;message retriever
+%include "sysmsg.inc";an000;message retriever
 
 msg_utilname <EDLIN>				;an000;EDLIN messages
-.list
+; .list
 ;-----------------------------------------------------------------------;
 ;									;
 ;	Done for Vers 2.00 (rev 9) by Aaron R				;
@@ -78,7 +78,7 @@ pre_load	equ	00h			;an000;normal pre-load
 
 
 
-message_table	struc				;an000;struc for message table
+struc message_table;an000;struc for message table
 
 	entry1	dw	0			;an000;message number
 	entry2	db	0			;an000;message type
@@ -88,7 +88,7 @@ message_table	struc				;an000;struc for message table
 	entry6	db	0			;an000;use keyb input?
 	entry7	dw	0			;an000;keyb buffer to use
 
-message_table	ends				;an000;end struc
+endstruc;an000;end struc
 
 ;=========================================================================
 ; macro disp_message: this macro takes a pointer to a message table
@@ -100,7 +100,7 @@ message_table	ends				;an000;end struc
 ;	Date	  : 6/11/87
 ;=========================================================================
 
-disp_message	macro	tbl			;an000;display message macro
+%macro disp_message 1;an000;display message macro
 
 	push	bx				;an000;
 	push	cx				;an000;
@@ -127,39 +127,39 @@ disp_message	macro	tbl			;an000;display message macro
 	pop	cx				;an000;
 	pop	bx				;an000;
 
-endm						;an000;end macro disp_message
+%endmacro;an000;end macro disp_message
 
 ;=========================================================================
 ; macro disp_message: end macro
 ;=========================================================================
 
-CODE	SEGMENT PUBLIC BYTE
-CODE	ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST	SEGMENT PUBLIC BYTE
-CONST	ENDS
+SECTION .CONST
+; END SECTION .CONST
 
-cstack	segment stack
-cstack	ends
+SECTION .cstack
+; END SECTION .cstack
 
-DATA	SEGMENT PUBLIC BYTE
+SECTION .DATA
 
-	extrn	path_name:byte
+	extern path_name
 
-DATA	ENDS
+; END SECTION .DATA
 
-DG	GROUP	CODE,CONST,cstack,DATA
+; DG	GROUP	CODE,CONST,cstack,DATA
 
-code	segment public	byte			;an000;code segment
-	assume cs:dg,ds:dg,es:dg,ss:CStack	;an000;
+SECTION .code;an000;code segment
+	; assume cs:dg,ds:dg,es:dg,ss:CStack;an000;
 
-	public	printf				;an000;share printf
-	public	disp_fatal			;an000;fatal error display
-	public	pre_load_message		;an000;message loader
+	global printf;an000;share printf
+	global disp_fatal;an000;fatal error display
+	global pre_load_message;an000;message loader
 
-.xlist
+; .xlist
 msg_services <MSGDATA>				;an000;
-.list
+; .list
 
 ;======================= sysmsg.inc invocation ===========================
 ;
@@ -178,7 +178,7 @@ msg_services <MSGDATA>				;an000;
 ;
 ;=========================================================================
 
-.xlist
+; .xlist
 
  msg_services <LOADmsg> 			;an000;no version check
  msg_services <DISPLAYmsg,CHARmsg,NUMmsg,INPUTmsg>  ;an000;display messages
@@ -186,7 +186,7 @@ msg_services <MSGDATA>				;an000;
  msg_services <EDLIN.CL1,EDLIN.CL2>		;an000;message types
  msg_services <EDLIN.CTL>			;an000;
 
-.list
+; .list
 
 ;=========================================================================
 ; printf: printf is a replacement of the printf procedure used in DOS
@@ -201,7 +201,7 @@ msg_services <MSGDATA>				;an000;
 ;	Date	  : 6/11/87
 ;=========================================================================
 
-printf	proc	near				;an000;printf procedure
+printf:;an000;printf procedure
 
 	disp_message	dx			;an000;display a message
 ;	$if	c				;an000;if an error occurred
@@ -212,7 +212,7 @@ $$IF1:
 
 	ret					;an000;return to caller
 
-printf	endp					;an000;end printf proc
+; ENDP printf;an000;end printf proc
 
 
 ;=========================================================================
@@ -222,7 +222,7 @@ printf	endp					;an000;end printf proc
 ;	Date	  : 6/11/87
 ;=========================================================================
 
-disp_fatal proc near				;an000;fatal error message
+disp_fatal:;an000;fatal error message
 
 	mov	ax,fatal_error			;an000;fatal_error number
 	mov	bx,stdout			;an000;print to console
@@ -234,7 +234,7 @@ disp_fatal proc near				;an000;fatal error message
 
 	ret					;an000;return to caller
 
-disp_fatal endp 				;an000;end disp_fatal proc
+; ENDP disp_fatal;an000;end disp_fatal proc
 
 ;=========================================================================
 ; PRE_LOAD_MESSAGE : This routine provides access to the messages required
@@ -245,7 +245,7 @@ disp_fatal endp 				;an000;end disp_fatal proc
 ;	Date	  : 6/11/87
 ;=========================================================================
 
-PRE_LOAD_MESSAGE	proc	near		;an000;pre-load messages
+PRE_LOAD_MESSAGE:;an000;pre-load messages
 
 
 	call	SYSLOADMSG			;an000;invoke loader
@@ -260,34 +260,34 @@ $$IF3:
 
 	ret					;an000;return to caller
 
-PRE_LOAD_MESSAGE	endp			;an000;end proc
+; ENDP PRE_LOAD_MESSAGE;an000;end proc
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-code	ends					;an000;end code segment
-
-
+; END SECTION .code;an000;end code segment
 
 
-CONST	SEGMENT PUBLIC BYTE
 
-	extrn	arg_buf:byte			;an000;
-	extrn	line_num:byte			;an000;
-	extrn	line_flag:byte			;an000;
-	extrn	Temp_Path:byte			;an000;
 
-	public	baddrv_ptr,bad_vers_err,opt_err_ptr,nobak_ptr
-	public	too_many_ptr,dskful_ptr,memful_ptr,badcom_ptr
-	public	nodir_ptr,filenm_ptr,newfil_ptr,read_err_ptr
-	public	nosuch_ptr,toolng_ptr,eof_ptr,dest_ptr
-	public	mrgerr_ptr,ro_err_ptr,bcreat_ptr,ndname_ptr
-	public	ask_ptr,qmes_ptr,crlf_ptr,lf_ptr,yes_byte
-	public	prompt_ptr
-	public	line_num_buf_ptr		;an000;DMS:6/15/87
-	public	arg_buf_ptr			;an000;DMS:6/15/87
-	public	cont_ptr			;an000;DMS:6/18/87
-	public	cp_err_ptr			;an000;DMS:6/22/87
-	public	Del_Bak_Ptr			;an000;dms;
+SECTION .CONST
+
+	extern arg_buf;an000;
+	extern line_num;an000;
+	extern line_flag;an000;
+	extern Temp_Path;an000;
+
+	global baddrv_ptr,bad_vers_err,opt_err_ptr,nobak_ptr
+	global too_many_ptr,dskful_ptr,memful_ptr,badcom_ptr
+	global nodir_ptr,filenm_ptr,newfil_ptr,read_err_ptr
+	global nosuch_ptr,toolng_ptr,eof_ptr,dest_ptr
+	global mrgerr_ptr,ro_err_ptr,bcreat_ptr,ndname_ptr
+	global ask_ptr,qmes_ptr,crlf_ptr,lf_ptr,yes_byte
+	global prompt_ptr
+	global line_num_buf_ptr;an000;DMS:6/15/87
+	global arg_buf_ptr;an000;DMS:6/15/87
+	global cont_ptr;an000;DMS:6/18/87
+	global cp_err_ptr;an000;DMS:6/22/87
+	global Del_Bak_Ptr;an000;dms;
 
 	yes_byte	db	"y"
 
@@ -308,33 +308,33 @@ CONST	SEGMENT PUBLIC BYTE
 ;	     replaceable parameter sublists
 ;=========================================================================
 
-ed_read_sub	label	dword			;an000;a read error occurred
+ed_read_sub:;an000;a read error occurred
 
 	db	11				;an000;sublist size
 	db	00				;an000;reserved
-	dd	dg:path_name			   ;an000;pointer to parameter
+	dd	path_name			   ;an000;pointer to parameter
 	db	01				;an000;parm 1
 	db	Char_Field_ASCIIZ		;an000;left align/asciiz/char.
 	db	unlim_width			;an000;unlimited width
 	db	00				;an000;minimum width of 0
 	db	pad_blank			;an000;pad with blanks
 
-arg_sub 	label	dword			;an000;line output buffer
+arg_sub:;an000;line output buffer
 
 	db	11				;an000;sublist size
 	db	00				;an000;reserved
-	dd	dg:arg_buf			   ;an000;pointer to parameter
+	dd	arg_buf			   ;an000;pointer to parameter
 	db	01				;an000;parm 1
 	db	Char_Field_ASCIIZ		;an000;left align/asciiz/char.
 	db	unlim_width			;an000;unlimited width
 	db	00				;an000;minimum width of 0
 	db	pad_blank			;an000;pad with blank
 
-num_sub 	label	dword			;an000;line number
+num_sub:;an000;line number
 
 	db	11				;an000;sublist size
 	db	00				;an000;reserved
-	dd	dg:line_num			   ;an000;pointer to parameter
+	dd	line_num			   ;an000;pointer to parameter
 	db	01				;an000;parm 1
 	db	Right_Align+Unsgn_Bin_Word	;an000;right align/decimal
 	db	08				;an000;maximum width
@@ -343,18 +343,18 @@ num_sub 	label	dword			;an000;line number
 
 	db	11				;an000;optional flag
 	db	00				;an000;reserved
-	dd	dg:line_flag			   ;an000;pointer to parameter
+	dd	line_flag			   ;an000;pointer to parameter
 	db	02				;an000;parm 2
 	db	Char_Field_Char 		;an000;character
 	db	01				;an000;minimum width of 1
 	db	01				;an000;maximum width of 1
 	db	pad_blank			;an000;pad with blank
 
-BAK_Sub 	label	dword			;an000;line output buffer
+BAK_Sub:;an000;line output buffer
 
 	db	11				;an000;sublist size
 	db	00				;an000;reserved
-	dd	dg:Temp_Path			;an000;pointer to parameter
+	dd	Temp_Path			;an000;pointer to parameter
 	db	00				;an000;parm 0
 	db	Char_Field_ASCIIZ		;an000;left align/asciiz/char.
 	db	unlim_width			;an000;unlimited width
@@ -379,7 +379,7 @@ BAK_Sub 	label	dword			;an000;line output buffer
 ;=========================================================================
 
 
-bad_vers_err	label	word		;an000;"Incorrect DOS version"
+bad_vers_err:;an000;"Incorrect DOS version"
 		dw	0001		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -388,7 +388,7 @@ bad_vers_err	label	word		;an000;"Incorrect DOS version"
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-prompt_ptr	label	word		;an000;"*",0
+prompt_ptr:;an000;"*",0
 		dw	0006		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -398,7 +398,7 @@ prompt_ptr	label	word		;an000;"*",0
 		dw	00		;an000;no keyboard buffer
 
 
-baddrv_ptr	label	word		;an000;"Invalid drive or file name"
+baddrv_ptr:;an000;"Invalid drive or file name"
 					;an000;,0d,0a,0
 		dw	0007		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
@@ -408,7 +408,7 @@ baddrv_ptr	label	word		;an000;"Invalid drive or file name"
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-ndname_ptr	label	word		;an000;"File name must be
+ndname_ptr:;an000;"File name must be
 					;an000;specified",0d,0a,0
 		dw	0008		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
@@ -418,7 +418,7 @@ ndname_ptr	label	word		;an000;"File name must be
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-opt_err_ptr	label	word		;an000;"Invalid parameter",0d,0a,0
+opt_err_ptr:;an000;"Invalid parameter",0d,0a,0
 		dw	0010		;an000;message number
 		db	Parse_Err_Class ;an000;utility message
 		dw	StdErr		;an000;display handle
@@ -427,7 +427,7 @@ opt_err_ptr	label	word		;an000;"Invalid parameter",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-ro_err_ptr	label	word		;an000;"File is READ-ONLY",0d,0a,0
+ro_err_ptr:;an000;"File is READ-ONLY",0d,0a,0
 		dw	0010		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -436,7 +436,7 @@ ro_err_ptr	label	word		;an000;"File is READ-ONLY",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-bcreat_ptr	label	word		;an000;"File Creation Error",0d,0a,0
+bcreat_ptr:;an000;"File Creation Error",0d,0a,0
 		dw	0011		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -445,7 +445,7 @@ bcreat_ptr	label	word		;an000;"File Creation Error",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-too_many_ptr	label	word		;an000;"Too many files open",0d,0a,0
+too_many_ptr:;an000;"Too many files open",0d,0a,0
 		dw	0012		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -454,18 +454,18 @@ too_many_ptr	label	word		;an000;"Too many files open",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-read_err_ptr	label	word		;an000;"Read error in:",
+read_err_ptr:;an000;"Read error in:",
 					;an000;0d,0a,"%1",0d,0a,0
 		dw	0013		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
-		dw	dg:ed_read_sub	;an000;point to sublist
+		dw	ed_read_sub	;an000;point to sublist
 		dw	0001		;an000;1 sub
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
 
-nobak_ptr	label	word		;an000;"Cannot edit .BAK file
+nobak_ptr:;an000;"Cannot edit .BAK file
 					;an000;--rename file",0d,0a,0
 		dw	0014		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
@@ -475,7 +475,7 @@ nobak_ptr	label	word		;an000;"Cannot edit .BAK file
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-nodir_ptr	label	word		;an000;"No room in directory
+nodir_ptr:;an000;"No room in directory
 					;an000;for file",0d,0d,0
 		dw	0015		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
@@ -485,7 +485,7 @@ nodir_ptr	label	word		;an000;"No room in directory
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-dskful_ptr	label	word		;an000;"Disk full. Edits lost.",0d,0a,0
+dskful_ptr:;an000;"Disk full. Edits lost.",0d,0a,0
 		dw	0016		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -494,7 +494,7 @@ dskful_ptr	label	word		;an000;"Disk full. Edits lost.",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-memful_ptr	label	word		;an000;"Insufficient memory",0d,0a,0
+memful_ptr:;an000;"Insufficient memory",0d,0a,0
 		dw	0008		;an000;message number
 		db	Ext_Err_Class	;an000;extended error
 		dw	stderr		;an000;display handle
@@ -503,7 +503,7 @@ memful_ptr	label	word		;an000;"Insufficient memory",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-filenm_ptr	label	word		;an000;"File not found",0d,0a
+filenm_ptr:;an000;"File not found",0d,0a
 		dw	0002		;an000;message number
 		db	Ext_Err_Class	;an000;utility message
 		dw	stderr		;an000;display handle
@@ -512,7 +512,7 @@ filenm_ptr	label	word		;an000;"File not found",0d,0a
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-badcom_ptr	label	word		;an000;"Entry error",0d,0a,0
+badcom_ptr:;an000;"Entry error",0d,0a,0
 		dw	0018		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -521,7 +521,7 @@ badcom_ptr	label	word		;an000;"Entry error",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-newfil_ptr	label	word		;an000;"New file",0d,0a,0
+newfil_ptr:;an000;"New file",0d,0a,0
 		dw	0019		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -530,7 +530,7 @@ newfil_ptr	label	word		;an000;"New file",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-nosuch_ptr	label	word		;an000;"Not found",0d,0a,0
+nosuch_ptr:;an000;"Not found",0d,0a,0
 		dw	0020		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -539,7 +539,7 @@ nosuch_ptr	label	word		;an000;"Not found",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-ask_ptr 	label	word		;an000;"O.K.? ",0
+ask_ptr:;an000;"O.K.? ",0
 		dw	0021		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -548,7 +548,7 @@ ask_ptr 	label	word		;an000;"O.K.? ",0
 		db	DOS_KEYB_INP	;an000;keyboard input - AX
 		dw	00		;an000;no keyboard buffer
 
-toolng_ptr	label	word		;an000;"Line too long",0d,0a,0
+toolng_ptr:;an000;"Line too long",0d,0a,0
 		dw	0022		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -557,7 +557,7 @@ toolng_ptr	label	word		;an000;"Line too long",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-eof_ptr 	label	word		;an000;"End of input file",0d,0a,0
+eof_ptr:;an000;"End of input file",0d,0a,0
 		dw	0023		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -566,7 +566,7 @@ eof_ptr 	label	word		;an000;"End of input file",0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-qmes_ptr	label	word		;an000;"Abort edit (Y/N)? ",0
+qmes_ptr:;an000;"Abort edit (Y/N)? ",0
 		dw	0024		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -575,7 +575,7 @@ qmes_ptr	label	word		;an000;"Abort edit (Y/N)? ",0
 		db	DOS_KEYB_INP	;an000;keyboard input - AX
 		dw	00		;an000;no keyboard buffer
 
-dest_ptr	label	word		;an000;"Must specify destination
+dest_ptr:;an000;"Must specify destination
 					;an000;line number",0d,0a,0
 		dw	0025		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
@@ -585,7 +585,7 @@ dest_ptr	label	word		;an000;"Must specify destination
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-mrgerr_ptr	label	word		;an000;"Not enough room to
+mrgerr_ptr:;an000;"Not enough room to
 					;an000;merge the entire file",0d,0a,0
 		dw	0026		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
@@ -595,7 +595,7 @@ mrgerr_ptr	label	word		;an000;"Not enough room to
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-crlf_ptr	label	word		;an000;0d,0a,0
+crlf_ptr:;an000;0d,0a,0
 		dw	0027		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -604,7 +604,7 @@ crlf_ptr	label	word		;an000;0d,0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-lf_ptr		label	word		;an000;0a,0
+lf_ptr:;an000;0a,0
 		dw	0028		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -613,7 +613,7 @@ lf_ptr		label	word		;an000;0a,0
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-cont_ptr	label	word		;an000;"Continue (Y/N)?"
+cont_ptr:;an000;"Continue (Y/N)?"
 		dw	0029		;an000;message number
 		db	UTILITY_MSG_CLASS  ;an000;utility message
 		dw	stdout		;an000;display handle
@@ -622,26 +622,26 @@ cont_ptr	label	word		;an000;"Continue (Y/N)?"
 		db	DOS_KEYB_INP	;an000;keyboard input
 		dw	00		;an000;no keyboard buffer
 
-arg_buf_ptr	label	word		;an000;argument buffer for
+arg_buf_ptr:;an000;argument buffer for
 					;      line output
 		dw	0031		;an000;message number
 		db	UTILITY_MSG_CLASS     ;an000;utility message
 		dw	stdout		;an000;display handle
-		dw	dg:arg_sub	;an000;argument sublist
+		dw	arg_sub	;an000;argument sublist
 		dw	01		;an000;1 sub
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-line_num_buf_ptr label	word		;an000;holds line numbers
+line_num_buf_ptr:;an000;holds line numbers
 		dw	0032		;an000;message number
 		db	UTILITY_MSG_CLASS     ;an000;utility message
 		dw	stdout		;an000;display handle
-		dw	dg:num_sub	;an000;argument sublist
+		dw	num_sub	;an000;argument sublist
 		dw	02		;an000;2 subs
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-cp_err_ptr	label	word		;an000;"Cannot merge - Code page
+cp_err_ptr:;an000;"Cannot merge - Code page
 					;	mismatch",0d,0a
 		dw	0033		;an000;message number
 		db	UTILITY_MSG_CLASS	;an000;utility message
@@ -651,15 +651,15 @@ cp_err_ptr	label	word		;an000;"Cannot merge - Code page
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-del_bak_ptr	label	word		;an000;"Access Denied - xxxxxxxx.BAK"
+del_bak_ptr:;an000;"Access Denied - xxxxxxxx.BAK"
 		dw	0005		;an000;message number
 		db	Ext_Err_Class	;an000;utility message
 		dw	stderr		;an000;display handle
-		dw	dg:BAK_Sub	;an000;no sublist
+		dw	BAK_Sub	;an000;no sublist
 		dw	01		;an000;no subs
 		db	no_input	;an000;no keyboard input
 		dw	00		;an000;no keyboard buffer
 
-CONST	ENDS
-	END
+; END SECTION .CONST
+	; END
 

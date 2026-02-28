@@ -1,36 +1,36 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS  DosFindNext   mapper
+; title CP/DOS  DosFindNext   mapper
 ;
 
-        include find.inc
+        %include "find.inc"
 
-FindSegment     segment word public 'find'
+SECTION .FindSegment
 
-                        extrn   SearchCount:word
-                        extrn   ReturnBufferSave:dword
-                        extrn   CurrentDTA:word
-                        extrn   ReturnLengthToGo:word
+                        extern SearchCount
+                        extern ReturnBufferSave
+                        extern CurrentDTA
+                        extern ReturnLengthToGo
 
-                        extrn   SaveDTA:dword
-                        extrn   SaveDTAOffset:word
-                        extrn   SaveDTASegment:word
-                        extrn   SaveDTAFlag:byte
+                        extern SaveDTA
+                        extern SaveDTAOffset
+                        extern SaveDTASegment
+                        extern SaveDTAFlag
 
 ; We will use the offset into the segment 'FindSegment' as the handle that we
 ;  return and use in subsequent FindNext and FindClose calls.  The data that is
 ;  in the word is the offset into the 'FindSegment' to the DTA that we should
 ;  use.
 
-                extrn   FindDTAs:word
+                extern FindDTAs
 
-                extrn   FindHandles:word
+                extern FindHandles
 
-FindSegment     ends
+; END SECTION .FindSegment
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -68,31 +68,31 @@ dosxxx  segment byte public 'dos'
 ; *
 ; *************************************************************************
 ;
-        public  DosFindNext
-        .sall
-        .xlist
-        include macros.inc
-        .list
+        global DosFindNext
+        ; .sall
+        ; .xlist
+        %include "macros.inc"
+        ; .list
 ;
 
-str     struc
-old_bp          dw      ?
-return          dd      ?
-FindCountPtr    dd      ?
-FindBufferLen   dw      ?
-FindBufferPtr   dd      ?       ;Changed to DW to match the DOSCALL.h  PyL 6/1 Rsltbuf21       dd    ?
-DirHandle       dw      ?
-str     ends
+struc str
+old_bp: dw 0
+return: dd 0
+FindCountPtr: dd 0
+FindBufferLen: dw 0
+FindBufferPtr: dd 0;Changed to DW to match the DOSCALL.h  PyL 6/1 Rsltbuf21       dd    ?
+DirHandle: dw 0
+endstruc
 
 ;
-DosFindNext  proc   far
+DosFindNext:
 
 
         Enter   DosFindNext
 
         mov     ax,seg FindSegment      ; get address to our data
         mov     ds,ax
-        assume  ds:FindSegment
+        ; assume  ds:FindSegment
 
 ; check for a valid dir handle
 
@@ -102,7 +102,7 @@ DosFindNext  proc   far
         cmp     si,1
         jne     CheckForNext
 
-        mov     si,offset FindSegment:FindHandles
+        mov     si,FindHandles
 
 CheckForNext:
         test    ds:[si],OpenedHandle
@@ -139,7 +139,7 @@ HandleFound:
         les     di,[bp].FindCountPtr  ; load result buffer pointer
         mov     ax,es:[di]            ; save the search
         mov     SearchCount,ax        ;                count
-        mov     es:word ptr [di],0    ; set found count to zero
+        mov     es:word [di],0    ; set found count to zero
 
         cmp     ax,0                    ; just in case they try to trick us!
         jne     DoSearch
@@ -153,8 +153,8 @@ DoSearch:
         mov     ReturnLengthToGo,ax   ; save low order buffer length
 
         les     di,[bp].FindBufferPtr ; load result buffer pointer
-        mov     word ptr ReturnBufferSave+0,di
-        mov     word ptr ReturnBufferSave+2,es
+        mov     word ReturnBufferSave+0,di
+        mov     word ReturnBufferSave+2,es
 
 DoFindNext:
         mov     ax,4f00h
@@ -166,7 +166,7 @@ DoFindNext:
 ; Move find data into the return areas
 
 MoveFindData:
-        sub     ReturnLengthToGo,size FileFindBuf ; check if result buffer is larg enough
+        sub     ReturnLengthToGo,FileFindBuf_size ; check if result buffer is larg enough
         jnc     BufferLengthOk        ; it is ok
 
         mov     ax,8               ; report 'Insufficient memory'
@@ -190,18 +190,18 @@ BufferLengthOk:
         mov     es:[di].Access_Time,ax
         mov     es:[di].Write_Time,ax
 
-        mov     ax,ds:word ptr [si].DTAFileSize+0
-        mov     es:word ptr [di].File_Size+0,ax
-        mov     es:word ptr [di].FAlloc_Size+0,ax
-        mov     ax,ds:word ptr [si].DTAFileSize+2
-        mov     es:word ptr [di].File_Size+2,ax
-        mov     es:word ptr [di].FAlloc_Size+2,ax
+        mov     ax,ds:word [si].DTAFileSize+0
+        mov     es:word [di].File_Size+0,ax
+        mov     es:word [di].FAlloc_Size+0,ax
+        mov     ax,ds:word [si].DTAFileSize+2
+        mov     es:word [di].File_Size+2,ax
+        mov     es:word [di].FAlloc_Size+2,ax
 
-        test    es:word ptr [di].FAlloc_Size,001ffh
+        test    es:word [di].FAlloc_Size,001ffh
         jz      AllocateSizeSet
 
-        and     es:word ptr [di].FAlloc_Size,not 001ffh
-        add     es:word ptr [di].FAlloc_Size,00200h
+        and     es:word [di].FAlloc_Size,not 001ffh
+        add     es:word [di].FAlloc_Size,00200h
 
 AllocateSizeSet:
         xor     ax,ax
@@ -226,11 +226,11 @@ EndOfName:
         mov     es:[di].String_len,al
 
         add     di,bx
-        mov     word ptr ReturnBufferSave+0,di
-        mov     word ptr ReturnBufferSave+2,es
+        mov     word ReturnBufferSave+0,di
+        mov     word ReturnBufferSave+2,es
 
         les     di,[bp].FindCountPtr
-        inc     word ptr es:[di]
+        inc     word es:[di]
 
 ;
 ;  Check if the request was for more than one
@@ -247,7 +247,7 @@ ErrorExit:
         push    ax
         mov     ax,seg FindSegment
         mov     ds,ax
-        assume  ds:FindSegment
+        ; assume  ds:FindSegment
         cmp     SaveDTAFlag,0
         je      DoNotRestore
 
@@ -262,10 +262,10 @@ DoNotRestore:
 
         mexit
 
-        ret     size str - 6
+        ret     str_size - 6
 
-DosFindNext endp
+; ENDP DosFindNext
 
-dosxxx  ends
+; END SECTION .dosxxx
 
-        end
+        ; end

@@ -1,8 +1,8 @@
 
 
-	page	58,132
+	; page	58,132
 ;******************************************************************************
-	title	MEMMONF - (C) Copyright MICROSOFT Corp. 1986
+	; title	MEMMONF - (C) Copyright MICROSOFT Corp. 1986
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -35,15 +35,15 @@
 ;   depending on the results of the parsing and call to ELIM_Entry.
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	onf_func
-	public	get_token
+	global onf_func
+	global get_token
 ;
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
@@ -51,42 +51,42 @@
 
 
 
-_TEXT	segment byte use16 public 'CODE'
-	extrn	Inst_chk:near
-	extrn	ELIM_link:near
-_TEXT	ends
+SECTION ._TEXT
+	extern Inst_chk
+	extern ELIM_link
+; END SECTION ._TEXT
 ;
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
 MSDOS		equ	21h			; MS-DOS function call
 
-	include ascii_sm.equ
+	%include "ascii_sm.equ"
 
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 ;
-_TEXT	segment byte use16 public 'CODE'
-	assume	cs:_TEXT, ds:_TEXT, es:_TEXT, ss:_TEXT
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:_TEXT, es:_TEXT, ss:_TEXT
 ;
 ;******************************************************************************
 ;			L O C A L   D A T A   A R E A
 ;******************************************************************************
 ;
-	include 	memm_msg.inc
+	%include "memm_msg.inc"
 ;
-msg_tbl 	label	word		; table of final messages to display
-		dw	offset vmode	; on
-		dw	offset rmode	; off
-		dw	offset amode	; auto
+msg_tbl:; table of final messages to display
+		dw	vmode	; on
+		dw	rmode	; off
+		dw	amode	; auto
 		dw	0		; no parameter will use above msgs
-		dw	offset parmerr	; invalid parameter
-		dw	offset verr_msg	; error entering vmode
-		dw	offset rerr	; error entering rmode
-		dw	offset aerr	; error entering amode
+		dw	parmerr	; invalid parameter
+		dw	verr_msg	; error entering vmode
+		dw	rerr	; error entering rmode
+		dw	aerr	; error entering amode
 ;
 ;	the valid arguments
 ;
@@ -104,23 +104,23 @@ null_len	equ	1
 max_arg_len	equ	11
 arg_str 	db	max_arg_len	dup(0)		; storage for get_token
 ;
-arg_tbl 	label	word		; table of valid arguments
-		dw	offset	on_arg
-		dw	offset	off_arg
-		dw	offset	auto_arg
+arg_tbl:; table of valid arguments
+		dw	on_arg
+		dw	off_arg
+		dw	auto_arg
 ;
 no_arg		equ	(this byte - arg_tbl)
-		dw	offset null_arg 	; should be last entry
+		dw	null_arg 	; should be last entry
 max_args	equ	(this byte - arg_tbl)
 ;
-arg_len 	label	word		; table of argument lengths
+arg_len:; table of argument lengths
 		dw	on_len
 		dw	off_len
 		dw	auto_len
 ;
 		dw	null_len
 
-page
+; page
 ;******************************************************************************
 ;	onf_func - Check command line for ON OFF or AUTO and perform function
 ;
@@ -131,7 +131,7 @@ page
 ;	USED: none
 ;
 ;******************************************************************************
-onf_func	proc	near
+onf_func:
 
 	push	ax
 	push	dx
@@ -144,7 +144,7 @@ onf_func	proc	near
 	call	Inst_chk		; ax = 0/1 => isn't/is installed
 	or	ax,ax			; q: is it installed?
 	jnz	drvr_installed
-	mov	dx,offset not_there	; Not installed message
+	mov	dx,not_there	; Not installed message
 	jmp	term			; display message and quit
 ;
 drvr_installed:
@@ -169,7 +169,7 @@ get_status:
 	cmp	ax,2			; q: auto mode?
 	jb	msg_disp		; n: display mode
 	push	ax			; save it
-	mov	dx,offset amode
+	mov	dx,amode
 	mov	ah,9
 	int	MSDOS			; print auto mode
 	pop	ax			; restore mode
@@ -188,9 +188,9 @@ term:
 	pop	ax
 
 	ret
-onf_func	endp
+; ENDP onf_func
 
-	page
+	; page
 ;******************************************************************************
 ;	get_token - Retrieve a non-white-space string from a source string
 ;
@@ -205,7 +205,7 @@ onf_func	endp
 ;	USED: see above
 ;
 ;******************************************************************************
-get_token	proc		near
+get_token:
 	push	si		; save storage area
 	push	bx
 	push	ax
@@ -247,9 +247,9 @@ token_xit:
 	pop	bx
 	pop	si
 	ret
-get_token	endp
+; ENDP get_token
 
-	page
+	; page
 ;******************************************************************************
 ;	parse_onf - Parse command line for ON or OFF
 ;
@@ -267,7 +267,7 @@ get_token	endp
 ;	USED: see above
 ;
 ;******************************************************************************
-parse_onf	proc		near
+parse_onf:
 ;
 	push	si
 	push	ds
@@ -279,7 +279,7 @@ parse_onf	proc		near
 ;
 ;	es:di = 1st char
 ;
-	mov	si,offset arg_str	; ds:si = storage for argument
+	mov	si,arg_str	; ds:si = storage for argument
 	push	cs
 	pop	ds		; arg storage in _CODE
 	mov	cx,max_arg_len	; maximum argument length
@@ -330,8 +330,8 @@ parse_xit2:
 	pop	si
 ;
 	ret
-parse_onf	endp
+; ENDP parse_onf
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-	end
+	; end

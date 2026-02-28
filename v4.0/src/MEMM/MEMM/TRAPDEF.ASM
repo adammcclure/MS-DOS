@@ -1,8 +1,8 @@
 
 
-	page	58,132
+	; page	58,132
 ;******************************************************************************
-	title	TRAPDEF.ASM - I/O trap Dispatch table
+	; title	TRAPDEF.ASM - I/O trap Dispatch table
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -30,18 +30,18 @@
 ;
 ;******************************************************************************
 ;
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	IOTrap_Tab		; dispatches I/O trap handlers
-	public	IOT_BadT		; Unknown port trap routine
-	public	IOT_OEM 		; OEM specific port emulation
+	global IOTrap_Tab; dispatches I/O trap handlers
+	global IOT_BadT; Unknown port trap routine
+	global IOT_OEM; OEM specific port emulation
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
@@ -49,56 +49,56 @@
 ; % - how many of these are actually needed?
 ; % - Need any includes from Win/386 DMA code - trapdef.asm ?
 
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include elim.inc
-	include page.inc
-	include oemdep.inc
-	include instr386.inc
-	include vm386.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "elim.inc"
+	%include "page.inc"
+	%include "oemdep.inc"
+	%include "instr386.inc"
+	%include "vm386.inc"
 ;
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 ;
 
-_DATA	segment
+SECTION ._DATA
 ;extrn	_map_size:byte		; # of mapping registers used
 ;extrn	LIMP_Addr:word
-_DATA	ends
+; END SECTION ._DATA
 
-_TEXT	segment
+SECTION ._TEXT
 ;
-extrn	RRP_Handler:near
-extrn	A20_Handler:near	; Kybd Data port - A20 watch
-extrn	DMABase0:near		;  DMA base register for Channel 0
-extrn	DMABase1:near		;  DMA base register for Channel 1
-extrn	DMABase2:near		;  DMA base register for Channel 2
-extrn	DMABase3:near		;  DMA base register for Channel 3
-extrn	DMABase5:near		;  DMA base register for Channel 5
-extrn	DMABase6:near		;  DMA base register for Channel 6
-extrn	DMABase7:near		;  DMA base register for Channel 7
-extrn	DMACnt0:near 		;  DMA count register for Channel 0
-extrn	DMACnt1:near		;  DMA count register for Channel 1
-extrn	DMACnt2:near		;  DMA count register for Channel 2
-extrn	DMACnt3:near		;  DMA count register for Channel 3
-extrn	DMACnt5:near		;  DMA count register for Channel 5
-extrn	DMACnt6:near		;  DMA count register for Channel 6
-extrn	DMACnt7:near		;  DMA count register for Channel 7
-extrn	DMAPg0:near		;  DMA page register for Channel 0
-extrn	DMAPg1:near		;  DMA page register for Channel 1
-extrn	DMAPg2:near		;  DMA page register for Channel 2
-extrn	DMAPg3:near		;  DMA page register for Channel 3
-extrn	DMAPg5:near		;  DMA page register for Channel 5
-extrn	DMAPg6:near		;  DMA page register for Channel 6
-extrn	DMAPg7:near		;  DMA page register for Channel 7
-extrn	DMAClrFF1:near		;  clear flip-flop cmd for channels 0-3
-extrn	DMAClrFF2:near		;  clear flip-flop cmd for channels 5-7
-extrn	DMAMode1:near		;  Mode register for channels 0-3
-extrn	DMAMode2:near		;  Mode register for channels 4-7
+extern RRP_Handler
+extern A20_Handler; Kybd Data port - A20 watch
+extern DMABase0;  DMA base register for Channel 0
+extern DMABase1;  DMA base register for Channel 1
+extern DMABase2;  DMA base register for Channel 2
+extern DMABase3;  DMA base register for Channel 3
+extern DMABase5;  DMA base register for Channel 5
+extern DMABase6;  DMA base register for Channel 6
+extern DMABase7;  DMA base register for Channel 7
+extern DMACnt0;  DMA count register for Channel 0
+extern DMACnt1;  DMA count register for Channel 1
+extern DMACnt2;  DMA count register for Channel 2
+extern DMACnt3;  DMA count register for Channel 3
+extern DMACnt5;  DMA count register for Channel 5
+extern DMACnt6;  DMA count register for Channel 6
+extern DMACnt7;  DMA count register for Channel 7
+extern DMAPg0;  DMA page register for Channel 0
+extern DMAPg1;  DMA page register for Channel 1
+extern DMAPg2;  DMA page register for Channel 2
+extern DMAPg3;  DMA page register for Channel 3
+extern DMAPg5;  DMA page register for Channel 5
+extern DMAPg6;  DMA page register for Channel 6
+extern DMAPg7;  DMA page register for Channel 7
+extern DMAClrFF1;  clear flip-flop cmd for channels 0-3
+extern DMAClrFF2;  clear flip-flop cmd for channels 5-7
+extern DMAMode1;  Mode register for channels 0-3
+extern DMAMode2;  Mode register for channels 4-7
 
-_TEXT	ends
+; END SECTION ._TEXT
 
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
@@ -106,8 +106,8 @@ _TEXT	ends
 
 ;
 ;------------------------------------------------------------------------------
-_TEXT	segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
 ;
 ;   IOTrapTab
 ;	One entry per port in the I/O space from 00h to FFh.
@@ -117,263 +117,263 @@ _TEXT	segment
 ;	be intended as zero since some earlier systems only had 10 bits of
 ;	I/O addressing).
 ;
-IOTrap_Tab	label	word
-	dw	offset _TEXT:DMAbase0  ;  0 DMA base register for Channel 0
-	dw	offset _TEXT:DMACnt0   ;  1 DMA count register for Channel 0
-	dw	offset _TEXT:DMABase1  ;  2 DMA base register for Channel 1
-	dw	offset _TEXT:DMACnt1   ;  3 DMA count register for Channel 1
-	dw	offset _TEXT:DMABase2  ;  4 DMA base register for Channel 2
-	dw	offset _TEXT:DMACnt2   ;  5 DMA count register for Channel 2
-	dw	offset _TEXT:DMABase3  ;  6 DMA base register for Channel 3
-	dw	offset _TEXT:DMACnt3   ;  7 DMA count register for Channel 3
-	dw	offset _TEXT:IOT_BadT  ;  8
-	dw	offset _TEXT:IOT_BadT  ;  9
-	dw	offset _TEXT:IOT_BadT  ;  a
-	dw	offset _TEXT:DMAMode1  ;  b DMA Mode Register for for Ch 0-3
-	dw	offset _TEXT:DMAClrFF1   ;  c clear flip-flop cmd for channels 0-3
-	dw	offset _TEXT:IOT_BadT  ;  d
-	dw	offset _TEXT:IOT_BadT  ;  e
-	dw	offset _TEXT:IOT_BadT  ;  f
-	dw	offset _TEXT:IOT_BadT  ; 10
-	dw	offset _TEXT:IOT_BadT  ; 11
-	dw	offset _TEXT:IOT_BadT  ; 12
-	dw	offset _TEXT:IOT_BadT  ; 13
-	dw	offset _TEXT:IOT_BadT  ; 14
-	dw	offset _TEXT:IOT_BadT  ; 15
-	dw	offset _TEXT:IOT_BadT  ; 16
-	dw	offset _TEXT:IOT_BadT  ; 17
-	dw	offset _TEXT:IOT_BadT  ; 18
-	dw	offset _TEXT:IOT_BadT  ; 19
-	dw	offset _TEXT:IOT_BadT  ; 1a
-	dw	offset _TEXT:IOT_BadT  ; 1b
-	dw	offset _TEXT:IOT_BadT  ; 1c
-	dw	offset _TEXT:IOT_BadT  ; 1d
-	dw	offset _TEXT:IOT_BadT  ; 1e
-	dw	offset _TEXT:IOT_BadT  ; 1f
-	dw	offset _TEXT:IOT_BadT  ; 20
-	dw	offset _TEXT:IOT_BadT  ; 21
-	dw	offset _TEXT:IOT_BadT  ; 22
-	dw	offset _TEXT:IOT_BadT  ; 23
-	dw	offset _TEXT:IOT_BadT  ; 24
-	dw	offset _TEXT:IOT_BadT  ; 25
-	dw	offset _TEXT:IOT_BadT  ; 26
-	dw	offset _TEXT:IOT_BadT  ; 27
-	dw	offset _TEXT:IOT_BadT  ; 28
-	dw	offset _TEXT:IOT_BadT  ; 29
-	dw	offset _TEXT:IOT_BadT  ; 2a
-	dw	offset _TEXT:IOT_BadT  ; 2b
-	dw	offset _TEXT:IOT_BadT  ; 2c
-	dw	offset _TEXT:IOT_BadT  ; 2d
-	dw	offset _TEXT:IOT_BadT  ; 2e
-	dw	offset _TEXT:IOT_BadT  ; 2f
-	dw	offset _TEXT:IOT_BadT  ; 30
-	dw	offset _TEXT:IOT_BadT  ; 31
-	dw	offset _TEXT:IOT_BadT  ; 32
-	dw	offset _TEXT:IOT_BadT  ; 33
-	dw	offset _TEXT:IOT_BadT  ; 34
-	dw	offset _TEXT:IOT_BadT  ; 35
-	dw	offset _TEXT:IOT_BadT  ; 36
-	dw	offset _TEXT:IOT_BadT  ; 37
-	dw	offset _TEXT:IOT_BadT  ; 38
-	dw	offset _TEXT:IOT_BadT  ; 39
-	dw	offset _TEXT:IOT_BadT  ; 3a
-	dw	offset _TEXT:IOT_BadT  ; 3b
-	dw	offset _TEXT:IOT_BadT  ; 3c
-	dw	offset _TEXT:IOT_BadT  ; 3d
-	dw	offset _TEXT:IOT_BadT  ; 3e
-	dw	offset _TEXT:IOT_BadT  ; 3f
-	dw	offset _TEXT:IOT_BadT  ; 40
-	dw	offset _TEXT:IOT_BadT  ; 41
-	dw	offset _TEXT:IOT_BadT  ; 42
-	dw	offset _TEXT:IOT_BadT  ; 43
-	dw	offset _TEXT:IOT_BadT  ; 44
-	dw	offset _TEXT:IOT_BadT  ; 45
-	dw	offset _TEXT:IOT_BadT  ; 46
-	dw	offset _TEXT:IOT_BadT  ; 47
-	dw	offset _TEXT:IOT_BadT  ; 48
-	dw	offset _TEXT:IOT_BadT  ; 49
-	dw	offset _TEXT:IOT_BadT  ; 4a
-	dw	offset _TEXT:IOT_BadT  ; 4b
-	dw	offset _TEXT:IOT_BadT  ; 4c
-	dw	offset _TEXT:IOT_BadT  ; 4d
-	dw	offset _TEXT:IOT_BadT  ; 4e
-	dw	offset _TEXT:IOT_BadT  ; 4f
-	dw	offset _TEXT:IOT_BadT  ; 50
-	dw	offset _TEXT:IOT_BadT  ; 51
-	dw	offset _TEXT:IOT_BadT  ; 52
-	dw	offset _TEXT:IOT_BadT  ; 53
-	dw	offset _TEXT:IOT_BadT  ; 54
-	dw	offset _TEXT:IOT_BadT  ; 55
-	dw	offset _TEXT:IOT_BadT  ; 56
-	dw	offset _TEXT:IOT_BadT  ; 57
-	dw	offset _TEXT:IOT_BadT  ; 58
-	dw	offset _TEXT:IOT_BadT  ; 59
-	dw	offset _TEXT:IOT_BadT  ; 5a
-	dw	offset _TEXT:IOT_BadT  ; 5b
-	dw	offset _TEXT:IOT_BadT  ; 5c
-	dw	offset _TEXT:IOT_BadT  ; 5d
-	dw	offset _TEXT:IOT_BadT  ; 5e
-	dw	offset _TEXT:IOT_BadT  ; 5f
-	dw	offset _TEXT:A20_Handler	; A20 watch on kybd data port
-	dw	offset _TEXT:IOT_BadT  ; 61
-	dw	offset _TEXT:IOT_BadT  ; 62
-	dw	offset _TEXT:IOT_BadT  ; 63
-	dw	offset _TEXT:A20_Handler	; A20 watch on kybd cmd port
-	dw	offset _TEXT:IOT_BadT  ; 65
-	dw	offset _TEXT:IOT_BadT  ; 66
-	dw	offset _TEXT:IOT_BadT  ; 67
-	dw	offset _TEXT:IOT_BadT  ; 68
-	dw	offset _TEXT:IOT_BadT  ; 69
-	dw	offset _TEXT:IOT_BadT  ; 6a
-	dw	offset _TEXT:IOT_BadT  ; 6b
-	dw	offset _TEXT:IOT_BadT  ; 6c
-	dw	offset _TEXT:IOT_BadT  ; 6d
-	dw	offset _TEXT:IOT_BadT  ; 6e
-	dw	offset _TEXT:IOT_BadT  ; 6f
-	dw	offset _TEXT:IOT_BadT  ; 70
-	dw	offset _TEXT:IOT_BadT  ; 71
-	dw	offset _TEXT:IOT_BadT  ; 72
-	dw	offset _TEXT:IOT_BadT  ; 73
-	dw	offset _TEXT:IOT_BadT  ; 74
-	dw	offset _TEXT:IOT_BadT  ; 75
-	dw	offset _TEXT:IOT_BadT  ; 76
-	dw	offset _TEXT:IOT_BadT  ; 77
-	dw	offset _TEXT:IOT_BadT  ; 78
-	dw	offset _TEXT:IOT_BadT  ; 79
-	dw	offset _TEXT:IOT_BadT  ; 7a
-	dw	offset _TEXT:IOT_BadT  ; 7b
-	dw	offset _TEXT:IOT_BadT  ; 7c
-	dw	offset _TEXT:IOT_BadT  ; 7d
-	dw	offset _TEXT:IOT_BadT  ; 7e
-	dw	offset _TEXT:IOT_BadT  ; 7f
-	dw	offset _TEXT:IOT_BadT  ; 80
-	dw	offset _TEXT:DMAPg2    ; 81 DMA page register for Channel 2
-	dw	offset _TEXT:DMAPg3    ; 82 DMA page register for Channel 3
-	dw	offset _TEXT:DMAPg1    ; 83 DMA page register for Channel 1
-	dw	offset _TEXT:RRP_Handler	; return to real port
-	dw	offset _TEXT:RRP_Handler	; return to real port
-	dw	offset _TEXT:IOT_BadT  ; 86
-	dw	offset _TEXT:DMAPg0    ; 87 DMA page register for Channel 0
-	dw	offset _TEXT:IOT_BadT  ; 88
-	dw	offset _TEXT:DMAPg6    ; 89 DMA page register for Channel 6
-	dw	offset _TEXT:DMAPg7    ; 8a DMA page register for Channel 7
-	dw	offset _TEXT:DMAPg5    ; 8b DMA page register for Channel 5
-	dw	offset _TEXT:IOT_BadT  ; 8c
-	dw	offset _TEXT:IOT_BadT  ; 8d
-	dw	offset _TEXT:IOT_BadT  ; 8e
-	dw	offset _TEXT:IOT_BadT  ; 8f
-	dw	offset _TEXT:IOT_BadT  ; 90
-	dw	offset _TEXT:DMAPg2    ; 91 DMA page register for Channel 2
-	dw	offset _TEXT:DMAPg3    ; 92 DMA page register for Channel 3
-	dw	offset _TEXT:DMAPg1    ; 93 DMA page register for Channel 1
-	dw	offset _TEXT:IOT_BadT  ; 94
-	dw	offset _TEXT:IOT_BadT  ; 95
-	dw	offset _TEXT:IOT_BadT  ; 96
-	dw	offset _TEXT:IOT_BadT  ; 97 DMA page register for Channel 0
-	dw	offset _TEXT:IOT_BadT  ; 98
-	dw	offset _TEXT:DMAPg6    ; 99 DMA page register for Channel 6
-	dw	offset _TEXT:DMAPg7    ; 9a DMA page register for Channel 7
-	dw	offset _TEXT:DMAPg5    ; 9b DMA page register for Channel 5
-	dw	offset _TEXT:IOT_BadT  ; 9c
-	dw	offset _TEXT:IOT_BadT  ; 9d
-	dw	offset _TEXT:IOT_BadT  ; 9e
-	dw	offset _TEXT:IOT_BadT  ; 9f
-	dw	offset _TEXT:IOT_BadT  ; a0
-	dw	offset _TEXT:IOT_BadT  ; a1
-	dw	offset _TEXT:IOT_BadT  ; a2
-	dw	offset _TEXT:IOT_BadT  ; a3
-	dw	offset _TEXT:IOT_BadT  ; a4
-	dw	offset _TEXT:IOT_BadT  ; a5
-	dw	offset _TEXT:IOT_BadT  ; a6
-	dw	offset _TEXT:IOT_BadT  ; a7
-	dw	offset _TEXT:IOT_BadT  ; a8
-	dw	offset _TEXT:IOT_BadT  ; a9
-	dw	offset _TEXT:IOT_BadT  ; aa
-	dw	offset _TEXT:IOT_BadT  ; ab
-	dw	offset _TEXT:IOT_BadT  ; ac
-	dw	offset _TEXT:IOT_BadT  ; ad
-	dw	offset _TEXT:IOT_BadT  ; ae
-	dw	offset _TEXT:IOT_BadT  ; af
-	dw	offset _TEXT:IOT_BadT  ; b0
-	dw	offset _TEXT:IOT_BadT  ; b1
-	dw	offset _TEXT:IOT_BadT  ; b2
-	dw	offset _TEXT:IOT_BadT  ; b3
-	dw	offset _TEXT:IOT_BadT  ; b4
-	dw	offset _TEXT:IOT_BadT  ; b5
-	dw	offset _TEXT:IOT_BadT  ; b6
-	dw	offset _TEXT:IOT_BadT  ; b7
-	dw	offset _TEXT:IOT_BadT  ; b8
-	dw	offset _TEXT:IOT_BadT  ; b9
-	dw	offset _TEXT:IOT_BadT  ; ba
-	dw	offset _TEXT:IOT_BadT  ; bb
-	dw	offset _TEXT:IOT_BadT  ; bc
-	dw	offset _TEXT:IOT_BadT  ; bd
-	dw	offset _TEXT:IOT_BadT  ; be
-	dw	offset _TEXT:IOT_BadT  ; bf
-	dw	offset _TEXT:IOT_BadT  ; c0 DMA base register for Channel 4
-	dw	offset _TEXT:IOT_BadT  ; c1
-	dw	offset _TEXT:IOT_BadT  ; c2 DMA count register for Channel 4
-	dw	offset _TEXT:IOT_BadT  ; c3
-	dw	offset _TEXT:DMABase5  ; c4 DMA base register for Channel 5
-	dw	offset _TEXT:IOT_BadT  ; c5
-	dw	offset _TEXT:DMACnt5   ; c6 DMA count register for Channel 5
-	dw	offset _TEXT:IOT_BadT  ; c7
-	dw	offset _TEXT:DMABase6  ; c8 DMA base register for Channel 6
-	dw	offset _TEXT:IOT_BadT  ; c9
-	dw	offset _TEXT:DMACnt6   ; ca DMA count register for Channel 6
-	dw	offset _TEXT:IOT_BadT  ; cb
-	dw	offset _TEXT:DMABase7  ; cc DMA base register for Channel 7
-	dw	offset _TEXT:IOT_BadT  ; cd
-	dw	offset _TEXT:DMACnt7   ; ce DMA count register for Channel 7
-	dw	offset _TEXT:IOT_BadT  ; cf
-	dw	offset _TEXT:IOT_BadT  ; d0
-	dw	offset _TEXT:IOT_BadT  ; d1
-	dw	offset _TEXT:IOT_BadT  ; d2
-	dw	offset _TEXT:IOT_BadT  ; d3
-	dw	offset _TEXT:IOT_BadT  ; d4
-	dw	offset _TEXT:IOT_BadT  ; d5
-	dw	offset _TEXT:DMAMode2  ; d6 DMA Mode Register for channels 4-7
-	dw	offset _TEXT:IOT_BadT  ; d7
-	dw	offset _TEXT:DMAClrFF2   ; d8 clear flip-flop cmd for channels 5-7
-	dw	offset _TEXT:IOT_BadT  ; d9
-	dw	offset _TEXT:IOT_BadT  ; da
-	dw	offset _TEXT:IOT_BadT  ; db
-	dw	offset _TEXT:IOT_BadT  ; dc
-	dw	offset _TEXT:IOT_BadT  ; dd
-	dw	offset _TEXT:IOT_BadT  ; de
-	dw	offset _TEXT:IOT_BadT  ; df
-	dw	offset _TEXT:IOT_BadT  ; e0
-	dw	offset _TEXT:IOT_BadT  ; e1
-	dw	offset _TEXT:IOT_BadT  ; e2
-	dw	offset _TEXT:IOT_BadT  ; e3
-	dw	offset _TEXT:IOT_BadT  ; e4
-	dw	offset _TEXT:IOT_BadT  ; e5
-	dw	offset _TEXT:IOT_BadT  ; e6
-	dw	offset _TEXT:IOT_BadT  ; e7
-	dw	offset _TEXT:IOT_BadT  ; e8
-	dw	offset _TEXT:IOT_BadT  ; e9
-	dw	offset _TEXT:IOT_BadT  ; ea
-	dw	offset _TEXT:IOT_BadT  ; eb
-	dw	offset _TEXT:IOT_BadT  ; ec
-	dw	offset _TEXT:IOT_BadT  ; ed
-	dw	offset _TEXT:IOT_BadT  ; ee
-	dw	offset _TEXT:IOT_BadT  ; ef
-	dw	offset _TEXT:IOT_BadT  ; f0
-	dw	offset _TEXT:IOT_BadT  ; f1
-	dw	offset _TEXT:IOT_BadT  ; f2
-	dw	offset _TEXT:IOT_BadT  ; f3
-	dw	offset _TEXT:IOT_BadT  ; f4
-	dw	offset _TEXT:IOT_BadT  ; f5
-	dw	offset _TEXT:IOT_BadT  ; f6
-	dw	offset _TEXT:IOT_BadT  ; f7
-	dw	offset _TEXT:IOT_BadT  ; f8
-	dw	offset _TEXT:IOT_BadT  ; f9
-	dw	offset _TEXT:IOT_BadT  ; fa
-	dw	offset _TEXT:IOT_BadT  ; fb
-	dw	offset _TEXT:IOT_BadT  ; fc
-	dw	offset _TEXT:IOT_BadT  ; fd
-	dw	offset _TEXT:IOT_BadT  ; fe
-	dw	offset _TEXT:IOT_BadT  ; ff
+IOTrap_Tab:
+	dw	DMAbase0  ;  0 DMA base register for Channel 0
+	dw	DMACnt0   ;  1 DMA count register for Channel 0
+	dw	DMABase1  ;  2 DMA base register for Channel 1
+	dw	DMACnt1   ;  3 DMA count register for Channel 1
+	dw	DMABase2  ;  4 DMA base register for Channel 2
+	dw	DMACnt2   ;  5 DMA count register for Channel 2
+	dw	DMABase3  ;  6 DMA base register for Channel 3
+	dw	DMACnt3   ;  7 DMA count register for Channel 3
+	dw	IOT_BadT  ;  8
+	dw	IOT_BadT  ;  9
+	dw	IOT_BadT  ;  a
+	dw	DMAMode1  ;  b DMA Mode Register for for Ch 0-3
+	dw	DMAClrFF1   ;  c clear flip-flop cmd for channels 0-3
+	dw	IOT_BadT  ;  d
+	dw	IOT_BadT  ;  e
+	dw	IOT_BadT  ;  f
+	dw	IOT_BadT  ; 10
+	dw	IOT_BadT  ; 11
+	dw	IOT_BadT  ; 12
+	dw	IOT_BadT  ; 13
+	dw	IOT_BadT  ; 14
+	dw	IOT_BadT  ; 15
+	dw	IOT_BadT  ; 16
+	dw	IOT_BadT  ; 17
+	dw	IOT_BadT  ; 18
+	dw	IOT_BadT  ; 19
+	dw	IOT_BadT  ; 1a
+	dw	IOT_BadT  ; 1b
+	dw	IOT_BadT  ; 1c
+	dw	IOT_BadT  ; 1d
+	dw	IOT_BadT  ; 1e
+	dw	IOT_BadT  ; 1f
+	dw	IOT_BadT  ; 20
+	dw	IOT_BadT  ; 21
+	dw	IOT_BadT  ; 22
+	dw	IOT_BadT  ; 23
+	dw	IOT_BadT  ; 24
+	dw	IOT_BadT  ; 25
+	dw	IOT_BadT  ; 26
+	dw	IOT_BadT  ; 27
+	dw	IOT_BadT  ; 28
+	dw	IOT_BadT  ; 29
+	dw	IOT_BadT  ; 2a
+	dw	IOT_BadT  ; 2b
+	dw	IOT_BadT  ; 2c
+	dw	IOT_BadT  ; 2d
+	dw	IOT_BadT  ; 2e
+	dw	IOT_BadT  ; 2f
+	dw	IOT_BadT  ; 30
+	dw	IOT_BadT  ; 31
+	dw	IOT_BadT  ; 32
+	dw	IOT_BadT  ; 33
+	dw	IOT_BadT  ; 34
+	dw	IOT_BadT  ; 35
+	dw	IOT_BadT  ; 36
+	dw	IOT_BadT  ; 37
+	dw	IOT_BadT  ; 38
+	dw	IOT_BadT  ; 39
+	dw	IOT_BadT  ; 3a
+	dw	IOT_BadT  ; 3b
+	dw	IOT_BadT  ; 3c
+	dw	IOT_BadT  ; 3d
+	dw	IOT_BadT  ; 3e
+	dw	IOT_BadT  ; 3f
+	dw	IOT_BadT  ; 40
+	dw	IOT_BadT  ; 41
+	dw	IOT_BadT  ; 42
+	dw	IOT_BadT  ; 43
+	dw	IOT_BadT  ; 44
+	dw	IOT_BadT  ; 45
+	dw	IOT_BadT  ; 46
+	dw	IOT_BadT  ; 47
+	dw	IOT_BadT  ; 48
+	dw	IOT_BadT  ; 49
+	dw	IOT_BadT  ; 4a
+	dw	IOT_BadT  ; 4b
+	dw	IOT_BadT  ; 4c
+	dw	IOT_BadT  ; 4d
+	dw	IOT_BadT  ; 4e
+	dw	IOT_BadT  ; 4f
+	dw	IOT_BadT  ; 50
+	dw	IOT_BadT  ; 51
+	dw	IOT_BadT  ; 52
+	dw	IOT_BadT  ; 53
+	dw	IOT_BadT  ; 54
+	dw	IOT_BadT  ; 55
+	dw	IOT_BadT  ; 56
+	dw	IOT_BadT  ; 57
+	dw	IOT_BadT  ; 58
+	dw	IOT_BadT  ; 59
+	dw	IOT_BadT  ; 5a
+	dw	IOT_BadT  ; 5b
+	dw	IOT_BadT  ; 5c
+	dw	IOT_BadT  ; 5d
+	dw	IOT_BadT  ; 5e
+	dw	IOT_BadT  ; 5f
+	dw	A20_Handler	; A20 watch on kybd data port
+	dw	IOT_BadT  ; 61
+	dw	IOT_BadT  ; 62
+	dw	IOT_BadT  ; 63
+	dw	A20_Handler	; A20 watch on kybd cmd port
+	dw	IOT_BadT  ; 65
+	dw	IOT_BadT  ; 66
+	dw	IOT_BadT  ; 67
+	dw	IOT_BadT  ; 68
+	dw	IOT_BadT  ; 69
+	dw	IOT_BadT  ; 6a
+	dw	IOT_BadT  ; 6b
+	dw	IOT_BadT  ; 6c
+	dw	IOT_BadT  ; 6d
+	dw	IOT_BadT  ; 6e
+	dw	IOT_BadT  ; 6f
+	dw	IOT_BadT  ; 70
+	dw	IOT_BadT  ; 71
+	dw	IOT_BadT  ; 72
+	dw	IOT_BadT  ; 73
+	dw	IOT_BadT  ; 74
+	dw	IOT_BadT  ; 75
+	dw	IOT_BadT  ; 76
+	dw	IOT_BadT  ; 77
+	dw	IOT_BadT  ; 78
+	dw	IOT_BadT  ; 79
+	dw	IOT_BadT  ; 7a
+	dw	IOT_BadT  ; 7b
+	dw	IOT_BadT  ; 7c
+	dw	IOT_BadT  ; 7d
+	dw	IOT_BadT  ; 7e
+	dw	IOT_BadT  ; 7f
+	dw	IOT_BadT  ; 80
+	dw	DMAPg2    ; 81 DMA page register for Channel 2
+	dw	DMAPg3    ; 82 DMA page register for Channel 3
+	dw	DMAPg1    ; 83 DMA page register for Channel 1
+	dw	RRP_Handler	; return to real port
+	dw	RRP_Handler	; return to real port
+	dw	IOT_BadT  ; 86
+	dw	DMAPg0    ; 87 DMA page register for Channel 0
+	dw	IOT_BadT  ; 88
+	dw	DMAPg6    ; 89 DMA page register for Channel 6
+	dw	DMAPg7    ; 8a DMA page register for Channel 7
+	dw	DMAPg5    ; 8b DMA page register for Channel 5
+	dw	IOT_BadT  ; 8c
+	dw	IOT_BadT  ; 8d
+	dw	IOT_BadT  ; 8e
+	dw	IOT_BadT  ; 8f
+	dw	IOT_BadT  ; 90
+	dw	DMAPg2    ; 91 DMA page register for Channel 2
+	dw	DMAPg3    ; 92 DMA page register for Channel 3
+	dw	DMAPg1    ; 93 DMA page register for Channel 1
+	dw	IOT_BadT  ; 94
+	dw	IOT_BadT  ; 95
+	dw	IOT_BadT  ; 96
+	dw	IOT_BadT  ; 97 DMA page register for Channel 0
+	dw	IOT_BadT  ; 98
+	dw	DMAPg6    ; 99 DMA page register for Channel 6
+	dw	DMAPg7    ; 9a DMA page register for Channel 7
+	dw	DMAPg5    ; 9b DMA page register for Channel 5
+	dw	IOT_BadT  ; 9c
+	dw	IOT_BadT  ; 9d
+	dw	IOT_BadT  ; 9e
+	dw	IOT_BadT  ; 9f
+	dw	IOT_BadT  ; a0
+	dw	IOT_BadT  ; a1
+	dw	IOT_BadT  ; a2
+	dw	IOT_BadT  ; a3
+	dw	IOT_BadT  ; a4
+	dw	IOT_BadT  ; a5
+	dw	IOT_BadT  ; a6
+	dw	IOT_BadT  ; a7
+	dw	IOT_BadT  ; a8
+	dw	IOT_BadT  ; a9
+	dw	IOT_BadT  ; aa
+	dw	IOT_BadT  ; ab
+	dw	IOT_BadT  ; ac
+	dw	IOT_BadT  ; ad
+	dw	IOT_BadT  ; ae
+	dw	IOT_BadT  ; af
+	dw	IOT_BadT  ; b0
+	dw	IOT_BadT  ; b1
+	dw	IOT_BadT  ; b2
+	dw	IOT_BadT  ; b3
+	dw	IOT_BadT  ; b4
+	dw	IOT_BadT  ; b5
+	dw	IOT_BadT  ; b6
+	dw	IOT_BadT  ; b7
+	dw	IOT_BadT  ; b8
+	dw	IOT_BadT  ; b9
+	dw	IOT_BadT  ; ba
+	dw	IOT_BadT  ; bb
+	dw	IOT_BadT  ; bc
+	dw	IOT_BadT  ; bd
+	dw	IOT_BadT  ; be
+	dw	IOT_BadT  ; bf
+	dw	IOT_BadT  ; c0 DMA base register for Channel 4
+	dw	IOT_BadT  ; c1
+	dw	IOT_BadT  ; c2 DMA count register for Channel 4
+	dw	IOT_BadT  ; c3
+	dw	DMABase5  ; c4 DMA base register for Channel 5
+	dw	IOT_BadT  ; c5
+	dw	DMACnt5   ; c6 DMA count register for Channel 5
+	dw	IOT_BadT  ; c7
+	dw	DMABase6  ; c8 DMA base register for Channel 6
+	dw	IOT_BadT  ; c9
+	dw	DMACnt6   ; ca DMA count register for Channel 6
+	dw	IOT_BadT  ; cb
+	dw	DMABase7  ; cc DMA base register for Channel 7
+	dw	IOT_BadT  ; cd
+	dw	DMACnt7   ; ce DMA count register for Channel 7
+	dw	IOT_BadT  ; cf
+	dw	IOT_BadT  ; d0
+	dw	IOT_BadT  ; d1
+	dw	IOT_BadT  ; d2
+	dw	IOT_BadT  ; d3
+	dw	IOT_BadT  ; d4
+	dw	IOT_BadT  ; d5
+	dw	DMAMode2  ; d6 DMA Mode Register for channels 4-7
+	dw	IOT_BadT  ; d7
+	dw	DMAClrFF2   ; d8 clear flip-flop cmd for channels 5-7
+	dw	IOT_BadT  ; d9
+	dw	IOT_BadT  ; da
+	dw	IOT_BadT  ; db
+	dw	IOT_BadT  ; dc
+	dw	IOT_BadT  ; dd
+	dw	IOT_BadT  ; de
+	dw	IOT_BadT  ; df
+	dw	IOT_BadT  ; e0
+	dw	IOT_BadT  ; e1
+	dw	IOT_BadT  ; e2
+	dw	IOT_BadT  ; e3
+	dw	IOT_BadT  ; e4
+	dw	IOT_BadT  ; e5
+	dw	IOT_BadT  ; e6
+	dw	IOT_BadT  ; e7
+	dw	IOT_BadT  ; e8
+	dw	IOT_BadT  ; e9
+	dw	IOT_BadT  ; ea
+	dw	IOT_BadT  ; eb
+	dw	IOT_BadT  ; ec
+	dw	IOT_BadT  ; ed
+	dw	IOT_BadT  ; ee
+	dw	IOT_BadT  ; ef
+	dw	IOT_BadT  ; f0
+	dw	IOT_BadT  ; f1
+	dw	IOT_BadT  ; f2
+	dw	IOT_BadT  ; f3
+	dw	IOT_BadT  ; f4
+	dw	IOT_BadT  ; f5
+	dw	IOT_BadT  ; f6
+	dw	IOT_BadT  ; f7
+	dw	IOT_BadT  ; f8
+	dw	IOT_BadT  ; f9
+	dw	IOT_BadT  ; fa
+	dw	IOT_BadT  ; fb
+	dw	IOT_BadT  ; fc
+	dw	IOT_BadT  ; fd
+	dw	IOT_BadT  ; fe
+	dw	IOT_BadT  ; ff
 
 ;******************************************************************************
 ;   IOT_BadT - GP fault on Unknown I/O address
@@ -411,14 +411,14 @@ IOTrap_Tab	label	word
 ;   STACK:
 ;------------------------------------------------------------------------------
 ;
-IOT_BadT	proc	near
+IOT_BadT:
 	pop	bx		;   dump return address
 	mov	bx,dx		; restore BX
 	pop	dx		; restore DX(port address)
 	pop	ds		; restore DS
 	stc			;   port not emulated !
 	ret			;  and return
-IOT_BadT	endp
+; ENDP IOT_BadT
 
 ;******************************************************************************
 ;   IOT_OEM - Handles OEM specific I/O traps
@@ -447,7 +447,7 @@ IOT_BadT	endp
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-IOT_OEM proc	near
+IOT_OEM:
 ;	cmp	dx,????
 ;	jnz	NoEmulation
 ;	or	bx,bx
@@ -460,10 +460,10 @@ IOT_OEM proc	near
 ;
 ;NoEmulation:
 	ret			; no emulation
-IOT_OEM endp
+; ENDP IOT_OEM
 
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-	end
+	; end
 

@@ -2,15 +2,15 @@
 ; Pseudo EXEC system call for MSDOS
 ;
 
-.xlist
-.xcref
-INCLUDE STDSW.ASM
-.cref
-.list
+; .xlist
+; .xcref
+%include "STDSW.ASM"
+; .cref
+; .list
 
-TITLE   STDPROC - process maintenance for MSDOS
-NAME    STDPROC
+; TITLE   STDPROC - process maintenance for MSDOS
+; NAME    STDPROC
 
-INCLUDE PROC.ASM
+%include "PROC.ASM"
 
 

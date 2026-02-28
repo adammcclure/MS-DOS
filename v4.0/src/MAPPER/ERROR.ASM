@@ -1,7 +1,7 @@
 ;0
-page 80,132
+; page 80,132
 
-title CP/DOS DosError   mapper
+; title CP/DOS DosError   mapper
 
 
 ;**********************************************************************
@@ -16,37 +16,37 @@ SystemIsHandling      equ     1       ; system handles errors
 AppIsHandling	      equ     0       ; application handle errors
 
 ;------------------------------------------------------------;;;
-databuff  segment   public  'databuff'                       ;;;
+SECTION .databuff;;;
 							     ;;;
 errorstate db	SystemIsHandling			     ;;;
 							     ;;;
-databuff   ends 					     ;;;
+; END SECTION .databuff;;;
 ;------------------------------------------------------------;;;
 
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 
-	    public   doserror
-	    .sall
-	    .xlist
-	    include  macros.inc
-	    .list
+	    global doserror
+	    ; .sall
+	    ; .xlist
+	    %include "macros.inc"
+	    ; .list
 
-str	    struc
-old_bp	    dw	     ?
-Return	    dd	     ?
-Flag	    dw	     ?		; error flag;  0 = APP handle error
-str	    ends		;	       1 = System handle error
+struc str
+old_bp: dw 0
+Return: dd 0
+Flag: dw 0; error flag;  0 = APP handle error
+endstruc;	       1 = System handle error
 
 
-DosError   proc  far
+DosError:
 	Enter	 doserror		; Push registers
 
 	mov	 ax,seg databuff	;-->RW
 	mov	 ds,ax			;-->RW
-	assume	 ds:databuff		;-->RW
+	; assume	 ds:databuff;-->RW
 
 	mov	 ax,[bp].flag		; get error flag
 	cmp	 ax,AppIsHandling	; check who should handle errors
@@ -85,12 +85,12 @@ setapp: mov	 errorstate,AppIsHandling ; indicate app handles error
 	mov	 ax,03524h		; Get Interrupt 24 Vector
 	int	 21h
 
-	mov	 word ptr cs:prevadrs+0,bx     ; save it in prevadrs
-	mov	 word ptr cs:prevadrs+2,es
+	mov	 word cs:prevadrs+0,bx     ; save it in prevadrs
+	mov	 word cs:prevadrs+2,es
 
 	mov	dx,cs
 	mov	ds,dx
-	mov	dx,offset ApiErrorHandler   ; put error interrupt handler
+	mov	dx,ApiErrorHandler   ; put error interrupt handler
 					    ; as new vector
 	mov	 ax,02524H
 	int	 21h		       ;set new vector
@@ -98,11 +98,11 @@ setapp: mov	 errorstate,AppIsHandling ; indicate app handles error
 	xor	 ax,ax		       ; set good error return
 
 exit:	mexit			       ; pop all registers
-	ret	 size str - 6	       ; return
+	ret	 str_size - 6	       ; return
 
-DosError    endp
+; ENDP DosError
 
-	page
+	; page
 
 
 
@@ -120,15 +120,15 @@ Retry		equ	1		;AN000;
 Terminate	equ	2		;AN000;
 Fail		equ	3		;AN000;
 
-prevadrs   dd	?			;AN000; ;save old interrupt handler address  ;;;
+prevadrs: dd 0;AN000; ;save old interrupt handler address  ;;;
 
-ApiErrorHandler    proc    near 	;AN000;
+ApiErrorHandler:;AN000;
 	pushf				;AN000;
 	cmp	di,DriveNotReady	;AN000; Is it Drive Not Ready?
 	jne	popf_and_fail_it	;AN000; If not, fail call and return
 
 Drive_Not_Ready:			;AN000; The drive is not ready!
-	call	dword ptr cs:prevadrs	;AN000; Get user to respond
+	call	dword cs:prevadrs	;AN000; Get user to respond
 	cmp	al,Terminate		;AN000; For any resonse other than terminate,
 	jne	retry_it		;AN000;  retry the operation
 	int	023h			;AN000; Otherwise terminate via INT 023h
@@ -141,9 +141,9 @@ retry_it:				;AN000; Retry the operation
 	mov	al,Retry		;AN000; Func code for retry
 rett:					;AN000;
 	iret				;AN000; return
-Apierrorhandler 	endp
+; ENDP Apierrorhandler
 ;-------------------------------------------------------
 ;-------------------------------------------------------
 
-dosxxx	    ends
-	   end
+; END SECTION .dosxxx
+	   ; end

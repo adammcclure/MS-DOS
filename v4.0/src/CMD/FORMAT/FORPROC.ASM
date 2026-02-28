@@ -1,56 +1,56 @@
 ;	SCCSID = @(#)forproc.asm	1.2 85/07/25
 ;
-.xlist
-.xcref
-BREAK	MACRO	subtitle
-	SUBTTL	subtitle
-	PAGE
-ENDM
+; .xlist
+; .xcref
+%macro BREAK 1
+	; SUBTTL	subtitle
+	; PAGE
+%endmacro
 
-	INCLUDE FORCHNG.INC
-	INCLUDE SYSCALL.INC
-	INCLUDE FOREQU.INC
-	INCLUDE FORMACRO.INC
-	INCLUDE FORSWTCH.INC
-	INCLUDE IOCTL.INC
-.cref
-.list
-data	segment public para 'DATA'
-data	ends
+	%include "FORCHNG.INC"
+	%include "SYSCALL.INC"
+	%include "FOREQU.INC"
+	%include "FORMACRO.INC"
+	%include "FORSWTCH.INC"
+	%include "IOCTL.INC"
+; .cref
+; .list
+SECTION .data
+; END SECTION .data
 
-code	segment public para 'CODE'
-	assume	cs:code,ds:data
+SECTION .code
+	; assume	cs:code,ds:data
 
-	PUBLIC	FormatAnother?,Yes?,REPORT,USER_STRING
-	public	fdsksiz,badsiz,syssiz,datasiz,biosiz
-	public	AllocSize,AllocNum
+	global FormatAnother?,Yes?,REPORT,USER_STRING
+	global fdsksiz,badsiz,syssiz,datasiz,biosiz
+	global AllocSize,AllocNum
 
-	extrn	std_printf:near,crlf:near,PrintString:near
-	extrn	Multiply_32_Bits:near
-	extrn	AddToSystemSize:near
+	extern std_printf,crlf,PrintString
+	extern Multiply_32_Bits
+	extern AddToSystemSize
 
-data	segment public	para	'DATA'
-	extrn	driveLetter:byte
-	extrn	msgInsertDisk:byte
-	extrn	msgFormatAnother?:byte
-	extrn	msgTotalDiskSpace:byte
-	extrn	msgSystemSpace:byte
-	extrn	msgBadSpace:byte
-	extrn	msgDataSpace:byte
-	extrn	Read_Write_Relative:byte
-	extrn	msgAllocSize:byte
-	extrn	MsgAllocNum:Byte
-	extrn	deviceParameters:byte
-	extrn	bios:byte
-	extrn	dos:byte
-	extrn	command:byte
-	extrn	Serial_Num_Low:Word
-	extrn	Serial_Num_High:Word
-	extrn	msgSerialNumber:Byte
-	extrn	SwitchMap:Word
+SECTION .data
+	extern driveLetter
+	extern msgInsertDisk
+	extern msgFormatAnother?
+	extern msgTotalDiskSpace
+	extern msgSystemSpace
+	extern msgBadSpace
+	extern msgDataSpace
+	extern Read_Write_Relative
+	extern msgAllocSize
+	extern MsgAllocNum
+	extern deviceParameters
+	extern bios
+	extern dos
+	extern command
+	extern Serial_Num_Low
+	extern Serial_Num_High
+	extern msgSerialNumber
+	extern SwitchMap
 
 
-	extrn	inbuff:byte
+	extern inbuff
 
 fdsksiz dd	0
 
@@ -63,10 +63,10 @@ datasiz dd	0
 
 AllocSize dd	0				;				;AN000;
 AllocNum dw	0				;				;AN000;
-	dw	offset driveLetter
-data	ends
+	dw	driveLetter
+; END SECTION .data
 
-FormatAnother? proc near
+FormatAnother?:
 ; Wait for key. If yes return carry clear, else no. Insures
 ;   explicit Y or N answer.
 	Message msgFormatAnother?		;				;AC000;
@@ -77,7 +77,7 @@ FormatAnother? proc near
 	JMP	SHORT FormatAnother?
 WAIT20: 					;				;AC000;
 	RET					;				;AC000;
-FormatAnother? endp
+; ENDP FormatAnother?
 
 ;*****************************************************************************
 ;Routine name:Yes?
@@ -161,7 +161,7 @@ $$IF1:
 $$EN1:
 	ret					;				;     ;
 
-Yes?	endp					;				;AN000;
+; ENDP Yes?;				;AN000;
 
 
 USER_STRING:
@@ -169,12 +169,12 @@ USER_STRING:
 ;  We need to flush a second time to get rid of incoming Kanji characters also.
 	MOV	AX,(STD_CON_INPUT_FLUSH SHL 8) + 0 ; Clean out input
 	INT	21H
-	MOV	DX,OFFSET INBUFF
+	MOV	DX,INBUFF
 	MOV	AH,STD_CON_STRING_INPUT
 	INT	21H
 	MOV	AX,(STD_CON_INPUT_FLUSH SHL 8) + 0 ; Clean out input
 	INT	21H
-	CMP	BYTE PTR [INBUFF+1],0
+	CMP	byte [INBUFF+1],0
 	RET
 
 ;*********************************************
@@ -194,17 +194,17 @@ REPORT:
 
 	Message msgTotalDiskSpace		;				;AC000;
 						;call	 std_printf
-	cmp	WORD PTR SYSSIZ,0
+	cmp	word SYSSIZ,0
 	JNZ	SHOWSYS
-	cmp	WORD PTR SYSSIZ+2,0
+	cmp	word SYSSIZ+2,0
 	JZ	CHKBAD
 SHOWSYS:
 	Message msgSystemSpace			;				;AC000;
 						;CALL	 std_printf		 ;Report space used by system
 CHKBAD:
-	cmp	WORD PTR BADSIZ,0
+	cmp	word BADSIZ,0
 	JNZ	SHOWBAD
-	cmp	WORD PTR BADSIZ+2,0
+	cmp	word BADSIZ+2,0
 	JZ	SHOWDATA
 SHOWBAD:
 	Message msgBadSpace			;				;AC000;
@@ -212,14 +212,14 @@ SHOWBAD:
 SHOWDATA:
 
 
-	MOV	CX,WORD PTR Fdsksiz
-	MOV	BX,WORD PTR Fdsksiz+2
-	SUB	CX,WORD PTR BADSIZ
-	SBB	BX,WORD PTR BADSIZ+2
-	SUB	CX,WORD PTR SYSSIZ
-	SBB	BX,WORD PTR SYSSIZ+2
-	MOV	word ptr datasiz,CX
-	MOV	word ptr datasiz+2,BX
+	MOV	CX,word Fdsksiz
+	MOV	BX,word Fdsksiz+2
+	SUB	CX,word BADSIZ
+	SBB	BX,word BADSIZ+2
+	SUB	CX,word SYSSIZ
+	SBB	BX,word SYSSIZ+2
+	MOV	word datasiz,CX
+	MOV	word datasiz+2,BX
 	Message msgDataSpace			;				;AC000;
 						;call	 std_printf
 
@@ -229,12 +229,12 @@ SHOWDATA:
 	xor	ch,ch				;				;AN000;
 	mul	cx				;Get bytes per alloc		;AN000;
 
-	mov	word ptr AllocSize,ax		;Save allocation size		;AN000;
-	mov	word ptr AllocSize+2,dx 	; for message			;AN000;
+	mov	word AllocSize,ax		;Save allocation size		;AN000;
+	mov	word AllocSize+2,dx 	; for message			;AN000;
 	Message msgAllocSize			;Print size of cluster		;AN000;
 	call	Get_Free_Space			;an013; dms;get disk space
 
-	mov	word ptr AllocNum,bx		;Put result in msg		;AN000;
+	mov	word AllocNum,bx		;Put result in msg		;AN000;
 	Message msgAllocNum			; = cluster/disk		;AN000;
 	call	crlf				;				;AN000;
 	test	switchmap, SWITCH_8		;If 8 tracks, don't display     ;AN027;
@@ -288,7 +288,7 @@ Procedure Read_Disk				;				;AN000;
 	mov	si,data 			;				;AN000;
 	mov	es,si				;				;AN000;
 
-	assume	es:data,ds:nothing		;				;AN000;
+	; assume	es:data,ds:nothing;				;AN000;
 
 	mov	es:Read_Write_Relative.Buffer_Offset,bx ;Get transfer buffer add;AN000;
 	mov	bx,ds				;				;AN000;
@@ -296,11 +296,11 @@ Procedure Read_Disk				;				;AN000;
 	mov	bx,data 			;Point DS at parameter list	;AN000;
 	mov	ds,bx				;				;AN000;
 
-	assume	ds:data,es:data
+	; assume	ds:data,es:data
 
 	mov	Read_Write_Relative.Number_Sectors,cx ;Number of sec to read	;AN000;
 	mov	Read_Write_Relative.Start_Sector_Low,dx ;Start sector		;AN000;
-	mov	bx,offset Read_Write_Relative	;				  ;AN000;
+	mov	bx,Read_Write_Relative	;				  ;AN000;
 	mov	cx,0FFFFh			;Read relative sector		;AN000;
 	INT	25h				;Do the read			;AN000;
 	pop	dx				;Throw away flags on stack	;AN000;
@@ -315,7 +315,7 @@ Procedure Read_Disk				;				;AN000;
 	ret					;				;AN000;
 
 
-Read_Disk endp					;				;AN000;
+; ENDP Read_Disk;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Write_Disk
@@ -363,7 +363,7 @@ Procedure Write_Disk				;				;AN000;
 	mov	si,data 			;				;AN000;
 	mov	es,si				;				;AN000;
 
-	assume	es:data,ds:nothing		;				;AN000;
+	; assume	es:data,ds:nothing;				;AN000;
 
 	mov	es:Read_Write_Relative.Buffer_Offset,bx ;Get transfer buffer add;AN000;
 	mov	bx,ds				;				;AN000;
@@ -371,11 +371,11 @@ Procedure Write_Disk				;				;AN000;
 	mov	bx,data 			;Point DS at parameter list	;AN000;
 	mov	ds,bx				;				;AN000;
 
-	assume	ds:data,es:data
+	; assume	ds:data,es:data
 
 	mov	Read_Write_Relative.Number_Sectors,cx ;Number of sec to write	;AN000;
 	mov	Read_Write_Relative.Start_Sector_Low,dx ;Start sector		;AN000;
-	mov	bx,offset Read_Write_Relative	;				;AN000;
+	mov	bx,Read_Write_Relative	;				;AN000;
 	mov	cx,0FFFFh			;Write relative sector		;AN000;
 	INT	26h				;Do the write			;AN000;
 	pop	dx				;Throw away flags on stack	;AN000;
@@ -389,7 +389,7 @@ Procedure Write_Disk				;				;AN000;
 	pop	bx				;				;AN000;
 	ret					;				;AN000;
 
-Write_Disk endp 				;				;AN000;
+; ENDP Write_Disk;				;AN000;
 
 ;=========================================================================
 ; Calc_Total_Addressible_Space	: Calculate the total space that is
@@ -422,8 +422,8 @@ Procedure Calc_Total_Addressible_Space		;an013; dms;
 	mov	cx,DeviceParameters.DP_BPB.BPB_BytesPerSector  ;an013; dms;get total bytes
 	call	Multiply_32_Bits		;an013; dms; multiply
 
-	mov	word ptr Fdsksiz,ax		;an013; dms;save high word
-	mov	word ptr Fdsksiz+2,bx		;an013; dms;save low word
+	mov	word Fdsksiz,ax		;an013; dms;save high word
+	mov	word Fdsksiz+2,bx		;an013; dms;save low word
 
 	pop	dx				;an000; dms;get total clusters
 	pop	bx				;an000; dms;get avail clusters
@@ -440,11 +440,11 @@ Procedure Calc_Total_Addressible_Space		;an013; dms;
 	mov	cx,DeviceParameters.DP_BPB.BPB_BytesPerSector  ;an013; dms;get total bytes
 	call	Multiply_32_Bits		;an013; dms; multiply
 
-	sub	ax,word ptr syssiz		;an013; dms;account for system
-	sbb	bx,word ptr syssiz+2		;an013; dms;size
+	sub	ax,word syssiz		;an013; dms;account for system
+	sbb	bx,word syssiz+2		;an013; dms;size
 
-	mov	word ptr Badsiz,ax		;an013; dms;save high word
-	mov	word ptr Badsiz+2,bx		;an013; dms;save low word
+	mov	word Badsiz,ax		;an013; dms;save high word
+	mov	word Badsiz+2,bx		;an013; dms;save low word
 
 	pop	bx				;an013; dms;
 	pop	dx				;an013; dms;restore regs
@@ -452,7 +452,7 @@ Procedure Calc_Total_Addressible_Space		;an013; dms;
 
 	ret					;an013; dms;
 
-Calc_Total_Addressible_Space	endp		;an013; dms;
+; ENDP Calc_Total_Addressible_Space;an013; dms;
 
 
 ;=========================================================================
@@ -474,7 +474,7 @@ Procedure Get_Free_Space			;an013; dms;
 	int	21h				;an013; dms;
 	ret					;an013; dms;
 
-Get_Free_Space	endp				;an013; dms;
+; ENDP Get_Free_Space;an013; dms;
 
 ;=========================================================================
 ; Calc_System_Space	: This routine calculates the space occupied by
@@ -492,19 +492,19 @@ Procedure Calc_System_Space							;an013; dms;
 	push	ax								;an013; dms;save regs
 	push	dx								;an013; dms;
 
-	mov	word ptr SysSiz+0,00h						;an013; dms;clear variable
-	mov	word ptr SysSiz+2,00h						;an013; dms;
+	mov	word SysSiz+0,00h						;an013; dms;clear variable
+	mov	word SysSiz+2,00h						;an013; dms;
 
-	mov	ax,word ptr [DOS.FileSizeInBytes+0]				;an013; dms;get low word
-	mov	dx,word ptr [DOS.FileSizeInBytes+2]				;an013; dms;get high word
+	mov	ax,word [DOS.FileSizeInBytes+0]				;an013; dms;get low word
+	mov	dx,word [DOS.FileSizeInBytes+2]				;an013; dms;get high word
 	call	AddToSystemSize 						;an013; dms;add in values
 
-	mov	ax,word ptr [BIOS.FileSizeInBytes+0]				;an013; dms;get bios size
-	mov	dx,word ptr [BIOS.FileSizeInBytes+2]				;an013; dms;
+	mov	ax,word [BIOS.FileSizeInBytes+0]				;an013; dms;get bios size
+	mov	dx,word [BIOS.FileSizeInBytes+2]				;an013; dms;
 	call	AddToSystemSize 						;an013; dms;add in values
 
-	mov	ax,word ptr [COMMAND.FileSizeInBytes+0] 			;an013; dms;get command size
-	mov	dx,word ptr [COMMAND.FileSizeInBytes+2] 			;an013; dms;
+	mov	ax,word [COMMAND.FileSizeInBytes+0] 			;an013; dms;get command size
+	mov	dx,word [COMMAND.FileSizeInBytes+2] 			;an013; dms;
 	call	AddToSystemSize 						;an013; dms;add in values
 
 	pop	dx								;an013; dms;restore regs
@@ -512,10 +512,10 @@ Procedure Calc_System_Space							;an013; dms;
 
 	ret									;an013; dms;
 
-Calc_System_Space	endp							;an013; dms;
+; ENDP Calc_System_Space;an013; dms;
 
 
 
-code	ends
-	end
+; END SECTION .code
+	; end
 

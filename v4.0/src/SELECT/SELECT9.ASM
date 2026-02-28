@@ -1,10 +1,10 @@
 
 
-PAGE 55,132
-NAME	SELECT
-TITLE	SELECT - DOS - SELECT.EXE
-SUBTTL	SELECT9.asm
-.ALPHA
+; PAGE 55,132
+; NAME	SELECT
+; TITLE	SELECT - DOS - SELECT.EXE
+; SUBTTL	SELECT9.asm
+; .ALPHA
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	SELECT9.ASM : Copyright 1988 Microsoft
@@ -31,79 +31,79 @@ SUBTTL	SELECT9.asm
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DATA	SEGMENT BYTE PUBLIC 'DATA'
-	EXTRN	DSKCPY_ERR:BYTE
-	EXTRN	DSKCPY_WHICH:BYTE
-	EXTRN	DSKCPY_OPTION:BYTE
-	EXTRN	DSKCPY_PAN1:WORD
-	EXTRN	DSKCPY_PAN2:WORD
-	EXTRN	DSKCPY_PAN3:WORD
-	EXTRN	DSKCPY_SOURCE:WORD
-DATA	ENDS
+SECTION .DATA
+	extern DSKCPY_ERR
+	extern DSKCPY_WHICH
+	extern DSKCPY_OPTION
+	extern DSKCPY_PAN1
+	extern DSKCPY_PAN2
+	extern DSKCPY_PAN3
+	extern DSKCPY_SOURCE
+; END SECTION .DATA
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Define dummy segment to calculate end of program
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PARSER	 SEGMENT PARA PUBLIC 'PARSER'
-PARSER	 ENDS
+SECTION .PARSER
+; END SECTION .PARSER
 
 SET_BLOCK	equ	4AH
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.XLIST
-	INCLUDE    PANEL.MAC
-	INCLUDE    SELECT.INC
-	INCLUDE    PAN-LIST.INC
-	INCLUDE    CASTRUC.INC
-	INCLUDE    STRUC.INC
-	INCLUDE    MACROS.INC
-	INCLUDE    MACROS7.INC
-	INCLUDE    MACROS8.INC
-	INCLUDE    EXT.INC
-	INCLUDE    VARSTRUC.INC
-	INCLUDE    ROUT_EXT.INC
-.LIST
+; .XLIST
+	%include "PANEL.MAC"
+	%include "SELECT.INC"
+	%include "PAN-LIST.INC"
+	%include "CASTRUC.INC"
+	%include "STRUC.INC"
+	%include "MACROS.INC"
+	%include "MACROS7.INC"
+	%include "MACROS8.INC"
+	%include "EXT.INC"
+	%include "VARSTRUC.INC"
+	%include "ROUT_EXT.INC"
+; .LIST
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	SEGMENT PARA PUBLIC 'SELECT'
-	ASSUME	CS:SELECT,DS:DATA
+SECTION .SELECT
+	; ASSUME	CS:SELECT,DS:DATA
 
-	INCLUDE CASEXTRN.INC
+	%include "CASEXTRN.INC"
 
-	EXTRN	EXIT_SELECT:near
-	EXTRN	CREATE_CONFIG_SYS:NEAR
-	EXTRN	CREATE_AUTOEXEC_BAT:NEAR
-	EXTRN	CREATE_SHELL_BAT:NEAR
-	EXTRN	DEALLOCATE_HELP:FAR
-	EXTRN	DEALLOCATE_MEMORY_CALL:FAR
-	EXTRN	ALLOCATE_BLOCK:FAR
-	EXTRN	ALLOCATE_LVB:FAR
-	EXTRN	GET_OVERLAY:NEAR
-	EXTRN	ALLOCATE_MEMORY_CALL:FAR
+	extern EXIT_SELECT
+	extern CREATE_CONFIG_SYS
+	extern CREATE_AUTOEXEC_BAT
+	extern CREATE_SHELL_BAT
+	extern DEALLOCATE_HELP
+	extern DEALLOCATE_MEMORY_CALL
+	extern ALLOCATE_BLOCK
+	extern ALLOCATE_LVB
+	extern GET_OVERLAY
+	extern ALLOCATE_MEMORY_CALL
 
-	PUBLIC	INSTALL_TO_360_DRIVE
-	PUBLIC	INSTALL_ERROR
-	PUBLIC	EXIT_DOS,PROCESS_ESC_F3
-	PUBLIC	EXIT_DOS_CONT
-	public	Free_Parser
+	global INSTALL_TO_360_DRIVE
+	global INSTALL_ERROR
+	global EXIT_DOS,PROCESS_ESC_F3
+	global EXIT_DOS_CONT
+	global Free_Parser
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 INSTALL_TO_360_DRIVE:
-	 .IF < MEM_SIZE eq 256 >
+	 ; .IF < MEM_SIZE eq 256 >
 	    DEALLOCATE_MEMORY
 	    call  Free_Parser
-	    .IF   < C >
+	    ; .IF   < C >
 		GOTO	INSTALL_ERROR
-	    .ENDIF
+	    ; .ENDIF
 	    CALL  GET_OVERLAY
 	    INSERT_DISK   SUB_REM_DOS_A, S_DOS_COM_360
-	 .ENDIF
+	 ; .ENDIF
 
 	 ;;;Introduction to 360KB install
 	 INIT_PQUEUE		 PAN_INSTALL_DOS
@@ -116,20 +116,20 @@ INSTALL_TO_360_DRIVE:
 
 	 CALL DEALLOCATE_HELP
 
-	.IF < I_DEST_DRIVE eq E_DEST_DRIVE_A > near
+	; .IF < I_DEST_DRIVE eq E_DEST_DRIVE_A > near
 
 	    ;;;diskcopy INSTALL diskette to WORKING1
 	    DISKCOPY_TO 	    DSKCPY_TO_A_360,NO_SOURCE1,S_DOS_COM_360
 	    DISKCOPY_PANELS	    SUB_REM_DOS_A,SUB_COPYING,SUB_INS_WORK1_S360
-	    .REPEAT
+	    ; .REPEAT
 	       INIT_VAR 	    N_DSKCPY_ERR,E_DSKCPY_OK
 	       CALL		    HOOK_INT_2F
 	       EXEC_PROGRAM	    S_DISKCOPY,S_DISKCOPY_PARM,PARM_BLOCK,EXEC_NO_DIR
 	       CALL		    RESTORE_INT_2F
-	       .IF < c >
+	       ; .IF < c >
 		  GOTO	      INSTALL_ERROR
-	       .ENDIF
-	    .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY >
+	       ; .ENDIF
+	    ; .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY >
 	    ERASE_FILE		    S_AUTOEX_C
 	    ERASE_FILE		    S_CONSYS_C
 	    ERASE_FILE		    S_SELCOM_C
@@ -139,21 +139,21 @@ INSTALL_TO_360_DRIVE:
 	    ;;;diskcopy OPERATING1 diskette to WORKING2
 	    DISKCOPY_TO 	    DSKCPY_TO_A_360,SOURCE1,S_DOS_UTIL1_DISK
 	    DISKCOPY_PANELS	    SUB_REM_SELECT_360,SUB_COPYING,SUB_INS_WORK2_S360
-	    .REPEAT
+	    ; .REPEAT
 	       INIT_VAR 	    N_DSKCPY_ERR,E_DSKCPY_OK
 	       CALL		    HOOK_INT_2F
 	       EXEC_PROGRAM	    S_DISKCOPY,S_DISKCOPY_PARM,PARM_BLOCK,EXEC_NO_DIR
 	       CALL		    RESTORE_INT_2F
-	       .IF c
+	       ; .IF c
 	       .THEN
 		  GOTO	      INSTALL_ERROR
-	       .ENDIF
+	       ; .ENDIF
 	       .LEAVE < N_DSKCPY_ERR ne E_DSKCPY_RETRY >
 	       INSERT_DISK	SUB_REM_DOS_A, S_DOS_COM_360
-	    .UNTIL
+	    ; .UNTIL
 
 	    ;;;diskcopy OPERATING 2 diskette to WORKING3
-	    .REPEAT
+	    ; .REPEAT
 	       INSERT_DISK	SUB_REM_DOS_A, S_DOS_COM_360
 	       DISKCOPY_TO	DSKCPY_TO_A_360,NO_SOURCE1,S_DOS_UTIL2_DISK
 	       DISKCOPY_PANELS	SUB_INS_OPER2,SUB_COPYING,SUB_INS_WORK3_A
@@ -161,14 +161,14 @@ INSTALL_TO_360_DRIVE:
 	       CALL		HOOK_INT_2F
 	       EXEC_PROGRAM	S_DISKCOPY,S_DISKCOPY_PARM,PARM_BLOCK,EXEC_NO_DIR
 	       CALL		RESTORE_INT_2F
-	       .IF c
+	       ; .IF c
 	       .THEN
 		  GOTO	      INSTALL_ERROR
-	       .ENDIF
-	    .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
+	       ; .ENDIF
+	    ; .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
 
 	    ;;;diskcopy OPERATING 3 diskette to STARTUP
-	    .REPEAT
+	    ; .REPEAT
 		INSERT_DISK	    SUB_REM_DOS_A, S_DOS_COM_360
 		DISKCOPY_TO 	    DSKCPY_TO_A_360,SOURCE1,S_DOS_UTIL3_DISK
 		DISKCOPY_PANELS	    SUB_REM_UTIL1_360,SUB_COPYING,SUB_INS_STARTT_S360
@@ -176,60 +176,60 @@ INSTALL_TO_360_DRIVE:
 	       CALL		    HOOK_INT_2F
 	       EXEC_PROGRAM	    S_DISKCOPY,S_DISKCOPY_PARM,PARM_BLOCK,EXEC_NO_DIR
 	       CALL		    RESTORE_INT_2F
-	       .IF c
+	       ; .IF c
 	       .THEN
 		  GOTO	      INSTALL_ERROR
-	       .ENDIF
-	    .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
+	       ; .ENDIF
+	    ; .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
 	    ERASE_FILE		 S_RECOVER_C
 	    ERASE_FILE		 S_FASTOPEN_C
 	    ;;;create config and autoexec files on startup diskette
 	    CREATE_CONFIG	    S_CONSYS_C, N_RETCODE
-	    .IF c
+	    ; .IF c
 	       GOTO	   INSTALL_ERROR
-	    .ENDIF
+	    ; .ENDIF
 	    CREATE_AUTOEXEC	    S_AUTOEX_C,E_DEST_DOS,N_RETCODE
-	    .IF c near
+	    ; .IF c near
 	       GOTO	   INSTALL_ERROR
-	    .ENDIF
+	    ; .ENDIF
 
-	   .IF < ACTIVE eq EGA > or
-	   .IF < ALTERNATE eq EGA > or
-	   .IF < ACTIVE eq LCD > or
-	   .IF < ALTERNATE eq LCD > near
+	   ; .IF < ACTIVE eq EGA > or
+	   ; .IF < ALTERNATE eq EGA > or
+	   ; .IF < ACTIVE eq LCD > or
+	   ; .IF < ALTERNATE eq LCD > near
 	   .THEN
-		.IF < F_VDISK eq E_VDISK_NO >
+		; .IF < F_VDISK eq E_VDISK_NO >
 		   ERASE_FILE	 S_VDISK_C
-		   .IF c
+		   ; .IF c
 		      GOTO	  INSTALL_ERROR
-		   .ENDIF
-		.ENDIF
-		.IF < F_ANSI eq E_ANSI_NO >
+		   ; .ENDIF
+		; .ENDIF
+		; .IF < F_ANSI eq E_ANSI_NO >
 		   ERASE_FILE	 S_ANSI_C
-		   .IF c
+		   ; .IF c
 		      GOTO	  INSTALL_ERROR
-		   .ENDIF
-		.ENDIF
-		.IF < F_APPEND eq E_APPEND_NO >
+		   ; .ENDIF
+		; .ENDIF
+		; .IF < F_APPEND eq E_APPEND_NO >
 		   ERASE_FILE	 S_APPEND_C
-		   .IF c
+		   ; .IF c
 		      GOTO	  INSTALL_ERROR
-		   .ENDIF
-		.ENDIF
-		.IF < F_GRAFTABL eq E_GRAFTABL_NO > or
-		.IF < F_GRAFTABL eq E_GRAFTABL_NA >
+		   ; .ENDIF
+		; .ENDIF
+		; .IF < F_GRAFTABL eq E_GRAFTABL_NO > or
+		; .IF < F_GRAFTABL eq E_GRAFTABL_NA >
 		   ERASE_FILE	 S_GRAFTABL_C
-		   .IF c
+		   ; .IF c
 		      GOTO	  INSTALL_ERROR
-		   .ENDIF
-		.ENDIF
-		.IF < F_GRAPHICS eq E_GRAPHICS_NO >
+		   ; .ENDIF
+		; .ENDIF
+		; .IF < F_GRAPHICS eq E_GRAPHICS_NO >
 		   ERASE_FILE	 S_GRAPHICS_C
 		   ERASE_FILE	 S_GRAPHPRO_C
-		   .IF c
+		   ; .IF c
 		      GOTO	  INSTALL_ERROR
-		   .ENDIF
-		.ENDIF
+		   ; .ENDIF
+		; .ENDIF
 		;;;Insert SELECT diskette in drive A:
 		INSERT_DISK	SUB_REM_SHELL_360, S_DOS_SEL_360
 
@@ -241,35 +241,35 @@ INSTALL_TO_360_DRIVE:
 		INIT_VAR       SOURCE_PANEL, SUB_REM_SHELL_360
 		INIT_VAR       DEST_PANEL, SUB_INS_STARTT_S360
 
-		.IF < ACTIVE eq EGA > or
-		.IF < ALTERNATE eq EGA > near
+		; .IF < ACTIVE eq EGA > or
+		; .IF < ALTERNATE eq EGA > near
 		.THEN
-		   .IF < MEM_SIZE eq 256 >
+		   ; .IF < MEM_SIZE eq 256 >
 		      DEALLOCATE_MEMORY
-		   .ENDIF
+		   ; .ENDIF
 		   COPY_FILES2	     I_DEST_DRIVE,COPY_SEL_EGA,E_SEL_EGA,S_INSTALL_PATH
-		   .IF c near
-		      .IF < MEM_SIZE eq 256 >
+		   ; .IF c near
+		      ; .IF < MEM_SIZE eq 256 >
 			 ALLOCATE_MEMORY
 			 CALL	 INITIALIZE
-		      .ENDIF
+		      ; .ENDIF
 		      HANDLE_ERROR   ERR_COPY_DISK, E_RETURN
-		   .ENDIF
-		   .IF < MEM_SIZE eq 256 > near
+		   ; .ENDIF
+		   ; .IF < MEM_SIZE eq 256 > near
 		      ALLOCATE_MEMORY
 		      CALL    INITIALIZE
-		   .ENDIF
-		.ELSE near
+		   ; .ENDIF
+		; .ELSE near
 		   COPY_FILES2	     I_DEST_DRIVE,COPY_SEL_LCD,E_SEL_LCD,S_INSTALL_PATH ;AC111; copy files to f-disk  JW
-		   .IF c near
+		   ; .IF c near
 		      HANDLE_ERROR   ERR_COPY_DISK, E_RETURN
-		   .ENDIF
-		.ENDIF
-	   .ENDIF
+		   ; .ENDIF
+		; .ENDIF
+	   ; .ENDIF
 
 	   ;;;diskcopy MS-SHELL diskette to SHELL
-	   .if <f_shell eq e_shell_yes > near
-	    .REPEAT
+	   ; .if <f_shell eq e_shell_yes > near
+	    ; .REPEAT
 		INSERT_DISK	    SUB_REM_DOS_A, S_DOS_COM_360
 		DISKCOPY_TO 	    DSKCPY_TO_A_360,SOURCE1,S_DOS_SHEL_DISK
 		DISKCOPY_PANELS	    SUB_INS_MSSHELL_A,SUB_COPYING,SUB_INS_SHELL_S360
@@ -277,32 +277,32 @@ INSTALL_TO_360_DRIVE:
 	       CALL		    HOOK_INT_2F
 	       EXEC_PROGRAM	    S_DISKCOPY,S_DISKCOPY_PARM,PARM_BLOCK,EXEC_NO_DIR
 	       CALL		    RESTORE_INT_2F
-	       .IF c
+	       ; .IF c
 	       .THEN
 		  GOTO	      INSTALL_ERROR
-	       .ENDIF
-	    .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
+	       ; .ENDIF
+	    ; .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
 	    CREATE_SHELL   S_SHELL_NEW, N_RETCODE
-	    .IF c near
+	    ; .IF c near
 	       GOTO	   INSTALL_ERROR
-	    .ENDIF
-	   .endif
+	    ; .ENDIF
+	   ; .endif
 
-	.ELSE near
+	; .ELSE near
 
 	    ;;;diskcopy INSTALL diskette to WORKING 1
 	    DISKCOPY_TO 	    DSKCPY_TO_B,SOURCE1,S_DOS_COM_360
 	    DISKCOPY_PANELS	    SUB_INS_WORK1_360,SUB_COPYING,NOPANEL
-	    .REPEAT
+	    ; .REPEAT
 	       INIT_VAR 	    N_DSKCPY_ERR,E_DSKCPY_OK
 	       CALL		    HOOK_INT_2F
 	       EXEC_PROGRAM	    S_DISKCOPY,S_DSKCPY_TO_B,PARM_BLOCK,EXEC_NO_DIR
 	       CALL		    RESTORE_INT_2F
-	       .IF c
+	       ; .IF c
 	       .THEN
 		  GOTO	      INSTALL_ERROR
-	       .ENDIF
-	    .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY >
+	       ; .ENDIF
+	    ; .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY >
 	    ERASE_FILE		    S_AUTO_NEW_B
 	    ERASE_FILE		    S_CONFIG_NEW_B
 	    ERASE_FILE		    S_SELCOM_NEW_B
@@ -312,21 +312,21 @@ INSTALL_TO_360_DRIVE:
 	    ;;;diskcopy OPERATING 1 diskette to WORKING 2
 	    DISKCOPY_TO 	    DSKCPY_TO_B,SOURCE1,S_DOS_UTIL1_DISK
 	    DISKCOPY_PANELS	    SUB_INS_WORK2_360,SUB_COPYING,NOPANEL
-	    .REPEAT
+	    ; .REPEAT
 	       INIT_VAR 	    N_DSKCPY_ERR,E_DSKCPY_OK
 	       CALL		    HOOK_INT_2F
 	       EXEC_PROGRAM	    S_DISKCOPY,S_DSKCPY_TO_B,PARM_BLOCK,EXEC_NO_DIR
 	       CALL		    RESTORE_INT_2F
-	       .IF c
+	       ; .IF c
 	       .THEN
 		  GOTO	      INSTALL_ERROR
-	       .ENDIF
+	       ; .ENDIF
 	       .LEAVE < N_DSKCPY_ERR ne E_DSKCPY_RETRY >
 	       INSERT_DISK	SUB_REM_DOS_A, S_DOS_COM_360
-	    .UNTIL
+	    ; .UNTIL
 
 	    ;;;diskcopy OPERATING 2 diskette to WORKING3
-	    .REPEAT
+	    ; .REPEAT
 	       INSERT_DISK	SUB_REM_DOS_A, S_DOS_COM_360
 	       DISKCOPY_TO	DSKCPY_TO_B,SOURCE1,S_DOS_UTIL2_DISK
 	       DISKCOPY_PANELS	SUB_INS_WORK3_360,SUB_COPYING,NOPANEL
@@ -334,14 +334,14 @@ INSTALL_TO_360_DRIVE:
 	       CALL		HOOK_INT_2F
 	       EXEC_PROGRAM	S_DISKCOPY,S_DSKCPY_TO_B,PARM_BLOCK,EXEC_NO_DIR
 	       CALL		RESTORE_INT_2F
-	       .IF c
+	       ; .IF c
 	       .THEN
 		  GOTO	      INSTALL_ERROR
-	       .ENDIF
-	    .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
+	       ; .ENDIF
+	    ; .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
 
 	    ;;;diskcopy OPERATING 3 diskette to STARTUP
-	    .REPEAT
+	    ; .REPEAT
 	       INSERT_DISK	SUB_REM_DOS_A, S_DOS_COM_360
 	       DISKCOPY_TO	DSKCPY_TO_B,SOURCE1,S_DOS_UTIL3_DISK
 	       DISKCOPY_PANELS	SUB_INS_START_360,SUB_COPYING,NOPANEL
@@ -349,94 +349,94 @@ INSTALL_TO_360_DRIVE:
 	       CALL		HOOK_INT_2F
 	       EXEC_PROGRAM	S_DISKCOPY,S_DSKCPY_TO_B,PARM_BLOCK,EXEC_NO_DIR
 	       CALL		RESTORE_INT_2F
-	       .IF c
+	       ; .IF c
 	       .THEN
 		  GOTO	      INSTALL_ERROR
-	       .ENDIF
-	    .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
+	       ; .ENDIF
+	    ; .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
 	    ERASE_FILE		 S_RECOVER_B
 	    ERASE_FILE		 S_FASTOPEN_B
 	    ;;;create config and autoexec files on startup diskette
 	    CREATE_CONFIG	    S_CONFIG_NEW_B, N_RETCODE
-	    .IF c
+	    ; .IF c
 	       GOTO	   INSTALL_ERROR
-	    .ENDIF
+	    ; .ENDIF
 	    CREATE_AUTOEXEC	    S_AUTO_NEW_B,E_DEST_DOS,N_RETCODE
-	    .IF c
+	    ; .IF c
 	       GOTO	   INSTALL_ERROR
-	    .ENDIF
-	    .IF < ACTIVE eq EGA > or
-	    .IF < ALTERNATE eq EGA > or
-	    .IF < ACTIVE eq LCD > or
-	    .IF < ALTERNATE eq LCD > near
+	    ; .ENDIF
+	    ; .IF < ACTIVE eq EGA > or
+	    ; .IF < ALTERNATE eq EGA > or
+	    ; .IF < ACTIVE eq LCD > or
+	    ; .IF < ALTERNATE eq LCD > near
 	    .THEN
-	       .IF < F_VDISK eq E_VDISK_NO >
+	       ; .IF < F_VDISK eq E_VDISK_NO >
 		  ERASE_FILE	S_VDISK_B
-		  .IF c
+		  ; .IF c
 		     GOTO	 INSTALL_ERROR
-		  .ENDIF
-	       .ENDIF
-	       .IF < F_ANSI eq E_ANSI_NO >
+		  ; .ENDIF
+	       ; .ENDIF
+	       ; .IF < F_ANSI eq E_ANSI_NO >
 		  ERASE_FILE	S_ANSI_B
-		  .IF c
+		  ; .IF c
 		     GOTO	 INSTALL_ERROR
-		  .ENDIF
-	       .ENDIF
-	       .IF < F_APPEND eq E_APPEND_NO >
+		  ; .ENDIF
+	       ; .ENDIF
+	       ; .IF < F_APPEND eq E_APPEND_NO >
 		  ERASE_FILE	S_APPEND_B
-		  .IF c
+		  ; .IF c
 		     GOTO	 INSTALL_ERROR
-		  .ENDIF
-	       .ENDIF
-	       .IF < F_GRAFTABL eq E_GRAFTABL_NO > or
-	       .IF < F_GRAFTABL eq E_GRAFTABL_NA >
+		  ; .ENDIF
+	       ; .ENDIF
+	       ; .IF < F_GRAFTABL eq E_GRAFTABL_NO > or
+	       ; .IF < F_GRAFTABL eq E_GRAFTABL_NA >
 		  ERASE_FILE	S_GRAFTABL_B
-		  .IF c
+		  ; .IF c
 		     GOTO	 INSTALL_ERROR
-		  .ENDIF
-	       .ENDIF
-	       .IF < F_GRAPHICS eq E_GRAPHICS_NO >
+		  ; .ENDIF
+	       ; .ENDIF
+	       ; .IF < F_GRAPHICS eq E_GRAPHICS_NO >
 		  ERASE_FILE	S_GRAPHICS_B
 		  ERASE_FILE	S_GRAPHPRO_B
-		  .IF c
+		  ; .IF c
 		     GOTO	 INSTALL_ERROR
-		  .ENDIF
-	       .ENDIF
+		  ; .ENDIF
+	       ; .ENDIF
 	       ;;;Insert SELECT diskette in drive A:
 	       INSERT_DISK	SUB_INS_INSTALL_360, S_DOS_SEL_360
 	       ;;;copying files from INSTALL diskette screen
 	       INIT_PQUEUE	       PAN_INSTALL_DOS
 	       PREPARE_PANEL	       SUB_COPYING
 	       DISPLAY_PANEL
-	       .IF < ACTIVE eq EGA > or
-	       .IF < ALTERNATE eq EGA > near
-		  .IF < MEM_SIZE eq 256 >
+	       ; .IF < ACTIVE eq EGA > or
+	       ; .IF < ALTERNATE eq EGA > near
+		  ; .IF < MEM_SIZE eq 256 >
 		      DEALLOCATE_MEMORY
-		  .ENDIF
+		  ; .ENDIF
 		  COPY_FILES2	    I_DEST_DRIVE,COPY_SEL_EGA,E_SEL_EGA,S_INSTALL_PATH ;AC111; copy files to f-disk  JW
-		  .IF c near
-		      .IF < MEM_SIZE eq 256 >
+		  ; .IF c near
+		      ; .IF < MEM_SIZE eq 256 >
 			 ALLOCATE_MEMORY
 			 CALL	 INITIALIZE
-		      .ENDIF
+		      ; .ENDIF
 		     HANDLE_ERROR	 ERR_COPY_DISK, E_RETURN
-		  .ENDIF
-		  .IF < MEM_SIZE eq 256 >
+		  ; .ENDIF
+		  ; .IF < MEM_SIZE eq 256 >
 		      ALLOCATE_MEMORY
 		      CALL    INITIALIZE
-		  .ENDIF
+		  ; .ENDIF
 	       .ELSEIF < ACTIVE eq LCD > or
-	       .IF < ALTERNATE eq LCD >
+	       ; .IF < ALTERNATE eq LCD >
 	          COPY_FILES2    I_DEST_DRIVE,COPY_SEL_LCD,E_SEL_LCD,S_INSTALL_PATH ;AC111; copy files to f-disk JW
-	          .IF c near
+	          ; .IF c near
 	       		HANDLE_ERROR	    ERR_COPY_DISK, E_RETURN
-	          .ENDIF
-	       .ENDIF
-	    .ENDIF
+	          ; .ENDIF
+	       ; .ENDIF
+	    ; .ENDIF
 
-	   .if <f_shell eq e_shell_yes > near
+	   ; .if <f_shell eq e_shell_yes > near
 	    ;;;diskcopy MS-SHELL to SHELL
-	    .REPEAT
+	    ; .REPEAT
 	       INSERT_DISK	SUB_REM_DOS_A, S_DOS_COM_360
 	       DISKCOPY_TO	DSKCPY_TO_B,SOURCE1,S_DOS_SHEL_DISK
 	       DISKCOPY_PANELS	SUB_INS_SHELL_DISKS,SUB_COPYING,NOPANEL
@@ -444,18 +444,18 @@ INSTALL_TO_360_DRIVE:
 	       CALL		HOOK_INT_2F
 	       EXEC_PROGRAM	S_DISKCOPY,S_DSKCPY_TO_B,PARM_BLOCK,EXEC_NO_DIR
 	       CALL		RESTORE_INT_2F
-	       .IF c
+	       ; .IF c
 	       .THEN
 		  GOTO	      INSTALL_ERROR
-	       .ENDIF
-	    .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
+	       ; .ENDIF
+	    ; .UNTIL < N_DSKCPY_ERR ne E_DSKCPY_RETRY > near
 	    CREATE_SHELL   S_SHELL_NEW_B, N_RETCODE
-	    .IF c
+	    ; .IF c
 	       GOTO	   INSTALL_ERROR
-	    .ENDIF
-	   .endif			; copy to shell
+	    ; .ENDIF
+	   ; .endif; copy to shell
 
-	.ENDIF
+	; .ENDIF
 
 	;;;installation complete and change diskettes screen
 	INIT_PQUEUE		PAN_COMPLETE3
@@ -472,28 +472,28 @@ INSTALL_TO_360_DRIVE:
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 PROCESS_ESC_F3:
-	.IF < N_USER_FUNC eq E_ESCAPE >
+	; .IF < N_USER_FUNC eq E_ESCAPE >
 	   POP_HEADING
-	.ENDIF
+	; .ENDIF
 EXIT_DOS:
 	CLEAR_SCREEN2
 EXIT_DOS_CONT:
-	.IF < I_DEST_DRIVE eq E_DEST_DRIVE_C > and
-	.IF < N_HOUSE_CLEAN eq E_CLEAN_YES >
+	; .IF < I_DEST_DRIVE eq E_DEST_DRIVE_C > and
+	; .IF < N_HOUSE_CLEAN eq E_CLEAN_YES >
 	   ERASE_FILE	   S_AUTO_NEW
 	   ERASE_FILE	   S_CONFIG_NEW
 	   ERASE_FILE	   S_SHELL_NEW
 	   ERASE_FILE	   S_SELECT_TMP
 	   CHANGE_AUTOEXEC S_AUTO_REBOOT, S_AUTO_MENU
-	.ENDIF
+	; .ENDIF
 
 	GOTO	EXIT_SELECT
 
 INSTALL_ERROR:
 
-	.IF < DSKCPY_ERR ne DSKCPY_EXIT >
+	; .IF < DSKCPY_ERR ne DSKCPY_EXIT >
 	    HANDLE_ERROR    ERR_EXIT, E_QUIT
-	.ENDIF
+	; .ENDIF
 
 	GOTO	EXIT_DOS
 
@@ -514,5 +514,5 @@ Free_Parser:
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 SELECT	ENDS
-	END
+	; END
 

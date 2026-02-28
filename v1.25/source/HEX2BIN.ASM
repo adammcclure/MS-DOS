@@ -13,31 +13,31 @@ GETSEG:	EQU	38
 BUFSIZ:	EQU	1024
 
 	ORG	100H
-	PUT	100H
+	; PUT	100H
 
 HEX2BIN:
 	MOV	DI,FCB+9
-	CMP	B,[DI]," "
+	CMP	byte [DI]," "
 	JNZ	HAVEXT
 	MOV	SI,HEX
-	MOVB
-	MOVW
+	movsb
+	movsw
 HAVEXT:
 ;Get load offset (default is -100H)
 	MOV	CL,4		;Needed for shifts
 	MOV	[OFFSET],-100H
 	MOV	SI,FCB+11H	;Scan second FCB for offset
-	LODB
+	lodsb
 	CMP	AL," "		;Check if offset present
 	JZ	HAVOFF
-	MOV	B,[SIGN],0	;Assume positive sign for now
+	MOV	byte [SIGN],0	;Assume positive sign for now
 	CMP	AL,"+"
 	JZ	GETOFF		;Get a positive offset
 	CMP	AL,"-"
 	JNZ	GETOFF1		;If not + or -, then not signed
-	MOV	B,[SIGN],1	;Flag as negative offset
+	MOV	byte [SIGN],1	;Flag as negative offset
 GETOFF:
-	LODB			;Eat sign
+	lodsb;Eat sign
 GETOFF1:
 	CALL	HEXCHK		;Check for valid hex character
 	JC	HAVOFF		;No offset if not valid
@@ -45,10 +45,10 @@ GETOFF1:
 CONVOFF:
 	SHL	BX,CL		;Multiply current sum by 16
 	OR	BL,AL		;Add in current hex digit
-	LODB			;Get next digit
+	lodsb;Get next digit
 	CALL	HEXCHK		;And convert it to binary
 	JNC	CONVOFF		;Loop until all hex digits read
-	TEST	B,[SIGN],-1	;Check if offset was to be negative
+	TEST	byte [SIGN],-1	;Check if offset was to be negative
 	JZ	SAVOFF
 	NEG	BX
 SAVOFF:
@@ -60,7 +60,7 @@ HAVOFF:
 	MOV	AH,GETSEG
 	INT	33
 	MOV	ES,DX
-	SEG	ES
+	; SEG override: es
 	MOV	CX,[6]		;Get size of segment
 	MOV	[SEGSIZ],CX
 	XOR	AX,AX
@@ -68,13 +68,13 @@ HAVOFF:
 	MOV	BP,AX
 	SHR	CX
 	REP
-	STOW			;Fill entire segment with zeros
+	stosw;Fill entire segment with zeros
 	MOV	AH,OPEN
 	MOV	DX,FCB
 	INT	21H
 	OR	AL,AL
 	JNZ	NOFIL
-	MOV	B,[FCB+32],0
+	MOV	byte [FCB+32],0
 	MOV	[FCB+14],BUFSIZ	;Set record size to buffer size
 	MOV	DX,BUFFER
 	MOV	AH,SETDMA
@@ -101,7 +101,7 @@ READLN:
 	CMP	DI,[SEGSIZ]
 	JAE	ADERR
 	CALL	GETBYT		;Get data byte
-	STOB
+	stosb
 	CMP	DI,BP		;Check if this is the largest address so far
 	JBE	HAVBIG
 	MOV	BP,DI		;Save new largest
@@ -128,7 +128,7 @@ GETCH:
 	JZ	ERROR
 	MOV	SI,BUFFER
 NOREAD:
-	LODB
+	lodsb
 	CMP	AL,1AH
 	JZ	DONE
 	RET
@@ -167,7 +167,7 @@ SHOWERR:
 	INT	21H
 DONE:
 	MOV	[FCB+9],4F00H+"C"	;"CO"
-	MOV	B,[FCB+11],"M"
+	MOV	byte [FCB+11],"M"
 	MOV	DX,FCB
 	MOV	AH,CREATE
 	INT	21H
@@ -204,10 +204,10 @@ NOFILE:	DB	"File not found$"
 ADDR:	DB	"Address out of range--conversion aborted$"
 DIRFUL:	DB	"Disk directory full$"
 
-OFFSET:	DS	2
-SEGSIZ:	DS	2
-SIGN:	DS	1
-BUFFER:	DS	BUFSIZ
+OFFSET: times 2 db 0
+SEGSIZ: times 2 db 0
+SIGN: times 1 db 0
+BUFFER: times BUFSIZ db 0
 
 START:
 STARTSEG EQU	(START+15)/16

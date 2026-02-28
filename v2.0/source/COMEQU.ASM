@@ -1,9 +1,9 @@
 ;*************************************
 ; COMMAND EQUs which are not switch dependant
 
-IFDEF   IBM
-        INCLUDE IFEQU.ASM
-ENDIF
+%ifdef IBM
+        %include "IFEQU.ASM"
+%endif
 
 
 SYM     EQU     ">"
@@ -17,13 +17,13 @@ DRVCHAR         EQU     ":"
 
 FCB     EQU     5CH
 
-VARSTRUC        STRUC
-ISDIR   DB      ?
-SIZ     DB      ?
-TTAIL   DW      ?
-INFO    DB      ?
-BUF     DB      DIRSTRLEN + 20 DUP (?)
-VARSTRUC        ENDS
+struc VARSTRUC
+ISDIR: db 0
+SIZ: db 0
+TTAIL: dw 0
+INFO: db 0
+BUF     DB      DIRSTRLEN + times 20 db 0
+endstruc
 
 WSWITCH EQU     1               ; Wide display during DIR
 PSWITCH EQU     2               ; Pause (or Page) mode during DIR

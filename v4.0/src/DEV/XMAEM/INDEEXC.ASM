@@ -1,7 +1,7 @@
-PAGE    60,132
-TITLE   INDEEXC - 386 XMA EMULATOR - System Exception Handler
+; PAGE    60,132
+; TITLE   INDEEXC - 386 XMA EMULATOR - System Exception Handler
 
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                             *
 * MODULE NAME     : INDEEXC                                                   *
@@ -88,55 +88,55 @@ COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #
 
-        .286P                 ; Enable recognition of 286 privileged instructs.
+        CPU 286; Enable recognition of 286 privileged instructs.
 
-        .XLIST                ; Turn off the listing
-        INCLUDE INDEDAT.INC   ; Include system data
+        ; .XLIST; Turn off the listing
+        %include "INDEDAT.INC"; Include system data
 
-        IF1                   ; Only include macros on the first pass of
-        INCLUDE INDEOVP.MAC   ;   of the assembler
-        ENDIF
-        .LIST                 ; Turn on the listing
+        %if 1  ; IF1 - pass-specific; Only include macros on the first pass of
+        %include "INDEOVP.MAC";   of the assembler
+        %endif
+        ; .LIST; Turn on the listing
 
 SEX_ATTR        EQU     04B00H
 STACK_ATTR      EQU     00700H
 BLANK           EQU     00020H
 BP_START EQU    0
 
-        PUBLIC  INDEEXC
+        global INDEEXC
 
-PROG    SEGMENT PARA PUBLIC 'PROG'
+SECTION .PROG
 
-        ASSUME  CS:PROG
-        ASSUME  DS:NOTHING
-        ASSUME  ES:NOTHING
-        ASSUME  SS:NOTHING
+        ; ASSUME  CS:PROG
+        ; ASSUME  DS:NOTHING
+        ; ASSUME  ES:NOTHING
+        ; ASSUME  SS:NOTHING
 
-INDEEXC LABEL   NEAR
+INDEEXC:
 
         ; External entry points
 
-        EXTRN   EMULATE:NEAR       ; Entry point to INDEEMU
-        EXTRN   INT15:NEAR         ; Entry point to INDEI15
+        extern EMULATE; Entry point to INDEEMU
+        extern INT15; Entry point to INDEI15
 
         ; External variables
 
-        EXTRN   CRT_SELECTOR:WORD  ; Selector for the display buffer (INDEI15)
-        EXTRN   XMATID:BYTE        ; Current bank ID                 (INDEXMA)
+        extern CRT_SELECTOR; Selector for the display buffer (INDEI15)
+        extern XMATID; Current bank ID                 (INDEXMA)
 
-PAGE
+; PAGE
 
-VEXCPT13        LABEL NEAR
+VEXCPT13:
 
-        PUBLIC  SEX
-        PUBLIC  POPREGS       ;                                              P1C
-        PUBLIC  HEXD
-        PUBLIC  HEXW
-        PUBLIC  HEXB
-        PUBLIC  VEXCPT13
-        PUBLIC  DISPLAY
+        global SEX
+        global POPREGS;                                              P1C
+        global HEXD
+        global HEXW
+        global HEXB
+        global VEXCPT13
+        global DISPLAY
 
-SEX     PROC    NEAR
+SEX:
 
         CLD                   ; All moves go forward
 
@@ -153,7 +153,7 @@ SAVE_REGS:
         PUSH    ES            ; Save ES
         MOV     BP,SP         ; Point BP to the start of the register save area
 
-PAGE
+; PAGE
 ; First let's check to see who caused the exception, the V86 task or us.  This
 ; is done by checking the flags of the routine that was interrupted.  The VM
 ; flag is set for every routine that is running in V86 mode.  There are really
@@ -161,12 +161,12 @@ PAGE
 ; has the VM bit set when it is running, the emulator does not.  So we can read
 ; this bit to determine who was interrupted.
 
-        MOV     AX,SS:WORD PTR [BP+BP_FL2]    ; Get hi-order word of the flags
+        MOV     AX,SS:word [BP+BP_FL2]    ; Get hi-order word of the flags
         TEST    AL,02H                        ; Check the VM bit
         JZ      DISPLAY                       ; Uh oh!  It's us.
         JMP     LONGWAY                       ; It's the V86 task
 
-PAGE
+; PAGE
 ; The following entry point, DISPLAY, is know to other modules.  They jump here
 ; when they encounter a severe error and want to call the error handler.
 
@@ -178,7 +178,7 @@ DISPLAY:
 ; control back to the V86 task and let it worry about it.
 
         MOV     BP,SP                         ; Point BP to the saved registers
-        CMP     SS:WORD PTR [BP+BP_EX],0DH    ; Was it a general protection
+        CMP     SS:word [BP+BP_EX],0DH    ; Was it a general protection
                                               ;   exception
         JNE     DISPCONT                      ; If not, the continue
         JMP     POPREGS                       ; Else just return to the V86 @P1C
@@ -194,7 +194,7 @@ DISPLAY:
 ; to be terminated.
 
 DISPCONT:
-        CMP     SS:WORD PTR [BP+BP_EX],0EH    ; Was it a page fault?
+        CMP     SS:word [BP+BP_EX],0EH    ; Was it a page fault?
         JNE     CHKVM                         ; Nope.  Continue checking.
         JMP     PAGE_FAULT                    ; Yup.  Assume application had bad
                                               ;   addresses.  Therefore, termin-
@@ -210,13 +210,13 @@ DISPCONT:
 ; rest of the system will die soon anyway.
 
 CHKVM:
-        MOV     AX,SS:WORD PTR [BP+BP_FL2]    ; Check the VM bit in the flags
+        MOV     AX,SS:word [BP+BP_FL2]    ; Check the VM bit in the flags
         TEST    AL,02H                        ;   to see who was running
         JZ      ERROR                         ; It was us.  Better Force an NMI.
         JMP     TERM_APP                      ; It was them.  Terminate whatever
                                               ;   is running.
 
-PAGE
+; PAGE
 ERROR:
 
 ;----------------------------------------------------------------------------D1A
@@ -236,15 +236,15 @@ ERROR:
         MOV     ES,AX                   ;   accesses all of memory as data  @D1A
                                         ;                                    D1A
         MOV     DI,4F2H                 ; Put our 0DEADH marker at the      @D1A
-        MOV     WORD PTR ES:[DI],0DEADH ;   fixed location 0:4F2.            D1A
-        MOV     WORD PTR SS:[BP+BP_EX],2; Put a 2, the NMI interrupt number,@D1A
+        MOV     word ES:[DI],0DEADH ;   fixed location 0:4F2.            D1A
+        MOV     word SS:[BP+BP_EX],2; Put a 2, the NMI interrupt number,@D1A
                                         ;   in the exception field.  The     D1A
                                         ;   code after LONGWAY4 will use     D1A
                                         ;   this number to get the interrupt D1A
                                         ;   vector.                          D1A
         JMP     LONGWAY4                ; Go do the NMI                     @D1A
 
-PAGE
+; PAGE
 ; The following code will not be executed.  It is left as a debugging tool.
 
 DODISP:
@@ -270,10 +270,10 @@ DODISP:
         MOV     CX,21             ; 18 regs + excpt id + task id + error code
         MOV     SI,SYS_PATCH_DS   ; Load DS with the selector for our data
         MOV     DS,SI             ;   area
-        MOV     SI,OFFSET REG_TABLE ; DS:SI now points to the reg table
+        MOV     SI,REG_TABLE ; DS:SI now points to the reg table
         SUB     AX,AX             ; Clear AH
         MOV     AL,XMATID         ; Load AL with the current XMA bank ID
-        MOV     WORD PTR SS:[BP+BP_PSP2],AX  ; The bank ID gets displayed as
+        MOV     word SS:[BP+BP_PSP2],AX  ; The bank ID gets displayed as
                                              ;   the task ID
 
 ; Display one register
@@ -285,9 +285,9 @@ DO_REG:
         LODSB                           ; Get the row coordinate
         MOV     AH,160                  ; Multiply by 160 byte to a row
         MUL     AH                      ;   (80 bytes of character, attribute)
-        ADD     AL,DS:BYTE PTR [SI]     ; Add on the number of columns
+        ADD     AL,DS:byte [SI]     ; Add on the number of columns
         ADC     AH,0                    ; Don't forget the carry
-        ADD     AL,DS:BYTE PTR [SI]     ; Add the columns again (remember -
+        ADD     AL,DS:byte [SI]     ; Add the columns again (remember -
         ADC     AH,0                    ;   character, attribute)
         INC     SI                      ; Point to next entry in the reg table
         MOV     DI,AX                   ; Load DI with the offset into the
@@ -323,20 +323,20 @@ DID_ID:
         JNE     MORE                    ; Then go to the one word code
 
         DATAOV                          ; Grab all 32 bits of the register
-        MOV     AX,SS:WORD PTR [BP]
+        MOV     AX,SS:word [BP]
         ADD     BP,4                    ; Point BP past the register value
         CALL    HEXD                    ; Display the 32 bit value
         JMP     LOOPREG                 ; Jump over the one word code
 
 MORE:
-        MOV     AX,SS:WORD PTR [BP]     ; Get the word value into AX
+        MOV     AX,SS:word [BP]     ; Get the word value into AX
         ADD     BP,2                    ; Step BP past the register value
         CALL    HEXW                    ; Display the 16 bit value
 
 LOOPREG:
         LOOP    DO_REG                  ; Go do another register
 
-PAGE
+; PAGE
 ;
 ;       Let's go put up the stack for everyone to see !!!
 ;
@@ -345,7 +345,7 @@ PAGE
 
 ; If the V86 task faulted, display its stack.  Else display our stack.
 
-        MOV     AX,SS:WORD PTR [BP+BP_FL2] ; Alright, whose fault was it?
+        MOV     AX,SS:word [BP+BP_FL2] ; Alright, whose fault was it?
         TEST    AL,02H                     ; Check the VM flag
         JZ      NOTVM86                    ; Gulp!  It's us.
 
@@ -412,7 +412,7 @@ WAIT_HERE:
         CMP     AL,054H                 ; System request key?
         JNE     CHK_ESC                 ; No.  Check for Esc key.
 
-        CMP     SS:WORD PTR [BP+BP_EX],0EH ; It was system request key.  Now
+        CMP     SS:word [BP+BP_EX],0EH ; It was system request key.  Now
                                            ;   check for a page fault.
         JE      PAGE_FAULT              ; If so, go remove the extra return code
                                         ;   from the stack and terminate the
@@ -424,18 +424,18 @@ CHK_ESC:
         JNE     CHKPRT                  ; Nope.  Go check for Print Screen and
                                         ;   Ctrl-Alt-Del.
         MOV     BP,SP                   ; Point BP to the register save area
-        CMP     SS:WORD PTR [BP+BP_EX],0EH ; Check for a page fault
+        CMP     SS:word [BP+BP_EX],0EH ; Check for a page fault
         JE      PAGE_FAULT                 ; If so, go remove the extra return
                                            ;   code from the stack and terminate
                                            ;   the application running in the
                                            ;   V86 task.
-        MOV     AX,SS:WORD PTR [BP+BP_FL2] ; Else, Esc key hit and no page fault
+        MOV     AX,SS:word [BP+BP_FL2] ; Else, Esc key hit and no page fault
         TEST    AL,02H                     ; Check who faulted, them or us
         JZ      DO_RESET                   ; If it's us, then reIPL.
 
 TERM_APP:
-        MOV     SS:WORD PTR [BP+BP_EX],21H   ; If it's them, termintate whatever
-        MOV     SS:WORD PTR [BP+BP_AX],4CFFH ;   is running by forcing a DOS
+        MOV     SS:word [BP+BP_EX],21H   ; If it's them, termintate whatever
+        MOV     SS:word [BP+BP_AX],4CFFH ;   is running by forcing a DOS
                                              ;   termintate.  Return code is FF.
         JMP     DO_MONITOR                   ; Go pass the interrupt to the V86
                                              ;   task
@@ -481,12 +481,12 @@ CHKPRT:
 
         MOV     BP,SP                   ; It was a print screen.  Reset BP to
                                         ;   point to our register save area.
-        MOV     AX,SS:WORD PTR [BP+BP_FL2] ; If is was us that had the problem
+        MOV     AX,SS:word [BP+BP_FL2] ; If is was us that had the problem
         TEST    AL,02H                     ;   then we don't allow print screen
                                            ;   because the system is not healthy
         JZ      WAIT_HERE                  ; Go get another key
 
-        MOV     SS:WORD PTR [BP+BP_EX],05H ; If it was them then we can do a
+        MOV     SS:word [BP+BP_EX],05H ; If it was them then we can do a
         JMP     DO_MONITOR                 ;   print screen.  Force the V86
                                            ;   task to do an INT 5 (Prt Sc).
 
@@ -522,39 +522,39 @@ DO_MONITOR:
 
          MOV     BP,SP          ; Reset BP to point to our register save area
                                 ;   on the stack
-         MOV     AX,SS:WORD PTR [BP+BP_FL2] ; Check if it was the V86 task that
+         MOV     AX,SS:word [BP+BP_FL2] ; Check if it was the V86 task that
          TEST    AL,02H                     ;   faulted
          JNZ     LONGWAY        ; If so, pass the interrupt on
          JMP     POPREGS        ; Otherwise just return                     @P1C
 
-PAGE
+; PAGE
 
 ; We come here if the check up front said it was the V86 task that faulted.
 
 LONGWAY:
-        MOV     SS:WORD PTR [BP+BP_SP2],0 ;Purify high-order words of SP, SS
-        MOV     SS:WORD PTR [BP+BP_SS2],0 ;   and IP
-        MOV     SS:WORD PTR [BP+BP_IP2],0
+        MOV     SS:word [BP+BP_SP2],0 ;Purify high-order words of SP, SS
+        MOV     SS:word [BP+BP_SS2],0 ;   and IP
+        MOV     SS:word [BP+BP_IP2],0
 
 ; Test for interrupt versus exception.
 
-        CMP     SS:WORD PTR [BP+BP_EX],13     ; Check if it was a general
+        CMP     SS:word [BP+BP_EX],13     ; Check if it was a general
                                               ;   protection exception
         JNE     LONGWAY2                      ; If not, continue checking
         JMP     EMULATE                       ; If so, then go to INDEEMU to
                                               ;   emulate the instruction
 LONGWAY2:
-        CMP     SS:WORD PTR [BP+BP_EX],6      ; Was it an invalid op-code
+        CMP     SS:word [BP+BP_EX],6      ; Was it an invalid op-code
                                               ;   exception?
         JB      LONGWAY4                      ; If lower, then pass the
                                               ;   interrupt back to the V86 task
-        CMP     SS:WORD PTR [BP+BP_EX],7      ; Was it a coprocessor not avail-
+        CMP     SS:word [BP+BP_EX],7      ; Was it a coprocessor not avail-
                                               ;   able exception?
         JA      LONGWAY3                      ; If greater then do more checking
         JMP     EMULATE                       ; Emulation needed for interrupts
                                               ;   6 and 7
 LONGWAY3:
-        CMP     SS:WORD PTR [BP+BP_EX],15H    ; Check if it was INT 15
+        CMP     SS:word [BP+BP_EX],15H    ; Check if it was INT 15
         JNE     LONGWAY4                      ; Nope, pass interrupt back to
                                               ;   the V86 task
         JMP     INT15                         ; Emulation needed for INT 15
@@ -572,7 +572,7 @@ LONGWAY4:
                                         ;   push of IP, CS and the flags.
                                         ; Note that this assumes there are at
                                         ;   least 6 bytes keft on the stack.
-        MOV     SS:WORD PTR [BP+BP_SP],DI ; Put the new SP into the V86 register
+        MOV     SS:word [BP+BP_SP],DI ; Put the new SP into the V86 register
                                           ;   save area
         DATAOV
         SUB     AX,AX                   ; Clear all 32 bits of EAX
@@ -604,7 +604,7 @@ LONGWAY4:
         ADDROV                          ; Intel bug # A0-119
         NOP                             ; Intel bug # A0-119
         AND     AX,3CFFH                ; Clean up the flags for our IRET
-        MOV     WORD PTR SS:[BP+BP_FL],AX
+        MOV     word SS:[BP+BP_FL],AX
 
         MOV     SI,SS:[BP+BP_EX]        ; Get the interrupt vector
         SHL     SI,2                    ; Multiply by four because interrupt
@@ -612,11 +612,11 @@ LONGWAY4:
         MOV     AX,HUGE_PTR             ; Load DS with a selector that accesses
         MOV     DS,AX                   ;   all of memory as data
         LODSW                           ; Get the IP for the interrupt
-        MOV     WORD PTR SS:[BP+BP_IP],AX ; Store it in the V86 task's IP
+        MOV     word SS:[BP+BP_IP],AX ; Store it in the V86 task's IP
         LODSW                           ; Get the CS for the interrupt
-        MOV     WORD PTR SS:[BP+BP_CS],AX ; Store it in the V86 task's CS
+        MOV     word SS:[BP+BP_CS],AX ; Store it in the V86 task's CS
 
-PAGE
+; PAGE
 POPREGS:                                ;                                   @P1C
 
 ; Pop the saved registers off of our stack and IRET to the V86 task.
@@ -630,10 +630,10 @@ POPREGS:                                ;                                   @P1C
         DATAOV
         IRET                            ; IRET to the V86 task
 
-SEX     ENDP
+; ENDP SEX
 
-SUBTTL  HEXD - Convert DWORD in EAX to ASCII string at ES:DI
-PAGE
+; SUBTTL  HEXD - Convert DWORD in EAX to ASCII string at ES:DI
+; PAGE
 ;
 ;       INPUT:   EAX   = hex double word to display
 ;                BH    = attribute byte
@@ -644,7 +644,7 @@ PAGE
 ;                Characters are placed on the screen
 ;
 
-HEXD    PROC    NEAR
+HEXD:
         DATAOV
         PUSH    AX            ; Save EAX on the stack
         DATAOV
@@ -664,10 +664,10 @@ HEXD    PROC    NEAR
         CALL    HEXB          ; And conver the last byte to ASCII at ES:DI
         RET
 
-HEXD    ENDP
+; ENDP HEXD
 
-SUBTTL  HEXW - Convert WORD in AX to ASCII string at ES:DI
-PAGE
+; SUBTTL  HEXW - Convert WORD in AX to ASCII string at ES:DI
+; PAGE
 ;
 ;       INPUT:   AX    = hex word to display
 ;                BH    = attribute byte
@@ -678,7 +678,7 @@ PAGE
 ;                Characters are placed on the screen
 ;
 
-HEXW    PROC    NEAR
+HEXW:
 
         PUSH    AX            ; Save the value in AX on the stack
         XCHG    AH,AL         ; Move the high byte into AL
@@ -687,10 +687,10 @@ HEXW    PROC    NEAR
         CALL    HEXB          ; Convert the low byte to ASCII at ES:DI
         RET
 
-HEXW    ENDP
+; ENDP HEXW
 
-SUBTTL  HEXD - Convert BYTE in AL to ASCII string at ES:DI
-PAGE
+; SUBTTL  HEXD - Convert BYTE in AL to ASCII string at ES:DI
+; PAGE
 ;
 ;       INPUT:   AL    = hex byte to display
 ;                BH    = attribute byte
@@ -701,7 +701,7 @@ PAGE
 ;                Characters are placed on the screen
 ;
 
-HEXB    PROC    NEAR
+HEXB:
 
         PUSH    AX            ; Save the value in AX
         AND     AL,0F0H       ; Clear the low nibble of AL
@@ -726,11 +726,11 @@ OK2:    MOV     AH,BH
         STOSW
         RET
 
-HEXB    ENDP
+; ENDP HEXB
 
-        PAGE
+        ; PAGE
 
-REG     MACRO   NAME,ROW,COL,L
+%macro REG 4
         DB      &ROW                    ; Display of register &NAME starts in
         DB      &COL                    ;   row &ROW and column &COL
         DB      '&NAME:'                ; Name to display for register &NAME
@@ -738,11 +738,11 @@ REG     MACRO   NAME,ROW,COL,L
         DW      BP_&NAME                ; Offset of value of register &NAME
                                         ;   that we saved on our stack
         DW      &L                      ; Number of words in the register
-        ENDM
+        %endmacro
 
-SUBTTL  Register table
-PAGE
-REG_TABLE LABEL NEAR
+; SUBTTL  Register table
+; PAGE
+REG_TABLE:
 ;
 ; Declare data used for displaying the registers on the screen.  For each
 ; register there is a structure that contains the row and column of where the
@@ -793,7 +793,7 @@ REG_TABLE LABEL NEAR
         REG     VMFS,5,48,1
         REG     VMGS,5,63,1
 
-PROG    ENDS
+; END SECTION .PROG
 
-        END
+        ; END
 

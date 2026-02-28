@@ -1,88 +1,88 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tcmd2a.asm 4.1 85/06/25
 ;	SCCSID = @(#)tcmd2a.asm 4.1 85/06/25
-TITLE	PART5 COMMAND Transient routines.
+; TITLE	PART5 COMMAND Transient routines.
 
-	INCLUDE comsw.asm
+	%include "comsw.asm"
 
-.xlist
-.xcref
-	INCLUDE DOSSYM.INC
-	INCLUDE comequ.asm
-	INCLUDE comseg.asm
-	include ioctl.inc
-.list
-.cref
+; .xlist
+; .xcref
+	%include "DOSSYM.INC"
+	%include "comequ.asm"
+	%include "comseg.asm"
+	%include "ioctl.inc"
+; .list
+; .cref
 
 
-CODERES 	SEGMENT PUBLIC BYTE	;AC000;
-CODERES 	ENDS
+SECTION .CODERES;AC000;
+; END SECTION .CODERES
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-DATARES 	ENDS
+SECTION .DATARES;AC000;
+; END SECTION .DATARES
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg_buf_ptr:word
-	EXTRN	BadCurDrv:byte		;AC000;
-	EXTRN	clsstring:byte
-	EXTRN	dback_ptr:word
-	EXTRN	display_ioctl:word	;AN000;
-	EXTRN	display_width:word	;AN000;
-	EXTRN	Extend_buf_ptr:word	;AN049;
-	EXTRN	linperpag:word		;AN000;
-	EXTRN	msg_disp_class:byte	;AN049;
-	EXTRN	nulpath_ptr:word
-	EXTRN	prompt_table:word
-	EXTRN	string_buf_ptr:word	;AC000;
-	EXTRN	vermes_ptr:word
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern arg_buf_ptr
+	extern BadCurDrv;AC000;
+	extern clsstring
+	extern dback_ptr
+	extern display_ioctl;AN000;
+	extern display_width;AN000;
+	extern Extend_buf_ptr;AN049;
+	extern linperpag;AN000;
+	extern msg_disp_class;AN049;
+	extern nulpath_ptr
+	extern prompt_table
+	extern string_buf_ptr;AC000;
+	extern vermes_ptr
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	Arg_Buf:byte
-	EXTRN	bwdbuf:byte
-	EXTRN	curdrv:byte
-	EXTRN	dirchar:byte
-	EXTRN	major_ver_num:word
-	EXTRN	minor_ver_num:word
-	EXTRN	srcxname:byte		;AN049;
-	EXTRN	string_ptr_2:word
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern Arg_Buf
+	extern bwdbuf
+	extern curdrv
+	extern dirchar
+	extern major_ver_num
+	extern minor_ver_num
+	extern srcxname;AN049;
+	extern string_ptr_2
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ;---------------
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg:byte		; the arg structure!
-transpace	ends
+SECTION .TRANSPACE;AC000;
+	extern arg; the arg structure!
+; END SECTION .transpace
 ;---------------
 
-	EXTRN	cerror:near		;AN049;
-	EXTRN	crlf2:near
-	EXTRN	drvbad:near
-	EXTRN	std_printf:near
+	extern cerror;AN049;
+	extern crlf2
+	extern drvbad
+	extern std_printf
 
-	PUBLIC	build_dir_for_chdir
-	PUBLIC	build_dir_for_prompt
-	PUBLIC	build_dir_string
-	PUBLIC	cls
-	PUBLIC	path
-	PUBLIC	print_char
-	PUBLIC	print_drive
-	PUBLIC	print_version
-	PUBLIC	print_b
-	PUBLIC	print_back
-	PUBLIC	print_eq
-	PUBLIC	print_esc
-	PUBLIC	print_g
-	PUBLIC	print_l
-	PUBLIC	print_prompt
-	PUBLIC	version
+	global build_dir_for_chdir
+	global build_dir_for_prompt
+	global build_dir_string
+	global cls
+	global path
+	global print_char
+	global print_drive
+	global print_version
+	global print_b
+	global print_back
+	global print_eq
+	global print_esc
+	global print_g
+	global print_l
+	global print_prompt
+	global version
 
 	break	Version
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 VERSION:
 	call	crlf2
@@ -99,7 +99,7 @@ print_version:
 	xchg	ah,al
 	xor	ah,ah
 	mov	minor_ver_num,ax
-	mov	dx,offset trangroup:vermes_ptr
+	mov	dx,vermes_ptr
 	jmp	std_printf
 
 print_prompt:
@@ -109,7 +109,7 @@ print_prompt:
 	push	es
 	invoke	find_prompt			; LOOK FOR PROMPT STRING
 	jc	PP0				; CAN'T FIND ONE
-	cmp	byte ptr es:[di],0
+	cmp	byte es:[di],0
 	jnz	PP1
 PP0:
 	call	print_drive			; USE DEFAULT PROMPT
@@ -131,7 +131,7 @@ PPP1:
 PP2:
 	mov	al,es:[di]
 	inc	di
-	mov	bx,offset trangroup:prompt_table-3
+	mov	bx,prompt_table-3
 	or	al,al
 	jz	PP5
 
@@ -140,7 +140,7 @@ PP3:
 	invoke	upconv
 	cmp	al,[bx]
 	jz	PP4
-	cmp	byte ptr [bx],0
+	cmp	byte [bx],0
 	jnz	PP3
 	jmp	PP1
 
@@ -161,7 +161,7 @@ PP5:
 
 
 print_back:
-	mov	dx,offset trangroup:dback_ptr
+	mov	dx,dback_ptr
 	jmp	std_printf
 
 print_EQ:
@@ -204,11 +204,11 @@ print_drive:
 	call	print_char
 	ret
 
-ASSUME	DS:TRANGROUP,ES:TRANGROUP
+; ASSUME	DS:TRANGROUP,ES:TRANGROUP
 
 build_dir_for_prompt:
 	xor	dl,dl
-	mov	si,offset trangroup:bwdbuf
+	mov	si,bwdbuf
 	mov	di,SI
 	mov	al,CurDrv
 	add	al,'A'
@@ -220,9 +220,9 @@ build_dir_for_prompt:
 	mov	string_ptr_2,di
 	mov	ah,Current_dir
 	int	int_command
-	mov	dx,offset trangroup:string_buf_ptr
+	mov	dx,string_buf_ptr
 	jnc	DoPrint
-	mov	dx,offset trangroup:BadCurDrv
+	mov	dx,BadCurDrv
 DoPrint:
 	call	std_printf
 
@@ -230,9 +230,9 @@ DoPrint:
 
 build_dir_for_chdir:
 	call	build_dir_string
-	mov	dx,offset trangroup:bwdbuf
+	mov	dx,bwdbuf
 	mov	string_ptr_2,dx
-	mov	dx,offset trangroup:string_buf_ptr
+	mov	dx,string_buf_ptr
 	call	std_printf
 	ret
 
@@ -247,7 +247,7 @@ build_dir_string:
 
 gotdrive:
 	push	ax
-	mov	si,offset trangroup:bwdbuf+3
+	mov	si,bwdbuf+3
 	mov	ah,Current_dir
 	int	int_command
 	jnc	dpbisok
@@ -256,7 +256,7 @@ gotdrive:
 	jmp	drvbad
 
 dpbisok:
-	mov	di,offset trangroup:bwdbuf
+	mov	di,bwdbuf
 	mov	dx,di
 	pop	ax
 	mov	ah,':'
@@ -267,11 +267,11 @@ dpbisok:
 	ret
 
 	break	Path
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 PATH:
 	xor	al,al				;AN049; Set up holding buffer
-	mov	di,offset Trangroup:srcxname	;AN049;   for PATH while parsing
+	mov	di,srcxname	;AN049;   for PATH while parsing
 	stosb					;AN049; Initialize PATH to null
 	dec	di				;AN049; point to the start of buffer
 	invoke	PGetarg 			; Pre scan for arguments
@@ -311,7 +311,7 @@ scan_white:					;AN049; make sure were at EOL
 	cmp	al,tab_chr			;AN049; whitespace?
 	jz	scan_white			;AN049; yes - continue scanning
 
-	mov	dx,offset TranGroup:Extend_Buf_ptr ;AN049; no - set up error message
+	mov	dx,Extend_Buf_ptr ;AN049; no - set up error message
 	mov	Extend_Buf_ptr,MoreArgs_ptr	;AN049; get "Too many parameters" message number
 	mov	msg_disp_class,parse_msg_class	;AN049; set up parse error msg class
 	jmp	cerror				;AN049;
@@ -323,7 +323,7 @@ path_eol:					;AN049; Parsing was clean
 	invoke	delete_path			;AC049; Delete any offending name
 	invoke	scan_double_null		;AC049; Scan to end of environment
 	invoke	move_name			;AC049; move in PATH=
-	mov	si,offset Trangroup:srcxname	;AN049; Set up source as PATH buffer
+	mov	si,srcxname	;AN049; Set up source as PATH buffer
 
 store_path:					;AN049; Store the PATH in the environment
 	lodsb					;AN049; Get a character
@@ -344,11 +344,11 @@ disppath:
 	return
 
 print_path:
-	cmp	byte ptr es:[di],0
+	cmp	byte es:[di],0
 	jnz	path1
 
 path0:
-	mov	dx,offset trangroup:nulpath_ptr
+	mov	dx,nulpath_ptr
 	push	cs
 	pop	es
 	push	cs
@@ -360,23 +360,23 @@ path1:
 	pop	ds
 	sub	di,5
 	mov	si,di
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	invoke	scasb2				; LOOK FOR NUL
 	cmp	cx,0FFH
 	jz	path0
 	push	cs
 	pop	es
-	mov	di,offset trangroup:arg_buf
+	mov	di,arg_buf
 	mov	dx,100h
 	sub	dx,cx
 	xchg	dx,cx
 	rep	movsb
-	mov	dx,offset trangroup:arg_buf_ptr
+	mov	dx,arg_buf_ptr
 	push	cs
 	pop	ds
 	jmp	std_printf
 
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 
 	break	Cls
 
@@ -394,7 +394,7 @@ ASSUME	DS:TRANGROUP
 ; *
 ; ****************************************************************
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 ANSI_installed		equ    0ffh
 
@@ -410,7 +410,7 @@ check_lines:
 	mov	bx,stdout			;AN000; lines for stdout
 	mov	ch,ioc_sc			;AN000; type is display
 	mov	cl,get_generic			;AN000; get information
-	mov	dx,offset trangroup:display_ioctl ;AN000;
+	mov	dx,display_ioctl ;AN000;
 	int	int_command			;AN000;
 	jc	no_variable			;AN000; function had error, use default
 	mov	ax,linperpag			;AN000; get number of rows returned
@@ -481,7 +481,7 @@ cls_ret:
 ; *
 ; ****************************************************************
 
-reg_cls proc	near				;AC000;
+reg_cls:;AC000;
 
 ;
 ; Set overscan to black.
@@ -514,7 +514,7 @@ reg_cls proc	near				;AC000;
 
 	ret					;AC000;
 
-reg_cls endp					;AC000;
+; ENDP reg_cls;AC000;
 
 
 
@@ -531,9 +531,9 @@ reg_cls endp					;AC000;
 ; *
 ; ****************************************************************
 
-ansi_cls proc	near				;AC000;
+ansi_cls:;AC000;
 
-	mov	si,offset trangroup:clsstring
+	mov	si,clsstring
 	lodsb
 	mov	cl,al
 	xor	ch,ch
@@ -545,8 +545,8 @@ clrloop:
 	loop	clrloop
 	return
 
-ansi_cls	endp				;AC000;
+; ENDP ansi_cls;AC000;
 
-trancode    ends
-	    end
+; END SECTION .trancode
+	    ; end
 

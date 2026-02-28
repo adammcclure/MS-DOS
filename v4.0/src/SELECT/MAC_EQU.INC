@@ -1,4 +1,4 @@
-INCLUDE VERSIONA.INC				;AN047;SEH check DOS version in VERSIONA.INC instead of in MAC_EQU.INC
+%include "VERSIONA.INC";AN047;SEH check DOS version in VERSIONA.INC instead of in MAC_EQU.INC
 
 TRUE			=	  1		;AN000;
 FALSE			=	  0		;AN000;

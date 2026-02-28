@@ -1,23 +1,23 @@
 
 
-CODE    SEGMENT PARA PUBLIC 'CODE'
-CODE    ENDS
-DATA    SEGMENT PARA PUBLIC 'DATA'
-DATA    ENDS
-STACK   SEGMENT PARA STACK  'STACK'
-STACK   ENDS
-ZLOAD   SEGMENT PARA PUBLIC 'ZLOAD'
-ZLOAD   ENDS
+SECTION .CODE
+; END SECTION .CODE
+SECTION .DATA
+; END SECTION .DATA
+SECTION .STACK
+; END SECTION .STACK
+SECTION .ZLOAD
+; END SECTION .ZLOAD
 
-CODE    SEGMENT PARA PUBLIC 'CODE'
-        assume  cs:code,ds:data
+SECTION .CODE
+        ; assume  cs:code,ds:data
 ;
 ;*****************************************************************************
 ; External Declarations
 ;*****************************************************************************
 ;
 
-        extrn   SysDispMsg:near
+        extern SysDispMsg
 
 ;
 ;***************************************************************************
@@ -26,7 +26,7 @@ CODE    SEGMENT PARA PUBLIC 'CODE'
 ;
 
 
-Message_Table struc                             ;                               ;AN000;
+struc Message_Table;                               ;AN000;
                                                 ;
 Entry1  dw      0                               ;                               ;AN000;
 Entry2  dw      0                               ;                               ;AN000;
@@ -36,7 +36,7 @@ Entry5  db      0                               ;                               
 Entry6  db      0                               ;                               ;AN000;
 Entry7  dw      0                               ;                               ;AN000;
                                                 ;
-Message_Table ends                              ;                               ;AN000;
+endstruc;                               ;AN000;
 
 
 
@@ -69,8 +69,8 @@ Message_Table ends                              ;                               
 ;       ret
 ;*****************************************************************************
 
-Public  Display_Interface
-Display_Interface   proc                        ;                               ;AN000;
+global Display_Interface
+Display_Interface:;                               ;AN000;
 
         push    ds                              ;                               ;AN000;
         push    es                              ;                               ;AN000;
@@ -102,9 +102,9 @@ Display_Interface   proc                        ;                               
         pop     ds                              ;                               ;AN000;
         ret                                     ;All done                       ;AN000;
 
-Display_Interface      endp                     ;                               ;AN000;
-code    ends
+; ENDP Display_Interface;                               ;AN000;
+; END SECTION .code
 
 
-        end
+        ; end
 

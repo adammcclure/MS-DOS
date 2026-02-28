@@ -1,86 +1,86 @@
 ;	SCCSID = @(#)segcheck.asm	1.2 85/07/24
-TITLE   SegCheck - internal consistency check
-NAME    SegCheck
+; TITLE   SegCheck - internal consistency check
+; NAME    SegCheck
 
-.xlist
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
+; .xlist
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
 
 ShareF  = FALSE
 
-IF NOT SHAREF
-include dosseg.asm
-ENDIF
-.list
+%if NOT SHAREF
+%include "dosseg.asm"
+%endif
+; .list
 
 AsmVars <NET, DEBUG>
 
 DEBUG   = FALSE
 
-IF NOT SHAREF
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-ASSUME  CS:DOSGroup
-ELSE
-SHARE   SEGMENT BYTE PUBLIC  'SHARE'
-ASSUME  CS:SHARE
-ENDIF
+%if NOT SHAREF
+SECTION .CODE
+; ASSUME  CS:DOSGroup
+%else
+SECTION .SHARE
+; ASSUME  CS:SHARE
+%endif
 
 DEBUG   = FALSE
 
 BREAK   <SegCheck - validate segments in MSDOS>
 
-Off Macro   reg,var
-IF SHAREF
-	mov     reg,offset var
-else
-	mov     reg,offset DOSGroup:var
-endif
-endm
+%macro Off 2
+%if SHAREF
+	mov     reg,var
+%else
+	mov     reg,var
+%endif
+%endmacro
 
-zfmt    MACRO   fmts,args
-local   a,b
+%macro zfmt 2
+; LOCAL a,b
 	PUSHF
 	PUSH    AX
 	PUSH    BP
 	MOV     BP,SP
-If (not sharef) and (not redirector)
-Table   segment
+%if (not sharef) and (not redirector)
+SECTION .Table
 a       db      fmts,0
-Table   ends
-	MOV     AX,OFFSET DOSGROUP:a
-else
+; END SECTION .Table
+	MOV     AX,a
+%else
 	jmp     short b
 a       db      fmts,0
-if sharef
-b:      mov     ax,offset share:a
-else
-b:      mov     ax,offset netwrk:a
-endif
-endif
+%if sharef
+b:      mov     ax,a
+%else
+b:      mov     ax,a
+%endif
+%endif
 	PUSH    AX
 cargs = 2
-IRP item,<args>
-IFIDN   <AX>,<item>
+; IRP item,<args>
+%ifidn <AX>,<item>
 	MOV     AX,[BP+2]
-ELSE
+%else
 	MOV     AX,item
-ENDIF
+%endif
 	PUSH    AX
 cargs = cargs + 2
-ENDM
+%endmacro
 	invoke  PFMT
 	ADD     SP,Cargs
 	POP     BP
 	POP     AX
 	POPF
-ENDM
+%endmacro
 
-segFrame    Struc
-segbp       DW  ?
-segip       DW  ?
-segmes      dw  ?
-segtemp     DW  ?
-segFrame    ENDS
+struc segFrame
+segbp: dw 0
+segip: dw 0
+segmes: dw 0
+segtemp: dw 0
+endstruc
 ;
 ;   SegCheck - assure that segments are correctly set up
 ;
@@ -93,12 +93,12 @@ segFrame    ENDS
 ;   Nothing modified (flags too)
 
 Procedure   SegCheck,NEAR
-	ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
 	SaveReg <BP>
 	MOV     BP,SP                   ; set up addressing
 	PUSHF
 	SaveReg <AX,BX,CX,DX>
-	MOV     AL,BYTE PTR [BP].segtemp; get flags
+	MOV     AL,byte [BP].segtemp; get flags
 	MOV     CX,SS
 	TEST    AL,1                    ; shall we use CS or SS?
 	JZ      SegUseSS                ; use SS
@@ -127,7 +127,7 @@ SegTestDone:
 EndProc SegCheck
 
 
-IF NOT SHAREF
+%if NOT SHAREF
 I_need  DPBHead,DWORD
 I_need  BuffHead,DWORD
 I_need  sftFCB,DWORD
@@ -137,33 +137,33 @@ I_need  renbuf,byte
 I_need  CurrentPDB,WORD
 I_need  User_In_AX,WORD
 
-extrn   ECritDisk:NEAR
+extern ECritDisk
 
-CritNOP label   byte
+CritNOP:
 	RET
 
-AstFrame    STRUC
-Astbp       dw  ?
-Astip       dw  ?
-Astmes      dw  ?
-Astarg      dd  ?
-AstFrame    ENDS
+struc AstFrame
+Astbp: dw 0
+Astip: dw 0
+Astmes: dw 0
+Astarg: dd 0
+endstruc
 
-Public SGCHK001S,SGCHK001E
-SGCHK001S label byte
+global SGCHK001S,SGCHK001E
+SGCHK001S:
 DPBMes  DB  "DPB assertion failed: ",0
 BUFMes  DB  "BUF assertion failed: ",0
 SFTMes  DB  "SFT assertion failed: ",0
 BlankSp DB  " ",0
 Colon   DB  ":",0
 
-Msg     DW  ?
+Msg: dw 0
 
-SGCHK001E label byte
+SGCHK001E:
 
-Table   segment
-    Extrn SectPDB:WORD, SectRef:WORD
-Table   ends
+SECTION .Table
+    extern SectPDB, SectRef
+; END SECTION .Table
 
 ;   DPBCheck - validate a supposed DPB pointer
 ;   Inputs:     Pushed arguments
@@ -171,7 +171,7 @@ Table   ends
 ;   Registers modified: none
 
 Procedure   DPBCheck,NEAR
-	MOV     Msg,OFFSET DOSGroup:DPBMes
+	MOV     Msg,DPBMes
 	SaveReg <BP>
 	MOV     BP,SP
 	PUSHF
@@ -201,7 +201,7 @@ EndProc DPBCheck
 ;   Registers modified: none
 
 Procedure   SFTCheck,NEAR
-	MOV     Msg,OFFSET DOSGroup:SFTMes
+	MOV     Msg,SFTMes
 	SaveReg <BP>
 	MOV     BP,SP
 	PUSHF
@@ -223,7 +223,7 @@ SFT1:   LES     DI,sftFCB
 SFT2:
 	invoke  PointComp
 DPBRETJ:JZ      DPBRet
-	ADD     DI,SIZE sf_entry
+	ADD     DI,sf_entry_size
 	DEC     BX
 	JNZ     SFT2
 ;
@@ -231,10 +231,10 @@ DPBRETJ:JZ      DPBRet
 ; areas.
 ;
 	Context ES
-	MOV     DI,OFFSET DOSGROUP:AUXSTACK - SIZE SF_ENTRY
+	MOV     DI,AUXSTACK - SF_ENTRY_size
 	Invoke  PointComp
 	JZ      DPBRet
-	MOV     DI,OFFSET DOSGROUP:RenBuf
+	MOV     DI,RenBuf
 	Invoke  PointComp
 	JZ      DPBRetj
 DPBNotFoundJ:
@@ -247,7 +247,7 @@ EndProc SFTCheck
 ;   Registers modified: none
 
 Procedure   BUFCheck,NEAR
-	MOV     Msg,OFFSET DOSGroup:BUFMes
+	MOV     Msg,BUFMes
 	SaveReg <BP>
 	MOV     BP,SP
 	PUSHF
@@ -255,7 +255,7 @@ Procedure   BUFCheck,NEAR
 ;
 ; CheckDisk - make sure that we are in the disk critical section...
 ;
-	MOV     AL,BYTE PTR ECritDisk
+	MOV     AL,byte ECritDisk
 	CMP     AL,CritNOP
 	JZ      CheckDone
 	MOV     AX,CurrentPDB
@@ -281,8 +281,8 @@ BufNext:
 	JMP     BUFLoop
 EndProc BUFCheck
 
-CODE    ENDS
-ELSE
-SHARE   ENDS
-ENDIF
-END
+; END SECTION .CODE
+%else
+; END SECTION .SHARE
+%endif
+; END

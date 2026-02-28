@@ -1,5 +1,5 @@
-	PAGE	,132
-	SUBTTL	DOS - Message Retriever - SYSTEM CONTROL file
+	; PAGE	,132
+	; SUBTTL	DOS - Message Retriever - SYSTEM CONTROL file
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS -- Message Retriever
 ;; (c) Copyright 1988 Microsoft
@@ -47,7 +47,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-INCLUDE        VERSIONA.INC	       ;;AN003;;
+%include "VERSIONA.INC";;AN003;;
 
 FALSE	       = 0		       ;;
 TRUE	       = NOT FALSE	       ;;    List message services and flags
@@ -240,10 +240,10 @@ NUMmsg			 =	FALSE  ;;  |
 TIMEmsg 		 =	FALSE  ;;  |
 DATEmsg 		 =	FALSE  ;; /
 
-IF1				       ;;
+%if 1  ; IF1 - pass-specific;;
 COMR			 =	FALSE  ;;  COMMAND.COM Cases (resident)
 COMT			 =	FALSE  ;;		     (transient)
-ENDIF				       ;;
+%endif;;
 
 $M_STRUC		 =	TRUE   ;; Internal message service defaults
 $M_LOAD 		 =	TRUE   ;;
@@ -262,14 +262,14 @@ $M_PAR_CLS		 =	TRUE   ;;
 ;;	$M_POPF 	     Macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-$M_POPF    MACRO
-	   LOCAL   $M_MYRET
+%macro $M_POPF 0
+	   ; LOCAL $M_MYRET
 	   JMP	   $+3
-$M_MYRET   LABEL   NEAR
+$M_MYRET:
 	   IRET
 	   PUSH    CS
 	   CALL    $M_MYRET
-ENDM
+%endmacro
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -277,42 +277,42 @@ ENDM
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;
-MSG_UTILNAME  Macro   utilname	       ;
+%macro MSG_UTILNAME 1;
 				       ;
-   INCLUDE &utilname.CTL	       ;  Include the control file for the utility
+   %include "&utilname.CTL";  Include the control file for the utility
    $M_STRUC = TRUE		       ;
-   INCLUDE MSGSERV.ASM		       ;  Get structure definitions
+   %include "MSGSERV.ASM";  Get structure definitions
 				       ;
-ENDM				       ;
+%endmacro;
 				       ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	MSG_SERVICES		Macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					  ;
-MSG_SERVICES Macro   varlist		  ;  MACRO used in source routine
+%macro MSG_SERVICES 1;  MACRO used in source routine
 					  ;
    $M_SERVICE = FALSE			  ;  Reset service flag
-   IRP	   var,<varlist>		  ;  FOR each variable in the list
+   ; IRP	   var,<varlist>;  FOR each variable in the list
      $M_INCLUDE = TRUE			  ;  Reset include flag
 					  ;	For each service predefined
 
-IRP  serv,<MSGDATA,LOADmsg,NOVERCHECKmsg,DISPLAYmsg,GETmsg,INPUTmsg,CHARmsg,NUMmsg,TIMEmsg,DATEmsg,NEARmsg,FARmsg,COMR,COMT>
+; IRP  serv,<MSGDATA,LOADmsg,NOVERCHECKmsg,DISPLAYmsg,GETmsg,INPUTmsg,CHARmsg,NUMmsg,TIMEmsg,DATEmsg,NEARmsg,FARmsg,COMR,COMT>
 
-	 IFDIF <var>,<serv>		  ;	  IF it IS a service (defined above)
-	 ELSE				  ;
-	   IFDIF <var>,<MSGDATA>	  ;	    IF it is NOT the message data space request
+	 %ifnidn <var>,<serv>;	  IF it IS a service (defined above)
+	 %else;
+	   %ifnidn <var>,<MSGDATA>;	    IF it is NOT the message data space request
 	     $M_MSGDATA_ONLY = FALSE	  ;	       Instruct the assembler to include all services
-	   ENDIF			  ;	    ENDIF
-	   IRP	repl,<CHARmsg,NUMmsg,TIMEmsg,DATEmsg>  ; IF it is a replace service
-	     IFIDN  <var>,<repl>	  ;
+	   %endif;	    ENDIF
+	   ; IRP	repl,<CHARmsg,NUMmsg,TIMEmsg,DATEmsg>; IF it is a replace service
+	     %ifidn <var>,<repl>;
 	       $M_REPLACE = TRUE	  ;	       Set replace flag
-	     ENDIF			  ;
-	   ENDM 			  ;
+	     %endif;
+	   %endmacro;
 	   serv = TRUE			  ;	    Let the assembler know about the service
 	   $M_SERVICE = TRUE		  ;	    Let the macro know it was a service
 	   $M_INCLUDE = FALSE		  ;	    Let the macro know it wasn't a class
-	 ENDIF				  ;	  ENDIF
-      ENDM				  ;	NEXT service
+	 %endif;	  ENDIF
+      %endmacro;	NEXT service
 
 MSG_SERVICES2  <varlist>
 					  ; Continue further checks (If we add any more predefined
@@ -320,124 +320,124 @@ MSG_SERVICES2  <varlist>
 					  ;  syntax error. We must continue the processing in another
 					  ;  MACRO called MSG_SERVICES2)
 
-      IF $M_INCLUDE			  ;	IF message class was requested
+      %if $M_INCLUDE;	IF message class was requested
 	 $M_INC var			  ;	   Include it as a message class
-      ENDIF				  ;	ENDIF
-   ENDM 				  ;  NEXT variable
+      %endif;	ENDIF
+   %endmacro;  NEXT variable
 					  ;
-   IF $M_SERVICE			  ;	IF it any services were requested THEN
-     INCLUDE MSGSERV.ASM		  ;	   THEN include module to get service
-   ENDIF				  ;	ENDIF
+   %if $M_SERVICE;	IF it any services were requested THEN
+     %include "MSGSERV.ASM";	   THEN include module to get service
+   %endif;	ENDIF
 
-ENDM
+%endmacro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	MSG_SERVICES2		Macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					  ;
-MSG_SERVICES2 Macro   varlist2		  ;  MACRO used in source routine
+%macro MSG_SERVICES2 1;  MACRO used in source routine
 					  ;
 					    ;  FOR each variable in the list
-   IRP	   var2,<varlist2>
+   ; IRP	   var2,<varlist2>
 						       ; For each service predefined
-      IRP  serv2,<SETSTDIO,NOCHECKSTDIN,NOCHECKSTDOUT,DISK_PROC>
+      ; IRP  serv2,<SETSTDIO,NOCHECKSTDIN,NOCHECKSTDOUT,DISK_PROC>
 					    ;AN003; IF it IS a service (defined above)
-	 IFDIF <var2>,<serv2>
-	 ELSE				  ;
+	 %ifnidn <var2>,<serv2>
+	 %else;
 	   serv2 = TRUE 		   ;	     Let the assembler know about the service
 	   $M_SERVICE = TRUE		  ;	    Let the macro know it was a service
 	   $M_INCLUDE = FALSE		  ;	    Let the macro know it wasn't a class
-	 ENDIF				  ;	  ENDIF
-      ENDM				  ;	NEXT service
-   ENDM 				  ;  NEXT variable
-ENDM					  ;
+	 %endif;	  ENDIF
+      %endmacro;	NEXT service
+   %endmacro;  NEXT variable
+%endmacro;
 					  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; $M_INC		Macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 						 ;
-$M_INC	Macro	ext				 ;
+%macro $M_INC 1;
 						 ;
-INCLUDE &ext					 ;
+%include "&ext";
 						 ;
-ENDM						 ;
+%endmacro;
 						 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; $M_BUILD_PTRS	Macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 						 ;
-$M_BUILD_PTRS Macro nummsg			 ;
+%macro $M_BUILD_PTRS 1;
 						 ;
     $M_INDEX =	    0				 ;
-IF COMR 				     ; IF this is resident COMMAND.COM
+%if COMR; IF this is resident COMMAND.COM
     $M_MAKE_COMR			     ;
-ELSE						 ; ELSE
-  IF COMT				     ;	 IF this is transient COMMAND.COM
+%else; ELSE
+  %if COMT;	 IF this is transient COMMAND.COM
     $M_MAKE_COMT			     ;
-  ELSE						 ;   ELSE
+  %else;   ELSE
 						 ;
     $M_INDEX =	    0				 ;
     $M_COUNT =	    0				 ;     Build normal utilities
 						 ;
-    REPT    nummsg				 ;
+    %rep nummsg;
     $M_COUNT =	    $M_COUNT + 1		 ;
     $M_MAKE %$M_COUNT				 ;
-    ENDM					 ;
-  ENDIF 					 ;
-ENDIF						 ;
-ENDM						 ;
+    %endmacro;
+  %endif;
+%endif;
+%endmacro;
 						 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; $M_MAKE		Macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 						 ;
-$M_MAKE Macro $m_append 			 ;
-IF  FARmsg					 ;
-    CALL    FAR PTR $M_CLS_&$m_append		 ;  Get addressibilty to class &$M_APPEND (ES:DI)
-    MOV     WORD PTR $M_RT.$M_CLASS_ADDRS+$M_INDEX+2,ES ;  Move into first avaliable table location
-    MOV     WORD PTR $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
-ELSE						 ;
+%macro $M_MAKE 1;
+%if FARmsg;
+    CALL    far $M_CLS_&$m_append		 ;  Get addressibilty to class &$M_APPEND (ES:DI)
+    MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX+2,ES ;  Move into first avaliable table location
+    MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
+%else;
     CALL    $M_CLS_&$m_append			 ;  Get addressibilty to class &$M_APPEND (ES:DI)
-    MOV     WORD PTR $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
-ENDIF						 ;
+    MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
+%endif;
 $M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
 						 ;
-ENDM						 ;
+%endmacro;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; $M_MAKE_COMR     Macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 						 ;
-$M_MAKE_COMR   macro			     ;
+%macro $M_MAKE_COMR 0;
 						 ;
     CALL    $M_CLS_3				 ;  Get addressibilty to class A
-    MOV     WORD PTR $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
+    MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
 $M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
 						 ;
     CALL    $M_CLS_4				 ;  Get addressibilty to class B
-    MOV     WORD PTR $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
+    MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
 $M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
 						 ;
     CALL    $M_CLS_5				 ;  Get addressibilty to class C
-    MOV     WORD PTR $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
+    MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
 $M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
 						 ;
     CALL    $M_CLS_6				 ;  Get addressibilty to class D
-    MOV     WORD PTR $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
+    MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
 $M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
 						 ;
     CALL    $M_CLS_7				 ;  Get addressibilty to class E
-    MOV     WORD PTR $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
+    MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
 $M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
 						 ;
-ENDM						 ;
+%endmacro;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; $M_MAKE_COMT     Macro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 						 ;
-$M_MAKE_COMT  macro			     ;
+%macro $M_MAKE_COMT 0;
 						 ;
     CALL    $M_CLS_8				 ;  Get addressibilty to class A
-    MOV     WORD PTR $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
+    MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
 $M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
 						 ;
-ENDM						 ;
+%endmacro;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

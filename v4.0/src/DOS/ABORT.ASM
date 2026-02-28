@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)abort.asm	1.4 85/10/02
-TITLE   DOS_ABORT - Internal SFT close all files for proc call for MSDOS
-NAME    DOS_ABORT
+; TITLE   DOS_ABORT - Internal SFT close all files for proc call for MSDOS
+; NAME    DOS_ABORT
 
 ; Internal Abort call closes all handles and FCBs associated with a process.
 ;  If process has NET resources a close all is sent out over the net.
@@ -16,17 +16,17 @@ NAME    DOS_ABORT
 ; get the appropriate segment definitions
 ;
 
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.xlist
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+; .cref
+; .list
 
 Installed = TRUE
 
@@ -49,7 +49,7 @@ Break   <DOS_ABORT -- CLOSE all files for process>
 ; All destroyed except stack
 
 	Procedure   DOS_ABORT,NEAR
-	ASSUME  DS:NOTHING,ES:NOTHING
+	; ASSUME  DS:NOTHING,ES:NOTHING
 
 	MOV     ES,[CurrentPDB]
 	MOV     CX,ES:[PDB_JFN_Length]  ; Number of JFNs
@@ -79,12 +79,12 @@ reset_free_jfn:
 ;
 	context DS
 	CallInstall Net_Abort, multNet, 29
-if installed
+%if installed
 	call    JShare + 4 * 4
-else
+%else
 	call    mftCloseP
-endif
-	assume  ds:nothing
+%endif
+	; assume  ds:nothing
 ;
 ; Scan the FCB cache for guys that belong to this process and zap their ref
 ; counts.
@@ -99,7 +99,7 @@ FCBTest:
 	jnz     FCBNext                 ; no, skip it
 	mov     es:[di].sf_ref_count,0  ; yes, blast ref count
 FCBNext:
-	add     di,size sf_Entry
+	add     di,sf_Entry_size
 	loop    FCBTest
 FCBScanDone:
 
@@ -133,5 +133,5 @@ next:
 
 EndProc DOS_Abort
 
-CODE    ENDS
-    END
+; END SECTION .CODE
+    ; END

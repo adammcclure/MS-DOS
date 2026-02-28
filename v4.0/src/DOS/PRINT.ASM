@@ -115,7 +115,7 @@ FmtUPID:
 	MOV     BX,0
 	MOV     DS,BX
 	MOV     DS,DS:[82h]
-	ASSUME  DS:DOSGroup
+	; ASSUME  DS:DOSGroup
 	MOV     BX,User_ID
 	CALL    MNUM
 	MOV     AL,':'
@@ -123,7 +123,7 @@ FmtUPID:
 	MOV     BX,Proc_ID
 	CALL    MNUM
 	RestoreReg  <DS>
-	Assume  DS:NOTHING
+	; Assume  DS:NOTHING
 	JMP     FmtLoop
 EndProc PFMT
 
@@ -147,7 +147,7 @@ EndProc FMTSout
 ;   Outputs:    message
 ;   Registers modified: BX
 Procedure   MOut,Near
-	ASSUME  DS:NOTHING,SS:NOTHING,ES:NOTHING
+	; ASSUME  DS:NOTHING,SS:NOTHING,ES:NOTHING
 	PUSHF
 	SaveReg <DS,SI,AX>
 	PUSH    CS
@@ -165,7 +165,7 @@ EndProc MOut
 ;   Registers modified: BX
 
 Procedure   MNum,NEAR
-	ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSHF
 	SaveReg <ES,DI,AX,BX,CX,SI,DS>
 	PUSH    SS

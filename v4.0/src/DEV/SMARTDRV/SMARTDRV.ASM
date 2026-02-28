@@ -1,6 +1,6 @@
-	TITLE	EXTENDED/EXPANDED MEMORY DISK CACHE
+	; TITLE	EXTENDED/EXPANDED MEMORY DISK CACHE
 
-PAGE	58,132
+; PAGE	58,132
 
 ;
 ;; Will use IBM extended memory on PC-AT or
@@ -139,12 +139,12 @@ PAGE	58,132
 ;               8/24/88  MRW Merged changes from Windows tree into DOS tree
 ;
 
-BREAK	MACRO	subtitle
-	SUBTTL	subtitle
-	PAGE
-ENDM
+%macro BREAK 1
+	; SUBTTL	subtitle
+	; PAGE
+%endmacro
 
-.286p				; Use some 286 instructions in /E code
+CPU 286; Use some 286 instructions in /E code
 
 DEBUG	EQU	0
 S_OLIVETTI	EQU	1	; Flag for olivetti 6300 plus machine
@@ -156,17 +156,17 @@ MAX_HARD_FILES	EQU	16	; Max number of hardfiles our data structures support
 
 MIN_CACHE_SIZE_K EQU	128	; Minimum size for cache in K (multiple of 16)
 
-IF1
-    IFDEF OMTI
-	%out OMTI Controller release
-    ENDIF
-ENDIF
+%if 1  ; IF1 - pass-specific
+    %ifdef OMTI
+	%warning OMTI Controller release
+    %endif
+%endif
 
-IF1
-    IF DEBUG
-	%out DEBUG VERSION!!!!!!
-    ENDIF
-ENDIF
+%if 1  ; IF1 - pass-specific
+    %if DEBUG
+	%warning DEBUG VERSION!!!!!!
+    %endif
+%endif
 
 ;; In order to address memory above 1 MB on the AT&T 6300 PLUS, it is
 ;; necessary to use the special OS-MERGE hardware to activate lines
@@ -174,19 +174,19 @@ ENDIF
 ;; the processor.  The return address offset and segment can be found 
 ;; at 40:a2, noted here as RealLoc1.
 ;;
-BiosSeg	segment at 40h		;; Used to locate 6300 PLUS reset address
+SECTION .BiosSeg;; Used to locate 6300 PLUS reset address
 	org	00a2h
 RealLoc1 dd	0
-BiosSeg	ends
+; END SECTION .BiosSeg
 ;
-R_Mode_IDT  segment at 0h
-R_mode_IDT  ends
+SECTION .R_Mode_IDT
+; END SECTION .R_mode_IDT
 ;
-.xlist
-	include devsym.asm
-	include syscall.asm
-	include mi.asm
-.list
+; .xlist
+	%include "devsym.asm"
+	%include "syscall.asm"
+	%include "mi.asm"
+; .list
 
 ; The INT13 device driver has 2 basic configurations.
 ;
@@ -205,15 +205,15 @@ R_mode_IDT  ends
 ;    control access to the available memory
 ;
 
-	include emm.asm
+	%include "emm.asm"
 
-	include loadall.asm
+	%include "loadall.asm"
 
-	include above.asm
+	%include "above.asm"
 
-	include ab_macro.asm
+	%include "ab_macro.asm"
 
-BREAK	<I/O Packet offset declarations>
+BREAK	<I/O Packet declarations>
 
 ;
 ; Define I/O packet offsets for useful values.
@@ -223,24 +223,24 @@ BREAK	<I/O Packet offset declarations>
 ;
 
 ; READ/WRITE PACKET OFFSETS
-RW_COUNT	EQU	WORD PTR (SIZE SRHEAD) + 5
-RW_TRANS	EQU	DWORD PTR (SIZE SRHEAD) + 1
-RW_START	EQU	WORD PTR (SIZE SRHEAD) + 7
+RW_COUNT	EQU	word (SRHEAD_size) + 5
+RW_TRANS	EQU	dword (SRHEAD_size) + 1
+RW_START	EQU	word (SRHEAD_size) + 7
 
 ; MEDIA CHECK PACKET OFFSETS
-MCH_RETVAL	EQU	BYTE PTR (SIZE SRHEAD) + 1
-MCH_MEDIA	EQU	BYTE PTR (SIZE SRHEAD) + 0
+MCH_RETVAL	EQU	byte (SRHEAD_size) + 1
+MCH_MEDIA	EQU	byte (SRHEAD_size) + 0
 
 ; BUILD BPB PACKET OFFSETS
-BPB_BUFFER	EQU	DWORD PTR (SIZE SRHEAD) + 1
-BPB_MEDIA	EQU	BYTE PTR (SIZE SRHEAD) + 0
-BPB_BPB 	EQU	DWORD PTR (SIZE SRHEAD) + 5
+BPB_BUFFER	EQU	dword (SRHEAD_size) + 1
+BPB_MEDIA	EQU	byte (SRHEAD_size) + 0
+BPB_BPB 	EQU	dword (SRHEAD_size) + 5
 
 ; INIT PACKET OFFSETS
-INIT_NUM	EQU	BYTE PTR (SIZE SRHEAD) + 0
-INIT_BREAK	EQU	DWORD PTR (SIZE SRHEAD) + 1
-INIT_BPB	EQU	DWORD PTR (SIZE SRHEAD) + 5
-INIT_DOSDEV	EQU	BYTE PTR (SIZE SRHEAD) + 9
+INIT_NUM	EQU	byte (SRHEAD_size) + 0
+INIT_BREAK	EQU	dword (SRHEAD_size) + 1
+INIT_BPB	EQU	dword (SRHEAD_size) + 5
+INIT_DOSDEV	EQU	byte (SRHEAD_size) + 9
 
 BREAK	<Cache control structure>
 
@@ -303,12 +303,12 @@ BREAK	<Cache control structure>
 ;
 ;
 
-CACHE_CONTROL	STRUC
-FWD_LRU_LNK	DW	?	; Link to next CACHE_CONTROL, -1 if last
-BACK_LRU_LNK	DW	?	; Link to previous CACHE_CONTROL, -1 if first
-BASE_OFFSET	DD	?	; Offset releative to start of cache
+struc CACHE_CONTROL
+FWD_LRU_LNK: dw 0; Link to next CACHE_CONTROL, -1 if last
+BACK_LRU_LNK: dw 0; Link to previous CACHE_CONTROL, -1 if first
+BASE_OFFSET: dd 0; Offset releative to start of cache
 				;  memory of start of this track buffer
-TRACK_FLAGS	DW	?	; Flags
+TRACK_FLAGS: dw 0; Flags
 ;
 ; NOTE: The next two bytes are refed as a word.
 ;	    MOV     DX,WORD PTR STRC.TRACK_DRIVE
@@ -316,9 +316,9 @@ TRACK_FLAGS	DW	?	; Flags
 ;	Puts the INT 13 drive in DL, and the head in DH which is correct
 ;	for an INT 13
 ;
-TRACK_DRIVE	DB	?	; INT 13 drive with high bit = 0
-TRACK_HEAD	DB	?	; INT 13 head
-TRACK_CYLN	DW	?	; INT 13 cylinder
+TRACK_DRIVE: db 0; INT 13 drive with high bit = 0
+TRACK_HEAD: db 0; INT 13 head
+TRACK_CYLN: dw 0; INT 13 cylinder
 				;   High byte is low byte of cylinder #
 				;   High two bits of Low byte are high
 				;	 two bits of cylinder #. Other bits
@@ -327,7 +327,7 @@ TRACK_CYLN	DW	?	; INT 13 cylinder
 				;	 track:
 				;		 MOV	CX,STRC.CACHE_CYLN
 				;		 OR	CL,1
-CACHE_CONTROL	ENDS
+endstruc
 
 ;
 ; TRACK_FLAGS bits
@@ -338,29 +338,29 @@ TRACK_LOCKED	EQU	0000000000000100B	; Track is locked
 
 BREAK	<Device header>
 
-INT13CODE SEGMENT
-ASSUME	CS:INT13CODE,DS:NOTHING,ES:NOTHING,SS:NOTHING
+SECTION .INT13CODE
+; ASSUME	CS:INT13CODE,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	IF	DEBUG
-	public	strategy,int13$in,cmderr,err$cnt,err$exit,devexit
-	public	INT13$IOCTL_Read,INT13$Read_St,INT13$Write_St,INT13$IOCTL_Write
-	public	int_1C_handler,int_13_handler,POP_NO_PROC,INVALIDATE_CACHE
-	public	CACHE_READ,CACHE_WRITE,FLUSH_PASS,FLUSH_INVALID_PASS
-	public	FLUSH_WHOLE_CACHE_SAV,FLUSH_WHOLE_CACHE,FLUSH_CACHE
-	public	WRITE_FROM_CACHE
-	public	Cache_hit
-	public	blkmov,INT_9,INT_19,RESET_SYSTEM,DO_INIT,SETBPB
-	public	PRINT,ITOA,INT13$INIT,DRIVEPARMS,GETNUM,DISK_ABORT
-	public	CTRL_IO,MM_SETDRIVE,FIND_VDRIVE,SET_RESET
-	public	AT_EXT_INIT,FIX_DESCRIPTOR,ABOVE_INIT
-	public	process_read_partial,process_block_read,pr_acc_trks
-	public	pr_acc_trks,pr_cur_trk,process_write_partial,process_block_write
-	public	check_parameters,process_regions,bytes_in_trk,sect_in_trk
-	public	not_in_mem,read_disk
-	public		      not_in_memw,rd_partw,rd_part
-	public	region
-	public	SECTRKARRAY
-	ENDIF
+	%if DEBUG
+	global strategy,int13$in,cmderr,err$cnt,err$exit,devexit
+	global INT13$IOCTL_Read,INT13$Read_St,INT13$Write_St,INT13$IOCTL_Write
+	global int_1C_handler,int_13_handler,POP_NO_PROC,INVALIDATE_CACHE
+	global CACHE_READ,CACHE_WRITE,FLUSH_PASS,FLUSH_INVALID_PASS
+	global FLUSH_WHOLE_CACHE_SAV,FLUSH_WHOLE_CACHE,FLUSH_CACHE
+	global WRITE_FROM_CACHE
+	global Cache_hit
+	global blkmov,INT_9,INT_19,RESET_SYSTEM,DO_INIT,SETBPB
+	global PRINT,ITOA,INT13$INIT,DRIVEPARMS,GETNUM,DISK_ABORT
+	global CTRL_IO,MM_SETDRIVE,FIND_VDRIVE,SET_RESET
+	global AT_EXT_INIT,FIX_DESCRIPTOR,ABOVE_INIT
+	global process_read_partial,process_block_read,pr_acc_trks
+	global pr_acc_trks,pr_cur_trk,process_write_partial,process_block_write
+	global check_parameters,process_regions,bytes_in_trk,sect_in_trk
+	global not_in_mem,read_disk
+	global not_in_memw,rd_partw,rd_part
+	global region
+	global SECTRKARRAY
+	%endif
 
 ;**
 ;
@@ -376,7 +376,7 @@ ASSUME	CS:INT13CODE,DS:NOTHING,ES:NOTHING,SS:NOTHING
 ;; The internal name of the device driver has been changed from SMARTDRV
 ;; to SMARTAAR to avoid DOS name conflicts with files named SMARTDRV.*
 ;;
-INT13DEV  LABEL   WORD
+INT13DEV:
 	DW	-1,-1
 DEVATS	DW	DEVOPCL + CharDev + DevIOCtl
 	DW	STRATEGY
@@ -402,7 +402,7 @@ BREAK	<Command dispatch table>
 ;
 ;
 
-INT13TBL  LABEL   WORD
+INT13TBL:
 	DB	15			; Max allowed command code
 	DW	INT13$INIT		; Init
 	DW	CMDERR			; Media check
@@ -429,16 +429,16 @@ DRIVER_SEL	DB	0	; 0 if /E (TYPE 1), 1 if /A (TYPE 2),
 
 DEV_SIZE	DW	256	; Size in K of the cache
 
-SECTRACK	DW	?	; Sectors per track
+SECTRACK: dw 0; Sectors per track
 
-current_dev_size dw	?	; Current size in K of cache
+current_dev_size: dw 0; Current size in K of cache
 
 ;;	Data peculiar to AT&T 6300 PLUS.
 
 S5_FLAG 	DB	0	;; = S_OLIVETTI if 6300 plus machine
 				;; = S_VECTRA if HP Vectra machine
 
-		db	?	; Spacer
+		db 0; Spacer
 
 A20On	dw	0DF90h
 A20Off	dw	0DD00h
@@ -470,7 +470,7 @@ special_mem	dw	0
 ; The Olivetti guys have defined a flag of their own. This should be removed
 ; and the bit assigned out here for them should be used. 
 ;
-sys_flg	db	?
+sys_flg: db 0
 ;
 ;	equates used for the system flag
 ;
@@ -479,9 +479,9 @@ M_386	equ	00000010B
 M_PS2	equ	00000100B
 M_OLI	equ	00001000B
 A20_ST	equ	00010000B
-ifdef	OMTI
+%ifdef OMTI
 OMTI_EXT equ	00100000B
-endif
+%endif
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;   flag to indicate that reset code is being executed
@@ -497,11 +497,11 @@ emm_ctrl_addr	dw  EXTMEM_LOW
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; A20 address line state determination addresses
 ;
-low_mem label	dword
+low_mem:
 	dw	20h*4
 	dw	0
 
-high_mem label	dword
+high_mem:
 	dw	20h*4 + 10h
 	dw	0ffffh
 
@@ -513,19 +513,19 @@ GATE_A20    equ 010b
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;   386 working areas
-start_gdt	label	byte
+start_gdt:
 nul_des desc	<>
 cs_des	desc	<0FFFFh,0,0,09Fh,0,0>
 ss_des	desc	<0FFFFh,0,0,093h,0,0>
 ds_des	desc	<0FFFFh,0,0,093h,0,0>
 es_des	desc	<0FFFFh,0,0,093h,0,0>
-end_gdt 	label	byte
+end_gdt:
 
 emm_gdt gdt_descriptor <end_gdt-start_gdt,0,0>
 ;
 ;   int 15 gdt
 ;
-int15_gdt   label   byte
+int15_gdt:
 	    desc    <>	    ;dummy descriptor
 	    desc    <>	    ;descriptor for gdt itself
 src	    desc    <0ffffh,,,93h,,>
@@ -584,7 +584,7 @@ REBOOT_FLUSH DB 0
 ;
 INT_13_BUSY	DB	0		; Exclusion sem
 
-	EVEN				; Force word data to word align
+	align 2; Force word data to word align
 ;
 ; Statistics counters
 ;
@@ -594,7 +594,7 @@ TOTAL_WRITES	DD	0
 WRITE_HITS	DD	0
 TOTAL_READS	DD	0
 READ_HITS	DD	0
-TTRACKS 	DW	?	; Total number of track buffers that fit
+TTRACKS: dw 0; Total number of track buffers that fit
 				;  in DEV_SIZE K (number of cache elements)
 TOTAL_USED	DW	0
 TOTAL_LOCKED	DW	0
@@ -628,7 +628,7 @@ BREAK	<Common Device code>
 ;	  Installable Device Drivers
 ;
 
-ASSUME	CS:INT13CODE,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:INT13CODE,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 PTRSAV	DD	0			; Storage location for packet addr
 
@@ -645,14 +645,14 @@ PTRSAV	DD	0			; Storage location for packet addr
 ;
 ;
 
-STRATP	PROC	FAR
+STRATP:
 
 STRATEGY:
-	MOV	WORD PTR [PTRSAV],BX	; Save packet addr
-	MOV	WORD PTR [PTRSAV+2],ES
+	MOV	word [PTRSAV],BX	; Save packet addr
+	MOV	word [PTRSAV+2],ES
 	RET
 
-STRATP	ENDP
+; ENDP STRATP
 
 ;**	INT13$IN - Device interrupt routine
 ;
@@ -692,10 +692,10 @@ INT13$IN:
 	MOV	CX,DS:[BX.RW_COUNT]	;CX = COUNT
 	MOV	DX,DS:[BX.RW_START]	;DX = START SECTOR
 	MOV	AL,DS:[BX.REQFUNC]	; Command code
-	MOV	AH,BYTE PTR [INT13TBL]	; Valid range
+	MOV	AH,byte [INT13TBL]	; Valid range
 	CMP	AL,AH
 	JA	CMDERR			; Out of range command code
-	MOV	SI,OFFSET INT13TBL + 1	; Table of routines
+	MOV	SI,INT13TBL + 1	; Table of routines
 	CBW				; Make command code a word
 	ADD	SI,AX			; Add it twice since one word in
 	ADD	SI,AX			;  table per command.
@@ -705,9 +705,9 @@ INT13$IN:
 	PUSH	CS
 	POP	DS
 
-ASSUME	DS:INT13CODE
+; ASSUME	DS:INT13CODE
 
-	JMP	WORD PTR [SI]		; GO DO COMMAND
+	JMP	word [SI]		; GO DO COMMAND
 
 ;**	EXIT - ALL ROUTINES RETURN THROUGH ONE OF THESE PATHS
 ;
@@ -767,7 +767,7 @@ ASSUME	DS:INT13CODE
 ;
 ;
 
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 CMDERR:
 	MOV	AL,3			;UNKNOWN COMMAND ERROR
@@ -780,7 +780,7 @@ ERR$EXIT:				; Error in AL
 	MOV	AH,(STERR + STDON) SHR 8  ;MARK ERROR RETURN
 	JMP	SHORT ERR1
 
-EXITP	PROC	FAR
+EXITP:
 
 DEVEXIT:
 	MOV    AH,STDON SHR 8
@@ -798,15 +798,15 @@ ERR1:
 	POP	AX
 	POP	SI
 	RET				;RESTORE REGS AND RETURN
-EXITP	ENDP
+; ENDP EXITP
 
 ;
 ; The following functions are not supported at this time.
 ;
 INT13$Read_St:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 INT13$Write_St:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	JMP	CMDERR
 
 BREAK	<IOCTL Read function (get device control parms)>
@@ -815,7 +815,7 @@ SET_ZRJ3:
 	JMP	SET_ZR
 
 INT13$IOCTL_Read:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	CLD
 	CMP	CX,STATISTICS_SIZE	; Must have room to transfer data.
 	JB	SET_ZRJ3		; Not enough room from user
@@ -859,7 +859,7 @@ SKIPCC:
 	MOV	AL,[ALL_CACHE]
 	XOR	AH,AH			; Unused currently
 	STOSW
-	MOV	SI,OFFSET TOTAL_WRITES
+	MOV	SI,TOTAL_WRITES
 	MOV	CX,12
 	REP	MOVSW
 ;
@@ -891,7 +891,7 @@ no_remaind:
 	stosw
 no_ems:
 	LDS	BX,[PTRSAV]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	[BX.RW_COUNT],STATISTICS_SIZE ; transfer amount
 	JMP	DEVEXIT
 
@@ -919,30 +919,30 @@ IOCTLTBL DB	0Ch
 	dw	ioctl_increase_cache_size ; Function Ch
 
 SET_ZR:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	LDS	BX,[PTRSAV]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	[BX.RW_COUNT],0 	; NO bytes transferred
 	JMP	DEVEXIT
 
 SET_ERR_CNT:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	MOV	AL,3			;UNKNOWN COMMAND ERROR
 	JMP	ERR$CNT
 
 INT13$IOCTL_Write:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	CMP	[NULDEV],0		; Is the device valid?
 	JNZ	SET_ZR			; No, you get an error
 	MOV	AL,ES:[DI]		; Get command byte
-	MOV	AH,BYTE PTR [IOCTLTBL]	; Valid range
+	MOV	AH,byte [IOCTLTBL]	; Valid range
 	CMP	AL,AH			; In range?
 	JA	SET_ERR_CNT		; No
-	MOV	SI,OFFSET IOCTLTBL + 1	; Table of routines
+	MOV	SI,IOCTLTBL + 1	; Table of routines
 	CBW				; Make command code a word
 	ADD	SI,AX			; Add it twice since one word in
 	ADD	SI,AX			;  table per command.
-	JMP	WORD PTR [SI]		; GO DO COMMAND
+	JMP	word [SI]		; GO DO COMMAND
 
 ;**	IOCTL_FLUSH -- Flush the cache, but keep the data
 ;
@@ -955,7 +955,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;   ALL
 ;
 IOCTL_FLUSH:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	MOV	[INT_13_BUSY],1
 	CALL	FLUSH_WHOLE_CACHE
 	MOV	[INT_13_BUSY],0
@@ -972,7 +972,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;   ALL
 ;
 IOCTL_FLUSH_INVALID:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	MOV	[INT_13_BUSY],1
 	CALL	FLUSH_WHOLE_CACHE
 	CALL	INVALIDATE_CACHE
@@ -992,7 +992,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;   ALL
 ;
 IOCTL_DISABLE:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	MOV	[INT_13_BUSY],1
 	CALL	FLUSH_WHOLE_CACHE
 	CALL	INVALIDATE_CACHE
@@ -1011,7 +1011,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;   ALL
 ;
 IOCTL_ENABLE:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	MOV	[ENABLE_13],1
 	JMP	DEVEXIT
 
@@ -1031,7 +1031,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;   ALL
 ;
 IOCTL_WRITE_MOD:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	CMP	CX,2		; Did user write enough?
 	JB	SET_ZR		; No, error
 	MOV	AL,ES:[DI.1]	; Get second byte
@@ -1063,7 +1063,7 @@ SET_WRITE_TH:
 ;   ALL
 ;
 IOCTL_SET_TICK:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	CMP	CX,3		; Did user write enough?
 	JB	SET_ZRJ 	; No, error
 	MOV	AX,ES:[DI.1]	; Get second byte and third byte as word
@@ -1086,7 +1086,7 @@ SET_ZRJ:
 ;   ALL
 ;
 IOCTL_LOCK:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	MOV	[INT_13_BUSY],1
 	CALL	FLUSH_WHOLE_CACHE
 	MOV	[LOCK_CACHE],1
@@ -1118,7 +1118,7 @@ SKIPCS:
 ;   ALL
 ;
 IOCTL_UNLOCK:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	MOV	[INT_13_BUSY],1
 	MOV	[LOCK_CACHE],0
     ;
@@ -1149,7 +1149,7 @@ NEXTCX:
 ;   ALL
 ;
 IOCTL_REBOOT:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	CMP	CX,2		; Did user write enough?
 	JB	SET_ZRJ 	; No, error
 	MOV	AL,ES:[DI.1]	; Get second byte
@@ -1170,16 +1170,16 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;   ALL
 ;
 IOCTL_STAT_RESET:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	XOR	AX,AX
-	MOV	WORD PTR [TOTAL_WRITES],AX
-	MOV	WORD PTR [TOTAL_WRITES + 2],AX
-	MOV	WORD PTR [WRITE_HITS],AX
-	MOV	WORD PTR [WRITE_HITS + 2],AX
-	MOV	WORD PTR [TOTAL_READS],AX
-	MOV	WORD PTR [TOTAL_READS + 2],AX
-	MOV	WORD PTR [READ_HITS],AX
-	MOV	WORD PTR [READ_HITS + 2],AX
+	MOV	word [TOTAL_WRITES],AX
+	MOV	word [TOTAL_WRITES + 2],AX
+	MOV	word [WRITE_HITS],AX
+	MOV	word [WRITE_HITS + 2],AX
+	MOV	word [TOTAL_READS],AX
+	MOV	word [TOTAL_READS + 2],AX
+	MOV	word [READ_HITS],AX
+	MOV	word [READ_HITS + 2],AX
 	JMP	DEVEXIT
 
 ;**	IOCTL_ALL_CACHE -- En/Disable All cache
@@ -1196,7 +1196,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;   ALL
 ;
 IOCTL_ALL_CACHE:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	CMP	CX,2		; Did user write enough?
 	JB	SET_ZRJ2	; No, error
 	MOV	AL,ES:[DI.1]	; Get second byte
@@ -1232,11 +1232,11 @@ error_reduce_exitj:
 	jmp	error_reduce_exit
 
 ioctl_reduce_cache_size:
-	assume	ds:Int13Code
-	assume	es:nothing
-	assume	ss:nothing
+	; assume	ds:Int13Code
+	; assume	es:nothing
+	; assume	ss:nothing
 
-	cmp	byte ptr [driver_sel],1 ; Make sure using Above Board
+	cmp	byte [driver_sel],1 ; Make sure using Above Board
 	jnz	error_reduce_exitj
 	mov	ax,es:[di.1]		; Get second byte
 	or	ax,ax			; Reduce by a non-0 amount?
@@ -1244,19 +1244,19 @@ ioctl_reduce_cache_size:
 	jmp	devexit
 do_it:	mov	cl,4			; Multiply by 16 to get # of K bytes
 	shl	ax,cl			; AX has requested reduction in K
-	mov	bx,word ptr [current_dev_size]
+	mov	bx,word [current_dev_size]
 	mov	si,bx			; Save current_dev_size in SI for error
 	sub	bx,ax			; BX now has remaining cache memory in K
 	cmp	bx,MIN_CACHE_SIZE_K	; Compare BX with min cache in K bytes
 	jl	error_reduce_exitj
-	mov	word ptr [current_dev_size],bx
+	mov	word [current_dev_size],bx
 	shr	bx,cl			; BX has new cache size in pages
-	mov	byte ptr [int_13_busy],1
+	mov	byte [int_13_busy],1
 ;
 ; Request Reallocation of Pages from EMM
 ;
 	push	ax
-	mov	dx,word ptr [above_pid]
+	mov	dx,word [above_pid]
 	mov	ah,ABOVE_REALLOCATE_PID
 	int	67h
 	or	ah,ah
@@ -1264,10 +1264,10 @@ do_it:	mov	cl,4			; Multiply by 16 to get # of K bytes
 ;
 ; Determine how many cache tracks will be lost
 ;
-	mov	bx,word ptr [sectrack]	; Init code checked for too large track
+	mov	bx,word [sectrack]	; Init code checked for too large track
 	mov	cl,9
 	shl	bx,cl			; BX has bytes/track
-	mov	ax,word ptr [ttracks]
+	mov	ax,word [ttracks]
 	mul	bx			; AX:DX has bytes used by tracks
 	xchg	ax,si
 	mov	di,dx
@@ -1307,33 +1307,33 @@ free_tracks:
 ;
 no_remainder:
 	mov	si,ax
-	mov	cx,SIZE CACHE_CONTROL
+	mov	cx,CACHE_CONTROL_size
 	mul	cx
 	xchg	ax,bx			; BX has backward offset into CCS's
-	mov	ax,word ptr [ttracks]
-	sub	word ptr [ttracks],si
+	mov	ax,word [ttracks]
+	sub	word [ttracks],si
 	mul	cx			; AX has end of Cache Control
 	sub	ax,bx			; AX has start offset of CCS's to remove
 	mov	cx,si			; CX has number of CCS's to remove
-	mov	si,word ptr [cache_control_ptr]
+	mov	si,word [cache_control_ptr]
 	add	si,ax			; SI points to first CCS to modify
 ;
 ; Loop through each cache control structure, removing from LRU list
 ;
 remove_cache_entries:
-	mov	word ptr [si].track_flags,TRACK_FREE
+	mov	word [si].track_flags,TRACK_FREE
 	call	unlink_cache
-	add	si,SIZE CACHE_CONTROL
+	add	si,CACHE_CONTROL_size
 	loop	remove_cache_entries
 
 all_freed:
-	mov	byte ptr [int_13_busy],0
+	mov	byte [int_13_busy],0
 	jmp	devexit
 
 real_fail:
 	pop	ax
 	mov	[current_dev_size],si	; Restore former dev size
-	mov	byte ptr [int_13_busy],0
+	mov	byte [int_13_busy],0
 error_reduce_exit:
 	mov	al,0Ch			; General failure
 	jmp	err$cnt
@@ -1359,16 +1359,16 @@ error_increase_exitj:
 	jmp	error_increase_exit
 
 ioctl_increase_cache_size:
-	assume	ds:Int13Code
-	assume	es:nothing
-	assume	ss:nothing
+	; assume	ds:Int13Code
+	; assume	es:nothing
+	; assume	ss:nothing
 
 	cmp	[driver_sel],1		; Make sure using Above Board
 	jnz	error_increase_exitj
 	mov	ax,es:[di.1]		; Get second byte
 	mov	cl,4			; Multiply by 16 to get # of K bytes
 	shl	ax,cl			; AX has requested addition in K
-	mov	bx,word ptr [current_dev_size]
+	mov	bx,word [current_dev_size]
 	mov	si,bx			; Save current dev size for error
 	add	bx,ax			; BX now has new cache memory size in K
 	cmp	bx,[dev_size]		; Compare BX with largest size in K bytes
@@ -1377,7 +1377,7 @@ ioctl_increase_cache_size:
 	mov	ax, bx
 	sub	ax, si			; Correct increase
 increase_size_ok:
-	mov	word ptr [current_dev_size],bx
+	mov	word [current_dev_size],bx
 	shr	bx,cl			; BX has new cache size in pages
 	mov	[int_13_busy],1
 ;
@@ -1392,10 +1392,10 @@ increase_size_ok:
 ;
 ; Determine how many cache tracks will be gained
 ;
-	mov	bx,word ptr [sectrack]	; Init code checked for too large track
+	mov	bx,word [sectrack]	; Init code checked for too large track
 	mov	cl,9
 	shl	bx,cl			; BX has bytes/track
-	mov	ax,word ptr [ttracks]
+	mov	ax,word [ttracks]
 	mul	bx			; AX:DX has bytes used by tracks
 	xchg	ax,si
 	mov	di,dx
@@ -1416,7 +1416,7 @@ increase_size_ok:
 ; Determine which cache control structures we are to add
 ;
 	mov	si,ax
-	mov	cx,SIZE CACHE_CONTROL
+	mov	cx,CACHE_CONTROL_size
 	mov	ax,[ttracks]
 	add	[ttracks],si		; Update TTRACKS
 	mul	cx			; AX has end of Cache Control
@@ -1434,7 +1434,7 @@ add_cache_entries:
 	mov	[si].fwd_lru_lnk,-1
 	mov	[si].track_flags,TRACK_FREE
 
-	add	si,SIZE CACHE_CONTROL
+	add	si,CACHE_CONTROL_size
 	loop	add_cache_entries
 nothing_to_gain:
 	mov	[int_13_busy],0
@@ -1452,15 +1452,15 @@ error_increase_exit:
 ;
 ; If the device errors out during install, we set the break address here.
 ;
-ERROR_END LABEL BYTE
+ERROR_END:
 
 BREAK	<INT 1C (timer) handler>
 
-	EVEN			; Force word align
+	align 2; Force word align
 ;
 ; Storage for the INT 1C vector BEFORE cache installed
 ;
-OLD_1C	DD	?
+OLD_1C: dd 0
 
 ;**	INT_1C_HANDLER - Handler for INT 1C timer ticks
 ;
@@ -1477,8 +1477,8 @@ OLD_1C	DD	?
 ;	IBM PC TECH REF MANUAL section on INT 1C
 ;	DOS PRINT utility (most of this is stolen from there)
 ;
-INT_1C_HANDLER	PROC	FAR
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+INT_1C_HANDLER:
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSH	AX
 	DEC	[TICK_CNT]
 	JNZ	CHAIN_1C
@@ -1514,35 +1514,35 @@ SKIP_FLSH:
 	MOV	[INT_13_BUSY],0
 	JMP	CHAIN_1C
 
-INT_1C_HANDLER	ENDP
+; ENDP INT_1C_HANDLER
 
 BREAK	<INT 13 handler>
 
 
 ; INT 13 stack frame
 ;
-STACK_FRAME STRUC
-USER_OFF    DW	?	    ; added for user transfer address
-USER_ES DW	?
-USER_DS DW	?
-USER_DI DW	?
-USER_SI DW	?
-USER_BP DW	?
-	DW	?
-USER_BX DW	?
-USER_DX DW	?
-USER_CX DW	?
-USER_AX DW	?
-USER_IP DW	?
-USER_CS DW	?
-USER_FL DW	?
-STACK_FRAME ENDS
+struc STACK_FRAME
+USER_OFF: dw 0; added for user transfer address
+USER_ES: dw 0
+USER_DS: dw 0
+USER_DI: dw 0
+USER_SI: dw 0
+USER_BP: dw 0
+	dw 0
+USER_BX: dw 0
+USER_DX: dw 0
+USER_CX: dw 0
+USER_AX: dw 0
+USER_IP: dw 0
+USER_CS: dw 0
+USER_FL: dw 0
+endstruc
 
-	EVEN			; Force word align
+	align 2; Force word align
 ;
 ; Storage for the INT 13 vector BEFORE cache installed
 ;
-OLD_13	DD	?
+OLD_13: dd 0
 
 ;
 ; Array of sec/track for all hardfiles on system. First element cooresponds
@@ -1557,16 +1557,16 @@ SECTRKARRAY	DB  MAX_HARD_FILES DUP (0)
 ;
 HDARRAY 	DB  MAX_HARD_FILES DUP (0FFH)
 
-ifdef	OMTI
+%ifdef OMTI
 OMTI_SET_CYL	EQU	0EEh
 OMTI_GET_CYL	EQU	0FEh
 OMTI_GET_REV	EQU	0F9h
-endif	;OMTI
+%endif;OMTI
 ;
 ; INT 13 function dispatch
 ;	Addresses of routines for AH INT 13 functions
 ;
-INT13DISPATCH	LABEL	WORD
+INT13DISPATCH:
 	DW	POP_NO_PROC		; 0, reset
 	DW	POP_NO_PROC		; 1, Read status
 	DW	CACHE_READ		; 2, read
@@ -1597,10 +1597,10 @@ INT13DISPATCH	LABEL	WORD
 ;
 ; extra declarations needed
 ;
-max_hd		db	?	;maximum useable head number for curr. drive
-sect_in_trk	db	?	;maximum sector number in trk for curr drive
-bytes_in_trk	dw	?	;numb of bytes in trk for current drive
-int13err	db	?
+max_hd: db 0;maximum useable head number for curr. drive
+sect_in_trk: db 0;maximum sector number in trk for curr drive
+bytes_in_trk: dw 0;numb of bytes in trk for current drive
+int13err: db 0
 ;
 TRUE		=	0ffH
 FALSE		=	NOT TRUE
@@ -1608,34 +1608,34 @@ REG1_P	=	001B
 REG2_P	=	010B
 REG3_P	=	100B
 ;
-REG1t	struc
-START_H db	?	;start head
-START_T dw	?	;start track
-COUNT	dw	?	;number of words
-START_S dw	?	;start sector
-REG1t	ends
+struc REG1t
+START_H: db 0;start head
+START_T: dw 0;start track
+COUNT: dw 0;number of words
+START_S: dw 0;start sector
+endstruc
 ;
-REG2t	struc
-	db	?	;start head
-	dw	?	;start track
-TRACKS	db	?	;number of tracks
-REG2t	ends
+struc REG2t
+	db 0;start head
+	dw 0;start track
+TRACKS: db 0;number of tracks
+endstruc
 ;
-REG3t	struc
-	db	?	;start head
-	dw	?	;start track
-	dw	?	;number of words
-REG3t	ends
+struc REG3t
+	db 0;start head
+	dw 0;start track
+	dw 0;number of words
+endstruc
 ;
-REGIONt struc
+struc REGIONt
 FLAG	db	0
-REG1	db	size REG1t dup(?)
-REG2	db	size REG2t dup(?)
-REG3	db	size REG3t dup(?)
-REGIONt ends
+REG1	db	REG1t_size dup(?)
+REG2	db	REG2t_size dup(?)
+REG3	db	REG3t_size dup(?)
+endstruc
 ;
 ;
-REGION	db	size REGIONt dup(?)
+REGION	db	REGIONt_size dup(?)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -1654,8 +1654,8 @@ REGION	db	size REGIONt dup(?)
 ; SEE ALSO
 ;	IBM PC TECH REF MANUAL section on INT 13
 ;
-INT_13_HANDLER	PROC	FAR
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+INT_13_HANDLER:
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	MOV	[INT_13_BUSY],1 ; Exclude
 	TEST	DL,80H		; Hard file?
 	JNZ	IS_HARD 	; Yes
@@ -1709,11 +1709,11 @@ IS_HARD:
 	XOR	BH,BH			; Command in BX
 	PUSH	CS
 	POP	DS
-ASSUME	DS:INT13CODE
+; ASSUME	DS:INT13CODE
 	CMP	[ENABLE_13],0		; Are we enabled?
 	JZ	POP_NO_PROC		; No, ignore
 
-ifdef	OMTI
+%ifdef OMTI
 ;
 ; The following code is used to handle the extended cylinder access method
 ; used by the OMTI controller.	This controller has a modified INT13 routine
@@ -1746,7 +1746,7 @@ check_command_range:
 	jz	pop_no_proc
 	cmp	bx,OMTI_GET_REV
 	jz	pop_no_proc
-endif ; OMTI
+%endif; OMTI
 
 	CMP	BX,15H			; Command in range?
 	JA	      INVALID_PASS	; No, throw out cache
@@ -1761,7 +1761,7 @@ endif ; OMTI
 ;   To old INT13 handler
 ;
 FLUSH_INVALID_PASS:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	CALL	FLUSH_WHOLE_CACHE
 	CALL	INVALIDATE_CACHE
 	JMP	POP_NO_PROC
@@ -1776,7 +1776,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;   To old INT 13 handler
 ;
 INVALID_PASS:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	CALL	INVALIDATE_CACHE
 	JMP	POP_NO_PROC
 
@@ -1788,13 +1788,13 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;   To old INT13 handler
 ;
 FLUSH_PASS:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	CALL	FLUSH_WHOLE_CACHE
 	JMP	POP_NO_PROC
 
 BREAK	<CACHE_READ -- Read via cache>
 
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;
 cache_read:
 ;
@@ -1852,7 +1852,7 @@ cr$3:	test	[REGION.FLAG],REG3_P	; is region3 present
 ;	exit points - suc and error.
 ;
 suc:	and	[bp.USER_FL],NOT f_Carry	;
-	mov	byte ptr [bp.USER_AX.1],0	;
+	mov	byte [bp.USER_AX.1],0	;
 ;
 operation_done:
 	mov	cs:[int_13_busy],0		;clear semaphore
@@ -1925,13 +1925,13 @@ cache_write:
 	jnc	cw$1			; no error in writing to disk, continue
 ;
 	or	[bp.user_fl],f_Carry	; error then set carry
-	mov	byte ptr [bp.user_ax.1],ah	 ; and error code
+	mov	byte [bp.user_ax.1],ah	 ; and error code
 	jmp	short errorw		; and take error exit
 ;
 ;	int 13 was successful, now we have to update cache as well
 ;
 cw$1:	and	[bp.user_fl],not f_Carry	; int 13 success
-	mov	byte ptr [bp.user_ax.1],0	 ;
+	mov	byte [bp.user_ax.1],0	 ;
 ;
 	and	dl,not 80h
 ;
@@ -1969,9 +1969,9 @@ operation_donew:
 	jmp	operation_done
 ;
 ;
-INT_13_HANDLER	endp
+; ENDP INT_13_HANDLER
 ;
-process_read_partial	proc	near
+process_read_partial:
 ;
 ;	is used to read a partial track
 ;
@@ -2025,8 +2025,8 @@ not_in_mem:
 	shl	bx,1		; number of bytes
 	add	[bp.user_off],bx	; update user offset
 ;
-	add	ax,word ptr [si.base_offset]
-	adc	dx,word ptr [si.base_offset.2]
+	add	ax,word [si.base_offset]
+	adc	dx,word [si.base_offset.2]
 	xor	bh,bh
 	push	si
 	push	ds
@@ -2094,8 +2094,8 @@ rd$1:
 	mov	cx,[bytes_in_trk]
 	shr	cx,1			; cx is number words in track
 	mov	bh,1		;write
-	mov	ax,word ptr [si.base_offset]	;address of cache
-	mov	dx,word ptr [si.base_offset.2]	;
+	mov	ax,word [si.base_offset]	;address of cache
+	mov	dx,word [si.base_offset.2]	;
 	push	ds
 	push	si
 	push	bp
@@ -2121,15 +2121,15 @@ err_cache:
 ;	info transfer to cache successful. fill in track, head and drive
 ;	info into cache control element and track buffer control element
 ;
-if	debug
+%if debug
 rd_2:
-endif
+%endif
 rd$2:
-	mov	word ptr [si.track_cyln],cx
-	mov	word ptr [si.track_drive],dx
+	mov	word [si.track_cyln],cx
+	mov	word [si.track_drive],dx
 	and	[si.track_flags], not track_free
-	mov	word ptr [track_buffer_cyln],cx
-	mov	word ptr [track_buffer_hddr],dx
+	mov	word [track_buffer_cyln],cx
+	mov	word [track_buffer_hddr],dx
 ;
 ;	perform user i/o from track buffer
 ;
@@ -2150,9 +2150,9 @@ rep	movsw
 	clc
 	ret
 ;
-process_read_partial	endp
+; ENDP process_read_partial
 ;
-process_block_read	proc	near
+process_block_read:
 ;
 ;	inputs: ax = number of tracks
 ;		dx = drive and head (8th bit stripped)
@@ -2215,9 +2215,9 @@ pbr$6:
 	clc
 pbr$7:	ret
 ;
-process_block_read	endp
+; ENDP process_block_read
 ;
-pr_acc_trks	proc	near
+pr_acc_trks:
 ;
 ;	inputs: cx = start track
 ;		dh = start head
@@ -2324,8 +2324,8 @@ pat$21: mov	[si.track_flags],track_free    ;if write fails
 	mov	es,[bp.user_es]
 	mov	cx,[bytes_in_trk]
 	shr	cx,1			;words
-	mov	ax,word ptr [si.base_offset]
-	mov	dx,word ptr [si.base_offset.2]
+	mov	ax,word [si.base_offset]
+	mov	dx,word [si.base_offset.2]
 	mov	bh,1		;write
 	call	blkmov
 ;
@@ -2352,8 +2352,8 @@ pat$5:
 ;	successfully transferred information to cache. fill in track and
 ;	drive and head information into cache control element
 ;
-pat$3:	mov	word ptr [si.track_cyln],cx
-	mov	word ptr [si.track_drive],dx
+pat$3:	mov	word [si.track_cyln],cx
+	mov	word [si.track_drive],dx
 	and	[si.track_flags],not track_free
 	call	cache_is_mru
 
@@ -2375,9 +2375,9 @@ pat$4:	dec	ah		    ;have we processed all the accumulated trks
 	clc
 	ret				;success exit
 ;
-pr_acc_trks	endp
+; ENDP pr_acc_trks
 ;
-pr_cur_trk	proc	near
+pr_cur_trk:
 ;
 ;	inputs:
 ;	si = cache element
@@ -2400,8 +2400,8 @@ pr_cur_trk	proc	near
 ;
 	mov	cx,[bytes_in_trk]
 	shr	cx,1
-	mov	ax,word ptr [si.base_offset]
-	mov	dx,word ptr [si.base_offset.2]
+	mov	ax,word [si.base_offset]
+	mov	dx,word [si.base_offset.2]
 	mov	es,[bp.user_es]
 	mov	di,[bp.user_off]
 	xor	bh,bh		;read
@@ -2427,9 +2427,9 @@ pct$1:	call	cache_is_mru
 	clc
 	ret
 ;
-pr_cur_trk	endp
+; ENDP pr_cur_trk
 ;
-process_write_partial	proc	near
+process_write_partial:
 ;
 ;	is used to write a partial track
 ;
@@ -2481,8 +2481,8 @@ not_in_memw:
 	shl	bx,1
 	add	[bp.user_off],bx
 ;
-	add	ax,word ptr [si.base_offset]
-	adc	dx,word ptr [si.base_offset.2]
+	add	ax,word [si.base_offset]
+	adc	dx,word [si.base_offset.2]
 	mov	bh,1		;write
 	push	si
 	push	ds
@@ -2553,8 +2553,8 @@ wr$1:	mov	di,[track_buffer_ptr]	;es:di is transfer address
 	shl	ax,cl
 	mov	cx,ax
 	mov	bh,1		;write
-	mov	ax,word ptr [si.base_offset]
-	mov	dx,word ptr [si.base_offset.2]
+	mov	ax,word [si.base_offset]
+	mov	dx,word [si.base_offset.2]
 	push	ds
 	push	si
 	push	bp
@@ -2573,11 +2573,11 @@ wr$1:	mov	di,[track_buffer_ptr]	;es:di is transfer address
 ;	control element with the info on head, drive and track
 ;
 wr$2:
-	mov	word ptr [si.track_cyln],cx
-	mov	word ptr [si.track_drive],dx
+	mov	word [si.track_cyln],cx
+	mov	word [si.track_drive],dx
 	and	[si.track_flags], not track_free
-	mov	word ptr [track_buffer_cyln],cx
-	mov	word ptr [track_buffer_hddr],dx
+	mov	word [track_buffer_cyln],cx
+	mov	word [track_buffer_hddr],dx
 ;
 	call	cache_is_mru
 ;
@@ -2586,10 +2586,10 @@ wr$2:
 	clc
 	ret
 ;
-process_write_partial	endp
+; ENDP process_write_partial
 ;
 ;
-process_block_write	proc	near
+process_block_write:
 ;
 ;	al = number of tracks
 ;	cx = start track
@@ -2618,8 +2618,8 @@ pbw$1:	push	di		;save it because next call destroys di
 ;
 	mov	si,di		;track was not in cache. now there will be one
 	mov	[si.track_flags],track_free
-	mov	word ptr [si.track_cyln],cx
-	mov	word ptr [si.track_drive],dx
+	mov	word [si.track_cyln],cx
+	mov	word [si.track_drive],dx
 ;
 pbw$2:	pop	di
 ;
@@ -2648,8 +2648,8 @@ pbw$21:
 	mov	es,[bp.user_es]
 	mov	cx,[bytes_in_trk]
 	shr	cx,1
-	mov	ax,word ptr [si.base_offset]
-	mov	dx,word ptr [si.base_offset.2]
+	mov	ax,word [si.base_offset]
+	mov	dx,word [si.base_offset.2]
 	mov	bh,1
 	call	blkmov
 ;
@@ -2685,9 +2685,9 @@ pbw$4:	pop	di
 	stc
 	ret
 ;
-process_block_write	endp
+; ENDP process_block_write
 ;
-check_parameters	proc	near
+check_parameters:
 ;
 ;	inputs: same as int13 registers except for
 ;		BP - user_stack_frame
@@ -2782,9 +2782,9 @@ bad_parmx:
 	stc
 	ret
 ;
-check_parameters	endp
+; ENDP check_parameters
 ;
-process_regions proc	near
+process_regions:
 ;
 ;	inputs: bx - start sector
 ;		al - number of sectors
@@ -2794,7 +2794,7 @@ process_regions proc	near
 ;
 ;	action: initialise regions struct
 ;
-	mov	byte ptr [REGION.FLAG],0 ; clear regions flag
+	mov	byte [REGION.FLAG],0 ; clear regions flag
 	cmp	bx,1		; if start sector is one
 	je	pr$2		; might as well start with region2
 ;
@@ -2857,12 +2857,12 @@ pr$end:
 ;
 	ret
 ;
-process_regions endp
+; ENDP process_regions
 ;
 ;	Support Routines:
 ;
 ;
-track_in_cache	proc	near
+track_in_cache:
 ;
 ;	input:	dl = drive number with bit 8 set off
 ;		cx = cylinder number
@@ -2879,7 +2879,7 @@ nexte:
 no_set:
 	test	[si.track_flags],track_free ; is element free
 	jnz	skipe		; if free we need not check this one
-	cmp	dx,word ptr [si.track_drive]	; if not free check drive+head
+	cmp	dx,word [si.track_drive]	; if not free check drive+head
 	jnz	skipe		;
 	cmp	cx,[si.track_cyln]		; and cylinder number
 	jz	tic$1		; if found exit routine
@@ -2892,9 +2892,9 @@ skipe:
 tic$1:	clc
 	ret
 ;
-track_in_cache	endp
+; ENDP track_in_cache
 ;
-get_cache	proc	near
+get_cache:
 ;
 ;	inputs: none
 ;	outputs: si = lru cache element not locked
@@ -2916,9 +2916,9 @@ gc$1:
 ;
 gc$2:	ret
 ;
-get_cache	endp
+; ENDP get_cache
 ;
-adj_hd_trk  proc    near
+adj_hd_trk:
 ;
 ;	inputs: ch,cl track number
 ;		dh changed head number to be checked and adjusted
@@ -2938,11 +2938,11 @@ aht$1:	cmp	dh,[max_hd]	    ;is the head number > heads on drive
 aht$2:	popf
 	ret
 ;
-adj_hd_trk	endp
+; ENDP adj_hd_trk
 
-CACHE_HIT PROC NEAR
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
-CACHE_HIT ENDP
+CACHE_HIT:
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ENDP CACHE_HIT
 
 
 ;**	INVALIDATE_CACHE -- Discard all cache info
@@ -2954,8 +2954,8 @@ CACHE_HIT ENDP
 ; USES
 ;	BX,FLAGS
 ;
-INVALIDATE_CACHE PROC NEAR
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+INVALIDATE_CACHE:
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	MOV	BX,[CACHE_HEAD]
 	INC	BX		; Counter next instruction
 NEXTC:
@@ -2972,7 +2972,7 @@ NEXTC:
 	MOV	[DIRTY_CACHE],0
 	ret
 
-INVALIDATE_CACHE ENDP
+; ENDP INVALIDATE_CACHE
 
 ;**	CACHE_IS_MRU -- Put cache element in LRU chain at MRU position
 ;
@@ -2983,8 +2983,8 @@ INVALIDATE_CACHE ENDP
 ; USES
 ;	DI,FLAGS
 ;
-CACHE_IS_MRU PROC NEAR
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+CACHE_IS_MRU:
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	push	di
 	CMP	SI,[CACHE_HEAD]
 	JZ	RET444
@@ -2997,7 +2997,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 RET444: pop di
 	RET
 
-CACHE_IS_MRU ENDP
+; ENDP CACHE_IS_MRU
 
 ;**	CACHE_IS_LRU -- Put cache element in LRU chain at LRU position
 ;
@@ -3008,8 +3008,8 @@ CACHE_IS_MRU ENDP
 ; USES
 ;	DI,FLAGS
 ;
-CACHE_IS_LRU PROC NEAR
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+CACHE_IS_LRU:
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	push	di
 	CMP	SI,[CACHE_TAIL]
 	JZ	RET555
@@ -3022,7 +3022,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 RET555: pop	di
 	RET
 
-CACHE_IS_LRU ENDP
+; ENDP CACHE_IS_LRU
 
 ;**	UNLINK_CACHE -- Unlink cache element from LRU chain
 ;
@@ -3033,8 +3033,8 @@ CACHE_IS_LRU ENDP
 ; USES
 ;	DI,FLAGS
 ;
-UNLINK_CACHE PROC NEAR
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+UNLINK_CACHE:
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	PUSH	BX
 	MOV	DI,[SI.BACK_LRU_LNK]	; Get prev guy
 	INC	DI			; Guy First?
@@ -3064,9 +3064,9 @@ NEW_TAIL:
 	MOV	[CACHE_TAIL],DI 	; New tail
 	POP	BX
 	RET
-UNLINK_CACHE ENDP
+; ENDP UNLINK_CACHE
 
-RETRY_CNT	DB	?
+RETRY_CNT: db 0
 
 ;**	WRITE_FROM_CACHE -- Write out cache element to disk
 ;
@@ -3082,8 +3082,8 @@ RETRY_CNT	DB	?
 ; USES
 ;	AX,BX,CX,DX,ES,DI,FLAGS
 ;
-WRITE_FROM_CACHE PROC NEAR
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+WRITE_FROM_CACHE:
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
     ;
     ; First transfer track down to track buffer because we can't write
     ;	direct to extended or expanded mem with INT 13
@@ -3091,7 +3091,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	PUSH	CS
 	POP	ES
 	MOV	DI,[TRACK_BUFFER_PTR]	; ES:DI is transfer addr for BLKMOV
-	MOV	BX,WORD PTR [SI.TRACK_DRIVE]
+	MOV	BX,word [SI.TRACK_DRIVE]
 	XOR	BH,BH
 	MOV	AL,[BX.SECTRKARRAY]
 	XOR	AH,AH
@@ -3100,8 +3100,8 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	SHL	AX,CL			; AX is words in track
 	MOV	CX,AX
 	XOR	BH,BH			; Read
-	MOV	AX,WORD PTR [SI.BASE_OFFSET]
-	MOV	DX,WORD PTR [SI.BASE_OFFSET.2]	; DX:AX is address in mem
+	MOV	AX,word [SI.BASE_OFFSET]
+	MOV	DX,word [SI.BASE_OFFSET.2]	; DX:AX is address in mem
 	PUSH	DS
 	PUSH	SI
 	PUSH	BP
@@ -3115,7 +3115,7 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
     ; Now write it out to drive from the track buffer
     ;
 	MOV	CX,[SI.TRACK_CYLN]
-	MOV	DX,WORD PTR [SI.TRACK_DRIVE]
+	MOV	DX,word [SI.TRACK_DRIVE]
 	MOV	[TRACK_BUFFER_CYLN],CX	; Set track buffer currency
 	MOV	[TRACK_BUFFER_HDDR],DX
 	OR	CL,1
@@ -3157,7 +3157,7 @@ ERR_FLP:
 	MOV	[TRACK_BUFFER_HDDR],-1
 	JMP	ERR_FL
 
-WRITE_FROM_CACHE ENDP
+; ENDP WRITE_FROM_CACHE
 
 ;**	FLUSH_CACHE -- Flush specific cache element if it's dirty
 ;
@@ -3176,8 +3176,8 @@ WRITE_FROM_CACHE ENDP
 ; USES
 ;	AX,BX,CX,DX,ES,DI,FLAGS
 ;
-FLUSH_CACHE PROC NEAR
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+FLUSH_CACHE:
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	TEST	[SI.TRACK_FLAGS],TRACK_FREE	; Clears carry
 	JNZ	IGNORE_TRK
 	TEST	[SI.TRACK_FLAGS],TRACK_DIRTY	; Clears carry
@@ -3193,7 +3193,7 @@ FLUSH_ERRX:
 	MOV	[SI.TRACK_FLAGS],TRACK_FREE	; Track gone, unlocked
 	RET
 
-FLUSH_CACHE ENDP
+; ENDP FLUSH_CACHE
 
 ;**	FLUSH_WHOLE_CACHE_SAV -- Flush all dirty cache elements saving regs
 ;
@@ -3204,8 +3204,8 @@ FLUSH_CACHE ENDP
 ; USES
 ;	FLAGS
 ;
-FLUSH_WHOLE_CACHE_SAV PROC NEAR
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+FLUSH_WHOLE_CACHE_SAV:
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
     ; Simulate PUSHA
 	PUSH	AX
 	PUSH	CX
@@ -3220,7 +3220,7 @@ ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSH	ES
 	PUSH	CS
 	POP	DS
-ASSUME	DS:INT13CODE
+; ASSUME	DS:INT13CODE
 	CALL	FLUSH_WHOLE_CACHE
 	POP	ES
 	POP	DS
@@ -3235,7 +3235,7 @@ ASSUME	DS:INT13CODE
 	POP	AX
     ;
 	ret
-FLUSH_WHOLE_CACHE_SAV ENDP
+; ENDP FLUSH_WHOLE_CACHE_SAV
 
 ;**	FLUSH_WHOLE_CACHE -- Flush all dirty cache elements
 ;
@@ -3246,8 +3246,8 @@ FLUSH_WHOLE_CACHE_SAV ENDP
 ; USES
 ;	AX,BX,CX,DX,ES,SI,DI,FLAGS
 ;
-FLUSH_WHOLE_CACHE PROC NEAR
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+FLUSH_WHOLE_CACHE:
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	MOV	SI,[CACHE_HEAD]
 	INC	SI		; Counter next instruction
 FLSH_LP:
@@ -3260,7 +3260,7 @@ FLUSH_DONE:
 	MOV	[DIRTY_CACHE],0 ; No dirty guys in cache
 	ret
 
-FLUSH_WHOLE_CACHE ENDP
+; ENDP FLUSH_WHOLE_CACHE
 
 BREAK	<Drive code for /E driver>
 
@@ -3271,9 +3271,9 @@ BREAK	<Drive code for /E driver>
 ; THE TYPE 2 driver must REPLACE this code with code appropriate
 ;	to the driver type.
 ;
-		EVEN		; Force start of drive code to word boundary
+		align 2; Force start of drive code to word boundary
 
-DRIVE_CODE	LABEL	WORD
+DRIVE_CODE:
 
 EXTMEM_LOW	EQU	0000H	; 24 bit addr of start of extended memory
 EXTMEM_HIGH	EQU	0010H
@@ -3295,7 +3295,7 @@ EXTMEM_HIGH	EQU	0010H
 ;; NOTE: The value at BASE_ADDR is patched during initialization when
 ;;	 loading a RAMDrive into upper extended memory on a PLUS
 ;;
-BASE_ADDR	LABEL	DWORD	; 24 bit address of start of this RAMDRV
+BASE_ADDR:; 24 bit address of start of this RAMDRV
 		DW	EXTMEM_LOW
 		DW	EXTMEM_HIGH
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -3393,7 +3393,7 @@ BASE_ADDR	LABEL	DWORD	; 24 bit address of start of this RAMDRV
 ;		 should also ideally be relocated on top of the normal A20
 
 BLKMOV:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	test	[sys_flg],M_386
 	je     blkmov_286
 	jmp	blkmov_386
@@ -3401,8 +3401,8 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
     ; Compute 32 bit address of start of I/O
     ;
 blkmov_286:
-	ADD	AX,WORD PTR [BASE_ADDR]
-	ADC	DX,WORD PTR [BASE_ADDR + 2]
+	ADD	AX,word [BASE_ADDR]
+	ADC	DX,word [BASE_ADDR + 2]
     ;
     ; Dispatch on function
     ;
@@ -3411,21 +3411,21 @@ blkmov_286:
     ;
     ; Write
     ;
-	MOV	WORD PTR [ESDES.SEG_BASE],AX
-	MOV	BYTE PTR [ESDES.SEG_BASE + 2],DL
+	MOV	word [ESDES.SEG_BASE],AX
+	MOV	byte [ESDES.SEG_BASE + 2],DL
 ;	 MOV	 [LSI],DI
 	mov	[lbx],di	;sp
 	MOV	[LDI],0
-	MOV	SI,OFFSET DSDES
+	MOV	SI,DSDES
 	JMP	SHORT SET_TRANS
 
 READ_IT:
-	MOV	WORD PTR [DSDES.SEG_BASE],AX
-	MOV	BYTE PTR [DSDES.SEG_BASE + 2],DL
+	MOV	word [DSDES.SEG_BASE],AX
+	MOV	byte [DSDES.SEG_BASE + 2],DL
 	MOV	[LDI],DI
 ;	 MOV	 [LSI],0	   ;sp
 	mov	[lbx],0
-	MOV	SI,OFFSET ESDES
+	MOV	SI,ESDES
 SET_TRANS:
 	MOV	AX,ES
 	CALL	SEG_SET 		; Set ES or DS segreg
@@ -3434,7 +3434,7 @@ SET_TRANS:
     ;
 	MOV	AX,SS
 	MOV	[LSSS],AX
-	MOV	SI,OFFSET SSDES
+	MOV	SI,SSDES
 	CALL	SEG_SET
 	MOV	[LSP],SP
 ;	 SUB	 [LSP],2		 ; CX is on stack at LOADALL
@@ -3444,22 +3444,22 @@ SET_TRANS:
 	mov	ax,cs			;sp
 	inc	ax			;sp
 	mov	[lcss],ax		;sp
-	mov	si,offset CSDES 	;sp
+	mov	si,CSDES 	;sp
 	mov	ax,cs			;sp
 	call	seg_set 		;sp
     ;
     ; Set Other LOADALL stuff
     ;
 	SMSW	[LDSW]
-	SIDT	FWORD PTR [IDTDES]
-	SGDT	FWORD PTR [GDTDES]
+	SIDT	fword [IDTDES]
+	SGDT	fword [GDTDES]
     ;
     ; NOW The damn SXXX instructions store the desriptors in a
     ;	  different order than LOADALL wants
     ;
-	MOV	SI,OFFSET IDTDES
+	MOV	SI,IDTDES
 	CALL	FIX_DESCRIPTOR
-	MOV	SI,OFFSET GDTDES
+	MOV	SI,GDTDES
 	CALL	FIX_DESCRIPTOR
     ;
     ; Enable address line 20
@@ -3489,7 +3489,7 @@ NR_ERR:
 ;	 PUSH	 CX			;sp
 
 move_main_loop: 			;sp
-assume ds:nothing			;sp
+; assume ds:nothing;sp
 	jcxz	io_done 		;sp
 	mov	cs:[ldx],cx		   ;sp
 	MOV	AX,80H
@@ -3497,7 +3497,7 @@ assume ds:nothing			;sp
 	PUSH	CS
 	POP	ES
 	XOR	SI,SI
-	MOV	DI,OFFSET cs:[SWAP_80]
+	MOV	DI,[SWAP_80]
 	MOV	CX,102/2
 	mov	cs:[ssSave],ss
 	CLD
@@ -3508,7 +3508,7 @@ assume ds:nothing			;sp
 	POP	DS
 	POP	ES
 	XOR	DI,DI
-	MOV	SI,OFFSET cs:LOADALL_TBL
+	MOV	SI,LOADALL_TBL
 	MOV	CX,102/2
 	REP	MOVSW			; Transfer in LOADALL info
 	 DW	 050FH			 ; LOADALL INSTRUCTION
@@ -3517,10 +3517,10 @@ AFTER_LOADALL:
 ;
 	xor	bp,bp
 	mov	ss,ax
-	mov	si,offset cs:[swap_80]
+	mov	si,[swap_80]
 	mov	cx,102/2
 move_loop:
-	lods	word ptr cs:[si]
+	lods	word cs:[si]
 	mov	ss:[bp],ax
 	inc	bp
 	inc	bp
@@ -3535,15 +3535,15 @@ move_loop:
 	mov	ax,cs
 	dec	ax
 	push	ax
-	mov	ax,offset    io_done
+	mov	ax,io_done
 	push	ax
 	db	0cbh
 ;
-	db	16 dup (0fah) ; bugfix sunilp
+	times 16 db 0fah; bugfix sunilp
 	mov	ax,cs
 	dec	ax
 	push	ax
-	mov	ax,offset    resume_int
+	mov	ax,resume_int
 	push	ax
 	db	0cbh
 ;
@@ -3607,7 +3607,7 @@ dis_done:
 ;
 
 A20:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 ;; CS override needed on S5_FLAG to avoid phase errors on
 ;; forward declaration of this variable.
 	cmp	cs:[S5_FLAG],S_OLIVETTI ;; test for 6300 PLUS
@@ -3658,7 +3658,7 @@ A20Err: sti
 ; Helper routine for A20. It waits for the keyboard controller to be "ready".
 ;
 E_8042:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSH	CX
 	XOR	CX,CX
 E_LOOP:
@@ -3674,7 +3674,7 @@ E_LOOP:
 ;	is allowed
 ;
 check_a20:
-assume ds:nothing,es:nothing,ss:nothing
+; assume ds:nothing,es:nothing,ss:nothing
 	cmp	ah,0ddh     ; is it a disable operation
 	jne	check_a20_enable
 ;
@@ -3718,7 +3718,7 @@ not_enabled:
 ; A20 routine for PS2s. The PS2 A20 hardware has shifted and toggling
 ; a bit in the system port is all that is required.
 A20PS2:
-assume	ds:nothing,es:nothing,ss:nothing
+; assume	ds:nothing,es:nothing,ss:nothing
 	cli
 ;
 ;   first separate disable operation from enable operation
@@ -3874,12 +3874,12 @@ RSet:
 	push	es
 	mov	ax,BiosSeg		;; point to the bios segment
 	mov	ds,ax			;; ds -> 40h
-assume	ds:BiosSeg
-	push	word ptr [RealLoc1]	;; save what might have been here
-	push	word ptr [RealLoc1+2]
-	mov	word ptr [RealLoc1],cs:[offset ReturnBack] ;; load our return address
-	mov	word ptr [RealLoc1+2],cs
-assume ds:nothing
+; assume	ds:BiosSeg
+	push	word [RealLoc1]	;; save what might have been here
+	push	word [RealLoc1+2]
+	mov	word [RealLoc1],cs:[ReturnBack] ;; load our return address
+	mov	word [RealLoc1+2],cs
+; assume ds:nothing
 	mov	[OldStackSeg],ss	;; save the stack segment, too
 	mov	dx,03f00h		;; reset the processor
 	in	ax,dx
@@ -3890,21 +3890,21 @@ assume ds:nothing
 	hlt				;; should never get here
 ReturnBack:
 	mov	ss,[OldStackSeg]	;; start the recovery
-assume ds:BiosSeg
-	pop	word ptr [RealLoc1+2]
-	pop	word ptr [RealLoc1]
+; assume ds:BiosSeg
+	pop	word [RealLoc1+2]
+	pop	word [RealLoc1]
 	pop	es
 	pop	ds
 	popa
 	ret		
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 blkmov_386:	    ;_protect:
-assume	ds:int13code,es:nothing,ss:nothing
+; assume	ds:int13code,es:nothing,ss:nothing
 ;
 ; Compute 32 bit address of start of I/O
 ;
-	add	ax,word ptr [base_addr]
-	adc	dx,word ptr [base_addr + 2]
+	add	ax,word [base_addr]
+	adc	dx,word [base_addr + 2]
 ;
 	push	cx
 ;
@@ -3926,7 +3926,7 @@ pr_mode_tran:
 ;
 ; Update ES descriptor with address of track in cache
 ;
-	mov	si,offset es_des
+	mov	si,es_des
 	mov	[si].bas_0_15,ax
 	mov	[si].bas_16_23,dl
 	mov	[si].bas_24_31,dh
@@ -3936,7 +3936,7 @@ pr_mode_tran:
 	mov	ax,es
 	mov	cx,16
 	mul	cx
-	mov	si,offset ds_des
+	mov	si,ds_des
 	mov	[si].bas_0_15,ax
 	mov	[si].bas_16_23,dl
 	mov	[si].bas_24_31,dh
@@ -3953,7 +3953,7 @@ read_it_1:
 ;
 ; Update DS descriptor with address of track in cache
 ;
-	mov	si,offset ds_des
+	mov	si,ds_des
 	mov	[si].bas_0_15,ax
 	mov	[si].bas_16_23,dl
 	mov	[si].bas_24_31,dh
@@ -3963,7 +3963,7 @@ read_it_1:
 	mov	ax,es
 	mov	cx,16
 	mul	cx
-	mov	si,offset es_des
+	mov	si,es_des
 	mov	[si].bas_0_15,ax
 	mov	[si].bas_16_23,dl
 	mov	[si].bas_24_31,dh
@@ -3988,7 +3988,7 @@ set_trans_1:
 	db	66h
 	push	ax
 	mov	bx,cx
-assume ds:nothing
+; assume ds:nothing
 pr_io_agn_1:
 	mov	cx,1024
 	cmp	bx,cx
@@ -3998,7 +3998,7 @@ pr_strt_1:
 	sub	bx,cx
 	cli		; Un interruptable
 	cld
-	lgdt	fword ptr emm_gdt
+	lgdt	fword emm_gdt
 
 
 ;
@@ -4011,20 +4011,20 @@ pr_strt_1:
 ; Clear prefetch queue
 ;
 	db	0eah		; far jump
-	dw	offset flush_prefetch
+	dw	flush_prefetch
 	dw	cs_des - start_gdt	
 ;
 flush_prefetch:
-	assume	cs:nothing
+	; assume	cs:nothing
 ;
 ; Initialize segment registers
 ;
 	mov	ax,ds_des - start_gdt
 	mov	ds,ax
-	assume	ds:nothing
+	; assume	ds:nothing
 	mov	ax,es_des - start_gdt
 	mov	es,ax
-	assume	es:nothing
+	; assume	es:nothing
 	shr	cx,1			; convert word count to dword count
 	db	0f3h,066h,0a5h		; rep movsd
 ;	rep	movsw			; Move data
@@ -4040,9 +4040,9 @@ flush_prefetch:
 ; Flush Prefetch Queue
 ;
 	db	0EAh			; Far jump
-	dw	offset flushcs
-cod_seg dw	?			; Fixed up at initialization time
-	assume	cs:Int13Code
+	dw	flushcs
+cod_seg: dw 0; Fixed up at initialization time
+	; assume	cs:Int13Code
 flushcs:
 ;
 	sti
@@ -4055,9 +4055,9 @@ flushcs:
 	pop	ax
 	mov	ax,cs
 	mov	es,ax
-	assume	es:nothing
+	; assume	es:nothing
 	mov	ds,ax
-	assume	ds:Int13Code
+	; assume	ds:Int13Code
 
 	mov	cx,800h 		; Retry this many times
 offlp_1:
@@ -4076,7 +4076,7 @@ nr_err_1:
 	ret
 ;
 int_15_tran:
-assume	ds:int13code,es:nothing,ss:nothing
+; assume	ds:int13code,es:nothing,ss:nothing
 	or	bh,bh
 	jz	read_it_2
 ;
@@ -4084,7 +4084,7 @@ assume	ds:int13code,es:nothing,ss:nothing
 ;
 ; Update tgt descriptor with address of track in cache
 ;
-	mov	si,offset tgt
+	mov	si,tgt
 	mov	[si].bas_0_15,ax
 	mov	[si].bas_16_23,dl
 	mov	[si].bas_24_31,dh
@@ -4096,7 +4096,7 @@ assume	ds:int13code,es:nothing,ss:nothing
 	mul	cx
 	add	ax,di
 	adc	dx,0
-	mov	si,offset src
+	mov	si,src
 	mov	[si].bas_0_15,ax
 	mov	[si].bas_16_23,dl
 	mov	[si].bas_24_31,dh
@@ -4107,7 +4107,7 @@ read_it_2:
 ;
 ; Update src descriptor with address of track in cache
 ;
-	mov	si,offset src
+	mov	si,src
 	mov	[si].bas_0_15,ax
 	mov	[si].bas_16_23,dl
 	mov	[si].bas_24_31,dh
@@ -4119,7 +4119,7 @@ read_it_2:
 	mul	cx
 	add	ax,di
 	adc	dx,0
-	mov	si,offset tgt
+	mov	si,tgt
 	mov	[si].bas_0_15,ax
 	mov	[si].bas_16_23,dl
 	mov	[si].bas_24_31,dh
@@ -4142,7 +4142,7 @@ pr_strt_2:
 	sub	bx,cx
 	push	cs
 	pop	es
-	mov	si,offset int15_gdt
+	mov	si,int15_gdt
 	mov	ax,emm_blkm shl 8
 	int	emm_int
 	jc	nr_err_1
@@ -4188,13 +4188,13 @@ io_exit:
 ;
 
 SEG_SET:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSH	DX
 	PUSH	CX
 	MOV	CX,16
 	MUL	CX	; Believe or not, this is faster than a 32 bit SHIFT
-	MOV	WORD PTR [SI.SEG_BASE],AX
-	MOV	BYTE PTR [SI.SEG_BASE + 2],DL
+	MOV	word [SI.SEG_BASE],AX
+	MOV	byte [SI.SEG_BASE + 2],DL
 	POP	CX
 	POP	DX
 	RET
@@ -4227,13 +4227,13 @@ ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 ;
 
 FIX_DESCRIPTOR:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
-	PUSH	WORD PTR [SI + 4]
-	PUSH	WORD PTR [SI + 2]
-	PUSH	WORD PTR [SI]
-	POP	WORD PTR [SI + 4]
-	POP	WORD PTR [SI]
-	POP	WORD PTR [SI + 2]
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+	PUSH	word [SI + 4]
+	PUSH	word [SI + 2]
+	PUSH	word [SI]
+	POP	word [SI + 4]
+	POP	word [SI]
+	POP	word [SI + 2]
 	RET
 
 ;**	DATA SPECIFIC TO THE LOADALL INSTRUCTION USAGE
@@ -4245,34 +4245,34 @@ ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 ;
 ; Swap buffer for contents of 80:0
 ;
-	EVEN		; Force word alignment of SWAP_80 and LOADALL_TBL
+	align 2; Force word alignment of SWAP_80 and LOADALL_TBL
 
-SWAP_80 DB	102 DUP(?)
-ssSave	dw	?
+SWAP_80: times 102 db 0
+ssSave: dw 0
 
 ;
 ; LOADALL data buffer placed at 80:0
 ;
-LOADALL_TBL	LABEL	BYTE
-	DB	6 DUP(0)
-LDSW	DW	?
-	DB	14 DUP (0)
+LOADALL_TBL:
+	times 6 db 0
+LDSW: dw 0
+	times 14 db 0
 TR	DW	0
 FLAGS	DW	0		; High 4 bits 0, Int off, Direction clear
 				;   Trace clear. Rest don't care.
-LIP	DW	OFFSET AFTER_LOADALL
+LIP	DW	AFTER_LOADALL
 LDT	DW	0
 LDSS	DW	8000h
-LSSS	DW	?
-LCSS	DW	?
-LESS	DW	?
-LDI	DW	?
-LSI	DW	?
-LBP	DW	?
-LSP	DW	?
-LBX	DW	?
-LDX	DW	?
-LCX	DW	?
+LSSS: dw 0
+LCSS: dw 0
+LESS: dw 0
+LDI: dw 0
+LSI: dw 0
+LBP: dw 0
+LSP: dw 0
+LBX: dw 0
+LDX: dw 0
+LCX: dw 0
 LAX	DW	80H
 ESDES	SEGREG_DESCRIPTOR <>
 CSDES	SEGREG_DESCRIPTOR <>
@@ -4298,14 +4298,14 @@ TSSDES	DTR_DESCRIPTOR <0C000H,0,0FFH,0800H>
 ;	code into its final location.
 ;
 
-ABOVE_PID	EQU	WORD PTR $ - 2		; TRUE location of ABOVE_PID
+ABOVE_PID	EQU	word $ - 2		; TRUE location of ABOVE_PID
 
 ;
 ; The following label defines the end of the region where BLKMOV code
 ;   may be swapped in. BLKMOV code to be swapped in MUST fit
 ;   between DRIVE_CODE and DRIVE_END
 ;
-DRIVE_END	LABEL	WORD
+DRIVE_END:
 
 
 BREAK	<INT 19/9 Handlers>
@@ -4351,23 +4351,23 @@ BREAK	<INT 19/9 Handlers>
 ;  that were in the interrupt table when the device driver was loaded.
 ;  They are initialized to -1 to indicate they contain no useful information.
 ;
-OLD_19	LABEL	DWORD
+OLD_19:
 	DW	-1
 	DW	-1
 
-OLD_9	LABEL	DWORD
+OLD_9:
 	DW	-1
 	DW	-1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; modification to meet new memory allocation standard
-OLD_15	LABEL	DWORD
+OLD_15:
 	DW	-1
 	DW	-1
 int15_size  dw	0
 ;
 ;
 INT_15:
-ASSUME DS:NOTHING,SS:NOTHING,ES:NOTHING
+; ASSUME DS:NOTHING,SS:NOTHING,ES:NOTHING
 ;
 ;	This piece of code determines the size of extended memory
 ;	which was allocated before this driver and then subtracts
@@ -4426,7 +4426,7 @@ mem_det:
 ;
 
 INT_9:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSH	AX
 	PUSH	DS
 	IN	AL,60H
@@ -4434,7 +4434,7 @@ ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	JNZ	CHAIN			; No
 	XOR	AX,AX
 	MOV	DS,AX
-	MOV	AL,BYTE PTR DS:[417H]	; Get KB flag
+	MOV	AL,byte DS:[417H]	; Get KB flag
 	NOT	AL
 	TEST	AL,0CH			; Ctrl Alt?
 	JNZ	CHAIN			; No
@@ -4460,11 +4460,11 @@ NO_REBOOT_FLUSH:
     ;
     ; Reset INT 13 vector to turn cache off
     ;
-	MOV	AX,WORD PTR [OLD_13]
+	MOV	AX,word [OLD_13]
 	CLI
-	MOV	WORD PTR DS:[13H * 4],AX
-	MOV	AX,WORD PTR [OLD_13 + 2]
-	MOV	WORD PTR DS:[(13H * 4) + 2],AX
+	MOV	word DS:[13H * 4],AX
+	MOV	AX,word [OLD_13 + 2]
+	MOV	word DS:[(13H * 4) + 2],AX
     ;
     ; Reset INT 1C vector to turn cache off
     ;
@@ -4508,7 +4508,7 @@ CHAIN:
 ;
 
 INT_19:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	MOV	[INT_13_BUSY],1 	; Exclude
 	cmp	[reboot_flush],0	;
 	je	no_flush
@@ -4519,14 +4519,14 @@ no_flush:
 	PUSH	DS
 	XOR	AX,AX
 	MOV	DS,AX
-	MOV	AX,WORD PTR [OLD_13]
+	MOV	AX,word [OLD_13]
 	CLI
     ;
     ; Reset INT 13 vector to trun cache off
     ;
-	MOV	WORD PTR DS:[13H * 4],AX
-	MOV	AX,WORD PTR [OLD_13 + 2]
-	MOV	WORD PTR DS:[(13H * 4) + 2],AX
+	MOV	word DS:[13H * 4],AX
+	MOV	AX,word [OLD_13 + 2]
+	MOV	word DS:[(13H * 4) + 2],AX
     ;
     ; Reset INT 1C vector to turn cache off
     ;
@@ -4541,10 +4541,10 @@ no_flush:
     ; NOTE THAT WE RESET VECTORS DIRECTLY!!!!!!!!!!!!!!!!!!
     ;	We are not sure that DOS is reliable enough to call.
     ;
-	MOV	AX,WORD PTR [OLD_19]
-	MOV	WORD PTR DS:[19H * 4],AX
-	MOV	AX,WORD PTR [OLD_19 + 2]
-	MOV	WORD PTR DS:[(19H * 4) + 2],AX
+	MOV	AX,word [OLD_19]
+	MOV	word DS:[19H * 4],AX
+	MOV	AX,word [OLD_19 + 2]
+	MOV	word DS:[(19H * 4) + 2],AX
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;   removed from smartdrv
 ;	MOV	AX,WORD PTR [OLD_9]
@@ -4552,15 +4552,15 @@ no_flush:
 ;	MOV	AX,WORD PTR [OLD_9 + 2]
 ;	MOV	WORD PTR DS:[(9H * 4) + 2],AX
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	mov	ax,word ptr [old_15]
-	cmp	ax,word ptr [old_15+2]
+	mov	ax,word [old_15]
+	cmp	ax,word [old_15+2]
 	jne	res_15
 	cmp	ax,-1
 	je	skip_res
 res_15:
-	mov	word ptr ds:[15h*4],ax
-	mov	ax,word ptr    [old_15+2]
-	mov	word ptr ds:[(15h*4) +2],ax
+	mov	word ds:[15h*4],ax
+	mov	ax,word    [old_15+2]
+	mov	word ds:[(15h*4) +2],ax
 ;
 skip_res:
 	POP	DS
@@ -4592,7 +4592,7 @@ skip_res:
 ;
 
 RESET_SYSTEM:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	JMP	SHORT TRUE_START
 
 MY_EMM_REC	DW	0		; Offset into 1K EMM_CTRL of my record
@@ -4609,8 +4609,8 @@ TRUE_START:
 ;
 	mov	ax,cs:[emm_ctrl_addr]
 	mov	dx,cs:[emm_ctrl_addr+2]
-	mov	word ptr cs:[base_addr],ax
-	mov	word ptr cs:[base_addr+2],dx
+	mov	word cs:[base_addr],ax
+	mov	word cs:[base_addr+2],dx
  ;
  ;  read 1k emm control sector into track buffer, I want to keep memory
  ;  access methods separate from driver code. We end up wasting a lot of
@@ -4656,15 +4656,15 @@ reset_skip:
 ; RESET_INCLUDE. Swapped in code MUST FIT between RESET_SYSTEM and
 ; RESET_INCLUDE.
 ;
-RESET_INCLUDE  LABEL   BYTE
+RESET_INCLUDE:
 
 ;
 ; This data is only used at INIT, but it must be protected from overwrite
 ;  by the DO_INIT code.
 ;
-TERM_ADDR	LABEL	DWORD	; Address to return as break address in INIT packet
-		DW	?	; Computed at INIT time
-		DW	?	; INT13 CS filled in at INIT
+TERM_ADDR:; Address to return as break address in INIT packet
+		dw 0; Computed at INIT time
+		dw 0; INT13 CS filled in at INIT
 
 ;
 ; THIS CODE MUST BE IN RESIDENT PORTION BECAUSE IT WRITES IN THE AREA
@@ -4674,7 +4674,7 @@ TERM_ADDR	LABEL	DWORD	; Address to return as break address in INIT packet
 ;**	DO_INIT - Initialize cache structures to "empty"
 ;
 DO_INIT:
-ASSUME	DS:INT13CODE
+; ASSUME	DS:INT13CODE
 	MOV	AX,[SECTRACK]
 	MOV	CL,9
 	SHL	AX,CL			; AX is bytes per track buffer
@@ -4682,25 +4682,25 @@ ASSUME	DS:INT13CODE
 	MOV	CX,[TTRACKS]
 	MOV	[CACHE_HEAD],BX
 	MOV	[BX.BACK_LRU_LNK],-1
-	MOV	WORD PTR [BX.BASE_OFFSET],0
-	MOV	WORD PTR [BX.BASE_OFFSET+2],0
+	MOV	word [BX.BASE_OFFSET],0
+	MOV	word [BX.BASE_OFFSET+2],0
 	MOV	[BX.TRACK_FLAGS],TRACK_FREE
 	MOV	DI,BX
-	ADD	BX,SIZE CACHE_CONTROL	; Next structure
+	ADD	BX,CACHE_CONTROL_size	; Next structure
 	DEC	CX			; One less to do
 	JCXZ	SETDONE 		; one buffer in cache
 SETLOOP:
 	MOV	[DI.FWD_LRU_LNK],BX
 	MOV	[BX.BACK_LRU_LNK],DI
 	MOV	[BX.TRACK_FLAGS],TRACK_FREE
-	MOV	DX,WORD PTR [DI.BASE_OFFSET]
+	MOV	DX,word [DI.BASE_OFFSET]
 	ADD	DX,AX
-	MOV	WORD PTR [BX.BASE_OFFSET],DX
-	MOV	DX,WORD PTR [DI.BASE_OFFSET+2]
+	MOV	word [BX.BASE_OFFSET],DX
+	MOV	DX,word [DI.BASE_OFFSET+2]
 	ADC	DX,0
-	MOV	WORD PTR [BX.BASE_OFFSET+2],DX
+	MOV	word [BX.BASE_OFFSET+2],DX
 	MOV	DI,BX
-	ADD	BX,SIZE CACHE_CONTROL	; Next structure
+	ADD	BX,CACHE_CONTROL_size	; Next structure
 	LOOP	SETLOOP
 SETDONE:
 	MOV	[DI.FWD_LRU_LNK],-1
@@ -4724,19 +4724,19 @@ SETDONE:
 ;
 
 SETBPB:
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
     ;
     ; 7.  Set the return INIT I/O packet values
     ;
 	LDS	BX,[PTRSAV]
-	MOV	CX,WORD PTR [TERM_ADDR]
-	MOV	WORD PTR [BX.INIT_BREAK],CX		   ;SET BREAK ADDRESS
-	MOV	CX,WORD PTR [TERM_ADDR + 2]
-	MOV	WORD PTR [BX.INIT_BREAK + 2],CX
+	MOV	CX,word [TERM_ADDR]
+	MOV	word [BX.INIT_BREAK],CX		   ;SET BREAK ADDRESS
+	MOV	CX,word [TERM_ADDR + 2]
+	MOV	word [BX.INIT_BREAK + 2],CX
 	JMP	DEVEXIT
 
 
-	EVEN			; Make sure we get word alignment of the track
+	align 2; Make sure we get word alignment of the track
 				;    buffer.
 
 ;
@@ -4767,7 +4767,7 @@ TRACK_BUFFER_HDDR	DW	-1
 ;
 ; Pointer to track buffer. May be adjusted for DMA boundary error prevention.
 ;
-TRACK_BUFFER_PTR DW	OFFSET TRACK_BUFFER
+TRACK_BUFFER_PTR DW	TRACK_BUFFER
 
 ;
 ; Cache structure pointers
@@ -4776,13 +4776,13 @@ TRACK_BUFFER_PTR DW	OFFSET TRACK_BUFFER
 ;
 ; Pointer to cache structures. This ends up being right after TRACK_BUFFER.
 ;
-CACHE_CONTROL_PTR DW	?
+CACHE_CONTROL_PTR: dw 0
 
 ;
 ; Cache head and tail pointers
 ;
-CACHE_HEAD	DW	?
-CACHE_TAIL	DW	?
+CACHE_HEAD: dw 0
+CACHE_TAIL: dw 0
 
 ;
 ; This is the "in the 1Meg address space" track buffer. Its TRUE start
@@ -4808,7 +4808,7 @@ BREAK	<COMMON INIT CODE>
 
 U_SWITCH	db	0	;; upper extended memory requested on 6300 PLUS
 
-EXT_K		DW	?	; Size in K of Extended memory.
+EXT_K: dw 0; Size in K of Extended memory.
 
 NUM_ARG 	DB	1	; Counter for numeric
 				;    arguments	bbbb.
@@ -4824,7 +4824,7 @@ GOTSWITCH	DB	0	; Bit map of switches seen
  SWITCH_R	 EQU	 01000000B
  SWITCH_C	 EQU	 10000000B
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-sys_det	proc	near
+sys_det:
 ;
 ; author:  sunilp, august 1, 1987.  thanks to rickha for most of this
 ; 	   routine.
@@ -4843,7 +4843,7 @@ sys_det	proc	near
 ;----------------------------------
 ;	Clear the state of the system flag
 ;
-assume ds:int13code,es:nothing,ss:nothing
+; assume ds:int13code,es:nothing,ss:nothing
 	xor	ax,ax			; 0000 into AX
 	mov	[sys_flg],al		; clear system flag
 ;----------------------------------
@@ -4900,7 +4900,7 @@ cpu_386:
 cpu_286:
 	mov	ax,0ffffh
 	mov	es,ax
-	cmp	byte ptr es:[0eh],0fch	; AT model byte
+	cmp	byte es:[0eh],0fch	; AT model byte
 	jne	cpu_err			; if not abort
 ;
 	or	[sys_flg],M_286		; set 286 flag bit
@@ -4937,7 +4937,7 @@ cpu_err:
 	stc
 	ret
 ;
-sys_det endp
+; ENDP sys_det
 
 
 ;*--------------------------------------------------------------------------*
@@ -4952,7 +4952,7 @@ sys_det endp
 ;*									    *
 ;*--------------------------------------------------------------------------*
 
-IsPS2Machine proc   near
+IsPS2Machine:
 
 	    mov     ah,0C0h	    ; Get System Description Vector
 	    stc
@@ -4964,7 +4964,7 @@ IsPS2Machine proc   near
 	    je	    short IPMFoundIt	    ; Yup, use the PS/2 method
 
 	    ; Do we have a "Micro Channel" computer?
-	    mov     al,byte ptr es:[bx+5]   ; Get "Feature Information Byte 1"
+	    mov     al,byte es:[bx+5]   ; Get "Feature Information Byte 1"
 	    test    al,00000010b    ; Test the "Micro Channel Implemented" bit
 	    jz	    short IPMNoPS2
 
@@ -4974,7 +4974,7 @@ IPMFoundIt: mov     ax,1
 IPMNoPS2:   xor	    ax,ax
 	    ret
 
-IsPS2Machine endp
+; ENDP IsPS2Machine
 
 
 ;*--------------------------------------------------------------------------*
@@ -4991,11 +4991,11 @@ IsPS2Machine endp
 
 ; Look for 'NC' at F000:FFEA
 
-IsNCRMachine proc   near
+IsNCRMachine:
 
 	    mov     ax,0F000h
 	    mov     es,ax
-	    mov     ax,word ptr es:[0FFEAh]
+	    mov     ax,word es:[0FFEAh]
 	    cmp     ax,'CN'
 	    je	    INMFoundIt
 	    xor     ax,ax
@@ -5004,7 +5004,7 @@ IsNCRMachine proc   near
 INMFoundIt: mov     ax,1
 	    ret
 
-IsNCRMachine endp
+; ENDP IsNCRMachine
 
 
 ;******************************************************************************
@@ -5028,7 +5028,7 @@ IsNCRMachine endp
 ;   USED:   AX, flags
 ;   STACK:  
 ;------------------------------------------------------------------------------
-is_b0	proc	near
+is_b0:
 	push	bx
 	push	cx
 	push	dx
@@ -5036,13 +5036,13 @@ is_b0	proc	near
 
 	xor	bx,bx
 	mov	ds,bx			; DS = 0000 (real mode IDT)
-assume ds:R_Mode_IDT
+; assume ds:R_Mode_IDT
 	push	[bx+(6*4)]
 	pop	cs:[int6_save]		; save old INT 6 offset
 	push	[bx+(6*4)+2]
 	pop	cs:[int6_save+2]	; save old INT 6 segment
 					
-	mov	word ptr [bx+(6*4)],offset int6
+	mov	word [bx+(6*4)],int6
 	mov	[bx+(6*4)+2],cs 	; set vector to new INT 6 handler
 ;
 ;   Attempt execution of Extract Bit String instruction.  Execution on
@@ -5073,19 +5073,19 @@ ib_exit:
 	pop	cx
 	pop	bx
 	ret				; *** RETURN ***
-is_b0	endp
+; ENDP is_b0
 ;
 ;   Temporary INT 6 handler - assumes the cause of the exception was the 
 ;   attempted execution of an XTBS instruction.
 ;
-int6	proc 	near
+int6:
 	push	bp
 	mov	bp,sp
-	add	word ptr [bp+2],3	; bump IP past faulting instruction
+	add	word [bp+2],3	; bump IP past faulting instruction
 	pop	bp
 	iret				; *** RETURN ***
 int6_save	dw	0000,0000
-int6	endp
+; ENDP int6
 ;***************************************************************************
 
 ;**	PRINT - Print a "$" terminated message on stdout
@@ -5106,7 +5106,7 @@ int6	endp
 ;
 
 PRINT:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSH	DS
 	PUSH	CS
 	POP	DS
@@ -5133,7 +5133,7 @@ ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 ;
 
 ITOA:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 	MOV	CX,10
 	XOR	DX,DX
@@ -5236,11 +5236,11 @@ PRINT_THIS_DIGIT:
 ;
 
 INT13$INIT:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
     ;
     ; 1.  Initialize various global values
     ;
-	MOV	WORD PTR [TERM_ADDR + 2],CS
+	MOV	word [TERM_ADDR + 2],CS
     ;
     ; 2.  Check for correct DOS version and do changes to the device
     ;	     based on the DOS version if needed.
@@ -5256,12 +5256,12 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	CMP	AX,(4 SHL 8) + 00
 	JBE	VER_OK			; 3.X or 4.0 OK
 BADVER:
-	MOV	DX,OFFSET BADVERMES
+	MOV	DX,BADVERMES
 	JMP	DEVABORT
 
 VER2X:
 	AND	[DEVATS],NOT DEVOPCL	    ; No such bit in 2.X
-	MOV	BYTE PTR [INT13TBL],11	    ; Fewer functions too
+	MOV	byte [INT13TBL],11	    ; Fewer functions too
 VER_OK:
 
 ;;
@@ -5276,7 +5276,7 @@ VER_OK:
 	jnz	notS5				;; not found
 	mov	ax,0f000h
 	mov	es,ax
-	cmp	word ptr es:[0fffdh],0fc00h	;; look for 6300 plus
+	cmp	word es:[0fffdh],0fc00h	;; look for 6300 plus
 	jnz	notS5
 	mov	[S5_FLAG],S_OLIVETTI		;; yep, set flag
 notS5:
@@ -5296,15 +5296,15 @@ notHP:
 ;
 	MOV	AX,(Get_Interrupt_Vector SHL 8) OR 13H
 	INT	21H
-	MOV	WORD PTR [OLD_13],BX
-	MOV	WORD PTR [OLD_13 + 2],ES
+	MOV	word [OLD_13],BX
+	MOV	word [OLD_13 + 2],ES
 	MOV	AX,(Get_Interrupt_Vector SHL 8) OR 1CH
 	INT	21H
-	MOV	WORD PTR [OLD_1C],BX
-	MOV	WORD PTR [OLD_1C + 2],ES
+	MOV	word [OLD_1C],BX
+	MOV	word [OLD_1C + 2],ES
 	LDS	SI,[PTRSAV]
-ASSUME	DS:NOTHING
-	MOV	DX,OFFSET HEADERMES
+; ASSUME	DS:NOTHING
+	MOV	DX,HEADERMES
 	CALL	PRINT
 	LDS	SI,[SI.INIT_BPB]    ; DS:SI points to config.sys
 SKIPLP1:			    ; Skip leading delims to start of name
@@ -5383,7 +5383,7 @@ SCAN_LOOPJ:
 	JMP	SCAN_LOOP
 
 BAD_PARM:
-	MOV	DX,OFFSET ERRMSG1
+	MOV	DX,ERRMSG1
 DEVABORT:
 	CALL	PRINT
 DEVABORT_NOMES:
@@ -5391,9 +5391,9 @@ DEVABORT_NOMES:
 ;	MOV	WORD PTR [TERM_ADDR],OFFSET ERROR_END ;Minimul null device
 ;	JMP	SETBPB			;and return
 	LDS	BX,[PTRSAV]
-	MOV	WORD PTR [BX].INIT_NUM,0
-	MOV	WORD PTR [BX].INIT_BREAK[0],0
-	MOV	WORD PTR [BX].INIT_BREAK[2],CS
+	MOV	word [BX].INIT_NUM,0
+	MOV	word [BX].INIT_BREAK[0],0
+	MOV	word [BX].INIT_BREAK[2],CS
 	MOV	[DEVATS],0
 	JMP	DEVEXIT
 
@@ -5401,7 +5401,7 @@ SWITCH:
 	LODSB
 	OR	AL,20H
 
-if WINDOWS_SWITCHES eq 0
+%if WINDOWS_SWITCHES eq 0
 	CMP	AL,"e"
 	JNZ	ABOVE_TEST
 EXT_SET:
@@ -5413,7 +5413,7 @@ EXT_SET:
 
 ABOVE_TEST:
 
-endif	; WINDOWS_SWITCHES eq 0
+%endif; WINDOWS_SWITCHES eq 0
 
 ;; Added for /u switch
 	cmp	al,'u'			;; Look for U switch for PLUS
@@ -5430,11 +5430,11 @@ A_TEST:
 ;;
 	CMP	AL,"a"
 
-if WINDOWS_SWITCHES
+%if WINDOWS_SWITCHES
 	jnz	bad_parm
-else
+%else
 	JNZ	DIS_TEST
-endif	;WINDOWS_SWITCHES
+%endif;WINDOWS_SWITCHES
 
 ABOVE_SET:
 	TEST	[GOTSWITCH],SWITCH_A	; Was SWITCH_E + SWITCH_A
@@ -5447,7 +5447,7 @@ ABOVE_SET:
 	MOV	[DRIVER_SEL],1
 	JMP	SCAN_LOOP
 
-if WINDOWS_SWITCHES eq 0
+%if WINDOWS_SWITCHES eq 0
 
 DIS_TEST:
 	CMP	AL,"d"
@@ -5550,7 +5550,7 @@ C_TEST:
 	OR	[GOTSWITCH],SWITCH_C
 	MOV	[ALL_CACHE],1
 	JMP	SCAN_LOOP
-endif	;WINDOWS_SWITCHES eq 0
+%endif;WINDOWS_SWITCHES eq 0
 
 ARGS_DONE:
 ;
@@ -5559,7 +5559,7 @@ ARGS_DONE:
 ;
 	PUSH	CS
 	POP	DS
-ASSUME	DS:INT13CODE
+; ASSUME	DS:INT13CODE
 	MOV	AL,[DRIVER_SEL] 	; Find out which init to call
 	OR	AL,AL
 	JNZ	NEXTV
@@ -5582,43 +5582,43 @@ DRIVE_SET:
     ;
     ; 6.  Print out report of INT13 parameters
     ;
-	MOV	DX,OFFSET STATMES1
+	MOV	DX,STATMES1
 	CALL	PRINT
 	MOV	AX,[DEV_SIZE]
 	CALL	ITOA
-	MOV	DX,OFFSET STATMES1E
+	MOV	DX,STATMES1E
 	CMP	[DRIVER_SEL],0
 	JZ	PTYPX
-	MOV	DX,OFFSET STATMES1A
+	MOV	DX,STATMES1A
 PTYPX:
 	CALL	PRINT
-	MOV	DX,OFFSET STATMES2
+	MOV	DX,STATMES2
 	CALL	PRINT
 	MOV	AX,[TTRACKS]
 	CALL	ITOA
-	MOV	DX,OFFSET STATMES3
+	MOV	DX,STATMES3
 	CALL	PRINT
 	MOV	AX,[SECTRACK]
 	CALL	ITOA
-	MOV	DX,OFFSET STATMES4
+	MOV	DX,STATMES4
 	CALL	PRINT
 
-ifdef	OMTI
-	mov	dx,offset omti_msg
+%ifdef OMTI
+	mov	dx,omti_msg
 	call	print
-endif
-IF DEBUG
-	MOV	DX,OFFSET STATMES5
+%endif
+%if DEBUG
+	MOV	DX,STATMES5
 	CALL	PRINT
 	MOV	AX,CS
 	CALL	ITOA
-	MOV	DX,OFFSET STATMES6
+	MOV	DX,STATMES6
 	CALL	PRINT
-ENDIF
+%endif
     ;
     ; Turn on the cache by chaining INT 13, and INT 1C
     ;
-	MOV	DX,OFFSET INT_13_HANDLER
+	MOV	DX,INT_13_HANDLER
 	MOV	AX,(Set_Interrupt_Vector SHL 8) OR 13H
 	INT	21H
 ;	MOV	DX,OFFSET INT_1C_HANDLER
@@ -5649,19 +5649,19 @@ ENDIF
 ;
 ;
 NO_HARDFILES:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
-	MOV	DX,OFFSET NOHARD
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+	MOV	DX,NOHARD
 PEER:
 	CALL	PRINT
 	STC
 	RET
 
 TRACK_TOO_BIG:
-	MOV	DX,OFFSET BIGTRACK
+	MOV	DX,BIGTRACK
 	JMP	PEER
 
 DRIVEPARMS:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
     ;
     ; First figure out sec/track of any hardfiles
     ;
@@ -5771,14 +5771,14 @@ SetCachest:
 	shl	bx,cl			; AX is bytes in Track buffer
 	add	bx,[TRACK_BUFFER_PTR]	; First byte after track buffer
 	mov	[CACHE_CONTROL_PTR],bx
-	mov	cx,SIZE CACHE_CONTROL
+	mov	cx,CACHE_CONTROL_size
 	mov	ax,[TTRACKS]
 	MUL	cx
 	add	bx,ax
     ;
     ; Set TERM_ADDR
     ;
-	mov	word ptr [TERM_ADDR],bx
+	mov	word [TERM_ADDR],bx
 	CLC
 	RET
 
@@ -5811,7 +5811,7 @@ SetCachest:
 ;
 
 GETNUM:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 	XOR	BX,BX
 GETNUM1:
@@ -5856,7 +5856,7 @@ valid_emm   db	0
 ;	This data is appropriate to TYPE 1 drivers
 ;
 
-EMM_CONTROL   LABEL   BYTE
+EMM_CONTROL:
 		DB	"MICROSOFT EMM CTRL VERSION 1.00 CONTROL BLOCK     "
 		DW	0
 		DW	0
@@ -5866,12 +5866,12 @@ EMM_CONTROL   LABEL   BYTE
 ;; Note:  When using upper extended memory on the PLUS, the value 
 ;;	  at BASE_RESET + 2 is patched to FA during initialization.
 ;;
-BASE_RESET	LABEL	DWORD		; RESMEM driver must patch this value
+BASE_RESET:; RESMEM driver must patch this value
 		DW	EXTMEM_LOW + 1024
 		DW	EXTMEM_HIGH
 		DW	0
 
-		DB	950 DUP(0)
+		times 950 db 0
 		DB	"ARRARRARRA"
 
 
@@ -5914,7 +5914,7 @@ BREAK	<INT13 COMMON INIT ROUTINES>
 ;
 
 DISK_ABORT:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 
 	CMP	[DRIVER_SEL],1
 	JNZ	NOT_ABOVE
@@ -5935,16 +5935,16 @@ NOT_ABOVE:
     ;
     ; TYPE 1, turn off EMM_ISDRIVER at MY_EMM_REC
     ;
-	MOV	AX,WORD PTR [BASE_RESET]
-	MOV	DX,WORD PTR [BASE_RESET + 2]
+	MOV	AX,word [BASE_RESET]
+	MOV	DX,word [BASE_RESET + 2]
 	SUB	AX,1024 			; Backup to EMM_CTRL
 	SBB	DX,0
-	MOV	WORD PTR [BASE_ADDR],AX
-	MOV	WORD PTR [BASE_ADDR + 2],DX
+	MOV	word [BASE_ADDR],AX
+	MOV	word [BASE_ADDR + 2],DX
 	XOR	BH,BH				; READ
 	CALL	CTRL_IO 			; Get EMM_CTRL
 	JC	RET002
-	MOV	DI,OFFSET TRACK_BUFFER
+	MOV	DI,TRACK_BUFFER
 	ADD	DI,[MY_EMM_REC]
 	AND	[DI.EMM_FLAGS],NOT EMM_ISDRIVER     ; Undo install
 	MOV	BH,1		; WRITE
@@ -5955,7 +5955,7 @@ RET002:
     ;
 	PUSH	DS
 	LDS	DX,[OLD_19]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	AX,DS
 	CMP	AX,-1
 	JNZ	RESET_VECS
@@ -6005,13 +6005,13 @@ NO_VECS:
 ;
 
 CTRL_IO:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	XOR	DX,DX
 	MOV	AX,DX		; Offset 0
 	MOV	CX,512		; 1024 bytes
 	PUSH	CS
 	POP	ES
-	MOV	DI,OFFSET TRACK_BUFFER
+	MOV	DI,TRACK_BUFFER
 	PUSH	DS
 	CALL	BLKMOV		; Read in EMM_CTRL
 	POP	DS
@@ -6046,10 +6046,10 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ;
 
 MM_SETDRIVE:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	XOR	BH,BH		; READ
 	CALL	CTRL_IO 	; Get EMM_CTRL
-	MOV	DX,OFFSET INIT_IO_ERR
+	MOV	DX,INIT_IO_ERR
 	JC	ERR_RET2
 	CALL	FIND_VDRIVE	; Snoop
 	JC	RET001
@@ -6062,11 +6062,11 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 ; end modification sp
 	MOV	BH,1		; WRITE
 	CALL	CTRL_IO 	; Write EMM_CTRL back out
-	MOV	DX,OFFSET INIT_IO_ERR
+	MOV	DX,INIT_IO_ERR
 	JC	ERR_RET2P
 mm_s$1:
-	POP	WORD PTR [BASE_ADDR]	; Set final correct BASE_ADDR
-	POP	WORD PTR [BASE_ADDR + 2]
+	POP	word [BASE_ADDR]	; Set final correct BASE_ADDR
+	POP	word [BASE_ADDR + 2]
 	CLC
 RET001:
 	RET
@@ -6184,11 +6184,11 @@ ERR_RET2:
 ;   we are going to be int15 guys from now except for the olivetti memory
 ;
 FIND_VDRIVE:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	PUSH	CS
 	POP	ES
-	MOV	DI,OFFSET TRACK_BUFFER
-	MOV	SI,OFFSET EMM_CONTROL
+	MOV	DI,TRACK_BUFFER
+	MOV	SI,EMM_CONTROL
 	MOV	CX,50
 	CLD
 	REPE	CMPSB
@@ -6224,9 +6224,9 @@ old_st:
 	cmp	[valid_emm],0h		; do we have a valid emm
 	jne	scan_dev		; if yes go to scan structures
 set_ctrl:				; else we have to install a new one
-	MOV	DI,OFFSET TRACK_BUFFER
+	MOV	DI,TRACK_BUFFER
 	PUSH	DI
-	MOV	SI,OFFSET EMM_CONTROL
+	MOV	SI,EMM_CONTROL
 	MOV	CX,1024/2
 	REP	MOVSW		; Move in initial EMM_CTRL
 	POP	DI
@@ -6235,7 +6235,7 @@ set_ctrl:				; else we have to install a new one
 	MOV	[DI.EMM_TOTALK],AX
 	MOV	[DI.EMM_AVAILK],AX
 SCAN_DEV:
-	MOV	SI,OFFSET TRACK_BUFFER ; DS:SI points to EMM_CTRL
+	MOV	SI,TRACK_BUFFER ; DS:SI points to EMM_CTRL
 	MOV	DI,SI
 	ADD	DI,EMM_RECORD	      ; DS:DI points to EMM records
 	MOV	CX,EMM_NUMREC
@@ -6260,7 +6260,7 @@ CHECK_SYS:
     ; Size of found block is bigger than requested size.
     ;	User MUST have edited CONFIG.SYS.
 	PUSH	DI
-	ADD	DI,SIZE EMM_REC
+	ADD	DI,EMM_REC_size
 	TEST	[DI.EMM_FLAGS],EMM_ALLOC
 	POP	DI
 	JZ	SHRINK_BLOCK	; Next block is free, shrink
@@ -6277,7 +6277,7 @@ SHRINK_BLOCK:
 INSUFF_MEM:			; Size of found block is smaller
 				;   than requested size.
 	PUSH	DI
-	ADD	DI,SIZE EMM_REC
+	ADD	DI,EMM_REC_size
 	TEST	[DI.EMM_FLAGS],EMM_ALLOC
 	POP	DI
 	JNZ	OK_SET_DEV	; Next block is NOT free, can't grow
@@ -6298,17 +6298,17 @@ OK_SET_DEV:
 	MOV	[DEV_SIZE],AX
 	OR	[DI.EMM_FLAGS],EMM_ISDRIVER
 	MOV	[MY_EMM_REC],DI
-	SUB	[MY_EMM_REC],OFFSET TRACK_BUFFER  ; Make start of EMM_CTRL relative
+	SUB	[MY_EMM_REC],TRACK_BUFFER  ; Make start of EMM_CTRL relative
 	LES	DI,[DI.EMM_BASE]
 	XOR	AX,AX			; Set zero, clear carry
 	RET
 
 NEXTRECI:
 NEXTREC:
-	ADD	DI,SIZE EMM_REC       ; Next record
+	ADD	DI,EMM_REC_size       ; Next record
 	LOOP	LOOK_RECJ
 VERROR:
-	MOV	DX,OFFSET ERRMSG2
+	MOV	DX,ERRMSG2
 	CALL	PRINT
 	STC
 	RET
@@ -6331,9 +6331,9 @@ GOTSIZE:
 	MOV	[DI.EMM_SYSTEM],EMM_APPLICATION
 	MOV	[DI.EMM_FLAGS],EMM_ALLOC + EMM_ISDRIVER
 	MOV	[MY_EMM_REC],DI
-	SUB	[MY_EMM_REC],OFFSET TRACK_BUFFER  ; Make start of EMM_CTRL relative
+	SUB	[MY_EMM_REC],TRACK_BUFFER  ; Make start of EMM_CTRL relative
 	PUSH	DI
-	SUB	DI,SIZE EMM_REC       ; Look at prev record to compute base
+	SUB	DI,EMM_REC_size       ; Look at prev record to compute base
 	MOV	AX,[DI.EMM_KSIZE]
 	LES	BX,[DI.EMM_BASE]
 	MOV	DI,ES			; DI:BX is prev base
@@ -6342,8 +6342,8 @@ GOTSIZE:
 	ADD	AX,BX			; Add size onto base to get next base
 	ADC	DX,DI
 	POP	DI
-	MOV	WORD PTR [DI.EMM_BASE],AX
-	MOV	WORD PTR [DI.EMM_BASE + 2],DX
+	MOV	word [DI.EMM_BASE],AX
+	MOV	word [DI.EMM_BASE + 2],DX
 	LES	DI,[DI.EMM_BASE]
 	XOR	AX,AX			; Set zero, clear carry
 	INC	AX			; RESET zero
@@ -6362,7 +6362,7 @@ new_st:
 ; memory allocated is totalk - availk + 1
 ;
 	sub	bx,1			; subtract the emm ctrl record size
-	mov	di,offset track_buffer	; set up to address the ctrl record
+	mov	di,track_buffer	; set up to address the ctrl record
 					; read in
 	mov	ax,[di.emm_totalk]	; ax <- totalk
 	sub	ax,[di.emm_availk]	; ax <- totalk - availk
@@ -6398,9 +6398,9 @@ skip_adj_dev_size:
 	push	es
 	mov	ax,(get_interrupt_vector shl 8) or 15h
 	int	21h
-	mov	word ptr [old_15],bx
-	mov	word ptr [old_15+2],es
-	mov	dx,offset int_15
+	mov	word [old_15],bx
+	mov	word [old_15+2],es
+	mov	dx,int_15
 	mov	ax,(set_interrupt_vector shl 8) or 15h
 	int	21h
 	pop	es
@@ -6418,8 +6418,8 @@ skip_adj_dev_size:
 	sub	ax,[dev_size]	    ; this now has memory left
 	mov	cx,1024 	    ; we are going to find size in bytes
 	mul	cx		    ; dx:ax = ax * 1024
-	add	ax,word ptr [base_addr]      ;
-	adc	dx,word ptr [base_addr+2]    ;
+	add	ax,word [base_addr]      ;
+	adc	dx,word [base_addr+2]    ;
 	mov	es,dx		    ;
 	mov	di,ax		    ;
 	ret
@@ -6443,7 +6443,7 @@ skip_adj_dev_size:
 ;
 
 SET_RESET:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	cmp	U_SWITCH,0		;; don't do this for at&t 6300 plus
 	jnz	ret005
 	PUSH	AX
@@ -6452,15 +6452,15 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	PUSH	ES
 	MOV	AX,(Get_Interrupt_Vector SHL 8) OR 19H
 	INT	21H
-	MOV	WORD PTR [OLD_19],BX
-	MOV	WORD PTR [OLD_19 + 2],ES
-	MOV	DX,OFFSET INT_19
+	MOV	word [OLD_19],BX
+	MOV	word [OLD_19 + 2],ES
+	MOV	DX,INT_19
 	MOV	AX,(Set_Interrupt_Vector SHL 8) OR 19H
 	INT	21H
 	MOV	AX,(Get_Interrupt_Vector SHL 8) OR 9H
 	INT	21H
-	MOV	WORD PTR [OLD_9],BX
-	MOV	WORD PTR [OLD_9 + 2],ES
+	MOV	word [OLD_9],BX
+	MOV	word [OLD_9 + 2],ES
 ;	MOV	DX,OFFSET INT_9
 ;	MOV	AX,(Set_Interrupt_Vector SHL 8) OR 9H
 ;	INT	21H
@@ -6514,12 +6514,12 @@ BREAK	</E INIT Code>
 ;
 
 AT_EXT_INIT:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	push	ds
 	call	sys_det 	; new routine to do more comprehensive
 	pop	ds
 	jnc	at001		; checks than before
-	MOV	DX,OFFSET BAD_AT
+	MOV	DX,BAD_AT
 ERR_RET:
 	CALL	PRINT
 	STC
@@ -6533,13 +6533,13 @@ AT001:
 	cmp	[U_SWITCH],0		;; patch the code for /U option
 	jz	AT001A
 	mov	ax,00fah
-	mov	word ptr [emm_ctrl_addr+2],ax	;; in resident part for reset code
-	mov	word ptr [base_reset+2],ax	;; patching upper address
-	mov	word ptr [base_addr+2],ax	;;   to FA from 10
+	mov	word [emm_ctrl_addr+2],ax	;; in resident part for reset code
+	mov	word [base_reset+2],ax	;; patching upper address
+	mov	word [base_addr+2],ax	;;   to FA from 10
 AT001A:
 	MOV	AX,8800H
 	INT	15H			; Get extended memory size
-	MOV	DX,OFFSET NO_MEM
+	MOV	DX,NO_MEM
 	OR	AX,AX
 	JZ	ERR_RET
 
@@ -6563,7 +6563,7 @@ olstuff:
 	mov	[special_mem],384	;; store special memory size
 AT001B:
 
-	MOV	DX,OFFSET ERRMSG2
+	MOV	DX,ERRMSG2
 	CMP	AX,128		; 128k min cache
 	JB	ERR_RET
 	MOV	[EXT_K],AX
@@ -6578,17 +6578,17 @@ AT002:
 	test	[sys_flg],M_386
 	je	loadall_setup
 	mov	ax,cs
-	mov	word ptr [cod_seg],ax
+	mov	word [cod_seg],ax
 ; set cs descriptor
 	mov	cx,16
 	mul	cx
-	mov	si,offset cs_des
+	mov	si,cs_des
 	mov	[si].bas_0_15,ax
 	mov	[si].bas_16_23,dl
 	mov	[si].bas_24_31,dh
 ; set gdt base
-	mov	si,offset emm_gdt
-	add	ax,offset start_gdt
+	mov	si,emm_gdt
+	add	ax,start_gdt
 	adc	dx,0
 	mov	[si].gdt_base_0,ax
 	mov	[si].gdt_base_2,dx
@@ -6609,7 +6609,7 @@ AT002:
 ;;;;	    CALL    FIX_DESCRIPTOR
 loadall_setup:
 	MOV	[LCSS],CS
-	MOV	SI,OFFSET CSDES
+	MOV	SI,CSDES
 	MOV	AX,CS
 	CALL	SEG_SET
 common_setup:
@@ -6717,19 +6717,19 @@ ABOVE_DEV_NAME	DB	"EMMXXXX0"
 ;
 
 ABOVE_INIT:
-ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
     ;
     ; Swap above code into place
     ;
 	PUSH	CS
 	POP	ES
-	MOV	SI,OFFSET ABOVE_CODE
-	MOV	DI,OFFSET DRIVE_CODE
-	MOV	CX,OFFSET DRIVE_END - OFFSET DRIVE_CODE
+	MOV	SI,ABOVE_CODE
+	MOV	DI,DRIVE_CODE
+	MOV	CX,DRIVE_END - DRIVE_CODE
 	REP	MOVSB
-	MOV	SI,OFFSET ABOVE_RESET
-	MOV	DI,OFFSET RESET_SYSTEM
-	MOV	CX,OFFSET RESET_INCLUDE - OFFSET RESET_SYSTEM
+	MOV	SI,ABOVE_RESET
+	MOV	DI,RESET_SYSTEM
+	MOV	CX,RESET_INCLUDE - RESET_SYSTEM
 	REP	MOVSB
     ;
     ; Check for presence of Above board memory manager
@@ -6737,11 +6737,11 @@ ASSUME	DS:INT13CODE,ES:NOTHING,SS:NOTHING
 	MOV	AX,(Get_Interrupt_Vector SHL 8) OR 67H
 	INT	21H
 	MOV	DI,SDEVNAME
-	MOV	SI,OFFSET ABOVE_DEV_NAME
+	MOV	SI,ABOVE_DEV_NAME
 	MOV	CX,8
 	REPE	CMPSB
 	JZ	GOT_MANAGER
-	MOV	DX,OFFSET NO_ABOVE
+	MOV	DX,NO_ABOVE
 ABOVE_ERR:
 	CALL	PRINT
 	STC
@@ -6760,7 +6760,7 @@ STLOOP:
 	CMP	AH,ABOVE_ERROR_BUSY
 	LOOPZ	STLOOP
 ST_ERR:
-	MOV	DX,OFFSET BAD_ABOVE
+	MOV	DX,BAD_ABOVE
 	JMP	ABOVE_ERR
 
 MEM_OK:
@@ -6773,8 +6773,8 @@ MEM_OK:
 	JZ	MEM_OK
 	CMP	AH,ABOVE_SUCCESSFUL
 	JNZ	ST_ERR
-	MOV	WORD PTR [BASE_ADDR],0
-	MOV	WORD PTR [BASE_ADDR + 2],BX
+	MOV	word [BASE_ADDR],0
+	MOV	word [BASE_ADDR + 2],BX
     ;
     ; Allocate drive memory
     ;
@@ -6787,10 +6787,10 @@ GET_AVAIL:
 	JNZ	ST_ERR
 	MOV	AX,DX		; AX is total 16K pages
 				; BX is un-allocated 16K pages
-	MOV	DX,OFFSET NO_MEM
+	MOV	DX,NO_MEM
 	OR	AX,AX
 	JZ	ABOVE_ERR
-	MOV	DX,OFFSET ERRMSG2
+	MOV	DX,ERRMSG2
 ;
 ;   change in allocation strategy new default is all of available pages
 ;   < 8192K.
@@ -6855,7 +6855,7 @@ OKAYU:
 	JZ	ST_ERRJ
 	CMP	AH,ABOVE_ERROR_OUT_OF_PIDS
 	JB	ST_ERRJ
-	MOV	DX,OFFSET ERRMSG2
+	MOV	DX,ERRMSG2
 	JMP	ABOVE_ERR
 
 ST_ERRJ:
@@ -6882,7 +6882,7 @@ BREAK	<Drive code for /A driver. Swapped in at BLKMOV>
 ;
 ; This label defines the start of the code swapped in at DRIVE_CODE
 ;
-ABOVE_CODE	LABEL	WORD
+ABOVE_CODE:
 
 ;
 ; WARNING DANGER!!!!!!!
@@ -6897,16 +6897,16 @@ ABOVE_CODE	LABEL	WORD
 ; SIZE of stuff between ABOVE_CODE and ABOVE_END MUST be less than
 ;	or equal to size of stuff between DRIVE_CODE and DRIVE_END.
 
-IF2
-  IF((OFFSET ABOVE_BLKMOV - OFFSET ABOVE_CODE) NE (OFFSET BLKMOV - OFFSET DRIVE_CODE))
-	  %out ERROR BLKMOV, ABOVE_BLKMOV NOT ALIGNED
-  ENDIF
-  IF((OFFSET ABOVE_END - OFFSET ABOVE_CODE) GT (OFFSET DRIVE_END - OFFSET DRIVE_CODE))
-	  %out ERROR ABOVE CODE TOO BIG
-  ENDIF
-ENDIF
+%if 1  ; IF2 - pass-specific
+  IF((ABOVE_BLKMOV - ABOVE_CODE) NE (BLKMOV - DRIVE_CODE))
+	  %warning ERROR BLKMOV, ABOVE_BLKMOV NOT ALIGNED
+  %endif
+  IF((ABOVE_END - ABOVE_CODE) GT (DRIVE_END - DRIVE_CODE))
+	  %warning ERROR ABOVE CODE TOO BIG
+  %endif
+%endif
 
-		DD	?	; 24 bit address of start of this RAMDRV
+		dd 0; 24 bit address of start of this RAMDRV
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;**	ABOVE_BLKMOV - Perform transfer for TYPE 2 driver
 ;
@@ -6978,7 +6978,7 @@ ENDIF
 ;	This routine is specific to TYPE 2 driver
 ;
 above_blkmov:
-assume ds:int13code,es:nothing,ss:nothing
+; assume ds:int13code,es:nothing,ss:nothing
 ;
 ;	save mapping context and return with error if save fails
 ;
@@ -7020,7 +7020,7 @@ ab_blk$1:
 	mov	bx,es		; get segment of buffer
 	add	ax,bx		; now we have the segment of the user buffer
 				; with offset < 16
-	sub	ax,word ptr [base_addr+2] ; compare against page map
+	sub	ax,word [base_addr+2] ; compare against page map
 	jc	aar_cd		; if below page map then execute old code
 ;
 ;	if( initial_user_off < pm_base_addr ) then error
@@ -7029,7 +7029,7 @@ ab_blk$1:
 	mov	bp,di		; get initial offset in bp
 	shr	bp,cl		;
 	add	bp,bx		;
-	sub	bp,word ptr [base_addr +2]
+	sub	bp,word [base_addr +2]
 	jc	ab_error	;
 ;
 ;	if ( initial_user_off >= pm_end_addr ) then case1
@@ -7124,11 +7124,11 @@ MAP_NEXT:
 	POP	BX
 	OR	AH,AH
 	JNZ	MAP_ERR1	; error
-IF2
-	IF (ABOVE_SUCCESSFUL)
-		%out ASSUMPTION IN CODE THAT ABOVE_SUCCESSFUL = 0 IS INVALID
-	ENDIF
-ENDIF
+%if 1  ; IF2 - pass-specific
+	%if (ABOVE_SUCCESSFUL)
+		%warning ASSUMPTION IN CODE THAT ABOVE_SUCCESSFUL = 0 IS INVALID
+	%endif
+%endif
 NEXT_PAGE:
 	INC	BX		; Next logical page
 	POP	AX
@@ -7156,14 +7156,14 @@ NEXT_PAGE:
 	MOV	DI,SI		; Start page offset to DI
 	POP	SI		; DS:SI is transfer addr
 	POP	DS
-ASSUME	DS:NOTHING
-	MOV	ES,WORD PTR [BASE_ADDR + 2] ; ES:DI -> start
+; ASSUME	DS:NOTHING
+	MOV	ES,word [BASE_ADDR + 2] ; ES:DI -> start
 	JMP	SHORT FIRST_MOVE
 
 READ_A:
-ASSUME	DS:INT13CODE
-	MOV	DS,WORD PTR [BASE_ADDR + 2]	; DS:SI -> start
-ASSUME	DS:NOTHING
+; ASSUME	DS:INT13CODE
+	MOV	DS,word [BASE_ADDR + 2]	; DS:SI -> start
+; ASSUME	DS:NOTHING
 FIRST_MOVE:
 	REP	MOVSW
 	OR	BP,BP		; Tail?
@@ -7181,11 +7181,11 @@ REST_AGN:
 	INT	67H
 	OR	AH,AH
 	JZ	ROK
-IF2
-	IF (ABOVE_SUCCESSFUL)
-		%out ASSUMPTION IN CODE THAT ABOVE_SUCCESSFUL = 0 IS INVALID
-	ENDIF
-ENDIF
+%if 1  ; IF2 - pass-specific
+	%if (ABOVE_SUCCESSFUL)
+		%warning ASSUMPTION IN CODE THAT ABOVE_SUCCESSFUL = 0 IS INVALID
+	%endif
+%endif
 	CMP	AH,ABOVE_ERROR_BUSY
 	JZ	REST_AGN
 	CMP	AH,ABOVE_ERROR_NO_CNTXT
@@ -7212,11 +7212,11 @@ MAP_AGN:
 	POP	BX
 	OR	AH,AH
 	JNZ	MAP_ERR2	; Error
-IF2
-	IF (ABOVE_SUCCESSFUL)
-		%out ASSUMPTION IN CODE THAT ABOVE_SUCCESSFUL = 0 IS INVALID
-	ENDIF
-ENDIF
+%if 1  ; IF2 - pass-specific
+	%if (ABOVE_SUCCESSFUL)
+		%warning ASSUMPTION IN CODE THAT ABOVE_SUCCESSFUL = 0 IS INVALID
+	%endif
+%endif
 SECOND_MOVE:
 	POP	AX		; Recover Op type
 	PUSH	AX
@@ -7301,7 +7301,7 @@ DNR_ERR:
 ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ;
 new_code:
-	assume	ds:int13code,es:nothing,ss:nothing
+	; assume	ds:int13code,es:nothing,ss:nothing
 ;
 ;	input parameters:
 ;
@@ -7320,7 +7320,7 @@ new_code:
     ; assume is physical page 0
     ;
 	xor	al,al		; use page 0 for cache
-	mov	bx,word ptr [base_addr+2]
+	mov	bx,word [base_addr+2]
     ;
     ; see if this assumption valid
     ;
@@ -7337,7 +7337,7 @@ new_code:
 ab$30:
 	mov	ds,bx
     ;
-assume	ds:nothing
+; assume	ds:nothing
 ;
 ;   [STEP2: initialising transfer parameters]
 ;
@@ -7452,12 +7452,12 @@ restore_mp:
 	restore_mapping_context
 	ret
 
-		DW	?		; SPACE for ABOVE_PID
+		dw 0; SPACE for ABOVE_PID
 
 ;
 ; This label defines the end of the code swapped in at DRIVE_CODE
 ;
-ABOVE_END	LABEL	WORD
+ABOVE_END:
 
 BREAK	<Drive code for /A driver. Swapped in at RESET_SYSTEM>
 
@@ -7478,11 +7478,11 @@ BREAK	<Drive code for /A driver. Swapped in at RESET_SYSTEM>
 ;	driver has an INT 19 and 9 handler.
 ;
 
-IF2
-  IF((OFFSET ABOVE_RESET_END - OFFSET ABOVE_RESET) GT (OFFSET RESET_INCLUDE - OFFSET RESET_SYSTEM))
-	  %out ERROR ABOVE_RESET CODE TOO BIG
-  ENDIF
-ENDIF
+%if 1  ; IF2 - pass-specific
+  IF((ABOVE_RESET_END - ABOVE_RESET) GT (RESET_INCLUDE - RESET_SYSTEM))
+	  %warning ERROR ABOVE_RESET CODE TOO BIG
+  %endif
+%endif
 
 ;**	ABOVE_RESET perform TYPE 2 (/A) driver specific reboot code
 ;
@@ -7501,7 +7501,7 @@ ENDIF
 ;
 
 ABOVE_RESET:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSH	AX
 	PUSH	DX
 AGAIN_RESET:
@@ -7517,7 +7517,7 @@ AGAIN_RESET:
 ;
 ; This label defines the end of the code swapped in at RESET_SYSTEM
 ;
-ABOVE_RESET_END    LABEL   BYTE
+ABOVE_RESET_END:
 
 BREAK <messages and common data>
 
@@ -7562,26 +7562,26 @@ STATMES1E db	"K in Extended Memory$"
 STATMES2  db	13,10,"    Room for $"
 STATMES3  db	" tracks of $"
 STATMES4  db	" sectors each",13,10,13,10,"$"
-ifdef	OMTI
+%ifdef OMTI
 omti_msg  db	"    OMTI controller release",13,10,"$"
-endif
+%endif
 
 ;-----------------------------------------------------------------------
 ;
 ; END OF DATA SUBJECT TO TRANSLATION
 ;
 
-IF DEBUG
+%if DEBUG
 STATMES5  db	"Device CS = $"
 STATMES6  db	" decimal",13,10,"$"
 s5flagmsg db	" = S5 flag",13,10,"$"
 U_msg	  db	" = U Switch", 13,10,'$'
-ENDIF
+%endif
 
 	db	"This program is the property of Microsoft Corporation."
 
-INT13_END	LABEL	BYTE
+INT13_END:
 
-INT13CODE ENDS
-	END
+; END SECTION .INT13CODE
+	; END
 

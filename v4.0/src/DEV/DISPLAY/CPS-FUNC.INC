@@ -3,16 +3,16 @@
 ;       CODE PAGE DRIVER FUNCTIONS
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IF1                                     ;
-        %OUT .               ®CPS-FUNC.INC¯
-ENDIF                                   ;
+%if 1  ; IF1 - pass-specific;
+        %warning .               Â®CPS-FUNC.INCÂ¯
+%endif;
                                         ;
-CP_FUNCTION     LABEL   BYTE            ;
-        DW   4CH,OFFSET DESIGNATE_BEGIN ;
-        DW   4DH,OFFSET DESIGNATE_END   ;
-        DW   4AH,OFFSET INVOKE_CP       ;
-        DW   6AH,OFFSET QUERY_CP        ;
-        DW   6BH,OFFSET QUERY_CP_LIST   ;
+CP_FUNCTION:;
+        DW   4CH,DESIGNATE_BEGIN ;
+        DW   4DH,DESIGNATE_END   ;
+        DW   4AH,INVOKE_CP       ;
+        DW   6AH,QUERY_CP        ;
+        DW   6BH,QUERY_CP_LIST   ;
 NUM_CP_FUNCTION  EQU ($-CP_FUNCTION)/4  ;
                                         ;
 DESG_SEMAPHORE  DB      0               ; TEMPORARY
@@ -29,13 +29,13 @@ CHAR_HEIGHT     DB      8               ;
 NUM_CHAR_HEIGHT EQU ($-CHAR_HEIGHT)     ;
                                         ;
                                         ;
-GENERIC_IOCTL PROC                      ; CON OUTPUT
+GENERIC_IOCTL:; CON OUTPUT
         CLI                           ;S;
         MOV     SI,SP                 ;S;
         MOV     CS:OLD_STACK_O,SI     ;S;
         MOV     SI,SS                 ;S;
         MOV     CS:OLD_STACK_S,SI     ;S;
-        MOV     AX,OFFSET STACK_START ;S;
+        MOV     AX,STACK_START ;S;
         MOV     SI,CS                 ;S;
         MOV     SS,SI                 ;S;
         MOV     SP,AX                 ;S;
@@ -45,7 +45,7 @@ GENERIC_IOCTL PROC                      ; CON OUTPUT
         PUSH    CS                      ;
         POP     DS                      ; FROM HERE IN, DS=CS
                                         ;
-        LES     DI,DWORD PTR BUF.RH_PTRO; GET RH
+        LES     DI,dword BUF.RH_PTRO; GET RH
                                         ;
 GI_1:   MOV     AL,RH.MINOR_F           ; PUT MINOR VERSION IN AL
         XOR     AH,AH                   ; CLEAR OUT HIGH BYTE FOR COMPARES
@@ -55,7 +55,7 @@ GI_1:   MOV     AL,RH.MINOR_F           ; PUT MINOR VERSION IN AL
         PUSH    CS                      ;
         POP     ES                      ;
         MOV     CX,NUM_CP_FUNCTION      ;
-        MOV     DI,OFFSET CP_FUNCTION   ;
+        MOV     DI,CP_FUNCTION   ;
 GI_1A:  SCASW                           ; SEARCH THROUGH THE LIST OF VALID FN's
         JE      GI_2                    ;
         INC     DI                      ;
@@ -82,13 +82,13 @@ GI_4:   POP     DS                      ;
         MOV     SP,AX                 ;S;
         STI                           ;S;
         RET                             ;
-GENERIC_IOCTL ENDP                      ;
+; ENDP GENERIC_IOCTL;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       DESIGNATE BEGIN
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DESIGNATE_BEGIN PROC                    ;
+DESIGNATE_BEGIN:;
         LES     DI,RH.REQUEST_PACKET    ; AND DI TO POINT TO REQUEST PACKET
         MOV     CX,RH.DESG_N            ; MOVE THE NUMBER OF CODE PAGES DESIG'ed
                                         ;
@@ -402,13 +402,13 @@ DB_A:   POP     DI                      ; ARE CHECKED OUT!
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
         MOV     DESG_SEMAPHORE,ONE      ; SET DESIGNATION TO COMMENCE...
         RET                             ;
-DESIGNATE_BEGIN ENDP                    ;
+; ENDP DESIGNATE_BEGIN;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       DESIGNATE END
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DESIGNATE_END   PROC                    ;
+DESIGNATE_END:;
         CMP     DESG_SEMAPHORE,ZERO     ; TEST IF DESG_SEMAPHORE = DATA WRITTEN
         JE      DE_1                    ;
                                         ;
@@ -435,13 +435,13 @@ DE_1:   OR      BUF.STATUS,TWELVE       ; Error>> NO DESGINATE START
 DE_2:   CALL    HANDLE_WRITE_ERROR      ; RESET ALL DESIGNATED INFORMATION
         OR      BUF.STATUS,FAIL         ; Error>> FONT DATA IS BAD
         JUMP    DE_0                    ;
-DESIGNATE_END   ENDP                    ;
+; ENDP DESIGNATE_END;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       INVOKE
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INVOKE_CP       PROC                    ;
+INVOKE_CP:;
         LES     DI,RH.REQUEST_PACKET    ; AND DI TO POINT TO REQUEST PACKET
         MOV     CX,RH.INVK_LENGTH       ; GET LENGTH OF REMAINING HEADER
                                         ;
@@ -477,13 +477,13 @@ ICP_1A: OR      BUF.STATUS,SEVEN        ; Error>> CODE PAGE NOT FOUND
 ICP_2A: MOV     CPD_ACTIVE,CX           ;
 ICP_2:  OR      BUF.STATUS,TEN          ; Error>> DEVICE ERROR
         RET                             ;
-INVOKE_CP       ENDP                    ;
+; ENDP INVOKE_CP;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       QUERY
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-QUERY_CP        PROC                    ;
+QUERY_CP:;
         LES     DI,RH.REQUEST_PACKET    ; SETUP ADDRESSING TO HEADER
                                         ;
         MOV     CX,TWO                  ;
@@ -501,13 +501,13 @@ QCP_A:  MOV     RH.INVK_CP,CX           ; SET THE CODE PAGE IN HEADER
                                         ;
 QCP_0:  OR      BUF.STATUS,SEVEN        ; Error>> NOT CODE PAGE SPECIFIED
         RET                             ;
-QUERY_CP        ENDP                    ;
+; ENDP QUERY_CP;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       QUERY LIST
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-QUERY_CP_LIST   PROC                    ;
+QUERY_CP_LIST:;
         LES     DI,RH.REQUEST_PACKET    ; AND DI TO POINT TO REQUEST PACKET
                                         ;
         MOV     CX,CPD_HDWR_N           ;
@@ -553,7 +553,7 @@ QCP_5:  OR      BUF.STATUS,SEVEN        ; Error>> NO CODE PAGE INVOKED
         RET                             ;
 QCP_6:  OR      BUF.STATUS,TEN          ; Error>> DEVICE ERROR
         RET                             ;
-QUERY_CP_LIST   ENDP                    ;
+; ENDP QUERY_CP_LIST;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       GET HARDWARE CODE PAGE TABLE
@@ -564,11 +564,11 @@ QUERY_CP_LIST   ENDP                    ;
 ;               SI = pointer to HARDWARE table (n,h_cp1,h_cp2,...)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-GET_HDWR_CP     PROC                    ;
+GET_HDWR_CP:;
         LEA     SI,CP_PNTER_TABLE       ;
         MOV     SI,[SI].HDWR_CP_STRUC   ;
         RET                             ;
-GET_HDWR_CP     ENDP                    ;
+; ENDP GET_HDWR_CP;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       GET DESIGNATE CODE PAGE TABLE
@@ -577,11 +577,11 @@ GET_HDWR_CP     ENDP                    ;
 ;       OUTPUT: SI = pointer to DESIGNATE table (n,d_cp1,d_cp2,...)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-GET_DESG_CP     PROC                    ;
+GET_DESG_CP:;
         LEA     SI,CP_PNTER_TABLE       ;
         MOV     SI,[SI].DESG_CP_STRUC   ;
         RET                             ;
-GET_DESG_CP     ENDP                    ;
+; ENDP GET_DESG_CP;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       GET FONT POINTER TABLE
@@ -592,11 +592,11 @@ GET_DESG_CP     ENDP                    ;
 ;               SI = pointer to FONTS table (pnter_cp1,pnter_cp2,...)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-GET_FONT_CP     PROC                    ;
+GET_FONT_CP:;
         LEA     SI,CP_PNTER_TABLE       ;
         MOV     SI,[SI].FONT_CP_STRUC   ;
         RET                             ;
-GET_FONT_CP     ENDP                    ;
+; ENDP GET_FONT_CP;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       GET WRITE POINTER
@@ -607,11 +607,11 @@ GET_FONT_CP     ENDP                    ;
 ;               SI = pointer to WRITE pointers
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-GET_WRITE_PNTR  PROC                    ;
+GET_WRITE_PNTR:;
         LEA     SI,CP_PNTER_TABLE       ;
         MOV     SI,[SI].WRITE_DATA_STRUC;
         RET                             ;
-GET_WRITE_PNTR  ENDP                    ;
+; ENDP GET_WRITE_PNTR;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       FIND ACTIVE CODE PAGE
@@ -624,7 +624,7 @@ GET_WRITE_PNTR  ENDP                    ;
 ;               ES : DI = pointer to FONT data table
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-FIND_CP         PROC                    ;
+FIND_CP:;
         PUSH    AX                      ;
         PUSH    BX                      ;
         PUSH    SI                      ;
@@ -658,7 +658,7 @@ FCP_3:  XOR     CX,CX                   ; SET RETURN VALUES TO ZERO
         POP     AX                      ;
         STC                             ; CY=1 FOR ERROR
         RET                             ; EXIT
-FCP_4:  MOV     CX,ONE                  ; ®®DESIGNATED CODE PAGE FOUND¯¯
+FCP_4:  MOV     CX,ONE                  ; Â®Â®DESIGNATED CODE PAGE FOUNDÂ¯Â¯
         CALL    GET_FONT_CP             ; SET THE BX VALUE TO THE FONT DATA
         SUB     BX,2                    ; NORMALIZE BX VALUE;;;;;;;;;;;;;;;
         ADD     SI,BX                   ; FORMULATE THE SI INDEX BY ADDING
@@ -670,14 +670,14 @@ FCP_4:  MOV     CX,ONE                  ; ®®DESIGNATED CODE PAGE FOUND¯¯
         POP     AX                      ;
         CLC                             ; CY=0 FOR OK!
         RET                             ; EXIT
-FCP_5:  XOR     CX,CX                   ; ®®HARDWARE CODE PAGE FOUND¯¯
+FCP_5:  XOR     CX,CX                   ; Â®Â®HARDWARE CODE PAGE FOUNDÂ¯Â¯
         XOR     DI,DI                   ;
         POP     SI                      ;
         POP     BX                      ;
         POP     AX                      ;
         CLC                             ;
         RET                             ; EXIT
-FIND_CP         ENDP                    ;
+; ENDP FIND_CP;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       VERIFY_FPARSER A ROUTINE THAT CHECKS THE
@@ -692,7 +692,7 @@ FIND_CP         ENDP                    ;
 ;                    1 if one or more designates are incomplete
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-VERIFY_FPARSER  PROC                    ;
+VERIFY_FPARSER:;
         PUSH    AX                      ;
         PUSH    CX                      ;
         PUSH    ES                      ;
@@ -723,6 +723,6 @@ VFP_9:  POP     DI                      ;
         POP     CX                      ;
         POP     AX                      ;
         RET                             ;
-VERIFY_FPARSER  ENDP                    ;
+; ENDP VERIFY_FPARSER;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

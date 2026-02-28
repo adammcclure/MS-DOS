@@ -1,5 +1,5 @@
-	PAGE	,132
-	TITLE	DOS - KEYB Command  -  Transient Command Processing
+	; PAGE	,132
+	; TITLE	DOS - KEYB Command  -  Transient Command Processing
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -37,22 +37,22 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-	PUBLIC FIND_SYS_TYPE	       ;;
-	PUBLIC FIND_KEYB_TYPE	       ;;
-	PUBLIC HW_TYPE		       ;;
-	PUBLIC SECURE_FL	       ;;
+	global FIND_SYS_TYPE;;
+	global FIND_KEYB_TYPE;;
+	global HW_TYPE;;
+	global SECURE_FL;;
 
 				       ;;
-	INCLUDE KEYBEQU.INC	       ;;
-	INCLUDE KEYBCPSD.INC	       ;;
-	INCLUDE KEYBSHAR.INC	       ;;
-	INCLUDE KEYBCMD.INC	       ;;
-	INCLUDE DSEG.INC	       ;;
-	INCLUDE POSTEQU.INC	       ;;
+	%include "KEYBEQU.INC";;
+	%include "KEYBCPSD.INC";;
+	%include "KEYBSHAR.INC";;
+	%include "KEYBCMD.INC";;
+	%include "DSEG.INC";;
+	%include "POSTEQU.INC";;
 				       ;;
-CODE	SEGMENT PUBLIC 'CODE'          ;;
+SECTION .CODE;;
 				       ;;
-	ASSUME	CS:CODE,DS:CODE        ;;
+	; ASSUME	CS:CODE,DS:CODE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -75,9 +75,9 @@ CODE	SEGMENT PUBLIC 'CODE'          ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					       ;;
-ROM	   SEGMENT AT 0F000H		       ;;
+SECTION .ROM;;
 		ORG	0FFFEH		       ;;
-ROMID		DB	?		       ;;
+ROMID: db 0;;
 					       ;; SEGMENT F000. (F000:FFFE)
 					       ;;
 ROMPC1		EQU	0FFH		       ;; ID OF PC1 hardware
@@ -89,16 +89,16 @@ ROMPAL		EQU	0FAH		       ;; ID FOR PALACE
 ROMLAP		EQU	0F9H		       ;; ID FOR PC LAP (P-14)
 ROM_RU_386	EQU	0F8H		       ;; ID FOR ROUNDUP-386
 					       ;;
-ROM	   ENDS 			       ;;
+; END SECTION .ROM;;
 					       ;;
 					       ;; ******** CNS
- ROMEXT     SEGMENT AT 00000H		       ;; ADDRESS SHOULD NOT BE FIXED AT
+ SECTION .ROMEXT;; ADDRESS SHOULD NOT BE FIXED AT
 		 ORG	 0003BH 		;;AT 09FC0H -- This is just a ;;
- KEYBID1	 DB	 ?			;;a dummy value of 000H INT 15H call
+ KEYBID1: db 0;;a dummy value of 000H INT 15H call
 					       ;; will load dynamically depending
 					       ;; upon system mem size- 9FC0 was only for 640K system
 					       ;; *** UNTRUE SEGMENT 9FC0. (9FC0:003B)
- ROMEXT     ENDS				;;
+ ; END SECTION .ROMEXT;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;***CNS
 
@@ -112,18 +112,18 @@ ROM	   ENDS 			       ;;
 ;;  Program Code
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-FIND_SYS_TYPE	       PROC  NEAR      ;;
+FIND_SYS_TYPE:;;
 				       ;;
 	MOV	AX,ROM		       ;; Set segmant to look at ROM
 	MOV	DS,AX		       ;;    using the data segment
-	ASSUME	DS:ROM		       ;;
+	; ASSUME	DS:ROM;;
 				       ;;
 	MOV	AL,ROMID	       ;; Get hardware ID
 	PUSH	AX		       ;; save it
 				       ;;
 	PUSH	CS		       ;; Set data seg back to code
 	POP	DS		       ;;
-	ASSUME	DS:CODE 	       ;;
+	; ASSUME	DS:CODE;;
 				       ;;
 	MOV	AH,92H		       ;; SET INVALID CALL FOR INT16
 	INT	16H		       ;; CALL BIOS
@@ -201,7 +201,7 @@ FIND_SYS_END:			       ;;
 				       ;;
 	RET			       ;;
 				       ;;
-FIND_SYS_TYPE	    ENDP	       ;;
+; ENDP FIND_SYS_TYPE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -246,14 +246,14 @@ P_KB_ID 	DB	08		       ;;
 ;;  Program Code
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-FIND_KEYB_TYPE	      PROC  NEAR       ;;
+FIND_KEYB_TYPE:;;
 				       ;;
 	PUSH	ES		       ;;
 	PUSH	DS		       ;;
 				       ;;
 	MOV	AX,ROM		       ;; Set segmant to look at ROM
 	MOV	DS,AX		       ;;    using the data segment
-	ASSUME	DS:ROM		       ;;
+	; ASSUME	DS:ROM;;
 				       ;;
 	MOV	AX,DATA 	       ;;
 	MOV	ES,AX		       ;; ES points to BIOS data
@@ -262,7 +262,7 @@ FIND_KEYB_TYPE	      PROC  NEAR       ;;
 				       ;;
 	PUSH	CS		       ;; Set data seg back to code
 	POP	DS		       ;;
-	ASSUME	DS:CODE 	       ;;
+	; ASSUME	DS:CODE;;
 				       ;;
 				       ;;
 	MOV   HW_TYPE,G_KB	       ;; Default keyboard is G_KB
@@ -384,7 +384,7 @@ NEW_SYSTEM:
   ;;	using the data segment
 	PUSH	ES		       ;; SEG value returned from INT15h -- C1 call
 	POP	DS
-	ASSUME	DS:ROMEXT	       ;;
+	; ASSUME	DS:ROMEXT;;
 				       ;;
 	MOV	AX,DATA 	       ;;
 	MOV	ES,AX		       ;; BP points to BIOS data
@@ -404,7 +404,7 @@ NEW_SYSTEM:
 ;******************************************************************************
 	PUSH	CS		       ;; Set data seg back to code
 	POP	DS		       ;;
-	ASSUME	DS:CODE 	       ;;
+	; ASSUME	DS:CODE;;
 				       ;;
 	AND	AL,0FH		       ;; Remove high nibble
 	CMP	AL,P_KB_ID	       ;; IF keyboard is a FERRARI P THEN
@@ -419,7 +419,7 @@ FIND_KEYB_END:			       ;; ELSE
 	POP   ES		       ;;
 	RET			       ;;
 				       ;;
-FIND_KEYB_TYPE		ENDP	       ;;
+; ENDP FIND_KEYB_TYPE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -441,7 +441,7 @@ FIND_KEYB_TYPE		ENDP	       ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-SND_DATA_AT PROC   NEAR
+SND_DATA_AT:
 	PUSH	AX			; SAVE REGISTERS
 	PUSH	BX			; *
 	PUSH	CX
@@ -500,7 +500,7 @@ SD4:	POP	CX			; RESTORE REGISTERS
 	POP	BX
 	POP	AX			; *
 	RET				; RETURN, GOOD TRANSMISSION
-SND_DATA_AT ENDP
+; ENDP SND_DATA_AT
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;************************************************************************
@@ -520,7 +520,7 @@ SND_DATA_AT ENDP
 
 ;************************************************************************
 
-KEYB_SECURE	PROC	NEAR
+KEYB_SECURE:
 
 
 
@@ -594,10 +594,10 @@ SECURE_RET:
 	RET
 
 
-KEYB_SECURE	ENDP
+; ENDP KEYB_SECURE
 
 
 
 
-CODE   ENDS
-       END
+; END SECTION .CODE
+       ; END

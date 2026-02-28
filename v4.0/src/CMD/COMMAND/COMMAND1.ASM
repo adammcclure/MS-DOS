@@ -1,8 +1,8 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)command1.asm	1.1 85/05/14
 ;	SCCSID = @(#)command1.asm	1.1 85/05/14
-TITLE	COMMAND - resident code for COMMAND.COM
-NAME	COMMAND
+; TITLE	COMMAND - resident code for COMMAND.COM
+; NAME	COMMAND
 
 ;*****************************************************************************
 ;
@@ -316,99 +316,99 @@ NAME	COMMAND
 ;			to the new environment before doing the SETBLOCK.
 ;***********************************************************************************
 
-.XCREF
-.XLIST
-	INCLUDE DOSSYM.INC
-	INCLUDE comsw.asm
-	INCLUDE comequ.asm
-	INCLUDE resmsg.equ		;AN000;
-.LIST
-.CREF
+; .XCREF
+; .XLIST
+	%include "DOSSYM.INC"
+	%include "comsw.asm"
+	%include "comequ.asm"
+	%include "resmsg.equ";AN000;
+; .LIST
+; .CREF
 
-CODERES 	SEGMENT PUBLIC BYTE	;AC000;
-CODERES ENDS
+SECTION .CODERES;AC000;
+; END SECTION .CODERES
 
-DATARES SEGMENT PUBLIC BYTE
-	EXTRN	BATCH:WORD
-	EXTRN	ECHOFLAG:BYTE
-	EXTRN	disp_class:byte 	;AN055;
-	EXTRN	execemes_block:byte	;AC000;
-	EXTRN	execemes_off:word	;AC000;
-	EXTRN	execemes_subst:byte	;AC000;
-	EXTRN	execemes_seg:word	;AC000;
-	EXTRN	EXTCOM:BYTE
-	EXTRN	FORFLAG:BYTE
-	EXTRN	IFFlag:BYTE
-	EXTRN	InitFlag:BYTE
-	EXTRN	NEST:WORD
-	EXTRN	number_subst:byte	;AC000;
-	EXTRN	PIPEFLAG:BYTE
-	EXTRN	RETCODE:WORD
-	EXTRN	SINGLECOM:WORD
-DATARES ENDS
+SECTION .DATARES
+	extern BATCH
+	extern ECHOFLAG
+	extern disp_class;AN055;
+	extern execemes_block;AC000;
+	extern execemes_off;AC000;
+	extern execemes_subst;AC000;
+	extern execemes_seg;AC000;
+	extern EXTCOM
+	extern FORFLAG
+	extern IFFlag
+	extern InitFlag
+	extern NEST
+	extern number_subst;AC000;
+	extern PIPEFLAG
+	extern RETCODE
+	extern SINGLECOM
+; END SECTION .DATARES
 
-BATARENA	SEGMENT PUBLIC PARA	;AC000;
-BATARENA ENDS
+SECTION .BATARENA;AC000;
+; END SECTION .BATARENA
 
-BATSEG		SEGMENT PUBLIC PARA	;AC000;
-BATSEG	 ENDS
+SECTION .BATSEG;AC000;
+; END SECTION .BATSEG
 
-ENVARENA	SEGMENT PUBLIC PARA	;AC000;
-ENVARENA  ENDS
+SECTION .ENVARENA;AC000;
+; END SECTION .ENVARENA
 
-ENVIRONMENT SEGMENT PUBLIC PARA 	; Default COMMAND environment
-ENVIRONMENT ENDS
+SECTION .ENVIRONMENT; Default COMMAND environment
+; END SECTION .ENVIRONMENT
 
-INIT	SEGMENT PUBLIC PARA
-	EXTRN	CONPROC:NEAR
-	EXTRN	init_contc_specialcase:near
-INIT	ENDS
+SECTION .INIT
+	extern CONPROC
+	extern init_contc_specialcase
+; END SECTION .INIT
 
-TAIL	SEGMENT PUBLIC PARA
-TAIL	ENDS
+SECTION .TAIL
+; END SECTION .TAIL
 
-TRANCODE	SEGMENT PUBLIC PARA
-TRANCODE	ENDS
+SECTION .TRANCODE
+; END SECTION .TRANCODE
 
-TRANDATA	SEGMENT PUBLIC BYTE
-TRANDATA	ENDS
+SECTION .TRANDATA
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE
-TRANSPACE	ENDS
+SECTION .TRANSPACE
+; END SECTION .TRANSPACE
 
-TRANTAIL	SEGMENT PUBLIC PARA
-TRANTAIL	ENDS
+SECTION .TRANTAIL
+; END SECTION .TRANTAIL
 
-RESGROUP  GROUP CODERES,DATARES,BATARENA,BATSEG,ENVARENA,ENVIRONMENT,INIT,TAIL
-TRANGROUP GROUP TRANCODE,TRANDATA,TRANSPACE,TRANTAIL
+; RESGROUP  GROUP CODERES,DATARES,BATARENA,BATSEG,ENVARENA,ENVIRONMENT,INIT,TAIL
+; TRANGROUP GROUP TRANCODE,TRANDATA,TRANSPACE,TRANTAIL
 
-	INCLUDE envdata.asm
+	%include "envdata.asm"
 
 ; START OF RESIDENT PORTION
 
-CODERES 	SEGMENT PUBLIC BYTE	;AC000;
+SECTION .CODERES;AC000;
 
 
-	PUBLIC	EXT_EXEC
-	PUBLIC	CONTC
-	PUBLIC	Exec_Wait
+	global EXT_EXEC
+	global CONTC
+	global Exec_Wait
 
-ASSUME	CS:RESGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:RESGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	EXTRN	lodcom:near
-	EXTRN	LODCOM1:near
+	extern lodcom
+	extern LODCOM1
 
 	ORG	0
 ZERO	=	$
 
 	ORG 80h-1
-	PUBLIC	RESCOM
-RESCOM	LABEL BYTE
+	global RESCOM
+RESCOM:
 
 	ORG	100H
 
 PROGSTART:
-	JMP	RESGROUP:CONPROC
+	JMP	CONPROC
 
 ;
 ; COMMAND has issued an EXEC system call and it has returned an error.	We
@@ -419,7 +419,7 @@ EXEC_ERR:
 	pop	es				;AC000;     into ES
 	push	cs				;AC000; get resident segment
 	pop	ds				;AC000;     into DS
-ASSUME	DS:RESGROUP				;AN000;
+; ASSUME	DS:RESGROUP;AN000;
 	MOV	BX,RBADNAM			;AC000; Get message number for Bad command
 	CMP	AX,error_file_not_found
 	JZ	GOTEXECEMES
@@ -439,11 +439,11 @@ DEFAULT_MESSAGE:
 	MOV	EXECEMES_SEG,ES 		;AN000; put segment of EXEC string in subst block
 	MOV	AL,EXECEMES_SUBST		;AN000; get number of substitutions
 	MOV	NUMBER_SUBST,AL 		;AN000;
-	MOV	SI,OFFSET RESGROUP:EXECEMES_BLOCK ;AN000; get address of subst block
+	MOV	SI,EXECEMES_BLOCK ;AN000; get address of subst block
 GOTEXECEMES:
 	PUSH	CS
 	POP	ES				;AC000; get resident segment into ES
-ASSUME	ES:RESGROUP				;AN000;
+; ASSUME	ES:RESGROUP;AN000;
 	MOV	DX,BX				;AN000; get message number in DX
 	INVOKE	RPRINT
 	JMP	SHORT NOEXEC
@@ -479,13 +479,13 @@ NOEXEC:
 ; ALLOC and diddle the header!	Also, if we are prompting for date/time in the
 ; init code, we are to treat ^C as empty responses.
 ;
-CONTC	PROC	FAR
-	ASSUME	CS:ResGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
+CONTC:
+	; ASSUME	CS:ResGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	test	InitFlag,initINIT		; in initialization?
 	jz	NotAtInit			; no
 	test	InitFlag,initSpecial		; doing special stuff?
 	jz	CmdIRet 			; no, ignore ^C
-	jmp	resgroup:init_contc_specialcase ; Yes, go handle it
+	jmp	init_contc_specialcase ; Yes, go handle it
 CmdIret:
 	iret					; yes, ignore the ^C
 NotAtInit:
@@ -524,7 +524,7 @@ NotInit:
 	STI
 	PUSH	CS				; El Yucko!  Change the user's DS!!
 	POP	DS
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	MOV	DISP_CLASS,UTIL_MSG_CLASS	;AN055; reset display class
 	MOV	NUMBER_SUBST,NO_SUBST		;AN055; reset number of substitutions
 	MOV	AX,SingleCom
@@ -620,10 +620,10 @@ NOSETSING:
 DODAB:
 	STC					; Tell DOS to abort
 	RET					; Leave flags on stack
-ContC	ENDP
+; ENDP ContC
 
-public	ResPipeOff
-	assume	ds:nothing,es:nothing
+global ResPipeOff
+	; assume	ds:nothing,es:nothing
 ResPipeOff:
 	SaveReg <AX>
 	xor	ax,ax
@@ -634,5 +634,5 @@ ResPipeOff:
 NoPipePop:
 	RestoreReg  <AX>
 	return
-CODERES ENDS
-	END	PROGSTART
+; END SECTION .CODERES
+	; END	PROGSTART

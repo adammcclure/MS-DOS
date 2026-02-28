@@ -1,6 +1,6 @@
-page	       60,132
-name	       _msgret
-title	       C to Message Retriever
+; page	       60,132
+; name	       _msgret
+; title	       C to Message Retriever
 ;-------------------------------------------------------------------
 ;
 ;	MODULE: 	_msgret
@@ -15,7 +15,7 @@ title	       C to Message Retriever
 ;
 ;-------------------------------------------------------------------
 
-	INCLUDE SYSMSG.INC		;PERMIT SYSTEM MESSAGE HANDLER DEFINITION ;AC010;
+	%include "SYSMSG.INC";PERMIT SYSTEM MESSAGE HANDLER DEFINITION ;AC010;
 
 	MSG_UTILNAME <FDISK>		;IDENTIFY THE COMPONENT 		;AC010;
 
@@ -23,23 +23,23 @@ title	       C to Message Retriever
 ;-------------------------------------------------------------------
 
 
-_TEXT	SEGMENT BYTE PUBLIC 'CODE'					;AC010;
-_TEXT	ENDS								;AC010;
-_DATA	SEGMENT WORD PUBLIC 'DATA'					;AC010;
-_DATA	ENDS								;AC010;
-CONST	SEGMENT WORD PUBLIC 'CONST'					;AC010;
-CONST	ENDS								;AC010;
-_BSS	SEGMENT WORD PUBLIC 'BSS'					;AC010;
-_BSS	ENDS								;AC010;
+SECTION ._TEXT;AC010;
+; END SECTION ._TEXT;AC010;
+SECTION ._DATA;AC010;
+; END SECTION ._DATA;AC010;
+SECTION .CONST;AC010;
+; END SECTION .CONST;AC010;
+SECTION ._BSS;AC010;
+; END SECTION ._BSS;AC010;
 
-DGROUP	GROUP	CONST, _BSS, _DATA					;AC010;
-	ASSUME	CS: DGROUP, DS: DGROUP, SS: DGROUP, ES: NOTHING 	;AC010;
+; DGROUP	GROUP	CONST, _BSS, _DATA;AC010;
+	; ASSUME	CS: DGROUP, DS: DGROUP, SS: DGROUP, ES: NOTHING;AC010;
 
-	public	data_sysloadmsg 					;AC010;
-	public	data_sysdispmsg 					;AC010;
-	public	data_sysgetmsg						;AC010;
+	global data_sysloadmsg;AC010;
+	global data_sysdispmsg;AC010;
+	global data_sysgetmsg;AC010;
 
-_DATA	SEGMENT 							;AC010;
+SECTION ._DATA;AC010;
 
 	MSG_SERVICES <MSGDATA>						;AC010;
 	MSG_SERVICES <LOADmsg,FARmsg>					;AC010;
@@ -47,7 +47,7 @@ _DATA	SEGMENT 							;AC010;
 	MSG_SERVICES <FDISK.CLA,FDISK.CLB,FDISK.CL1,FDISK.CL2,FDISK.CTL> ;AC010;		       ;AC010;
 
 
-data_sysloadmsg proc far
+data_sysloadmsg:
 
 	push	bp			; save user's base pointer      ;AC010;
 	mov	bp,sp			; set bp to current sp		;AC010;
@@ -103,10 +103,10 @@ data_sysloadmsg proc far
 	pop	bp			; restore user's bp             ;AC010;
 	ret
 
-data_sysloadmsg endp							;AC010;
+; ENDP data_sysloadmsg;AC010;
 
 
-data_sysdispmsg proc far						;AC010;
+data_sysdispmsg:;AC010;
 
 	push	bp			; save user's base pointer      ;AC010;
 	mov	bp,sp			; set bp to current sp		;AC010;
@@ -162,10 +162,10 @@ data_sysdispmsg proc far						;AC010;
 	pop	bp			; restore user's bp             ;AC010;
 	ret								;AC010;
 
-data_sysdispmsg endp							;AC010;
+; ENDP data_sysdispmsg;AC010;
 
 
-data_sysgetmsg	proc far						;AC010;
+data_sysgetmsg:;AC010;
 
 	push	bp			; save user's base pointer      ;AC010;
 	mov	bp,sp			; set bp to current sp		;AC010;
@@ -229,35 +229,35 @@ data_sysgetmsg	proc far						;AC010;
 	pop	bp			; restore user's bp             ;AC010;
 	ret								;AC010;
 
-data_sysgetmsg	endp							;AC010;
+; ENDP data_sysgetmsg;AC010;
 
 
-_DATA	ends			; end code segment			;AC010;
+; END SECTION ._DATA; end code segment			;AC010;
 
-_TEXT	SEGMENT 							;AC010;
+SECTION ._TEXT;AC010;
 
-	assume cs:_TEXT 						;AC010;
+	; assume cs:_TEXT;AC010;
 
-	public	_sysdispmsg						;AC010;
-	public	_sysloadmsg						;AC010;
-	public	_sysgetmsg						;AC010;
+	global _sysdispmsg;AC010;
+	global _sysloadmsg;AC010;
+	global _sysgetmsg;AC010;
 
-_sysdispmsg	proc	near						;AC010;
+_sysdispmsg:;AC010;
 		call	data_sysdispmsg 				;AC010;
 		ret							;AC010;
-_sysdispmsg	endp							;AC010;
+; ENDP _sysdispmsg;AC010;
 
-_sysloadmsg	proc	near						;AC010;
+_sysloadmsg:;AC010;
 		call	data_sysloadmsg 				;AC010;
 		ret							;AC010;
-_sysloadmsg	endp							;AC010;
+; ENDP _sysloadmsg;AC010;
 
-_sysgetmsg	proc	near						;AC010;
+_sysgetmsg:;AC010;
 		call	data_sysgetmsg					;AC010;
 		ret							;AC010;
-_sysgetmsg	endp							;AC010;
+; ENDP _sysgetmsg;AC010;
 
-_TEXT	ENDS								;AC010;
-	end								;AC010;
+; END SECTION ._TEXT;AC010;
+	; end;AC010;
 
 

@@ -7,9 +7,9 @@
 ; program.
 ;
 ;***************************************************************************
-.ALPHA						 ;AN000;
+; .ALPHA;AN000;
 ;**********************************************************************
-DATA	SEGMENT BYTE PUBLIC 'DATA'               ;AN000;
+SECTION .DATA;AN000;
 
 PATH_STRING		DW	  0		 ;AN000;
 STRING_SIZE		DW	  0		 ;AN000;
@@ -53,14 +53,14 @@ WAY			DW	  0	      ;AN000;
 
 
 
-PUBLIC	      CHK_W_PROTECT_FLAG	      ;AN000;
-PUBLIC	      W_PROTECT_FLAG		      ;AN000;
+global CHK_W_PROTECT_FLAG;AN000;
+global W_PROTECT_FLAG;AN000;
 
-W_P_FILENAME_A		DB	  'A:\',12 DUP(0), 0    ;AC000;JW
-W_P_FILENAME_B		DB	  'B:\',12 DUP(0), 0    ;AN000;JW
+W_P_FILENAME_A		DB	  'A:\',times 12 db 0, 0    ;AC000;JW
+W_P_FILENAME_B		DB	  'B:\',times 12 db 0, 0    ;AN000;JW
 CHK_W_PROTECT_FLAG	DB	  0			;AN000;
 W_PROTECT_FLAG		DB	  0			;AN000;
-DRIVE_FLAG		DB	  ?			;AN000;JW
+DRIVE_FLAG: db 0;AN000;JW
 
 
 NUM_FILES		DW	  0			;AN000;
@@ -70,26 +70,26 @@ FILE_PTR		DW	  0			;AN000;
 
 
 
-DATA	       ENDS				 ;AN000; DATA
+; END SECTION .DATA;AN000; DATA
 ;**********************************************************************
 						 ;
-	.XLIST					 ;AN000;
-	INCLUDE STRUC.INC			 ;AN000;
-	INCLUDE MACROS.INC			 ;AN000;
-	INCLUDE VARSTRUC.INC			 ;AN000;
-	INCLUDE EXT.INC 			 ;AN000;
-	INCLUDE MAC_EQU.INC			 ;AN000;
-	EXTRN	EXIT_DOS:FAR			 ;AN000;
-	EXTRN	POS_ZERO:FAR			 ;AN000;
-	EXTRN	HOOK_INT_24:FAR 		 ;AN000;
-	EXTRN	RESTORE_INT_24:FAR		 ;AN000;
-	EXTRN	GGET_STATUS:FAR 		 ;AN000;
-	.LIST					 ;AN000;
+	; .XLIST;AN000;
+	%include "STRUC.INC";AN000;
+	%include "MACROS.INC";AN000;
+	%include "VARSTRUC.INC";AN000;
+	%include "EXT.INC";AN000;
+	%include "MAC_EQU.INC";AN000;
+	extern EXIT_DOS;AN000;
+	extern POS_ZERO;AN000;
+	extern HOOK_INT_24;AN000;
+	extern RESTORE_INT_24;AN000;
+	extern GGET_STATUS;AN000;
+	; .LIST;AN000;
 						 ;
 						 ;
 ;**********************************************************************
-CODE_FAR    SEGMENT PARA PUBLIC 'CODE'           ;AN000; Segment for far routine
-	ASSUME	CS:CODE_FAR,DS:DATA		 ;AN000;
+SECTION .CODE_FAR;AN000; Segment for far routine
+	; ASSUME	CS:CODE_FAR,DS:DATA;AN000;
 						 ;
 ;********************************************************************************
 ; CHECK_DOS_PATH_ROUTINE: Check to see if the sepecified path for the DOS
@@ -105,18 +105,18 @@ CODE_FAR    SEGMENT PARA PUBLIC 'CODE'           ;AN000; Segment for far routine
 ;    If CY = 1, The path is NOT valid:
 ;
 ;********************************************************************************
-PUBLIC	 CHECK_DOS_PATH_ROUTINE 		 ;AN000;
-CHECK_DOS_PATH_ROUTINE	PROC FAR		 ;AN000;
+global CHECK_DOS_PATH_ROUTINE;AN000;
+CHECK_DOS_PATH_ROUTINE:;AN000;
 						 ;
     MOV  PATH_PTR, SI				 ;AN000; Get the pointer from the path
     MOV  AX, [SI]				 ;AN000; Get the lenth of the path string
-    .IF < AX EQ 0 >				 ;AN000; If the length is zero then return that
+    ; .IF < AX EQ 0 >;AN000; If the length is zero then return that
 	 JMP  NO_ERROR_DOS_PATH 		 ;AN000;    the path is valid.
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     MOV  PATH_SIZE, AX				 ;AN000; Save the size of the string
     ADD  SI, 2					 ;AN000; Adjust path pointer for length word
 						 ;
-    .REPEAT					 ;AN000; Check all the path names in the string
+    ; .REPEAT;AN000; Check all the path names in the string
 	 MOV  AL, ';'                            ;AN000; separator between filenames
 	 MOV  CX, PATH_PTR			 ;AN000; Get the pointer to the path
 	 ADD  CX, 2				 ;AN000; Point to the start of the string
@@ -124,19 +124,19 @@ CHECK_DOS_PATH_ROUTINE	PROC FAR		 ;AN000;
 	 SUB  CX, SI				 ;AN000; Subtract current pointer - Get length of string remaining
 	 CALL ISOLATE_NEXT_PATH 		 ;AN000; Make the next path name into an ASCII-Z string
 	 PUSH SEP_POSITION			 ;AN000; Save the position of the path seperator
-	 PUSH WORD PTR ZEROED_CHAR		 ;AN000; Save the character that was made into a zero
+	 PUSH word ZEROED_CHAR		 ;AN000; Save the character that was made into a zero
 	 MOV  CX, SEP_POSITION			 ;AN000;
 	 SUB  CX, SI				 ;AN000; Get the length of the string
 	 MOV  AX, 0101H 			 ;AN000;
-	 CALL FAR PTR CHECK_VALID_PATH		 ;AN000; Check if it is a valid filename
-	 POP  WORD PTR ZEROED_CHAR		 ;AN000;
+	 CALL far CHECK_VALID_PATH		 ;AN000; Check if it is a valid filename
+	 POP  word ZEROED_CHAR		 ;AN000;
 	 POP  SEP_POSITION			 ;AN000;
 	 CALL RESTORE_SEPARATOR 		 ;AN000; Restore the character between the path names
-	 .IF < C >				 ;AN000; Was the file name not valid?
+	 ; .IF < C >;AN000; Was the file name not valid?
 	      JMP  ERROR_DOS_PATH		 ;AN000; Exit the subroutine
-	 .ENDIF 				 ;AN000;
+	 ; .ENDIF;AN000;
 	 MOV  SI, DI				 ;AN000; Get the pointer to the next path name
-    .UNTIL < ZERO SI >				 ;AN000; If zero, all path names have been examined.
+    ; .UNTIL < ZERO SI >;AN000; If zero, all path names have been examined.
 NO_ERROR_DOS_PATH:				 ;AN000;
     CLC 					 ;AN000;
     JMP  EXIT_DOS_PATH				 ;AN000;
@@ -145,10 +145,10 @@ ERROR_DOS_PATH: 				 ;AN000;
 EXIT_DOS_PATH:					 ;AN000;
     RET 					 ;AN000;
 						 ;
-CHECK_DOS_PATH_ROUTINE	ENDP			 ;AN000;
+; ENDP CHECK_DOS_PATH_ROUTINE;AN000;
 						 ;
 						 ;
-PUBLIC	 CHECK_VALID_PATH			 ;AN000;
+global CHECK_VALID_PATH;AN000;
 ;********************************************************************************
 ; CHECK_VALID_PATH: Check to see if the sepecified path is valid.
 ;
@@ -179,73 +179,73 @@ PUBLIC	 CHECK_VALID_PATH			 ;AN000;
 ;	     = 6, There was a trailing backslash.
 ;
 ;********************************************************************************
-CHECK_VALID_PATH   PROC FAR			 ;AN000;
+CHECK_VALID_PATH:;AN000;
 						 ;
     PUSH DI					 ;AN000;
     MOV  STRING_SIZE, CX			 ;AN000; Save the size of the string
     MOV  PATH_STRING, SI			 ;AN000; Save the pointer to the string
     CALL CHECK_VALID_DRIVE			 ;AN000; See if there is a valid drive
-    .IF < C >					 ;AN000; Is the drive specified invalid?
+    ; .IF < C >;AN000; Is the drive specified invalid?
 	 MOV  AX, ERR_INVALID_DRV		 ;AN000; Return this error code
 	 JMP  EXIT_CHK_DRV			 ;AN000; Exit the subroutine
-    .ENDIF					 ;AN000;
-    .IF < BX EQ 0 >				 ;AN000; No drive sepecified?
-	 .IF < AL EQ 2 >			 ;AN000; Must the drive be specified?
+    ; .ENDIF;AN000;
+    ; .IF < BX EQ 0 >;AN000; No drive sepecified?
+	 ; .IF < AL EQ 2 >;AN000; Must the drive be specified?
 	      MOV  AX, ERR_NO_DRIVE		 ;AN000; Return this error code
 	      JMP  EXIT_CHK_DRV 		 ;AN000; Exit the subroutine
-	 .ENDIF 				 ;AN000;
-    .ELSE					 ;AN000; Otherwise, the drive WAS specified.
-	 .IF < AL EQ 0 >			 ;AN000; The drive cannot be specified
+	 ; .ENDIF;AN000;
+    ; .ELSE;AN000; Otherwise, the drive WAS specified.
+	 ; .IF < AL EQ 0 >;AN000; The drive cannot be specified
 	      MOV  AX, ERR_DRIVE		 ;AN000; Return this error code
 	      JMP  EXIT_CHK_DRV 		 ;AN000; Exit the subroutine
-	 .ENDIF 				 ;AN000;
+	 ; .ENDIF;AN000;
 	 ADD  SI, 2				 ;AN000; Push pointer past the drive
-    .ENDIF					 ;AN000;
-    .IF < <BYTE PTR [SI]> EQ '\' >               ;AN000; Is the next byte a backslash?
-	 .IF < AH EQ 0 >			 ;AN000; Is one permitted?
+    ; .ENDIF;AN000;
+    ; .IF < <BYTE PTR [SI]> EQ '\' >;AN000; Is the next byte a backslash?
+	 ; .IF < AH EQ 0 >;AN000; Is one permitted?
 	      MOV  AX, ERR_LEADING_SLASH	 ;AN000; No! Return this error code
 	      JMP  EXIT_CHK_DRV 		 ;AN000; Exit the subroutine
-	 .ELSE					 ;AN000; Otherwise, one allowed.
+	 ; .ELSE;AN000; Otherwise, one allowed.
 	      INC  SI				 ;AN000; Push pointer past \
-	 .ENDIF 				 ;AN000;
-    .ELSE					 ;AN000; Otherwise, byte not a backslash
-	 .IF < AH EQ 2 >			 ;AN000; Was one required?
+	 ; .ENDIF;AN000;
+    ; .ELSE;AN000; Otherwise, byte not a backslash
+	 ; .IF < AH EQ 2 >;AN000; Was one required?
 	      MOV  AX, ERR_NO_SLASH		 ;AN000; If so, return this error code
 	      JMP  EXIT_CHK_DRV 		 ;AN000; Exit from this subroutine
-	 .ENDIF 				 ;AN000;
-    .ENDIF					 ;AN000;
+	 ; .ENDIF;AN000;
+    ; .ENDIF;AN000;
 						 ;
     MOV  NUM_PATHS, 0				 ;AN000;
-    .REPEAT					 ;AN000; Check all the path names in the string
+    ; .REPEAT;AN000; Check all the path names in the string
 	 MOV  AL, '\'                            ;AN000; Separator between filenames
 	 MOV  CX, PATH_STRING			 ;AN000;
 	 ADD  CX, STRING_SIZE			 ;AN000;
 	 SUB  CX, SI				 ;AN000;
-	 .IF < NUM_PATHS EQ 0 > AND		 ;AN000; If this is the first path checked...and
-	 .IF < CX EQ 0 >			 ;AN000; If the length of the path is zero...
+	 ; .IF < NUM_PATHS EQ 0 > AND;AN000; If this is the first path checked...and
+	 ; .IF < CX EQ 0 >;AN000; If the length of the path is zero...
 	      JMP  EXIT_NO_ERROR		 ;AN000; Exit with no error
-	 .ENDIF 				 ;AN000;
+	 ; .ENDIF;AN000;
 	 CALL ISOLATE_NEXT_PATH 		 ;AN000; Make the next path name into an ASCII-Z string
 	 CALL CHECK_VALID_FILENAME		 ;AN000; Check if it is a valid filename
 	 CALL RESTORE_SEPARATOR 		 ;AN000; Restore the character between the path names
-	 .IF < C >				 ;AN000; Was the file name not valid?
-	      .IF < NUM_PATHS EQ 0 >		 ;AN000;
+	 ; .IF < C >;AN000; Was the file name not valid?
+	      ; .IF < NUM_PATHS EQ 0 >;AN000;
 		   .LEAVE			 ;AN000;
-	      .ELSE				 ;AN000;
+	      ; .ELSE;AN000;
 		   MOV	AX, ERR_INVALID_CHAR	 ;AN000; If not, return this error code
 		   JMP	EXIT_CHK_DRV		 ;AN000; Exit the subroutine
-	      .ENDIF				 ;AN000;
-	 .ENDIF 				 ;AN000;
+	      ; .ENDIF;AN000;
+	 ; .ENDIF;AN000;
 	 MOV  SI, DI				 ;AN000; Get the pointer to the next path name
-    .UNTIL < ZERO SI >				 ;AN000; If zero, all path names have been examined.
+    ; .UNTIL < ZERO SI >;AN000; If zero, all path names have been examined.
 						 ;
     MOV  SI, PATH_STRING			 ;AN000; Get the pointer to the whole string
     ADD  SI, STRING_SIZE			 ;AN000; Add the string length
     DEC  SI					 ;AN000; Point to the last character in the string
-    .IF < <BYTE PTR [SI]> EQ '\'>                ;AN000; Is the last character a \ ?
+    ; .IF < <BYTE PTR [SI]> EQ '\'>;AN000; Is the last character a \ ?
 	 MOV  AX, ERR_LAST_SLASH		 ;AN000; If so, return this error code
 	 JMP  EXIT_CHK_DRV			 ;AN000; Exit from the subroutine
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
 EXIT_NO_ERROR:					 ;AN000;
     CLC 					 ;AN000; Indicate there were no errors
     JMP  EXIT_CHECK_PATH			 ;AN000;
@@ -257,7 +257,7 @@ EXIT_CHECK_PATH:				 ;AN000;
     RET 					 ;AN000;
 						 ;
 						 ;
-CHECK_VALID_PATH   ENDP 			 ;AN000;
+; ENDP CHECK_VALID_PATH;AN000;
 ;********************************************************************************
 ; CHECK_VALID_DRIVE: Check to see if there is a drive specified on the path and
 ;	       if there is, is it valid.
@@ -273,31 +273,31 @@ CHECK_VALID_PATH   ENDP 			 ;AN000;
 ;
 ;
 ;********************************************************************************
-CHECK_VALID_DRIVE  PROC NEAR			 ;AN000;
+CHECK_VALID_DRIVE:;AN000;
 						 ;
     PUSH AX					 ;AN000; Push all registers used
-    .IF < <BYTE PTR [SI+1]> EQ ':' >             ;AN000; Is the second character in the string a ':'
+    ; .IF < <BYTE PTR [SI+1]> EQ ':' >;AN000; Is the second character in the string a ':'
 	 MOV  AL, [SI]				 ;AN000; If so, get the first character
-	 .IF < AL AE 'A' > AND                   ;AN000; Is it a capital letter?
-	 .IF < AL BE 'Z' >                       ;AN000;
+	 ; .IF < AL AE 'A' > AND;AN000; Is it a capital letter?
+	 ; .IF < AL BE 'Z' >;AN000;
 	      CLC				 ;AN000; If so, drive valid.
 	      MOV  BX, 1			 ;AN000; Indicate the drive exists
 	 .ELSEIF < AL AE 'a' > AND               ;AN000; Else, is the drive a lowercase letter?
-	 .IF < AL BE 'z' >                       ;AN000;
+	 ; .IF < AL BE 'z' >;AN000;
 	      CLC				 ;AN000; If so, the drive is valid
 	      MOV  BX, 1			 ;AN000; Indicate that the drive exists
-	 .ELSE					 ;AN000; Otherwise...
+	 ; .ELSE;AN000; Otherwise...
 	      STC				 ;AN000; The drive is not valid
-	 .ENDIF 				 ;AN000;
-    .ELSE					 ;AN000;
+	 ; .ENDIF;AN000;
+    ; .ELSE;AN000;
 	 CLC					 ;AN000; Indicate there were no errors
 	 MOV  BX, 0				 ;AN000; The drive does not exist
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     POP  AX					 ;AN000;
 						 ;
     RET 					 ;AN000;
 						 ;
-CHECK_VALID_DRIVE  ENDP 			 ;AN000;
+; ENDP CHECK_VALID_DRIVE;AN000;
 ;********************************************************************************
 ; CHECK_VALID_FILENAME: Check to see if a filename is valid.
 ;
@@ -310,48 +310,48 @@ CHECK_VALID_DRIVE  ENDP 			 ;AN000;
 ;
 ;
 ;********************************************************************************
-CHECK_VALID_FILENAME	PROC NEAR		 ;AN000;
+CHECK_VALID_FILENAME:;AN000;
 						 ;
     INC  NUM_PATHS				 ;AN000;
     AND  SEARCH_FLAG, RESET_PERIOD		 ;AN000; Indicate no periods have been found yet
     MOV  MAX_CHAR, 8				 ;AN000; Up to 8 characters can be specified
     MOV  CHAR_COUNT, 0				 ;AN000; Number of character so far
     MOV  AL, [SI]				 ;AN000; Get the first character in the string
-    .WHILE < AL NE 0 >				 ;AN000; Repeat untill we reach the string's end
+    ; .WHILE < AL NE 0 >;AN000; Repeat untill we reach the string's end
 	 INC  CHAR_COUNT			 ;AN000; Increment number of characters in path
 	 MOV  BX, CHAR_COUNT			 ;AN000;
-	 .IF < BX A MAX_CHAR > AND		 ;AN000;
-	 .IF < AL NE '.' >                       ;AN000;
+	 ; .IF < BX A MAX_CHAR > AND;AN000;
+	 ; .IF < AL NE '.' >;AN000;
 	      JMP  INVALID_CHAR 		 ;AN000;
-	 .ENDIF 				 ;AN000;
-	 .IF < AL B 20 >			 ;AN000; Is the character's code less than 20?
+	 ; .ENDIF;AN000;
+	 ; .IF < AL B 20 >;AN000; Is the character's code less than 20?
 	      JMP  INVALID_CHAR 		 ;AN000; If so, it's invalid
-	 .ELSE					 ;AN000; Otherwise...
+	 ; .ELSE;AN000; Otherwise...
 	      CALL VALID_CHAR			 ;AN000; See if it's invalid
-	      .IF < C > 			 ;AN000; If so,
+	      ; .IF < C >;AN000; If so,
 		   JMP	INVALID_CHAR		 ;AN000; Exit the subroutine
-	      .ENDIF				 ;AN000;
-	 .ENDIF 				 ;AN000;
-	 .IF < AL EQ '.' >                       ;AN000; Is the character a period?
-	      .IF < BIT SEARCH_FLAG AND PERIOD > ;AN000; Is this the first one?
+	      ; .ENDIF;AN000;
+	 ; .ENDIF;AN000;
+	 ; .IF < AL EQ '.' >;AN000; Is the character a period?
+	      ; .IF < BIT SEARCH_FLAG AND PERIOD >;AN000; Is this the first one?
 		   JMP	INVALID_CHAR		 ;AN000; If not, filename is invalid.
-	      .ELSE				 ;AN000; Otherwise...
+	      ; .ELSE;AN000; Otherwise...
 		   OR	SEARCH_FLAG, PERIOD	 ;AN000; Indicate that ONE has been found
-		   .IF < CHAR_COUNT EQ 1 >	 ;AN000; Were there any characters before the period
+		   ; .IF < CHAR_COUNT EQ 1 >;AN000; Were there any characters before the period
 			JMP  INVALID_CHAR	 ;AN000; If not, this is an invalid path
-		   .ENDIF			 ;AN000;
+		   ; .ENDIF;AN000;
 		   MOV	MAX_CHAR, 3		 ;AN000; Allow three characters after the period
 		   MOV	CHAR_COUNT, 0		 ;AN000; No characters yet
-	      .ENDIF				 ;AN000;
-	 .ENDIF 				 ;AN000;
+	      ; .ENDIF;AN000;
+	 ; .ENDIF;AN000;
 	 INC  SI				 ;AN000; Point to next character
 	 MOV  AL, [SI]				 ;AN000; Get that character
     .ENDWHILE					 ;AN000;
-    .IF < CHAR_COUNT EQ 0 > AND 		 ;AN000;
-    .IF < MAX_CHAR   EQ 8 >			 ;AN000;
+    ; .IF < CHAR_COUNT EQ 0 > AND;AN000;
+    ; .IF < MAX_CHAR   EQ 8 >;AN000;
 	 DEC  NUM_PATHS 			 ;AN000;
 	 JMP  INVALID_CHAR			 ;AN000;
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     CLC 					 ;AN000; Indicate the name is valid
     JMP  CK_V_FILENAME				 ;AN000; Exit.
 						 ;
@@ -360,7 +360,7 @@ INVALID_CHAR:					 ;AN000; Indicate that the name is not valid
 CK_V_FILENAME:					 ;AN000;
     RET 					 ;AN000;
 						 ;
-CHECK_VALID_FILENAME	ENDP			 ;AN000;
+; ENDP CHECK_VALID_FILENAME;AN000;
 ;********************************************************************************
 ; VALID_CHAR: Determine if a character is valid for a filename.
 ;
@@ -372,29 +372,29 @@ CHECK_VALID_FILENAME	ENDP			 ;AN000;
 ;    If CY = 0, the character IS valid.
 ;
 ;********************************************************************************
-VALID_CHAR    PROC NEAR 			 ;AN000;
+VALID_CHAR:;AN000;
 						 ;
     PUSH CX					 ;AN000; Save the registers used.
     PUSH DI					 ;AN000;
     PUSH ES					 ;AN000;
 						 ;
-    MOV  DI, OFFSET INVALID_STRING		 ;AN000; Get the address of string containing invalid characters
+    MOV  DI, INVALID_STRING		 ;AN000; Get the address of string containing invalid characters
     PUSH DS					 ;AN000; Save the data segment
     POP  ES					 ;AN000; Make ES=DS
     MOV  CX, SIZE_INVALID_STR			 ;AN000; Get the size of the string
     CLD 					 ;AN000; Scan forward
     REPNZ     SCASB				 ;AN000; See if this character is in the invalid string
-    .IF < Z >					 ;AN000; If so,
+    ; .IF < Z >;AN000; If so,
 	 STC					 ;AN000; Indicate the character is invalid
-    .ELSE					 ;AN000; Otherwise...
+    ; .ELSE;AN000; Otherwise...
 	 CLC					 ;AN000; Indicate the character is valid
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     POP  CX					 ;AN000; Restore the registers
     POP  DI					 ;AN000;
     POP  ES					 ;AN000;
     RET 					 ;AN000;
 						 ;
-VALID_CHAR    ENDP				 ;AN000;
+; ENDP VALID_CHAR;AN000;
 ;********************************************************************************
 ; ISOLATE_NEXT_PATH: Search the filename for a '\'.  If found, it is replaced
 ;	  by a zero making the string into an ASCII-Z string.
@@ -411,7 +411,7 @@ VALID_CHAR    ENDP				 ;AN000;
 ;    ZEROED_CHAR is loaded with the character which is made into a zero.
 ;
 ;********************************************************************************
-ISOLATE_NEXT_PATH  PROC NEAR			 ;AN000;
+ISOLATE_NEXT_PATH:;AN000;
 						 ;
     PUSH AX					 ;AN000; Save registers used.
     PUSH BX					 ;AN000;
@@ -430,7 +430,7 @@ ISOLATE_NEXT_PATH  PROC NEAR			 ;AN000;
     MOV  ZEROED_CHAR, AL			 ;AN000; Character overwritten with zero
     MOV  SEP_POSITION, DI			 ;AN000; Save the position of overwritten char
     DEC  SEP_POSITION				 ;AN000;
-    MOV  BYTE PTR [DI-1], 0			 ;AN000; Make the character a zero
+    MOV  byte [DI-1], 0			 ;AN000; Make the character a zero
     CMP  CX,0					 ;AN031; SEH  User may have entered semicolon as last char, so check
     JE	 END_FOUND2				 ;AN031; SEH	   if it is last char instead of just a separator
     JMP  EXIT_ISOLATE				 ;AN000; Exit the subroutine
@@ -438,7 +438,7 @@ END_FOUND:					 ;AN000;
     MOV  AL, [DI]				 ;AN000; Get the last character
     MOV  ZEROED_CHAR, AL			 ;AN000; Save it.
     MOV  SEP_POSITION, DI			 ;AN000; Save its position
-    MOV  BYTE PTR [DI], 0			 ;AN000; Make into a zero
+    MOV  byte [DI], 0			 ;AN000; Make into a zero
 END_FOUND2:					 ;AN031; SEH  Handle case of semicolon as last character in path
     MOV  DI, 0					 ;AN000; Indicate the string is finished
 EXIT_ISOLATE:					 ;AN000;
@@ -450,7 +450,7 @@ EXIT_ISOLATE:					 ;AN000;
 						 ;
     RET 					 ;AN000;
 						 ;
-ISOLATE_NEXT_PATH  ENDP 			 ;AN000;
+; ENDP ISOLATE_NEXT_PATH;AN000;
 ;********************************************************************************
 ; RESTORE_SEPARATOR: Restore the character which separates the characters in
 ;	  a path.
@@ -463,7 +463,7 @@ ISOLATE_NEXT_PATH  ENDP 			 ;AN000;
 ;    None.
 ;
 ;********************************************************************************
-RESTORE_SEPARATOR  PROC NEAR			 ;AN000;
+RESTORE_SEPARATOR:;AN000;
 						 ;
     PUSH AX					 ;AN000; Save registers used
     PUSH SI					 ;AN000;
@@ -474,7 +474,7 @@ RESTORE_SEPARATOR  PROC NEAR			 ;AN000;
     POP  AX					 ;AN000;
     RET 					 ;AN000;
 						 ;
-RESTORE_SEPARATOR  ENDP 			 ;AN000;
+; ENDP RESTORE_SEPARATOR;AN000;
 ;********************************************************************************
 ; CHANGE_ATTRIBUTE_ROUTINE:  Change the attributes on a group of files.
 ;
@@ -489,36 +489,36 @@ RESTORE_SEPARATOR  ENDP 			 ;AN000;
 ;    If CY = 0, there were no errors.
 ;
 ;********************************************************************************
-PUBLIC	 CHANGE_ATTRIBUTE_ROUTINE		 ;AN000;
-CHANGE_ATTRIBUTE_ROUTINE     PROC FAR		 ;AN000;
+global CHANGE_ATTRIBUTE_ROUTINE;AN000;
+CHANGE_ATTRIBUTE_ROUTINE:;AN000;
 						 ;
     CALL HOOK_INT_24				 ;AN000;
 						 ;
     MOV  WAY, AX				 ;AN000; Save flag indicating whether we are setting or restoring the attrb.
     MOV  NEW_ATTRIB, 02h			 ;AN000; Set new attribute to hidden.
     MOV  DI, 0					 ;AN000; Count of files processed
-    .WHILE < DI B BX >				 ;AN000;
-	 .IF < WAY EQ 0 >			 ;AN000; Setting the attribute?
-	      MOV  WORD PTR [SI+12],0		 ;AN000; Make filename into a ASCII-Z string
+    ; .WHILE < DI B BX >;AN000;
+	 ; .IF < WAY EQ 0 >;AN000; Setting the attribute?
+	      MOV  word [SI+12],0		 ;AN000; Make filename into a ASCII-Z string
 	      MOV  DX, SI			 ;AN000; Load address of filename into DX
 	      MOV  AX, 4300H			 ;AN000; Get the file's current attribute
 	      DOSCALL				 ;AN000;
-	      .IF < C > 			 ;AN000; Was there an error?
+	      ; .IF < C >;AN000; Was there an error?
 		   JMP	CHMOD_ERROR		 ;AN000; If so, exit the subroutine
-	      .ENDIF				 ;AN000;
+	      ; .ENDIF;AN000;
 	      MOV  OLD_ATTRIB, CX		 ;AN000; Save the attribute
 	      MOV  CX, NEW_ATTRIB		 ;AN000; Get the new attribute
-	 .ELSE					 ;AN000; Otherwise, we are restoring the attribute
+	 ; .ELSE;AN000; Otherwise, we are restoring the attribute
 	      MOV  CX, [SI+12]			 ;AN000; Get the old attribute
 	      MOV  OLD_ATTRIB, CX		 ;AN000; Save.
-	      MOV  WORD PTR [SI+12], 0		 ;AN000; Make filename into an ASCII-Z string
-	 .ENDIF 				 ;AN000;
+	      MOV  word [SI+12], 0		 ;AN000; Make filename into an ASCII-Z string
+	 ; .ENDIF;AN000;
 	 MOV  DX, SI				 ;AN000; Pointer to the filename
 	 MOV  AX, 4301H 			 ;AN000; DOS function for setting the attribute
 	 DOSCALL				 ;AN000; Set it.
-	 .IF < C >				 ;AN000; Was there an error?
+	 ; .IF < C >;AN000; Was there an error?
 	      JMP  CHMOD_ERROR			 ;AN000; If so, exit the subroutine
-	 .ENDIF 				 ;AN000;
+	 ; .ENDIF;AN000;
 	 MOV  CX, OLD_ATTRIB			 ;AN000; Get the old attribute
 	 MOV  [SI+12], CX			 ;AN000; Save in the table
 	 ADD  SI, 14				 ;AN000; Point to the next filename
@@ -534,7 +534,7 @@ CHMOD_ERROR:					 ;AN000;
 						 ;
     RET 					 ;AN000;
 						 ;
-CHANGE_ATTRIBUTE_ROUTINE     ENDP		 ;AN000;
+; ENDP CHANGE_ATTRIBUTE_ROUTINE;AN000;
 ;****************************************************************************
 ;
 ;   COMPARE_ROUTINE:  Compare two strings.
@@ -550,17 +550,17 @@ CHANGE_ATTRIBUTE_ROUTINE     ENDP		 ;AN000;
 ;   OPERATION:
 ;
 ;****************************************************************************
-PUBLIC	 COMPARE_ROUTINE			 ;AN000;
-COMPARE_ROUTINE    PROC FAR			 ;AN000;
+global COMPARE_ROUTINE;AN000;
+COMPARE_ROUTINE:;AN000;
 						 ;
     PUSH ES					 ;AN000; Make ES = DS
     PUSH DS					 ;AN000;
     POP  ES					 ;AN000;
 						 ;
     MOV  CX, [SI]				 ;AN000; Get the length of the first string
-    .IF < [DI] NE CX >				 ;AN000; Are the lengths of the strings the same?
+    ; .IF < [DI] NE CX >;AN000; Are the lengths of the strings the same?
 	 JMP  DO_NOT_COMPARE			 ;AN000; If not, the strings are not the same
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     ADD  SI, 2					 ;AN000; Move points past the length words
     ADD  DI, 2					 ;AN000;
     CLD 					 ;AN000; Compare in the forward direction
@@ -574,7 +574,7 @@ EXIT_COMPARE:					 ;AN000;
     POP  ES					 ;AN000;
     RET 					 ;AN000;
 						 ;
-COMPARE_ROUTINE    ENDP 			 ;AN000;
+; ENDP COMPARE_ROUTINE;AN000;
 ;****************************************************************************
 ;
 ;   REMOVE_END_BLANKS: Removes the trailing blanks from a string.
@@ -589,19 +589,19 @@ COMPARE_ROUTINE    ENDP 			 ;AN000;
 ;   OPERATION:
 ;
 ;****************************************************************************
-PUBLIC	 REMOVE_END_BLANKS			 ;AN000;
-REMOVE_END_BLANKS  PROC FAR			 ;AN000;
+global REMOVE_END_BLANKS;AN000;
+REMOVE_END_BLANKS:;AN000;
 						 ;
     MOV  CX, 0FFFFH				 ;AN000;
     MOV  AL, ' '                                 ;AN000;
     STD 					 ;AN000;
     REPZ SCASB					 ;AN000;
-    .IF < NZ >					 ;AN000;
+    ; .IF < NZ >;AN000;
 	 INC  DI				 ;AN000;
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     RET 					 ;AN000;
 						 ;
-REMOVE_END_BLANKS  ENDP 			 ;AN000;
+; ENDP REMOVE_END_BLANKS;AN000;
 						 ;
 ;****************************************************************************
 ;
@@ -619,8 +619,8 @@ REMOVE_END_BLANKS  ENDP 			 ;AN000;
 ;   OPERATION:
 ;
 ;****************************************************************************
-PUBLIC	 CHECK_WRITE_ROUTINE			 ;AN000;
-CHECK_WRITE_ROUTINE	PROC FAR		 ;AN000;
+global CHECK_WRITE_ROUTINE;AN000;
+CHECK_WRITE_ROUTINE:;AN000;
 						 ;
     MOV  DRIVE_FLAG,CL				 ;AN000;
 						 ;
@@ -631,32 +631,32 @@ CHECK_WRITE_ROUTINE	PROC FAR		 ;AN000;
 						 ;
     MOV  W_P_FILENAME_A+3, 0			 ;AN000; Make drive string into ASCII-Z string
     MOV  W_P_FILENAME_B+3, 0			 ;AN000; Make drive string into ASCII-Z string	  JW
-    .IF < DRIVE_FLAG eq DRIVE_A >		 ;AN000;JW
-       MOV  DX, OFFSET W_P_FILENAME_A		 ;AN000; Get address of the string
-    .ELSE					 ;AN000;JW
-       MOV  DX, OFFSET W_P_FILENAME_B		 ;AN000; Get address of the string JW
-    .ENDIF					 ;AN000;JW
+    ; .IF < DRIVE_FLAG eq DRIVE_A >;AN000;JW
+       MOV  DX, W_P_FILENAME_A		 ;AN000; Get address of the string
+    ; .ELSE;AN000;JW
+       MOV  DX, W_P_FILENAME_B		 ;AN000; Get address of the string JW
+    ; .ENDIF;AN000;JW
     MOV  CX, 0					 ;AN000; Attribute to give the file
     MOV  INT_24_ERROR, FALSE			 ;AN000;
     MOV  AH, 5AH				 ;AN000; DOS Fn. call to create a unique file
     DOSCALL					 ;AN000; Create the file
-    .IF < C >					 ;AN000; Was there an error?
-	 .IF < W_PROTECT_FLAG EQ TRUE > 	 ;AN000; If the INT 24H handler was call...
+    ; .IF < C >;AN000; Was there an error?
+	 ; .IF < W_PROTECT_FLAG EQ TRUE >;AN000; If the INT 24H handler was call...
 	      JMP  WRITE_PROTECTED		 ;AN000; The disk is write protected.
-	 .ELSE					 ;AN000; Otherwise...
+	 ; .ELSE;AN000; Otherwise...
 	      JMP  CHECK_ERROR			 ;AN000; There was some other disk error
-	 .ENDIF 				 ;AN000;
-    .ELSE					 ;AN000;
-	.IF < W_PROTECT_FLAG EQ TRUE >		 ;AN000; If the INT 24H handler was call...
+	 ; .ENDIF;AN000;
+    ; .ELSE;AN000;
+	; .IF < W_PROTECT_FLAG EQ TRUE >;AN000; If the INT 24H handler was call...
 	     JMP  WRITE_PROTECTED		 ;AN000; The disk is write protected.
-	.ENDIF					 ;AN000;
-    .ENDIF					 ;AN000; There were no errors...
+	; .ENDIF;AN000;
+    ; .ENDIF;AN000; There were no errors...
     CLOSE_FILE	   AX				 ;AN000; Close the created file
-    .IF < DRIVE_FLAG eq DRIVE_A >		 ;AN000;JW
-       MOV  DX, OFFSET W_P_FILENAME_A		 ;AN000; Get address of the string
-    .ELSE					 ;AN000;JW
-       MOV  DX, OFFSET W_P_FILENAME_B		 ;AN000; Get address of the string JW
-    .ENDIF					 ;AN000;JW
+    ; .IF < DRIVE_FLAG eq DRIVE_A >;AN000;JW
+       MOV  DX, W_P_FILENAME_A		 ;AN000; Get address of the string
+    ; .ELSE;AN000;JW
+       MOV  DX, W_P_FILENAME_B		 ;AN000; Get address of the string JW
+    ; .ENDIF;AN000;JW
     MOV  AH, 41H				 ;AN000; DOS Fn. for erasing a file
     DOSCALL					 ;AN000; Erase the file
     MOV  AX, 0					 ;AN000; Indicate the file is NOT write protected
@@ -677,7 +677,7 @@ CHECK_EXIT:					 ;AN000;
     MOV  CHK_W_PROTECT_FLAG, FALSE		 ;AN000; We are no longer expecting a write protect error
     RET 					 ;AN000;
 
-CHECK_WRITE_ROUTINE	ENDP			 ;AN000;
+; ENDP CHECK_WRITE_ROUTINE;AN000;
 ;****************************************************************************
 ;
 ;   MATCH_FILES_ROUTINE  Determine is a list of file exist on a drive.
@@ -701,8 +701,8 @@ CHECK_WRITE_ROUTINE	ENDP			 ;AN000;
 ;   OPERATION:
 ;
 ;****************************************************************************
-PUBLIC	 MATCH_FILES_ROUTINE			 ;AN000;
-MATCH_FILES_ROUTINE	PROC FAR		 ;AN000;
+global MATCH_FILES_ROUTINE;AN000;
+MATCH_FILES_ROUTINE:;AN000;
 						 ;
 						 ;
     PUSH ES					 ;AN000; Make ES = DS
@@ -716,35 +716,35 @@ MATCH_FILES_ROUTINE	PROC FAR		 ;AN000;
     ADD  DI, 2					 ;AN000; Point SI to the start of the string
     MOV  DX, DI 				 ;AN000; Copy the address of the string
     ADD  DI, CX 				 ;AN000; Point to the end of the string
-    .IF < LIST_TYPE EQ 2 >			 ;AN000; If this list is a 14 byte list...
+    ; .IF < LIST_TYPE EQ 2 >;AN000; If this list is a 14 byte list...
 	 ADD  SI, 2				 ;AN000; Bypass the first two bytes in the list
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     MOV  STR_PTR, DI				 ;AN000; Save the pointer to the path string
     MOV  FILE_PTR, SI				 ;AN000; Save the pointer to the file list
     MOV  BX, 0					 ;AN000; Initialize the count of files checked
 						 ;
-    .WHILE < BX B NUM_FILES >			 ;AN000; Perform NUM_FILES interations
+    ; .WHILE < BX B NUM_FILES >;AN000; Perform NUM_FILES interations
 	 CLD					 ;AN000;
 	 MOV  CX, 12				 ;AN000; Move 12 bytes for the filename
 	 REP  MOVSB				 ;AN000; Move the filename after the path string
-	 MOV  BYTE PTR [DI], 0			 ;AN000; Make string into an ASCII-Z string
+	 MOV  byte [DI], 0			 ;AN000; Make string into an ASCII-Z string
 	 MOV  AH, 4EH				 ;AN000; DOS Fn. for find a file
 	 MOV  CX, 0				 ;AN000; Attribute used for search
 	 DOSCALL				 ;AN000; Get the matching filename
-	 .IF < C >				 ;AN000; Was there an error?
-	      .IF < AX EQ 18 >			 ;AN000; If error no = 18, then file not found
+	 ; .IF < C >;AN000; Was there an error?
+	      ; .IF < AX EQ 18 >;AN000; If error no = 18, then file not found
 		   JMP	FILE_NOT_FOUND		 ;AN000; Return to the user
-	      .ELSE				 ;AN000; Otherwise
+	      ; .ELSE;AN000; Otherwise
 		   JMP	MATCH_ERROR		 ;AN000; There was some other type of disk error
-	      .ENDIF				 ;AN000; Exit the subroutine
-	 .ENDIF 				 ;AN000;
+	      ; .ENDIF;AN000; Exit the subroutine
+	 ; .ENDIF;AN000;
 	 MOV  DI, STR_PTR			 ;AN000; Get the pointer to the string
 	 MOV  SI, FILE_PTR			 ;AN000; Get the pointer to the file list
-	 .IF < LIST_TYPE EQ 1 > 		 ;AN000; Check list type for incrementing the file pointer
+	 ; .IF < LIST_TYPE EQ 1 >;AN000; Check list type for incrementing the file pointer
 	      ADD  SI, 12			 ;AN000; 12 bytes between files for list type 1
-	 .ELSE					 ;AN000;
+	 ; .ELSE;AN000;
 	      ADD  SI, 14			 ;AN000; 14 bytes between files for list type 2
-	 .ENDIF 				 ;AN000;
+	 ; .ENDIF;AN000;
 	 MOV  FILE_PTR, SI			 ;AN000; Save the new file name pointer
 	 INC  BX				 ;AN000; Increment the count of files searched for
     .ENDWHILE					 ;AN000;
@@ -761,7 +761,7 @@ EXIT_MATCH:					 ;AN000;
     POP  ES					 ;AN000;
     RET 					 ;AN000;
 						 ;
-MATCH_FILES_ROUTINE	ENDP			 ;AN000;
+; ENDP MATCH_FILES_ROUTINE;AN000;
 ;************************************************************************
 ;
 ;   CLOSE_FILE_ROUTINE: Close File
@@ -781,8 +781,8 @@ MATCH_FILES_ROUTINE	ENDP			 ;AN000;
 ;   IS RETURNED IN AX.
 ;
 ;**************************************************************************
-PUBLIC	 CLOSE_FILE_ROUTINE			 ;AN000;
-CLOSE_FILE_ROUTINE PROC FAR			 ;AN000;
+global CLOSE_FILE_ROUTINE;AN000;
+CLOSE_FILE_ROUTINE:;AN000;
 						 ;
 						 ;
     CALL HOOK_INT_24				 ;AN000; Hook in the critical error handler
@@ -792,7 +792,7 @@ CLOSE_FILE_ROUTINE PROC FAR			 ;AN000;
     CALL RESTORE_INT_24 			 ;AN000; Restore the old critical error handler
     RET 					 ;AN000;
 						 ;
-CLOSE_FILE_ROUTINE ENDP 			 ;AN000;
+; ENDP CLOSE_FILE_ROUTINE;AN000;
 ;**************************************************************
 ;
 ;   CREATE_FILE: Create new File
@@ -813,8 +813,8 @@ CLOSE_FILE_ROUTINE ENDP 			 ;AN000;
 ;   IS RETURNED IN AX.
 ;
 ;**************************************************************************
-PUBLIC	 CREATE_FILE_ROUTINE			 ;AN000;
-CREATE_FILE_ROUTINE	PROC FAR		 ;AN000;
+global CREATE_FILE_ROUTINE;AN000;
+CREATE_FILE_ROUTINE:;AN000;
 						 ;
     CALL HOOK_INT_24				 ;AN000;
     CALL POS_ZERO				 ;AN000;
@@ -826,7 +826,7 @@ CREATE_FILE_ROUTINE	PROC FAR		 ;AN000;
     CALL RESTORE_INT_24 			 ;AN000;
     RET 					 ;AN000;
 						 ;
-CREATE_FILE_ROUTINE	ENDP			 ;AN000;
+; ENDP CREATE_FILE_ROUTINE;AN000;
 ;****************************************************************************
 ;
 ;   ERASE_FILE_ROUTINE: Routine to erase a file.
@@ -846,8 +846,8 @@ CREATE_FILE_ROUTINE	ENDP			 ;AN000;
 ;   IS RETURNED IN AX.
 ;
 ;****************************************************************************
-PUBLIC	 ERASE_FILE_ROUTINE			 ;AN000;
-ERASE_FILE_ROUTINE PROC FAR			 ;AN000;
+global ERASE_FILE_ROUTINE;AN000;
+ERASE_FILE_ROUTINE:;AN000;
 
     CALL HOOK_INT_24				 ;AN000;
     CALL POS_ZERO				 ;AN000;
@@ -859,7 +859,7 @@ ERASE_FILE_ROUTINE PROC FAR			 ;AN000;
     CALL RESTORE_INT_24 			 ;AN000;
     RET 					 ;AN000;
 
-ERASE_FILE_ROUTINE ENDP 			 ;AN000;
+; ENDP ERASE_FILE_ROUTINE;AN000;
 ;****************************************************************************
 ;
 ;   CHMOD_FILE_ROUTINE: Change file attributes to read/write
@@ -875,8 +875,8 @@ ERASE_FILE_ROUTINE ENDP 			 ;AN000;
 ;      to read/write.
 ;
 ;****************************************************************************
-PUBLIC CHMOD_FILE_ROUTINE			 ;AN000;
-CHMOD_FILE_ROUTINE PROC FAR			 ;AN000;
+global CHMOD_FILE_ROUTINE;AN000;
+CHMOD_FILE_ROUTINE:;AN000;
 
 	CALL HOOK_INT_24			 ;AN000;
 	CALL POS_ZERO				 ;AN000;
@@ -890,7 +890,7 @@ CHMOD_FILE_ROUTINE PROC FAR			 ;AN000;
 	CALL RESTORE_INT_24			 ;AN000;
 	RET					 ;AN000;
 
-CHMOD_FILE_ROUTINE ENDP 			 ;AN000;
+; ENDP CHMOD_FILE_ROUTINE;AN000;
 ;************************************************************************
 ;   FIND_FILE: Find File
 ;
@@ -913,8 +913,8 @@ CHMOD_FILE_ROUTINE ENDP 			 ;AN000;
 ;   IS RETURNED IN AX.
 ;
 ;************************************************************************
-PUBLIC	 FIND_FILE_ROUTINE			 ;AN000;
-FIND_FILE_ROUTINE  PROC FAR			 ;AN000;
+global FIND_FILE_ROUTINE;AN000;
+FIND_FILE_ROUTINE:;AN000;
 						 ;
     CALL HOOK_INT_24				 ;AN000;
     CALL POS_ZERO				 ;AN000;
@@ -927,7 +927,7 @@ FIND_FILE_ROUTINE  PROC FAR			 ;AN000;
     CALL  RESTORE_INT_24			 ;AN000;
     RET 					 ;AN000;
 
-FIND_FILE_ROUTINE  ENDP 			 ;AN000;
+; ENDP FIND_FILE_ROUTINE;AN000;
 ;**************************************************************************
 ;
 ;   OPEN_FILE_ROUTINE - Open File
@@ -951,8 +951,8 @@ FIND_FILE_ROUTINE  ENDP 			 ;AN000;
 ;   IS RETURNED IN AX.
 ;
 ;**************************************************************************
-PUBLIC	 OPEN_FILE_ROUTINE			 ;AN000;
-OPEN_FILE_ROUTINE  PROC FAR			 ;AN000;
+global OPEN_FILE_ROUTINE;AN000;
+OPEN_FILE_ROUTINE:;AN000;
 						 ;
     CALL HOOK_INT_24				 ;AN000;
     CALL POS_ZERO				 ;AN000;
@@ -965,7 +965,7 @@ OPEN_FILE_ROUTINE  PROC FAR			 ;AN000;
     CALL RESTORE_INT_24 			 ;AN000;
     RET 					 ;AN000;
 
-OPEN_FILE_ROUTINE  ENDP 			 ;AN000;
+; ENDP OPEN_FILE_ROUTINE;AN000;
 ;**************************************************************************
 ;
 ;   RENAME_FILE_ROUTINE - Rename File
@@ -990,8 +990,8 @@ OPEN_FILE_ROUTINE  ENDP 			 ;AN000;
 ;   IS RETURNED IN AX.
 ;
 ;**************************************************************************
-PUBLIC	 RENAME_FILE_ROUTINE			 ;AN000;
-RENAME_FILE_ROUTINE	PROC FAR		 ;AN000;
+global RENAME_FILE_ROUTINE;AN000;
+RENAME_FILE_ROUTINE:;AN000;
 
     CALL HOOK_INT_24				 ;AN000;
     PUSH ES					 ;AN000;
@@ -1016,7 +1016,7 @@ RENAME_FILE_ROUTINE	PROC FAR		 ;AN000;
     CALL  RESTORE_INT_24			 ;AN000;
     RET 					 ;AN000;
 
-RENAME_FILE_ROUTINE	ENDP			 ;AN000;
+; ENDP RENAME_FILE_ROUTINE;AN000;
 ;**************************************************************************
 ;
 ;   READ_FILE_ROUTINE: Transfer the specified number of bytes from a file into a
@@ -1038,8 +1038,8 @@ RENAME_FILE_ROUTINE	ENDP			 ;AN000;
 ;   AX WILL RETURN THE NUMBER BYTES ACTUALLY WRITTEN.
 ;
 ;************************************************************************
-PUBLIC	 READ_FILE_ROUTINE			 ;AN000;
-READ_FILE_ROUTINE  PROC FAR			 ;AN000;
+global READ_FILE_ROUTINE;AN000;
+READ_FILE_ROUTINE:;AN000;
 						 ;
     CALL HOOK_INT_24				 ;AN000;
     MOV  INT_24_ERROR, FALSE			 ;AN000;
@@ -1051,7 +1051,7 @@ READ_FILE_ROUTINE  PROC FAR			 ;AN000;
     CALL RESTORE_INT_24 			 ;AN000;
     RET 					 ;AN000;
 
-READ_FILE_ROUTINE  ENDP 			 ;AN000;
+; ENDP READ_FILE_ROUTINE;AN000;
 ;**************************************************************************
 ;
 ;   WRITE_FILE_ROUTINE: Transfer the specified number of bytes from a buffer into a
@@ -1073,8 +1073,8 @@ READ_FILE_ROUTINE  ENDP 			 ;AN000;
 ;   AX WILL RETURN THE NUMBER BYTES ACTUALLY WRITTEN.
 ;
 ;************************************************************************
-PUBLIC	 WRITE_FILE_ROUTINE			 ;AN000;
-WRITE_FILE_ROUTINE PROC FAR			 ;AN000;
+global WRITE_FILE_ROUTINE;AN000;
+WRITE_FILE_ROUTINE:;AN000;
 						 ;
     CALL HOOK_INT_24				 ;AN000;
     MOV  INT_24_ERROR, FALSE			 ;AN000;
@@ -1086,7 +1086,7 @@ WRITE_FILE_ROUTINE PROC FAR			 ;AN000;
     CALL RESTORE_INT_24 			 ;AN000;
     RET 					 ;AN000;
 
-WRITE_FILE_ROUTINE ENDP 			 ;AN000;
+; ENDP WRITE_FILE_ROUTINE;AN000;
 ;***************************************************************************
 ;
 ;   CHECK_DISK:  Check is the specified fixed disk is present.	If disk is
@@ -1119,8 +1119,8 @@ WRITE_FILE_ROUTINE ENDP 			 ;AN000;
 ;	specified above.
 ;
 ;***************************************************************************
-PUBLIC	 CHECK_DISK_ROUTINE			 ;AN000;
-CHECK_DISK_ROUTINE PROC FAR			 ;AN000;
+global CHECK_DISK_ROUTINE;AN000;
+CHECK_DISK_ROUTINE:;AN000;
 						 ;
     PUSH ES					 ;AN000; Make ES = DS
     PUSH DS					 ;AN000;
@@ -1130,29 +1130,29 @@ CHECK_DISK_ROUTINE PROC FAR			 ;AN000;
     CALL GGET_STATUS				 ;AN000;
     POP  DI					 ;AN000;
     MOV  [DI+1], CL				 ;AN000; Store the number of table entries
-    .IF < ZERO AX >				 ;AN000;
-	 .IF < BIT BX AND M_DOS_EDOS_PART >	 ;AN000;
+    ; .IF < ZERO AX >;AN000;
+	 ; .IF < BIT BX AND M_DOS_EDOS_PART >;AN000;
 	      MOV  CX, PRESENT_WITH_PART	 ;AN000;
-	 .ELSE					 ;AN000;
+	 ; .ELSE;AN000;
 	      MOV  CX, PRESENT_WITHOUT_PART	 ;AN000;
-	 .ENDIF 				 ;AN000;
-    .ELSE					 ;AN000;
+	 ; .ENDIF;AN000;
+    ; .ELSE;AN000;
 	 MOV  CX, NOT_PRESENT			 ;AN000;
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     MOV  DX, NO_EDOS_SPACE			 ;AN000; Initialize
-    .IF < BIT BX AND M_EDOS_EXISTS >		 ;AN000; Does the extended DOS partition exist?
-	 .IF < BIT BX AND M_EDOS_SPACE >	 ;AN000; Yes! Is there free space in it?
+    ; .IF < BIT BX AND M_EDOS_EXISTS >;AN000; Does the extended DOS partition exist?
+	 ; .IF < BIT BX AND M_EDOS_SPACE >;AN000; Yes! Is there free space in it?
 	      MOV  DX, FREE_EDOS_SPACE		 ;AN000; Indicate that there is free space
 	 .ELSEIF < BIT BX NAND M_FREE_SPACE >	 ;AN000; Is there no free space on the disk?
 	      MOV  DX, NO_EDOS_SPACE		 ;AN000; Indicate there is no free space in EDOS or on the disk.
-	 .ENDIF 				 ;AN000;
+	 ; .ENDIF;AN000;
     .ELSEIF < BIT BX AND M_FREE_SPACE >		 ;AN000; No! There is no EDOS partition
 	 MOV  DX, NO_EDOS_BUT_SPACE		 ;AN000; But there is free space on the disk
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     POP  ES					 ;AN000;
     RET 					 ;AN000;
 						 ;
-CHECK_DISK_ROUTINE ENDP 			 ;AN000;
+; ENDP CHECK_DISK_ROUTINE;AN000;
 ;************************************************************************;;
 ;
 ;   CHECK_VALID_MEDIA:	Check if the diskettes attached will support
@@ -1203,8 +1203,8 @@ CHECK_DISK_ROUTINE ENDP 			 ;AN000;
 ;		 A or B or C
 ;
 ;************************************************************************;;
-PUBLIC	 CHECK_VALID_MEDIA_ROUTINE		 ;AN111;JW
-CHECK_VALID_MEDIA_ROUTINE    PROC FAR		 ;AN111;JW
+global CHECK_VALID_MEDIA_ROUTINE;AN111;JW
+CHECK_VALID_MEDIA_ROUTINE:;AN111;JW
 
 
     VAR_DISK_A	   EQU	     AL 		 ;AN111;JW
@@ -1214,36 +1214,36 @@ CHECK_VALID_MEDIA_ROUTINE    PROC FAR		 ;AN111;JW
     VAR_DISK	   EQU	     SI 		 ;AN111;JW
     VAR_OPTION	   EQU	     DI 		 ;AN111;JW
 
-    .IF < VAR_DISK_A NE E_DISKETTE_INV >	 ;AN111; Is disk A present
-	 .IF <VAR_DISK_B NE E_DISKETTE_INV>	 ;AN111; Is disk B present
-	      .IF < VAR_DISK GT 0 >		 ;AN111; Hard disk is present?
+    ; .IF < VAR_DISK_A NE E_DISKETTE_INV >;AN111; Is disk A present
+	 ; .IF <VAR_DISK_B NE E_DISKETTE_INV>;AN111; Is disk B present
+	      ; .IF < VAR_DISK GT 0 >;AN111; Hard disk is present?
 		   MOV	  VAR_DEF, DO_NOT_USE_DEFAULT ;AN111; Yes! Destination drive is undefined
 		   MOV VAR_OPTION,E_OPTION_B_C	 ;AN111; options will be B or C
 		   MOV	  VAR_INDEX,DEF_DEST_C	 ;AN073; SEH highlight option C
 		   CLC				 ;AN111; Indicate valid media
-	      .ELSE				 ;AN111;
+	      ; .ELSE;AN111;
 		   MOV	VAR_DEF, USE_DEFAULT	 ;AN111; Yes! Use the default destination = B
 		   MOV	VAR_INDEX, DEF_DEST_B	 ;AN111; Drive B is that default
 		   CLC				 ;AN111; Indicate valid media
-	      .ENDIF				 ;AN111;
-	 .ELSE					 ;AN111;
-	      .IF < VAR_DISK GT 0 >		 ;AN111; Hard disk is present?
+	      ; .ENDIF;AN111;
+	 ; .ELSE;AN111;
+	      ; .IF < VAR_DISK GT 0 >;AN111; Hard disk is present?
 		   MOV	  VAR_DEF, DO_NOT_USE_DEFAULT ;AN111; Yes! Destination drive is undefined
 		   MOV	  VAR_OPTION, E_OPTION_A_C ;AN111; options are A or C
 		   MOV	  VAR_INDEX,DEF_DEST_C	 ;AN073; SEH highlight option C
 		   CLC				 ;AN111; Indicate valid media
-	      .ELSE				 ;AN111;
+	      ; .ELSE;AN111;
 		   MOV	  VAR_DEF, USE_DEFAULT	 ;AN111; no, Use the default destination
 		   MOV	  VAR_INDEX, DEF_DEST_A  ;AN111; Drive A is that default
 		   CLC				 ;AN111; Indicate valid media
-	      .ENDIF				 ;AN111;
-	 .ENDIF 				 ;AN111;
-    .ELSE					 ;AN111;
+	      ; .ENDIF;AN111;
+	 ; .ENDIF;AN111;
+    ; .ELSE;AN111;
 	 STC					 ;AN111; Indicate invalid media
-    .ENDIF					 ;AN111;
+    ; .ENDIF;AN111;
     RET 					 ;AN111;
 
-CHECK_VALID_MEDIA_ROUTINE    ENDP		 ;AN111;JW
+; ENDP CHECK_VALID_MEDIA_ROUTINE;AN111;JW
 ;************************************************************************;;
 ;
 ;   SCAN_DISK_TABLE:  Scan the specified disk status table from the
@@ -1277,18 +1277,18 @@ CHECK_VALID_MEDIA_ROUTINE    ENDP		 ;AN111;JW
 ;      Note:  The index of the first entry in the table is 1.
 ;
 ;************************************************************************;;
-PUBLIC	 SCAN_DISK_TABLE_ROUTINE							     ;AN000;
-SCAN_DISK_TABLE_ROUTINE PROC FAR							     ;AN000;
+global SCAN_DISK_TABLE_ROUTINE;AN000;
+SCAN_DISK_TABLE_ROUTINE:;AN000;
 
     MOV  BX, 0					 ;AN000;
-    .IF < CX EQ TABLE_ONE >			 ;AN000;
-	 MOV  SI, OFFSET DISK_1_START		 ;AN000; Get the address of the first table
+    ; .IF < CX EQ TABLE_ONE >;AN000;
+	 MOV  SI, DISK_1_START		 ;AN000; Get the address of the first table
 	 MOV  BL, DISK_1_VAL_ITEM		 ;AN000; Number of entries in the first table
-    .ELSE					 ;AN000;
-	 MOV  SI, OFFSET DISK_2_START		 ;AN000; Get the address of the second table
+    ; .ELSE;AN000;
+	 MOV  SI, DISK_2_START		 ;AN000; Get the address of the second table
 	 MOV  BL, DISK_2_VAL_ITEM		 ;AN000; Number of entries in the second table
-    .ENDIF					 ;AN000;
-    .IF < AX BE BX >				 ;AN000;
+    ; .ENDIF;AN000;
+    ; .IF < AX BE BX >;AN000;
 						 ; AX contains the index
 	 DEC  AX				 ;AN000; Make the first index a 0
 	 MOV  DX, TYPE DISK_STATUS		 ;AN000; Number of bytes in the structure
@@ -1304,12 +1304,12 @@ SCAN_DISK_TABLE_ROUTINE PROC FAR							     ;AN000;
 	 COPY_BYTE	 N_LEVEL3_PART, [SI].N_PART_LEVEL3 ;AN065;SEH 2nd part of version number   For DOS 4.00 3rd part = .
 	 COPY_BYTE	 N_LEVEL4_PART, [SI].N_PART_LEVEL4 ;AN065;SEH 2nd part of version number   For DOS 4.00 4th part = 0
 	 MOV  AX, DATA_VALID			 ;AN000;
-    .ELSE					 ;AN000;
+    ; .ELSE;AN000;
 	 MOV  AX, DATA_INVALID			 ;AN000;
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     RET 					 ;AN000;
 
-SCAN_DISK_TABLE_ROUTINE ENDP			 ;AN000;
+; ENDP SCAN_DISK_TABLE_ROUTINE;AN000;
 ;************************************************************************;;
 ;
 ;   UPDATE_DISK_TABLE:	Update the specifed disk status table for the
@@ -1334,36 +1334,36 @@ SCAN_DISK_TABLE_ROUTINE ENDP			 ;AN000;
 ;	from pre-defined locations as specified above.
 ;
 ;************************************************************************;;
-PUBLIC	 UPDATE_DISK_TABLE_ROUTINE		 ;AN000;
-UPDATE_DISK_TABLE_ROUTINE    PROC FAR		 ;AN000;
+global UPDATE_DISK_TABLE_ROUTINE;AN000;
+UPDATE_DISK_TABLE_ROUTINE:;AN000;
 
     MOV  BH, 0					 ;AN000;
-    .IF < CX EQ TABLE_ONE >			 ;AN000;
-	 MOV  SI, OFFSET DISK_1_START		 ;AN000; Get the address of the first table
+    ; .IF < CX EQ TABLE_ONE >;AN000;
+	 MOV  SI, DISK_1_START		 ;AN000; Get the address of the first table
 	 MOV  BL, DISK_1_VAL_ITEM		 ;AN000; Number of entries in the first table
-    .ELSE					 ;AN000;
-	 MOV  SI, OFFSET DISK_2_START		 ;AN000; Get the address of the second table
+    ; .ELSE;AN000;
+	 MOV  SI, DISK_2_START		 ;AN000; Get the address of the second table
 	 MOV  BL, DISK_2_VAL_ITEM		 ;AN000; Number of entries in the second table
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
 						 ; AX contains the index.
     DEC  AX					 ;AN000; Make the first index a 0
     MOV  DX, TYPE DISK_STATUS			 ;AN000; Number of bytes in the structure
     MUL  DX					 ;AN000; Calculate the offset into the table
     ADD  SI, AX 				 ;AN000; Add to the address of the table
-    .IF < VAR_INDEX BE BX >			 ;AN000;
+    ; .IF < VAR_INDEX BE BX >;AN000;
 	 COPY_BYTE	[SI].N_PART_NAME,   N_NAME_PART    ;AN000;
 	 COPY_WORD	[SI].N_PART_SIZE,   N_SIZE_PART    ;AN000;
 	 COPY_BYTE	[SI].N_PART_STATUS, N_STATUS_PART  ;AN000;
 	 COPY_BYTE	[SI].P_PART_DRIVE,  P_DRIVE_PART   ;AN000;
 	 COPY_BYTE	[SI].N_PART_TYPE,   N_TYPE_PART    ;AN000;
 	 MOV	 AX, DATA_VALID 		 ;AN000; No error.
-    .ELSE					 ;AN000;
+    ; .ELSE;AN000;
 	 MOV	 AX, DATA_INVALID		 ;AN000; Indicate an error
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     RET 					 ;AN000;
 						 ;
-UPDATE_DISK_TABLE_ROUTINE    ENDP		 ;AN000;
+; ENDP UPDATE_DISK_TABLE_ROUTINE;AN000;
 						 ;
 CODE_FAR ENDS					 ;AN000;
 						 ;
-END						 ;AN000;
+; END;AN000;

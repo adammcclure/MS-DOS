@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	PRINT.ASM - Protected Mode Print Routines
+	; title	PRINT.ASM - Protected Mode Print Routines
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -34,22 +34,22 @@ page	58,132
 ;   Functional Description:
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 
-	public	PrintString
-	public	PrintHex
-	public	kputc
-	public	RowCol
-	public	IsReal
+	global PrintString
+	global PrintHex
+	global kputc
+	global RowCol
+	global IsReal
 
-NAME	print
+; NAME	print
 
 ;**	print - cga simple print routines
 ;
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
 
 ;***	IsReal - determine mode of cpu
 ;
@@ -63,11 +63,11 @@ NAME	print
 ;
 ;	USES	flags
 ;
-_TEXT	 segment
+SECTION ._TEXT
 
-	assume	cs:_TEXT, ds:nothing, es:nothing, ss:nothing
+	; assume	cs:_TEXT, ds:nothing, es:nothing, ss:nothing
 
-IsReal	proc	near
+IsReal:
 
 	push	ax
 	smsw	ax
@@ -76,9 +76,9 @@ IsReal	proc	near
 	pop	ax
 	ret				; returns with flags set
 
-IsReal	endp
+; ENDP IsReal
 
-_TEXT	 ends
+; END SECTION ._TEXT
 
 ;***	kputc - write character/attribute to screen
 ;
@@ -96,9 +96,9 @@ _TEXT	 ends
 ;	USES	AX, flags
 ;
 
-_DATA	 segment
+SECTION ._DATA
 RowCol	dw	0
-_DATA	 ends
+; END SECTION ._DATA
 
 CR	equ	0dh				; carriage return
 LF	equ	0ah				; line feed
@@ -107,11 +107,11 @@ BS	equ	8				; backspace
 
 COLOUR_PARA	equ	0b800h
 
-_TEXT	 segment
+SECTION ._TEXT
 
-	assume	cs:_TEXT, ds:_DATA, es:nothing, ss:nothing
+	; assume	cs:_TEXT, ds:_DATA, es:nothing, ss:nothing
 
-kputc	proc	far
+kputc:
 
 	push	bx				; save callers regs
 	push	cx
@@ -241,8 +241,8 @@ kp5:
 
 	ret
 
-kputc	endp
-_TEXT	 ends
+; ENDP kputc
+; END SECTION ._TEXT
 
 
 ;***	SetCursor - updates cursor position
@@ -263,11 +263,11 @@ CURSOR_POSN	equ	050h
 CRT_START	equ	04eh
 ADDR_6845	equ	063h
 
-_TEXT	 segment
+SECTION ._TEXT
 
-	assume	cs:_TEXT, ds:_DATA, es:nothing, ss:nothing
+	; assume	cs:_TEXT, ds:_DATA, es:nothing, ss:nothing
 
-SetCursor	proc	near
+SetCursor:
 
 	push	ds
 	mov	bx, 40h
@@ -280,7 +280,7 @@ SetCursor	proc	near
 ;	Calculate offset on screen
 
 	mov	al, dh				; row
-	mul	byte ptr ds:[CRT_COLS]		; row * cols
+	mul	byte ds:[CRT_COLS]		; row * cols
 	mov	bl, dl				; bl = column
 	mov	bh, 0				; bx = column
 	add	ax, bx				; ax = offset in screen
@@ -314,8 +314,8 @@ SetCursor	proc	near
 
 	ret
 
-SetCursor	endp
-_TEXT		 ends
+; ENDP SetCursor
+; END SECTION ._TEXT
 
 
 ;***	PrintString - prints a message on console
@@ -333,11 +333,11 @@ _TEXT		 ends
 ;	USES	Flags
 ;
 
-_TEXT	 segment
+SECTION ._TEXT
 
-	assume	cs:_TEXT, ds:nothing, es:nothing, ss:nothing
+	; assume	cs:_TEXT, ds:nothing, es:nothing, ss:nothing
 
-PrintString	proc	near
+PrintString:
 
 	cld					; set up for string ops
 	push	si				; save callers regs
@@ -350,7 +350,7 @@ pr1:						; loop printing until null
 	mov	ah, 7				; attribute
 
 	db	9ah				; far call
-	dw	offset _TEXT:kputc		 ; offset
+	dw	kputc		 ; offset
 	dw	VDMC_GSEL			; selector
 
 	jmp	pr1				; back for more
@@ -360,9 +360,9 @@ pr2:
 
 	ret
 
-PrintString	endp
+; ENDP PrintString
 
-_TEXT	 ends
+; END SECTION ._TEXT
 
 ;***	Hex2String
 ;
@@ -372,11 +372,11 @@ _TEXT	 ends
 ;		ES:DI	storage string location
 ;
 
-_TEXT	 segment
+SECTION ._TEXT
 
-	assume	cs:_TEXT, ds:nothing, es:nothing, ss:nothing
+	; assume	cs:_TEXT, ds:nothing, es:nothing, ss:nothing
 
-PutHexChar	proc	near
+PutHexChar:
 
 	cmp	al,9
 	ja	PHC_AF
@@ -388,14 +388,14 @@ PHC_exit:
 	push	ax
 	mov	ah,7
 	db	9ah				; far call
-	dw	offset _TEXT:kputc		; offset
+	dw	kputc		; offset
 	dw	VDMC_GSEL			; selector
 	pop	ax
 	ret
 
-PutHexChar	endp
+; ENDP PutHexChar
 
-PrintHex	proc	near
+PrintHex:
 
 	cld
 
@@ -416,9 +416,9 @@ PrintHex	proc	near
 
 	ret
 
-PrintHex	endp
+; ENDP PrintHex
 
-_TEXT	 ends
+; END SECTION ._TEXT
 
-	end
+	; end
 

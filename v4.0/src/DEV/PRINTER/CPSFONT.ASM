@@ -1,5 +1,5 @@
 
-	PAGE	,132
+	; PAGE	,132
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -15,15 +15,15 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-INCLUDE CPSPEQU.INC			;;
+%include "CPSPEQU.INC";;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-CSEG	SEGMENT PUBLIC 'CODE'           ;;
-	ASSUME	CS:CSEG 		;;
-	ASSUME	DS:NOTHING		;;
+SECTION .CSEG;;
+	; ASSUME	CS:CSEG;;
+	; ASSUME	DS:NOTHING;;
 					;;
-PUBLIC	FTABLE,FONT_PARSER		;;
+global FTABLE,FONT_PARSER;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -64,52 +64,52 @@ FP_ERROR	DW   0000H		;; internal error register
 FTAG_LEN	EQU	8		;; FILE TAGE in the font file header
 FTAG_COUNT	DW	0000H		;;
 					;;
-FTAG_PATTERN	LABEL	BYTE		;;
+FTAG_PATTERN:;;
 	DB	0FFH			;;
 	DB	'FONT   '               ;;
 					;;
 					;;
 					;; POINTER in the font file header
-fptr_LOW LABEL	WORD			;;
+fptr_LOW:;;
 fptr_LOL DB	00H			;; NEXT
 fptr_LOH DB	00H			;;
-fptr_HIGH LABEL WORD			;;
+fptr_HIGH:;;
 fptr_HIL DB	00H			;;
 fptr_HIH DB	00H			;;
 					;;
 					;;
 					;;
-ENTRY_WORD LABEL WORD			;;
+ENTRY_WORD:;;
 ENTRY_LOB DB	00H			;; ENTRY COUNT
 ENTRY_HIB DB	00H			;;
-NEXT_LOW LABEL	WORD			;;
+NEXT_LOW:;;
 NEXT_LOL DB	00H			;; NEXT
 NEXT_LOH DB	00H			;;
-NEXT_HIGH LABEL WORD			;;
+NEXT_HIGH:;;
 NEXT_HIL DB	00H			;;
 NEXT_HIH DB	00H			;;
-TYPE_WORD LABEL WORD			;;
+TYPE_WORD:;;
 TYPE_LOB DB	00H			;; TYPE
 TYPE_HIB DB	00H			;;
 TID_CNT DW	00000H			;; TYPEID COUNT(0 to 8)
 TYPE_ID :	DB '        '           ;; TYPEID
-CPG_WORD LABEL	WORD			;;
+CPG_WORD:;;
 CPG_LOB DB	00H			;; CODE PAGE
 CPG_HIB DB	00H			;;
-FONT_LOW LABEL	WORD			;;
+FONT_LOW:;;
 FONT_LOL DB	00H			;; FONT ADDRESS
 FONT_LOH DB	00H			;;
-FONT_HIGH LABEL WORD			;;
+FONT_HIGH:;;
 FONT_HIL DB	00H			;;
 FONT_HIH DB	00H			;;
 ;; the followings are contained in the font-block in the exact order & length
-MOD_WORD LABEL	WORD			;;
+MOD_WORD:;;
 MOD_LOB DB	00H			;; MODIFIER
 MOD_HIB DB	00H			;;
-FONTS_WORD LABEL WORD			;;
+FONTS_WORD:;;
 FONTS_LOB DB	00H			;; FONTS
 FONTS_HIB DB	00H			;;
-FDLEN_WORD LABEL WORD			;;
+FDLEN_WORD:;;
 FDLEN_LOB DB	00H			;; FONT DATA LENGTH
 FDLEN_HIB DB	00H			;;
 PRE_FONT_ND	EQU ($-MOD_WORD)	;; used to update target for font data
@@ -118,20 +118,20 @@ DISP_ROWS DB	00H			;; DISPLAY's parameters :
 DISP_COLS DB	00H			;; BOX SIZE
 DISP_X	  DB	00H			;; ASPECT RATIO
 DISP_Y	  DB	00H			;;
-COUNT_WORD    LABEL WORD		;; NO. OF DISPLAY CHARACTERS
+COUNT_WORD:;; NO. OF DISPLAY CHARACTERS
 COUNT_LOB DB	00H			;;
 COUNT_HIB DB	00H			;;
 PRE_FONT_D	EQU ($-MOD_WORD)	;; used to update target for font data
 					;; to follow. -- for DISPLAY
 					;;
-PTR_SEL_WORD	LABEL WORD		;;
+PTR_SEL_WORD:;;
 PTR_SELOB DB	00H			;;
 PTR_SEHIB DB	00H			;;
 PRE_FONT_P0	EQU ($-PTR_SELOB+PRE_FONT_ND) ;; to update target for font data
 					;; to follow -- for PRINTER with
 					;; selection type = 0.
 					;;
-PTR_LEN_WORD	LABEL WORD		;;
+PTR_LEN_WORD:;;
 PTR_LNLOB DB	00H			;;
 PTR_LNHIB DB	00H			;;
 PRE_FONT_P	EQU ($-PTR_SELOB+PRE_FONT_ND) ;; to update target for font data
@@ -144,51 +144,51 @@ PRE_FONT_P	EQU ($-PTR_SELOB+PRE_FONT_ND) ;; to update target for font data
 					;; the stage the parsing is in :  ;;;;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-STAGE_CASES LABEL WORD			;; the stage the parsing is in :
+STAGE_CASES:;; the stage the parsing is in :
 					;;
 					;; *** INDEXED BY  STAGE-INDEX
 					;;
-	DW	OFFSET ENTRYLO		;; 0
-	DW	OFFSET ENTRYHI		;; 1
-	DW	OFFSET NEXTLOL		;; 2
-	DW	OFFSET NEXTLOH		;; 3
-	DW	OFFSET NEXTHIL		;; 4
-	DW	OFFSET NEXTHIH		;; 5
-	DW	OFFSET TYPELO		;; 6
-	DW	OFFSET TYPEHI		;; 7
-	DW	OFFSET TYPEIDS		;; 8
-	DW	OFFSET CPGLO		;; 9
-	DW	OFFSET CPGHI		;; A
-	DW	OFFSET FONTLOL		;; B
-	DW	OFFSET FONTLOH		;; C
-	DW	OFFSET FONTHIL		;; D
-	DW	OFFSET FONTHIH		;; E
+	DW	ENTRYLO		;; 0
+	DW	ENTRYHI		;; 1
+	DW	NEXTLOL		;; 2
+	DW	NEXTLOH		;; 3
+	DW	NEXTHIL		;; 4
+	DW	NEXTHIH		;; 5
+	DW	TYPELO		;; 6
+	DW	TYPEHI		;; 7
+	DW	TYPEIDS		;; 8
+	DW	CPGLO		;; 9
+	DW	CPGHI		;; A
+	DW	FONTLOL		;; B
+	DW	FONTLOH		;; C
+	DW	FONTHIL		;; D
+	DW	FONTHIH		;; E
 	DW	00H			;; MATCH case -- end of SEARCH stages
 	DW	00H			;; SCAN  case -- before PRE-FOUND stage
-	DW	OFFSET MODLO		;; 11
-	DW	OFFSET MODHI		;; 12
-	DW	OFFSET FONTSLO		;; 13
-	DW	OFFSET FONTSHI		;; 14
-	DW	OFFSET FDLENLO		;; 15
-	DW	OFFSET FDLENHI		;; 16 -- lead to FONT case,NON- DISPLAY
-	DW	OFFSET DSPROWS		;; 17 -- DISPLAY only
-	DW	OFFSET DSPCOLS		;; 18
-	DW	OFFSET DSPX		;; 19
-	DW	OFFSET DSPY		;; 1A
-	DW	OFFSET DSPCOUNTLO	;; 1B
-	DW	OFFSET DSPCOUNTHI	;; 1C -- lead to FONT case, DISPLAY
-	DW	OFFSET PTRSELLO        ;;  1D -- PRINTER only
-	DW	OFFSET PTRSELHI        ;;  1E
-	DW	OFFSET PTRLENLO        ;;  1F
-	DW	OFFSET PTRLENHI        ;;  20 -- lead to FONT case, PRINTER
+	DW	MODLO		;; 11
+	DW	MODHI		;; 12
+	DW	FONTSLO		;; 13
+	DW	FONTSHI		;; 14
+	DW	FDLENLO		;; 15
+	DW	FDLENHI		;; 16 -- lead to FONT case,NON- DISPLAY
+	DW	DSPROWS		;; 17 -- DISPLAY only
+	DW	DSPCOLS		;; 18
+	DW	DSPX		;; 19
+	DW	DSPY		;; 1A
+	DW	DSPCOUNTLO	;; 1B
+	DW	DSPCOUNTHI	;; 1C -- lead to FONT case, DISPLAY
+	DW	PTRSELLO        ;;  1D -- PRINTER only
+	DW	PTRSELHI        ;;  1E
+	DW	PTRLENLO        ;;  1F
+	DW	PTRLENHI        ;;  20 -- lead to FONT case, PRINTER
 	DW	00H			;; FOUND    case
 	DW	00H			;; GET_FONT case
 	DW	00H			;; PASS special stage
-	DW	OFFSET FILETAG		;; 24
-	DW	OFFSET fptrLOL		;; 25
-	DW	OFFSET fptrLOH		;; 26
-	DW	OFFSET fptrHIL		;; 27
-	DW	OFFSET fptrHIH		;; 28
+	DW	FILETAG		;; 24
+	DW	fptrLOL		;; 25
+	DW	fptrLOH		;; 26
+	DW	fptrHIL		;; 27
+	DW	fptrHIH		;; 28
 	DW	00H			;; FPTR_SKIP_CASE
 					;;
 					;; The followings are individual stage
@@ -264,7 +264,7 @@ FILE_OFFSET    EQU     0BH	       ;; spaces to be skipped in font file :
 					;; ( after TAG, before POINTER)
 					;;
 PASS_CNT DW	0			;;
-PASS_BRK LABEL	WORD			;;
+PASS_BRK:;;
 	DW	FILE_OFFSET		;; skip in the font file header
 	DW	FILE_OFFSET+2		;; pass header-length, needs to reset
 					;; PASS_CNT for each of the font_header
@@ -300,7 +300,7 @@ NUM_FTB DW	00000H			;; as defined in the FP_BUFFER
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-FONT_PARSER PROC			;;
+FONT_PARSER:;;
 	PUSH	DS			;; save all registers Revised
 	PUSH	ES			;;
 	PUSH	AX			;;
@@ -661,7 +661,7 @@ MATCH_SEARCH :				;;
 					;;
 	PUSH	CS			;;
 	POP	DS			;;
-	MOV	SI,OFFSET TYPE_ID	;;
+	MOV	SI,TYPE_ID	;;
 	LEA	DI,[BX].FTB_TID 	;;
 	MOV	CX,8			;;
 	REPE	CMPSB			;;
@@ -929,7 +929,7 @@ PRE_FOUND_CASE :			;;
 					;;
 ;===========================================================================
 FOUND_CASE :				;;
-	MOV	DI,OFFSET FTB_LOOP	;; as FOUND has two places to return to
+	MOV	DI,FTB_LOOP	;; as FOUND has two places to return to
 	PUSH	DI			;;
 ;===========================================================================
 FOUND_DO :				;;
@@ -1384,7 +1384,7 @@ VALID_TID :				;;
 	PUSH	CS			;;
 	POP	ES			;;
 					;;
-	MOV	DI,OFFSET TYPE_ID	;;
+	MOV	DI,TYPE_ID	;;
 	ADD	DI,cs:tid_cnt		   ;;
 	ADD	cs:tid_cnt,CX		   ;;
 	REP	MOVSB			;; SI is incremented accordingly
@@ -1399,7 +1399,7 @@ TID_ALL :				;;
 	PUSH	CS			;;
 	POP	ES			;;
 					;;
-	MOV	DI,OFFSET TYPE_ID	;;
+	MOV	DI,TYPE_ID	;;
 	ADD	DI,cs:tid_cnt		   ;;
 	MOV	CX,AX			;;
 	REP	MOVSB			;; SI is incremented accordingly
@@ -1871,7 +1871,7 @@ PASS	:				;; STAGE - PASS DUMMY BYTES
 					;;
 	PUSH	CS			;;
 	POP	ES			;;
-	MOV	DI,OFFSET PASS_BRK	;;
+	MOV	DI,PASS_BRK	;;
 	MOV	DX,PASS_INDX		;;
 	MOV	AX,cs:pass_cnt		   ;;
 					;;
@@ -1954,8 +1954,8 @@ FP_RET	:				;;
 	POP	DS			;;
 					;;
 	RET				;;
-FONT_PARSER ENDP			;;
+; ENDP FONT_PARSER;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CSEG	ENDS
-	END
+; END SECTION .CSEG
+	; END

@@ -1,25 +1,25 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS KbdSetStatus
+; title CP/DOS KbdSetStatus
 
-        .sall
-        .xlist
-        include kbd.inc       ; kbd set status data structure
-        .list
+        ; .sall
+        ; .xlist
+        %include "kbd.inc"; kbd set status data structure
+        ; .list
 
-kbddata segment word public 'kbddata'
+SECTION .kbddata
 
-        extrn   KbdBitMask:word
-        extrn   KbdTurnAroundCharacter:word
-        extrn   KbdInterimCharFlags:word
+        extern KbdBitMask
+        extern KbdTurnAroundCharacter
+        extern KbdInterimCharFlags
 
-kbddata ends
+; END SECTION .kbddata
 
 
 
-kbdxxx  segment byte public 'kbd'
-        assume  cs:kbdxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .kbdxxx
+        ; assume  cs:kbdxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -39,23 +39,23 @@ kbdxxx  segment byte public 'kbd'
 ; *
 ; *************************************************************************
 ;
-        public kbdsetstatus
+        global kbdsetstatus
 
-str     struc
-old_bp  dw      ?
-return  dd      ?
-handle  dw      ?       ; kbd handle
-data    dd      ?       ; kbd data strructure pointer
-str     ends
+struc str
+old_bp: dw 0
+return: dd 0
+handle: dw 0; kbd handle
+data: dd 0; kbd data strructure pointer
+endstruc
 
-kbdsetstatus    proc    far
+kbdsetstatus:
 
         Enter   KbdSetStatus            ; save registers
 
         les     di,[bp].data            ; set up kbd data structure
         mov     ax,seg kbddata
         mov     ds,ax
-        assume  ds:kbddata
+        ; assume  ds:kbddata
 
         mov     ax,es:[di].Bit_Mask     ; get bit mask
 
@@ -80,13 +80,13 @@ CheckShiftState:
         push    ds                      ; setup for shift state
         mov     bx,040h
         mov     ds,bx
-        assume  ds:nothing
+        ; assume  ds:nothing
 
         mov     bx,es:[di].Status_Shift_State   ; save shift state data
         mov     ds:018h,bl
 
         pop     ds
-        assume  ds:kbddata
+        ; assume  ds:kbddata
 
 CheckCookedOn:                              ; check for cooked mode ??
         test    ax,008h
@@ -119,11 +119,11 @@ CheckEchoOn:
 EverythingSet:
         Mexit                               ; pop registers
 
-        ret     size str - 6                ; return
+        ret     str_size - 6                ; return
 
-KbdSetStatus    endp
+; ENDP KbdSetStatus
 
-kbdxxx  ends
+; END SECTION .kbdxxx
 
-        end
+        ; end
 

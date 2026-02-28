@@ -7,15 +7,15 @@ INTTAB		EQU	20H
 INTBASE 	EQU	4 * inttab
 ENTRYPOINT	EQU	INTBASE+40H
 
-	IF	ALTVECT
+	%if ALTVECT
 ALTTAB	EQU	0F0H
 ALTBASE EQU	4 * ALTTAB
-	ENDIF
+	%endif
 
 ;
 ; interrupt assignments
 ;
-	IF	NOT ALTVECT
+	%if NOT ALTVECT
 int_abort	    EQU     INTTAB	; abort process
 int_command	    EQU     int_abort+1 ; call MSDOS
 int_terminate	    EQU     int_abort+2 ; int to terminate address
@@ -34,7 +34,7 @@ int_IBM 	    EQU     int_abort+10; critical section maintenance
 ;									   ;
 ;	     C	A  V  E  A  T	  P  R	O  G  R  A  M  M  E  R		   ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
-	ELSE
+	%else
 int_abort	    EQU     INTTAB	; abort process
 int_command	    EQU     int_abort+1 ; call MSDOS
 int_terminate	    EQU     ALTTAB	; int to terminate address
@@ -51,7 +51,7 @@ int_fastcon	    EQU     int_abort+9 ; fast CON interrupt
 ;									   ;
 ;	     C	A  V  E  A  T	  P  R	O  G  R  A  M  M  E  R		   ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
-	ENDIF
+	%endif
 
 addr_int_abort		EQU    4 * int_abort
 addr_int_command	EQU    4 * int_command

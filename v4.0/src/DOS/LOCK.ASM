@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)lock.asm	1.1 85/04/10
-TITLE	LOCK ROUTINES - Routines for file locking
-NAME	LOCK
+; TITLE	LOCK ROUTINES - Routines for file locking
+; NAME	LOCK
 
 ;
 ;   LOCK_CHECK
@@ -10,18 +10,18 @@ NAME	LOCK
 ;   Revision history:
 ;     A000   version 4.00   Jan. 1988
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xlist
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-include lock.inc		     ;AN000;
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+%include "lock.inc";AN000;
+; .cref
+; .list
 
 AsmVars <IBM, Installed>
 
@@ -77,7 +77,7 @@ BREAK <$LockOper - Lock Calls>
 ;	       = error_lock_violation
 
 	procedure   $LockOper,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 ;	MOV	BP,AX			;MS. BP=AX				;AN000;
 ;	AND	BP,7FH			;MS. clear bit 7			;AN000;
 ;	CMP	BP,Lock_add		;MS. supported function ?		;AN000;
@@ -117,12 +117,12 @@ old_33:
 					;AN000;
 ;;	MOV	DX,[Temp_Var]		;AN000;;MS. retore DX  (P5013) 6/5/88
 
-	MOV	BP, OFFSET DOSGROUP:Lock_Buffer ;AN000;;MS. get DOS LOCK buffer
-	MOV	WORD PTR [BP.Lock_position],DX	;AN000;;MS. set low offset
-	MOV	WORD PTR [BP.Lock_position+2],CX;AN000;;MS. set high offset
+	MOV	BP, Lock_Buffer ;AN000;;MS. get DOS LOCK buffer
+	MOV	word [BP.Lock_position],DX	;AN000;;MS. set low offset
+	MOV	word [BP.Lock_position+2],CX;AN000;;MS. set high offset
 	POP	CX				;AN000;;MS. get low length
-	MOV	WORD PTR [BP.Lock_length],CX	;AN000;;MS. set low length
-	MOV	WORD PTR [BP.Lock_length+2],SI	;AN000;;MS. set high length
+	MOV	word [BP.Lock_length],CX	;AN000;;MS. set low length
+	MOV	word [BP.Lock_length+2],SI	;AN000;;MS. set high length
 	MOV	CX,1				;AN000;;MS. one range
 	PUSH	CS				;AN000;;MS.
 	POP	DS				;AN000;;MS. DS:DX points to
@@ -190,11 +190,11 @@ DOS_Unlock:
 	CallInstall Net_Xlock,multNet,10
 	JMP	SHORT ValChk
 LOCAL_UNLOCK:
-if installed
+%if installed
 	Call	JShare + 7 * 4
-else
+%else
 	Call	clr_block
-endif
+%endif
 ValChk:
 	JNC	Lock_OK
 lockerror:
@@ -210,11 +210,11 @@ DOS_Lock:
 	CallInstall NET_XLock,multNet,10
 	JMP	ValChk
 LOCAL_LOCK:
-if installed
+%if installed
 	Call	JShare + 6 * 4
-else
+%else
 	Call	Set_Block
-endif
+%endif
 	JMP	ValChk
 
 EndProc $LockOper
@@ -301,16 +301,16 @@ BREAK <Set_Lock_Buffer>
 
 	procedure   LOCK_CHECK,NEAR
 	DOSAssume   CS,<DS>,"Lock_Check"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	MOV	BX,RetryCount		; Number retries
 LockRetry:
 	SaveReg <BX,AX> 		; MS. save regs 			;AN000;
-if installed
+%if installed
 	call	JShare + 8 * 4
-else
+%else
 	Call	chk_block
-endif
+%endif
 	RestoreReg  <AX,BX>		; MS. restrore regs			;AN000;
 	retnc				; There are no locks
 	Invoke	Idle			; wait a while
@@ -333,7 +333,7 @@ EndProc LOCK_CHECK
 
 	procedure   LOCK_VIOLATION,NEAR
 	DOSAssume   CS,<DS>,"Lock_Violation"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	PUSH	DS
 	PUSH	ES
@@ -357,16 +357,16 @@ EndProc LOCK_CHECK
 
 EndProc LOCK_VIOLATION
 
-IF  INSTALLED
+%if INSTALLED
 ;
 ; do a retz to return error
 ;
 Procedure   CheckShare,NEAR
-	ASSUME	CS:DOSGROUP,ES:NOTHING,DS:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGROUP,ES:NOTHING,DS:NOTHING,SS:NOTHING
 	CMP	fShare,0
 	return
 EndProc CheckShare
-ENDIF
+%endif
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END

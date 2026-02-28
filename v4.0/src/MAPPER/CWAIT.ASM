@@ -1,7 +1,7 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS  DOSCWait  mapper
+; title CP/DOS  DOSCWait  mapper
 
 ; ************************************************************************* *
 ; *
@@ -28,38 +28,38 @@ title CP/DOS  DOSCWait  mapper
 ; *
 ; *************************************************************************
 
-buffer  segment word public 'buffer'
+SECTION .buffer
 
-        extrn   DosExecPgmCalled:word
-        extrn   DosExecPgmReturnCode:word
+        extern DosExecPgmCalled
+        extern DosExecPgmReturnCode
 
-buffer  ends
+; END SECTION .buffer
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
-        public  doscwait
-        .sall
-        .xlist
-        include macros.inc
-        .list
+        global doscwait
+        ; .sall
+        ; .xlist
+        %include "macros.inc"
+        ; .list
 ;
-str     struc
-old_bp      dw    ?
-return      dd    ?
-Qprocessid  dw    ?           ; Child process ID
-Aprocessid  dd    ?           ; process id pointer
-resultcode  dd    ?           ; result code pointer
-waitoption  dw    ?           ; wait option
-actioncode  dw    ?           ; action code
-str     ends
+struc str
+old_bp: dw 0
+return: dd 0
+Qprocessid: dw 0; Child process ID
+Aprocessid: dd 0; process id pointer
+resultcode: dd 0; result code pointer
+waitoption: dw 0; wait option
+actioncode: dw 0; action code
+endstruc
 
-doscwait proc   far
+doscwait:
         Enter   doscwait                 ; push registers
 
         mov     ax,seg buffer
         mov     ds,ax                    ; set temporary buffer
-        assume  ds:buffer
+        ; assume  ds:buffer
 
         cmp     DosExecPgmCalled,0       ; ??????
         jz      WeHaveExeced
@@ -70,7 +70,7 @@ doscwait proc   far
 WeHaveExeced:
         mov     ax,DosExecPgmReturnCode
         lds     si,[bp].ResultCode
-        assume  ds:nothing
+        ; assume  ds:nothing
         mov     ds:[si],ax               ; return termination code
 
         mov     ax,[bp].Qprocessid       ; return child process id
@@ -81,10 +81,10 @@ WeHaveExeced:
 
 ErrorExit:
         Mexit                            ; pop registers
-        ret     size str - 6             ; return
+        ret     str_size - 6             ; return
 
-doscwait endp
+; ENDP doscwait
 
-dosxxx  ends
+; END SECTION .dosxxx
 
-        end
+        ; end

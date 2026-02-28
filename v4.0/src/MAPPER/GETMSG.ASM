@@ -1,9 +1,9 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosGetMessage mapper
+; title CP/DOS DosGetMessage mapper
 ;
-messages segment word public 'messages'
+SECTION .messages
 
 OurMessage	db	0dh,0ah,"DosGetMessage returning ->",'$'
 
@@ -26,127 +26,127 @@ MacroState = 0
 
 ;----------------------------------------------
 
-MsgError	macro text		; message string error
+%macro MsgError 1; message string error
 
-	if1
-	else
-	%out 
-	%out $ERROR - &text
-	endif
+	%if 1  ; IF1 - pass-specific
+	%else
+	%warning 
+	%warning $ERROR - &text
+	%endif
 
  $ERROR - &text
 
-	endm
+	%endmacro
 
 ;----------------------------------------------
 
-msg	macro	number,text
+%macro msg 2
 
-	if	MacroState NE 0
+	%if MacroState NE 0
  MsgError <Cannot use the 'Msg' Macro when inside a message definition.>
 	mexit
-	endif
+	%endif
 
 Message&Number	db	text
 		db	0
 
-	if	MaxMessageNumber lt &number
+	%if MaxMessageNumber lt &number
 	  MaxMessageNumber	  =	  &Number
-	endif
+	%endif
 
 MacroState = 0
 
-	endm
+	%endmacro
 
 ;----------------------------------------------
 
-msgStart	macro	number,text	 ; start of  a message string
+%macro msgStart 2; start of  a message string
 
-	if	MacroState NE 0
+	%if MacroState NE 0
  MsgError <Cannot use the 'MsgStart' macro when inside a message definition.>
 	mexit
-	endif
+	%endif
 
 Message&Number	db	text
 
-	if	MaxMessageNumber lt &number
+	%if MaxMessageNumber lt &number
 	  MaxMessageNumber	  =	  &Number
-	endif
+	%endif
 
 MacroState = 1
 
-	endm
+	%endmacro
 
 ;----------------------------------------------
 
-msgContinue	macro	text		 ; messgage string contination
+%macro msgContinue 1; messgage string contination
 
-	if	MacroState EQ 0
+	%if MacroState EQ 0
  MsgError <Cannot use the 'MsgContinue' macro unless inside a message definition.>
 	mexit
-	endif
+	%endif
 
 	db	text
 
 MacroState = 1
 
-	endm
+	%endmacro
 
 ;----------------------------------------------
 
-msgEnd	macro				; end of message string
+%macro msgEnd 0; end of message string
 
-	if	MacroState EQ 0
+	%if MacroState EQ 0
  MsgError <Cannot use the 'MsgEnd' macro unless inside a message definition.>
 	mexit
-	endif
+	%endif
 
 	db	0
 
 MacroState = 0
 
-	endm
+	%endmacro
 
 
 ;-----------------------------------------------
 
 ; Define/declare the messages first!
 
-	include messages.inc
+	%include "messages.inc"
 
 NotFoundNumber	=	-2
 
-NotFoundMessage label	byte
+NotFoundMessage:
 		msg	NotFoundNumber,<'We could not find your message #'>
 
 ; Now, for each defined message, generate an index
 
-msgidx	macro	number
-	ifdef	Message&Number
+%macro msgidx 1
+	%ifdef Message
 	dw	&Number
-	dw	offset messages:Message&Number
-	endif
-	endm
+	dw	Message&Number
+	%endif
+	%endmacro
 
-	even
+	align 2
 
-MessageIndex	label	word
+MessageIndex:
 
 ThisMessageNumber	=	0
-	rept	MaxMessageNumber + 1
+	%rep MaxMessageNumber + 1
 	msgidx	%ThisMessageNumber
 ThisMessageNumber	=	ThisMessageNumber + 1
-	endm
+	%endmacro
 
 	dw	-1
 
 NotFoundIndex	dw	-2
-		dw	offset messages:NotFoundMessage
+		dw	NotFoundMessage
 
-messages ends
+; END SECTION .messages
 ;
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -169,35 +169,35 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 ;
-	    public   dosgetmessage
-	    .sall
-	    .xlist
-	    include  macros.inc
-	    .list
+	    global dosgetmessage
+	    ; .sall
+	    ; .xlist
+	    %include "macros.inc"
+	    ; .list
 
-str	    struc
-old_bp	    dw	     ?
-return	    dd	     ?
-ReturnLengthPtr  dd	 ?	; length of returned message
-MessageFileName  dd	 ?	; message file name
-MessageNumber	 dw	 ?	; number of the message
-MessageBufferLen dw	 ?	; length of the message buffer
-MessageBufferPtr dd	 ?	; buffer address to return message
-VariablesCount	 dw	 ?	; number of variables
-VariableTablePtr dd	 ?	; table of variables to insert
-str	    ends
+struc str
+old_bp: dw 0
+return: dd 0
+ReturnLengthPtr: dd 0; length of returned message
+MessageFileName: dd 0; message file name
+MessageNumber: dw 0; number of the message
+MessageBufferLen: dw 0; length of the message buffer
+MessageBufferPtr: dd 0; buffer address to return message
+VariablesCount: dw 0; number of variables
+VariableTablePtr: dd 0; table of variables to insert
+endstruc
 
 
-dosgetmessage  proc	far
+dosgetmessage:
 
 	Enter	Dosgetmessage		; push registers
 	mov	ax,messages		; setup message buffer
 	mov	ds,ax
-	assume	ds:messages
+	; assume	ds:messages
 	mov	ErrorMessageFlag,0	; reset error message flag
 
 	mov	bx,[bp].MessageNumber		 ; get message number
-	mov	si,offset messages:MessageIndex
+	mov	si,MessageIndex
 
 SearchForMessageLoop:			; search for message in table
 	lodsw
@@ -208,7 +208,7 @@ SearchForMessageLoop:			; search for message in table
 	cmp	ax,-1
 	jne	SearchForMessageLoop
 
-	mov	si,offset messages:NotFoundIndex + 2
+	mov	si,NotFoundIndex + 2
 	mov	ErrorMessageFlag,1
 
 ; Here, ds:[si] -> word message number, followed by word message offset
@@ -219,8 +219,8 @@ FoundMessage:
 ; Here, ds:[si] -> message text bytes
 
 	les	di,[bp].VariableTablePtr	; get variable address
-	mov	word ptr NextVarPointer+0,di	; save it
-	mov	word ptr NextVarPointer+2,es
+	mov	word NextVarPointer+0,di	; save it
+	mov	word NextVarPointer+2,es
 
 	mov	di,[bp].VariablesCount		; get variable count
 	mov	VarsToGo,di			; save it
@@ -288,17 +288,17 @@ SubstituteChar: 				; do character subtitution
 	push	ds
 	push	si
 	lds	si,NextVarPointer
-	lds	si,ds:dword ptr [si]
+	lds	si,ds:dword [si]
 
-	assume	ds:nothing
+	; assume	ds:nothing
 
 	lodsb
 	pop	si
 	pop	ds
 
-	assume	ds:messages
+	; assume	ds:messages
 
-	add	word ptr NextVarPointer,4
+	add	word NextVarPointer,4
 	dec	VarsToGo
 
 	jmp	RealCharacter
@@ -315,17 +315,17 @@ SubstituteDecimal:				; do decimal subtitution
 	push	ds
 	push	si
 	lds	si,NextVarPointer
-	lds	si,ds:dword ptr [si]
+	lds	si,ds:dword [si]
 
-	assume	ds:nothing
+	; assume	ds:nothing
 
 	lodsw
 	pop	si
 	pop	ds
 
-	assume	ds:messages
+	; assume	ds:messages
 
-	add	word ptr NextVarPointer,4
+	add	word NextVarPointer,4
 	dec	VarsToGo
 
 	mov	dx,0
@@ -354,8 +354,8 @@ SubstituteString:				; do string substitution
 	mov	cx,MessageToGo
 	mov	dx,MessageLength
 	lds	si,NextVarPointer
-	lds	si,ds:dword ptr [si]
-	assume	ds:nothing
+	lds	si,ds:dword [si]
+	; assume	ds:nothing
 
 ContinueStringSubstitution:
 	lodsb
@@ -369,9 +369,9 @@ ContinueStringSubstitution:
 EndOfSubstituteString:
 	pop	si
 	pop	ds
-	assume	ds:messages
+	; assume	ds:messages
 
-	add	word ptr NextVarPointer,4
+	add	word NextVarPointer,4
 	dec	VarsToGo
 
 	mov	MessageLength,dx
@@ -406,11 +406,11 @@ GetMessageDone:
 	push	si
 	mov	ax,MessageLength
 	lds	si,[bp].ReturnLengthPtr
-	assume	ds:nothing
+	; assume	ds:nothing
 	mov	ds:[si],ax
 	pop	si
 	pop	ds
-	assume	ds:messages
+	; assume	ds:messages
 
 	cmp	ErrorMessageFlag,0
 	je	NotErrorMessage
@@ -418,7 +418,7 @@ GetMessageDone:
 	mov	ErrorMessageFlag,0
 
 KeepGoingBackwards:
-	cmp	es:byte ptr [di-1],0
+	cmp	es:byte [di-1],0
 	jne	PutItHere
 
 	dec	di
@@ -430,7 +430,7 @@ PutItHere:
 
 	call	convdec
 	lds	si,[bp].ReturnLengthPtr
-	assume	ds:nothing
+	; assume	ds:nothing
 	add	ax,3			; for cr, lf, nul
 	add	ds:[si],ax
 
@@ -447,7 +447,7 @@ NotErrorMessage:
 
 	mov	dx,seg messages
 	mov	ds,dx
-	mov	dx,offset messages:OurMessage
+	mov	dx,OurMessage
 
 	mov	ah,9			   ; load op code
 	int	21h			   ; display message
@@ -464,11 +464,11 @@ SkipToHere:
 	xor	ax,ax			   ; set good return code
 
 	mexit				   ; pop registers
-	ret	 size str - 6		   ; return
+	ret	 str_size - 6		   ; return
 
-dosgetmessage  endp
+; ENDP dosgetmessage
 
-	page
+	; page
 
 ;������������������������������������������������������������������
 
@@ -482,7 +482,7 @@ Tens	dd	10000000
 	dd	1
 	dd	0
 
-convdec proc	near
+convdec:
 
 ; input es:di -> location to put decimal characters at
 ;	dx:ax -> 32bit value to be displayed
@@ -494,15 +494,15 @@ convdec proc	near
 	sub	sp,6
 	mov	bp,sp
 
-DecLength	equ	word ptr [bp+0]
-LowValue	equ	word ptr [bp+2]
-HighValue	equ	word ptr [bp+4]
+DecLength	equ	word [bp+0]
+LowValue	equ	word [bp+2]
+HighValue	equ	word [bp+4]
 
 	mov	DecLength,0
 	mov	HighValue,dx
 	mov	LowValue,ax
 
-	mov	bx,offset dosxxx:Tens
+	mov	bx,Tens
 
 ; Start with a count of zero.
 
@@ -552,9 +552,9 @@ DoDisplay:
 
 NextDigit:
 	add	bx,4
-	cmp	cs:word ptr [bx+0],0
+	cmp	cs:word [bx+0],0
 	jnz	DigitLoop
-	cmp	cs:word ptr [bx+2],0
+	cmp	cs:word [bx+2],0
 	jnz	DigitLoop
 
 ; Check to see that we at least put out a single 0 character
@@ -579,8 +579,8 @@ Done:
 
 	ret
 
-convdec endp
+; ENDP convdec
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

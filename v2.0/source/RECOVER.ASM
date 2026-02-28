@@ -1,4 +1,4 @@
-TITLE   RECOVER MS-DOS File/Disk Recovery Utility
+; TITLE   RECOVER MS-DOS File/Disk Recovery Utility
 ;----------------------------------------------------------
 ;
 ;       Recover - Program to rebuild an ms.dos directory
@@ -23,7 +23,7 @@ boot    equ     20h
 aread   equ     25h
 awrite  equ     26h
 
-        INCLUDE DOSSYM.ASM
+        %include "DOSSYM.ASM"
 
 ;
 cr      equ     0dh
@@ -31,23 +31,23 @@ lf      equ     0ah
 ;
 fcb     equ     5ch
 
-code    segment public
-code    ends
+SECTION .code
+; END SECTION .code
 
-const   segment public byte
-const   ends
+SECTION .const
+; END SECTION .const
 
-data    segment public byte
-data    ends
+SECTION .data
+; END SECTION .data
 
 
-dg      group   code,const,data
+; dg      group   code,const,data
 
-code    segment public
-        assume  cs:dg,ds:dg,es:dg,ss:dg
+SECTION .code
+        ; assume  cs:dg,ds:dg,es:dg,ss:dg
 
-        PUBLIC  PCRLF,PRINT,INT_23,convert
-        EXTRN   dskwrt:NEAR,dskrd:NEAR,DSKERR:NEAR,report:NEAR
+        global PCRLF,PRINT,INT_23,convert
+        extern dskwrt,dskrd,DSKERR,report
 
         org     100h
 
@@ -56,7 +56,7 @@ recover:jmp     rec_start
 HEADER  DB      "Vers 1.50"
 
 ;-----------------------------------------------------------------------;
-hardch  dd      ?
+hardch: dd 0
 
 the_root db     0                       ;root directory flag
 
@@ -71,10 +71,10 @@ dirchar db      "/",0
 userdir db      "/",0
         db      (dirstrlen) dup(0)
 
-fname_buffer db 128 dup(0)
+fname_buffer: times 128 db 0
 ;-----------------------------------------------------------------------;
 
-pcrlf:  mov     dx,offset dg: crlf
+pcrlf:  mov     dx, crlf
 print:  mov     ah,STD_CON_STRING_OUTPUT
         int     bdos
 pret:   ret
@@ -141,13 +141,13 @@ convwrd:adc     al,al
 ;
 ;       bx = fat[ax]
 ;
-getfat: mov     bx,offset dg: fattbl
+getfat: mov     bx, fattbl
         push    ax
         mov     si,ax
         sar     ax,1
         pushf
         add     si,ax
-        mov     bx,word ptr [bx][si]
+        mov     bx,word [bx][si]
         popf
         jnc     getfat1
         mov     cl,4
@@ -159,21 +159,21 @@ getfat1:and     bh,00001111b
 ;
 ;       fat[ax] = dx
 ;
-setfat: mov     bx,offset dg: fattbl
+setfat: mov     bx, fattbl
         push    ax
         push    dx
         mov     si,ax
         sar     ax,1
         pushf
         add     si,ax
-        mov     ax,word ptr [bx][si]
+        mov     ax,word [bx][si]
         popf
         jnc     setfat2
         and     ax,000fh
         mov     cl,4
         shl     dx,cl
 setfat1:or      ax,dx
-        mov     word ptr [bx][si],ax
+        mov     word [bx][si],ax
         pop     dx
         pop     ax
         ret
@@ -182,11 +182,11 @@ setfat2:and     ax,0f000h
         jmp     setfat1
 
 load:   mov     dx,firfat
-        mov     al,byte ptr fatnum
-        mov     byte ptr fatcnt,al
-        mov     al,byte ptr drive
+        mov     al,byte fatnum
+        mov     byte fatcnt,al
+        mov     al,byte drive
         mov     cx,fatsiz
-        mov     bx,offset dg: fattbl
+        mov     bx, fattbl
 ret66:  ret
 
 readft: call    load
@@ -194,11 +194,11 @@ readit: call    dskrd
         cmp     [fndfat],0      ;save location of readable fat sector
         jnz     fdfat
         mov     [fndfat],dx
-fdfat:  cmp     word ptr [bx+1],-1
+fdfat:  cmp     word [bx+1],-1
         jz      ret66
 
         add     dx,cx           ;try to read the other fats
-        dec     byte ptr fatcnt
+        dec     byte fatcnt
         jnz     readit
 
         mov     dx,[fndfat]     ;see if any readable at all
@@ -219,7 +219,7 @@ wrtit:  push    ax
         pop     ax
 
 wrtok:  add     dx,cx
-        dec     byte ptr fatcnt
+        dec     byte fatcnt
         jnz     wrtit
         ret
 
@@ -244,7 +244,7 @@ DOSVER_HIGH     EQU  0200H   ;2.00 in hex
         CMP     AX,DOSVER_HIGH
         JAE     OKDOS
 GOTBADDOS:
-        MOV     DX,OFFSET DG:BADVER
+        MOV     DX,BADVER
         CALL    PRINT
         INT     20H
 
@@ -286,7 +286,7 @@ drvok1:
         mov     [drive],al
         add     [drvlet],al
         add     [drvlet1],al
-        mov     dx,offset dg: askmsg
+        mov     dx, askmsg
         call    print
         mov     ah,STD_CON_INPUT_FLUSH
         mov     al,1                    ;wait for a key
@@ -294,20 +294,20 @@ drvok1:
 
         cmp     al,17h
         jnz     drvok2
-        mov     dx,offset dg: egomes
+        mov     dx, egomes
         jmp     printerr
 egomes: db      "Chris Peters helped with the new dos!",cr,lf
         db      "Microsoft rules ok$"
 
 drvok2:
-        IF      IBMVER
+        %if IBMVER
         MOV     AL,DRIVE                ;This is for ibm's single drive sys
         PUSH    DS
         MOV     BX,50H
         MOV     DS,BX
-        MOV     DS:(BYTE PTR 4),AL              ;Indicate drive changed
+        MOV     DS:(byte 4),AL              ;Indicate drive changed
         POP     DS
-        ENDIF
+        %endif
 
 ;----- Process Pathnames -----------------------------------------------;
         mov     ax,(char_oper shl 8)    ;get switch character
@@ -319,7 +319,7 @@ drvok2:
 
 slashok:
         mov     si,81h                  ;point to cammand line
-        mov     di,offset dg: fname_buffer
+        mov     di, fname_buffer
         xor     cx,cx                   ;zero pathname length
 
 kill_bl:
@@ -344,13 +344,13 @@ next_char:
         jne     next_char
 
 name_copied:
-        mov     byte ptr [di],0         ;nul terminate the pathname
+        mov     byte [di],0         ;nul terminate the pathname
         dec     di                      ;adjust to the end of the pathname
 
 ;----- Scan for directory ----------------------------------------------;
 
-        IF      KANJI
-        mov     dx,offset dg: [fname_buffer]
+        %if KANJI
+        mov     dx, [fname_buffer]
         PUSH    DX
         PUSH    DI
         MOV     BX,DI
@@ -389,13 +389,13 @@ GOTDELE:
         cmp     al,[dirchar]
         jz      sja             ;One character directory
 same_dirj:
-        ELSE
+        %else
         mov     al,[dirchar]            ;get directory separator character
         std                             ;scan backwards
         repnz   scasb                   ;(cx has the pathname length)
         cld                             ;reset direction, just in case
         jz      sja
-        ENDIF
+        %endif
 
         jmp     same_dir                ;no dir separator char. found, the
                                         ; file is in the current directory
@@ -404,7 +404,7 @@ same_dirj:
 
 sja:
         jcxz    sjb                     ;no more chars left, it refers to root
-        cmp     byte ptr [di],':'       ;is the prvious character a disk def?
+        cmp     byte [di],':'       ;is the prvious character a disk def?
         jne     not_root
 sjb:
         mov     [the_root],01h          ;file is in the root
@@ -418,7 +418,7 @@ not_root:
                                         ; has been changed.
 
 ;----- Save current directory for exit ---------------------------------;
-        mov     dl,byte ptr ds:[fcb]    ;get specified drive if any
+        mov     dl,byte ds:[fcb]    ;get specified drive if any
         or      dl,dl                   ;default disk?
         jz      same_drive
         dec     dl                      ;adjust to real drive (a=0,b=1,...)
@@ -427,18 +427,18 @@ not_root:
         cmp     al,-1                   ;error?
         jne     same_drive
 BADDRVSPEC:
-        mov     dx,offset dg: baddrv
+        mov     dx, baddrv
         jmp     printerr
 
 same_drive:
         mov     ah,get_default_dpb
         int     21h
 
-assume  ds:nothing
+; assume  ds:nothing
 
         cmp     al,-1                   ;bad drive? (should always be ok)
         jne     drvisok
-        mov     dx,offset dg: baddrv
+        mov     dx, baddrv
         jmp     printerr
 
 drvisok:
@@ -446,7 +446,7 @@ drvisok:
         je      curr_is_root
         mov     si,bx
         add     si,dpb_dir_text
-        mov     di,offset dg: userdir + 1
+        mov     di, userdir + 1
 
 dir_save_loop:
         lodsb
@@ -458,18 +458,18 @@ curr_is_root:
         push    cs
         pop     ds
 
-assume  ds:dg
+; assume  ds:dg
 
 
 ;----- Change directories ----------------------------------------------;
         cmp     [the_root],01h
-        mov     dx,offset dg: [dirchar]            ;assume the root
+        mov     dx, [dirchar]            ;assume the root
         je      sj1
-        mov     dx,offset dg: [fname_buffer]
+        mov     dx, [fname_buffer]
 sj1:
         mov     ah,chdir                        ;change directory
         int     21h
-        mov     dx,offset dg: baddrv
+        mov     dx, baddrv
         jnc     no_errors
         jmp     printerr
 no_errors:
@@ -478,13 +478,13 @@ no_errors:
 
         mov     ax,(get_interrupt_vector shl 8) or 24h
         int     21h
-        mov     word ptr [hardch],bx
-        mov     word ptr [hardch+2],es
+        mov     word [hardch],bx
+        mov     word [hardch+2],es
         mov     ax,(set_interrupt_vector shl 8) or 23h
-        mov     dx,offset dg: int_23
+        mov     dx, int_23
         int     21h
         mov     ax,(set_interrupt_vector shl 8) or 24h
-        mov     dx,offset dg: int_24
+        mov     dx, int_24
         int     21h
         push    cs
         pop     es
@@ -500,11 +500,11 @@ same_dir:
         pop     ax
 
         mov     bx,fcb
-        cmp     byte ptr [bx+1],' '     ;must specify file name
+        cmp     byte [bx+1],' '     ;must specify file name
         jnz     drvok
-        cmp     byte ptr [bx],0         ;or drive specifier
+        cmp     byte [bx],0         ;or drive specifier
         jnz     drvok
-noname: mov     dx,offset dg: drverr
+noname: mov     dx, drverr
         call    print
         jmp     int_23
 
@@ -513,28 +513,28 @@ drvok:  push    ds
         inc     dl
         mov     ah,GET_DPB
         int     bdos
-        mov     ax,word ptr [bx+2]      ;get physical sector size
-        mov     cl,byte ptr [bx+4]      ;get sectors/cluster - 1
+        mov     ax,word [bx+2]      ;get physical sector size
+        mov     cl,byte [bx+4]      ;get sectors/cluster - 1
         xor     ch,ch
         inc     cx
         mov     cs:secall,cx            ;save sectors per cluster
         mul     cx                      ;ax = bytes per cluster
-        mov     bp,word ptr [bx+11]     ;get record of first sector
-        mov     dx,word ptr [bx+16]     ;get record of first directory entry
-        mov     si,word ptr [bx+6]      ;get record of first fat
-        mov     cl,byte ptr [bx+15]     ;get size of fat
-        mov     di,word ptr [bx+13]     ;get number of clusters
-        mov     ch,byte ptr [bx+8]      ;get number of fats on drive
-        mov     bx,word ptr [bx+9]      ;get max number of dir entries
+        mov     bp,word [bx+11]     ;get record of first sector
+        mov     dx,word [bx+16]     ;get record of first directory entry
+        mov     si,word [bx+6]      ;get record of first fat
+        mov     cl,byte [bx+15]     ;get size of fat
+        mov     di,word [bx+13]     ;get number of clusters
+        mov     ch,byte [bx+8]      ;get number of fats on drive
+        mov     bx,word [bx+9]      ;get max number of dir entries
         pop     ds
 
         mov     maxent,bx
         mov     firfat,si
         mov     firrec,bp
         mov     firdir,dx
-        mov     byte ptr fatsiz,cl
+        mov     byte fatsiz,cl
         mov     lastfat,di              ;number of fat entries
-        mov     byte ptr fatnum,ch      ;save number of fats on disk
+        mov     byte fatnum,ch      ;save number of fats on disk
 
         mov     secsiz,ax
 
@@ -549,7 +549,7 @@ drvok:  push    ds
 
         call    readft
         mov     bx,fcb
-        cmp     byte ptr [bx+1],' '
+        cmp     byte [bx+1],' '
         jz      recdsk
         jmp     recfil
 
@@ -561,12 +561,12 @@ step1:  call    getfat
         jz      step1a
         jmp     step6
 step1a: mov     filsiz,0
-        mov     word ptr filsiz+2,0
+        mov     word filsiz+2,0
         mov     dx,lastfat
         mov     target,ax
 step2:  mov     ax,2
         add     filsiz,cx
-        adc     word ptr filsiz+2,0
+        adc     word filsiz+2,0
 step3:  call    getfat
         cmp     bx,target
         jne     step4
@@ -583,11 +583,11 @@ step4:  inc     ax
         cmp     filcnt,ax               ;compare with max number of entries
         ja      direrr
 
-        mov     si,(offset dg: dirent)+7
-nam0:   inc     byte ptr [si]           ;increment file name
-        cmp     byte ptr [si],'9'
+        mov     si,( dirent)+7
+nam0:   inc     byte [si]           ;increment file name
+        cmp     byte [si],'9'
         jle     nam1
-        mov     byte ptr [si],'0'
+        mov     byte [si],'0'
         dec     si
         jmp     nam0
 
@@ -601,8 +601,8 @@ nam1:   mov     ah,GET_DATE
         add     dh,dh
         rcl     cl,1
         or      dh,dl
-        mov     byte ptr dirent+24,dh
-        mov     byte ptr dirent+25,cl
+        mov     byte dirent+24,dh
+        mov     byte dirent+25,cl
         mov     ah,GET_TIME
         int     bdos                    ;set the time
         shr     dh,1
@@ -615,17 +615,17 @@ nam1:   mov     ah,GET_DATE
         add     cl,cl
         rcl     ch,1
         or      dh,cl
-        mov     byte ptr dirent+22,dh
-        mov     byte ptr dirent+23,ch
+        mov     byte dirent+22,dh
+        mov     byte dirent+23,ch
 
         mov     ax,filsiz                       ;set file size
-        mov     word ptr dirent+28,ax
-        mov     ax,word ptr filsiz+2
-        mov     word ptr dirent+30,ax
+        mov     word dirent+28,ax
+        mov     ax,word filsiz+2
+        mov     word dirent+30,ax
         mov     ax,target                       ;set first cluster location
-        mov     word ptr dirent+26,ax
+        mov     word dirent+26,ax
 
-        mov     si,offset dg: dirent                ;copy in new dir entry
+        mov     si, dirent                ;copy in new dir entry
         mov     cx,32
         rep     movsb
 
@@ -636,7 +636,7 @@ step6:  inc     fatptr                          ;keep looking for eof's
         jmp     step1
 
 direrr: dec     filcnt
-        mov     dx,offset dg: dirmsg
+        mov     dx, dirmsg
         call    print
 
 step7:
@@ -647,9 +647,9 @@ step7:
         mov     bx,table
         call    dskwrt
         call    pcrlf
-        mov     dx,offset dg: recmsg_pre
+        mov     dx, recmsg_pre
         call    print
-        mov     bx,offset dg: recmsg_post
+        mov     bx, recmsg_post
         mov     si,filcnt
         xor     di,di                   ;output number of files created
         call    convert
@@ -659,7 +659,7 @@ recfil: mov     dx,fcb
         int     bdos
         inc     al
         jnz     recfil0
-        mov     dx,offset dg: opnerr
+        mov     dx, opnerr
         call    print
         jmp     rexit
 
@@ -702,7 +702,7 @@ recfil1:cmp     fatptr,0fffh
         cmp     bx,0fffh
         jnz     noteof
         xor     bx,bx
-noteof: mov     word ptr [di+25],bx
+noteof: mov     word [di+25],bx
         jmp     recfil3
 
 recfil2:mov     dx,bx                   ;jump around bad sector
@@ -719,12 +719,12 @@ recfil3:mov     ax,fatptr               ;mark sector bad
         ja      recfilx
         mov     ax,siztmp
 
-recfilx:sub     word ptr [di+16],ax
-        sbb     word ptr [di+18],0
+recfilx:sub     word [di+16],ax
+        sbb     word [di+18],0
         sub     siztmp,ax
         sbb     siztmp,0
 
-        and     byte ptr [di+24],10111111b      ;mark file dirty
+        and     byte [di+24],10111111b      ;mark file dirty
 
         mov     ax,lastfat                      ;point to next sector to check
         jmp     recfil5
@@ -769,7 +769,7 @@ rest_dir:
         push    cs
         pop     ds
 
-        mov     dx,offset dg: userdir               ;restore directory
+        mov     dx, userdir               ;restore directory
         mov     ah,chdir
         int     21h
         mov     dl,[user_drive]                 ;restore old current drive
@@ -783,16 +783,16 @@ no_fudge:
 
 int_24_retaddr dw       int_24_back
 
-int_24  proc    far
-assume  ds:nothing,es:nothing,ss:nothing
+int_24:
+; assume  ds:nothing,es:nothing,ss:nothing
 
         pushf
         push    cs
         push    [int_24_retaddr]
-        push    word ptr [hardch+2]
-        push    word ptr [hardch]
+        push    word [hardch+2]
+        push    word [hardch]
         ret
-int_24  endp
+; ENDP int_24
 
 int_24_back:
         cmp     al,2            ;abort?
@@ -800,14 +800,14 @@ int_24_back:
         push    cs
         pop     ds
 
-assume  ds:dg
+; assume  ds:dg
 
         call    rest_dir
         int     20h
 ireti:
         iret
 
-        IF      KANJI
+        %if KANJI
 TESTKANJ:
         CMP     AL,81H
         JB      NOTLEAD
@@ -829,24 +829,24 @@ ISLEAD:
         INC     AX              ;Reset zero
         POP     AX
         RET
-        ENDIF
+        %endif
 
-code  ends
+; END SECTION .code
 
-const   segment public byte
+SECTION .const
 
-        EXTRN   BADVER:BYTE,askmsg:BYTE,drvlet:BYTE,dirmsg:BYTE
-        EXTRN   recmsg_pre:BYTE,DRVLET1:BYTE,recmsg_post:BYTE
-        EXTRN   crlf:BYTE,drverr:BYTE,baddrv:BYTE,opnerr:BYTE
+        extern BADVER,askmsg,drvlet,dirmsg
+        extern recmsg_pre,DRVLET1,recmsg_post
+        extern crlf,drverr,baddrv,opnerr
 
-const   ends
+; END SECTION .const
 
-data    segment byte
+SECTION .data
 
-        PUBLIC  filsiz
+        global filsiz
 
 dirent  db      'FILE0000REC'
-        db      21 dup (00)
+        times 21 db 00
 
 fndfat  dw      0000                    ;sector of first good fat
 filcnt  dw      0000
@@ -867,10 +867,10 @@ filsiz  dw      0000
         dw      0000
 lastfat dw      0000
 ;
-table   dw      offset dg:fattbl + 6 * 1024
+table   dw      fattbl + 6 * 1024
 fattbl  db      0
 
-data    ends
+; END SECTION .data
 
-        end     recover
+        ; end     recover
              

@@ -1,5 +1,5 @@
 ; TITLE   MSHEAD.ASM -- MS-DOS DEFINITIONS
-PAGE
+; PAGE
 ; MS-DOS  High-performance operating system for the 8086  version 1.28
 ;       by Microsoft MSDOS development group:
 ;           Tim Paterson (Ret.)
@@ -102,8 +102,8 @@ PAGE
 ; *************************************************************
 
 
-SUBTTL        EQUATES
-PAGE
+; SUBTTL        EQUATES
+; PAGE
 ; Interrupt Entry Points:
 
 ; INTBASE:      ABORT
@@ -121,11 +121,11 @@ ENTRYPOINTSEG   EQU     0CH
 MAXDIF          EQU     0FFFH
 SAVEXIT         EQU     10
 
-        INCLUDE DOSSYM.ASM
-        INCLUDE DEVSYM.ASM
+        %include "DOSSYM.ASM"
+        %include "DEVSYM.ASM"
 
-SUBTTL ^C, terminate/abort/exit and Hard error actions
-PAGE
+; SUBTTL ^C, terminate/abort/exit and Hard error actions
+; PAGE
 ;
 ; There are three kinds of context resets that can occur during normal DOS
 ; functioning:  ^C trap, terminate/abort/exit, and Hard-disk error.  These must
@@ -160,8 +160,8 @@ PAGE
 ;           abort call.  This is reserved for knowledgeable system programs.
 ;           ANY DEVIATION FROM THIS WILL LEAD TO UNRELIABLE RESULTS.
 
-SUBTTL SEGMENT DECLARATIONS
-PAGE
+; SUBTTL SEGMENT DECLARATIONS
+; PAGE
 
 ; The following are all of the segments used.  They are declared in the order
 ; that they should be placed in the executable
@@ -170,29 +170,29 @@ PAGE
 ; segment ordering for MSDOS
 ;
 
-START           SEGMENT BYTE PUBLIC 'START'
-START           ENDS
+SECTION .START
+; END SECTION .START
 
-CONSTANTS       SEGMENT BYTE PUBLIC 'CONST'
-CONSTANTS       ENDS
+SECTION .CONSTANTS
+; END SECTION .CONSTANTS
 
-DATA            SEGMENT WORD PUBLIC 'DATA'
-DATA            ENDS
+SECTION .DATA
+; END SECTION .DATA
 
-CODE            SEGMENT BYTE PUBLIC 'CODE'
-CODE            ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-LAST            SEGMENT BYTE PUBLIC 'LAST'
-LAST            ENDS
+SECTION .LAST
+; END SECTION .LAST
 
-DOSGROUP    GROUP   CODE,CONSTANTS,DATA,LAST
+; DOSGROUP    GROUP   CODE,CONSTANTS,DATA,LAST
 
 ; The following segment is defined such that the data/const classes appear
 ; before the code class for ROMification
 
-START           SEGMENT BYTE PUBLIC 'START'
-                ASSUME  CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+SECTION .START
+                ; ASSUME  CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
         JMP     DOSINIT
-START           ENDS
+; END SECTION .START
 
 

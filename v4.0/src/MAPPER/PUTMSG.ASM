@@ -1,9 +1,9 @@
-page 60,132
+; page 60,132
 
-title CP/DOS  DOSPutMessage  mapper
+; title CP/DOS  DOSPutMessage  mapper
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -28,21 +28,21 @@ dosxxx	segment byte public 'dos'
 ; *
 ; *************************************************************************
 
-	public	dosputmessage
-	.sall
-	.xlist
-	include macros.inc
-	.list
+	global dosputmessage
+	; .sall
+	; .xlist
+	%include "macros.inc"
+	; .list
 
-str	struc
-old_bp	dw	?
-return	dd	?
-MessagePtr	dd	?	; message pointer
-MessageLength	dw	?	; message length
-Handle		dw	?	; file handle
-str	ends
+struc str
+old_bp: dw 0
+return: dd 0
+MessagePtr: dd 0; message pointer
+MessageLength: dw 0; message length
+Handle: dw 0; file handle
+endstruc
 
-dosputmessage proc   far
+dosputmessage:
 
 	Enter	dosputmessage		      ; save registers
 
@@ -58,10 +58,10 @@ dosputmessage proc   far
 
 ErrorExit:
 	Mexit				      ; pop registers
-	ret	size str - 6		      ; return
+	ret	str_size - 6		      ; return
 
-dosputmessage  endp
+; ENDP dosputmessage
 
-dosxxx	ends
+; END SECTION .dosxxx
 
-	end
+	; end

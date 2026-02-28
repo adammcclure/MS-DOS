@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	A20TRAP.ASM - I/O trap handlers for watching the A20 line.
+	; title	A20TRAP.ASM - I/O trap handlers for watching the A20 line.
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -37,40 +37,40 @@ page	58,132
 ;	      segment.	There is a duplication of routines for getting the a20
 ;	      state. (ISP)
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	A20_Handler
-	public	A20_Trap_Init
-	public	EnableA20
-	public	DisableA20
-	public	togl_A20
-	public	get_a20_state
-	public	estb_a20_state
-	public	get_init_a20_state
+	global A20_Handler
+	global A20_Trap_Init
+	global EnableA20
+	global DisableA20
+	global togl_A20
+	global get_a20_state
+	global estb_a20_state
+	global get_init_a20_state
 
 
 ;
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
-	include VDMseg.inc
-	include VDMsel.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
 ;
-_DATA	segment
+SECTION ._DATA
 ;	(none)
-_DATA	ends
+; END SECTION ._DATA
 
-_TEXT	segment
+SECTION ._TEXT
 
-	extrn	PortTrap:near
+	extern PortTrap
 
-_TEXT	ends
-	page
+; END SECTION ._TEXT
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
@@ -108,18 +108,18 @@ WRAP_BIT	equ	00100000h	; page table entry bit
 ;
 ;  _DATA segment
 ;
-_DATA	segment
+SECTION ._DATA
 
 KbdComd db	0	; last CMD written to port 64h
 state_a20   db	0	; A20 line state: A20_ON is on, A20_OFF is off
 
-_DATA	ends
+; END SECTION ._DATA
 
 ;
-	page
+	; page
 ;------------------------------------------------------------------------------
-_TEXT	segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
 ;
 ;******************************************************************************
 ;			L O C A L   D A T A   A R E A
@@ -144,7 +144,7 @@ _TEXT	segment
 ;   USED:  BX,Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-A20_Handler	proc	near
+A20_Handler:
 	or	dx,dx			;Q: Output ?
 	jnz	A20_Write		;  Y: check for write to output port
 	stc				;  N: don't bother to emulate it
@@ -184,7 +184,7 @@ Kbd_C_Handler:
 	stc				; don't bother to emulate it
 	ret
 ;
-A20_Handler	endp
+; ENDP A20_Handler
 
 
 ;******************************************************************************
@@ -200,7 +200,7 @@ A20_Handler	endp
 ;   USED:  AX,Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-A20_Trap_Init  proc    near
+A20_Trap_Init:
 ;
 ;  reset flag
 ;
@@ -215,7 +215,7 @@ A20_Trap_Init  proc    near
 	call	PortTrap		    ; tries to disable A20
 	ret
 ;
-A20_Trap_Init  endp
+; ENDP A20_Trap_Init
 ;
 ;*****************************************************************************;
 ;***	EnableA20 - switch 20th address line				      ;
@@ -254,11 +254,11 @@ A20_Trap_Init  endp
 ;									      ;
 ;	8042 error handling						      ;
 ;*****************************************************************************;
-EnableA20 proc near
+EnableA20:
 	mov	ah,0dfh 		; code for enable
 	jmp	a20common		; jump to common code
 
-EnableA20 endp
+; ENDP EnableA20
 
 ;*****************************************************************************;
 ;***	DisableA20 - switch 20th address line				      ;
@@ -272,14 +272,14 @@ EnableA20 endp
 ;	USES	ax, flags modified					      ;
 ;*****************************************************************************;
 
-DisableA20 proc near
+DisableA20:
 	mov	ah,0ddh 		; code for disable
 	jmp	a20common		; jump to common code
 
-DisableA20 endp
+; ENDP DisableA20
 
 
-a20common proc near
+a20common:
 
 ;	This is entered via a jmp from one of the two procedural
 ;	entry points above.
@@ -308,7 +308,7 @@ ASTloop:
 
 com1:
 	ret
-a20common endp
+; ENDP a20common
 
 ;*****************************************************************************;
 ;***	empty_8042 - wait for 8042 input buffer to drain		      ;
@@ -318,7 +318,7 @@ a20common endp
 ;		al=2, z=1 => timeout, input buffer full 		      ;
 ;	USES	none							      ;
 ;*****************************************************************************;
-empty_8042 proc near
+empty_8042:
 	push	cx			; save it
 	sub	cx,cx			; cx = 0, timeout loop counter
 emp1:
@@ -327,7 +327,7 @@ emp1:
 	loopnz	emp1
 	pop	cx
 	ret
-empty_8042 endp
+; ENDP empty_8042
 
 ;*****************************************************************************;
 ;***	check_a20_togl - check if a20 state emulated needs to be toggled      ;
@@ -339,7 +339,7 @@ empty_8042 endp
 ;	USES	Flags							      ;
 ;									      ;
 ;*****************************************************************************;
-check_a20_togl	proc	near
+check_a20_togl:
 ;
 	push	ax
 	and	al,A20CmdBit		; make all other bits 0
@@ -349,7 +349,7 @@ check_a20_togl	proc	near
 	pop	ax
 	ret
 ;
-check_a20_togl	endp
+; ENDP check_a20_togl
 
 
 ;*****************************************************************************;
@@ -363,11 +363,11 @@ check_a20_togl	endp
 ;	USES	Flags							      ;
 ;*****************************************************************************;
 
-get_a20_state	proc	near
+get_a20_state:
 ;
 	test	[state_a20], A20_ON
 	ret
-get_a20_state	endp
+; ENDP get_a20_state
 
 
 ;*****************************************************************************;
@@ -384,7 +384,7 @@ get_a20_state	endp
 ;									      ;
 ;									      ;
 ;*****************************************************************************;
-togl_A20    proc    near
+togl_A20:
 ;
 	push	es
 	push	di
@@ -407,7 +407,7 @@ togl_A20    proc    near
 ; in the base address.
 ;
 w64_loop:
-	xor	dword ptr es:[di], WRAP_BIT
+	xor	dword es:[di], WRAP_BIT
 	add	di,4
 	loop	w64_loop
 ;
@@ -428,15 +428,15 @@ w64_loop:
 	pop	es
 	ret
 ;
-togl_A20    endp
+; ENDP togl_A20
 
 
 
-_TEXT	ends				; end of segment
+; END SECTION ._TEXT; end of segment
 
-LAST   segment
+SECTION .LAST
 
-	assume	cs:LAST, ds:DGROUP, es:DGROUP, ss:DGROUP
+	; assume	cs:LAST, ds:DGROUP, es:DGROUP, ss:DGROUP
 
 
 ;******************************************************************************
@@ -459,15 +459,15 @@ LAST   segment
 ;*****************************************************************************;
 ; A20 address line state determination addresses
 ;
-	low_mem label	dword
+	low_mem:
 		dw	20h*4
 		dw	0
 
-	high_mem label	dword
+	high_mem:
 		dw	20h*4 + 10h
 		dw	0ffffh
 
-estb_a20_state	proc	near
+estb_a20_state:
 	push	cx
 	push	ds
 	push	es
@@ -482,9 +482,9 @@ estb_a20_state	proc	near
     ; we can assume that a20 is off
     ;
 	lds	si,cs:low_mem
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	les	di,cs:high_mem
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 	mov	cx,3
 	cld
 repe	cmpsd
@@ -492,7 +492,7 @@ repe	cmpsd
 	pop	si
 	pop	es
 	pop	ds
-	ASSUME	DS:DGROUP,ES:DGROUP
+	; ASSUME	DS:DGROUP,ES:DGROUP
 	jcxz	not_enabled
     ;
     ; a20 is on
@@ -501,7 +501,7 @@ repe	cmpsd
 not_enabled:
 	pop	cx
 	ret
-estb_a20_state	endp
+; ENDP estb_a20_state
 
 ;*****************************************************************************;
 ;***	get_init_a20_state   - see if virtualised a20 is enabled or not       ;
@@ -514,15 +514,15 @@ estb_a20_state	endp
 ;	USES	Flags							      ;
 ;*****************************************************************************;
 
-	ASSUME	DS:DGROUP,ES:NOTHING
+	; ASSUME	DS:DGROUP,ES:NOTHING
 
-get_init_a20_state   proc    near
+get_init_a20_state:
 ;
 	test	[state_a20], A20_ON
 	ret
-get_init_a20_state   endp
+; ENDP get_init_a20_state
 
-LAST   ends
+; END SECTION .LAST
 
-	end				; end of module
+	; end; end of module
 

@@ -1,6 +1,6 @@
-page	60,132				;AN000;
-name	asm2c				;AN000;
-title	Limited assembler to C interface;AN000;
+; page	60,132;AN000;
+; name	asm2c;AN000;
+; title	Limited assembler to C interface;AN000;
 ;-------------------------------------------------------------------
 ;
 ;	MODULE: 	asm2c
@@ -21,22 +21,22 @@ title	Limited assembler to C interface;AN000;
 ;-------------------------------------------------------------------
 
 
-	public	gget_status		;AN000;
-	public	asm2cInRegs		;AN000;
-	public	asm2coutregs		;AN000;
-	public	asm2csegregs		;AN000;
+	global gget_status;AN000;
+	global asm2cInRegs;AN000;
+	global asm2coutregs;AN000;
+	global asm2csegregs;AN000;
 
-_TEXT	segment byte public 'CODE'      ;AN000;
-_TEXT	ends				;AN000;
-_DATA	segment word public 'DATA'      ;AN000;
-_DATA	ends				;AN000;
-CONST	segment word public 'CONST'     ;AN000;
-CONST	ends				;AN000;
-_BSS	segment word public 'BSS'       ;AN000;
-_BSS	ends				;AN000;
-DGROUP	GROUP	CONST, _BSS, _DATA	;AN000;
+SECTION ._TEXT;AN000;
+; END SECTION ._TEXT;AN000;
+SECTION ._DATA;AN000;
+; END SECTION ._DATA;AN000;
+SECTION .CONST;AN000;
+; END SECTION .CONST;AN000;
+SECTION ._BSS;AN000;
+; END SECTION ._BSS;AN000;
+; DGROUP	GROUP	CONST, _BSS, _DATA;AN000;
 
-_DATA	segment word public 'DATA'      ;AN000;
+SECTION ._DATA;AN000;
 
 ;-------------------------------------------------------------------
 ;	define an assembly language version of the C regs structure
@@ -69,20 +69,20 @@ s_cs		dw	0		;AN000;
 s_ss		dw	0		;AN000;
 s_ds		dw	0		;AN000;
 
-	extrn	_end:far		;AN000;
+	extern _end;AN000;
 
-_DATA	ends				;AN000;
+; END SECTION ._DATA;AN000;
 
-_TEXT	segment byte public 'CODE'      ;AN000;
+SECTION ._TEXT;AN000;
 
-	extrn	_get_status:near	;AN000;
+	extern _get_status;AN000;
 
-	ASSUME	CS: _TEXT		;AN000;
-	assume	ds: nothing		;AN000;
-	assume	es: nothing		;AN000;
+	; ASSUME	CS: _TEXT;AN000;
+	; assume	ds: nothing;AN000;
+	; assume	es: nothing;AN000;
 ;-------------------------------------------------------------------
 ;-------------------------------------------------------------------
-page					;AN000;
+; page;AN000;
 ;-------------------------------------------------------------------
 ;	ggetstatus
 ;
@@ -92,14 +92,14 @@ page					;AN000;
 
 segment_of_dgroup	dw	seg dgroup;AN000;
 
-SAVE_STACK	LABEL  DWORD		;AN000;
+SAVE_STACK:;AN000;
 SAVE_SP 	DW	0		;AN000;
 SAVE_SS 	DW	0		;AN000;
 
 SAVE_DS 	DW	0		;AN000;
 SAVE_ES 	DW	0		;AN000;
 
-gget_status	 proc	 far		;AN000;
+gget_status:;AN000;
 
 	MOV	SAVE_DS,DS		;AN000;
 	MOV	SAVE_ES,ES		;AN000;
@@ -108,11 +108,11 @@ gget_status	 proc	 far		;AN000;
 	MOV	SAVE_SP,SP		;AN000;
 
 	mov	ss,segment_of_dgroup	;AN000;
-	add	sp,offset DGROUP:_end	;AN000;
-	ASSUME	SS: DGROUP		;AN000;
+	add	sp,_end	;AN000;
+	; ASSUME	SS: DGROUP;AN000;
 
 	MOV	DS,segment_of_dgroup	;AN000;
-	ASSUME	DS: DGROUP		;AN000;
+	; ASSUME	DS: DGROUP;AN000;
 
 ;-------------------------------------------------------------------
 ;	set up InRegs
@@ -129,10 +129,10 @@ gget_status	 proc	 far		;AN000;
 ;	set up SegRegs
 ;-------------------------------------------------------------------
 
-	IRP	XX,<ES,SS,DS>	;AN000;
+	; IRP	XX,<ES,SS,DS>;AN000;
 	MOV	AX,SAVE_&XX	;AN000;
 	MOV	S_&XX,AX	;AN000;
-	ENDM			;AN000;
+	%endmacro;AN000;
 
 	mov	s_cs,cs 	;AN000;
 
@@ -141,15 +141,15 @@ gget_status	 proc	 far		;AN000;
 ;-------------------------------------------------------------------
 
 ;	push	ds		; push far pointer to SegRegs
-	lea	ax,DGROUP:Asm2cSegRegs;AN000;
+	lea	ax,Asm2cSegRegs;AN000;
 	push	ax		;AN000;
 
 ;	push	ds		; push far pointer to OutRegs
-	lea	ax,DGROUP:Asm2cOutRegs;AN000;
+	lea	ax,Asm2cOutRegs;AN000;
 	push	ax		;AN000;
 
 ;	push	ds		; push far pointer to InRegs
-	lea	ax,DGROUP:Asm2cInRegs;AN000;
+	lea	ax,Asm2cInRegs;AN000;
 	push	ax		;AN000;
 
 ;-------------------------------------------------------------------
@@ -179,13 +179,13 @@ gget_status	 proc	 far		;AN000;
 	ret			;AN000;
 
 
-gget_status	 endp		;AN000;
+; ENDP gget_status;AN000;
 
-_TEXT	ends			;AN000; end code segment
+; END SECTION ._TEXT;AN000; end code segment
 
 ;-------------------------------------------------------------------
 ;-------------------------------------------------------------------
 
 
-	end			;AN000;
+	; end;AN000;
 

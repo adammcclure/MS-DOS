@@ -1,5 +1,5 @@
-TITLE  GETSET - GETting and SETting MS-DOS system calls
-NAME   GETSET
+; TITLE  GETSET - GETting and SETting MS-DOS system calls
+; NAME   GETSET
 ;
 ; System Calls which get and set various things
 ;
@@ -18,28 +18,28 @@ NAME   GETSET
 ; RECSET
 ; $CHAR_OPER
 ;
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-INCLUDE DOSSEG.ASM
+%include "DOSSEG.ASM"
 
-IFNDEF  ALTVECT
+%ifndef ALTVECT
 ALTVECT EQU     0                       ; FALSE
-ENDIF
+%endif
 
-IFNDEF IBM
+%ifndef IBM
 IBM EQU 0
-ENDIF
+%endif
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-        ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+        ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.ASM
-INCLUDE DEVSYM.ASM
-.cref
-.list
+; .xcref
+%include "DOSSYM.ASM"
+%include "DEVSYM.ASM"
+; .cref
+; .list
 
 
         i_need  VERFLG,BYTE
@@ -54,13 +54,13 @@ INCLUDE DEVSYM.ASM
         i_need  SWITCH_CHARACTER,BYTE
         i_need  DEVICE_AVAILABILITY,BYTE
 
-USERNUM DW      ?                       ; 24 bit user number
-        DB      ?
-        IF      IBM
+USERNUM: dw 0; 24 bit user number
+        db 0
+        %if IBM
 OEMNUM  DB      0                       ; 8 bit OEM number
-        ELSE
+        %else
 OEMNUM  DB      0FFH                    ; 8 bit OEM number
-        ENDIF
+        %endif
 
 MSVERS  EQU     THIS WORD               ; MS-DOS version in hex for $GET_VERSION
 MSMAJOR DB      DOS_MAJOR_VERSION
@@ -69,7 +69,7 @@ MSMINOR DB      DOS_MINOR_VERSION
 
 BREAK <$Get_Version -- Return MSDOS version number>
         procedure   $GET_VERSION,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       None
@@ -83,17 +83,17 @@ ASSUME  DS:NOTHING,ES:NOTHING
 
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     BX,[USERNUM + 2]
         MOV     CX,[USERNUM]
         MOV     AX,[MSVERS]
         invoke  get_user_stack
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     [SI.user_BX],BX
         MOV     [SI.user_CX],CX
         MOV     [SI.user_AX],AX  ; Really only sets AH
         return
-$GET_VERSION  ENDP
+; ENDP $GET_VERSION
 
 BREAK <$International - return country-dependent information>
 ;
@@ -114,7 +114,7 @@ BREAK <$International - return country-dependent information>
 ;               +---------------------------------+
 
         procedure   $INTERNATIONAL,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
         MOV     BL,AL
         PUSH    DS
         POP     ES
@@ -122,13 +122,13 @@ ASSUME  DS:NOTHING,ES:NOTHING
         POP     DI
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         CMP     DI,-1
         JZ      international_set
         OR      BL,BL
         JNZ     international_find
         MOV     SI,[Current_Country]
-        MOV     AX,WORD PTR [SI-2]      ; Get size in AL, country code in AH
+        MOV     AX,word [SI-2]      ; Get size in AL, country code in AH
         MOV     BL,AH                   ; Set country code
         JMP     SHORT international_copy
 
@@ -138,7 +138,7 @@ international_find:
         error   country_not_found
 
 international_get:
-        MOV     SI,OFFSET DOSGROUP:international_table
+        MOV     SI,international_table
 international_next:
         LODSW                           ; Get size in AL, country code in AH
         CMP     AL,-1
@@ -160,7 +160,7 @@ international_copy:
         PUSH    DI
         REP     MOVSB
         POP     DI
-        MOV     WORD PTR ES:[DI.MAP_CALL + 2],CS   ; Set segment for case map call
+        MOV     word ES:[DI.MAP_CALL + 2],CS   ; Set segment for case map call
 international_ok:
         XOR     AX,AX
         MOV     AL,BL           ; Return country code in AX
@@ -175,11 +175,11 @@ international_store:
         MOV     [Current_Country],SI
         JMP     international_ok
 
-$INTERNATIONAL  ENDP
+; ENDP $INTERNATIONAL
 
 BREAK <$Get_Verify_on_Write - return verify-after-write flag>
         procedure   $GET_VERIFY_ON_WRITE,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       none.
@@ -190,11 +190,11 @@ ASSUME  DS:NOTHING,ES:NOTHING
 
         MOV     AL,[VERFLG]
         return
-$GET_VERIFY_ON_WRITE  ENDP
+; ENDP $GET_VERIFY_ON_WRITE
 
 BREAK <$Set_Verify_on_Write - Toggle verify-after-write flag>
         procedure   $SET_VERIFY_ON_WRITE,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       AL = desired value of VERIFY flag
@@ -206,11 +206,11 @@ ASSUME  DS:NOTHING,ES:NOTHING
         AND     AL,1
         MOV     [VERFLG],AL
         return
-$SET_VERIFY_ON_WRITE  ENDP
+; ENDP $SET_VERIFY_ON_WRITE
 
 BREAK <$Set_CTRL_C_Trapping -- En/Disable ^C check in dispatcher>
         procedure   $SET_CTRL_C_TRAPPING,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       AL = 0 read ^C status
@@ -224,7 +224,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         JNZ     CTRL_C_set
         invoke  get_user_stack
         MOV     AL,[CNTCFLAG]
-        MOV     BYTE PTR [SI.user_DX],AL
+        MOV     byte [SI.user_DX],AL
         return
 CTRL_C_set:
         DEC     AL
@@ -235,11 +235,11 @@ CTRL_C_set:
 bad_val:
         MOV     AL,0FFH
         return
-$SET_CTRL_C_TRAPPING ENDP
+; ENDP $SET_CTRL_C_TRAPPING
 
 BREAK <$Get_INDOS_Flag -- Return location of DOS critical-section flag>
         procedure   $GET_INDOS_FLAG,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       None
@@ -249,10 +249,10 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       Flag location in ES:BX
 
         invoke  get_user_stack
-        MOV     [SI.user_BX],OFFSET DOSGROUP:INDOS
+        MOV     [SI.user_BX],INDOS
         MOV     [SI.user_ES],SS
         return
-$GET_INDOS_FLAG ENDP
+; ENDP $GET_INDOS_FLAG
 
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
@@ -262,17 +262,17 @@ $GET_INDOS_FLAG ENDP
 ; dependent and is subject to change without notice in future versions.
 ; Use at risk.
         invoke  get_user_stack
-        MOV     [SI.user_BX],OFFSET DOSGROUP:SYSINITVAR
+        MOV     [SI.user_BX],SYSINITVAR
         MOV     [SI.user_ES],SS
         return
-$GET_IN_VARS    ENDP
+; ENDP $GET_IN_VARS
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 
 BREAK <$Get_Drive_Freespace -- Return bytes of free disk space on a drive>
         procedure   $GET_DRIVE_FREESPACE,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DL = Drive number
@@ -289,7 +289,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
 
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     AL,DL
         invoke  GETTHISDRV
         MOV     AX,-1
@@ -314,18 +314,18 @@ NOTFREECLUS:
         MOV     CX,ES:[BP.dpb_sector_size]
 BADFRDRIVE:
         invoke  get_user_stack
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     [SI. user_CX],CX
         MOV     [SI.user_DX],BX
         MOV     [SI.user_BX],DX
         MOV     [SI.user_AX],AX
         return
 
-$GET_DRIVE_FREESPACE ENDP
+; ENDP $GET_DRIVE_FREESPACE
 
 BREAK <$Get_DMA, $Set_DMA -- Get/Set current DMA address>
         procedure   $GET_DMA,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       None
@@ -334,16 +334,16 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ; Returns:
 ;       ES:BX is current transfer address
 
-        MOV     BX,WORD PTR [DMAADD]
-        MOV     CX,WORD PTR [DMAADD+2]
+        MOV     BX,word [DMAADD]
+        MOV     CX,word [DMAADD+2]
         invoke  get_user_stack
         MOV     [SI.user_BX],BX
         MOV     [SI.user_ES],CX
         return
-$GET_DMA ENDP
+; ENDP $GET_DMA
 
         procedure   $SET_DMA,NEAR   ; System call 26
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX is desired new disk transfer address
@@ -352,17 +352,17 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ; Returns:
 ;       None
 
-        MOV     WORD PTR [DMAADD],DX
-        MOV     WORD PTR [DMAADD+2],DS
+        MOV     word [DMAADD],DX
+        MOV     word [DMAADD+2],DS
         return
-$SET_DMA  ENDP
+; ENDP $SET_DMA
 
 BREAK <$Get_Default_DPB,$Get_DPB -- Return pointer to DPB>
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;                                                                          ;
         procedure   $GET_DEFAULT_DPB,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DL = Drive number (always default drive for call 31)
@@ -376,13 +376,13 @@ ASSUME  DS:NOTHING,ES:NOTHING
         entry   $GET_DPB
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     AL,DL
         invoke  GETTHISDRV
         JC      ISNODRV
         invoke  FATREAD
         invoke  get_user_stack
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     [SI.user_BX],BP
         MOV     [SI.user_DS],ES
         XOR     AL,AL
@@ -391,7 +391,7 @@ ASSUME  DS:NOTHING
 ISNODRV:
         MOV     AL,-1
         return
-$GET_Default_dpb    ENDP
+; ENDP $GET_Default_dpb
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
@@ -399,7 +399,7 @@ $GET_Default_dpb    ENDP
 
 BREAK <$Get_Default_Drive, $Set_Default_Drive -- Set/Get default drive>
         procedure   $GET_DEFAULT_DRIVE,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       None
@@ -410,10 +410,10 @@ ASSUME  DS:NOTHING,ES:NOTHING
 
         MOV     AL,[CURDRV]
         return
-$GET_DEFAULT_DRIVE  ENDP
+; ENDP $GET_DEFAULT_DRIVE
 
         procedure   $SET_DEFAULT_DRIVE,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DL = Drive number for new default drive
@@ -427,12 +427,12 @@ ASSUME  DS:NOTHING,ES:NOTHING
         JNB     RET17
         MOV     [CURDRV],DL
 RET17:  return
-$SET_DEFAULT_DRIVE  ENDP
+; ENDP $SET_DEFAULT_DRIVE
 
 
 BREAK <$Get_Interrupt_Vector - Get/Set interrupt vectors>
         procedure   $GET_INTERRUPT_VECTOR,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       AL = interrupt number
@@ -442,15 +442,15 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       ES:BX is current interrupt vector
 
         CALL    RECSET
-        LES     BX,DWORD PTR ES:[BX]
+        LES     BX,dword ES:[BX]
         invoke  get_user_stack
         MOV     [SI.user_BX],BX
         MOV     [SI.user_ES],ES
         return
-$GET_INTERRUPT_VECTOR ENDP
+; ENDP $GET_INTERRUPT_VECTOR
 
         procedure   $SET_INTERRUPT_VECTOR,NEAR   ; System call 37
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       AL = interrupt number
@@ -464,38 +464,38 @@ ASSUME  DS:NOTHING,ES:NOTHING
         MOV     ES:[BX],DX
         MOV     ES:[BX+2],DS
         return
-$SET_INTERRUPT_VECTOR ENDP
+; ENDP $SET_INTERRUPT_VECTOR
 
-        IF      ALTVECT
+        %if ALTVECT
 VECIN:  ; INPUT VECTORS
         DB      22H             ; Terminate
         DB      23H             ; ^C
         DB      24H             ; Hard error
         DB      28H             ; Spooler
-LSTVEC  DB      ?               ; ALL OTHER
+LSTVEC: db 0; ALL OTHER
 
 VECOUT: ; GET MAPPED VECTOR
         DB      int_terminate
         DB      int_ctrl_c
         DB      int_fatal_abort
         DB      int_spooler
-LSTVEC2 DB      ?               ; Map to itself
+LSTVEC2: db 0; Map to itself
 
 NUMVEC  =       VECOUT-VECIN
-        ENDIF
+        %endif
 
 procedure   RECSET,NEAR
 
-        IF      ALTVECT
+        %if ALTVECT
         PUSH    SS
         POP     ES
         MOV     [LSTVEC],AL     ; Terminate list with real vector
         MOV     [LSTVEC2],AL    ; Terminate list with real vector
         MOV     CX,NUMVEC       ; Number of possible translations
-        MOV     DI,OFFSET DOSGROUP:VECIN ; Point to vectors
+        MOV     DI,VECIN ; Point to vectors
         REPNE   SCASB
         MOV     AL,ES:[DI+NUMVEC-1] ; Get translation
-        ENDIF
+        %endif
 
         XOR     BX,BX
         MOV     ES,BX
@@ -503,7 +503,7 @@ procedure   RECSET,NEAR
         SHL     BX,1
         SHL     BX,1
         return
-recset  ENDP
+; ENDP recset
 
 BREAK <$Char_Oper - hack on paths, switches so that xenix can look like PCDOS>
 ;
@@ -517,10 +517,10 @@ BREAK <$Char_Oper - hack on paths, switches so that xenix can look like PCDOS>
 ; output:   (get) DL - character/flag
 ;
         procedure $CHAR_OPER,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         OR      AL,AL
         JNZ     char_oper_set_switch
         MOV     DL,[switch_character]
@@ -547,11 +547,11 @@ char_oper_ret:
         invoke  get_user_stack
         MOV     [SI.user_DX],DX
         return
-$CHAR_OPER  ENDP
+; ENDP $CHAR_OPER
 
 BREAK <$SetDPB - Create a valid DPB from a user-specified BPB>
         procedure   $SETDPB,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       ES:BP Points to DPB
@@ -615,13 +615,13 @@ SAVLOG:
         MOV     ES:[BP.dpb_max_cluster],AX
         MOV     ES:[BP.dpb_current_dir],0     ; Current directory is root
         return
-$SETDPB ENDP
+; ENDP $SETDPB
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 
         do_ext
 
-CODE    ENDS
-        END
+; END SECTION .CODE
+        ; END
       

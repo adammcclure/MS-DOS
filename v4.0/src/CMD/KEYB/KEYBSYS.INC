@@ -1,4 +1,4 @@
-.XLIST
+; .XLIST
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -25,10 +25,10 @@
 ;; File header - contains pointers to keyboard tables for each language
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-KEYBSYS_HEADER	STRUC		       ;;
+struc KEYBSYS_HEADER;;
 				       ;;
 KH_SIGNATURE	DB   0FFh,'KEYB   '    ;; signature
-KH_RESV_1	DB   8 DUP(0)	       ;; reserved
+KH_RESV_1: times 8 db 0;; reserved
 KH_MAX_COM_SZ	DW   0	      ;AN000;**chg  ;; maximum size of Common Xlat Sect
 KH_MAX_SPEC_SZ	DW   0	      ;AN000;;**chg   ;; max size of Specific Xlat Sect
 KH_MAX_LOGIC_SZ DW   0	      ;AN000;;**chg   ;; max size of State Logic
@@ -40,28 +40,28 @@ KH_LANG_PTRS	DB   0		       ;; language pointers start here
 ;KH_NUM_ID	  DW   0		 ;; number of languages
 ;KH_ID_PTRS	  DB   0		 ;; id pointers start here
 ;********************* CNS **********************
-KEYBSYS_HEADER	ENDS		       ;;
+endstruc;;
 ;******************CNS*******************
-KEYBSYS_ID_PTRS STRUC
+struc KEYBSYS_ID_PTRS
 
 KP_ID_CODE	DW   0		       ;AN000;
 KP_LANG_PTR	DD   0		       ;AN000;
 
-KEYBSYS_ID_PTRS ENDS
+endstruc
 				       ;;
 ;*****************CNS********************
-KEYBSYS_LANG_PTRS STRUC 	       ;;
+struc KEYBSYS_LANG_PTRS;;
 				       ;; Next two entries repeat:
 KP_LANG_CODE	DW   0		       ;;   language code
 KP_ENTRY_PTR	DD   0		       ;;   language entry pointer
 				       ;;
-KEYBSYS_LANG_PTRS ENDS		       ;;
+endstruc;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Language Entry - pointed to by KH_ENTRY_PTR in KEYBSYS_HEADER
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-KEYBSYS_LANG_ENTRY  STRUC	       ;;
+struc KEYBSYS_LANG_ENTRY;;
 				       ;;
 KL_LANG_CODE	DW   'XX'              ;; language code
 KL_ID_CODE	DW   0		       ;; reserved (ID CODE)
@@ -70,14 +70,14 @@ KL_NUM_ID	DB   0	       ;AN000;;CNS    ;; number of valid IDs for this lang
 KL_NUM_CP	DB   0		       ;; number of valid CPs for this lang
 KL_CP_PTRS	DB   0		       ;; CP table pointers start here
 				       ;;
-KEYBSYS_LANG_ENTRY  ENDS	       ;;
+endstruc;;
 				       ;;
-KEYBSYS_CP_PTRS     STRUC	       ;;
+struc KEYBSYS_CP_PTRS;;
 				       ;; Next two entries repeat:
 KC_CODE_PAGE	DW   0		       ;;  code page
 KC_ENTRY_PTR	DD   0		       ;; ptr to Specific Translate Section
 				       ;;
-KEYBSYS_CP_PTRS     ENDS	       ;;
+endstruc;;
 				       ;;
 				       ;;
 ;; Everything from here down is new
@@ -86,13 +86,13 @@ KEYBSYS_CP_PTRS     ENDS	       ;;
 ;; Common Translate Section follows immediately after the State Logic.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-KEYBSYS_STATE_LOGIC STRUC	       ;;
+struc KEYBSYS_STATE_LOGIC;;
 				       ;;
-KT_LOGIC_LEN	DW   ?		       ;; length of state logic
-KT_SPECIAL_FEATURES  DW  ?	       ;; Special Features (see KEYBSHAR.INC)
+KT_LOGIC_LEN: dw 0;; length of state logic
+KT_SPECIAL_FEATURES: dw 0;; Special Features (see KEYBSHAR.INC)
 KT_LOGIC_CMDS	DB   0		       ;; state logic commands begin here
 				       ;;
-KEYBSYS_STATE_LOGIC ENDS	       ;;
+endstruc;;
 				       ;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -100,16 +100,16 @@ KEYBSYS_STATE_LOGIC ENDS	       ;;
 ;; are both in this form.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-KEYBSYS_XLAT_SECT   STRUC	       ;;
+struc KEYBSYS_XLAT_SECT;;
 				       ;;
-KX_SECTION_LEN	 DW    ?	       ;; Length of this section
-KX_CP_ID	 DW    ?	       ;; code page id
-KX_FIRST_STATE	 DB    ?	       ;;
+KX_SECTION_LEN: dw 0;; Length of this section
+KX_CP_ID: dw 0;; code page id
+KX_FIRST_STATE: db 0;;
 				       ;;
-KEYBSYS_XLAT_SECT   ENDS	       ;;
+endstruc;;
 				       ;;
 				       ;;
-KEYBSYS_STATE	    STRUC	       ;;
+struc KEYBSYS_STATE;;
 	     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	     ;; Translate Sections contains multiple States.
 	     ;; A State contains the translate tables for a single
@@ -117,11 +117,11 @@ KEYBSYS_STATE	    STRUC	       ;;
 	     ;; The last State is a null State containing only the
 	     ;; KX_STATE_LEN field with a value of 0.
 	     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-KX_STATE_LEN	 DW    ?	       ;; length of state section
-KX_STATE_ID	 DB    ?	       ;; State ID
-KX_KBD_TYPE	 DW    ?	       ;; Keyboard Type
-KX_ERROR_CHAR	 DW    ?	       ;; Buffer entry for error character
-KX_FIRST_XLAT	 DB    ?	       ;; XLAT tables begin here
+KX_STATE_LEN: dw 0;; length of state section
+KX_STATE_ID: db 0;; State ID
+KX_KBD_TYPE: dw 0;; Keyboard Type
+KX_ERROR_CHAR: dw 0;; Buffer entry for error character
+KX_FIRST_XLAT: db 0;; XLAT tables begin here
 	     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	     ;; Each State consists of multiple translate tables.
 	     ;; The last translate table within a state is a null
@@ -130,8 +130,8 @@ KX_FIRST_XLAT	 DB    ?	       ;; XLAT tables begin here
 	     ;; Refer to KEYBSHAR.INC for translate table format.
 	     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-KEYBSYS_STATE	    ENDS	       ;;
+endstruc;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.LIST
+; .LIST
 

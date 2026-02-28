@@ -1,8 +1,8 @@
 
 
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	title	ALLOCMEM - allocate memory for EMM Pages Pool
+	; title	ALLOCMEM - allocate memory for EMM Pages Pool
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -48,36 +48,36 @@
 ;		"high" memory.
 ;
 ;******************************************************************************
-.lfcond
-.386p
+; .lfcond
+CPU 386
 ;
 ;
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	AllocMem
-	public	DeallocMem
-	public	xbase_addr_l		; data publics
-	public	xbase_addr_h
-	public	ext_size
-	public	sys_size
+	global AllocMem
+	global DeallocMem
+	global xbase_addr_l; data publics
+	global xbase_addr_h
+	global ext_size
+	global sys_size
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include vdmseg.inc
-	include vdmsel.inc
-	include emm386.inc
-	include driver.equ
-	include driver.str
-	include romxbios.equ
-	include desc.inc
-	include ascii_sm.equ
-	include oemdep.inc
-	include emmdef.inc
+	%include "vdmseg.inc"
+	%include "vdmsel.inc"
+	%include "emm386.inc"
+	%include "driver.equ"
+	%include "driver.str"
+	%include "romxbios.equ"
+	%include "desc.inc"
+	%include "ascii_sm.equ"
+	%include "oemdep.inc"
+	%include "emmdef.inc"
 ;
 EXT_RES 	equ	10h		; must be a power of 2.
 ;
@@ -91,48 +91,48 @@ TRUE	equ	not FALSE
 ;			E X T E R N A L    R E F E R E N C E S
 ;******************************************************************************
 ;
-_DATA	segment
+SECTION ._DATA
 
-	extrn	dos_version:byte
-	extrn	pool_size:word
-	extrn	msg_flag:word
+	extern dos_version
+	extern pool_size
+	extern msg_flag
 
-ifndef	NOHIMEM
-	extrn	hi_size:word		; size of hi memory in kbytes
-	extrn	hi_alloc:word		; hi memory allocated
-	extrn	hisys_alloc:word	; hi system memory allocated
+%ifndef NOHIMEM
+	extern hi_size; size of hi memory in kbytes
+	extern hi_alloc; hi memory allocated
+	extern hisys_alloc; hi system memory allocated
 					;    in 4k byte blocks
-endif
+%endif
 
-_DATA	ends
+; END SECTION ._DATA
 
 
-LAST	segment
-	extrn	mappable_segs:byte	; mappable segment map
-	extrn	set_ext:near		; routine to set amount of ext mem
+SECTION .LAST
+	extern mappable_segs; mappable segment map
+	extern set_ext; routine to set amount of ext mem
 					; reported by int15 handler
-	extrn	memreq:near		; memory requirements for move
-	extrn	pool_initialise:near	; initialise the pool of extended
+	extern memreq; memory requirements for move
+	extern pool_initialise; initialise the pool of extended
 					; memory
 
-ifndef	NOHIMEM
-	extrn	hbuf_chk:near
-	extrn	HiAlloc:near
-	extrn	HiMod:near
-endif
-LAST	ends
+%ifndef NOHIMEM
+	extern hbuf_chk
+	extern HiAlloc
+	extern HiMod
+%endif
+; END SECTION .LAST
 ;
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 
-	page
+	; page
 ;******************************************************************************
 ;	Data segment
 ;******************************************************************************
-_DATA	segment
-	ASSUME	CS:DGROUP,DS:DGROUP
+SECTION ._DATA
+	; ASSUME	CS:DGROUP,DS:DGROUP
 
 xbase_addr_l	dw	0000h	; 24 bit address of beginning of
 xbase_addr_h	db	10h	; extended mem pool of EMM pages. (1M initially)
@@ -142,7 +142,7 @@ total_mem	dw	0	; size of extended memory available at any moment
 avail_mem	dw	0	; total size (hi+ext) available for MEMM
 ;
 
-_DATA	ends
+; END SECTION ._DATA
 
 
 ;******************************************************************************
@@ -151,10 +151,10 @@ _DATA	ends
 ;
 ;******************************************************************************
 ;
-LAST	segment
-	assume	cs:LAST, ds:DGROUP, es:DGROUP
+SECTION .LAST
+	; assume	cs:LAST, ds:DGROUP, es:DGROUP
 
-	page
+	; page
 ;******************************************************************************
 ;
 ;	AllocMem	Allocate Extended memory for MEMM using the int15
@@ -187,7 +187,7 @@ LAST	segment
 ;
 ;******************************************************************************
 ;
-AllocMem	proc	near
+AllocMem:
 ;
 	push	ax
 	push	bx
@@ -210,7 +210,7 @@ AM_getmem:
 AM_nba:
 	call	ExtAlloc		; alloc ext mem
 
-ifndef	NOHIMEM 		; if HI memory in this model
+%ifndef NOHIMEM; if HI memory in this model
 ;
 ; 3. Allocate Hi memory
 ;
@@ -218,7 +218,7 @@ AM_halloc:
 	call	HiAlloc 		; Allocate hi memory
 	jnc	AM_exit 		; no error
 	or	[msg_flag],MEM_ERR_MSG	; memory error
-endif
+%endif
 
 ;
 ; 4. Allocate system memory
@@ -232,9 +232,9 @@ AM_exit:
 	pop	bx
 	pop	ax
 	ret
-AllocMem	endp				; End of procedure
+; ENDP AllocMem; End of procedure
 ;
-	page
+	; page
 ;******************************************************************************
 ;
 ;	DeallocMem	Deallocate Extended memory for MEMM using the int15
@@ -254,7 +254,7 @@ AllocMem	endp				; End of procedure
 ;	modif:	7/26/88 ISP	Removed VDISK deallocation of extended memory
 ;******************************************************************************
 ;
-DeallocMem	proc	near
+DeallocMem:
 	push	ax
 	push	bx
 	push	cx
@@ -262,7 +262,7 @@ DeallocMem	proc	near
 	push	si
 	push	es
 ;
-ifndef NOHIMEM			; if high memory in this model
+%ifndef NOHIMEM; if high memory in this model
 	mov	ax,[hi_alloc]		; get hi memory to deallocate
 	or	ax,ax			; q: did we ever get any?
 	jz	deall_hisys		; n: check hi system memory
@@ -278,7 +278,7 @@ deall_hisys:
 	call	HImod			; modify memory. ignore any errors
 deall_ext:
 ;
-endif				; end of conditional
+%endif; end of conditional
 	pop	es
 	pop	si
 	pop	dx
@@ -287,9 +287,9 @@ endif				; end of conditional
 	pop	ax
 ;
 	ret
-DeallocMem	endp
+; ENDP DeallocMem
 ;
-	page
+	; page
 ;******************************************************************************
 ;
 ;	xbuf_chk Extended memory pool check.
@@ -325,7 +325,7 @@ DeallocMem	endp
 ;				    on extended memory. substancial rewrite.
 ;******************************************************************************
 ;
-xbuf_chk	proc	near
+xbuf_chk:
 ;
 	push	ax
 	push	bx
@@ -344,7 +344,7 @@ xbuf_chk	proc	near
 store_ext:
 	mov	[total_mem],ax
 ;
-ifndef NOHIMEM			; if high memory in this model
+%ifndef NOHIMEM; if high memory in this model
 ;
 ;	check for hi memory
 ;
@@ -358,7 +358,7 @@ xb_NoHiMem:
 	ja	get_ext 		; n: try extended memory
 	mov	[hi_size],ax		; y: just use enough
 	jmp	x_buf_exit		; and exit
-endif
+%endif
 
 get_ext:
 	mov	ax,[total_mem]		; get size of extended memory available
@@ -394,9 +394,9 @@ get_ext:
 ;
 	mov	bx,[pool_size]		; get size requested
 ;
-ifndef	NOHIMEM 			; if high memory in this model
+%ifndef NOHIMEM; if high memory in this model
 	sub	bx,[hi_size]		; adjust by the size already allocated
-endif					; from the high memory
+%endif; from the high memory
 
 	and	ax,0fff0h		; round to 16k boundary
 ;
@@ -468,9 +468,9 @@ x_buf_exit:
 	pop	ax
 	ret				; *** return ***
 ;
-xbuf_chk	endp
+; ENDP xbuf_chk
 ;
-	page
+	; page
 ;******************************************************************************
 ;
 ;	ExtAlloc - allocate extended memory - update break address for ext. mem.
@@ -488,13 +488,13 @@ xbuf_chk	endp
 ;				 reported extended memory size.
 ;
 ;******************************************************************************
-ExtAlloc	proc	near
+ExtAlloc:
 ;
 	mov	bx,[total_mem]	    ;size left after allocation to MEMM
 	call	set_ext 	    ; set this size in the int15 handler
 	ret
 ;
-ExtAlloc	endp
+; ENDP ExtAlloc
 ;
 ;******************************************************************************
 ;
@@ -514,7 +514,7 @@ ExtAlloc	endp
 ;
 ;******************************************************************************
 
-SysAlloc	proc	near
+SysAlloc:
 ;
 	push	ax
 	push	bx
@@ -555,13 +555,13 @@ find_sys_done:
 	pop	ax
 	ret
 
-SysAlloc	endp
+; ENDP SysAlloc
 
 
 
-LAST	ends				; End of segment
+; END SECTION .LAST; End of segment
 ;
-	end				; End of module
+	; end; End of module
 
 
 

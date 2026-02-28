@@ -7,13 +7,13 @@ BREAK <Memory arena structure>
 ;
 ; arena item
 ;
-arena	STRUC
-arena_signature     DB	?		; 4D for valid item, 5A for last item
-arena_owner	    DW	?		; owner of arena item
-arena_size	    DW	?		; size in paragraphs of item
-arena_reserved	    DB	3 DUP(?)	; reserved
-arena_name	    DB	8 DUP(?)	; owner file name
-arena	ENDS
+struc arena
+arena_signature: db 0; 4D for valid item, 5A for last item
+arena_owner: dw 0; owner of arena item
+arena_size: dw 0; size in paragraphs of item
+arena_reserved: times 3 db 0; reserved
+arena_name: times 8 db 0; owner file name
+endstruc
 
 ;
 ; CAUTION: The routines in ALLOC.ASM rely on the fact that arena_signature

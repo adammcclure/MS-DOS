@@ -1,23 +1,23 @@
 ;0
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosQCurDisk mapper
+; title CP/DOS DosQCurDisk mapper
 
-	    extrn    dosqcurdir:far
-	    extrn    dosdevconfig:far
+	    extern dosqcurdir
+	    extern dosdevconfig
 
-buffer	segment word public 'buffer'
-drive	dw	?	      ; driver number
-buffr	db	20 dup(?)     ; buffer
+SECTION .buffer
+drive: dw 0; driver number
+buffr: times 20 db 0; buffer
 bufflng dw	20	      ; buffer length
-map	dw	2 dup(?)      ; map area
-dsket	db	?	      ;
-buffer	ends
+map: times 2 dw 0; map area
+dsket: db 0;
+; END SECTION .buffer
 
 
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;
 ;**********************************************************************
@@ -37,25 +37,25 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 ;
-	    public   dosqcurdisk
-	    .sall
-	    .xlist
-	    include  macros.inc
-	    .list
+	    global dosqcurdisk
+	    ; .sall
+	    ; .xlist
+	    %include "macros.inc"
+	    ; .list
 
-str	    struc
-old_bp	    dw	     ?
-return	    dd	     ?
-Drvmap	    dd	     ?	     ; drive map pointer
-Drvnbr	    dd	     ?	     ; drive number
-str	    ends
-
-
-defdrive	db	?	; Save area for default drive -->RW
+struc str
+old_bp: dw 0
+return: dd 0
+Drvmap: dd 0; drive map pointer
+Drvnbr: dd 0; drive number
+endstruc
 
 
+defdrive: db 0; Save area for default drive -->RW
 
-dosqcurdisk proc     far
+
+
+dosqcurdisk:
 
 	    Enter    Dosqcurdisk	 ; push registers
 
@@ -66,12 +66,12 @@ dosqcurdisk proc     far
 	    cbw 			 ; fill ax with drive #
 	    lds      si,[bp].drvnbr	 ; output address
 	    inc      ax 		 ; set drive A = 1
-	    mov      word ptr [si],ax	 ; drive number
+	    mov      word [si],ax	 ; drive number
 
 	    mov      ax,buffer		 ; prepare data segment
 	    mov      ds,ax		 ; register for calls
 
-	    assume   ds:buffer
+	    ; assume   ds:buffer
 
 	    lea      di,dsket		 ; diskette address
 	    push     ds
@@ -139,10 +139,10 @@ rotate:     rcr      map[di],1		 ; shift bit in
 					 ; Set good return code -->RW
 	    xor      ax,ax
 exit:	    mexit			 ; pop registers
-	    ret      size str - 6	 ; return
+	    ret      str_size - 6	 ; return
 
-dosqcurdisk endp
+; ENDP dosqcurdisk
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

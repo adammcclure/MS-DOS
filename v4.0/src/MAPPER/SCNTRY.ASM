@@ -1,10 +1,10 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS DosSetCtryCode mapper
+; title CP/DOS DosSetCtryCode mapper
 ;
-dosxxx  segment
-        assume  cs:dosxxx,ds:dosxxx,es:dosxxx,ss:dosxxx
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:dosxxx,es:dosxxx,ss:dosxxx
 ;
 ;**********************************************************************
 ;*
@@ -21,21 +21,21 @@ dosxxx  segment
 ;*
 ;*********************************************************************
 
-            public   dossetctrycode
-            .sall
-            include  macros.inc
+            global dossetctrycode
+            ; .sall
+            %include "macros.inc"
 
-str         struc
-Old_bp      dw       ?
-Return      dd       ?
-Ccode       dd       ?        ; country code
-str         ends
+struc str
+Old_bp: dw 0
+Return: dd 0
+Ccode: dd 0; country code
+endstruc
 
-dossetctrycode  proc far
+dossetctrycode:
             Enter    dossetctrycode        ; push registers
 
             lds      si,[bp].ccode
-            mov      ax,word ptr [si]      ; get country code
+            mov      ax,word [si]      ; get country code
             mov      cx,255
             cmp      ax,cx                 ; check for country code >= 255
             jl       okay                  ; branch if less
@@ -50,8 +50,8 @@ okay:       mov      dx,0ffffh             ; Set DX
 
             sub      ax,ax                 ; set good return
 exit:       mexit                          ; pop registers
-            ret      size  str - 6         ; return
+            ret      str_size - 6         ; return
 
-dossetctrycode endp
-dosxxx      ends
-            end
+; ENDP dossetctrycode
+; END SECTION .dosxxx
+            ; end

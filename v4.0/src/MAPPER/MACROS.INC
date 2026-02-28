@@ -1,10 +1,10 @@
 ;
-        if1
-                %out    macros.inc
-        endif
+        %if 1  ; IF1 - pass-specific
+                %warning macros.inc
+        %endif
 
 
-pushal  macro
+%macro pushal 0
         push    bx
         push    cx
         push    dx
@@ -14,9 +14,9 @@ pushal  macro
         push    es
         push    ss
         push    bp
-        endm
+        %endmacro
 ;
-popal   macro
+%macro popal 0
         pop     bp
         pop     ss
         pop     es
@@ -26,21 +26,21 @@ popal   macro
         pop     dx
         pop     cx
         pop     bx
-        endm
+        %endmacro
 ;
-Enter   macro   Routine
+%macro Enter 1
 
         push    bp
         mov     bp,sp
         pushal
 
-        endm
+        %endmacro
 ;
-Mexit   macro
+%macro Mexit 0
 
         popal
         mov     sp,bp
         pop     bp
 
-        endm
+        %endmacro
 

@@ -1,121 +1,121 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)command2.asm	4.3 85/10/16
 ;	SCCSID = @(#)command2.asm	4.3 85/10/16
-TITLE	COMMAND2 - resident code for COMMAND.COM part II
-NAME	COMMAND2
-.XCREF
-.XLIST
-	INCLUDE DOSSYM.INC
-	INCLUDE comsw.asm
-	INCLUDE comequ.asm
-	INCLUDE resmsg.equ		;AN000;
-.LIST
-.CREF
+; TITLE	COMMAND2 - resident code for COMMAND.COM part II
+; NAME	COMMAND2
+; .XCREF
+; .XLIST
+	%include "DOSSYM.INC"
+	%include "comsw.asm"
+	%include "comequ.asm"
+	%include "resmsg.equ";AN000;
+; .LIST
+; .CREF
 
 tokenized = FALSE
 
-CODERES 	SEGMENT PUBLIC BYTE	;AC000;
-CODERES ENDS
+SECTION .CODERES;AC000;
+; END SECTION .CODERES
 
-DATARES SEGMENT PUBLIC BYTE
-	EXTRN	append_state:word	;AN020;
-	EXTRN	append_flag:byte	;AN020;
-	EXTRN	COMDRV:BYTE
-	EXTRN	comprmt1_block:byte	;AN000;
-	EXTRN	comprmt1_subst:byte	;AN000;
-	EXTRN	COMSPEC:BYTE
-	EXTRN	cpdrv:byte
-	EXTRN	envirseg:word
-	EXTRN	EXTCOM:BYTE
-	EXTRN	HANDLE01:WORD
-	EXTRN	InitFlag:BYTE
-	EXTRN	INT_2E_RET:DWORD	;AC000;
-	EXTRN	IO_SAVE:WORD
-	EXTRN	LOADING:BYTE
-	EXTRN	LTPA:WORD
-	EXTRN	MEMSIZ:WORD
-	EXTRN	number_subst:byte	;AN000;
-	EXTRN	OldTerm:DWORD		;AC000;
-	EXTRN	PARENT:WORD		;AC000;
-	EXTRN	PERMCOM:BYTE
-	EXTRN	RDIRCHAR:BYTE
-	EXTRN	RES_TPA:WORD
-	EXTRN	RETCODE:WORD
-	EXTRN	rsrc_xa_seg:word	;AN030;
-	EXTRN	RSWITCHAR:BYTE
-	EXTRN	SAVE_PDB:WORD
-	EXTRN	SINGLECOM:WORD
-	EXTRN	SUM:WORD
-	EXTRN	TRANS:WORD
-	EXTRN	TranVarEnd:BYTE
-	EXTRN	TRANVARS:BYTE
-	EXTRN	TRNSEG:WORD
-	EXTRN	VERVAL:WORD
-DATARES ENDS
+SECTION .DATARES
+	extern append_state;AN020;
+	extern append_flag;AN020;
+	extern COMDRV
+	extern comprmt1_block;AN000;
+	extern comprmt1_subst;AN000;
+	extern COMSPEC
+	extern cpdrv
+	extern envirseg
+	extern EXTCOM
+	extern HANDLE01
+	extern InitFlag
+	extern INT_2E_RET;AC000;
+	extern IO_SAVE
+	extern LOADING
+	extern LTPA
+	extern MEMSIZ
+	extern number_subst;AN000;
+	extern OldTerm;AC000;
+	extern PARENT;AC000;
+	extern PERMCOM
+	extern RDIRCHAR
+	extern RES_TPA
+	extern RETCODE
+	extern rsrc_xa_seg;AN030;
+	extern RSWITCHAR
+	extern SAVE_PDB
+	extern SINGLECOM
+	extern SUM
+	extern TRANS
+	extern TranVarEnd
+	extern TRANVARS
+	extern TRNSEG
+	extern VERVAL
+; END SECTION .DATARES
 
-BATARENA	SEGMENT PUBLIC PARA	;AC000;
-BATARENA ENDS
+SECTION .BATARENA;AC000;
+; END SECTION .BATARENA
 
-BATSEG		SEGMENT PUBLIC PARA	;AC000;
-BATSEG	 ENDS
+SECTION .BATSEG;AC000;
+; END SECTION .BATSEG
 
-ENVARENA	SEGMENT PUBLIC PARA	;AC000;
-ENVARENA  ENDS
+SECTION .ENVARENA;AC000;
+; END SECTION .ENVARENA
 
-ENVIRONMENT SEGMENT PUBLIC PARA 	; Default COMMAND environment
-ENVIRONMENT ENDS
+SECTION .ENVIRONMENT; Default COMMAND environment
+; END SECTION .ENVIRONMENT
 
-INIT	SEGMENT PUBLIC PARA
-	EXTRN	envsiz:word
-	EXTRN	oldenv:word
-	EXTRN	resetenv:byte
-	EXTRN	usedenv:word
-INIT	ENDS
+SECTION .INIT
+	extern envsiz
+	extern oldenv
+	extern resetenv
+	extern usedenv
+; END SECTION .INIT
 
-TAIL	SEGMENT PUBLIC PARA
-TAIL	ENDS
+SECTION .TAIL
+; END SECTION .TAIL
 
-TRANCODE	SEGMENT PUBLIC PARA
-TRANCODE	ENDS
+SECTION .TRANCODE
+; END SECTION .TRANCODE
 
-TRANDATA	SEGMENT PUBLIC BYTE
-	EXTRN	TRANDATAEND:BYTE
-TRANDATA	ENDS
+SECTION .TRANDATA
+	extern TRANDATAEND
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE
-	EXTRN	TRANSPACEEND:BYTE
-	EXTRN	HEADCALL:DWORD
-TRANSPACE	ENDS
+SECTION .TRANSPACE
+	extern TRANSPACEEND
+	extern HEADCALL
+; END SECTION .TRANSPACE
 
-TRANTAIL	SEGMENT PUBLIC PARA
-TRANTAIL	ENDS
+SECTION .TRANTAIL
+; END SECTION .TRANTAIL
 
-RESGROUP  GROUP CODERES,DATARES,BATARENA,BATSEG,ENVARENA,ENVIRONMENT,INIT,TAIL
-TRANGROUP GROUP TRANCODE,TRANDATA,TRANSPACE,TRANTAIL
+; RESGROUP  GROUP CODERES,DATARES,BATARENA,BATSEG,ENVARENA,ENVIRONMENT,INIT,TAIL
+; TRANGROUP GROUP TRANCODE,TRANDATA,TRANSPACE,TRANTAIL
 
 ; START OF RESIDENT PORTION
 
-CODERES 	SEGMENT PUBLIC BYTE	;AC000;
+SECTION .CODERES;AC000;
 
-	PUBLIC	CHKSUM
-	PUBLIC	endinit
-	PUBLIC	GETCOMDSK2
-	PUBLIC	INT_2E
-	PUBLIC	LOADCOM
-	PUBLIC	LODCOM
-	PUBLIC	LODCOM1
-	PUBLIC	RESTHAND
-	PUBLIC	SAVHAND
-	PUBLIC	SETVECT
-	PUBLIC	THEADFIX
-	PUBLIC	TREMCHECK
-	PUBLIC	tjmp
+	global CHKSUM
+	global endinit
+	global GETCOMDSK2
+	global INT_2E
+	global LOADCOM
+	global LODCOM
+	global LODCOM1
+	global RESTHAND
+	global SAVHAND
+	global SETVECT
+	global THEADFIX
+	global TREMCHECK
+	global tjmp
 
-ASSUME	CS:RESGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:RESGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	EXTRN	contc:near
-	EXTRN	DSKERR:NEAR
-	EXTRN	rstack:word
+	extern contc
+	extern DSKERR
+	extern rstack
 ;
 ; If we cannot allocate enough memory for the transient or there was some
 ; other allocation error, we display a message and then die.
@@ -125,7 +125,7 @@ BADMEMERR:				; Allocation error loading transient
 FATALC:
 	PUSH	CS
 	POP	DS
-	ASSUME	DS:ResGroup
+	; ASSUME	DS:ResGroup
 	invoke	RPRINT
 ;
 ; If this is NOT a permanent (top-level) COMMAND, then we exit; we can't do
@@ -156,18 +156,18 @@ FATALRET2:
 	JNZ	RET_2E			; must be INT_2E
 	invoke	reset_msg_pointers	;AN000; reset critical & parse error messages
 	MOV	AX,[PARENT]
-	MOV	WORD PTR CS:[PDB_Parent_PID],AX
-	MOV	AX,WORD PTR OldTerm
-	MOV	WORD PTR CS:[PDB_Exit],AX
-	MOV	AX,WORD PTR OldTerm+2
-	MOV	WORD PTR CS:[PDB_Exit+2],AX
+	MOV	word CS:[PDB_Parent_PID],AX
+	MOV	AX,word OldTerm
+	MOV	word CS:[PDB_Exit],AX
+	MOV	AX,word OldTerm+2
+	MOV	word CS:[PDB_Exit+2],AX
 	MOV	AX,(EXIT SHL 8) 	; Return to lower level
 	INT	int_command
 
 RET_2E:
 	PUSH	CS
 	POP	DS
-ASSUME	DS:RESGROUP,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:RESGROUP,ES:NOTHING,SS:NOTHING
 	MOV	[SINGLECOM],0		; Turn off singlecom
 	MOV	ES,[RES_TPA]
 	MOV	AH,DEALLOC
@@ -184,9 +184,9 @@ GOTECODE:
 	JMP	[INT_2E_RET]		;"IRET"
 
 INT_2E: 				; Magic command executer
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
-	POP	WORD PTR [INT_2E_RET]
-	POP	WORD PTR [INT_2E_RET+2] ;Get return address
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+	POP	word [INT_2E_RET]
+	POP	word [INT_2E_RET+2] ;Get return address
 	POP	AX			;Chuck flags
 	PUSH	CS
 	POP	ES
@@ -217,7 +217,7 @@ BADMEMERRJ:
 
 ; SetSize - get transient size in paragraphs
 Procedure   SetSize,NEAR
-	MOV	AX,OFFSET TRANGROUP:TRANSPACEEND + 15
+	MOV	AX,TRANSPACEEND + 15
 	MOV	CL,4
 	SHR	AX,CL
 	return
@@ -254,10 +254,10 @@ LTPASET:
 LODCOM1:
 	MOV	AX,CS
 	MOV	SS,AX
-ASSUME	SS:RESGROUP
-	MOV	SP,OFFSET RESGROUP:RSTACK
+; ASSUME	SS:RESGROUP
+	MOV	SP,RSTACK
 	MOV	DS,AX
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	CALL	HEADFIX 		; Make sure files closed stdin and stdout restored
 	XOR	BP,BP			; Flag command ok
 	MOV	AX,-1
@@ -295,25 +295,25 @@ HAVCOM:
 	MOV	[RDIRCHAR],cl		; Select alt path separator
 USESLASH:
 	MOV	[LOADING],0		; Flag to DSKERR
-	MOV	SI,OFFSET RESGROUP:TRANVARS
-	MOV	DI,OFFSET TRANGROUP:HEADCALL
+	MOV	SI,TRANVARS
+	MOV	DI,HEADCALL
 	MOV	ES,[TRNSEG]
 	CLD
-	MOV	CX,OFFSET ResGroup:TranVarEnd
+	MOV	CX,TranVarEnd
 	SUB	CX,SI
 	REP	MOVSB			; Transfer INFO to transient
 	MOV	AX,[MEMSIZ]
-	MOV	WORD PTR DS:[PDB_block_len],AX	; Adjust my own header
+	MOV	word DS:[PDB_block_len],AX	; Adjust my own header
 
 ; Just a public label so this spot can be found easily.
 tjmp:
-	JMP	DWORD PTR [TRANS]
+	JMP	dword [TRANS]
 
 ; Far call to REMCHECK for TRANSIENT
-TREMCHECK PROC	 FAR
+TREMCHECK:
 	CALL	REMCHECK
 	RET
-TREMCHECK ENDP
+; ENDP TREMCHECK
 
 REMCHECK:
 ;All registers preserved. Returns ZF set if media removable, NZ if fixed
@@ -337,16 +337,16 @@ ResRegs:
 	return
 
 ; Far call to HEADFIX for TRANSIENT
-THEADFIX PROC	FAR
+THEADFIX:
 	CALL	HEADFIX
 	RET
-THEADFIX ENDP
+; ENDP THEADFIX
 
 HEADFIX:
 	CALL	SETVECT
 	XOR	BX,BX			; Clean up header
 	MOV	CX,[IO_SAVE]
-	MOV	DX,WORD PTR DS:[PDB_JFN_Table]
+	MOV	DX,word DS:[PDB_JFN_Table]
 	CMP	CL,DL
 	JZ	CHK1			; Stdin matches
 	MOV	AH,CLOSE
@@ -390,7 +390,7 @@ xa_fix_end:
 	return
 
 SAVHAND:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSH	DS
 	PUSH	BX			; Set stdin to sterr, stdout to stderr
 	PUSH	AX
@@ -398,17 +398,17 @@ ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	INT	int_command		; Get user's header
 	MOV	DS,BX
 	LDS	BX,DS:[PDB_JFN_POINTER] ; get pointer to JFN table...
-	MOV	AX,WORD PTR DS:[BX]
+	MOV	AX,word DS:[BX]
 	MOV	[HANDLE01],AX		; Save user's stdin, stdout
 	MOV	AL,CS:[PDB_JFN_Table+2] ; get COMMAND stderr
 	MOV	AH,AL
-	MOV	WORD PTR DS:[BX],AX	; Dup stderr
+	MOV	word DS:[BX],AX	; Dup stderr
 	POP	AX
 	POP	BX
 	POP	DS
 	return
 
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 GETCOMDSK2:
 	CALL	GETCOMDSK
 	JMP	LODCOM1 		; Memory already allocated
@@ -421,14 +421,14 @@ RESTHAND:
 	INT	int_command		; Point to user's header
 	MOV	AX,[HANDLE01]
 	MOV	DS,BX
-ASSUME DS:NOTHING
+; ASSUME DS:NOTHING
 	LDS	BX,DS:[PDB_JFN_POINTER] ; get pointer to JFN table...
-	MOV	WORD PTR DS:[BX],AX	; Stuff his old 0 and 1
+	MOV	word DS:[BX],AX	; Stuff his old 0 and 1
 	POP	AX
 	POP	BX
 	POP	DS
 	return
-ASSUME DS:RESGROUP,SS:RESGROUP
+; ASSUME DS:RESGROUP,SS:RESGROUP
 
 HOPELESS:
 	MOV	DX,COMBAD		;AC000;
@@ -453,16 +453,16 @@ getcomdsk4:
 
 users_drive:				;g
 	mov	dx,comprmt1		;AC000; Prompt for diskette containing command
-IF tokenized
-	or	byte ptr [si],80h
-endif
+%if tokenized
+	or	byte [si],80h
+%endif
 	MOV	AL,COMPRMT1_SUBST	;AN000; get number of substitutions
-	MOV	SI,OFFSET RESGROUP:COMPRMT1_BLOCK ;AN000; get address of subst block
+	MOV	SI,COMPRMT1_BLOCK ;AN000; get address of subst block
 	MOV	NUMBER_SUBST,AL 	;AN000;
 	invoke	rprint
-if tokenized
-	and	byte ptr [si],NOT 80h
-endif
+%if tokenized
+	and	byte [si],NOT 80h
+%endif
 	mov	dx,prompt		;AN047; Tell the user to strike a key
 	invoke	rprint			;AN047;
 	CALL	GetRawFlushedByte
@@ -478,7 +478,7 @@ GetRawFlushedByte:
 
 LOADCOM:				; Load in transient
 	INC	BP			; Flag command read
-	MOV	DX,OFFSET RESGROUP:COMSPEC
+	MOV	DX,COMSPEC
 	MOV	AX,OPEN SHL 8
 	INT	int_command		; Open COMMAND.COM
 	JNC	READCOM
@@ -493,21 +493,21 @@ TRYDOOPEN:
 
 READCOM:
 	MOV	BX,AX			; Handle
-	MOV	DX,OFFSET RESGROUP:TRANSTART
+	MOV	DX,TRANSTART
 	XOR	CX,CX			; Seek loc
 	MOV	AX,LSEEK SHL 8
 	INT	int_command
 	JC	WRONGCOM1
-	MOV	CX,OFFSET TRANGROUP:TRANSPACEEND - 100H
+	MOV	CX,TRANSPACEEND - 100H
 
 	PUSH	DS
 	MOV	DS,[TRNSEG]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	DX,100H
 	MOV	AH,READ
 	INT	int_command
 	POP	DS
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 WRONGCOM1:
 	PUSHF
 	PUSH	AX
@@ -527,7 +527,7 @@ CHKSUM: 				; Compute transient checksum
 	PUSH	DS
 	MOV	DS,[TRNSEG]
 	MOV	SI,100H
-	MOV	CX,OFFSET TRANGROUP:TranDataEnd  - 100H
+	MOV	CX,TranDataEnd  - 100H
 
 CHECK_SUM:
 	CLD
@@ -542,15 +542,15 @@ CHK:
 	return
 
 SETVECT:				; Set useful vectors
-	MOV	DX,OFFSET RESGROUP:LODCOM
+	MOV	DX,LODCOM
 	MOV	AX,(SET_INTERRUPT_VECTOR SHL 8) OR 22H
-	MOV	WORD PTR DS:[PDB_EXIT],DX
-	MOV	WORD PTR DS:[PDB_EXIT+2],DS
+	MOV	word DS:[PDB_EXIT],DX
+	MOV	word DS:[PDB_EXIT+2],DS
 	INT	int_command
-	MOV	DX,OFFSET RESGROUP:CONTC
+	MOV	DX,CONTC
 	INC	AL
 	INT	int_command
-	MOV	DX,OFFSET RESGROUP:DSKERR
+	MOV	DX,DSKERR
 	INC	AL
 	INT	int_command
 	return
@@ -566,14 +566,14 @@ ENDINIT:
 	push	es			;g
 	push	cs			;g get resident segment to DS
 	pop	ds			;g
-	ASSUME	DS:RESGROUP
+	; ASSUME	DS:RESGROUP
 	mov	cx,usedenv		;g get number of bytes to move
 	mov	es,envirseg		;g get target environment segment
 
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 	mov	DS:[PDB_environ],es	;g put new environment in my header	   ;AM067;
 	mov	ds,oldenv		;g source environment segment		   ;AM067;
-	ASSUME	DS:NOTHING							   ;AM067;
+	; ASSUME	DS:NOTHING;AM067;
 	xor	si,si			;g set up offsets to start of segments	   ;AM067;
 	xor	di,di			;g					   ;AM067;
 	cld				;g make sure we move the right way!	   ;AM067;
@@ -595,25 +595,25 @@ noreset:
 	pop	ds			;g
 	jmp	lodcom			;g allocate transient
 
-CODERES ENDS
+; END SECTION .CODERES
 
 ; This TAIL segment is used to produce a PARA aligned label in the resident
 ; group which is the location where the transient segments will be loaded
 ; initial.
 
-TAIL	SEGMENT PUBLIC PARA
+SECTION .TAIL
 	ORG	0
-	PUBLIC	TranStart
-TRANSTART	LABEL	WORD
-TAIL	ENDS
+	global TranStart
+TRANSTART:
+; END SECTION .TAIL
 
 ; This TAIL segment is used to produce a PARA aligned label in the transient
 ; group which is the location where the exec segments will be loaded
 ; initial.
 
-TRANTAIL    SEGMENT PUBLIC PARA
+SECTION .TRANTAIL
 	ORG	0
-EXECSTART   LABEL   WORD
-TRANTAIL    ENDS
+EXECSTART:
+; END SECTION .TRANTAIL
 
-	END
+	; END

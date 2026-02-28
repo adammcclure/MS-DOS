@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	VMINST.ASM - Virtual Mode GP fault instruction emulation
+	; title	VMINST.ASM - Virtual Mode GP fault instruction emulation
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -63,51 +63,51 @@ page	58,132
 ;	overrides are not yet supported.
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	VmInst			; module label
-	public	VmFault
-	public	EmProtIns		; just for debug map
-	public	EmMovCDTR		; just for debug map
-	public	EmMOVSW 		; just for debug map
+	global VmInst; module label
+	global VmFault
+	global EmProtIns; just for debug map
+	global EmMovCDTR; just for debug map
+	global EmMOVSW; just for debug map
 ;
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 ;
-R_CODE	segment
-	extrn	JumpReal:far		; cont client in RM (rrtrap.asm)
-	extrn	MB_Flag:byte		; non-zero => do move block
-R_CODE	ends
+SECTION .R_CODE
+	extern JumpReal; cont client in RM (rrtrap.asm)
+	extern MB_Flag; non-zero => do move block
+; END SECTION .R_CODE
 
-_TEXT	 segment
-	extrn	IO_Trap:near		; I/O Trap Dispatcher
-	extrn	EM286ll:near		; 286 loadall emulator (EM286LL)
-	extrn	EM386ll:near		; 386 loadall emulator (EM386LL)
-	extrn	Move_Block:near 	; Int 15h move block function (MOVEB)
-	extrn	hw_int:near		; HW-ROM reflection code (VMTRAP)
-	extrn	ErrHndlr:near		; Handle user's error response
-	extrn	MapLinear:near		; map linear address
-	extrn	UnMapLinear:near	; unmap linear address
-_TEXT	 ends
+SECTION ._TEXT
+	extern IO_Trap; I/O Trap Dispatcher
+	extern EM286ll; 286 loadall emulator (EM286LL)
+	extern EM386ll; 386 loadall emulator (EM386LL)
+	extern Move_Block; Int 15h move block function (MOVEB)
+	extern hw_int; HW-ROM reflection code (VMTRAP)
+	extern ErrHndlr; Handle user's error response
+	extern MapLinear; map linear address
+	extern UnMapLinear; unmap linear address
+; END SECTION ._TEXT
 
-	page
+	; page
 ;******************************************************************************
 ;			I N C L U D E	F I L E S
 ;******************************************************************************
 
-include VDMseg.inc
-include desc.inc
-include VDMsel.inc
-include vm386.inc
-include loadall.inc
-include instr386.inc
-include oemdep.inc
+%include "VDMseg.inc"
+%include "desc.inc"
+%include "VDMsel.inc"
+%include "vm386.inc"
+%include "loadall.inc"
+%include "instr386.inc"
+%include "oemdep.inc"
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
@@ -137,25 +137,25 @@ OPER_SZ_FLAG	equ	0200h
 ADDR_SZ_FLAG	equ	0400h
 P0F_FLAG	equ	0800h
 
-page
+; page
 ;******************************************************************************
 ;			L O C A L   D A T A  A R E A
 ;******************************************************************************
-_DATA	 segment
+SECTION ._DATA
 
 PrefixFlag	dw	0		; flags for Fault Instr Prefixes
 RefNum		dw	0		; Reflect number for RefToRom
 
-_DATA	 ends
+; END SECTION ._DATA
 
-page
+; page
 ;******************************************************************************
 ;			     C O D E	A R E A
 ;******************************************************************************
-_TEXT	 segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
 
-VmInst	label	byte
+VmInst:
 ;
 ;   Index table for opcode emulation dispatch - This is too general-purpose
 ;   if all we want to handle is INT instructions, but it'll get fleshed out
@@ -165,268 +165,268 @@ VmInst	label	byte
 ; will fix it..sunilp
 ;	 EVEN				  ; word aligning should make execution
 					 ; faster
-OpTable label	word
-	dw	offset _TEXT:BadVmTrap	 ;  0 - LLDT, LTR, SLDT, STR, VERR, VERW
-	dw	offset _TEXT:EmProtIns	 ;  1 - LGDT, LIDT, LMSW
-	dw	offset _TEXT:BadVmTrap	 ;  2 - LAR
-	dw	offset _TEXT:BadVmTrap	 ;  3 - LSL
-	dw	offset _TEXT:BadVmTrap	 ;  4
-	dw	offset _TEXT:EmLoadal2	 ;  5 - 286Loadall
-	dw	offset _TEXT:EmCLTS	 ;  6 - CLTS
-	dw	offset _TEXT:EmLoadal3	 ;  7 - 386Loadall
-	dw	offset _TEXT:BadVmTrap	 ;  8
-	dw	offset _TEXT:BadVmTrap	 ;  9
-	dw	offset _TEXT:BadVmTrap	 ;  a
-	dw	offset _TEXT:BadVmTrap	 ;  b
-	dw	offset _TEXT:BadVmTrap	 ;  c
-	dw	offset _TEXT:BadVmTrap	 ;  d
-	dw	offset _TEXT:BadVmTrap	 ;  e
-	dw	offset _TEXT:Prefix_0F	 ;  f
-	dw	offset _TEXT:BadVmTrap	 ; 10
-	dw	offset _TEXT:BadVmTrap	 ; 11
-	dw	offset _TEXT:BadVmTrap	 ; 12
-	dw	offset _TEXT:BadVmTrap	 ; 13
-	dw	offset _TEXT:BadVmTrap	 ; 14
-	dw	offset _TEXT:BadVmTrap	 ; 15
-	dw	offset _TEXT:BadVmTrap	 ; 16
-	dw	offset _TEXT:BadVmTrap	 ; 17
-	dw	offset _TEXT:BadVmTrap	 ; 18
-	dw	offset _TEXT:BadVmTrap	 ; 19
-	dw	offset _TEXT:BadVmTrap	 ; 1a
-	dw	offset _TEXT:BadVmTrap	 ; 1b
-	dw	offset _TEXT:BadVmTrap	 ; 1c
-	dw	offset _TEXT:BadVmTrap	 ; 1d
-	dw	offset _TEXT:BadVmTrap	 ; 1e
-	dw	offset _TEXT:BadVmTrap	 ; 1f
-	dw	offset _TEXT:EmMovCDTR	 ; 20 - Mov Rn, CRn
-	dw	offset _TEXT:EmMovCDTR	 ; 21 - Mov Rn, DRn
-	dw	offset _TEXT:EmMovCDTR	 ; 22 - Mov CRn, Rn
-	dw	offset _TEXT:EmMovCDTR	 ; 23 - Mov DRn, Rn
-	dw	offset _TEXT:EmMovCDTR	 ; 24 - Mov Rn, TRn
-	dw	offset _TEXT:BadVmTrap	 ; 25
-	dw	offset _TEXT:ESOverride  ; 26 - ES Override & Mov TRn, Rn
-	dw	offset _TEXT:BadVmTrap	 ; 27
-	dw	offset _TEXT:BadVmTrap	 ; 28
-	dw	offset _TEXT:BadVmTrap	 ; 29
-	dw	offset _TEXT:BadVmTrap	 ; 2a
-	dw	offset _TEXT:BadVmTrap	 ; 2b
-	dw	offset _TEXT:BadVmTrap	 ; 2c
-	dw	offset _TEXT:BadVmTrap	 ; 2d
-	dw	offset _TEXT:CSOverride  ; 2e - CS Override
-	dw	offset _TEXT:BadVmTrap	 ; 2f
-	dw	offset _TEXT:BadVmTrap	 ; 30
-	dw	offset _TEXT:BadVmTrap	 ; 31
-	dw	offset _TEXT:BadVmTrap	 ; 32
-	dw	offset _TEXT:BadVmTrap	 ; 33
-	dw	offset _TEXT:BadVmTrap	 ; 34
-	dw	offset _TEXT:BadVmTrap	 ; 35
-	dw	offset _TEXT:SSOverride  ; 36 - SS Override
-	dw	offset _TEXT:BadVmTrap	 ; 37
-	dw	offset _TEXT:BadVmTrap	 ; 38
-	dw	offset _TEXT:BadVmTrap	 ; 39
-	dw	offset _TEXT:BadVmTrap	 ; 3a
-	dw	offset _TEXT:BadVmTrap	 ; 3b
-	dw	offset _TEXT:BadVmTrap	 ; 3c
-	dw	offset _TEXT:BadVmTrap	 ; 3d
-	dw	offset _TEXT:DSOverride  ; 3e - DS Override
-	dw	offset _TEXT:BadVmTrap	 ; 3f
-	dw	offset _TEXT:BadVmTrap	 ; 40
-	dw	offset _TEXT:BadVmTrap	 ; 41
-	dw	offset _TEXT:BadVmTrap	 ; 42
-	dw	offset _TEXT:BadVmTrap	 ; 43
-	dw	offset _TEXT:BadVmTrap	 ; 44
-	dw	offset _TEXT:BadVmTrap	 ; 45
-	dw	offset _TEXT:BadVmTrap	 ; 46
-	dw	offset _TEXT:BadVmTrap	 ; 47
-	dw	offset _TEXT:BadVmTrap	 ; 48
-	dw	offset _TEXT:BadVmTrap	 ; 49
-	dw	offset _TEXT:BadVmTrap	 ; 4a
-	dw	offset _TEXT:BadVmTrap	 ; 4b
-	dw	offset _TEXT:BadVmTrap	 ; 4c
-	dw	offset _TEXT:BadVmTrap	 ; 4d
-	dw	offset _TEXT:BadVmTrap	 ; 4e
-	dw	offset _TEXT:BadVmTrap	 ; 4f
-	dw	offset _TEXT:BadVmTrap	 ; 50
-	dw	offset _TEXT:BadVmTrap	 ; 51
-	dw	offset _TEXT:BadVmTrap	 ; 52
-	dw	offset _TEXT:BadVmTrap	 ; 53
-	dw	offset _TEXT:BadVmTrap	 ; 54
-	dw	offset _TEXT:BadVmTrap	 ; 55
-	dw	offset _TEXT:BadVmTrap	 ; 56
-	dw	offset _TEXT:BadVmTrap	 ; 57
-	dw	offset _TEXT:BadVmTrap	 ; 58
-	dw	offset _TEXT:BadVmTrap	 ; 59
-	dw	offset _TEXT:BadVmTrap	 ; 5a
-	dw	offset _TEXT:BadVmTrap	 ; 5b
-	dw	offset _TEXT:BadVmTrap	 ; 5c
-	dw	offset _TEXT:BadVmTrap	 ; 5d
-	dw	offset _TEXT:BadVmTrap	 ; 5e
-	dw	offset _TEXT:BadVmTrap	 ; 5f
-	dw	offset _TEXT:BadVmTrap	 ; 60
-	dw	offset _TEXT:BadVmTrap	 ; 61
-	dw	offset _TEXT:BadVmTrap	 ; 62
+OpTable:
+	dw	BadVmTrap	 ;  0 - LLDT, LTR, SLDT, STR, VERR, VERW
+	dw	EmProtIns	 ;  1 - LGDT, LIDT, LMSW
+	dw	BadVmTrap	 ;  2 - LAR
+	dw	BadVmTrap	 ;  3 - LSL
+	dw	BadVmTrap	 ;  4
+	dw	EmLoadal2	 ;  5 - 286Loadall
+	dw	EmCLTS	 ;  6 - CLTS
+	dw	EmLoadal3	 ;  7 - 386Loadall
+	dw	BadVmTrap	 ;  8
+	dw	BadVmTrap	 ;  9
+	dw	BadVmTrap	 ;  a
+	dw	BadVmTrap	 ;  b
+	dw	BadVmTrap	 ;  c
+	dw	BadVmTrap	 ;  d
+	dw	BadVmTrap	 ;  e
+	dw	Prefix_0F	 ;  f
+	dw	BadVmTrap	 ; 10
+	dw	BadVmTrap	 ; 11
+	dw	BadVmTrap	 ; 12
+	dw	BadVmTrap	 ; 13
+	dw	BadVmTrap	 ; 14
+	dw	BadVmTrap	 ; 15
+	dw	BadVmTrap	 ; 16
+	dw	BadVmTrap	 ; 17
+	dw	BadVmTrap	 ; 18
+	dw	BadVmTrap	 ; 19
+	dw	BadVmTrap	 ; 1a
+	dw	BadVmTrap	 ; 1b
+	dw	BadVmTrap	 ; 1c
+	dw	BadVmTrap	 ; 1d
+	dw	BadVmTrap	 ; 1e
+	dw	BadVmTrap	 ; 1f
+	dw	EmMovCDTR	 ; 20 - Mov Rn, CRn
+	dw	EmMovCDTR	 ; 21 - Mov Rn, DRn
+	dw	EmMovCDTR	 ; 22 - Mov CRn, Rn
+	dw	EmMovCDTR	 ; 23 - Mov DRn, Rn
+	dw	EmMovCDTR	 ; 24 - Mov Rn, TRn
+	dw	BadVmTrap	 ; 25
+	dw	ESOverride  ; 26 - ES Override & Mov TRn, Rn
+	dw	BadVmTrap	 ; 27
+	dw	BadVmTrap	 ; 28
+	dw	BadVmTrap	 ; 29
+	dw	BadVmTrap	 ; 2a
+	dw	BadVmTrap	 ; 2b
+	dw	BadVmTrap	 ; 2c
+	dw	BadVmTrap	 ; 2d
+	dw	CSOverride  ; 2e - CS Override
+	dw	BadVmTrap	 ; 2f
+	dw	BadVmTrap	 ; 30
+	dw	BadVmTrap	 ; 31
+	dw	BadVmTrap	 ; 32
+	dw	BadVmTrap	 ; 33
+	dw	BadVmTrap	 ; 34
+	dw	BadVmTrap	 ; 35
+	dw	SSOverride  ; 36 - SS Override
+	dw	BadVmTrap	 ; 37
+	dw	BadVmTrap	 ; 38
+	dw	BadVmTrap	 ; 39
+	dw	BadVmTrap	 ; 3a
+	dw	BadVmTrap	 ; 3b
+	dw	BadVmTrap	 ; 3c
+	dw	BadVmTrap	 ; 3d
+	dw	DSOverride  ; 3e - DS Override
+	dw	BadVmTrap	 ; 3f
+	dw	BadVmTrap	 ; 40
+	dw	BadVmTrap	 ; 41
+	dw	BadVmTrap	 ; 42
+	dw	BadVmTrap	 ; 43
+	dw	BadVmTrap	 ; 44
+	dw	BadVmTrap	 ; 45
+	dw	BadVmTrap	 ; 46
+	dw	BadVmTrap	 ; 47
+	dw	BadVmTrap	 ; 48
+	dw	BadVmTrap	 ; 49
+	dw	BadVmTrap	 ; 4a
+	dw	BadVmTrap	 ; 4b
+	dw	BadVmTrap	 ; 4c
+	dw	BadVmTrap	 ; 4d
+	dw	BadVmTrap	 ; 4e
+	dw	BadVmTrap	 ; 4f
+	dw	BadVmTrap	 ; 50
+	dw	BadVmTrap	 ; 51
+	dw	BadVmTrap	 ; 52
+	dw	BadVmTrap	 ; 53
+	dw	BadVmTrap	 ; 54
+	dw	BadVmTrap	 ; 55
+	dw	BadVmTrap	 ; 56
+	dw	BadVmTrap	 ; 57
+	dw	BadVmTrap	 ; 58
+	dw	BadVmTrap	 ; 59
+	dw	BadVmTrap	 ; 5a
+	dw	BadVmTrap	 ; 5b
+	dw	BadVmTrap	 ; 5c
+	dw	BadVmTrap	 ; 5d
+	dw	BadVmTrap	 ; 5e
+	dw	BadVmTrap	 ; 5f
+	dw	BadVmTrap	 ; 60
+	dw	BadVmTrap	 ; 61
+	dw	BadVmTrap	 ; 62
 ;
 ; ARPL is used to return from virtual mode to protected mode for use in MEMM
 ;
-	dw	offset _TEXT:ReturnEMM	 ; 63 - ARPL (return to Protected mode gateway)
-	dw	offset _TEXT:FSOverride  ; 64 - FS override
-	dw	offset _TEXT:GSOverride  ; 65 - GS override
-	dw	offset _TEXT:BadVmTrap	 ; 66 - Operand size override
-	dw	offset _TEXT:BadVmTrap	 ; 67 - Address size override
-	dw	offset _TEXT:BadVmTrap	 ; 68
-	dw	offset _TEXT:BadVmTrap	 ; 69
-	dw	offset _TEXT:BadVmTrap	 ; 6a
-	dw	offset _TEXT:BadVmTrap	 ; 6b
-	dw	offset _TEXT:EmINSB	 ; 6c - INSB
-	dw	offset _TEXT:EmINSW	 ; 6d - INSW
-	dw	offset _TEXT:EmOUTSB	 ; 6e - OUTSB
-	dw	offset _TEXT:EmOUTSW	 ; 6f - OUTSW
-	dw	offset _TEXT:BadVmTrap	 ; 70
-	dw	offset _TEXT:BadVmTrap	 ; 71
-	dw	offset _TEXT:BadVmTrap	 ; 72
-	dw	offset _TEXT:BadVmTrap	 ; 73
-	dw	offset _TEXT:BadVmTrap	 ; 74
-	dw	offset _TEXT:BadVmTrap	 ; 75
-	dw	offset _TEXT:BadVmTrap	 ; 76
-	dw	offset _TEXT:BadVmTrap	 ; 77
-	dw	offset _TEXT:BadVmTrap	 ; 78
-	dw	offset _TEXT:BadVmTrap	 ; 79
-	dw	offset _TEXT:BadVmTrap	 ; 7a
-	dw	offset _TEXT:BadVmTrap	 ; 7b
-	dw	offset _TEXT:BadVmTrap	 ; 7c
-	dw	offset _TEXT:BadVmTrap	 ; 7d
-	dw	offset _TEXT:BadVmTrap	 ; 7e
-	dw	offset _TEXT:BadVmTrap	 ; 7f
-	dw	offset _TEXT:BadVmTrap	 ; 80
-	dw	offset _TEXT:BadVmTrap	 ; 81
-	dw	offset _TEXT:BadVmTrap	 ; 82
-	dw	offset _TEXT:BadVmTrap	 ; 83
-	dw	offset _TEXT:BadVmTrap	 ; 84
-	dw	offset _TEXT:BadVmTrap	 ; 85
-	dw	offset _TEXT:BadVmTrap	 ; 86
-	dw	offset _TEXT:BadVmTrap	 ; 87
-	dw	offset _TEXT:BadVmTrap	 ; 88
-	dw	offset _TEXT:BadVmTrap	 ; 89
-	dw	offset _TEXT:BadVmTrap	 ; 8a
-	dw	offset _TEXT:BadVmTrap	 ; 8b
-	dw	offset _TEXT:BadVmTrap	 ; 8c
-	dw	offset _TEXT:BadVmTrap	 ; 8d
-	dw	offset _TEXT:BadVmTrap	 ; 8e
-	dw	offset _TEXT:BadVmTrap	 ; 8f
-	dw	offset _TEXT:BadVmTrap	 ; 90
-	dw	offset _TEXT:BadVmTrap	 ; 91
-	dw	offset _TEXT:BadVmTrap	 ; 92
-	dw	offset _TEXT:BadVmTrap	 ; 93
-	dw	offset _TEXT:BadVmTrap	 ; 94
-	dw	offset _TEXT:BadVmTrap	 ; 95
-	dw	offset _TEXT:BadVmTrap	 ; 96
-	dw	offset _TEXT:BadVmTrap	 ; 97
-	dw	offset _TEXT:BadVmTrap	 ; 98
-	dw	offset _TEXT:BadVmTrap	 ; 99
-	dw	offset _TEXT:BadVmTrap	 ; 9a
-	dw	offset _TEXT:BadVmTrap	 ; 9b
-	dw	offset _TEXT:BadVmTrap	 ; 9c - PUSHF (not for IOPL=3)
-	dw	offset _TEXT:BadVmTrap	 ; 9d - POPF (not for IOPL=3)
-	dw	offset _TEXT:BadVmTrap	 ; 9e
-	dw	offset _TEXT:BadVmTrap	 ; 9f
-	dw	offset _TEXT:BadVmTrap	 ; a0
-	dw	offset _TEXT:BadVmTrap	 ; a1
-	dw	offset _TEXT:BadVmTrap	 ; a2
-	dw	offset _TEXT:BadVmTrap	 ; a3
-	dw	offset _TEXT:BadVmTrap	 ; a4 - MOVSB
-	dw	offset _TEXT:EmMOVSW	 ; a5 - MOVSW
-	dw	offset _TEXT:BadVmTrap	 ; a6
-	dw	offset _TEXT:BadVmTrap	 ; a7
-	dw	offset _TEXT:BadVmTrap	 ; a8
-	dw	offset _TEXT:BadVmTrap	 ; a9
-	dw	offset _TEXT:BadVmTrap	 ; aa
-	dw	offset _TEXT:BadVmTrap	 ; ab
-	dw	offset _TEXT:BadVmTrap	 ; ac
-	dw	offset _TEXT:BadVmTrap	 ; ad
-	dw	offset _TEXT:BadVmTrap	 ; ae
-	dw	offset _TEXT:BadVmTrap	 ; af
-	dw	offset _TEXT:BadVmTrap	 ; b0
-	dw	offset _TEXT:BadVmTrap	 ; b1
-	dw	offset _TEXT:BadVmTrap	 ; b2
-	dw	offset _TEXT:BadVmTrap	 ; b3
-	dw	offset _TEXT:BadVmTrap	 ; b4
-	dw	offset _TEXT:BadVmTrap	 ; b5
-	dw	offset _TEXT:BadVmTrap	 ; b6
-	dw	offset _TEXT:BadVmTrap	 ; b7
-	dw	offset _TEXT:BadVmTrap	 ; b8
-	dw	offset _TEXT:BadVmTrap	 ; b9
-	dw	offset _TEXT:BadVmTrap	 ; ba
-	dw	offset _TEXT:BadVmTrap	 ; bb
-	dw	offset _TEXT:BadVmTrap	 ; bc
-	dw	offset _TEXT:BadVmTrap	 ; bd
-	dw	offset _TEXT:BadVmTrap	 ; be
-	dw	offset _TEXT:BadVmTrap	 ; bf
-	dw	offset _TEXT:BadVmTrap	 ; c0
-	dw	offset _TEXT:BadVmTrap	 ; c1
-	dw	offset _TEXT:BadVmTrap	 ; c2
-	dw	offset _TEXT:BadVmTrap	 ; c3
-	dw	offset _TEXT:BadVmTrap	 ; c4
-	dw	offset _TEXT:BadVmTrap	 ; c5
-	dw	offset _TEXT:BadVmTrap	 ; c6
-	dw	offset _TEXT:BadVmTrap	 ; c7
-	dw	offset _TEXT:BadVmTrap	 ; c8
-	dw	offset _TEXT:BadVmTrap	 ; c9
-	dw	offset _TEXT:BadVmTrap	 ; ca
-	dw	offset _TEXT:BadVmTrap	 ; cb
-	dw	offset _TEXT:EmINT3	 ; cc - INT 3
-	dw	offset _TEXT:EmINTnn	 ; cd - INT nn
-	dw	offset _TEXT:EmINTO	 ; ce - INTO
-	dw	offset _TEXT:BadVmTrap	 ; cf - IRET/EmIRET (not for IOPL=3)
-	dw	offset _TEXT:BadVmTrap	 ; d0
-	dw	offset _TEXT:BadVmTrap	 ; d1
-	dw	offset _TEXT:BadVmTrap	 ; d2
-	dw	offset _TEXT:BadVmTrap	 ; d3
-	dw	offset _TEXT:BadVmTrap	 ; d4
-	dw	offset _TEXT:BadVmTrap	 ; d5
-	dw	offset _TEXT:BadVmTrap	 ; d6
-	dw	offset _TEXT:BadVmTrap	 ; d7
-	dw	offset _TEXT:BadVmTrap	 ; d8
-	dw	offset _TEXT:BadVmTrap	 ; d9
-	dw	offset _TEXT:BadVmTrap	 ; da
-	dw	offset _TEXT:BadVmTrap	 ; db
-	dw	offset _TEXT:BadVmTrap	 ; dc
-	dw	offset _TEXT:BadVmTrap	 ; dd
-	dw	offset _TEXT:BadVmTrap	 ; de
-	dw	offset _TEXT:BadVmTrap	 ; df
-	dw	offset _TEXT:BadVmTrap	 ; e0
-	dw	offset _TEXT:BadVmTrap	 ; e1
-	dw	offset _TEXT:BadVmTrap	 ; e2
-	dw	offset _TEXT:BadVmTrap	 ; e3
-	dw	offset _TEXT:EmINBimm	 ; e4 - INB imm
-	dw	offset _TEXT:EmINWimm	 ; e5 - INW imm
-	dw	offset _TEXT:EmOUTBimm	 ; e6 - OUTB imm
-	dw	offset _TEXT:EmOUTWimm	 ; e7 - OUTW imm
-	dw	offset _TEXT:BadVmTrap	 ; e8
-	dw	offset _TEXT:BadVmTrap	 ; e9
-	dw	offset _TEXT:BadVmTrap	 ; ea
-	dw	offset _TEXT:BadVmTrap	 ; eb
-	dw	offset _TEXT:EmINB	 ; ec - INB
-	dw	offset _TEXT:EmINW	 ; ed - INW
-	dw	offset _TEXT:EmOUTB	 ; ee - OUTB
-	dw	offset _TEXT:EmOUTW	 ; ef - OUTW
-	dw	offset _TEXT:EmLOCK	 ; f0 - LOCK
-	dw	offset _TEXT:BadVmTrap	 ; f1
-	dw	offset _TEXT:EmREPNE	 ; f2 - REPNE
-	dw	offset _TEXT:EmREP	 ; f3 - REP/REPE
-	dw	offset _TEXT:EmHALT	 ; f4 - HLT
-	dw	offset _TEXT:BadVmTrap	 ; f5
-	dw	offset _TEXT:BadVmTrap	 ; f6
-	dw	offset _TEXT:BadVmTrap	 ; f7
-	dw	offset _TEXT:BadVmTrap	 ; f8
-	dw	offset _TEXT:BadVmTrap	 ; f9
-	dw	offset _TEXT:BadVmTrap	 ; fa - CLI EmCLI (not for IOPL=3)
-	dw	offset _TEXT:BadVmTrap	 ; fb - STI EmSTI (not for IOPL=3)
-	dw	offset _TEXT:BadVmTrap	 ; fc
-	dw	offset _TEXT:BadVmTrap	 ; fd
-	dw	offset _TEXT:BadVmTrap	 ; fe
-	dw	offset _TEXT:BadVmTrap	 ; ff - Change P0F_Invalid, if used
+	dw	ReturnEMM	 ; 63 - ARPL (return to Protected mode gateway)
+	dw	FSOverride  ; 64 - FS override
+	dw	GSOverride  ; 65 - GS override
+	dw	BadVmTrap	 ; 66 - Operand size override
+	dw	BadVmTrap	 ; 67 - Address size override
+	dw	BadVmTrap	 ; 68
+	dw	BadVmTrap	 ; 69
+	dw	BadVmTrap	 ; 6a
+	dw	BadVmTrap	 ; 6b
+	dw	EmINSB	 ; 6c - INSB
+	dw	EmINSW	 ; 6d - INSW
+	dw	EmOUTSB	 ; 6e - OUTSB
+	dw	EmOUTSW	 ; 6f - OUTSW
+	dw	BadVmTrap	 ; 70
+	dw	BadVmTrap	 ; 71
+	dw	BadVmTrap	 ; 72
+	dw	BadVmTrap	 ; 73
+	dw	BadVmTrap	 ; 74
+	dw	BadVmTrap	 ; 75
+	dw	BadVmTrap	 ; 76
+	dw	BadVmTrap	 ; 77
+	dw	BadVmTrap	 ; 78
+	dw	BadVmTrap	 ; 79
+	dw	BadVmTrap	 ; 7a
+	dw	BadVmTrap	 ; 7b
+	dw	BadVmTrap	 ; 7c
+	dw	BadVmTrap	 ; 7d
+	dw	BadVmTrap	 ; 7e
+	dw	BadVmTrap	 ; 7f
+	dw	BadVmTrap	 ; 80
+	dw	BadVmTrap	 ; 81
+	dw	BadVmTrap	 ; 82
+	dw	BadVmTrap	 ; 83
+	dw	BadVmTrap	 ; 84
+	dw	BadVmTrap	 ; 85
+	dw	BadVmTrap	 ; 86
+	dw	BadVmTrap	 ; 87
+	dw	BadVmTrap	 ; 88
+	dw	BadVmTrap	 ; 89
+	dw	BadVmTrap	 ; 8a
+	dw	BadVmTrap	 ; 8b
+	dw	BadVmTrap	 ; 8c
+	dw	BadVmTrap	 ; 8d
+	dw	BadVmTrap	 ; 8e
+	dw	BadVmTrap	 ; 8f
+	dw	BadVmTrap	 ; 90
+	dw	BadVmTrap	 ; 91
+	dw	BadVmTrap	 ; 92
+	dw	BadVmTrap	 ; 93
+	dw	BadVmTrap	 ; 94
+	dw	BadVmTrap	 ; 95
+	dw	BadVmTrap	 ; 96
+	dw	BadVmTrap	 ; 97
+	dw	BadVmTrap	 ; 98
+	dw	BadVmTrap	 ; 99
+	dw	BadVmTrap	 ; 9a
+	dw	BadVmTrap	 ; 9b
+	dw	BadVmTrap	 ; 9c - PUSHF (not for IOPL=3)
+	dw	BadVmTrap	 ; 9d - POPF (not for IOPL=3)
+	dw	BadVmTrap	 ; 9e
+	dw	BadVmTrap	 ; 9f
+	dw	BadVmTrap	 ; a0
+	dw	BadVmTrap	 ; a1
+	dw	BadVmTrap	 ; a2
+	dw	BadVmTrap	 ; a3
+	dw	BadVmTrap	 ; a4 - MOVSB
+	dw	EmMOVSW	 ; a5 - MOVSW
+	dw	BadVmTrap	 ; a6
+	dw	BadVmTrap	 ; a7
+	dw	BadVmTrap	 ; a8
+	dw	BadVmTrap	 ; a9
+	dw	BadVmTrap	 ; aa
+	dw	BadVmTrap	 ; ab
+	dw	BadVmTrap	 ; ac
+	dw	BadVmTrap	 ; ad
+	dw	BadVmTrap	 ; ae
+	dw	BadVmTrap	 ; af
+	dw	BadVmTrap	 ; b0
+	dw	BadVmTrap	 ; b1
+	dw	BadVmTrap	 ; b2
+	dw	BadVmTrap	 ; b3
+	dw	BadVmTrap	 ; b4
+	dw	BadVmTrap	 ; b5
+	dw	BadVmTrap	 ; b6
+	dw	BadVmTrap	 ; b7
+	dw	BadVmTrap	 ; b8
+	dw	BadVmTrap	 ; b9
+	dw	BadVmTrap	 ; ba
+	dw	BadVmTrap	 ; bb
+	dw	BadVmTrap	 ; bc
+	dw	BadVmTrap	 ; bd
+	dw	BadVmTrap	 ; be
+	dw	BadVmTrap	 ; bf
+	dw	BadVmTrap	 ; c0
+	dw	BadVmTrap	 ; c1
+	dw	BadVmTrap	 ; c2
+	dw	BadVmTrap	 ; c3
+	dw	BadVmTrap	 ; c4
+	dw	BadVmTrap	 ; c5
+	dw	BadVmTrap	 ; c6
+	dw	BadVmTrap	 ; c7
+	dw	BadVmTrap	 ; c8
+	dw	BadVmTrap	 ; c9
+	dw	BadVmTrap	 ; ca
+	dw	BadVmTrap	 ; cb
+	dw	EmINT3	 ; cc - INT 3
+	dw	EmINTnn	 ; cd - INT nn
+	dw	EmINTO	 ; ce - INTO
+	dw	BadVmTrap	 ; cf - IRET/EmIRET (not for IOPL=3)
+	dw	BadVmTrap	 ; d0
+	dw	BadVmTrap	 ; d1
+	dw	BadVmTrap	 ; d2
+	dw	BadVmTrap	 ; d3
+	dw	BadVmTrap	 ; d4
+	dw	BadVmTrap	 ; d5
+	dw	BadVmTrap	 ; d6
+	dw	BadVmTrap	 ; d7
+	dw	BadVmTrap	 ; d8
+	dw	BadVmTrap	 ; d9
+	dw	BadVmTrap	 ; da
+	dw	BadVmTrap	 ; db
+	dw	BadVmTrap	 ; dc
+	dw	BadVmTrap	 ; dd
+	dw	BadVmTrap	 ; de
+	dw	BadVmTrap	 ; df
+	dw	BadVmTrap	 ; e0
+	dw	BadVmTrap	 ; e1
+	dw	BadVmTrap	 ; e2
+	dw	BadVmTrap	 ; e3
+	dw	EmINBimm	 ; e4 - INB imm
+	dw	EmINWimm	 ; e5 - INW imm
+	dw	EmOUTBimm	 ; e6 - OUTB imm
+	dw	EmOUTWimm	 ; e7 - OUTW imm
+	dw	BadVmTrap	 ; e8
+	dw	BadVmTrap	 ; e9
+	dw	BadVmTrap	 ; ea
+	dw	BadVmTrap	 ; eb
+	dw	EmINB	 ; ec - INB
+	dw	EmINW	 ; ed - INW
+	dw	EmOUTB	 ; ee - OUTB
+	dw	EmOUTW	 ; ef - OUTW
+	dw	EmLOCK	 ; f0 - LOCK
+	dw	BadVmTrap	 ; f1
+	dw	EmREPNE	 ; f2 - REPNE
+	dw	EmREP	 ; f3 - REP/REPE
+	dw	EmHALT	 ; f4 - HLT
+	dw	BadVmTrap	 ; f5
+	dw	BadVmTrap	 ; f6
+	dw	BadVmTrap	 ; f7
+	dw	BadVmTrap	 ; f8
+	dw	BadVmTrap	 ; f9
+	dw	BadVmTrap	 ; fa - CLI EmCLI (not for IOPL=3)
+	dw	BadVmTrap	 ; fb - STI EmSTI (not for IOPL=3)
+	dw	BadVmTrap	 ; fc
+	dw	BadVmTrap	 ; fd
+	dw	BadVmTrap	 ; fe
+	dw	BadVmTrap	 ; ff - Change P0F_Invalid, if used
 
-	page
+	; page
 ;******************************************************************************
 ;   VmFault - entry point for Virtual Mode GP faults (from routine vm_trap0d
 ;	in module VMTRAP.ASM).	The appropriate instructions are emulated and
@@ -497,7 +497,7 @@ OpTable label	word
 ;   USED:   (none) (note that DS & ES are free to use - saved during trap)
 ;   STACK:  n/a
 ;------------------------------------------------------------------------------
-VmFault proc	near
+VmFault:
 	PUSH_EBX			; local registers
 	PUSH_ESI
 	HwTabUnlock			; unlock high ram for gdt changes
@@ -544,9 +544,9 @@ VmInsHandle:
 					; VM2_GSEL pts to VM CS
 	jmp	cs:OpTable[bx]		; enter instruction emulation routine
 
-VmFault endp
+; ENDP VmFault
 
-page
+; page
 ;******************************************************************************
 ;   BadVmTrap - unsupported Virtual Mode GP exception - enter the debugger
 ;
@@ -555,11 +555,11 @@ page
 ;   USED:
 ;   STACK:  n/a
 ;------------------------------------------------------------------------------
-BadVmTrap	proc	near
+BadVmTrap:
 	jmp	Reflect6		; Reflect to VM illegal opcode handler
-BadVmTrap	endp
+; ENDP BadVmTrap
 
-page
+; page
 ;******************************************************************************
 ;   ReturnEMM - user is trying to go back into the protected mode via ARPL
 ;
@@ -568,13 +568,13 @@ page
 ;   USED:
 ;   STACK:  n/a
 ;------------------------------------------------------------------------------
-ReturnEMM	proc	near
+ReturnEMM:
 	add	si, 2			; "IP" now points to instruction
 	push	si			;   after "ARPL reg,reg"
 	ret				; back in protected mode!
-ReturnEMM	endp
+; ENDP ReturnEMM
 
-page
+; page
 ;******************************************************************************
 ;   EmINTnn - emulate software interrupt
 ;
@@ -608,18 +608,18 @@ page
 ;   to do:  Streamline this code - it's on the critical path
 ;	    Decide about how to handle Trace Bit in general
 ;------------------------------------------------------------------------------
-EmINTnn proc	near
+EmINTnn:
 
 	inc	si			; DS:SI -> nn (int #)
 
 ;   Check for Int15 (Move Block call)
-	cmp	byte ptr [si], 15h
+	cmp	byte [si], 15h
 	jne	NotInt15
 	cmp	ah,87h			;Q: is this a move block call ?
 	jne	NotInt15		; N: process as normal interrupt
 	mov	bx,RCODEA_GSEL		; Y: check local flag
 	mov	ds,bx			;    DS -> R_CODE seg
-	ASSUME	DS:R_CODE
+	; ASSUME	DS:R_CODE
 	cmp	[MB_Flag],0		; Q: do we see this move block ?
 	je	NotInt15		;   N: process as normal int
 					;   Y:	emulate move block
@@ -645,7 +645,7 @@ EmINTnn proc	near
 	call	move_block		; move block function
 	mov	ds:[MB_Flag],0		;  turn off flag !!
 
-	ASSUME	DS:DGROUP		; done with R_CODE
+	; ASSUME	DS:DGROUP; done with R_CODE
 
 	jmp	short EmSkipLockExit	;  exit, but skip table lock.
 					;	 move block MAY unlock tables.
@@ -653,7 +653,7 @@ EmINTnn proc	near
 ;   Adjust client's SP to make room for building his IRET frame
 ;
 NotInt15:
-	sub	word ptr [bp.VTFOE+VMTF_ESP],6	; adjust client's SP
+	sub	word [bp.VTFOE+VMTF_ESP],6	; adjust client's SP
 	mov	bx,VM1_GSEL
 	mov	ds,bx			; DS = VM stack segment
 	mov	si,[bp.VTFOE+VMTF_ESP]	; DS:SI -> client's IRET stack frame
@@ -700,9 +700,9 @@ EmSkipLockExit: 			; as the label implies...
 	POP_EBP
 	add	sp,4			; throw away error code
 	OP32_IRET			; *** RETURN *** to client
-EmINTnn endp
+; ENDP EmINTnn
 
-page
+; page
 ;******************************************************************************
 ;   EmINT3 - emulate the 'breakpoint' interrupt instruction
 ;
@@ -718,13 +718,13 @@ page
 ;
 ;   to do:  implement the handler
 ;------------------------------------------------------------------------------
-EmINT3	proc	near
+EmINT3:
 	mov	ES:[RefNum], 03h	    ; Vector to VM int 3 handler
 RefIntN:
 	inc	si			    ; fault, not a trap
 	mov	[bp.VTFOE+VMTF_EIP], si     ; point beyond int3
 	jmp	RefToRom		    ; and let the VM OS handle it
-EmINT3	endp
+; ENDP EmINT3
 
 ;******************************************************************************
 ;   EmINTO - emulate overflow interrupt
@@ -739,12 +739,12 @@ EmINT3	endp
 ;   USED:   (none)
 ;   STACK:
 ;------------------------------------------------------------------------------
-EmINTO	proc	near
+EmINTO:
 	mov	ES:[RefNum], 04h	    ; Vector to VM int 3 handler
 	jmp	short RefIntN
-EmINTO	endp
+; ENDP EmINTO
 
-page
+; page
 ;******************************************************************************
 ;   EmINB - emulate the IN byte instruction
 ;
@@ -757,7 +757,7 @@ page
 ;   USED:
 ;   STACK:  n/a
 ;------------------------------------------------------------------------------
-EmINB	proc	near
+EmINB:
 	inc	si
 	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	push	bx
@@ -768,9 +768,9 @@ EmINB	proc	near
 EINB_Exit:
 	pop	bx
 	jmp	EmExit			; *** RETURN *** to VM client
-EmINB	endp
+; ENDP EmINB
 
-page
+; page
 ;******************************************************************************
 ;   EmINW - emulate IN word
 ;
@@ -781,7 +781,7 @@ page
 ;
 ;	EXIT	IRET back to VM program
 ;------------------------------------------------------------------------------
-EmINW	proc	near
+EmINW:
 	inc	si
 	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	push	bx
@@ -793,9 +793,9 @@ EmINW	proc	near
 EINW_Exit:				;
 	pop	bx			;
 	jmp	EmExit			; *** RETURN *** to VM client
-EmINW	endp
+; ENDP EmINW
 
-page
+; page
 ;******************************************************************************
 ;   EmINBimm - emulate IN word immediate
 ;
@@ -806,7 +806,7 @@ page
 ;
 ;	EXIT	IRET back to VM program
 ;------------------------------------------------------------------------------
-EmINBimm	proc	near
+EmINBimm:
 	push	bx
 	push	dx
 	mov	dl,ds:[si+1]		; get port number
@@ -821,9 +821,9 @@ EINBi_exit:
 	pop	dx
 	pop	bx
 	jmp	EmExit			; *** RETURN *** to VM client
-EmINBimm	endp
+; ENDP EmINBimm
 
-page
+; page
 ;******************************************************************************
 ;***	EmINWimm - emulate IN word immediate
 ;
@@ -834,7 +834,7 @@ page
 ;
 ;	EXIT	IRET back to VM program
 ;------------------------------------------------------------------------------
-EmINWimm	proc	near
+EmINWimm:
 	push	bx
 	push	dx
 	mov	dl,ds:[si+1]		; get port number
@@ -850,9 +850,9 @@ EINWi_Exit:
 	pop	dx
 	pop	bx
 	jmp	EmExit			; *** RETURN *** to VM client
-EmINWimm	endp
+; ENDP EmINWimm
 
-page
+; page
 ;******************************************************************************
 ;***	EmOUTB - emulate OUT byte
 ;
@@ -863,7 +863,7 @@ page
 ;
 ;	EXIT	IRET back to VM program
 ;
-EmOUTB	proc	near
+EmOUTB:
 	inc	si
 	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	push	bx
@@ -877,9 +877,9 @@ EOUTB_Exit:
 	pop	dx
 	pop	bx
 	jmp	EmExit			; *** RETURN *** to VM client
-EmOUTB	endp
+; ENDP EmOUTB
 
-page
+; page
 ;******************************************************************************
 ;***	EmOUTW - emulate OUT word
 ;
@@ -890,7 +890,7 @@ page
 ;
 ;	EXIT	IRET back to VM program
 ;
-EmOUTW	proc	near
+EmOUTW:
 	inc	si
 	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	push	bx
@@ -902,9 +902,9 @@ EmOUTW	proc	near
 EOUTW_Exit:
 	pop	bx
 	jmp	EmExit			; *** RETURN *** to VM client
-EmOUTW	endp
+; ENDP EmOUTW
 
-page
+; page
 ;******************************************************************************
 ;***	EmOUTBimm - emulate OUT byte immediate
 ;
@@ -915,7 +915,7 @@ page
 ;
 ;	EXIT	IRET back to VM program
 ;
-EmOUTBimm	proc	near
+EmOUTBimm:
 	push	bx
 	push	dx
 	mov	dl,ds:[si+1]		; get port number
@@ -931,9 +931,9 @@ EOUTBi_Exit:
 	pop	dx
 	pop	bx
 	jmp	EmExit			; *** RETURN *** to VM client
-EmOUTBimm	endp
+; ENDP EmOUTBimm
 
-page
+; page
 ;******************************************************************************
 ;***	EmOUTWimm - emulate OUT word immediate
 ;
@@ -944,7 +944,7 @@ page
 ;
 ;	EXIT	IRET back to VM program
 ;
-EmOUTWimm	proc	near
+EmOUTWimm:
 	push	bx
 	push	dx
 	mov	dl,ds:[si+1]		; get port number
@@ -959,8 +959,8 @@ EOUTWi_Exit:
 	pop	dx
 	pop	bx
 	jmp	EmExit			; *** RETURN *** to VM client
-EmOUTWimm	endp
-page
+; ENDP EmOUTWimm
+; page
 ;******************************************************************************
 ;***	EmHALT - Emulate HALT command
 ;
@@ -973,9 +973,9 @@ page
 ;	EXIT	return to VM client unless client IF=0 then
 ;		    HLT is executed with IF=0
 ;
-EmHALT	proc	near
+EmHALT:
 						; Q: client's IF bit is 0?
-	test	word ptr [bp.VTFOE+VMTF_EFLAGS], IF_FLAG
+	test	word [bp.VTFOE+VMTF_EFLAGS], IF_FLAG
 	jz     EmDoHlt			       ;   Y: execute HLT if IF=0
 	inc	si				; inc VM CS:IP past command
 	mov	[bp.VTFOE+VMTF_EIP], si 	;  we emulate
@@ -991,9 +991,9 @@ emDoHlt:
 	hlt					; Halt till NMI
 	jmp	EmExit
 
-EmHALT	endp
+; ENDP EmHALT
 
-page
+; page
 ;******************************************************************************
 ;***	EmLoadal2 - Emulate 286 Loadall command
 ;
@@ -1005,7 +1005,7 @@ page
 ;
 ;	EXIT	return to VM client
 ;
-EmLoadal2  proc    near
+EmLoadal2:
 
 	test	ES:[PrefixFlag],P0F_FLAG    ; Q:Do we have the right prefix?
 	jz	Not_Loadall
@@ -1014,7 +1014,7 @@ EmLoadal2  proc    near
 Not_Loadall:
 	jmp	BadVmTrap		    ;  N: Vector to VM illegal opcode
 
-EmLoadal2  endp
+; ENDP EmLoadal2
 
 ;******************************************************************************
 ;***	EmLoadal3 - Emulate 386 Loadall command
@@ -1027,13 +1027,13 @@ EmLoadal2  endp
 ;
 ;	EXIT	return to VM client
 ;
-EmLoadal3  proc    near
+EmLoadal3:
 
 	test	ES:[PrefixFlag],P0F_FLAG
 	jz	Not_Loadall
 	jmp	EM386ll 		;  Y: emulate 386 loadall
 
-EmLoadal3  endp
+; ENDP EmLoadal3
 
 ;******************************************************************************
 ;   EmCLTS - emulate the CLTS instruction
@@ -1047,7 +1047,7 @@ EmLoadal3  endp
 ;   USED:
 ;   STACK:  n/a
 ;------------------------------------------------------------------------------
-EmCLTS	proc	near
+EmCLTS:
 
 	test	ES:[PrefixFlag],P0F_FLAG
 	jz	Not_CLTS
@@ -1059,7 +1059,7 @@ EmCLTS	proc	near
 Not_CLTS:
 	jmp	BadVmTrap
 
-EmCLTS	endp
+; ENDP EmCLTS
 
 ;******************************************************************************
 ;   EmProtIns - emulate the protection control instructions
@@ -1081,7 +1081,7 @@ EmCLTS	endp
 ;   USED:
 ;   STACK:  n/a
 ;------------------------------------------------------------------------------
-EmProtIns proc	  near
+EmProtIns:
 
 	test	ES:[PrefixFlag],P0F_FLAG
 	jnz	EmPI1
@@ -1093,7 +1093,7 @@ EmPI1:
 	mov	dx, ES:[PrefixFlag]
 	mov	bx,VDMCA_GSEL		; Load CODE (writeable) alias
 	mov	es, bx
-	assume	es:_TEXT
+	; assume	es:_TEXT
 	inc	si			; set si past the opcode
 	mov	bl,[si] 		; BL = modR/M
 	mov	bh, bl			; BH = modR/M
@@ -1128,9 +1128,9 @@ MoveData:
 ;   in our instruction.
 
 	and	bl, 0C7h		; Force AX to be the MOV destination
-	mov	byte ptr es:[LMSWmod],bl
+	mov	byte es:[LMSWmod],bl
 	mov	ax, 09090h
-	mov	word ptr es:[LMSWoff],ax ; initialize offset to NOPS
+	mov	word es:[LMSWoff],ax ; initialize offset to NOPS
 	cmp	bl, 06h 		; special case for DS:d16
 	je	load16off
 	and	bl, 0C0h
@@ -1140,13 +1140,13 @@ MoveData:
 	jne	BldDesc 		; No data offset, so go build desc
 Load16off:
 	mov	ax,[si] 		; AX = 16 bit offset
-	mov	word ptr es:[LMSWoff],ax
+	mov	word es:[LMSWoff],ax
 	add	si, 2
 	mov	[bp.VTFOE+VMTF_EIP],si	; VM CS:IP = DS:SI
 	jmp	short BldDesc
 Load8off:
 	mov	al,[si] 		; AL = 8 bit offset
-	mov	byte ptr es:[LMSWoff],al
+	mov	byte es:[LMSWoff],al
 	inc	si
 	mov	[bp.VTFOE+VMTF_EIP],si	; VM CS:IP = DS:SI
 
@@ -1305,14 +1305,14 @@ ExLMSW:
 
 	pop	bp
 	pop	es
-	assume	es:DGROUP
+	; assume	es:DGROUP
 	pop	ax
 	pop	dx
 	jmp	EmExit			; *** RETURN *** to VM client
 
 ExitPIer:
 	pop	es
-	assume	es:DGROUP
+	; assume	es:DGROUP
 	mov	ax, PrivErr		; privileged error
 	call	ErrHndlr		; If the user want's to continue
 	pop	ax
@@ -1321,7 +1321,7 @@ ExitPIer:
 Not_ProtIns1:
 	jmp	BadVmTrap
 
-EmProtIns endp
+; ENDP EmProtIns
 
 ;******************************************************************************
 ;   EmMovCDTR - emulate the - MOV Rn, C/D/TRn & MOV C/D/TRn, Rn - instructions
@@ -1348,7 +1348,7 @@ EmProtIns endp
 ;   USED:
 ;   STACK:  n/a
 ;------------------------------------------------------------------------------
-EmMovCDTR proc	  near
+EmMovCDTR:
 
 	test	ES:[PrefixFlag],P0F_FLAG
 	jnz	MovCDTR1
@@ -1358,7 +1358,7 @@ MovCDTR1:
 	push	es
 	mov	bx,VDMCA_GSEL		; Load CODE (writeable) alias
 	mov	es, bx
-	assume	es:_TEXT
+	; assume	es:_TEXT
 	mov	bl,[si] 		; BL = opcode
 	mov	es:[CDTRopc], bl
 	inc	si			; set SI past the opcode
@@ -1427,17 +1427,17 @@ CDTRreg db	0C0h
 ExCDTR:
 	cmp	bl, 022h		; Check CRn load
 	jne	FltrDRL3		; N: destination not CRn
-	cmp	byte ptr es:[CDTRmod], 0C0h ; Check for CR0 load
+	cmp	byte es:[CDTRmod], 0C0h ; Check for CR0 load
 	je	CR0FltrL		; Y: filter it
 	mov	bx, ErrMovCR
 	jmp	CTRErr			; N: go tell user he did a NoNo
 FltrDRL3:
-	cmp	byte ptr es:[CDTRmod], 0C3h ; Check for DR0-3 load
+	cmp	byte es:[CDTRmod], 0C3h ; Check for DR0-3 load
 	ja	FltrGDbit		; N: continue
 	call	MapLinear		; Y: convert address to our paging
 	jmp	short ExCDTR1		;  linear map, then continue
 FltrGDbit:
-	cmp	byte ptr es:[CDTRmod], 0C7h ; Check for DR7 load
+	cmp	byte es:[CDTRmod], 0C7h ; Check for DR7 load
 	jne	ExCDTR1 		; N: continue
 	and	ax, 0DFFFh		; Y: don't let client set the GD bit
 	jmp	short ExCDTR1		; continue
@@ -1481,14 +1481,14 @@ CDTRmod db	0C0h
 	je	FltrDRS3		; Y: go filter it
 	jmp	short NotDRS3
 FltrDRS3:
-	cmp	byte ptr es:[CDTRmod], 0C3h ; Check for DR0-3 load
+	cmp	byte es:[CDTRmod], 0C3h ; Check for DR0-3 load
 	ja	NotDRS3 		; N: continue
 	call	UnMapLinear		; Y: convert address from our paging
 					;  linear map, then continue
 NotDRS3:
 	cmp	bl, 020h		; Check CRn store
 	jne	ChkDstBX		; N: source not CRn
-	cmp	byte ptr es:[CDTRmod], 0C0h ; Check for CR0 store
+	cmp	byte es:[CDTRmod], 0C0h ; Check for CR0 store
 	je	CR0FltrS		; Y: filter it
 	mov	bx, ErrMovCR
 	jmp	short CTRErr		; N: go tell user he did a NoNo
@@ -1542,7 +1542,7 @@ regCDTR db	0C0h
 Exit_MovCDTR:
 	pop	bp
 	pop	es
-	assume	es:DGROUP
+	; assume	es:DGROUP
 	POP_EAX
 	jmp	EmExit			; *** RETURN *** to VM client
 CTRErr:
@@ -1550,14 +1550,14 @@ CTRErr:
 	pop	bp
 	sub	[bp.VTFOE+VMTF_EIP],3	; VM CS:IP = faulting instruction
 	pop	es
-	assume	es:DGROUP
+	; assume	es:DGROUP
 	call	ErrHndlr		; If we return here, the user wants to
 	POP_EAX 			; continue in real mode... so go unwind
 	jmp	JumpReal		; the stack and let him continue
 Not_MovCDTR:
 	jmp	BadVmTrap
 
-EmMovCDTR endp
+; ENDP EmMovCDTR
 
 ;******************************************************************************
 ;***	EmLOCK - Emulate LOCK prefix
@@ -1570,7 +1570,7 @@ EmMovCDTR endp
 ;
 ;	EXIT	xfer on to handler for next opcode
 ;
-EmLOCK	proc	near
+EmLOCK:
 
 ;   6/15 - Probably should jump to VmInsHandle rather than EmExit to handle a
 ;   a lock prefix on some other offending instruction.	In that case you would
@@ -1583,7 +1583,7 @@ EmLOCK	proc	near
 	mov	[bp.VTFOE+VMTF_EIP], si 	; instruction we emulate
 	jmp	EmExit				; and leave
 
-EmLOCK	endp
+; ENDP EmLOCK
 
 ;******************************************************************************
 ;***	EmREPNE - handle REPNE prefix
@@ -1597,13 +1597,13 @@ EmLOCK	endp
 ;
 ;	EXIT	IRET back to VM program
 ;
-EmREPNE proc	near
+EmREPNE:
 
 	or	ES:[PrefixFlag],REPNE_FLAG	; set appropriate flag
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
-EmREPNE endp
+; ENDP EmREPNE
 
 ;***	EmREP - handle REP prefix
 ;
@@ -1616,13 +1616,13 @@ EmREPNE endp
 ;
 ;	EXIT	IRET back to VM program
 ;
-EmREP	proc	near
+EmREP:
 
 	or	ES:[PrefixFlag],REP_FLAG	; set appropriate flag
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
-EmREP	endp
+; ENDP EmREP
 
 ;******************************************************************************
 ;***	Prefix_0F - handle 0F overrides
@@ -1646,7 +1646,7 @@ EmREP	endp
 ;***
 P0F_Invalid equ     0FFh    ; OpTable vector offset to BadVmTrap
 
-P0F_OpTabx  label   byte
+P0F_OpTabx:
 	db  00h 	    ; 00h - LLDT, LTR, SLDT, STR, VERR, VERW
 	db  02h 	    ; 01h - LIDT, LGDT, LMSW
 	db  04h 	    ; 02h - LAR
@@ -1689,7 +1689,7 @@ P0F_OpTabx  label   byte
 P0F_OpTabx_Size equ $-P0F_OpTabx
 
 ;***
-Prefix_0F	proc	near
+Prefix_0F:
 	inc	si			    ; inc DS:SI past prefix
 	mov	bl,[si] 		    ; BL = opcode
 	cmp	bl, P0F_OpTabx_Size
@@ -1704,7 +1704,7 @@ Prefix_0F	proc	near
 Bad_0F:
 	jmp	BadVmTrap
 
-Prefix_0F	endp
+; ENDP Prefix_0F
 
 ;******************************************************************************
 ;***	CSOverride - handle CS overrides
@@ -1717,13 +1717,13 @@ Prefix_0F	endp
 ;
 ;	EXIT	xfer on to handler for next opcode
 ;
-CSOverride	proc	near
+CSOverride:
 
 	or	ES:[PrefixFlag],CS_FLAG 	; set appropriate flag
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
-CSOverride	endp
+; ENDP CSOverride
 
 ;******************************************************************************
 ;***	DSOverride - handle DS overrides
@@ -1736,13 +1736,13 @@ CSOverride	endp
 ;
 ;	EXIT	xfer on to handler for next opcode
 ;
-DSOverride	proc	near
+DSOverride:
 
 	or	ES:[PrefixFlag],DS_FLAG 	; set appropriate flag
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
-DSOverride	endp
+; ENDP DSOverride
 
 ;******************************************************************************
 ;***	ESOverride - handle ES overrides
@@ -1756,7 +1756,7 @@ DSOverride	endp
 ;	EXIT	xfer on to handler for next opcode
 ;
 
-ESOverride	proc	near
+ESOverride:
 
 	test	ES:[PrefixFlag],P0F_FLAG	; only for TR emulation
 	jz	ESO1				; only for TR emulation
@@ -1766,7 +1766,7 @@ ESO1:
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
-ESOverride	endp
+; ENDP ESOverride
 
 ;******************************************************************************
 ;***	SSOverride - handle SS overrides
@@ -1780,14 +1780,14 @@ ESOverride	endp
 ;	EXIT	xfer on to handler for next opcode
 ;
 
-SSOverride	proc	near
+SSOverride:
 
 	or	ES:[PrefixFlag],SS_FLAG 	; set appropriate flag
 ;;	inc	[bp.VTFOE+VMTF_EIP]		; inc VM CS:IP past prefix
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
-SSOverride	endp
+; ENDP SSOverride
 
 ;******************************************************************************
 ;***	FSOverride - handle FS overrides
@@ -1801,14 +1801,14 @@ SSOverride	endp
 ;	EXIT	xfer on to handler for next opcode
 ;
 
-FSOverride	proc	near
+FSOverride:
 
 	or	ES:[PrefixFlag],FS_FLAG 	; set appropriate flag
 ;;	inc	[bp.VTFOE+VMTF_EIP]		; inc VM CS:IP past prefix
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
-FSOverride	endp
+; ENDP FSOverride
 
 ;******************************************************************************
 ;***	GSOverride - handle GS overrides
@@ -1822,14 +1822,14 @@ FSOverride	endp
 ;	EXIT	xfer on to handler for next opcode
 ;
 
-GSOverride	proc	near
+GSOverride:
 
 	or	ES:[PrefixFlag],GS_FLAG 	; set appropriate flag
 ;;	inc	[bp.VTFOE+VMTF_EIP]		; inc VM CS:IP past prefix
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
-GSOverride	endp
+; ENDP GSOverride
 
 ;******************************************************************************
 ;***	EmINSB - emulate IN byte string
@@ -1848,7 +1848,7 @@ GSOverride	endp
 ;	USES	ES,BX,DI
 ;
 
-EmINSB	proc	near
+EmINSB:
 ;
 ;;	inc	[bp.VTFOE+VMTF_EIP]	; set IP past the instruction we emulate
 	inc	si			; set IP past the
@@ -1875,7 +1875,7 @@ EmINSB	proc	near
 EINSB_loop:
 	cld					; assume cld
 	mov	bx,DF_FLAG
-	test	bx,word ptr [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
+	test	bx,word [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
 	jz	EINSB_rep			;  Y: go ahead
 	std					;  N: set it
 EINSB_rep:
@@ -1884,7 +1884,7 @@ EINSB_rep:
 EINSB_Exit:			;
 	jmp	EmExit		; *** RETURN *** to VM client
 ;
-EmINSB	endp
+; ENDP EmINSB
 
 
 ;******************************************************************************
@@ -1904,7 +1904,7 @@ EmINSB	endp
 ;	USES	ES,BX,DI
 ;
 
-EmINSW	proc	near
+EmINSW:
 ;
 ;;	inc	[bp.VTFOE+VMTF_EIP]	; set IP past the instruction we emulate
 	inc	si			; set IP past the
@@ -1932,7 +1932,7 @@ EmINSW	proc	near
 EINSW_loop:
 	cld					; assume cld
 	mov	bx,DF_FLAG
-	test	bx,word ptr [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
+	test	bx,word [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
 	jz	EINSW_rep			;  Y: go ahead
 	std					;  N: set it
 EINSW_rep:
@@ -1941,7 +1941,7 @@ EINSW_rep:
 EINSW_Exit:			;
 	jmp	EmExit		; *** RETURN *** to VM client
 ;
-EmINSW	endp
+; ENDP EmINSW
 
 
 ;******************************************************************************
@@ -1961,7 +1961,7 @@ EmINSW	endp
 ;	USES	DS,BX,SI
 ;
 
-EmOUTSB proc	near
+EmOUTSB:
 ;
 ;;	inc	[bp.VTFOE+VMTF_EIP]	; set IP past the instruction we emulate
 	inc	si			; set IP past the
@@ -1993,7 +1993,7 @@ EmOUTSB proc	near
 EOUTSB_loop:
 	cld					; assume cld
 	mov	bx,DF_FLAG
-	test	bx,word ptr [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
+	test	bx,word [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
 	jz	EOUTSB_rep			;  Y: go ahead
 	std					;  N: set it
 EOUTSB_rep:
@@ -2002,7 +2002,7 @@ EOUTSB_rep:
 EOUTSB_Exit:			;
 	jmp	EmExit		; *** RETURN *** to VM client
 ;
-EmOUTSB endp
+; ENDP EmOUTSB
 
 
 ;******************************************************************************
@@ -2022,7 +2022,7 @@ EmOUTSB endp
 ;	USES	DS,BX,SI
 ;
 
-EmOUTSW proc	near
+EmOUTSW:
 ;
 ;;	inc	[bp.VTFOE+VMTF_EIP]	; set IP past the instruction we emulate
 	inc	si			; set IP past the
@@ -2055,7 +2055,7 @@ EmOUTSW proc	near
 EOUTSW_loop:
 	cld					; assume cld
 	mov	bx,DF_FLAG
-	test	bx,word ptr [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
+	test	bx,word [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
 	jz	EOUTSW_rep			;  Y: go ahead
 	std					;  N: set it
 EOUTSW_rep:
@@ -2064,7 +2064,7 @@ EOUTSW_rep:
 EOUTSW_Exit:			;
 	jmp	EmExit		; *** RETURN *** to VM client
 ;
-EmOUTSW endp
+; ENDP EmOUTSW
 
 ;******************************************************************************
 ;***	EmMOVSW - emulate MOV word string
@@ -2086,7 +2086,7 @@ EmOUTSW endp
 ;
 ;	USES	DS,BX,SI
 ;
-EmMOVSW proc	near
+EmMOVSW:
 	mov	bx, sp
 	cmp	di, 0FFFFh		    ; Q:Does either Di
 	je	EmWRASH
@@ -2127,9 +2127,9 @@ EMWCXok2:
 EMW_Exit:
 	jmp	EmExit		; *** RETURN *** to VM client
 ;
-EmMOVSW endp
+; ENDP EmMOVSW
 
-_TEXT	 ends
+; END SECTION ._TEXT
 
-	end
+	; end
 

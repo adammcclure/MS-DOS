@@ -2,16 +2,16 @@
 ;   WRITE ROUTINE FOR DESIGNATE WRITE
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IF1                                            ;
-        %OUT .               ®WRITE   .INC¯
-ENDIF                                          ;
-        PUBLIC  REDUCED_SUPPORT                ;
+%if 1  ; IF1 - pass-specific;
+        %warning .               Â®WRITE   .INCÂ¯
+%endif;
+        global REDUCED_SUPPORT;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       WRITE DESIGNATE SUPPORT
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DESG_WRITE      PROC                    ;
+DESG_WRITE:;
         CMP     CS:DESG_SEMAPHORE,ZERO  ; TEST IF DESIGNATE IS ON...
         JNE     DW_2                    ; PASS ONTO DOS
         CLC                             ;
@@ -23,7 +23,7 @@ DW_2:   CMP     CS:DESG_SEMAPHORE,ONE   ; CHECK IF PROPER DESIGNATE
         RET                             ;
 DW_4:   CALL    WRITE                   ;
         RET                             ;
-DESG_WRITE   ENDP                       ;
+; ENDP DESG_WRITE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
@@ -31,7 +31,7 @@ DESG_WRITE   ENDP                       ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 REDUCED_SUPPORT EQU     $               ; THIS IS A MARKER FOR REDUCED CPS
                                         ; SUPPORT WITH 0 DESGINATES (CGA,MONO)
-WRITE   PROC                            ;
+WRITE:;
         PUSH    DS                      ;
                                         ;
         PUSH    CS                      ;
@@ -43,13 +43,13 @@ WRITE   PROC                            ;
         MOV     OLD_STACK_O,SI        ;S;
         MOV     SI,SS                 ;S;
         MOV     OLD_STACK_S,SI        ;S;
-        MOV     AX,OFFSET STACK_START ;S;
+        MOV     AX,STACK_START ;S;
         MOV     SI,CS                 ;S;
         MOV     SS,SI                 ;S;
         MOV     SP,AX                 ;S;
         STI                           ;S;
                                         ;
-        LES     DI,DWORD PTR BUF.RH_PTRO; RESTORE ES:DI AS REQUEST HEADER PTR
+        LES     DI,dword BUF.RH_PTRO; RESTORE ES:DI AS REQUEST HEADER PTR
         LEA     SI,FTABLE               ; GET BASE ADDRESS OF PARSER TABLE
                                         ;
         MOV     DS:[SI].FLAG,0          ; NO RESTART
@@ -106,7 +106,7 @@ W_7:    CLI                           ;S;
         POP     DS                      ;
         STC                             ; INDICATE NOT TO PASS ON DATA
         RET                             ;
-WRITE   ENDP                            ;
+; ENDP WRITE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       THIS IS USED TO SET THE CPS DRIVER IN THE CASE OF A
@@ -115,7 +115,7 @@ WRITE   ENDP                            ;
 ;       THEN IT TOO BECOMES INVALID.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-HANDLE_WRITE_ERROR      PROC            ;
+HANDLE_WRITE_ERROR:;
         PUSH    DS                      ;
         PUSH    AX                      ;
         PUSH    CX                      ;
@@ -142,7 +142,7 @@ HWE_2:  POP     SI                      ;
         POP     AX                      ;
         POP     DS                      ;
         RET                             ;
-HANDLE_WRITE_ERROR      ENDP            ;
+; ENDP HANDLE_WRITE_ERROR;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       THIS SUBROUTINE TAKES THE DATA INFORMATION ISOLATED
@@ -157,12 +157,12 @@ HANDLE_WRITE_ERROR      ENDP            ;
 ;               DS:SI = POINTER TO 'FTBLK'
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-NUM_DATA_FONTS  DW      ?               ;
-TABLE_INDEX     DW      ?               ;
-LEN_DATA        DW      ?               ;
-INDEX_WRITE_PNTER DW    ?               ;
+NUM_DATA_FONTS: dw 0;
+TABLE_INDEX: dw 0;
+LEN_DATA: dw 0;
+INDEX_WRITE_PNTER: dw 0;
                                         ;
-HANDLE_DATA_WRITE       PROC            ;
+HANDLE_DATA_WRITE:;
         PUSH    AX                      ;
         PUSH    BX                      ;
         PUSH    CX                      ;
@@ -352,7 +352,7 @@ HDW_8:  POP     ES                      ;
         POP     BX                      ;
         POP     AX                      ;
         RET                             ;
-HANDLE_DATA_WRITE       ENDP            ;
+; ENDP HANDLE_DATA_WRITE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       SET_CPD_FONT_DATA
@@ -361,13 +361,13 @@ HANDLE_DATA_WRITE       ENDP            ;
 ;       CONTAINED IN 'AX'.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SET_CPD_FONT_DATA       PROC            ;
+SET_CPD_FONT_DATA:;
         PUSH    SI                      ;
         MOV     SI,CS:TABLE_INDEX       ;
         ADD     SI,SI                   ;
         MOV     CS:CPD_FONT_DATA.[SI],AX;
         POP     SI                      ;
         RET                             ;
-SET_CPD_FONT_DATA       ENDP            ;
+; ENDP SET_CPD_FONT_DATA;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

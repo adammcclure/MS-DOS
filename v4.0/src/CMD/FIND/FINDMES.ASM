@@ -1,19 +1,19 @@
-      title   FIND Messages
+      ; title   FIND Messages
 
-Message macro	sym,text
-public	sym,sym&_len
+%macro Message 2
+global sym,sym&_len
 sym	db  text
 sym&_len db  $-sym
-endm
+%endmacro
 
 CR	equ	0dh			;A Carriage Return
 LF	equ	0ah			;A Line Feed
 
-code	segment public
+SECTION .code
 
-	PUBLIC	heading
+	global heading
 	message heading,<CR,LF,"---------- ">
 
-code	ends
-	end
+; END SECTION .code
+	; end
 

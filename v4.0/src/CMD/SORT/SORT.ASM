@@ -1,5 +1,5 @@
-TITLE   SORT FILTER FOR DOS
-        PAGE    ,132                    ;
+; TITLE   SORT FILTER FOR DOS
+        ; PAGE    ,132;
 ;**********************************************************
 ;*
 ;*   UTILITY NAME:         sort
@@ -64,40 +64,40 @@ TITLE   SORT FILTER FOR DOS
 ;*                      Ran tool INSPECT on .lst file for optimizations
 ;**********************************************************
 
-        PAGE   ;
+        ; PAGE;
 ;-------------------------
 ;---    Macro definitions
 ;-------------------------
-BREAK   MACRO   subtitle
-        SUBTTL  subtitle
-        PAGE
-ENDM
+%macro BREAK 1
+        ; SUBTTL  subtitle
+        ; PAGE
+%endmacro
 
 
 
-sys     MACRO   name            ;system call macro
+%macro sys 1;system call macro
         MOV     AH,name
         INT     21h
-        ENDM
+        %endmacro
 
 
 
-save    MACRO   reglist         ;push those registers
-IRP reg,<reglist>
+%macro save 1;push those registers
+; IRP reg,<reglist>
         PUSH    reg
-ENDM
-ENDM
+%endmacro
+%endmacro
 
 
 
-restore MACRO   reglist         ;pop those registers
-IRP reg,<reglist>
+%macro restore 1;pop those registers
+; IRP reg,<reglist>
         POP     reg
-ENDM
-ENDM
+%endmacro
+%endmacro
 
 
-        PAGE   ;
+        ; PAGE;
 ;-------------------------------
 ;---    Equates
 ;-------------------------------
@@ -155,49 +155,49 @@ Msg_switch      equ     3               ;AN003;
 EAISBINARY            equ     02h        ;AN001;  ea_type
 EASYSTEM              equ     8000h      ;AN001;  ea_flags
 
-        PAGE   ;
+        ; PAGE;
 ;---------------------;
-.xlist                ;
-.xcref                ;
-INCLUDE syscall.inc   ;
-INCLUDE sysmsg.inc    ;                 ;AN000; Include message equates and MACROS
-.cref                 ;
-.list                 ;
+; .xlist;
+; .xcref;
+%include "syscall.inc";
+%include "sysmsg.inc";                 ;AN000; Include message equates and MACROS
+; .cref;
+; .list;
 ;---------------------;
 
 MSG_UTILNAME <SORT>                     ;AN000;
 
-SUBTTL  Segments used in load order
+; SUBTTL  Segments used in load order
 
 
-CODE    SEGMENT
-CODE    ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST   SEGMENT PUBLIC BYTE
-CONST   ENDS
+SECTION .CONST
+; END SECTION .CONST
 
 
 ;-----------------------
 ;---    Stack Segment
 ;-----------------------
-CSTACK  SEGMENT STACK
-        db 128 DUP (0)          ;initial stack to be clear
+SECTION .CSTACK
+        times 128 db 0;initial stack to be clear
 
-CSTACK  ENDS
+; END SECTION .CSTACK
 
 
 
 ;-------------------------------
 ;---    Group
 ;-------------------------------
-DG      GROUP   CODE,CONST,CSTACK
+; DG      GROUP   CODE,CONST,CSTACK
 
 
 ;-------------------------------
 ;---    Code Segment
 ;-------------------------------
-CODE    SEGMENT
-ASSUME  CS:DG,DS:DG,ES:NOTHING,SS:CSTACK
+SECTION .CODE
+; ASSUME  CS:DG,DS:DG,ES:NOTHING,SS:CSTACK
 
 ;-------------------------------
 ;---    Data Definition
@@ -206,44 +206,44 @@ COLUMN          dw      0               ;COLUMN TO USE FOR KEY + 1
 cp_reset        db      FALSE           ;AN000;Flag indicating if Code Page was reset on target file
 
 ;------------------------------------------DOS 3.30 - Russ Whitehead
-CTRY_INFO       db      ?
-CTRY_TABLE_OFF  dw      ?
-CTRY_TABLE_SEG  dw      ?
+CTRY_INFO: db 0
+CTRY_TABLE_OFF: dw 0
+CTRY_TABLE_SEG: dw 0
 ;------------------------------------------
 
 MSG_SERVICES <MSGDATA>                  ;AN000;
-ASSUME   ds:nothing
+; ASSUME   ds:nothing
 
 ;----------------------------------------
 ;- STRUCTURE TO QUERY EXTENDED ATTRIBUTES
 ;----------------------------------------
-querylist      struc                    ;AN001; ;query general list
+struc querylist;AN001; ;query general list
 qea_num        dw      1                ;AN001;
 qea_type       db      EAISBINARY       ;AN001;
 qea_flags      dw      EASYSTEM         ;AN001;
-qea_namelen    db      ?                ;AN001;
+qea_namelen: db 0;AN001;
 qea_name       db      "        "       ;AN001;
-querylist      ends                     ;AN001;
+endstruc;AN001;
 
 cp_qlist       querylist <1,EAISBINARY,EASYSTEM,2,"CP">   ;AN001; ;query code page attr.
 
-cp_list        label   word             ;AN001; ;code page attr. get/set list
+cp_list:;AN001; ;code page attr. get/set list
                dw      1                ;AN001; ; # of list entries
                db      EAISBINARY       ;AN001; ; ea type
                dw      EASYSTEM         ;AN001; ; ea flags
-               db      ?                ;AN001; ; ea return code
+               db 0;AN001; ; ea return code
                db      2                ;AN001; ; ea name length
                dw      2                ;AN001; ; ea value length
                db      "CP"             ;AN001; ; ea name
-cp             dw      ?                ;AN001; ; ea value (code page)
+cp: dw 0;AN001; ; ea value (code page)
 cp_len         equ     ($ - cp_list)    ;AN001;
 
 ;-------Save area for Code Pages
-src_cp         dw      ?                ;AN000; Save area for current code page
-tgt_cp         dw      ?                ;AN000; Save area for current code page
-endlist label  word                     ;AN000;
+src_cp: dw 0;AN000; Save area for current code page
+tgt_cp: dw 0;AN000; Save area for current code page
+endlist:;AN000;
 
-        PAGE   ;
+        ; PAGE;
 ;******************************************************************************
 ;*                                               PARSER DATA STRUCTURES FOLLOW
 ;******************************************************************************
@@ -251,7 +251,7 @@ endlist label  word                     ;AN000;
 ;------------------------------
 ;- STRUCTURE TO DEFINE ADDITIONAL COMMAND LINE DELIMITERS
 ;------------------------------
-parms   label   word                    ;AN000;
+parms:;AN000;
         dw      parmsx                  ;AN000; POINTER TO PARMS STRUCTURE
         db      1                       ;AN000; DELIMITER LIST FOLLOWS
         db      1                       ;AN000; NUMBER OF ADDITIONAL DELIMITERS
@@ -260,7 +260,7 @@ parms   label   word                    ;AN000;
 ;------------------------------
 ;- STRUCTURE TO DEFINE SORT SYNTAX REQUIREMENTS
 ;------------------------------
-parmsx  label   word                    ;AN000;
+parmsx:;AN000;
         db      0,0                     ;AN000; THERE ARE NO POSITIONAL PARAMETERS
         db      2                       ;AN000; THERE ARE 2 SWITCHES (/R AND /+n)
         dw      sw1                     ;AN000; POINTER TO FIRST SWITCH DEFINITION AREA
@@ -270,7 +270,7 @@ parmsx  label   word                    ;AN000;
 ;------------------------------
 ;- STRUCTURE TO DEFINE THE /R SWITCH
 ;------------------------------
-sw1     label   word                    ;AN000;
+sw1:;AN000;
         dw      0                       ;AN000; NO MATCH FLAGS
         dw      0                       ;AN000; NO FUNCTION FLAGS
         dw      switchbuff              ;AN000; PLACE RESULT IN switchbufF
@@ -284,7 +284,7 @@ rev_sw  db      "/R",0                  ;AN000; /R INDICATES REVERSE SORT
 NUMERIC equ     08000h                  ;AN000; Control flag for numeric value
 NO_COLON equ    0020h                   ;AN000;
 
-sw2     label   word                    ;AN000;
+sw2:;AN000;
         dw      NUMERIC                 ;AN000; MATCH_FLAGS
         dw      NO_COLON                ;AN000; NO FUNCTION FLAGS
         dw      switchbuff              ;AN000; PLACE RESULT IN switchbufF
@@ -295,13 +295,13 @@ col_sw  db      "/+",0                  ;AN000; /+n INDICATES BEGIN SORT IN COLU
 ;------------------------------
 ;- VALUE LIST DEFINITION FOR NO VALUES
 ;------------------------------
-novals  label   word                    ;AN000;
+novals:;AN000;
         DB      0                       ;AN000;  VALUE LIST
 
 ;------------------------------
 ;- VALUE LIST DEFINITION FOR /+n
 ;------------------------------
-valuelist       label   word            ;AN000;
+valuelist:;AN000;
                 db      1               ;AN000; ONE VALUE ALLOWED
                 db      1               ;AN000; ONLY ONE RANGE
                 db      1               ;AN000; IDENTIFY THE RANGE
@@ -310,15 +310,15 @@ valuelist       label   word            ;AN000;
 ;------------------------------
 ;- RETURN BUFFER FOR SWITCH INFORMATION
 ;------------------------------
-switchbuff      label   word            ;AN000;
-sb_type         db      ?               ;AN000; TYPE RETURNED
-sb_item_tag     db      ?               ;AN000; SPACE FOR ITEM TAG
-sb_synonym      dw      ?               ;AN000; ES:sb_synonym points to synonym
+switchbuff:;AN000;
+sb_type: db 0;AN000; TYPE RETURNED
+sb_item_tag: db 0;AN000; SPACE FOR ITEM TAG
+sb_synonym: dw 0;AN000; ES:sb_synonym points to synonym
 
-sb_value        dw      ?               ;AN000; SPACE FOR VALUE
-sb_value_extra  dw      ?               ;AN000; UNUSED SPACE FOR VALUE
+sb_value: dw 0;AN000; SPACE FOR VALUE
+sb_value_extra: dw 0;AN000; UNUSED SPACE FOR VALUE
 
-        PAGE   ;
+        ; PAGE;
 ;**************************************************************
 ;*
 ;*   SUBROUTINE NAME:      main
@@ -417,14 +417,14 @@ GOT_MEM:
         mov     cx,5                    ;Number of bytes to be returned
         push    cs                      ;Place code segment
         pop     es                      ;in ES
-        mov     di,offset ctry_info     ;Return area for 5 byte requested information
+        mov     di,ctry_info     ;Return area for 5 byte requested information
         sys     GetExtCntry             ;Get extended country information
                                         ;Ok, now copy the table in DOS to our segment
-        lds     si,dword ptr cs:ctry_table_off
+        lds     si,dword cs:ctry_table_off
         mov     di,seg dg
         mov     es,di
-        mov     di,offset dg:table
-        mov     cx,word ptr [si]
+        mov     di,table
+        mov     cx,word [si]
         add     si,2
         mov     ax,256
         sub     ax,cx
@@ -489,15 +489,15 @@ SIZOK:
 NoBack:
         SUB     BX,CX                   ;sub from endpointer the number left
         SUB     BX,2                    ;Hope for a CR LF at end
-        CMP     WORD PTR [BX],0A0Dh     ;Was there one there?
+        CMP     word [BX],0A0Dh     ;Was there one there?
         JZ      GOTEND                  ;yep, here is the end
         ADD     BX,2                    ;nope, bump back to SCASB spot
-        CMP     BYTE PTR [BX],AL        ;Was there ^Z there?
+        CMP     byte [BX],AL        ;Was there ^Z there?
         JZ      GOTEND                  ;yep, chop it
         INC     BX                      ;Nope, skip last char
 GOTEND:
         MOV     BP,BX                   ;BP = filesize-2(CRLF)+temp buffer+2
-        MOV     WORD PTR DS:[BP],0      ;0 at end of the file
+        MOV     word DS:[BP],0      ;0 at end of the file
 
 ;---------------------------
 ;  We now turn the entire buffer into a linked list of chains by
@@ -513,7 +513,7 @@ REPLACE_LOOP:
 REPLACE_SCAN:
         REPNZ   SCASB                   ;look for CR
         JNZ     REPLACE_SKIP            ;count exhausted
-        CMP     BYTE PTR [DI],10        ;LF there?
+        CMP     byte [DI],10        ;LF there?
         JNZ     REPLACE_SCAN            ;nope, continue scanning
 REPLACE_SKIP:
         MOV     AX,DI                   ;AX to point after CR
@@ -527,7 +527,7 @@ REPLACE_SKIP:
         JMP     REPLACE_LOOP            ;look for next
 
 END_REPLACE_LOOP:
-        MOV     WORD PTR [BX],0         ;terminate file with nul
+        MOV     word [BX],0         ;terminate file with nul
         LEA     BP,[BX+2]               ;remember the null line at end
         MOV     DI,BUFFER               ;DI is start of unsorted section
 
@@ -537,7 +537,7 @@ END_REPLACE_LOOP:
 OUTER_SORT_LOOP:
         MOV     BX,DI                   ;BX is start of unsorted section
         MOV     SI,BX                   ;SI is scanning place link
-        CMP     WORD PTR [BX],0         ;are we at the end of the buffer?
+        CMP     word [BX],0         ;are we at the end of the buffer?
         JNZ     INNER_SORT_LOOP         ;No, do inner process
         JMP     END_OUTER_SORT_LOOP     ;yes, go dump out
 
@@ -572,13 +572,13 @@ SMALL:
         ADD     SI,COLUMN               ;offset into other record
         push    bx
         push    ax
-        mov     bx,offset dg:table
+        mov     bx,table
 tloop:  lodsb
-        xlat    byte ptr cs:[bx]
+        xlat    byte cs:[bx]
         mov     ah,al
         mov     al,es:[di]
         inc     di
-        xlat    byte ptr cs:[bx]
+        xlat    byte cs:[bx]
         cmp     ah,al
         loopz   tloop
         pop     ax
@@ -591,7 +591,7 @@ TESTED_NOT_EQUAL:
 ;---------------------------
 ; NOTE! jae is patched to a jbe if file is to be sorted in reverse!
 ;---------------------------
-CODE_PATCH label byte
+CODE_PATCH:
         JAE     INNER_SORT_LOOP         ;if this one wasn't better then go again
         MOV     BX,SI                   ;it was better, save header
         JMP     INNER_SORT_LOOP         ;and scan again
@@ -641,7 +641,7 @@ END_INNER_SORT_LOOP:
         ADD     SI,DX                   ;offset of block
         REP     MOVSW                   ;blam, squeeze out the space
         restore <DI>                    ;get back original destination
-        MOV     WORD PTR DS:[BP-2],0    ;remake the end of file mark
+        MOV     word DS:[BP-2],0    ;remake the end of file mark
 
 END_INSERT:
         ADD     DI,[DI]                 ;link to next guy
@@ -656,7 +656,7 @@ END_OUTER_SORT_LOOP:
 INSERT_LOOP:
         ADD     DI,CX                   ;point to next length
         MOV     CX,[DI]                 ;get length
-        MOV     WORD PTR [DI],0A0DH     ;replace length with CRLF
+        MOV     word [DI],0A0DH     ;replace length with CRLF
         AND     CX,CX                   ;AN004; ;check for end of file
         JNZ     INSERT_LOOP             ;nope, try again
 
@@ -680,7 +680,7 @@ WRTOK:
         MOV     AL,RETCODE_NOERROR      ;AN000; Errorlevel 0 (No error!)
         sys     EXIT                    ;bye!
 
-        PAGE   ;
+        ; PAGE;
 ;************************************************************
 ;*
 ;*   SUBROUTINE NAME:      display_msg
@@ -712,7 +712,7 @@ WRTOK:
 ;*
 ;************************************************************
 
-display_msg     proc    near            ;AN000;
+display_msg:;AN000;
         push    ds                      ;AN000; save DS value
         push    cs                      ;AN000; get DS addressability
         pop     ds                      ;AN000;
@@ -730,9 +730,9 @@ display_msg     proc    near            ;AN000;
 
         pop     ds                      ;AN000;  restore DS
         ret                             ;AN000;
-display_msg     ENDP                    ;AN000;
+; ENDP display_msg;AN000;
 
-        PAGE   ;
+        ; PAGE;
 ;************************************************************
 ;*
 ;*   SUBROUTINE NAME:      parse
@@ -768,13 +768,13 @@ display_msg     ENDP                    ;AN000;
 ;*
 ;************************************************************
 
-parse   proc    near                    ;AN000;
+parse:;AN000;
 
         sys     GetCurrentPSP           ;AN000; Get PSP address, returned in BX
 
         mov     ds,bx                   ;AN000; Put PSP Seg in DS
         mov     si,081h                 ;AN000; Offset of command line in PSP
-        cmp     byte ptr ds:080h,0      ;AN000; Check length of command line
+        cmp     byte ds:080h,0      ;AN000; Check length of command line
         je      end_parse               ;AN000; If 0 len, the we are done parsing
         xor     cx,cx                   ;AN000; Number of parms processed so far = 0
         push    cs                      ;AN000; Put CS
@@ -783,7 +783,7 @@ parse   proc    near                    ;AN000;
 ;- Loop for each operand at DS:SI (Initially PSP + 081h)
 ;---------------------------------
 parse_loop:                             ;AN000;
-        mov     di,offset parms         ;AN000; Address of parse control block
+        mov     di,parms         ;AN000; Address of parse control block
         xor     dx,dx                   ;AN000; Reserved
         call    sysparse                ;AN000; Parse parm at DS:SI
         cmp     ax,EOL                  ;AN000; Q: Are we at end of command line?
@@ -794,7 +794,7 @@ parse_loop:                             ;AN000;
 ;----------------------------------
 ;- If user said /R, then patch code
 ;----------------------------------
-        cmp     bx,offset rev_sw        ;AN000; If user specified /R
+        cmp     bx,rev_sw        ;AN000; If user specified /R
         jne     check_column            ;AN000;
         mov     cs:code_patch,072h      ;AN000; Sleazy patch to make reverse order sort
         jmp     parse_loop              ;AN000; Look for another parm
@@ -803,7 +803,7 @@ parse_loop:                             ;AN000;
 ;- If user said /+n, then save COLUMN index
 ;---------------------------------------------
 check_column:                           ;AN000;
-        cmp     bx,offset col_sw        ;AN000; Q: Did user specified /+n ?
+        cmp     bx,col_sw        ;AN000; Q: Did user specified /+n ?
         jne     switch_error            ;AC003;  No:  Unrecognized parm
         mov     ax,sb_value             ;AN000;  Yes: Get number entered by user
         mov     column,ax               ;AN000;       Set up column to begin sort
@@ -820,9 +820,9 @@ parse_error:                            ;AN000;
 
 end_parse:                              ;AN000;
         ret                             ;AN000;
-parse   endp                            ;AN000;
+; ENDP parse;AN000;
 
-        PAGE   ;
+        ; PAGE;
 ;************************************************************
 ;*
 ;*   SUBROUTINE NAME:   error_exit
@@ -840,7 +840,7 @@ parse   endp                            ;AN000;
 ;*      INT 021h - Terminate Function 043h
 ;*
 ;************************************************************
-error_exit      proc    near            ;AN000;
+error_exit:;AN000;
         call    prt_sort                ;AN003;
         mov     bx,STDERR               ;AN000; output to standard error
         xor     cx,cx                   ;AN004; ;AN003;
@@ -848,7 +848,7 @@ error_exit      proc    near            ;AN000;
         mov     al,RETCODE_ERROR        ;AN000; return an error code (errorlevel)
         sys     EXIT                    ;AN000;
         ret                             ;AN000;  Meaningless RET
-error_exit      endp                    ;AN000;
+; ENDP error_exit;AN000;
 
 
 ;************************************************************
@@ -872,7 +872,7 @@ error_exit      endp                    ;AN000;
 ;*
 ;************************************************************
 
-match_codepages proc    near            ;AN000;
+match_codepages:;AN000;
 
 ;-----------------------------------
 ; Check status of Code page support
@@ -893,8 +893,8 @@ match_codepages proc    near            ;AN000;
 ;-----------------------------------
         mov     ax,GetExtAttr           ;AN000; Get Extended Attributes by Handle
         mov     bx,STDOUT               ;AN000; For Standard output device
-        mov     di,offset cp_list       ;AC001; Return buffer address
-        mov     si,offset cp_qlist      ;AN001; Query the code page attribute
+        mov     di,cp_list       ;AC001; Return buffer address
+        mov     si,cp_qlist      ;AN001; Query the code page attribute
         mov     cx,cp_len               ;AN001; return buffer length
         int     021h                    ;AN000;
         jc      done_cpsw               ;AN000; Error condition, let system handle
@@ -903,8 +903,8 @@ match_codepages proc    near            ;AN000;
 
         mov     ax,GetExtAttr           ;AN000; Get Extended Attributes by Handle
         xor     bx,bx                   ;AN004; ;AN000; bx = STDIN (0)  For Standard input device
-        mov     di,offset cp_list       ;AC001; Return buffer address
-        mov     si,offset cp_qlist      ;AN001; Query the code page attribute
+        mov     di,cp_list       ;AC001; Return buffer address
+        mov     si,cp_qlist      ;AN001; Query the code page attribute
         mov     cx,cp_len               ;AN001; return buffer length
         int     021h                    ;AN000;
         jc      done_cpsw               ;AN000; Error condition, let system handle
@@ -922,16 +922,16 @@ match_codepages proc    near            ;AN000;
         mov     cp_reset,TRUE           ;AN000; Set flag indicating change
         mov     ax,SetExtAttr           ;AN000; Set Extended Attributes by Handle
         mov     bx,STDOUT               ;AN000; For Standard output device
-        mov     di,offset cp_list       ;AC001; Input buffer address
+        mov     di,cp_list       ;AC001; Input buffer address
         int     021h                    ;AN000;
 
 done_cpsw:                              ;AN000;
         pop     ds                      ;AN001; Restore DS register
         pop     es                      ;AN000; Restore ES register
         ret                             ;AN000;
-match_codepages endp                    ;AN000;
+; ENDP match_codepages;AN000;
 
-        PAGE   ;
+        ; PAGE;
 ;************************************************************
 ;*
 ;*   SUBROUTINE NAME:   prt_sort
@@ -944,7 +944,7 @@ match_codepages endp                    ;AN000;
 ;*   EXTERNAL REFERENCES:
 ;*         none
 ;************************************************************
-prt_sort proc near                      ;AN003;
+prt_sort:;AN003;
         push    ax                      ;AN003;
         push    dx                      ;AN003;
 ;
@@ -958,20 +958,20 @@ prt_sort proc near                      ;AN003;
         pop     ax                      ;AN003;
 ;
         ret                             ;AN003;
-prt_sort endp                           ;AN003;
+; ENDP prt_sort;AN003;
 
 
-        PAGE   ;
+        ; PAGE;
 ;--------------------
-.xlist
-.xcref
-INCLUDE parse.asm
-include msgdcl.inc
-.cref
-.list
+; .xlist
+; .xcref
+%include "parse.asm"
+%include "msgdcl.inc"
+; .cref
+; .list
 ;--------------------
 
-CODE    ENDS
+; END SECTION .CODE
 
 
 
@@ -979,22 +979,22 @@ CODE    ENDS
 
 
 
-CONST   SEGMENT PUBLIC BYTE
+SECTION .CONST
 
-        extrn   table:byte
+        extern table
 
-CONST   ENDS
-
-
+; END SECTION .CONST
 
 
-SUBTTL  Initialized Data
+
+
+; SUBTTL  Initialized Data
 ;-------------------------------
 ;---    Stack Segment
 ;-------------------------------
-CSTACK   SEGMENT STACK
-         db      (362 - 80h) + 96 dup (0) ;(362 - 80h) == New - Old IBM
+SECTION .CSTACK
+         db      (362 - 80h) + times 96 db 0 ;(362 - 80h) == New - Old IBM
                                           ;interrupt reqs. == size of growth
-CSTACK   ENDS
+; END SECTION .CSTACK
 
-        END     SORT
+        ; END     SORT

@@ -1,9 +1,9 @@
-	page	60,132			;
+	; page	60,132;
 
-	.xlist
-	include DOSSYM.INC
-	include EDLSTDSW.INC
-	.list
+	; .xlist
+	%include "DOSSYM.INC"
+	%include "EDLSTDSW.INC"
+	; .list
 
 ;======================= START OF SPECIFICATIONS =========================
 ;
@@ -134,23 +134,23 @@ sw_missing equ	03h			;an000;not a valid switch
 
 ;======== Strucs =========================================================
 
-Display_Buffer_Struc Struc		;an000;dms;
+struc Display_Buffer_Struc;an000;dms;
 
-	Display_Info_Level db	   ?	;an000;dms;
-	Display_Reserved db	 ?	;an000;dms;
-	Display_Buffer_Size dw	    ?	;an000;dms;
-	Display_Flags dw      ? 	;an000;dms;
-	Display_Mode db      ?		;an000;dms;
+	Display_Info_Level: db 0;an000;dms;
+	Display_Reserved: db 0;an000;dms;
+	Display_Buffer_Size: dw 0;an000;dms;
+	Display_Flags: dw 0;an000;dms;
+	Display_Mode: db 0;an000;dms;
 					;  TEXT=01
 					;  APA =02
-	Display_Mode_Reserved db      ? ;an000;dms;
-	Display_Colors dw      ?	;an000;dms;# of colors
-	Display_Width_Pixels dw      ?	;an000;dms;# of pixels in width
-	Display_Length_Pixels dw      ? ;an000;dms;# of pixels in len.
-	Display_Width_Char dw	   ?	;an000;dms;# of chars in width
-	Display_Length_Char dw	    ?	;an000;dms;# of chars in length
+	Display_Mode_Reserved: db 0;an000;dms;
+	Display_Colors: dw 0;an000;dms;# of colors
+	Display_Width_Pixels: dw 0;an000;dms;# of pixels in width
+	Display_Length_Pixels: dw 0;an000;dms;# of pixels in len.
+	Display_Width_Char: dw 0;an000;dms;# of chars in width
+	Display_Length_Char: dw 0;an000;dms;# of chars in length
 
-Display_Buffer_Struc ends		;an000;dms;
+endstruc;an000;dms;
 
 
 

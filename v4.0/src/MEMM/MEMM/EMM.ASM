@@ -1,8 +1,8 @@
 
 
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	title	EMM - Expanded Memory Manager interface for MEMM
+	; title	EMM - Expanded Memory Manager interface for MEMM
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -51,30 +51,30 @@
 ;   INT 67H).
 ;
 ;******************************************************************************
-.lfcond
-.386p
-	page
+; .lfcond
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	EMM_pEntry		; protected mode entry point
-	public	EMM_rEntry		; real mode entry point
-	public	EMM_rEfix		; label for far jump to int67_entry
-	public	_AutoUpdate		; update auto mode of VDM/EMM
-	public	EMM_Flag		; flag for EMM calls
+	global EMM_pEntry; protected mode entry point
+	global EMM_rEntry; real mode entry point
+	global EMM_rEfix; label for far jump to int67_entry
+	global _AutoUpdate; update auto mode of VDM/EMM
+	global EMM_Flag; flag for EMM calls
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include vdmseg.inc
-	include vdmsel.inc
-	include vm386.inc
+	%include "vdmseg.inc"
+	%include "vdmsel.inc"
+	%include "vm386.inc"
 ;	include instr386.inc
-	include oemdep.inc
-	include emmdef.inc
+	%include "oemdep.inc"
+	%include "emmdef.inc"
 
 FALSE	equ	0
 TRUE	equ	not FALSE
@@ -98,76 +98,76 @@ EMM_HW_MALFUNCTION	equ	81h	;
 ;			E X T E R N A L    R E F E R E N C E S
 ;******************************************************************************
 ;
-ABS0	segment use16 at 0000h
+SECTION .ABS0
 
 	org	67h * 4 	; EMM function interrupt
-EMMVec	dw	?		; offset of vector
-	dw	?		; segment of vector
+EMMVec: dw 0; offset of vector
+	dw 0; segment of vector
 
-ABS0	ends
+; END SECTION .ABS0
 
-_DATA	segment
+SECTION ._DATA
 
-extrn	_EMMstatus:word
-extrn	Active_Status:byte	; current VDM status
-extrn	Auto_Mode:byte		; current Auto mode status
+extern _EMMstatus
+extern Active_Status; current VDM status
+extern Auto_Mode; current Auto mode status
 ;extrn	_map_known:byte 	; non-zero => I/O map known to a user
-extrn	_handle_count:word	; number of active EMM handles
-extrn	_regp:word		; pointer to args on stack
+extern _handle_count; number of active EMM handles
+extern _regp; pointer to args on stack
 
-_DATA	ends
+; END SECTION ._DATA
 
-_TEXT	segment
+SECTION ._TEXT
 
-extrn	int67_Entry:far		; it's far because we need CS on stack too
-extrn	GoVirtual:near
-extrn	ErrHndlr:near
-extrn	hw_int:near
-extrn	RRProc:near
+extern int67_Entry; it's far because we need CS on stack too
+extern GoVirtual
+extern ErrHndlr
+extern hw_int
+extern RRProc
 
-extrn	_GetStatus:near
-extrn	_GetPageFrameAddress:near
-extrn	_GetUnallocatedPageCount:near
-extrn	_AllocatePages:near
-extrn	_MapHandlePage:near
-extrn	_DeallocatePages:near
-extrn	_GetEMMVersion:near
-extrn	_SavePageMap:near
-extrn	_RestorePageMap:near
-extrn	_GetPageMappingRegisterIOArray:near
-extrn	_GetLogicalToPhysicalPageTrans:near
-extrn	_GetEMMHandleCount:near
-extrn	_GetEMMHandlePages:near
-extrn	_GetAllEMMHandlePages:near
-extrn	_GetSetPageMap:near
+extern _GetStatus
+extern _GetPageFrameAddress
+extern _GetUnallocatedPageCount
+extern _AllocatePages
+extern _MapHandlePage
+extern _DeallocatePages
+extern _GetEMMVersion
+extern _SavePageMap
+extern _RestorePageMap
+extern _GetPageMappingRegisterIOArray
+extern _GetLogicalToPhysicalPageTrans
+extern _GetEMMHandleCount
+extern _GetEMMHandlePages
+extern _GetAllEMMHandlePages
+extern _GetSetPageMap
 
-extrn	_GetSetPartial:near
-extrn	_MapHandleArray:near
-extrn	_AlterMapAndJump:near
-extrn	_AlterMapAndCall:near
-extrn	_MoveExchangeMemory:near
-extrn	_AlternateMapRegisterSet:near
+extern _GetSetPartial
+extern _MapHandleArray
+extern _AlterMapAndJump
+extern _AlterMapAndCall
+extern _MoveExchangeMemory
+extern _AlternateMapRegisterSet
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 ;
-_DATA	segment
+SECTION ._DATA
 EMM_Flag	db	0	; non-zero => EMM function called by our code
-_DATA	ends
+; END SECTION ._DATA
 
-	page
+	; page
 ;******************************************************************************
 ;
 ;	_TEXT Code Segment
 ;
 ;******************************************************************************
 ;
-_TEXT	segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP
 ;******************************************************************************
 ;	protected mode dispatch table
 ;   allocate(43h)/deallocate(45h) pages  and get I/O map (49h)
@@ -176,39 +176,39 @@ _TEXT	segment
 ;	MapHandleArray,MoveExchangeMemory,AlterMapAndJump,
 ;	AlterMapAndCall and AlternateMapRegisterSet are protected mode ONLY.
 ;******************************************************************************
-EpE_Dispatch	label	word
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:_MapHandlePage		;44h
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:_RestorePageMap		;48h
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:_GetSetPageMap		;4eh
-	dw	offset _TEXT:_GetSetPartial		;4fh
-	dw	offset _TEXT:_MapHandleArray		;50h
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:_AlterMapAndJump		;55h
-	dw	offset _TEXT:_AlterMapAndCall		;56h
-	dw	offset _TEXT:_MoveExchangeMemory	;57h
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:_AlternateMapRegisterSet	;5bh
-	dw	offset _TEXT:EpE_Null
-	dw	offset _TEXT:EpE_Null
+EpE_Dispatch:
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	_MapHandlePage		;44h
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	_RestorePageMap		;48h
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	_GetSetPageMap		;4eh
+	dw	_GetSetPartial		;4fh
+	dw	_MapHandleArray		;50h
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	_AlterMapAndJump		;55h
+	dw	_AlterMapAndCall		;56h
+	dw	_MoveExchangeMemory	;57h
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	EpE_Null
+	dw	_AlternateMapRegisterSet	;5bh
+	dw	EpE_Null
+	dw	EpE_Null
 
-	page
+	; page
 ;******************************************************************************
 ;	EMM_pEntry - protected mode entry point for EMM function calls
 ;
@@ -248,7 +248,7 @@ EpE_not_VM:
 ;
 ;  function entry
 ;
-EMM_pEntry	proc	near
+EMM_pEntry:
 ;
 	push	ebp
 	mov	bp,sp
@@ -276,7 +276,7 @@ EpE_chk_func:
 	push	[bp.VTFO+VMTF_DS]		; client DS
 	push	[bp.VTFO+VMTF_EFLAGS]		; client Flag
 	push	[bp.VTFO+VMTF_CS]		; client CS
-	push	word ptr [bp.VTFO+VMTF_EIP]	; client IP (low word of EIP)
+	push	word [bp.VTFO+VMTF_EIP]	; client IP (low word of EIP)
 				; stack has - IP,CS,PFlag,DS,ES,GS,FS
 	pushad			; all regs saved
 	mov	bp,sp		; SS:BP -> to stack args (see r67_Frame struc)
@@ -310,7 +310,7 @@ EpE_jump:
 	; check to see if we need to patch CS:IP on the iretd stack frame
 	;
 EpE_Exit:
-	test	word ptr [bp.PFlag], PFLAG_PATCH_CS_IP
+	test	word [bp.PFlag], PFLAG_PATCH_CS_IP
 	jz	EpE_No_Patch
 
 	mov	bp, sp		; use bp to address stack
@@ -346,12 +346,12 @@ EpE_Null:
 ; EMM error handling
 ;
 EpE_inv_exit:				; set invalid function code error
-	mov	byte ptr [bp.rAX+1],INVALID_FUNCTION
+	mov	byte [bp.rAX+1],INVALID_FUNCTION
 	jmp	EpE_Exit
 
-EMM_pEntry	endp
+; ENDP EMM_pEntry
 
-	page
+	; page
 ;******************************************************************************
 ;	EMM_rLink - real/virtual mode link for EMM function calls from
 ;			R_CODE segment.
@@ -365,7 +365,7 @@ EMM_pEntry	endp
 ;	USED:	none
 ;
 ;******************************************************************************
-EMM_rLINK	proc	far
+EMM_rLINK:
 
 	;
 	;   check for protected mode ONLY function
@@ -426,9 +426,9 @@ ErE_Pcall:
 	int	67h			; go for it ...
 	ret				; then return
 
-EMM_rLINK	endp
+; ENDP EMM_rLINK
 
-	page
+	; page
 ;******************************************************************************
 ;	_AutoUpdate - updates the EMM status when in AutoMode
 ;
@@ -444,7 +444,7 @@ EMM_rLINK	endp
 ;	USED:	none
 ;
 ;******************************************************************************
-_AutoUpdate	proc	near
+_AutoUpdate:
 ;
 	cmp	[Auto_Mode],0		;Q: in Auto mode now ?
 	je	AU_exit 		;  N: exit
@@ -478,21 +478,21 @@ AU_ON:					;  Y: turn ON EMM
 AU_exit:
 	ret
 ;
-_AutoUpdate	endp
+; ENDP _AutoUpdate
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-	page
+	; page
 ;******************************************************************************
 ;
 ;	R_CODE Code Segment
 ;
 ;******************************************************************************
 ;
-R_CODE	segment
-	assume	cs:R_CODE, ds:DGROUP, es:DGROUP
+SECTION .R_CODE
+	; assume	cs:R_CODE, ds:DGROUP, es:DGROUP
 
-	page
+	; page
 ;******************************************************************************
 ;	EMM_rEntry - real/virtual mode entry point for EMM function calls
 ;
@@ -505,7 +505,7 @@ R_CODE	segment
 ;	USED:	none
 ;
 ;******************************************************************************
-EMM_rEntry	proc	near
+EMM_rEntry:
 ;
 	cli			; just in case pushf/call far
 
@@ -513,10 +513,10 @@ EMM_rEfix:
 	call	EMM_rLink	; call _TEXT segment link
 	iret			; return to caller
 ;
-EMM_rEntry	endp
+; ENDP EMM_rEntry
 
 
-R_CODE	ends
+; END SECTION .R_CODE
 
-	end
+	; end
 

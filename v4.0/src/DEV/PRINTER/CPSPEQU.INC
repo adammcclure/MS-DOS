@@ -1,5 +1,5 @@
 
-	PAGE	,132
+	; PAGE	,132
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -21,13 +21,13 @@
 					;;
 RH	EQU	ES:[DI] 		;; addressability to Request Header
 					;;
-RHC	STRUC				;; fields common to all request types
-RHC_LEN DB	?			;; length of Request Header
-	DB	?			;; unit code (subunit)
-RHC_CMD DB	?			;; command code
-RHC_STA DW	?			;; status
-	DQ	?			;; reserved for DOS
-RHC	ENDS				;; end of common portion
+struc RHC;; fields common to all request types
+RHC_LEN: db 0;; length of Request Header
+	db 0;; unit code (subunit)
+RHC_CMD: db 0;; command code
+RHC_STA: dw 0;; status
+	dq 0;; reserved for DOS
+endstruc;; end of common portion
 					;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
@@ -61,16 +61,16 @@ STAT_ERROR EQU	8000H			;; error returned by normal driver
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
 					;;
-RH0	STRUC				;;
+struc RH0;;
 	DB	(TYPE RHC) DUP (?)	;; common portion
 					;;
-	DB	?			;; not used for CHAR devices
-RH0_ENDO DW	?			;; offset  of ending address
-RH0_ENDS DW	?			;; segment of ending address
-RH0_BPBA DD	?			;; pointer to BPBA
-	db	?
+	db 0;; not used for CHAR devices
+RH0_ENDO: dw 0;; offset  of ending address
+RH0_ENDS: dw 0;; segment of ending address
+RH0_BPBA: dd 0;; pointer to BPBA
+	db 0
 RH0_CONFIG_ERRMSG dw 0			;DCR D493 "Error in CONFIG.SYS..." msg flag.
-RH0	ENDS				;;
+endstruc;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -78,15 +78,15 @@ RH0	ENDS				;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-RH3	STRUC				;;
+struc RH3;;
 	DB	(TYPE RHC) DUP (?)	;; common portion
 					;;
 					;;
-	DB	?			;; media descriptor
-RH3_DTAO DW	?			;; offset  of transfer address
-RH3_DTAS DW	?			;; segment of transfer address
-RH3_CNT DW	?			;; byte count
-RH3	ENDS				;;
+	db 0;; media descriptor
+RH3_DTAO: dw 0;; offset  of transfer address
+RH3_DTAS: dw 0;; segment of transfer address
+RH3_CNT: dw 0;; byte count
+endstruc;;
 					;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -95,16 +95,16 @@ RH3	ENDS				;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-GIH	STRUC				;;
+struc GIH;;
 	DB	(TYPE RHC) DUP (?)	;; common portion
 					;;
 					;;
-GIH_MAF DB	?			;; major function
-GIH_MIF DB	?			;; minor function
-GIH_SI	DW	?			;; content of SI
-GIH_DI	DW	?			;; content of DI
-GIH_GBA DD	?			;; Address of Generic Buffer
-GIH	ENDS				;;
+GIH_MAF: db 0;; major function
+GIH_MIF: db 0;; minor function
+GIH_SI: dw 0;; content of SI
+GIH_DI: dw 0;; content of DI
+GIH_GBA: dd 0;; Address of Generic Buffer
+endstruc;;
 					;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
@@ -156,31 +156,31 @@ STAT_NOCP EQU	08007H			;; no codepage designated/invoked
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 GIOB	EQU	DS:[SI] 		;;
 					;;
-GB1S	STRUC				;;
-GB1_FLAG DW	?			;; flag
-GB1_LEN DW	?			;; length
-GB1_NUM DW	?			;; length
-GB1_CP	DW	?			;;
-GB1S	ENDS				;;
+struc GB1S;;
+GB1_FLAG: dw 0;; flag
+GB1_LEN: dw 0;; length
+GB1_NUM: dw 0;; length
+GB1_CP: dw 0;;
+endstruc;;
 					;;
 					;;
-GB2S	STRUC				;;
-GB2_LEN DW	?			;; length
-GB2_CP	DW	?			;;
-GB2S	ENDS				;;
+struc GB2S;;
+GB2_LEN: dw 0;; length
+GB2_CP: dw 0;;
+endstruc;;
 					;;
 					;;
-GB3S	STRUC				;;
-GB3_LEN DW	?			;; length
-GB3_GBL DW	?			;; hardware code page number
-GB3S	ENDS				;;
+struc GB3S;;
+GB3_LEN: dw 0;; length
+GB3_GBL: dw 0;; hardware code page number
+endstruc;;
 					;;
 GB3_MINILEN EQU 4			;; minimium length of GB3
 					;;
-GBLS	STRUC				;;
-GBL_LEN DW	?			;; length
-GBL_CP	DW	?			;; hardware code page number
-GBLS	ENDS				;;
+struc GBLS;;
+GBL_LEN: dw 0;; length
+GBL_CP: dw 0;; hardware code page number
+endstruc;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -193,14 +193,14 @@ NHD	EQU	ES:[DI] 		;;
 					;;
 NAME_LEN EQU	8			;;
 					;;
-DHS	STRUC				;;
-DH_NEXTO DW	?			;; offset of pointer to next header
-DH_NEXTS DW	?			;; segment of pointer to next header
-	DW	?			;; attribute
-DH_STRAO DW	?			;; offset to strategy routine
-DH_INTRO DW	?			;; offset to interrupt routine
+struc DHS;;
+DH_NEXTO: dw 0;; offset of pointer to next header
+DH_NEXTS: dw 0;; segment of pointer to next header
+	dw 0;; attribute
+DH_STRAO: dw 0;; offset to strategy routine
+DH_INTRO: dw 0;; offset to interrupt routine
 DH_NAME DB	NAME_LEN DUP(0) 	;; device name in this header
-DHS	ENDS				;; end of common portion
+endstruc;; end of common portion
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -214,11 +214,11 @@ FPKT	EQU	DS:[SI] 		;;
 					;;
 FTP	EQU	ES:[BX] 		;;
 					;; ( I=Input  O=Output )
-FTBLK	STRUC				;;
+struc FTBLK;;
 FTB_LENGTH DW	TYPE FTBLK		;; (NOT TO BE CHANGED)
 FTB_STATUS DW	0FFFFH			;; (O) parsing compelte
 FTB_TYPE DW	0			;; (O)
-FTB_TID DB	8   DUP(?)		;; (I)
+FTB_TID: times 8 db 0;; (I)
 FTB_CP	DW	0FFFFH			;; (I)
 FTB_MOD DW	0			;; (O)
 FTB_FONTS DW	0			;; (O)
@@ -235,17 +235,17 @@ FTB_DALO DW	0			;; (O)	in the DOS "packet" buffer
 FTB_DAHI DW	0			;; (O)	"  "   "    "       "
 TARGET_LO DW	0			;;  internal registers
 TARGET_HI DW	0			;;  internal registers
-FTBLK	ENDS				;;
+endstruc;;
 					;;
 TYPE_DISPLAY EQU 01H			;; display type device
 TYPE_PRINTER EQU 02H			;; printer type device
 					;;
-FBUFS	STRUC				;;
+struc FBUFS;;
 FLAG	DW	0			;;
 BUFFER_LEN DW	0			;;
 BUFFER_ADDR DD	0			;;
 NUM_FTBLK DW	0			;; no. of FTBKL entries
-FBUFS	ENDS				;;
+endstruc;;
 					;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;; FLAGS :
@@ -274,47 +274,47 @@ table_len	equ	290		;;
 					;;
 PSE	EQU	ES:[DI] 		;;
 					;;
-PAR_OT	STRUC				;;
-PAR_DEV_NUM DW	?			;;
-PAR_OFF DW	?			;;
-PAR_OT	ENDS				;;
+struc PAR_OT;;
+PAR_DEV_NUM: dw 0;;
+PAR_OFF: dw 0;;
+endstruc;;
 					;;
-PAR_DEVOT STRUC 			;; OFFSET to the parameters of a device
-PAR_onum DW	?			;; number of offsets in the table
-PAR_DNMO DW	?			;; device-name table offset
-PAR_DIDO DW	?			;; device-id table offset
-PAR_HWCPO DW	?			;; hwcp table offset
-PAR_DESGO DW	?			;; designate table offset
-PAR_PARMO DW	?			;; parameter table offset
-PAR_DEVOT ENDS				;;
+struc PAR_DEVOT;; OFFSET to the parameters of a device
+PAR_onum: dw 0;; number of offsets in the table
+PAR_DNMO: dw 0;; device-name table offset
+PAR_DIDO: dw 0;; device-id table offset
+PAR_HWCPO: dw 0;; hwcp table offset
+PAR_DESGO: dw 0;; designate table offset
+PAR_PARMO: dw 0;; parameter table offset
+endstruc;;
 					;;
-PAR_DNMT STRUC				;; DEVICE NAME table
-PAR_DNML DW	?			;; length of device name
-PAR_DNM DB	?			;; device name
-PAR_DNMT ENDS				;;
+struc PAR_DNMT;; DEVICE NAME table
+PAR_DNML: dw 0;; length of device name
+PAR_DNM: db 0;; device name
+endstruc;;
 					;;
-PAR_DIDT STRUC				;; DEVICE ID table
-PAR_DIDL DW	?			;; device ID length
-PAR_DID DB	?			;; device ID
-PAR_DIDT ENDS				;;
+struc PAR_DIDT;; DEVICE ID table
+PAR_DIDL: dw 0;; device ID length
+PAR_DID: db 0;; device ID
+endstruc;;
 					;;
-PAR_HWCPT STRUC 			;; hwcp table
-PAR_HWCPL DW	?			;; hwcp entry number
-PAR_HWCP DW	?			;; hwcp
-PAR_HWCPT ENDS				;;
-					;;
-					;;
-PAR_DESGT STRUC 			;; DESIGNATE table
-PAR_DESGL DW	?			;; entry number
-PAR_DESG DW	?			;; designate
-PAR_FONT DW	?			;; fonts
-PAR_DESGT ENDS				;;
+struc PAR_HWCPT;; hwcp table
+PAR_HWCPL: dw 0;; hwcp entry number
+PAR_HWCP: dw 0;; hwcp
+endstruc;;
 					;;
 					;;
-PAR_PARMT STRUC 			;; parameter table
-PAR_PARML DW	?			;; length
-PAR_PARM DW	?			;;
-PAR_PARMT ENDS				;;
+struc PAR_DESGT;; DESIGNATE table
+PAR_DESGL: dw 0;; entry number
+PAR_DESG: dw 0;; designate
+PAR_FONT: dw 0;; fonts
+endstruc;;
+					;;
+					;;
+struc PAR_PARMT;; parameter table
+PAR_PARML: dw 0;; length
+PAR_PARM: dw 0;;
+endstruc;;
 					;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -354,7 +354,7 @@ BF_MEM_DONE  EQU 08000H 		;;  memory done for this device
 					;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;; BUFFER DATA structure
-BUF_DATA STRUC				;;.................................
+struc BUF_DATA;;.................................
 BFLAG	 DW	-1			;; buf flag for initialisation
 					;; -1 = buf not yet initialised
 					;; (see BF_PRN, BF_LPT's)
@@ -426,7 +426,7 @@ FSELMAX DW	0			;; max. room reserved for selection
 PAR_EXTRACTO DB (TYPE PAR_DEVOT) DUP (-1);; Offset to parameter extracts
 SAVED_CP    DW	-1			;; WGR saved code page during lock	    ;AN000;
 BUFEND	DW	0			;; END OF BUFFER, for LPT1 copy.
-BUF_DATA ENDS				;;
+endstruc;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -436,26 +436,26 @@ BUF_DATA ENDS				;;
 					;;
 DEVN_LEN EQU	8			;; device name (type-id) length
 					;;
-PDSH	STRUC				;;
+struc PDSH;;
 PD_LEN	DW	30			;; length of each entry
 TYPEID	DB	'        '              ;; device name (id), length DEVN_LEN
 VMINOR	DB	0			;; version :  .00
 VMAJOR	DB	1			;; version : 1.
-CLASS	DW	?			;; reserved
-FONTSZ	DW	?			;; font buffer size in paragraph (max)
-HSLOTS	DW	?			;; hard-slots number (max # of Hslots)
-HWCPMIN DW	?			;; what left by min_hwcp can be cart.
-RSLOTS	DW	?			;; ram-slots number  (max # of Rslots)
-PDSH	ENDS				;; the SELH_O, and SELR_O are defined
+CLASS: dw 0;; reserved
+FONTSZ: dw 0;; font buffer size in paragraph (max)
+HSLOTS: dw 0;; hard-slots number (max # of Hslots)
+HWCPMIN: dw 0;; what left by min_hwcp can be cart.
+RSLOTS: dw 0;; ram-slots number  (max # of Rslots)
+endstruc;; the SELH_O, and SELR_O are defined
 					;; in the next two entries in PDS
 					;;
 					;;
-PDS	STRUC				;;
+struc PDS;;
 	DB	(TYPE PDSH) DUP (?)	;; common portion
-SELH_O	DW	?			;; offset to select controls on Hslots
-SELR_O	DW	?			;; offset to select controls on Rslots
-SELB_O	DW	?			;; offset to buffered select controls
-PDS	ENDS				;;
+SELH_O: dw 0;; offset to select controls on Hslots
+SELR_O: dw 0;; offset to select controls on Rslots
+SELB_O: dw 0;; offset to buffered select controls
+endstruc;;
 					;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -468,10 +468,10 @@ PDS	ENDS				;;
 					;;	  calculation as compared
 					;;	  with each entry in FTDL_OFF
 					;;
-SLTS	STRUC				;; slots-table structure
+struc SLTS;; slots-table structure
 SLT_CP	DW	-1			;; code page : no code page
 SLT_AT	DW	0			;; attribute : empty
-SLTS	ENDS				;;
+endstruc;;
 					;;
 					;; ATTRIBUTES :
 AT_RAM1 EQU	 00001H 		;; in the 1st physical RAM slot
@@ -517,39 +517,39 @@ STACK_SIZE	EQU	28H		;; in paragraph, total 200H bytes
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-PARSE_NAME    STRUC			;;					    ;AN000;
-N_LENGTH      DW    ?			;;					    ;AN000;
+struc PARSE_NAME;;					    ;AN000;
+N_LENGTH: dw 0;;					    ;AN000;
 FNAME	      DB    "        "          ;;                                          ;AN000;
-PARSE_NAME    ENDS			;;					    ;AN000;
+endstruc;;					    ;AN000;
 					;;
-PARSE_OFFSETS STRUC			;;					    ;AN000;
-	      DW    ?			;;					    ;AN000;
-DN_OFFSET     DW    ?			;;					    ;AN000;
-DI_OFFSET     DW    ?			;;					    ;AN000;
-DCP_OFFSET    DW    ?			;;					    ;AN000;
-DD_OFFSET     DW    ?			;;					    ;AN000;
-	      DW    ?			;;					    ;AN000;
-PARSE_OFFSETS ENDS			;;					    ;AN000;
+struc PARSE_OFFSETS;;					    ;AN000;
+	      dw 0;;					    ;AN000;
+DN_OFFSET: dw 0;;					    ;AN000;
+DI_OFFSET: dw 0;;					    ;AN000;
+DCP_OFFSET: dw 0;;					    ;AN000;
+DD_OFFSET: dw 0;;					    ;AN000;
+	      dw 0;;					    ;AN000;
+endstruc;;					    ;AN000;
 					;;
-PARSE_HWCP    STRUC			;;					    ;AN000;
-NUM_HWCPS     DW    ?			;;					    ;AN000;
-HWCP_1	      DW    ?			;;					    ;AN000;
-HWCP_2	      DW    ?			;;					    ;AN000;
-HWCP_3	      DW    ?			;;					    ;AN000;
-HWCP_4	      DW    ?			;;					    ;AN000;
-HWCP_5	      DW    ?			;;					    ;AN000;
-HWCP_6	      DW    ?			;;					    ;AN000;
-HWCP_7	      DW    ?			;;					    ;AN000;
-HWCP_8	      DW    ?			;;					    ;AN000;
-HWCP_9	      DW    ?			;;					    ;AN000;
-HWCP_10       DW    ?			;;					    ;AN000;
-PARSE_HWCP    ENDS			;;					    ;AN000;
+struc PARSE_HWCP;;					    ;AN000;
+NUM_HWCPS: dw 0;;					    ;AN000;
+HWCP_1: dw 0;;					    ;AN000;
+HWCP_2: dw 0;;					    ;AN000;
+HWCP_3: dw 0;;					    ;AN000;
+HWCP_4: dw 0;;					    ;AN000;
+HWCP_5: dw 0;;					    ;AN000;
+HWCP_6: dw 0;;					    ;AN000;
+HWCP_7: dw 0;;					    ;AN000;
+HWCP_8: dw 0;;					    ;AN000;
+HWCP_9: dw 0;;					    ;AN000;
+HWCP_10: dw 0;;					    ;AN000;
+endstruc;;					    ;AN000;
 					;;
-PARSE_DESG    STRUC			;;					    ;AN000;
-NUM_VALUES    DW    ?			;;					    ;AN000;
-NUM_DESGS     DW    ?			;;					    ;AN000;
-NUM_FONTS     DW    ?			;;					    ;AN000;
-PARSE_DESG    ENDS			;;					    ;AN000;
+struc PARSE_DESG;;					    ;AN000;
+NUM_VALUES: dw 0;;					    ;AN000;
+NUM_DESGS: dw 0;;					    ;AN000;
+NUM_FONTS: dw 0;;					    ;AN000;
+endstruc;;					    ;AN000;
 					;;
 					;;
 ZERO	EQU	0H			;;					    ;AN000;

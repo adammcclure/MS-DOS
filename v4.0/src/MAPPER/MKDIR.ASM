@@ -1,9 +1,9 @@
-page 80,132
+; page 80,132
 
-title CP/DOS DosMkDir mapper
+; title CP/DOS DosMkDir mapper
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -21,18 +21,18 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dosmkdir
-            .sall
-            include  macros.inc
+            global dosmkdir
+            ; .sall
+            %include "macros.inc"
 
-str         struc
-old_bp      dw       ?
-return      dd       ?
-rsrvd       dd       ?
-Asciiz      dd       ?       ; new directory name pointer
-str         ends
+struc str
+old_bp: dw 0
+return: dd 0
+rsrvd: dd 0
+Asciiz: dd 0; new directory name pointer
+endstruc
 
-dosmkdir    proc     far
+dosmkdir:
 
             Enter    DosMkdir            ; push registers
             lds      dx,[bp].asciiz      ; set pointer to directory name
@@ -44,10 +44,10 @@ dosmkdir    proc     far
             sub      ax,ax               ; else, set good return code
 
 exit:       mexit                        ; pop registers
-            ret      size str - 6        ; return
+            ret      str_size - 6        ; return
 
-dosmkdir    endp
+; ENDP dosmkdir
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

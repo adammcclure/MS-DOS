@@ -1,10 +1,10 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS  DosFreeSeg  mapper
+; title CP/DOS  DosFreeSeg  mapper
 ;
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -26,22 +26,22 @@ dosxxx  segment byte public 'dos'
 ; *
 ; *************************************************************************
 
-        public  dosfreeseg
-        .sall
-        .xlist
-        include macros.inc
-        .list
+        global dosfreeseg
+        ; .sall
+        ; .xlist
+        %include "macros.inc"
+        ; .list
 
 invalid_selector equ 0006h
 
 
-str     struc
-Old_bp   dw      ?
-Return   dd      ?
-Selector dw      ?         ; selector of the segment to be freed
-str     ends
+struc str
+Old_bp: dw 0
+Return: dd 0
+Selector: dw 0; selector of the segment to be freed
+endstruc
 
-dosfreeseg proc   far
+dosfreeseg:
         Enter   dosfreeseg              ; push registers
 
         mov     es,[bp].selector        ; get selector in es
@@ -56,10 +56,10 @@ dosfreeseg proc   far
 error:  mov     ax,invalid_selector     ; put in error code
 
 exit:   Mexit                           ; pop registers
-        ret     size str - 6            ; return
+        ret     str_size - 6            ; return
 
-dosfreeseg endp
+; ENDP dosfreeseg
 
-dosxxx  ends
+; END SECTION .dosxxx
 
-        end
+        ; end

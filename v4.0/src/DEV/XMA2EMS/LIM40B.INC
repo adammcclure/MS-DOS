@@ -1,5 +1,5 @@
 
-	page
+	; page
 ;=========================================================================
 ; This module contains all the EQU's, STRUC's, data, and routines necessary
 ; for LIMDMS.INC.
@@ -38,170 +38,170 @@ AR_Sub_Max		equ	01h			;5ah max. sub functions ;an000; dms;
 ;========== End EQUate Definitions =======================================
 ;=========================================================================
 
-	page
+	; page
 ;=========================================================================
 ;========== Begin STRUC Definitions ======================================
 ;=========================================================================
 
-Log_Phys_Map_Struc	struc				;page structure 	;an000; dms;
+struc Log_Phys_Map_Struc;page structure 	;an000; dms;
 
-	Log_Page_Number 	dw	?		;logical page number	;an000; dms;
-	Phys_Page_Number_Seg	dw	?		;physical page or seg	;an000; dms;
+	Log_Page_Number: dw 0;logical page number	;an000; dms;
+	Phys_Page_Number_Seg: dw 0;physical page or seg	;an000; dms;
 							;  determined by AL
-Log_Phys_Map_Struc	ends
+endstruc
 
 
-Map_And_Jump_Struc	struc				;carries jump info.	;an000; dms;
+struc Map_And_Jump_Struc;carries jump info.	;an000; dms;
 
-	Target_Address		dd	?		;jump address		;an000; dms;
-	Log_Phys_Map_Len	db	?		;entry count in 	;an000; dms;
+	Target_Address: dd 0;jump address		;an000; dms;
+	Log_Phys_Map_Len: db 0;entry count in 	;an000; dms;
 							;  Log_Phys_Map_Struct
-	Log_Phys_Map_Ptr	dd	?		;Log_Phys_Map_Struct ptr;an000; dms;
+	Log_Phys_Map_Ptr: dd 0;Log_Phys_Map_Struct ptr;an000; dms;
 
-Map_And_Jump_Struc	ends							;an000; dms;
+endstruc;an000; dms;
 
 
-Map_And_Call_Struc	struc				;carries jump info.	;an000; dms;
+struc Map_And_Call_Struc;carries jump info.	;an000; dms;
 
-	MAC_Target_Address	dd	?		;jump address		;an000; dms;
-	MAC_New_Page_Map_Len	db	?		;entry count in 	;an000; dms;
+	MAC_Target_Address: dd 0;jump address		;an000; dms;
+	MAC_New_Page_Map_Len: db 0;entry count in 	;an000; dms;
 							;  Log_Phys_Map_Struct
 							;  for new map scheme
-	MAC_New_Page_Map_Ptr	dd	?		;Log_Phys_Map_Struc ptr ;an000; dms;
+	MAC_New_Page_Map_Ptr: dd 0;Log_Phys_Map_Struc ptr ;an000; dms;
 							;  for new map scheme
-	MAC_Old_Page_Map_Len	db	?		;entry count in 	;an000; dms;
+	MAC_Old_Page_Map_Len: db 0;entry count in 	;an000; dms;
 							;  Log_Phys_Map_Struc
 							;  for old map scheme
-	MAC_Old_Page_Map_Ptr	dd	?		;Log_Phys_Map_Struc ptr ;an000; dms;
+	MAC_Old_Page_Map_Ptr: dd 0;Log_Phys_Map_Struc ptr ;an000; dms;
 							;  for old map scheme
-	MAC_Reserved		dw	4	DUP (?) ;Used to restore map	;an000; dms;
+	MAC_Reserved: times 4 dw 0;Used to restore map	;an000; dms;
 							;  context
 
-Map_And_Call_Struc	ends							;an000; dms;
+endstruc;an000; dms;
 
 
-Move_Source_Dest_Struc	struc				;structure for move	;an000; dms;
+struc Move_Source_Dest_Struc;structure for move	;an000; dms;
 
-	Region_Length_Low_Word	dw	?		;
-	Region_Length_High_Word dw	?		;length of region	;an000; dms;
+	Region_Length_Low_Word: dw 0;
+	Region_Length_High_Word: dw 0;length of region	;an000; dms;
 
-	Source_Memory_Type	db	?		;conv/EMS		;an000; dms;
-	Source_Handle		dw	?		;handle if EMS, else 0	;an000; dms;
-	Source_Initial_Offset	dw	?		;offset of source region;an000; dms;
-	Source_Initial_Seg_Page dw	?		;logical page if EMS	;an000; dms;
+	Source_Memory_Type: db 0;conv/EMS		;an000; dms;
+	Source_Handle: dw 0;handle if EMS, else 0	;an000; dms;
+	Source_Initial_Offset: dw 0;offset of source region;an000; dms;
+	Source_Initial_Seg_Page: dw 0;logical page if EMS	;an000; dms;
 							;  seg if conv.
-	Dest_Memory_Type	db	?		;conv/EMS		;an000; dms;
-	Dest_Handle		dw	?		;handle if EMS, else 0	;an000; dms;
-	Dest_Initial_Offset	dw	?		;offset of source region;an000; dms;
-	Dest_Initial_Seg_Page	dw	?		;logical page if EMS	;an000; dms;
+	Dest_Memory_Type: db 0;conv/EMS		;an000; dms;
+	Dest_Handle: dw 0;handle if EMS, else 0	;an000; dms;
+	Dest_Initial_Offset: dw 0;offset of source region;an000; dms;
+	Dest_Initial_Seg_Page: dw 0;logical page if EMS	;an000; dms;
 							;  seg if conv.
-Move_Source_Dest_Struc	ends				;end structure		;an000; dms;
+endstruc;end structure		;an000; dms;
 
-Realloc_Struc	Struc				;BP addressible struc		;an000; dms;
+struc Realloc_Struc;BP addressible struc		;an000; dms;
 
-	Realloc_Reserved	db size Instance_Entry_Struc dup (?)		;an000; dms;
-	Realloc_Alloc_Byte	db	?	;reserved			;an000; dms;
-	Realloc_Reg_DI		dw	?	;reserved			;an000; dms;
-	Realloc_Handle		dw	?	;handle 			;an000; dms;
+	Realloc_Reserved	db Instance_Entry_Struc_size dup (?)		;an000; dms;
+	Realloc_Alloc_Byte: db 0;reserved			;an000; dms;
+	Realloc_Reg_DI: dw 0;reserved			;an000; dms;
+	Realloc_Handle: dw 0;handle 			;an000; dms;
 
-	Realloc_Page_Count	dw	?	;new page count 		;an000; dms;
-	Realloc_Page_Alloc	dw	?	;pages to be allocated		;an000; dms;
-	Realloc_Page_Dealloc	dw	?	;pages to be deallocated	;an000; dms;
+	Realloc_Page_Count: dw 0;new page count 		;an000; dms;
+	Realloc_Page_Alloc: dw 0;pages to be allocated		;an000; dms;
+	Realloc_Page_Dealloc: dw 0;pages to be deallocated	;an000; dms;
 
-	Realloc_Handle_Xref_Index dw	?	;index to end of handle table	;an000; dms;
-	Realloc_LookUp_Index	  dw	?	;index to applicable handle	;an000; dms;
-	Realloc_Mult		  dw	?	;multiplier			;an000; dms;
+	Realloc_Handle_Xref_Index: dw 0;index to end of handle table	;an000; dms;
+	Realloc_LookUp_Index: dw 0;index to applicable handle	;an000; dms;
+	Realloc_Mult: dw 0;multiplier			;an000; dms;
 
-Realloc_Struc	Ends				;end structure			;an000; dms;
+endstruc;end structure			;an000; dms;
 
-AAJ_Struc	Struc				;BP addressible struc		;an000; dms;
+struc AAJ_Struc;BP addressible struc		;an000; dms;
 
-	AAJ_Reserved		db size Instance_Entry_Struc dup (?)		;an000; dms;
-	AAJ_Xref_Pages		dw	?	;save logical page count	;an000; dms;
-	AAJ_Handle		dw	?	;saved handle			;an000; dms;
-	AAJ_Option		db	?	;saved selector state		;an000; dms;
-	AAJ_LookUp_Index	dw	?	;save index			;an000; dms;
-	AAJ_Mult		dw	?	;multiplier			;an000; dms;
+	AAJ_Reserved		db Instance_Entry_Struc_size dup (?)		;an000; dms;
+	AAJ_Xref_Pages: dw 0;save logical page count	;an000; dms;
+	AAJ_Handle: dw 0;saved handle			;an000; dms;
+	AAJ_Option: db 0;saved selector state		;an000; dms;
+	AAJ_LookUp_Index: dw 0;save index			;an000; dms;
+	AAJ_Mult: dw 0;multiplier			;an000; dms;
 
-AAJ_Struc	Ends				;end structure			;an000; dms;
+endstruc;end structure			;an000; dms;
 
-MAC_Struc	Struc				;BP addressible struc		;an000; dms;
+struc MAC_Struc;BP addressible struc		;an000; dms;
 
-	MAC_Reserved_Area	db size Instance_Entry_Struc dup (?)		;an000; dms;
-	MAC_LookUp_Index	dw	?	;save index		;an000; dms;
-	MAC_Xref_Pages		dw	?	;save logical page count	;an000; dms;
-	MAC_Option		db	?	;saved selector state		;an000; dms;
+	MAC_Reserved_Area	db Instance_Entry_Struc_size dup (?)		;an000; dms;
+	MAC_LookUp_Index: dw 0;save index		;an000; dms;
+	MAC_Xref_Pages: dw 0;save logical page count	;an000; dms;
+	MAC_Option: db 0;saved selector state		;an000; dms;
 
-	EMS_Reg_ES		dw	?		;ES reg 		;an000; dms;
-	EMS_Reg_DS		dw	?		;DS reg 		;an000; dms;
-	EMS_Reg_FL		dw	?		;FL reg 		;an000; dms;
-	EMS_Reg_SI		dw	?		;SI reg 		;an000; dms;
-	EMS_Reg_DI		dw	?		;DI reg 		;an000; dms;
-	EMS_Reg_DX		dw	?		;DX reg 		;an000; dms;
-	EMS_Reg_CX		dw	?		;CX reg 		;an000; dms;
-	EMS_Reg_BX		dw	?		;BX reg 		;an000; dms;
+	EMS_Reg_ES: dw 0;ES reg 		;an000; dms;
+	EMS_Reg_DS: dw 0;DS reg 		;an000; dms;
+	EMS_Reg_FL: dw 0;FL reg 		;an000; dms;
+	EMS_Reg_SI: dw 0;SI reg 		;an000; dms;
+	EMS_Reg_DI: dw 0;DI reg 		;an000; dms;
+	EMS_Reg_DX: dw 0;DX reg 		;an000; dms;
+	EMS_Reg_CX: dw 0;CX reg 		;an000; dms;
+	EMS_Reg_BX: dw 0;BX reg 		;an000; dms;
 
-	MAC_M_C_Data		db	size Map_And_Call_Struc dup (?) 	;an000; dms;
-	MAC_M_C_Log		db	size Log_Phys_Map_Struc*Map_Count_Def dup (?)	;an000; dms;
-	MAC_Map_Table		db	size Mappable_Phys_Page_Struct*Map_Count_Def dup (?)	;an000; dms;
-	MAC_Mult		dw	?	;multiplier			;an000; dms;
+	MAC_M_C_Data		db	Map_And_Call_Struc_size dup (?) 	;an000; dms;
+	MAC_M_C_Log		db	Log_Phys_Map_Struc_size*Map_Count_Def dup (?)	;an000; dms;
+	MAC_Map_Table		db	Mappable_Phys_Page_Struct_size*Map_Count_Def dup (?)	;an000; dms;
+	MAC_Mult: dw 0;multiplier			;an000; dms;
 
-MAC_Struc	Ends				;end structure			;an000; dms;
+endstruc;end structure			;an000; dms;
 
 
-ER_Struc	Struc					;BP addressible struc		;an000; dms;
+struc ER_Struc;BP addressible struc		;an000; dms;
 
-	ER_Reserved		db size Instance_Entry_Struc dup (?)		;an000; dms;
+	ER_Reserved		db Instance_Entry_Struc_size dup (?)		;an000; dms;
 	ER_Direction_Flag	db	ER_Up		;default to forward move;an000; dms;
 
-	ER_Sub_Function 	db	?		;save subfunction byte	;an000; dms;
+	ER_Sub_Function: db 0;save subfunction byte	;an000; dms;
 
-	ER_Src_Abs_Beg_Low	dw	?		;abs add of src EMS page;an000; dms;
-	ER_Src_Abs_Beg_High	dw	?		;  beginning of trf area;an000; dms;
-	ER_Src_Abs_End_Low	dw	?		;abs add of src EMS page;an000; dms;
-	ER_Src_Abs_End_High	dw	?		;  end of trf area	;an000; dms;
+	ER_Src_Abs_Beg_Low: dw 0;abs add of src EMS page;an000; dms;
+	ER_Src_Abs_Beg_High: dw 0;  beginning of trf area;an000; dms;
+	ER_Src_Abs_End_Low: dw 0;abs add of src EMS page;an000; dms;
+	ER_Src_Abs_End_High: dw 0;  end of trf area	;an000; dms;
 
-	ER_Dst_Abs_Beg_Low	dw	?		;abs add of src EMS page;an000; dms;
-	ER_Dst_Abs_Beg_High	dw	?		;  beginning of trf area;an000; dms;
-	ER_Dst_Abs_End_Low	dw	?		;abs add of src EMS page;an000; dms;
-	ER_Dst_Abs_End_High	dw	?		;  end of trf area	;an000; dms;
+	ER_Dst_Abs_Beg_Low: dw 0;abs add of src EMS page;an000; dms;
+	ER_Dst_Abs_Beg_High: dw 0;  beginning of trf area;an000; dms;
+	ER_Dst_Abs_End_Low: dw 0;abs add of src EMS page;an000; dms;
+	ER_Dst_Abs_End_High: dw 0;  end of trf area	;an000; dms;
 
-	ER_Current_Move_Count	dw	?		;bytes moved this time	;an000; dms;
+	ER_Current_Move_Count: dw 0;bytes moved this time	;an000; dms;
 
 	ER_Move_Xchg_Buffer1	db	10h	dup (?) ;buffer for move/xchg	;an000; dms;
 	ER_Move_Xchg_Buffer2	db	10h	dup (?) ;buffer for move/xchg	;an000; dms;
 
-	ER_Move_Count_Low	dw	?		;low word of count	;an000; dms;
-	ER_Move_Count_High	dw	?		;high word of count	;an000; dms;
+	ER_Move_Count_Low: dw 0;low word of count	;an000; dms;
+	ER_Move_Count_High: dw 0;high word of count	;an000; dms;
 
-	ER_Source_Phys_Page	dw	?		;page number of source	;an000; dms;
-	ER_Dest_Phys_Page	dw	?		;page number of dest	;an000; dms;
+	ER_Source_Phys_Page: dw 0;page number of source	;an000; dms;
+	ER_Dest_Phys_Page: dw 0;page number of dest	;an000; dms;
 
-	ER_Source_Page		dw	?		;active source page	;an000; dms;
-	ER_Dest_Page		dw	?		;active dest page	;an000; dms;
+	ER_Source_Page: dw 0;active source page	;an000; dms;
+	ER_Dest_Page: dw 0;active dest page	;an000; dms;
 
-	ER_Source_Handle	dw	?		;active handle		;an000; dms;
-	ER_Dest_Handle		dw	?		;active handle		;an000; dms;
+	ER_Source_Handle: dw 0;active handle		;an000; dms;
+	ER_Dest_Handle: dw 0;active handle		;an000; dms;
 							;  10h byte moves
 
 	ER_Save_Context_Buffer	dw	2*Type Mappable_Phys_Page_Struct  dup (0) ;room for 2 pgs;an000; dms;
 
-	ER_Dest_Seg		dw	?		;seg value of dest	;an000; dms;
-	ER_Source_Seg		dw	?		;seg value of source	;an000; dms;
+	ER_Dest_Seg: dw 0;seg value of dest	;an000; dms;
+	ER_Source_Seg: dw 0;seg value of source	;an000; dms;
 
-	ER_Dest_Off		dw	?		;off value of dest	;an000; dms;
-	ER_Source_Off		dw	?		;off value of source	;an000; dms;
+	ER_Dest_Off: dw 0;off value of dest	;an000; dms;
+	ER_Source_Off: dw 0;off value of source	;an000; dms;
 
-	ER_Mem_Type		dw	?		;memory type		;an000; dms;
+	ER_Mem_Type: dw 0;memory type		;an000; dms;
 
 
-ER_Struc	Ends					;end structure		;an000; dms;
+endstruc;end structure		;an000; dms;
 
 ;=========================================================================
 ;========== End STRUC Definitions ========================================
 ;=========================================================================
 
-	page
+	; page
 ;=========================================================================
 ;========== Begin Macro Definitions ======================================
 ;=========================================================================
@@ -219,7 +219,7 @@ ER_Struc	Ends					;end structure		;an000; dms;
 ;
 ;=========================================================================
 
-MAC_Expand_Stack_And_Copy	proc
+MAC_Expand_Stack_And_Copy:
 
 	mov	cx,ax					;get adjustment factor	;an000; dms;
 	shr	cx,1					;convert to word move	;an000; dms;
@@ -237,9 +237,9 @@ MAC_Expand_Stack_And_Copy	proc
 
 	ret						;end routine		;an000; dms;
 
-MAC_Expand_Stack_And_Copy	endp
+; ENDP MAC_Expand_Stack_And_Copy
 
-	page
+	; page
 ;=========================================================================
 ; MAC_Shrink_Stack_And_Copy	: This routine move data from the instance
 ;				  table and place it at ES:DI.
@@ -251,7 +251,7 @@ MAC_Expand_Stack_And_Copy	endp
 ;
 ;=========================================================================
 
-MAC_Shrink_Stack_And_Copy	proc
+MAC_Shrink_Stack_And_Copy:
 
 	mov	cx,ax					;get adjustment factor	;an000; dms;
 	mov	ax,cs					;get data source seg	;an000; dms;
@@ -266,14 +266,14 @@ MAC_Shrink_Stack_And_Copy	proc
 
 	ret						;end routine		;an000; dms;
 
-MAC_Shrink_Stack_And_Copy	endp
+; ENDP MAC_Shrink_Stack_And_Copy
 
 
 ;=========================================================================
 ;========== End Macro Definitions ========================================
 ;=========================================================================
 
-	page
+	; page
 ;=========================================================================
 ;========== Begin Generic PROC Definitions ===============================
 ;=========================================================================
@@ -294,7 +294,7 @@ MAC_Shrink_Stack_And_Copy	endp
 ;		       > 0 = error
 ;=========================================================================
 
-Map_Pages	proc					;			;an000; dms;
+Map_Pages:;			;an000; dms;
 
 	push	si					;save reg		;an000; dms;
 
@@ -343,10 +343,10 @@ Map_Error_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-Map_Pages	endp					;end proc		;an000; dms;
+; ENDP Map_Pages;end proc		;an000; dms;
 
 
-	page
+	; page
 ;=========================================================================
 ; Get_Phys_Seg_Page	: This routine will obtain the physical page
 ;			  number for a given segment.
@@ -357,14 +357,14 @@ Map_Pages	endp					;end proc		;an000; dms;
 ;		  NC - No error
 ;=========================================================================
 
-Get_Phys_Seg_Page	proc				;begin routine		;an000; dms;
+Get_Phys_Seg_Page:;begin routine		;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	cx					;			;an000; dms;
 	push	di					;			;an000; dms;
 
 	cli						;ints off		;an000; dms;
-	mov	di,offset Map_Table			;point to table map	;an000; dms;
+	mov	di,Map_Table			;point to table map	;an000; dms;
 	mov	cx,Map_Count				;number of table entries;an000; dms;
 	sti						;ints on		;an000; dms;
 
@@ -397,7 +397,7 @@ GPSP_Found:						;exit			;an000; dms;
 
 	ret						;return to caller	;an000; dms;
 
-Get_Phys_Seg_Page	endp				;end proc		;an000; dms;
+; ENDP Get_Phys_Seg_Page;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -406,7 +406,7 @@ Get_Phys_Seg_Page	endp				;end proc		;an000; dms;
 
 
 
-	page
+	; page
 
 ;-------------------------------------------------------------------
 ; Reallocate Pages	- Function 18
@@ -419,7 +419,7 @@ Get_Phys_Seg_Page	endp				;end proc		;an000; dms;
 ;		  BX = new page count
 ;		       if error - original page count
 ;-------------------------------------------------------------------
-reallocate	proc
+reallocate:
 
 	push	cx					;save affected regs	;an000; dms;
 	push	dx					;			;an000; dms;
@@ -641,11 +641,11 @@ Realloc_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-reallocate	endp
+; ENDP reallocate
 
 
 
-	page
+	; page
 ;=========================================================================
 ;=============== Function 55h Logic -  Alter Page Map & Jump =============
 ;=========================================================================
@@ -666,7 +666,7 @@ reallocate	endp
 ;		  AH - Non-zero if error
 ;
 ;=========================================================================
-Alter_And_Jump	proc					;modify map		;an000; dms;
+Alter_And_Jump:;modify map		;an000; dms;
 
 	push	bx					;save regs for jump	;an000; dms;
 	push	cx					;			;an000; dms;
@@ -739,7 +739,7 @@ AAJ_Loop_Exit:
 
 	mov	cs:[bp].IE_Alloc_Byte,Unallocated	;deallocate instance	;an000; dms;
 
-	jmp	dword ptr [si].Target_Address		;jump to address & run	;an000; dms;
+	jmp	dword [si].Target_Address		;jump to address & run	;an000; dms;
 
 AAJ_Error_Exit:
 
@@ -754,11 +754,11 @@ AAJ_Error_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-Alter_And_Jump	endp					;end proc		;an000; dms;
+; ENDP Alter_And_Jump;end proc		;an000; dms;
 
 
 
-	page
+	; page
 ;=========================================================================
 ;=============== Function 56h Logic -  Alter Page Map & Call =============
 ;=========================================================================
@@ -788,7 +788,7 @@ Alter_And_Jump	endp					;end proc		;an000; dms;
 ;=========================================================================
 
 
-Alter_And_Call	proc					;modify map & call	;an000; dms;
+Alter_And_Call:;modify map & call	;an000; dms;
 
 	cmp	al,MAC_Stack_Status_Request		;stack report?		;an000; dms;
 	je	MAC_Calc_Stack_Status			;yes			;an000; dms;
@@ -916,9 +916,9 @@ MAC_Build_Stack_And_Map:
 	mov	cs:[bp].EMS_Reg_DS,ds			;save DS		;an000; dms;
 	mov	cs:[bp].EMS_Reg_SI,si			;save SI		;an000; dms;
 
-	mov	ax,word ptr [si].MAC_Old_Page_Map_Ptr[+2];get the segment	 ;an000; dms;
+	mov	ax,word [si].MAC_Old_Page_Map_Ptr[+2];get the segment	 ;an000; dms;
 	mov	es,ax					;  of the old map	;an000; dms;
-	mov	di,word ptr [si].MAC_Old_Page_Map_Ptr[+0];get its offset	 ;an000; dms;
+	mov	di,word [si].MAC_Old_Page_Map_Ptr[+0];get its offset	 ;an000; dms;
 
 	mov	al,[si].MAC_Old_Page_Map_Len		;get length of data	;an000; dms;
 	cbw						;convert to word	;an000; dms;
@@ -926,7 +926,7 @@ MAC_Build_Stack_And_Map:
 	mov	bx,Type Log_Phys_Map_Struc		;struc size
 	mul	bx					;get total byte count	;an000; dms;
 	cli						;ints off		;an000; dms;
-	mov	bx,offset MAC_M_C_Log			;offset in struc	;an000; dms;
+	mov	bx,MAC_M_C_Log			;offset in struc	;an000; dms;
 	sti						;ints on		;an000; dms;
 	add	bx,bp					;actual offset		;an000; dms;
 	call	MAC_Expand_Stack_And_Copy		;set up stack for	;an000; dms;
@@ -935,9 +935,9 @@ MAC_Build_Stack_And_Map:
 	mov	ds,cs:[bp].EMS_Reg_DS			;restore ds		;an000; dms;
 	mov	si,cs:[bp].EMS_Reg_SI			;restore si		;an000; dms;
 
-	mov	ax,word ptr [si].MAC_New_Page_Map_Ptr[+2];get the segment	 ;an000; dms;
+	mov	ax,word [si].MAC_New_Page_Map_Ptr[+2];get the segment	 ;an000; dms;
 	mov	es,ax					;  of the old map	;an000; dms;
-	mov	di,word ptr [si].MAC_New_Page_Map_Ptr[+0];get its offset	 ;an000; dms;
+	mov	di,word [si].MAC_New_Page_Map_Ptr[+0];get its offset	 ;an000; dms;
 
 	mov	al,[si].MAC_New_Page_Map_Len		;get length of data	;an000; dms;
 	cbw						;conver to word 	;an000; dms;
@@ -945,8 +945,8 @@ MAC_Build_Stack_And_Map:
 	mov	bx,Type Log_Phys_Map_Struc		;struc size
 	mul	bx					;get total byte count	;an000; dms;
 	cli						;ints off		;an000; dms;
-	mov	bx,offset MAC_M_C_Log			;Ptr in struc		;an000; dms;
-	add	bx,size MAC_M_C_Log/2			;next entry		;an000; dms;
+	mov	bx,MAC_M_C_Log			;Ptr in struc		;an000; dms;
+	add	bx,MAC_M_C_Log_size/2			;next entry		;an000; dms;
 	sti						;ints on		;an000; dms;
 	add	bx,bp					;offset BP relative	;an000; dms;
 	call	MAC_Expand_Stack_And_Copy		;set up stack for	;an000; dms;
@@ -960,7 +960,7 @@ MAC_Build_Stack_And_Map:
 	mov	di,si					;move off of data	;an000; dms;
 	mov	ax,Type Map_And_Call_Struc		;get size of structure	;an000; dms;
 	cli						;ints off		;an000; dms;
-	mov	bx,offset MAC_M_C_Data
+	mov	bx,MAC_M_C_Data
 	sti						;ints on		;an000; dms;
 	add	bx,bp					;offset BP relative	;an000; dms;
 	call	MAC_Expand_Stack_And_Copy		;set up stack for	;an000; dms;
@@ -972,14 +972,14 @@ MAC_Build_Stack_And_Map:
 	mov	ax,cs					;get seg of context	;an000; dms;
 	mov	es,ax					;  in es		;an000; dms;
 	cli						;ints off		;an000; dms;
-	mov	di,offset cs:Map_Table			;get offset of context	;an000; dms;
+	mov	di,Map_Table			;get offset of context	;an000; dms;
 	mov	ax,Map_Count				;get context entry count;an000; dms;
 	sti						;ints on		;an000; dms;
 	xor	dx,dx					;clear dx		;an000; dms;
 	mov	bx,Type Mappable_Phys_Page_Struct	;get struc size 	;an000; dms;
 	mul	bx					;get size in bytes	;an000; dms;
 	cli						;ints off		;an000; dms;
-	mov	bx,offset cs:MAC_Map_Table
+	mov	bx,MAC_Map_Table
 	sti						;ints on		;an000; dms;
 	add	bx,bp					;offset BP relative	;an000; dms;
 	call	MAC_Expand_Stack_And_Copy		;set up stack for	;an000; dms;
@@ -989,11 +989,11 @@ MAC_Build_Stack_And_Map:
 	mov	si,cs:[bp].EMS_Reg_SI			;restore si		;an000; dms;
 
 	push	cs					;save return segment	;an000; dms;
-	mov	ax,offset MAC_Return_Routine		;save return offset	;an000; dms;
+	mov	ax,MAC_Return_Routine		;save return offset	;an000; dms;
 	push	ax					;			;an000; dms;
 
-	mov	ax,word ptr [si].MAC_Target_Address[+2] ;get seg of call far	;an000; dms;
-	mov	bx,word ptr [si].MAC_Target_Address[+0] ;get offset of call far ;an000; dms;
+	mov	ax,word [si].MAC_Target_Address[+2] ;get seg of call far	;an000; dms;
+	mov	bx,word [si].MAC_Target_Address[+0] ;get offset of call far ;an000; dms;
 	push	ax					;put on stack		;an000; dms;
 	push	bx					;			;an000; dms;
 
@@ -1021,12 +1021,12 @@ MAC_Build_Stack_And_Map:
 	mov	es,cs:[bp].EMS_Reg_ES			;			;an000; dms;
 	sti						;ints on		;an000; dms;
 
-Retf_Fake_Out	Proc	Far				;this proc is to	;an000; dms;
+Retf_Fake_Out:;this proc is to	;an000; dms;
 							;  simulate a RETF
 							;  instruction
 	ret						;performs a far return	;an000; dms;
 
-Retf_Fake_Out	Endp					;end of retf fake out	;an000; dms;
+; ENDP Retf_Fake_Out;end of retf fake out	;an000; dms;
 
 
 MAC_Error_Strip_Stack:
@@ -1059,14 +1059,14 @@ MAC_Strip_Stack_And_Map:							;an000; dms;
 	mov	ax,cs					;seg of context 	;an000; dms;
 	mov	es,ax					;place in es		;an000; dms;
 	cli						;ints off		;an000; dms;
-	mov	di,offset cs:Map_Table			;get off of context	;an000; dms;
+	mov	di,Map_Table			;get off of context	;an000; dms;
 	mov	ax,Map_Count				;get entries in context ;an000; dms;
 	sti						;ints on		;an000; dms;
 	xor	dx,dx					;clear dx		;an000; dms;
 	mov	bx,Type Mappable_Phys_Page_Struct	;struc size		;an000; dms;
 	mul	bx					;get byte count 	;an000; dms;
 	cli						;ints off		;an000; dms;
-	mov	bx,offset MAC_Map_Table
+	mov	bx,MAC_Map_Table
 	sti						;ints on		;an000; dms;
 	add	bx,bp					;offset BP relative	;an000; dms;
 	call	MAC_Shrink_Stack_And_Copy		;restore context	;an000; dms;
@@ -1079,7 +1079,7 @@ MAC_Strip_Stack_And_Map:							;an000; dms;
 	mov	di,si					;di=dest. offset	;an000; dms;
 	mov	ax,Type Map_And_Call_Struc		;get size to move	;an000; dms;
 	cli						;ints off		;an000; dms;
-	mov	bx,offset MAC_M_C_Data
+	mov	bx,MAC_M_C_Data
 	sti						;ints on		;an000; dms;
 	add	bx,bp					;offset BP relative	;an000; dms;
 	call	MAC_Shrink_Stack_And_Copy		;restore Map & Call buf ;an000; dms;
@@ -1087,9 +1087,9 @@ MAC_Strip_Stack_And_Map:							;an000; dms;
 	mov	ds,cs:[bp].EMS_Reg_DS			;restore ds		;an000; dms;
 	mov	si,cs:[bp].EMS_Reg_SI			;restore si		;an000; dms;
 
-	mov	ax,word ptr [si].MAC_New_Page_Map_Ptr[+2];get the segment	 ;an000; dms;
+	mov	ax,word [si].MAC_New_Page_Map_Ptr[+2];get the segment	 ;an000; dms;
 	mov	es,ax					;  of the old map	;an000; dms;
-	mov	di,word ptr [si].MAC_New_Page_Map_Ptr[+0];get its offset	 ;an000; dms;
+	mov	di,word [si].MAC_New_Page_Map_Ptr[+0];get its offset	 ;an000; dms;
 
 	mov	al,[si].MAC_New_Page_Map_Len		;get length of data	;an000; dms;
 	cbw						;convert to word	;an000; dms;
@@ -1097,18 +1097,18 @@ MAC_Strip_Stack_And_Map:							;an000; dms;
 	mov	bx,Type Log_Phys_Map_Struc		;struc size		;an000; dms;
 	mul	bx					;get total byte count	;an000; dms;
 	cli						;ints off		;an000; dms;
-	mov	bx,offset MAC_M_C_Log
+	mov	bx,MAC_M_C_Log
 	sti						;ints on		;an000; dms;
-	add	bx,size MAC_M_C_Log/2
+	add	bx,MAC_M_C_Log_size/2
 	add	bx,bp					;offset BP relative	;an000; dms;
 	call	MAC_Shrink_Stack_And_Copy		;restore new page data	;an000; dms;
 
 	mov	ds,cs:[bp].EMS_Reg_DS			;restore ds		;an000; dms;
 	mov	si,cs:[bp].EMS_Reg_SI			;restore si		;an000; dms;
 
-	mov	ax,word ptr [si].MAC_Old_Page_Map_Ptr[+2];get the segment	 ;an000; dms;
+	mov	ax,word [si].MAC_Old_Page_Map_Ptr[+2];get the segment	 ;an000; dms;
 	mov	es,ax					;  of the old map	;an000; dms;
-	mov	di,word ptr [si].MAC_Old_Page_Map_Ptr[+0];get its offset	 ;an000; dms;
+	mov	di,word [si].MAC_Old_Page_Map_Ptr[+0];get its offset	 ;an000; dms;
 
 	mov	al,[si].MAC_Old_Page_Map_Len		;get length of data	;an000; dms;
 	cbw						;convert to word	;an000; dms;
@@ -1116,7 +1116,7 @@ MAC_Strip_Stack_And_Map:							;an000; dms;
 	mov	bx,Type Log_Phys_Map_Struc		;struc size		;an000; dms;
 	mul	bx					;get total byte count	;an000; dms;
 	cli						;ints off		;an000; dms;
-	mov	bx,offset MAC_M_C_Log
+	mov	bx,MAC_M_C_Log
 	sti						;ints on		;an000; dms;
 	add	bx,bp					;offset BP relative	;an000; dms;
 	call	MAC_Shrink_Stack_And_Copy		;set up stack for	;an000; dms;
@@ -1138,10 +1138,10 @@ MAC_Strip_Stack_And_Map:							;an000; dms;
 	jmp	MAC_Exit				;exit the program	;an000; dms;
 
 
-Alter_And_Call	endp					;end proc		;an000; dms;
+; ENDP Alter_And_Call;end proc		;an000; dms;
 
 
-	page
+	; page
 ;=========================================================================
 ;=============== Function 57h Logic -  Move/Exchange Memory Region =======
 ;=========================================================================
@@ -1168,7 +1168,7 @@ Alter_And_Call	endp					;end proc		;an000; dms;
 ;=========================================================================
 
 
-Exchng_Region	proc
+Exchng_Region:
 
 	push	bx					;save regs		;an000; dms;
 	push	cx					;			;an000; dms;
@@ -1244,7 +1244,7 @@ ER_Move_Call:
 
 	ret						;return to caller	;an000; dms;
 
-Exchng_Region	endp
+; ENDP Exchng_Region
 
 
 ;=========================================================================
@@ -1257,7 +1257,7 @@ Exchng_Region	endp
 ;			Possible error codes: 83h
 ;=========================================================================
 
-ER_Handle_Check 	proc				;check requested handles;an000; dms;
+ER_Handle_Check:;check requested handles;an000; dms;
 
 	push	dx					;save regs		;an000; dms;
 	push	di					;			;an000; dms;
@@ -1308,7 +1308,7 @@ ER_Handle_Check_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Handle_Check 	endp				;end proc		;an000; dms;
+; ENDP ER_Handle_Check;end proc		;an000; dms;
 
 
 
@@ -1327,7 +1327,7 @@ ER_Handle_Check 	endp				;end proc		;an000; dms;
 ;					      8Ah
 ;=========================================================================
 
-ER_Length_Check 	proc				;check region length	;an000; dms;
+ER_Length_Check:;check region length	;an000; dms;
 
 	push	bx					;save regs		;an000; dms;
 	push	cx					;			;an000; dms;
@@ -1445,7 +1445,7 @@ ER_Length_Check_Exit:					;main exit		;an000; dms;
 
 	ret						;return to caller	;an000; dms;
 
-ER_Length_Check 	endp				;end proc		;an000; dms;
+; ENDP ER_Length_Check;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -1459,7 +1459,7 @@ ER_Length_Check 	endp				;end proc		;an000; dms;
 ;			Possible error codes: 98h
 ;=========================================================================
 
-ER_Type_Check		proc				;check type		;an000; dms;
+ER_Type_Check:;check type		;an000; dms;
 
 	cmp	[si].Source_Memory_Type,ER_Max_Type	;type within range?	;an000; dms;
 	ja	ER_Type_Check_Error_Exit		;no - error exit	;an000; dms;
@@ -1481,7 +1481,7 @@ ER_Type_Check_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Type_Check		endp				;end proc		;an000; dms;
+; ENDP ER_Type_Check;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -1494,7 +1494,7 @@ ER_Type_Check		endp				;end proc		;an000; dms;
 ;			Possible error codes: A2h
 ;=========================================================================
 
-ER_Wrap_Check		proc				;cks. conv. mem. wrap	;an000; dms;
+ER_Wrap_Check:;cks. conv. mem. wrap	;an000; dms;
 
 	push	dx					;save regs		;an000; dms;
 	push	bx					;			;an000; dms;
@@ -1554,7 +1554,7 @@ ER_Wrap_Check_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Wrap_Check		endp				;end proc		;an000; dms;
+; ENDP ER_Wrap_Check;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -1586,7 +1586,7 @@ ER_Wrap_Check		endp				;end proc		;an000; dms;
 ;	EndIf
 ;=========================================================================
 
-ER_Overlap_Check	proc				;check for overlap	;an000; dms;
+ER_Overlap_Check:;check for overlap	;an000; dms;
 
 	push	dx					;save regs		;an000; dms;
 	call	ER_Save_Context 			;save context		;an000; dms;
@@ -1601,7 +1601,7 @@ ER_Overlap_Check	proc				;check for overlap	;an000; dms;
 
 ER_Overlap_Check_Dest:
 
-	mov	di,offset cs:ER_Save_Context_Buffer	;get addressibility to	;an000; dms;
+	mov	di,ER_Save_Context_Buffer	;get addressibility to	;an000; dms;
 							;  the page frame save
 							;buffer
 	add	di,bp					;offset BP relative	;an000; dms;
@@ -1658,7 +1658,7 @@ ER_Overlap_Jump_Good:
 
 ER_Overlap_Check_Source:
 
-	mov	di,offset cs:ER_Save_Context_Buffer	;get addressibility to	;an000; dms;
+	mov	di,ER_Save_Context_Buffer	;get addressibility to	;an000; dms;
 							;  the page frame save
 							;buffer
 	add	di,bp					;offset BP relative	;an000; dms;
@@ -1722,7 +1722,7 @@ ER_Overlap_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Overlap_Check	endp				;end proc		;an000; dms;
+; ENDP ER_Overlap_Check;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -1752,7 +1752,7 @@ ER_Overlap_Check	endp				;end proc		;an000; dms;
 ;	EndIf
 ;=========================================================================
 
-ER_EMS_Overlap_Check	proc				;check for overlap	;an000; dms;
+ER_EMS_Overlap_Check:;check for overlap	;an000; dms;
 
 	push	bx					;save regs		;an000; dms;
 	push	dx					;			;an000; dms;
@@ -1834,7 +1834,7 @@ ER_EMS_Overlap_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_EMS_Overlap_Check	endp				;end proc		;an000; dms;
+; ENDP ER_EMS_Overlap_Check;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -1874,7 +1874,7 @@ ER_EMS_Overlap_Check	endp				;end proc		;an000; dms;
 ;	EndIf
 ;=========================================================================
 
-ER_General_Overlap_Test 	proc			;			;an000; dms;
+ER_General_Overlap_Test:;			;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	bx					;			;an000; dms;
@@ -1931,7 +1931,7 @@ ER_EN1:
 
 	ret						;return to caller	;an000; dms;
 
-ER_General_Overlap_Test 	endp			;end proc		;an000; dms;
+; ENDP ER_General_Overlap_Test;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -1947,7 +1947,7 @@ ER_General_Overlap_Test 	endp			;end proc		;an000; dms;
 ;		  CY - source < destination
 ;=========================================================================
 
-ER_Dword_Compare	proc				;			;an000; dms;
+ER_Dword_Compare:;			;an000; dms;
 
 	cmp	ax,cx					;src high < dest high?	;an000; dms;
 ;	$if	b					;yes			;an000; dms;
@@ -1989,7 +1989,7 @@ ER_EN10:
 
 	ret						;			;an000; dms;
 
-ER_Dword_Compare	endp				;			;an000; dms;
+; ENDP ER_Dword_Compare;			;an000; dms;
 
 
 
@@ -2002,7 +2002,7 @@ ER_Dword_Compare	endp				;			;an000; dms;
 ;	Outputs : AX:DX - New Segment:Offset value
 ;=========================================================================
 
-ER_Segment_Adjust	proc				;adjust segment value	;an000; dms;
+ER_Segment_Adjust:;adjust segment value	;an000; dms;
 
 	push	bx					;save bx		;an000; dms;
 	push	cx					;			;an000; dms;
@@ -2020,7 +2020,7 @@ ER_Segment_Adjust	proc				;adjust segment value	;an000; dms;
 
 	ret						;return to caller	;an000; dms;
 
-ER_Segment_Adjust	endp				;end proc		;an000; dms;
+; ENDP ER_Segment_Adjust;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -2034,7 +2034,7 @@ ER_Segment_Adjust	endp				;end proc		;an000; dms;
 ;			Possible error codes: 95h
 ;=========================================================================
 
-ER_Log_Page_Test	proc				;			;an000; dms;
+ER_Log_Page_Test:;			;an000; dms;
 
 	mov	ax,EMS_Page_Size_In_Bytes		;get page size		;an000; dms;
 
@@ -2066,7 +2066,7 @@ ER_Log_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Log_Page_Test	endp				;end proc		;an000; dms;
+; ENDP ER_Log_Page_Test;end proc		;an000; dms;
 
 ;=========================================================================
 ; ER_Save_Context	: This routine saves the context for page frames
@@ -2077,7 +2077,7 @@ ER_Log_Page_Test	endp				;end proc		;an000; dms;
 ;	Outputs : ER_Save_Context_Buffer - save context for the needed page frames
 ;=========================================================================
 
-ER_Save_Context 	proc				;save contexts		;an000; dms;
+ER_Save_Context:;save contexts		;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	cx					;			;an000; dms;
@@ -2090,8 +2090,8 @@ ER_Save_Context 	proc				;save contexts		;an000; dms;
 	mov	ds,ax					;			;an000; dms;
 	mov	es,ax					;			;an000; dms;
 
-	mov	si,offset cs:Map_Table			;ptr to page frame table;an000; dms;
-	mov	di,offset cs:ER_Save_Context_Buffer	;get dest. offset
+	mov	si,Map_Table			;ptr to page frame table;an000; dms;
+	mov	di,ER_Save_Context_Buffer	;get dest. offset
 	add	di,bp					;offset BP relative	;an000; dms;
 
 	mov	cx,2					;default frame save	;an000; dms;
@@ -2122,7 +2122,7 @@ ER_Save_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Save_Context 	endp				;end proc		;an000; dms;
+; ENDP ER_Save_Context;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -2135,7 +2135,7 @@ ER_Save_Context 	endp				;end proc		;an000; dms;
 ;	Outputs : restored context for the saved page frames
 ;=========================================================================
 
-ER_Restore_Context	proc				;restore contexts	;an000; dms;
+ER_Restore_Context:;restore contexts	;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	cx					;			;an000; dms;
@@ -2148,8 +2148,8 @@ ER_Restore_Context	proc				;restore contexts	;an000; dms;
 	mov	ds,ax					;			;an000; dms;
 	mov	es,ax					;			;an000; dms;
 
-	mov	di,offset cs:Map_Table			;ptr to page frame table;an000; dms;
-	mov	si,offset cs:ER_Save_Context_Buffer	;get dest. offset
+	mov	di,Map_Table			;ptr to page frame table;an000; dms;
+	mov	si,ER_Save_Context_Buffer	;get dest. offset
 	add	si,bp					;offset BP relative	;an000; dms;
 
 	mov	cx,2					;default frame restore	;an000; dms;
@@ -2161,9 +2161,9 @@ ER_Restore_Context	proc				;restore contexts	;an000; dms;
 ER_Restore_Context_Loop:
 
 	sti						;ints on		;an000; dms;
-	mov	al,byte ptr ds:[si].Phys_Page_Number	;get physical page num. ;an000; dms;
-	mov	bx,word ptr ds:[si].PPM_Log_Page	;get logical page num.	;an000; dms;
-	mov	dx,word ptr ds:[si].PPM_Handle		;get handle number	;an000; dms;
+	mov	al,byte ds:[si].Phys_Page_Number	;get physical page num. ;an000; dms;
+	mov	bx,word ds:[si].PPM_Log_Page	;get logical page num.	;an000; dms;
+	mov	dx,word ds:[si].PPM_Handle		;get handle number	;an000; dms;
 	call	Map_L_To_P				;map in orig. page	;an000; dms;
 
 	push	cx					;save cx		;an000; dms;
@@ -2185,7 +2185,7 @@ ER_Restore_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Restore_Context	endp				;end proc		;an000; dms;
+; ENDP ER_Restore_Context;end proc		;an000; dms;
 
 
 
@@ -2218,7 +2218,7 @@ ER_Restore_Context	endp				;end proc		;an000; dms;
 ;		  ER_Dest_Phys_Page	- Physical page number
 ;=========================================================================
 
-ER_Det_Src_Dest_Seg	proc				;			;an000; dms;
+ER_Det_Src_Dest_Seg:;			;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	bx					;			;an000; dms;
@@ -2232,7 +2232,7 @@ ER_Det_Src_Dest_Seg	proc				;			;an000; dms;
 	cmp	[si].Source_Memory_Type,ER_EMS_Memory	;EMS?			;an000; dms;
 	jne	ER_Det_Source_Conv			;no - conventional mem. ;an000; dms;
 
-	mov	di,offset cs:ER_Save_Context_Buffer	;get addressibility to	;an000; dms;
+	mov	di,ER_Save_Context_Buffer	;get addressibility to	;an000; dms;
 							;  the page frame save
 							;buffer
 	add	di,bp					;offset BP relative
@@ -2307,7 +2307,7 @@ ER_Det_Dest_Check:
 	cmp	[si].Dest_Memory_Type,ER_EMS_Memory	;Dest. EMS?		;an000; dms;
 	jne	ER_Det_Dest_Conv			;no - conventional mem. ;an000; dms;
 
-	mov	di,offset cs:ER_Save_Context_Buffer	;save frame buffer	;an000; dms;
+	mov	di,ER_Save_Context_Buffer	;save frame buffer	;an000; dms;
 	add	di,bp					;offset BP relative	;an000; dms;
 	cli						;ints off		;an000; dms;
 	cmp	Map_Count,1				;> 1 page frame?	;an000; dms;
@@ -2396,7 +2396,7 @@ ER_Det_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Det_Src_Dest_Seg	endp				;end proc		;an000; dms;
+; ENDP ER_Det_Src_Dest_Seg;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -2410,7 +2410,7 @@ ER_Det_Src_Dest_Seg	endp				;end proc		;an000; dms;
 ;=========================================================================
 
 
-ER_Det_Move_Count	proc				;			;an000; dms;
+ER_Det_Move_Count:;			;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	dx					;			;an000; dms;
@@ -2425,7 +2425,7 @@ ER_Det_Move_Count	proc				;			;an000; dms;
 
 	ret						;return to caller	;an000; dms;
 
-ER_Det_Move_Count	endp				;end proc		;an000; dms;
+; ENDP ER_Det_Move_Count;end proc		;an000; dms;
 
 ;=========================================================================
 ; ER_Move_Source_To_Buffer	: This routine moves the source data to
@@ -2439,7 +2439,7 @@ ER_Det_Move_Count	endp				;end proc		;an000; dms;
 ;	Outputs : ER_Move_Xchg_Buffer1 - Source data
 ;=========================================================================
 
-ER_Move_Source_To_Buffer	proc			;			;an000; dms;
+ER_Move_Source_To_Buffer:;			;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	bx					;			;an000; dms;
@@ -2577,7 +2577,7 @@ ER_Move_Source_Default_Count:
 
 	mov	ax,cs					;get seg for buffer	;an000; dms;
 	mov	es,ax					;put into es		;an000; dms;
-	mov	di,offset cs:ER_Move_Xchg_Buffer1	;offset of buffer	;an000; dms;
+	mov	di,ER_Move_Xchg_Buffer1	;offset of buffer	;an000; dms;
 	add	di,bp					;offset BP relative	;an000; dms;
 
 	cmp	cs:[bp].ER_Direction_Flag,ER_Down	;reverse move?		;an000; dms;
@@ -2613,7 +2613,7 @@ ER_Move_Source_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Move_Source_To_Buffer	endp			;end proc		;an000; dms;
+; ENDP ER_Move_Source_To_Buffer;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -2628,7 +2628,7 @@ ER_Move_Source_To_Buffer	endp			;end proc		;an000; dms;
 ;	Outputs : Adjusted segment:offset or page/offset
 ;=========================================================================
 
-ER_Move_Buffer_To_Dest		proc			;			;an000; dms;
+ER_Move_Buffer_To_Dest:;			;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	bx					;			;an000; dms;
@@ -2695,7 +2695,7 @@ ER_Move_Buffer_Count:
 
 	mov	ax,cs					;get seg for buffer	;an000; dms;
 	mov	ds,ax					;put into es		;an000; dms;
-	mov	si,offset cs:ER_Move_Xchg_Buffer1	;offset of buffer	;an000; dms;
+	mov	si,ER_Move_Xchg_Buffer1	;offset of buffer	;an000; dms;
 	add	si,bp					;offset BP relative	;an000; dms;
 	cmp	cs:[bp].ER_Direction_Flag,ER_Down	;reverse move?		;an000; dms;
 ;	$if	e					;yes			;an000; dms;
@@ -2729,7 +2729,7 @@ ER_Move_Dest_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Move_Buffer_To_Dest		endp			;end proc		;an000; dms;
+; ENDP ER_Move_Buffer_To_Dest;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -2744,7 +2744,7 @@ ER_Move_Buffer_To_Dest		endp			;end proc		;an000; dms;
 ;	Outputs : ER_Move_Xchg_Buffer1 - Source data
 ;=========================================================================
 
-ER_Xchg_Source_To_Buffer	proc			;			;an000; dms;
+ER_Xchg_Source_To_Buffer:;			;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	bx					;			;an000; dms;
@@ -2827,7 +2827,7 @@ ER_Xchg_Source_Default_Count:
 
 	mov	ax,cs					;get seg for buffer	;an000; dms;
 	mov	es,ax					;put into es		;an000; dms;
-	mov	di,offset cs:ER_Move_Xchg_Buffer1	;offset of buffer	;an000; dms;
+	mov	di,ER_Move_Xchg_Buffer1	;offset of buffer	;an000; dms;
 	add	di,bp					;offset BP relative	;an000; dms;
 
 	cld						;forward move		;an000; dms;
@@ -2847,7 +2847,7 @@ ER_Xchg_Source_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Xchg_Source_To_Buffer	endp			;end proc		;an000; dms;
+; ENDP ER_Xchg_Source_To_Buffer;end proc		;an000; dms;
 
 
 ;=========================================================================
@@ -2862,7 +2862,7 @@ ER_Xchg_Source_To_Buffer	endp			;end proc		;an000; dms;
 ;	Outputs : ER_Move_Xchg_Buffer2 - Destination data
 ;=========================================================================
 
-ER_Xchg_Dest_To_Buffer		proc			;			;an000; dms;
+ER_Xchg_Dest_To_Buffer:;			;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	bx					;			;an000; dms;
@@ -2909,7 +2909,7 @@ ER_Xchg_Dest_Count:
 	mov	si,di					;get destination off	;an000; dms;
 	mov	ax,cs					;get seg for buffer	;an000; dms;
 	mov	es,ax					;put into es		;an000; dms;
-	mov	di,offset cs:ER_Move_Xchg_Buffer2	;offset of buffer	;an000; dms;
+	mov	di,ER_Move_Xchg_Buffer2	;offset of buffer	;an000; dms;
 	add	di,bp					;offset BP relative	;an000; dms;
 
 	cld						;forward move		;an000; dms;
@@ -2929,7 +2929,7 @@ ER_Xchg_Dest_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Xchg_Dest_To_Buffer		endp			;end proc		;an000; dms;
+; ENDP ER_Xchg_Dest_To_Buffer;end proc		;an000; dms;
 
 
 
@@ -2947,7 +2947,7 @@ ER_Xchg_Dest_To_Buffer		endp			;end proc		;an000; dms;
 ;	Outputs : Adjusted segment:offset or page/offset
 ;=========================================================================
 
-ER_Xchg_Buffer_To_Source	proc			;			;an000; dms;
+ER_Xchg_Buffer_To_Source:;			;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	bx					;			;an000; dms;
@@ -2997,7 +2997,7 @@ ER_Xchg_Buf2_Count:
 
 	mov	ax,cs					;get seg for buffer	;an000; dms;
 	mov	ds,ax					;put into es		;an000; dms;
-	mov	si,offset cs:ER_Move_Xchg_Buffer2	;offset of buffer	;an000; dms;
+	mov	si,ER_Move_Xchg_Buffer2	;offset of buffer	;an000; dms;
 	add	si,bp					;offset BP relative	;an000; dms;
 
 	cld						;forward move		;an000; dms;
@@ -3018,7 +3018,7 @@ ER_Xchg_Buf2_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Xchg_Buffer_To_Source	endp			;end proc		;an000; dms;
+; ENDP ER_Xchg_Buffer_To_Source;end proc		;an000; dms;
 
 
 
@@ -3034,7 +3034,7 @@ ER_Xchg_Buffer_To_Source	endp			;end proc		;an000; dms;
 ;	Outputs : Adjusted segment:offset or page/offset
 ;=========================================================================
 
-ER_Xchg_Buffer_To_Dest		proc			;			;an000; dms;
+ER_Xchg_Buffer_To_Dest:;			;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	bx					;			;an000; dms;
@@ -3075,7 +3075,7 @@ ER_Xchg_Buf1_Count:
 	mov	cx,cs:[bp].ER_Current_Move_Count	;get move count 	;an000; dms;
 	mov	ax,cs					;get seg for buffer	;an000; dms;
 	mov	ds,ax					;put into es		;an000; dms;
-	mov	si,offset cs:ER_Move_Xchg_Buffer1	;offset of buffer	;an000; dms;
+	mov	si,ER_Move_Xchg_Buffer1	;offset of buffer	;an000; dms;
 	add	si,bp					;offset BP relative	;an000; dms;
 
 	cld						;forward move		;an000; dms;
@@ -3093,7 +3093,7 @@ ER_Xchg_Buf1_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Xchg_Buffer_To_Dest		endp			;end proc		;an000; dms;
+; ENDP ER_Xchg_Buffer_To_Dest;end proc		;an000; dms;
 
 
 
@@ -3108,7 +3108,7 @@ ER_Xchg_Buffer_To_Dest		endp			;end proc		;an000; dms;
 ;	Outputs : newly mapped page
 ;=========================================================================
 
-ER_Map_Next_Src_Page	proc				;map next src. page	;an000; dms;
+ER_Map_Next_Src_Page:;map next src. page	;an000; dms;
 
 	mov	ax,cs:[bp].ER_Source_Phys_Page		;map the source page	;an000; dms;
 	mov	dx,cs:[bp].ER_Source_Handle		;handle to use		;an000; dms;
@@ -3116,7 +3116,7 @@ ER_Map_Next_Src_Page	proc				;map next src. page	;an000; dms;
 
 	ret						;return to caller	;an000; dms;
 
-ER_Map_Next_Src_Page	endp				;end proc		;an000; dms;
+; ENDP ER_Map_Next_Src_Page;end proc		;an000; dms;
 
 ;=========================================================================
 ; ER_Map_Next_Dest_Page 	: This routine maps in the page needed by
@@ -3129,7 +3129,7 @@ ER_Map_Next_Src_Page	endp				;end proc		;an000; dms;
 ;	Outputs : newly mapped page
 ;=========================================================================
 
-ER_Map_Next_Dest_Page	proc				;map next dest. page	;an000; dms;
+ER_Map_Next_Dest_Page:;map next dest. page	;an000; dms;
 
 	mov	ax,cs:[bp].ER_Dest_Phys_Page		;map the dest. page	;an000; dms;
 	mov	dx,cs:[bp].ER_Dest_Handle		;handle to use		;an000; dms;
@@ -3137,7 +3137,7 @@ ER_Map_Next_Dest_Page	proc				;map next dest. page	;an000; dms;
 
 	ret						;return to caller	;an000; dms;
 
-ER_Map_Next_Dest_Page	endp				;end proc		;an000; dms;
+; ENDP ER_Map_Next_Dest_Page;end proc		;an000; dms;
 
 ;=========================================================================
 ; ER_Move_Data		: This routine will perform the actual move of the
@@ -3148,7 +3148,7 @@ ER_Map_Next_Dest_Page	endp				;end proc		;an000; dms;
 ;	Outputs : AH - Non-zero on error
 ;=========================================================================
 
-ER_Move_Data	proc					;move the data		;an000; dms;
+ER_Move_Data:;move the data		;an000; dms;
 
 	push	bx					;save regs		;an000; dms;
 	push	cx					;			;an000; dms;
@@ -3211,7 +3211,7 @@ ER_Move_Data_Error_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Move_Data	endp					;end proc		;an000; dms;
+; ENDP ER_Move_Data;end proc		;an000; dms;
 
 
 
@@ -3224,7 +3224,7 @@ ER_Move_Data	endp					;end proc		;an000; dms;
 ;	Outputs : AH - Non-zero on error
 ;=========================================================================
 
-ER_Exchange_Data	proc				;xchg the data		;an000; dms;
+ER_Exchange_Data:;xchg the data		;an000; dms;
 
 	push	bx					;save regs		;an000; dms;
 	push	cx					;			;an000; dms;
@@ -3289,11 +3289,11 @@ ER_Xchg_Data_Error_Exit:
 
 	ret						;return to caller	;an000; dms;
 
-ER_Exchange_Data	endp				;end proc		;an000; dms;
+; ENDP ER_Exchange_Data;end proc		;an000; dms;
 
 
 
-	page
+	; page
 
 ;=========================================================================
 ;=============== Function 5Ah Logic -  Allocate Raw Pages    =============
@@ -3316,7 +3316,7 @@ ER_Exchange_Data	endp				;end proc		;an000; dms;
 ;		  DX - Handle if no error
 ;=========================================================================
 
-Alloc_Raw	proc					;Allocate raw pages	;an000; dms;
+Alloc_Raw:;Allocate raw pages	;an000; dms;
 
 	PUSH	BX
 	PUSH	CX
@@ -3350,7 +3350,7 @@ AR_OKTOTAL:
 	MOV	AH,EMS_CODE88
 	JMP	AR_EXIT
 			;-----------------------------------------------------
-			; Search for a free handle			 @RH1 บ
+			; Search for a free handle			 @RH1 ยบ
 			;-----------------------------------------------------
 AR_OKFREE:
 	MOV	CX,NUM_HANDLES		;loop counter is #handles
@@ -3372,8 +3372,8 @@ AR_FREEHSRCH:
 	    JMP     AR_EXIT		;go to exit					 ;GGA
 
 			;-----------------------------------------------------
-			; If here then there's enough pages for request. @RH1 บ
-			;   DX = handle #, DI = ptr to hndl lookup entry @RH1 บ
+			; If here then there's enough pages for request. @RH1 ยบ
+			;   DX = handle #, DI = ptr to hndl lookup entry @RH1 ยบ
 AR_HFREE:
 
 	MOV	CX,NUM_HANDLES		;loop counter
@@ -3437,9 +3437,9 @@ AR_EXIT:										 ;GGA
 
 	ret						;return to caller	;an000; dms;
 
-Alloc_Raw	endp					;end proc		;an000; dms;
+; ENDP Alloc_Raw;end proc		;an000; dms;
 
-	page
+	; page
 ;=========================================================================
 ;=============== Function 5Ch Logic -  Prepare for Warm Boot =============
 ;=========================================================================
@@ -3456,13 +3456,13 @@ Alloc_Raw	endp					;end proc		;an000; dms;
 ;	Outputs : AH - Non-zero if error (Determined by Get_Handle proc)
 ;=========================================================================
 
-Prepare_Boot	proc					;prepare for warm boot	;an000; dms;
+Prepare_Boot:;prepare for warm boot	;an000; dms;
 
 	xor	ah,ah					;signal no error	;an000; dms;
 
 	ret						;return to caller	;an000; dms;
 
-Prepare_Boot	endp					;end proc		;an000; dms;
+; ENDP Prepare_Boot;end proc		;an000; dms;
 
 
 

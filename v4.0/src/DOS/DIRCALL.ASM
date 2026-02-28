@@ -1,7 +1,7 @@
 ;	SCCSID = @(#)dircall.asm	1.1 85/04/10
 ;	SCCSID = @(#)dircall.asm	1.1 85/04/10
-TITLE DIRCALL - Directory manipulation internal calls
-NAME  DIRCALL
+; TITLE DIRCALL - Directory manipulation internal calls
+; NAME  DIRCALL
 ; Low level directory manipulation routines for making removing and
 ;   verifying local or NET directories
 ;
@@ -17,19 +17,19 @@ NAME  DIRCALL
 ;
 ; get the appropriate segment definitions
 ;
-.xlist
-include dosseg.asm
+; .xlist
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-INCLUDE FASTOPEN.INC
-INCLUDE FASTXXXX.INC
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+%include "FASTOPEN.INC"
+%include "FASTXXXX.INC"
+; .cref
+; .list
 
 Installed = TRUE
 
@@ -78,17 +78,17 @@ BREAK <DOS_MkDir - Make a directory entry>
 
 	procedure   DOS_MKDIR,NEAR
 	DOSAssume   CS,<DS>,"DOS_MkDir"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	Invoke	TestNet
 	JNC	local_mkdir
-IF NOT Installed
+%if NOT Installed
 	transfer NET_MKDIR
-ELSE
+%else
 	MOV	AX,(multNET SHL 8) OR 3
 	INT	2FH
 	return
-ENDIF
+%endif
 
 NODEACCERRJ:
 	MOV	AX,error_access_denied
@@ -106,13 +106,13 @@ LOCAL_MKDIR:
 ;
 ; MakeNode requires an SFT to fiddle with.  We Use a temp spot (RENBUF)
 ;
-	MOV	WORD PTR [THISSFT+2],SS
-	MOV	WORD PTR [THISSFT],OFFSET DOSGroup:RenBuf
+	MOV	word [THISSFT+2],SS
+	MOV	word [THISSFT],RenBuf
 ;
 ;  NOTE: Need WORD PTR because MASM takes type of
 ;   TempSFT (byte) instead of type of sf_mft (word).
 ;
-	MOV	WORD PTR RenBuf.sf_mft,0    ; make sure SHARER won't complain.
+	MOV	word RenBuf.sf_mft,0    ; make sure SHARER won't complain.
 	MOV	AL,attr_directory
 	invoke	MAKENODE
 
@@ -121,12 +121,12 @@ LOCAL_MKDIR:
 	JZ	NODEACCERRJ	; Can't make a device into a directory
 	LES	BP,[THISDPB]	; Makenode zaps this
 	LDS	DI,[CURBUF]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	SUB	SI,DI
 	PUSH	SI		; Pointer to dir_first
-	PUSH	WORD PTR [DI.buf_sector+2]	    ;F.C. >32mb
+	PUSH	word [DI.buf_sector+2]	    ;F.C. >32mb
 
-	PUSH	WORD PTR [DI.buf_sector] ; Sector of new node
+	PUSH	word [DI.buf_sector] ; Sector of new node
 	context DS
 	PUSH	[DIRSTART]	; Parent for .. entry
 	XOR	AX,AX
@@ -159,7 +159,7 @@ yesdirty:
 	JC	NODEEXISTSP
 	MOV	DX,[DIRSTART]
 	LDS	DI,[CURBUF]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	OR	[DI.buf_flags],buf_isDIR
 	POP	SI		; dir_first pointer
 	ADD	SI,DI
@@ -191,12 +191,12 @@ NODEEXISTSPOPDEL:
 	invoke	GETBUFFR
 	JC	NODEEXISTSP
 	LDS	DI,[CURBUF]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	OR	[DI.buf_flags],buf_isDIR
 	POP	SI		; dir_first pointer
 	ADD	SI,DI
 	SUB	SI,dir_first	;Point back to start of dir entry
-	MOV	BYTE PTR [SI],0E5H    ; Free the entry
+	MOV	byte [SI],0E5H    ; Free the entry
 	CALL	DIRUP		; Error doesn't matter since erroring anyway
 NODEEXISTS:
 	JMP	NODEACCERRJ
@@ -234,17 +234,17 @@ BREAK <DOS_ChDir -- Verify a directory>
 
 	procedure   DOS_CHDIR,NEAR
 	DOSAssume   CS,<DS>,"DOS_Chdir"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	Invoke	TestNet
 	JNC	LOCAL_CHDIR
-IF NOT Installed
+%if NOT Installed
 	transfer NET_CHDIR
-ELSE
+%else
 	MOV	AX,(multNET SHL 8) OR 5
 	INT	2FH
 	return
-ENDIF
+%endif
 
 LOCAL_CHDIR:
 	EnterCrit   critDisk
@@ -305,17 +305,17 @@ BREAK <DOS_RmDir -- Remove a directory>
 
 	procedure   DOS_RMDIR,NEAR
 	DOSAssume   CS,<DS>,"DOS_RmDir"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	Invoke	TestNet
 	JNC	Local_RmDIR
-IF NOT Installed
+%if NOT Installed
 	transfer NET_RMDIR
-ELSE
+%else
 	MOV	AX,(multNET SHL 8) OR 1
 	INT	2FH
 	return
-ENDIF
+%endif
 
 LOCAL_RMDIR:
 	EnterCrit   critDisk
@@ -344,14 +344,14 @@ NOTDIRPATH:
 
 rmdir_get_buf:
 	LDS	DI,[CURBUF]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	SUB	BX,DI		; Compute true offset
 	PUSH	BX		; Save entry pointer
-	PUSH	WORD PTR [DI.buf_sector+2] ;F.C. >32mb
-	PUSH	WORD PTR [DI.buf_sector] ; Save sector number
+	PUSH	word [DI.buf_sector+2] ;F.C. >32mb
+	PUSH	word [DI.buf_sector] ; Save sector number
 	context DS
 	context ES
-	MOV	DI,OFFSET DOSGROUP:NAME1
+	MOV	DI,NAME1
 	MOV	AL,'?'
 	MOV	CX,11
 	REP	STOSB
@@ -360,13 +360,13 @@ ASSUME	DS:NOTHING
 	invoke	STARTSRCH	; Set search
 	invoke	GETENTRY	; Get start of directory
 	JC	NOTDIRPATHPOP	; Screw up
-	MOV	DS,WORD PTR [CURBUF+2]
-ASSUME	DS:NOTHING
+	MOV	DS,word [CURBUF+2]
+; ASSUME	DS:NOTHING
 	MOV	SI,BX
 	LODSW
 	CMP	AX,(' ' SHL 8) OR '.'   ; First entry '.'?
 	JNZ	NOTDIRPATHPOP		; Nope
-	ADD	SI,(SIZE dir_entry) - 2 ; Next entry
+	ADD	SI,(dir_entry_size) - 2 ; Next entry
 	LODSW
 	CMP	AX,('.' SHL 8) OR '.'   ; Second entry '..'?
 	JNZ	NOTDIRPATHPOP		; Nope
@@ -394,11 +394,11 @@ ASSUME	DS:NOTHING
 	invoke	GETBUFFR		; Get sector back
 	JC	NOTDIRPATHPOP2		; Screw up
 	LDS	DI,[CURBUF]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	OR	[DI.buf_flags],buf_isDIR
 	POP	BX			; Pointer to start of entry
 	ADD	BX,DI			; Corrected
-	MOV	BYTE PTR [BX],0E5H	; Free the entry
+	MOV	byte [BX],0E5H	; Free the entry
 
 ;DOS 3.3 FastOpen  6/16/86  F.C.
 	PUSH	DS
@@ -411,5 +411,5 @@ ASSUME	DS:NOTHING
 
 EndProc DOS_RMDIR
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END

@@ -1,4 +1,4 @@
-%OUT MSEQU.INC...
+%warning MSEQU.INC...
 ;==============================================================================
 
 FTOOBIG 	EQU	80H
@@ -10,25 +10,25 @@ ROMVERIFY	EQU	4
 ROMFORMAT	EQU	5
 VID_SIZE	EQU 12
 
-INCLUDE MSBDS.INC    ; VARIOUS EQUATES FOR BDS
+%include "MSBDS.INC"; VARIOUS EQUATES FOR BDS
 
 ;AN000; Extended BPB structure.
-BPB_TYPE STRUC
-SECSIZE DW	?
-SECALL	DB	?
-RESNUM	DW	?
-FATNUM	DB	?
-DIRNUM	DW	?
-SECNUM	DW	?
-FATID	DB	?
-FATSIZE DW	?
-SLIM	DW	?
-HLIM	DW	?
-HIDDEN_L  DW	  ?
+struc BPB_TYPE
+SECSIZE: dw 0
+SECALL: db 0
+RESNUM: dw 0
+FATNUM: db 0
+DIRNUM: dw 0
+SECNUM: dw 0
+FATID: db 0
+FATSIZE: dw 0
+SLIM: dw 0
+HLIM: dw 0
+HIDDEN_L: dw 0
 HIDDEN_H  dw	  0			;J.K.
 SECNUM_L  dw	  0			;J.K.
 SECNUM_H  dw	  0			;J.K.
-BPB_TYPE ENDS
+endstruc
 
 ;;;;;;;;;;;
 BOOT_SERIAL_SIZE	equ	4	;J.K.

@@ -1,64 +1,64 @@
-TITLE   PART2 - COMMAND Transient routines.
+; TITLE   PART2 - COMMAND Transient routines.
 
-        INCLUDE COMSW.ASM
+        %include "COMSW.ASM"
 
-.xlist
-.xcref
-        INCLUDE DOSSYM.ASM
-        INCLUDE DEVSYM.ASM
-        INCLUDE COMSEG.ASM
-.list
-.cref
+; .xlist
+; .xcref
+        %include "DOSSYM.ASM"
+        %include "DEVSYM.ASM"
+        %include "COMSEG.ASM"
+; .list
+; .cref
 
-        INCLUDE COMEQU.ASM
+        %include "COMEQU.ASM"
 
-CODERES SEGMENT PUBLIC
-        EXTRN   LODCOM1:NEAR
-CODERES ENDS
+SECTION .CODERES
+        extern LODCOM1
+; END SECTION .CODERES
 
-DATARES SEGMENT PUBLIC
-        EXTRN   PARENT:WORD,IO_SAVE:WORD,PERMCOM:BYTE
-        EXTRN   PIPEFLAG:BYTE,ENVIRSEG:WORD
-        if      ibmver
-        EXTRN   SYS_CALL:DWORD
-        endif
-DATARES ENDS
+SECTION .DATARES
+        extern PARENT,IO_SAVE,PERMCOM
+        extern PIPEFLAG,ENVIRSEG
+        %if ibmver
+        extern SYS_CALL
+        %endif
+; END SECTION .DATARES
 
-TRANDATA        SEGMENT PUBLIC
+SECTION .TRANDATA
 
-        EXTRN   PATH_TEXT:BYTE,PROMPT_TEXT:BYTE
-        EXTRN   BADDEV:BYTE,SYNTMES:BYTE,ENVERR:BYTE
-TRANDATA        ENDS
+        extern PATH_TEXT,PROMPT_TEXT
+        extern BADDEV,SYNTMES,ENVERR
+; END SECTION .TRANDATA
 
-TRANSPACE       SEGMENT PUBLIC
+SECTION .TRANSPACE
 
-        EXTRN   CURDRV:BYTE,DIRCHAR:BYTE,PWDBUF:BYTE
-        EXTRN   INTERNATVARS:BYTE,RESSEG:WORD,TPA:WORD
+        extern CURDRV,DIRCHAR,PWDBUF
+        extern INTERNATVARS,RESSEG,TPA
 
-TRANSPACE       ENDS
+; END SECTION .TRANSPACE
 
 
-TRANCODE        SEGMENT PUBLIC BYTE
-ASSUME  CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+SECTION .TRANCODE
+; ASSUME  CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-        EXTRN   CERROR:NEAR,ZPRINT:NEAR
-        EXTRN   CRLF2:NEAR,SCANOFF:NEAR,FREE_TPA:NEAR,ALLOC_TPA:NEAR
-        EXTRN   OUT:NEAR,DRVBAD:NEAR,SETPATH:NEAR,PRINT:NEAR
-        EXTRN   FCB_TO_ASCZ:NEAR
+        extern CERROR,ZPRINT
+        extern CRLF2,SCANOFF,FREE_TPA,ALLOC_TPA
+        extern OUT,DRVBAD,SETPATH,PRINT
+        extern FCB_TO_ASCZ
 
-        PUBLIC  PRINT_DRIVE,$EXIT,MOVE_NAME
-        PUBLIC  UPCONV,ADD_PROMPT,CTTY,PRINT_DEFAULT_DIRECTORY
-        PUBLIC  ADD_NAME_TO_ENVIRONMENT,PWD,SCAN_DOUBLE_NULL
-        PUBLIC  FIND_NAME_IN_ENVIRONMENT,STORE_CHAR
-        PUBLIC  FIND_PATH,DELETE_PATH,FIND_PROMPT
-        PUBLIC  SCASB2
+        global PRINT_DRIVE,$EXIT,MOVE_NAME
+        global UPCONV,ADD_PROMPT,CTTY,PRINT_DEFAULT_DIRECTORY
+        global ADD_NAME_TO_ENVIRONMENT,PWD,SCAN_DOUBLE_NULL
+        global FIND_NAME_IN_ENVIRONMENT,STORE_CHAR
+        global FIND_PATH,DELETE_PATH,FIND_PROMPT
+        global SCASB2
 
-        IF      KANJI
-        PUBLIC  TESTKANJ
-        ENDIF
+        %if KANJI
+        global TESTKANJ
+        %endif
 
 BREAK   <Environment utilities>
-ASSUME DS:TRANGROUP
+; ASSUME DS:TRANGROUP
 
 ADD_PROMPT:
         CALL    DELETE_PROMPT                   ; DELETE ANY EXISTING PROMPT
@@ -91,7 +91,7 @@ EQLP:
         CMP     AL,"="          ;LOOK FOR = SIGN
         JNZ     EQLP            ;NOT THERE, GET NEXT CHAR
         INC     BL              ;OTHERWISE INCREMENT EQ COUNT
-        CMP     BYTE PTR [SI],13        ;LOOK FOR CR FOLLOWING = SIGN
+        CMP     byte [SI],13        ;LOOK FOR CR FOLLOWING = SIGN
         JNZ     EQLP
         INC     BH              ;SET BH=1 MEANS NO PARAMETERS
         JMP     EQLP            ;AND LOOK FOR MORE
@@ -99,7 +99,7 @@ QUEQ:
         POP     SI              ;RESTORE BEGINNING OF LINE
         DEC     BL              ;ZERO FLAG MEANS ONLY ONE EQ
         JZ      ONEQ            ;GOOD LINE
-        MOV     DX,OFFSET TRANGROUP:SYNTMES
+        MOV     DX,SYNTMES
         JMP     CERROR
 
 ONEQ:
@@ -120,12 +120,12 @@ ADD_NAME:
 
 DISP_ENV:
         MOV     DS,[RESSEG]
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         MOV     DS,[ENVIRSEG]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         XOR     SI,SI
 PENVLP:
-        CMP     BYTE PTR [SI],0
+        CMP     byte [SI],0
         retz
 
         MOV     DX,SI
@@ -137,13 +137,13 @@ PENVLP2:
         JNZ     PENVLP2
         JMP     PENVLP
 
-ASSUME  DS:TRANGROUP
+; ASSUME  DS:TRANGROUP
 DELETE_PATH:
-        MOV     SI,OFFSET TRANGROUP:PATH_TEXT
+        MOV     SI,PATH_TEXT
         JMP     SHORT DELETE_NAME_IN_environment
 
 DELETE_PROMPT:
-        MOV     SI,OFFSET TRANGROUP:PROMPT_TEXT
+        MOV     SI,PROMPT_TEXT
 
 DELETE_NAME_IN_environment:
 ;
@@ -169,11 +169,11 @@ DEL1:
         return
 
 FIND_PATH:
-        MOV     SI,OFFSET TRANGROUP:PATH_TEXT
+        MOV     SI,PATH_TEXT
         JMP     SHORT FIND_NAME_IN_environment
 
 FIND_PROMPT:
-        MOV     SI,OFFSET TRANGROUP:PROMPT_TEXT
+        MOV     SI,PROMPT_TEXT
 
 FIND_NAME_IN_environment:
 ;
@@ -192,9 +192,9 @@ FIND:
         CLD
         CALL    COUNT0                  ; CX = LENGTH OF NAME
         MOV     ES,[RESSEG]
-ASSUME  ES:RESGROUP
+; ASSUME  ES:RESGROUP
         MOV     ES,[ENVIRSEG]
-ASSUME  ES:NOTHING
+; ASSUME  ES:NOTHING
         XOR     DI,DI
 FIND1:
         PUSH    CX
@@ -203,7 +203,7 @@ FIND1:
 FIND11:
         LODSB
 
-        IF      KANJI
+        %if KANJI
         CALL    TESTKANJ
         JZ      NOTKANJ3
         DEC     SI
@@ -217,7 +217,7 @@ FIND11:
         JMP     SHORT FIND12
 
 NOTKANJ3:
-        ENDIF
+        %endif
 
         CALL    UPCONV
         INC     DI
@@ -232,7 +232,7 @@ FIND12:
         PUSH    CX
         CALL    SCASB2                  ; SCAN FOR A NUL
         POP     CX
-        CMP     BYTE PTR ES:[DI],0
+        CMP     byte ES:[DI],0
         JNZ     FIND1
         STC                             ; INDICATE NOT FOUND
         return
@@ -256,11 +256,11 @@ COUNTX:
         return
 
 MOVE_NAME:
-        CMP     BYTE PTR DS:[SI],13
+        CMP     byte DS:[SI],13
         retz
         LODSB
 
-        IF      KANJI
+        %if KANJI
         CALL    TESTKANJ
         JZ      NOTKANJ1
         CALL    STORE_CHAR
@@ -269,7 +269,7 @@ MOVE_NAME:
         JMP     SHORT MOVE_NAME
 
 NOTKANJ1:
-        ENDIF
+        %endif
 
         CALL    UPCONV
         CALL    STORE_CHAR
@@ -288,13 +288,13 @@ GETARG:
 
 SCAN_DOUBLE_NULL:
         MOV     ES,[RESSEG]
-ASSUME  ES:RESGROUP
+; ASSUME  ES:RESGROUP
         MOV     ES,[ENVIRSEG]
-ASSUME  ES:NOTHING
+; ASSUME  ES:NOTHING
         XOR     DI,DI
 SDN1:
         CALL    SCASB2
-        CMP     BYTE PTR ES:[DI],0
+        CMP     byte ES:[DI],0
         JNZ     SDN1
         return
 
@@ -308,7 +308,7 @@ SCASBX:
         REPNZ   SCASB
         return
 
-        IF      KANJI
+        %if KANJI
 TESTKANJ:
         CMP     AL,81H
         JB      NOTLEAD
@@ -330,7 +330,7 @@ ISLEAD:
         INC     AX              ;Reset zero
         POP     AX
         return
-        ENDIF
+        %endif
 
 UPCONV:
         CMP     AL,"a"
@@ -339,7 +339,7 @@ UPCONV:
         JA      RET22C
         SUB     AL,20H          ; Lower-case changed to upper-case
 RET22C:
-        CALL    DWORD PTR CS:[INTERNATVARS.Map_call]
+        CALL    dword CS:[INTERNATVARS.Map_call]
         return
 ;
 ; STORE A CHAR IN environment, GROWING IT IF NECESSARY
@@ -373,11 +373,11 @@ STORE_CHAR:
         POP     CX
         POP     AX
         JNC     STORE1
-        MOV     DX,OFFSET TRANGROUP:ENVERR
+        MOV     DX,ENVERR
         JMP     CERROR
 STORE1:
         STOSB
-        MOV     WORD PTR ES:[DI],0            ; NULL IS AT END
+        MOV     word ES:[DI],0            ; NULL IS AT END
         POP     BX
         POP     CX
         return
@@ -406,14 +406,14 @@ PRINT_DRIVE:
         ADD     AL,"A"
         JMP     OUT
 
-ASSUME  DS:TRANGROUP,ES:TRANGROUP
+; ASSUME  DS:TRANGROUP,ES:TRANGROUP
 PWD:
         CALL    PRINT_DIRECTORY
         CALL    CRLF2
         return
 
 PRINT_DEFAULT_DIRECTORY:
-        MOV     BYTE PTR DS:[FCB],0
+        MOV     byte DS:[FCB],0
 PRINT_DIRECTORY:
         MOV     DL,DS:[FCB]
         MOV     AL,DL
@@ -424,7 +424,7 @@ PRINT_DIRECTORY:
         INC     AL
 GOTDRIVE:
         PUSH    AX
-        MOV     SI,OFFSET TRANGROUP:PWDBUF+3
+        MOV     SI,PWDBUF+3
         MOV     AH,CURRENT_DIR
         INT     int_command
         JNC     DPBISOK
@@ -432,7 +432,7 @@ GOTDRIVE:
         POP     DS
         JMP     DRVBAD
 DPBISOK:
-        MOV     DI,OFFSET TRANGROUP:PWDBUF
+        MOV     DI,PWDBUF
         MOV     DX,DI
         POP     AX
         MOV     AH,DRVCHAR
@@ -444,22 +444,22 @@ DPBISOK:
 $EXIT:
         PUSH    ES
         MOV     ES,[RESSEG]
-ASSUME  ES:RESGROUP
+; ASSUME  ES:RESGROUP
         MOV     AX,[PARENT]
-        MOV     WORD PTR ES:[PDB_Parent_PID],AX
+        MOV     word ES:[PDB_Parent_PID],AX
 
-IF IBM
+%if IBM
         CMP     [PERMCOM],0
         JNZ     NORESETVEC      ;Don't reset the vector if a PERMCOM
-        LDS     DX,DWORD PTR ES:[SYS_CALL]
-ASSUME  DS:NOTHING
+        LDS     DX,dword ES:[SYS_CALL]
+; ASSUME  DS:NOTHING
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) + INT_COMMAND
         INT     int_command
 NORESETVEC:
-ENDIF
+%endif
 
         POP     ES
-ASSUME  ES:TRANGROUP
+; ASSUME  ES:TRANGROUP
         MOV     ES,[TPA]
         MOV     AH,DEALLOC
         INT     int_command                             ; Now running in "free" space
@@ -479,7 +479,7 @@ CTTY:
         MOV     AH,CLOSE       ; Close initial handle
         INT     int_command
 ISBADDEV:
-        MOV     DX,OFFSET TRANGROUP:BADDEV
+        MOV     DX,BADDEV
         CALL    PRINT
         JMP     RESRET
 
@@ -507,16 +507,16 @@ ICLLOOP:                                ; Close basic handles
         INT     int_command
 RESRET:
         MOV     DS,[RESSEG]
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         PUSH    DS
-        MOV     AX,WORD PTR DS:[PDB_JFN_Table]           ; Get new 0 and 1
+        MOV     AX,word DS:[PDB_JFN_Table]           ; Get new 0 and 1
         MOV     [IO_SAVE],AX
-        MOV     AX,OFFSET RESGROUP:LODCOM1
+        MOV     AX,LODCOM1
         PUSH    AX
-ZMMMM   PROC FAR
+ZMMMM:
         RET                     ; Force header to be checked
-ZMMMM   ENDP
+; ENDP ZMMMM
 
-TRANCODE        ENDS
-        END
+; END SECTION .TRANCODE
+        ; END
                                                                                  

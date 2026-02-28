@@ -1,41 +1,41 @@
 ;
-page	,132				; ;AN000;bgb
+; page	,132; ;AN000;bgb
 ;;*****************************************************************************
 ; Include files
 ;*****************************************************************************
 ;
-.xlist
-	include pathmac.inc							;an028;bgb
-	include recseg.inc		;AN000;bgb
-	include dossym.inc
-	INCLUDE SYSMSG.INC
-	INCLUDE RECEQU.INC
-	INCLUDE RECMSG.INC
-.list
+; .xlist
+	%include "pathmac.inc";an028;bgb
+	%include "recseg.inc";AN000;bgb
+	%include "dossym.inc"
+	%include "SYSMSG.INC"
+	%include "RECEQU.INC"
+	%include "RECMSG.INC"
+; .list
 ;
 ;*****************************************************************************
 ; external data
 ;*****************************************************************************
-data	segment public para 'DATA'      ;AC000;bgb
-	EXTRN	command_line_buffer:byte					;an031;bgb
-	extrn	DrvLet1:Byte		;AN000;bgb
-	extrn	DrvLet:Byte	       ;AN000;bgb
-	extrn	rec_num:word	       ;AN000;bgb
-	Extrn	Drive_Letter_Msg:Byte	;AN000;BGB
-	extrn	fname_buffer:byte	;AN000;BGB
-	EXTRN	x_value_lo:WORD 	;AN000;bgb	   ; AC000;SM
-	EXTRN	x_value_hi:WORD 	;AN000;bgb	   ; AC000;SM
-	EXTRN	y_value_lo:WORD 	;AN000;bgb	   ; AC000;SM
-	EXTRN	y_value_hi:WORD 	;AN000;bgb	   ; AC000;SM
-	extrn	DriveLetter:Byte
+SECTION .data;AC000;bgb
+	extern command_line_buffer;an031;bgb
+	extern DrvLet1;AN000;bgb
+	extern DrvLet;AN000;bgb
+	extern rec_num;AN000;bgb
+	extern Drive_Letter_Msg;AN000;BGB
+	extern fname_buffer;AN000;BGB
+	extern x_value_lo;AN000;bgb	   ; AC000;SM
+	extern x_value_hi;AN000;bgb	   ; AC000;SM
+	extern y_value_lo;AN000;bgb	   ; AC000;SM
+	extern y_value_hi;AN000;bgb	   ; AC000;SM
+	extern DriveLetter
 
 ;*****************************************************************************
 ; Message Services
 ;*****************************************************************************
-.xlist
+; .xlist
 MSG_UTILNAME  <RECOVER>
 Msg_Services	<MSGDATA>
-data	ends
+; END SECTION .data
 
 
 ;
@@ -43,8 +43,8 @@ data	ends
 ; Message Structures
 ;***************************************************************************
 ;
-code	segment PUBLIC para 'CODE'
-Message_Table struc				;				;AN000;
+SECTION .code
+struc Message_Table;				;AN000;
 						;
 Entry1	dw	0				;				;AN000;
 Entry2	dw	0				;				;AN000;
@@ -53,7 +53,7 @@ Entry4	dw	0				;				;AN000;
 Entry5	db	0				;				;AN000;
 Entry6	db	0				;				;AN000;
 Entry7	dw	0				;				;AN000;
-Message_Table ends				;				;AN000;
+endstruc;				;AN000;
 
 pathlabl	msgret								;an028;bgb
 Msg_Services	<NEARmsg>
@@ -61,14 +61,14 @@ Msg_Services	<LOADmsg>
 Msg_Services	<DISPLAYmsg,CHARmsg,NUMmsg>					;an029;bgb
 pathlabl	msgret								;an028;bgb
 Msg_Services	<RECOVER.CLA,RECOVER.CL1,RECOVER.CL2,RECOVER.CTL>
-.list
+; .list
 ;
 ;*****************************************************************************
 ; Public Routines
 ;*****************************************************************************
-	Public	SysDispMsg
-	Public	SysLoadMsg
-	Public	Display_Interface
+	global SysDispMsg
+	global SysLoadMsg
+	global Display_Interface
 
 ;*****************************************************************************
 ;Routine name&gml Display_Interface
@@ -99,7 +99,7 @@ Msg_Services	<RECOVER.CLA,RECOVER.CL1,RECOVER.CL2,RECOVER.CTL>
 ;	ret
 ;*****************************************************************************
 
-Display_Interface   proc			;				;AN000;
+Display_Interface:;				;AN000;
 
 	 push	 ds				 ;				 ;AN000;
 	 push	 ax				 ;Save registers		 ;AN000;
@@ -127,12 +127,12 @@ Display_Interface   proc			;				;AN000;
 	 pop	 ax				 ; "  "    "  "                  ;AN000;
 	 pop	 ds				 ;				 ;AN000;
 	 ret					 ;All done			 ;AN000;
-Display_Interface      endp			;				;AN000;
+; ENDP Display_Interface;				;AN000;
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-code	ends
-	end
+; END SECTION .code
+	; end
 
 
 ;code	 segment public PARA 'CODE'      ;AC000;bgb

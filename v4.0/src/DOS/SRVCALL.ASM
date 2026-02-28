@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)srvcall.asm	1.4 85/08/02
-TITLE SRVCALL - Server DOS call
-NAME  SRVCALL
+; TITLE SRVCALL - Server DOS call
+; NAME  SRVCALL
 ;
 ; Server DOS call functions
 ;
@@ -12,24 +12,24 @@ NAME  SRVCALL
 ;	Created: ARR 08 August 1983
 ;
 
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+; .cref
+; .list
 
 AsmVars <Installed>
 
-include dpl.asm
+%include "dpl.asm"
 
 Installed = TRUE
 
@@ -55,29 +55,29 @@ Installed = TRUE
 
 BREAK <ServerCall -- Server DOS call>
 
-TABLE	SEGMENT
-Public SRVC001S,SRVC001E
-SRVC001S label byte
+SECTION .TABLE
+global SRVC001S,SRVC001E
+SRVC001S:
 
-ServerTab	DW	DOSGroup:Server_Disp
-SERVERLEAVE	DW	DOSGROUP:ServerReturn
+ServerTab	DW	Server_Disp
+SERVERLEAVE	DW	ServerReturn
 SERVER_DISP	DB	(SERVER_DISP_END-SERVER_DISP-1)/2
-		DW	OFFSET DOSGROUP:SRV_CALL	; 0
-		DW	OFFSET DOSGROUP:COMMIT_ALL	; 1
-		DW	OFFSET DOSGROUP:CLOSE_NAME	; 2
-		DW	OFFSET DOSGROUP:CLOSE_UID	; 3
-		DW	OFFSET DOSGROUP:CLOSE_UID_PID	; 4
-		DW	OFFSET DOSGROUP:GET_LIST	; 5
-		DW	OFFSET DOSGROUP:GET_DOS_DATA	; 6
-		DW	OFFSET DOSGROUP:SPOOL_OPER	; 7
-		DW	OFFSET DOSGROUP:SPOOL_OPER	; 8
-		DW	OFFSET DOSGROUP:SPOOL_OPER	; 9
-		DW	OFFSET DOSGroup:$setExtendedError   ; 10
-SERVER_DISP_END LABEL	BYTE
+		DW	SRV_CALL	; 0
+		DW	COMMIT_ALL	; 1
+		DW	CLOSE_NAME	; 2
+		DW	CLOSE_UID	; 3
+		DW	CLOSE_UID_PID	; 4
+		DW	GET_LIST	; 5
+		DW	GET_DOS_DATA	; 6
+		DW	SPOOL_OPER	; 7
+		DW	SPOOL_OPER	; 8
+		DW	SPOOL_OPER	; 9
+		DW	$setExtendedError   ; 10
+SERVER_DISP_END:
 
-SRVC001E label byte
+SRVC001E:
 
-TABLE	ENDS
+; END SECTION .TABLE
 
 ; Inputs:
 ;	DS:DX -> DPL  (except calls 7,8,9)
@@ -105,14 +105,14 @@ TABLE	ENDS
 ;		    DS:SI -> swap table
 
 	procedure   $ServerCall,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	CMP	AL,7
 	JB	SET_STUFF
 	CMP	AL,9
 	JBE	NO_SET_ID		; No DPL on calls 7,8,9
 	CMP	AL,11				   ;IFS.			;AN000;
 	JNZ	SET_STUFF			   ;IFS.			;AN000;
-	MOV	DI,OFFSET DOSGROUP:SWAP_AREA_TABLE ;IFS.			;AN000;
+	MOV	DI,SWAP_AREA_TABLE ;IFS.			;AN000;
 	PUSH	SS				   ;IFS.			;AN000;
 	POP	ES				   ;IFS.			;AN000;
 	invoke	GET_USER_STACK			   ;IFS.			;AN000;
@@ -139,7 +139,7 @@ ServerReturn:
 ; directory entries are correctly updated.
 
 COMMIT_ALL:
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	XOR	BX,BX			;   for (i=0; ThisSFT=getSFT(i); i++)
 	Context DS
 	EnterCrit   critSFT		; Gonna scan SFT cache, lock it down
@@ -155,8 +155,8 @@ CommitLoop:
 	invoke	Test_IFS_Remote 	;IFS.					;AN000;
 	JNZ	CommitNext		;  Skip Network SFTs so the SERVER
 					;	doesn't deadlock
-	MOV	WORD PTR ThisSFT,DI
-	MOV	WORD PTR ThisSFT+2,ES
+	MOV	word ThisSFT,DI
+	MOV	word ThisSFT+2,ES
 	Invoke	DOS_Commit		;	    DOSCommit ();
 CommitNext:
 	RestoreReg  <BX>
@@ -168,13 +168,13 @@ CommitDone:
 	transfer    Sys_Ret_OK
 
 CLOSE_NAME:
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
-if installed
+%if installed
 	Call	JShare + 5 * 4
-else
+%else
 	Call	MFTcloN
-endif
+%endif
 CheckReturns:
 	JC	func_err
 	transfer SYS_RET_OK
@@ -182,32 +182,32 @@ func_err:
 	transfer SYS_RET_ERR
 
 CLOSE_UID:
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
-if installed
+%if installed
 	Call	JShare + 3 * 4
-else
+%else
 	Call	MFTclU
-endif
+%endif
 	JMP	CheckReturns
 
 CLOSE_UID_PID:
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
-if installed
+%if installed
 	Call	JShare + 4 * 4
-else
+%else
 	Call	MFTCloseP
-endif
+%endif
 	JMP	CheckReturns
 
 GET_LIST:
-ASSUME	DS:NOTHING,ES:NOTHING
-if installed
+; ASSUME	DS:NOTHING,ES:NOTHING
+%if installed
 	Call	JShare + 9 * 4
-else
+%else
 	Call	MFT_get
-endif
+%endif
 	JC	func_err
 	invoke	get_user_stack
 	MOV	[SI.user_BX],BX
@@ -218,7 +218,7 @@ SetCXOK:
 	transfer    SYS_RET_OK
 
 SRV_CALL:
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	POP	AX			; get rid of call to $srvcall
 	SaveReg <DS,SI>
 	invoke	GET_USER_STACK
@@ -257,7 +257,7 @@ ASSUME	DS:NOTHING,ES:NOTHING
 	transfer REDISP
 
 GET_DOS_DATA:
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	LES	DI,[SWAP_ALWAYS_AREA]	     ;IFS. get beginning addr of swap ;AC000;
 	MOV	DX,[SWAP_ALWAYS_AREA_LEN]    ;IFS. get swap always area len   ;AC000;
 	AND	DX,7FFFH		     ;IFS. clear high bit	      ;AC000;
@@ -269,7 +269,7 @@ ASSUME	DS:NOTHING,ES:NOTHING
 	JMP	SetCXOK 		     ;				      ;AN000;
 
 SPOOL_OPER:
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	CallInstall NETSpoolOper,multNet,37,AX,BX
 	JC	func_err2
 	transfer SYS_RET_OK
@@ -288,19 +288,19 @@ Break	<$SetExtendedError - set extended error for later retrieval>
 ;
 
 $SetExtendedError:
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 	MOV	AX,[SI].dpl_AX
 	MOV	[EXTERR],AX
 	MOV	AX,[SI].dpL_di
-	MOV	WORD PTR ExtErrPt,AX
+	MOV	word ExtErrPt,AX
 	MOV	AX,[SI].dpL_ES
-	MOV	WORD PTR ExtErrPt+2,AX
+	MOV	word ExtErrPt+2,AX
 	MOV	AX,[SI].dpL_BX
-	MOV	WORD PTR [EXTERR_ACTION],AX
+	MOV	word [EXTERR_ACTION],AX
 	MOV	AX,[SI].dpL_CX
 	MOV	[EXTERR_LOCUS],AH
 	return
 EndProc $ServerCall
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END

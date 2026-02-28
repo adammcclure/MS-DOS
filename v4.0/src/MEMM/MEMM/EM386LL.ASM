@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	EM386LL - 386 routine to emulate 386 LOADALL
+	; title	EM386LL - 386 routine to emulate 386 LOADALL
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -45,27 +45,27 @@ page	58,132
 ;		check DR6/DR7 for addresses > 1meg ?
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	EM386ll
+	global EM386ll
 ;
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include loadall.inc
-	include VDMseg.inc
-	include desc.inc
-	include VDMsel.inc
-	include instr386.inc
-	include vm386.inc
-	include	oemdep.inc
+	%include "loadall.inc"
+	%include "VDMseg.inc"
+	%include "desc.inc"
+	%include "VDMsel.inc"
+	%include "instr386.inc"
+	%include "vm386.inc"
+	%include "oemdep.inc"
 
 FALSE	equ	0
 TRUE	equ	not FALSE
@@ -83,7 +83,7 @@ TRUE	equ	not FALSE
 ;
 ;   USED:  EAX
 ;
-Desc3Copy	MACRO
+%macro Desc3Copy 0
 	OP32
 	EA32				; EAX = dword from DS:[ESI]
 	lodsw				; get access rights
@@ -108,7 +108,7 @@ Desc3Copy	MACRO
 
 	OP32
 	stosw				; store 32 bit LIMIT into 386 entry
-	ENDM
+	%endmacro
 
 ;
 ; CurCopy
@@ -123,7 +123,7 @@ Desc3Copy	MACRO
 ;
 ;   USED:  EAX
 ;
-CurCopy 	MACRO
+%macro CurCopy 0
 	OP32
 	mov	ax,[bx+4]		; get AR info
 	or	ah,D_DPL3		;* set DPL 3 for virtual mode access
@@ -144,35 +144,35 @@ CurCopy 	MACRO
 	mov	ax,[bx] 		; EAX = LIMIT[31..0]
 	OP32
 	stosw				; store into cache for 386 buffer
-	ENDM
+	%endmacro
 
 ;******************************************************************************
 ;			L O C A L   D A T A   A R E A
 ;******************************************************************************
 
-_DATA	 segment
-extrn	ELOff:word		; offset of 386 loadall buffer
-_DATA	 ends
+SECTION ._DATA
+extern ELOff; offset of 386 loadall buffer
+; END SECTION ._DATA
 
 
-R_CODE	segment
-extrn	JumpReal:far		; continue client in real mode (rrtrap.asm)
-R_CODE	ends
+SECTION .R_CODE
+extern JumpReal; continue client in real mode (rrtrap.asm)
+; END SECTION .R_CODE
 
-_TEXT	segment
-extrn	MapLinear:near		; maps linear addresses	 (maplin.asm)
-extrn	PortTrap:near		; IOBM trap set function (vminit.asm)
-extrn	ErrHndlr:near		; error handler		 (errhndlr.asm)
-_TEXT	ends
+SECTION ._TEXT
+extern MapLinear; maps linear addresses	 (maplin.asm)
+extern PortTrap; IOBM trap set function (vminit.asm)
+extern ErrHndlr; error handler		 (errhndlr.asm)
+; END SECTION ._TEXT
 
 
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 ;
-_TEXT	 segment
-	ASSUME CS:_TEXT,DS:DGROUP,ES:DGROUP
+SECTION ._TEXT
+	; ASSUME CS:_TEXT,DS:DGROUP,ES:DGROUP
 
 ;******************************************************************************
 ;	EM386ll - emulate 386 Loadall
@@ -195,7 +195,7 @@ _TEXT	 segment
 ;	USED:	Not applicable...  loadall reloads all registers
 ;
 ;******************************************************************************
-EM386ll proc	near
+EM386ll:
 ;
 	PUSH_EAX
 	PUSH_ECX
@@ -217,7 +217,7 @@ EM386ll proc	near
 	mov	ds,bx
 	OP32
 	mov	si,di
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 
 ;   Point ES:EDI to start of our 386 loadall buffer
 
@@ -300,7 +300,7 @@ EF_OK:
 ;   Copy the client's GS, FS, DS, SS, CS, ES register images from
 ;   his 386 loadall buffer to our 386 loadall buffer
 ;
-	add	si,offset ll3_GS - offset ll3_TSSR
+	add	si,ll3_GS - ll3_TSSR
 	mov	cx,6
 	OP32				; dwords from DS:[ESI] to ES:[EDI]
 	EA32
@@ -318,9 +318,9 @@ EF_OK:
 
 	mov	cx, 4
 	mov	bx, TSS_GSEL
-	push	word ptr LDTD_GSEL
-	push	word ptr GDTD_GSEL
-	push	word ptr IDTD_GSEL
+	push	word LDTD_GSEL
+	push	word GDTD_GSEL
+	push	word IDTD_GSEL
 
 CopyCur:				; Copy current descriptors
 	CurCopy 			; DS:[BX] points to current descriptor
@@ -333,7 +333,7 @@ CopyCur:				; Copy current descriptors
 ;   Copy the client's GS, FS, DS, SS, CS, ES register cache images from
 ;   his 386 loadall buffer to our 386 loadall buffer
 ;
-	add	si,offset ll3_GScache - offset ll3_TSScache
+	add	si,ll3_GScache - ll3_TSScache
 	mov	cx,6
 CopyCac:				; ES:DI pts to our 386 buf cache entry
 	Desc3Copy			;   store his cache in our 386 buffer
@@ -361,18 +361,18 @@ CopyCac:				; ES:DI pts to our 386 buf cache entry
 	mov	di,ES:[ELOff]		    ; ES:EDI pts to loadall buffer
 	dw	LODAL386		    ; execute 386 LOADALL
 
-	ASSUME	DS:DGROUP
+	; ASSUME	DS:DGROUP
 ;
 ;
-EM386ll endp
+; ENDP EM386ll
 
-	page
+	; page
 ;******************************************************************************
 ;	Em386_Err - handle 386 ll emulation error
 ;		This routine is currently called only on attempts to set the
 ;	VM bit via loadall.
 ;******************************************************************************
-Em386_Err	proc	near
+Em386_Err:
 	push	ax
 	push	bx
 	mov	ax, PrivErr
@@ -391,7 +391,7 @@ Em386_Err	proc	near
 	jmp	JumpReal	; "jump" to real mode and continue interrupted
 				;    code.
 
-Em386_Err	endp
+; ENDP Em386_Err
 ;
-_TEXT	 ends
-	end
+; END SECTION ._TEXT
+	; end

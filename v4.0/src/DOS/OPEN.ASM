@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)open.asm	1.1 85/04/10
-TITLE	DOS_OPEN - Internal OPEN call for MS-DOS
-NAME	DOS_OPEN
+; TITLE	DOS_OPEN - Internal OPEN call for MS-DOS
+; NAME	DOS_OPEN
 ; Low level routines for openning a file from a file spec.
 ;   Also misc routines for sharing errors
 ;
@@ -19,20 +19,20 @@ NAME	DOS_OPEN
 ;
 ; get the appropriate segment definitions
 ;
-.xlist
-include dosseg.asm
+; .xlist
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-include dossym.inc
-include devsym.inc
-include fastopen.inc
-include fastxxxx.inc		       ;AN000;
-include ifssym.inc		       ;AN000;
-.cref
-.list
+; .xcref
+%include "dossym.inc"
+%include "devsym.inc"
+%include "fastopen.inc"
+%include "fastxxxx.inc";AN000;
+%include "ifssym.inc";AN000;
+; .cref
+; .list
 
 Installed = TRUE
 
@@ -111,7 +111,7 @@ Break	<DOS_Open - internal file access>
 
 	procedure   DOS_Open,NEAR
 	DOSAssume   CS,<DS>,"DOS_Open"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	MOV	[NoSetDir],0
 	CALL	Check_Access_AX
@@ -119,7 +119,7 @@ Break	<DOS_Open - internal file access>
 	LES	DI,[THISSFT]
 	XOR	AH,AH
 ; sleaze! move only access/sharing mode in.  Leave sf_isFCB unchanged
-	MOV	BYTE PTR ES:[DI.sf_mode],AL ; For moment do this on FCBs too
+	MOV	byte ES:[DI.sf_mode],AL ; For moment do this on FCBs too
 	PUSH	ES
 	LES	SI,[THISCDS]
 	CMP	SI,-1
@@ -130,7 +130,7 @@ Break	<DOS_Open - internal file access>
 	TEST	[EXTOPEN_ON],ext_open_on    ;FT. from extnded open		;AN000;
 	JZ	NOEXTOP 		    ;FT. no, do normal			;AN000;
 IFS_extopen:									;AN000;
-	MOV	AL,byte ptr [SAVE_CX]	    ;FT. al= create attribute		;AN000;
+	MOV	AL,byte [SAVE_CX]	    ;FT. al= create attribute		;AN000;
 	PUSH	AX			    ;FT. pass create attr to IFS	;AN000;
 	MOV	AX,(multNET SHL 8) OR 46    ;FT. issue extended open verb	;AN000;
 	INT	2FH			    ;FT.				;AN000;
@@ -142,15 +142,15 @@ NOEXTOP:
 ;Extended open hooks
 
 
-IF NOT Installed
+%if NOT Installed
 	transfer NET_SEQ_OPEN
-ELSE
+%else
 	PUSH	AX
 	MOV	AX,(multNET SHL 8) OR 22
 	INT	2FH
 	POP	BX			; clean stack
 	return
-ENDIF
+%endif
 
 TEST_RE_NET:
 	TEST	ES:[SI.curdir_flags],curdir_isnet
@@ -164,9 +164,9 @@ TEST_RE_NET:
 	JNZ	IFS_extopen		    ;FT. isuue extended open		;AN000;
 ;Extended open hooks
 
-IF NOT Installed
+%if NOT Installed
 	transfer NET_OPEN
-ELSE
+%else
 	PUSH	AX
 	MOV	AX,(multNET SHL 8) OR 22
 	INT	2FH
@@ -182,7 +182,7 @@ nomore2:
 ;	CLC
 nomore:
 	return
-ENDIF
+%endif
 
 LOCAL_OPEN:
 	EnterCrit   critDisk
@@ -202,7 +202,7 @@ LOCAL_OPEN:
 OpenFNF:
 	MOV	AX,error_file_not_found
 OpenBadRet:
-	AND	BYTE PTR CS:[FastOpenFlg],Fast_yes    ;; DOS 3.3
+	AND	byte CS:[FastOpenFlg],Fast_yes    ;; DOS 3.3
 	STC
 	LeaveCrit   critDisk
 	JMP	Clear_FastOpen
@@ -219,7 +219,7 @@ Open_found:
 	JZ	Open_Bad_Access 	; test for directories
 	OR	AH,AH
 	JS	open_ok 		; Devices don't have attributes
-	MOV	ES,WORD PTR [CURBUF+2]	; get buffer location
+	MOV	ES,word [CURBUF+2]	; get buffer location
 	MOV	AL,ES:[BX].dir_attr
 	TEST	AL,attr_volume_id	; can't open volume ids
 	JNZ	open_bad_access
@@ -287,7 +287,7 @@ NORM0:
 
 ;;; File Tagging DOS 4.00
 	invoke	DOOPEN			; Fill in SFT
-	AND	BYTE PTR CS:[FastOpenFlg],Fast_yes    ;; DOS 3.3
+	AND	byte CS:[FastOpenFlg],Fast_yes    ;; DOS 3.3
 	CALL	DO_SHARE_CHECK		;
 	JNC	Share_Ok
 	LeaveCrit   critDisk
@@ -296,11 +296,11 @@ NORM0:
 SHARE_OK:
 	MOV	AX,3
 	LES	DI,ThisSFT
-if installed
+%if installed
 	call	JShare + 14 * 4
-else
+%else
 	Call	ShSU
-endif
+%endif
 ;; DOS 4.00 10/27/86
 	LES	DI,ThisSFT			   ; if this is a newly 	;AN000;
 	CMP	ES:[DI.sf_firclus],0		   ; created file then		;AN000;
@@ -327,7 +327,7 @@ no_fastseek:
 
 	entry	SET_SFT_MODE
 	DOSAssume   CS,<DS>,"Set_SFT_Mode"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	LES	DI,ThisSFT
 	invoke	DEV_OPEN_SFT
@@ -349,10 +349,10 @@ EndProc DOS_Open
 
 procedure SHARE_ERROR,NEAR
 	DOSAssume   CS,<DS>,"Share_Error"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 	TEST	ES:[DI.sf_mode],sf_isfcb
 	JNZ	HARD_ERR
-	MOV	CL,BYTE PTR ES:[DI.sf_mode]
+	MOV	CL,byte ES:[DI.sf_mode]
 	AND	CL,sharing_mask
 	CMP	CL,sharing_compat
 	JNE	NO_HARD_ERR
@@ -374,7 +374,7 @@ EndProc SHARE_ERROR
 
 procedure DO_SHARE_CHECK,NEAR
 	DOSAssume   CS,<DS>,"DO_SHARE__CHECK"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 	EnterCrit   critDisk		; enter critical section
 
 OPN_RETRY:
@@ -404,7 +404,7 @@ EndProc DO_SHARE_CHECK
 
 procedure OWN_SHARE,NEAR		;AN000;
 	DOSAssume   CS,<DS>,"OWN_SHARE" ;AN000;
-	ASSUME	ES:NOTHING		;AN000;
+	; ASSUME	ES:NOTHING;AN000;
 
 ;	PUSH	DS			;IFS. save reg				;AN000;
 ;	PUSH	SI			;IFS. save reg				;AN000;
@@ -424,7 +424,7 @@ EndProc OWN_SHARE			;AN000;
 
 procedure OWN_SHARE2,NEAR		  ;AN000;
 	DOSAssume   CS,<DS>,"OWN_SHARE2"  ;AN000;
-	ASSUME	ES:NOTHING		  ;AN000;
+	; ASSUME	ES:NOTHING;AN000;
 
 ;	CMP	WORD PTR [THISCDS],-1	;IFS. UNC ?				;AN000;
 ;	JZ	ifs_hasit		;IFS. yes				;AN000;
@@ -447,7 +447,7 @@ EndProc OWN_SHARE2			;AN000;
 
 procedure SET_THISDPB,NEAR		       ;AN000;
 	DOSAssume   CS,<DS>,"SET_THISDPB"      ;AN000;
-	ASSUME	ES:NOTHING		       ;AN000;
+	; ASSUME	ES:NOTHING;AN000;
 
 ;	PUSH	DS			;IFS. save reg				;AN000;
 ;	PUSH	SI			;IFS. save reg				;AN000;
@@ -468,7 +468,7 @@ EndProc SET_THISDPB			;AN000;
 
 procedure IFS_SHARE_CHECK,NEAR			   ;AN000;
 	DOSAssume   CS,<DS>,"IFS_SHARE_CHECK"      ;AN000;
-	ASSUME	ES:NOTHING			   ;AN000;
+	; ASSUME	ES:NOTHING;AN000;
 
 
 ;	CALL	OWN_SHARE		;IFS. IFS owns share			;AN000;
@@ -508,7 +508,7 @@ EndProc IFS_SHARE_CHECK 		;AN000;
 
 	procedure Check_Access_AX
 	DOSAssume   CS,<DS>,"Check_Access"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	MOV	Open_Access,AL
 	PUSH	BX
@@ -548,7 +548,7 @@ EndProc Check_Access_AX
 
 procedure Code_Page_Mismatched_Error,NEAR		 ;AN000;
 	DOSAssume   CS,<DS>,"Code_Page_Mismatched_Error" ;AN000;
-	ASSUME	ES:NOTHING				 ;AN000;
+	; ASSUME	ES:NOTHING;AN000;
 
 ;	PUSH	DS		       ;FT.					;AN000;
 ;	Context DS		       ;FT. ds=cs				;AN000;
@@ -565,5 +565,5 @@ procedure Code_Page_Mismatched_Error,NEAR		 ;AN000;
 ;	return						 ;FT.			;AN000;
 
 EndProc Code_Page_Mismatched_Error			 ;AN000;
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END

@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	VMTRAP - 386 Virtual Mode interrupt handler routines
+	; title	VMTRAP - 386 Virtual Mode interrupt handler routines
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -50,75 +50,75 @@ page	58,132
 ;   "to do:" marks potential holes/things to consider
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	VmTrap			; module label
+	global VmTrap; module label
 
-	public	hw_int
-	public	emul_reflect
+	global hw_int
+	global emul_reflect
 
-	public	vm_trap00
-	public	vm_trap01
-	public	vm_trap02
-	public	vm_trap03
-	public	vm_trap04
-	public	vm_trap05
-	public	vm_trap06
-	public	vm_trap07
-	public	vm_trap08
-	public	vm_trap09
-	public	vm_trap0a
-	public	vm_trap0b
-	public	vm_trap0c
-	public	vm_trap0d
-	public	vm_trap0e
-	public	vm_trap0f
-	public	vm_trap10
-	public	vm_trap50
-	public	vm_trap51
-	public	vm_trap52
-	public	vm_trap53
-	public	vm_trap54
-	public	vm_trap55
-	public	vm_trap56
-	public	vm_trap57
-	public	vm_trap70
-	public	vm_trap71
-	public	vm_trap72
-	public	vm_trap73
-	public	vm_trap74
-	public	vm_trap75
-	public	vm_trap76
-	public	vm_trap77
+	global vm_trap00
+	global vm_trap01
+	global vm_trap02
+	global vm_trap03
+	global vm_trap04
+	global vm_trap05
+	global vm_trap06
+	global vm_trap07
+	global vm_trap08
+	global vm_trap09
+	global vm_trap0a
+	global vm_trap0b
+	global vm_trap0c
+	global vm_trap0d
+	global vm_trap0e
+	global vm_trap0f
+	global vm_trap10
+	global vm_trap50
+	global vm_trap51
+	global vm_trap52
+	global vm_trap53
+	global vm_trap54
+	global vm_trap55
+	global vm_trap56
+	global vm_trap57
+	global vm_trap70
+	global vm_trap71
+	global vm_trap72
+	global vm_trap73
+	global vm_trap74
+	global vm_trap75
+	global vm_trap76
+	global vm_trap77
 
-	page
+	; page
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 ;
-_TEXT	 segment
-	extrn	VmFault:near		; V Mode GP fault handler (VMINST)
-	extrn	ErrHndlr:near		; Error Handler (ERRHNDLR)
-	extrn	DisableNMI:near 	; Disable NMI for NMI trap handler
-_TEXT	 ends
-	page
+SECTION ._TEXT
+	extern VmFault; V Mode GP fault handler (VMINST)
+	extern ErrHndlr; Error Handler (ERRHNDLR)
+	extern DisableNMI; Disable NMI for NMI trap handler
+; END SECTION ._TEXT
+	; page
 ;******************************************************************************
 ;			I N C L U D E	F I L E S
 ;******************************************************************************
 ;
-include VDMseg.inc
-include VDMsel.inc
-include vm386.inc
-include pic_def.equ
-include instr386.inc
-include oemdep.inc
+%include "VDMseg.inc"
+%include "VDMsel.inc"
+%include "vm386.inc"
+%include "pic_def.equ"
+%include "instr386.inc"
+%include "oemdep.inc"
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
@@ -126,27 +126,27 @@ include oemdep.inc
 FALSE	equ	0
 TRUE	equ	not FALSE
 
-ProcessExcep	macro	ExcepNum
+%macro ProcessExcep 1
 	mov	bx, ExcepNum
 	mov	ax, ExcpErr
 	jmp	ErrHndlr
-endm
+%endmacro
 ;
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 ;
-ABS0	segment at 0000h
-ABS0	ends
+SECTION .ABS0
+; END SECTION .ABS0
 ;
 ;------------------------------------------------------------------------------
-_TEXT	 segment
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING, ss:NOTHING
-VmTrap	label	byte
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING, ss:NOTHING
+VmTrap:
 ;
 	db	'WCC'
 ;
-	page
+	; page
 ;******************************************************************************
 ;   CPU:  Divide error fault
 ;
@@ -156,7 +156,7 @@ VmTrap	label	byte
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap00	proc	near
+vm_trap00:
 	PUSH_EBP
 	mov	bp,sp
 	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
@@ -165,7 +165,7 @@ vm_trap00	proc	near
 	jmp	hw_int			; reflect it to virtual mode
 vmt0_dexit:
 	ProcessExcep ErrDIV
-vm_trap00	endp
+; ENDP vm_trap00
 
 ;******************************************************************************
 ;   CPU:  Debug trap
@@ -179,7 +179,7 @@ vm_trap00	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap01	proc	near
+vm_trap01:
 	PUSH_EBP
 	mov	bp,sp
 	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
@@ -188,7 +188,7 @@ vm_trap01	proc	near
 	jmp	hw_int			; reflect it to virtual mode
 vmt1_dexit:
 	ProcessExcep ErrINT1
-vm_trap01	endp
+; ENDP vm_trap01
 
 ;******************************************************************************
 ;   H/W:  NMI
@@ -202,7 +202,7 @@ vm_trap01	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap02	proc	near
+vm_trap02:
 	PUSH_EBP
 	mov	bp,sp
 
@@ -216,7 +216,7 @@ vm_trap02	proc	near
 vmt2_parity:
 	ProcessExcep ErrNMI
 
-vm_trap02	endp
+; ENDP vm_trap02
 
 ;******************************************************************************
 ;   CPU:  Breakpoint trap (INT 3 instruction)
@@ -230,9 +230,9 @@ vm_trap02	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap03	proc	near
+vm_trap03:
 	ProcessExcep ErrINT3
-vm_trap03	endp
+; ENDP vm_trap03
 
 ;******************************************************************************
 ;   CPU:  Overflow trap (INTO instruction)
@@ -243,9 +243,9 @@ vm_trap03	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap04	proc	near
+vm_trap04:
 	ProcessExcep ErrINTO
-vm_trap04	endp
+; ENDP vm_trap04
 
 
 ;******************************************************************************
@@ -257,7 +257,7 @@ vm_trap04	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap05	proc	near
+vm_trap05:
 	PUSH_EBP
 	mov	bp,sp
 	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
@@ -266,7 +266,7 @@ vm_trap05	proc	near
 	jmp	hw_int			; reflect it to virtual mode
 vmt5_dexit:
 	ProcessExcep ErrBounds
-vm_trap05	endp
+; ENDP vm_trap05
 
 ;******************************************************************************
 ;   CPU:  Invalid Opcode fault
@@ -280,7 +280,7 @@ vm_trap05	endp
 ;   add Invalid instruction emulator ???  (specifically LOCK prefix)
 ;
 ;------------------------------------------------------------------------------
-vm_trap06	proc	near
+vm_trap06:
 	push	0			; align stack with error offset
 	push	0			;  for VmFault
 	PUSH_EBP
@@ -291,7 +291,7 @@ vm_trap06	proc	near
 
 vmt6_dexit:
 	ProcessExcep ErrOpCode
-vm_trap06	endp
+; ENDP vm_trap06
 
 ;******************************************************************************
 ;   CPU:  Coprocessor not present fault
@@ -302,7 +302,7 @@ vm_trap06	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap07	proc	near
+vm_trap07:
 	PUSH_EBP
 	mov	bp,sp
 	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
@@ -311,7 +311,7 @@ vm_trap07	proc	near
 	jmp	hw_int			; reflect it to virtual mode
 vmt7_dexit:
 	ProcessExcep ErrCoPNA
-vm_trap07	endp
+; ENDP vm_trap07
 
 
 ;******************************************************************************
@@ -324,7 +324,7 @@ vm_trap07	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap08	proc	near
+vm_trap08:
 	PUSH_EBP
 	mov	bp,sp
 	cmp	sp,VMT_STACK		; Q: H/W interrupt from VM ?
@@ -333,7 +333,7 @@ vm_trap08	proc	near
 	jmp	hw_int			; reflect it to virtual mode
 vmt8_dexit:
 	ProcessExcep ErrDouble
-vm_trap08	endp
+; ENDP vm_trap08
 
 
 ;******************************************************************************
@@ -346,12 +346,12 @@ vm_trap08	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap09	proc	near
+vm_trap09:
 	PUSH_EBP
 	mov	bp,sp
 	push	0009			;   Y: interrupt 9
 	jmp	hw_int			; reflect it to virtual mode
-vm_trap09	endp
+; ENDP vm_trap09
 
 ;******************************************************************************
 ;   CPU:  Invalid TSS fault
@@ -366,9 +366,9 @@ vm_trap09	endp
 
 ;   to do: someone could reprogram master 8259 - need to handle ?
 ;------------------------------------------------------------------------------
-vm_trap0A	proc	near
+vm_trap0A:
 	ProcessExcep ErrTSS
-vm_trap0A	endp
+; ENDP vm_trap0A
 
 
 ;******************************************************************************
@@ -381,7 +381,7 @@ vm_trap0A	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap0B	proc	near
+vm_trap0B:
 	PUSH_EBP
 	mov	bp,sp
 	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
@@ -390,7 +390,7 @@ vm_trap0B	proc	near
 	jmp	hw_int			; reflect it to virtual mode
 vmtB_dexit:
 	ProcessExcep ErrSegNP
-vm_trap0B	endp
+; ENDP vm_trap0B
 
 ;******************************************************************************
 ;   CPU:  Stack fault
@@ -402,7 +402,7 @@ vm_trap0B	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap0C	proc	near
+vm_trap0C:
 	PUSH_EBP
 	mov	bp,sp
 	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
@@ -411,7 +411,7 @@ vm_trap0C	proc	near
 	jmp	hw_int			; reflect it to virtual mode
 vmtC_dexit:
 	ProcessExcep ErrStack
-vm_trap0C	endp
+; ENDP vm_trap0C
 
 ;******************************************************************************
 ;   CPU:  General Protection fault
@@ -423,7 +423,7 @@ vm_trap0C	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap0D	proc	near
+vm_trap0D:
 	PUSH_EBP
 	mov	bp,sp
 	cmp	sp,VMT_STACK		; Q: H/W interrupt from VM ?
@@ -440,7 +440,7 @@ vmtD_1:
 					; (fall thru to debugger)
 vmtD_dexit:
 	ProcessExcep ErrGP
-vm_trap0D	endp
+; ENDP vm_trap0D
 
 ;******************************************************************************
 ;   CPU:  Page fault
@@ -452,7 +452,7 @@ vm_trap0D	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap0E	proc	near
+vm_trap0E:
 	PUSH_EBP
 	mov	bp,sp
 	cmp	sp,VMT_STACK		; Q: H/W interrupt from VM ?
@@ -461,7 +461,7 @@ vm_trap0E	proc	near
 	jmp	hw_int			; reflect it to virtual mode
 vmtE_dexit:
 	ProcessExcep ErrPage
-vm_trap0E	endp
+; ENDP vm_trap0E
 
 ;******************************************************************************
 ;   CPU:  (none)
@@ -473,12 +473,12 @@ vm_trap0E	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap0F	proc	near
+vm_trap0F:
 	PUSH_EBP
 	mov	bp,sp
 	push	000Fh			; push interrupt number
 	jmp	hw_int			; enter common H/W interrupt handler
-vm_trap0F	endp
+; ENDP vm_trap0F
 
 ;******************************************************************************
 ;   CPU:  Coprocessor Error - GOES TO NOT PRESENT FAULT IN DEBUGGER FOR NOW
@@ -489,9 +489,9 @@ vm_trap0F	endp
 ;   USED:
 ;   STACK:
 ;------------------------------------------------------------------------------
-vm_trap10	proc	near
+vm_trap10:
 	ProcessExcep ErrCoPerr
-vm_trap10	endp
+; ENDP vm_trap10
 
 ;******************************************************************************
 ;   VmTrap5x - Handlers for hardware interrupts.  Sometimes the master 8259
@@ -504,68 +504,68 @@ vm_trap10	endp
 ;   USED:
 ;   STACK:  (4 bytes)
 ;------------------------------------------------------------------------------
-vm_trap50	proc	near
+vm_trap50:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0050h
 	jmp	short hw_int		; enter common code
-vm_trap50	endp
+; ENDP vm_trap50
 
 ;------------------------------------------------------------------------------
-vm_trap51	proc	near
+vm_trap51:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0051h
 	jmp	short hw_int		; enter common code
-vm_trap51	endp
+; ENDP vm_trap51
 
 ;------------------------------------------------------------------------------
-vm_trap52	proc	near
+vm_trap52:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0052h
 	jmp	short hw_int		; enter common code
-vm_trap52	endp
+; ENDP vm_trap52
 
 ;------------------------------------------------------------------------------
-vm_trap53	proc	near
+vm_trap53:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0053h
 	jmp	short hw_int		; enter common code
-vm_trap53	endp
+; ENDP vm_trap53
 
 ;------------------------------------------------------------------------------
-vm_trap54	proc	near
+vm_trap54:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0054h
 	jmp	short	hw_int		; enter common code
-vm_trap54	endp
+; ENDP vm_trap54
 
 ;------------------------------------------------------------------------------
-vm_trap55	proc	near
+vm_trap55:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0055h
 	jmp	short hw_int		; enter common code
-vm_trap55	endp
+; ENDP vm_trap55
 
 ;------------------------------------------------------------------------------
-vm_trap56	proc	near
+vm_trap56:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0056h
 	jmp	short hw_int		; enter common code
-vm_trap56	endp
+; ENDP vm_trap56
 
 ;------------------------------------------------------------------------------
-vm_trap57	proc	near
+vm_trap57:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0057h
 	jmp	short hw_int		; enter common code
-vm_trap57	endp
+; ENDP vm_trap57
 
 ;******************************************************************************
 ;   VmTrap7x - handlers for hardware interrupts from the slave 8259
@@ -577,70 +577,70 @@ vm_trap57	endp
 ;   USED:
 ;   STACK:  (4 bytes)
 ;------------------------------------------------------------------------------
-vm_trap70	proc	near
+vm_trap70:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0070h
 	jmp	short hw_int		; enter common code
-vm_trap70	endp
+; ENDP vm_trap70
 
 ;------------------------------------------------------------------------------
-vm_trap71	proc	near
+vm_trap71:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0071h
 	jmp	short hw_int		; enter common code
-vm_trap71	endp
+; ENDP vm_trap71
 
 ;------------------------------------------------------------------------------
-vm_trap72	proc	near
+vm_trap72:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0072h
 	jmp	short hw_int		; enter common code
-vm_trap72	endp
+; ENDP vm_trap72
 
 ;------------------------------------------------------------------------------
-vm_trap73	proc	near
+vm_trap73:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0073h
 	jmp	short hw_int		; enter common code
-vm_trap73	endp
+; ENDP vm_trap73
 
 ;------------------------------------------------------------------------------
-vm_trap74	proc	near
+vm_trap74:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0074h
 	jmp	short	hw_int		; enter common code
-vm_trap74	endp
+; ENDP vm_trap74
 
 ;------------------------------------------------------------------------------
-vm_trap75	proc	near
+vm_trap75:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0075h
 	jmp	short hw_int		; enter common code
-vm_trap75	endp
+; ENDP vm_trap75
 
 ;------------------------------------------------------------------------------
-vm_trap76	proc	near
+vm_trap76:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0076h
 	jmp	short hw_int		; enter common code
-vm_trap76	endp
+; ENDP vm_trap76
 
 ;------------------------------------------------------------------------------
-vm_trap77	proc	near
+vm_trap77:
 	PUSH_EBP
 	mov	bp,sp			; set up BP frame pointer
 	push	0077h
 	jmp	short hw_int		; enter common code
-vm_trap77	endp
+; ENDP vm_trap77
 
-	page
+	; page
 ;******************************************************************************
 ;   HW_INT - common handler for hardware interrupts.  The interrupt is
 ;	reflected directly to the appropriate Real Mode (Virtual) handler.
@@ -706,7 +706,7 @@ vm_trap77	endp
 ;
 ;   to do:  Need to check for entry mode ?
 ;------------------------------------------------------------------------------
-hw_int	proc	near
+hw_int:
 	push	bx
 	push	si			;
 	mov	si,[bp.VTFO+VMTF_EFLAGS] ; SI = saved low word of EFLAGS
@@ -733,7 +733,7 @@ reflect_common:
 ;
 ;   Adjust client's SP to make room for building his IRET frame
 ;
-	sub	word ptr [bp.VTFO+VMTF_ESP],6	; adjust client's SP
+	sub	word [bp.VTFO+VMTF_ESP],6	; adjust client's SP
 	mov	bx, VM1_GSEL
 	mov	ds, bx			; DS = VM stack segment
 ;
@@ -769,7 +769,7 @@ reflect_common:
 	POP_EBP
 	db	66h
 	iret				; *** RETURN *** to client
-hw_int	endp
+; ENDP hw_int
 
 ;******************************************************************************
 ;	EMUL_REFLECT
@@ -777,7 +777,7 @@ hw_int	endp
 ;
 ;   emulation relfection entry point - don't mess with client's flags
 ;
-emul_reflect	label	near
+emul_reflect:
 	push	bx			; local registers
 	push	si			;
 	mov	si,[bp.VTFO+VMTF_EFLAGS] ; SI = saved low word of EFLAGS
@@ -785,7 +785,7 @@ emul_reflect	label	near
 
 
 ;
-_TEXT	 ends				 ; end of segment
+; END SECTION ._TEXT; end of segment
 ;
-	end				; end of module
+	; end; end of module
 

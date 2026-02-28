@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	TITLE	i386.asm - Support Routines for protected mode system
+	; TITLE	i386.asm - Support Routines for protected mode system
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -57,28 +57,28 @@ page	58,132
 ;	WARNING This code is 386 specific, it will NOT run on an 8088.
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 ;
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include page.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "page.inc"
 
 ;******************************************************************************
 ;		E X T E R N A L S
 ;******************************************************************************
-LAST	SEGMENT
-extrn	SegTo24:near
-LAST	ENDS
+SECTION .LAST
+extern SegTo24
+; END SECTION .LAST
 
 
 ;******************************************************************************
 ;		S E G M E N T	D E F I N I T I O N S
 ;******************************************************************************
-LAST SEGMENT
+SECTION .LAST
 
-    assume cs:LAST,ds:DGROUP,es:DGROUP
+    ; assume cs:LAST,ds:DGROUP,es:DGROUP
 
 ;**	SetGateDesc - set up Gate Descriptor entry
 ;
@@ -93,8 +93,8 @@ LAST SEGMENT
 ;	WARNING This code only works on a 386. It can be called in
 ;		either mode.
 
-	public SetGateDesc
-SetGateDesc proc near
+	global SetGateDesc
+SetGateDesc:
 ;
 	push	ax
 	push	di
@@ -113,7 +113,7 @@ SetGateDesc proc near
 	pop	di
 	pop	ax
 	ret
-SetGateDesc endp
+; ENDP SetGateDesc
 
 
 ;**	SetPageEntry - set up entry in Page Directory or Page Table
@@ -128,8 +128,8 @@ SetGateDesc endp
 ;	WARNING This code only works on a 386. It can be called in
 ;		either mode.
 
-	public SetPageEntry
-SetPageEntry proc near
+	global SetPageEntry
+SetPageEntry:
 ;
 	push	ax
 ;
@@ -143,7 +143,7 @@ SetPageEntry proc near
 ;
 	pop	ax
 	ret
-SetPageEntry endp
+; ENDP SetPageEntry
 
 
 ;**	GetPageEntry -	up entry in Page Directory or Page Table
@@ -156,8 +156,8 @@ SetPageEntry endp
 ;	WARNING This code only works on a 386. It can be called in
 ;		either mode.
 
-	public GetPageEntry
-GetPageEntry proc near
+	global GetPageEntry
+GetPageEntry:
 ;
 	mov	ax,ES:[DI]	; AX = low word of entry
 	mov	bx,ax		; get access/status rights bits
@@ -167,7 +167,7 @@ GetPageEntry proc near
 	mov	dx,ES:[DI+2]	; get high word of addr
 ;
 	ret
-GetPageEntry endp
+; ENDP GetPageEntry
 
 
 ;**	PageDirOff - convert 32 bit linear address to page directory offset
@@ -180,8 +180,8 @@ GetPageEntry endp
 ;	WARNING This code only works on a 386. It can be called in
 ;		either mode.
 
-	public PageDirOff
-PageDirOff proc near
+	global PageDirOff
+PageDirOff:
 ;
 	db	66h
 	push	bx		; push EBX
@@ -199,7 +199,7 @@ PageDirOff proc near
 	pop	bx		; pop EBX
 ;
 	ret
-PageDirOff endp
+; ENDP PageDirOff
 
 
 ;**	PageTableOff - convert 32 bit linear address to page table offset
@@ -212,8 +212,8 @@ PageDirOff endp
 ;	WARNING This code only works on a 386. It can be called in
 ;		either mode.
 
-	public PageTableOff
-PageTableOff proc near
+	global PageTableOff
+PageTableOff:
 ;
 	db	66h
 	push	bx		; push EBX
@@ -232,9 +232,9 @@ PageTableOff proc near
 	pop	bx		; pop	EBX
 ;
 	ret
-PageTableOff endp
+; ENDP PageTableOff
 
 
-LAST	ends
+; END SECTION .LAST
 
-	end
+	; end

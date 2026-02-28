@@ -1,7 +1,7 @@
-PAGE    60,132
-TITLE   INDEGDT - 386 XMA Emulator - Build Global Descriptor Table
+; PAGE    60,132
+; TITLE   INDEGDT - 386 XMA Emulator - Build Global Descriptor Table
 
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                             *
 * MODULE NAME     : INDEGDT                                                   *
@@ -43,7 +43,7 @@ COMMENT #
 *                                                                             *
 * SUB-ROUTINES    : SREG_2_24BITS - Convert the 16 bit value in AX to a 24    *
 *                                   bit value in DH and AX.                   *
-*                   ADDOFF - Add the 16 bit offset in AX to the 24 bit value  *
+*                   ADDOFF - Add the 16 bit in AX to the 24 bit value  *
 *                            in DH and BX.                                    *
 *                                                                             *
 * MACROS          : DESCR_DEF  - Declare a descriptor entry                   *
@@ -63,30 +63,30 @@ COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #
 
-        .286P                 ; Enable recognition of 286 privileged instructs.
+        CPU 286; Enable recognition of 286 privileged instructs.
 
-        .XLIST                ; Turn off the listing
-        INCLUDE INDEDAT.INC   ; Include system data structures
-        INCLUDE INDEACC.INC   ; Include access byte definitions
+        ; .XLIST; Turn off the listing
+        %include "INDEDAT.INC"; Include system data structures
+        %include "INDEACC.INC"; Include access byte definitions
 
-        IF1                   ; Only include macros on the first pass
-        INCLUDE INDEDES.MAC   ; Descriptor macros
-        ENDIF
-        .LIST                 ; Turn on the listing
+        %if 1  ; IF1 - pass-specific; Only include macros on the first pass
+        %include "INDEDES.MAC"; Descriptor macros
+        %endif
+        ; .LIST; Turn on the listing
 
-PROG    SEGMENT PARA    PUBLIC  'PROG'
+SECTION .PROG
 
-        ASSUME  CS:PROG
-        ASSUME  SS:NOTHING
-        ASSUME  DS:PROG
-        ASSUME  ES:NOTHING
+        ; ASSUME  CS:PROG
+        ; ASSUME  SS:NOTHING
+        ; ASSUME  DS:PROG
+        ; ASSUME  ES:NOTHING
 
-INDEGDT LABEL   NEAR
+INDEGDT:
 
-        PUBLIC  INDEGDT
-        PUBLIC  GDT_BLD
-        PUBLIC  GDT_DATA_START
-        PUBLIC  SREG_2_24BITS
+        global INDEGDT
+        global GDT_BLD
+        global GDT_DATA_START
+        global SREG_2_24BITS
 
 ;       The following data define a pre-initialized GDT.  They represent
 ;       all structures which will exist when the emulator comes up.
@@ -95,7 +95,7 @@ INDEGDT LABEL   NEAR
 ;       area will be copied from the code segment to the final GDT resting
 ;       place during initialization.
 
-GDT_DATA_START  LABEL   WORD
+GDT_DATA_START:
 
 ;               First entry is unusable
 
@@ -104,7 +104,7 @@ GDT_DATA_START  LABEL   WORD
 ;               The descriptor for GDT itself
 
        DESCR_DEF   SEG, GDT_LEN, GDT_LOC, 3, CPL0_DATA_ACCESS
-PAGE
+; PAGE
 
 ;               The system IDT descriptor
 
@@ -121,7 +121,7 @@ PAGE
 ;               The LOADALL descriptor
 
        DESCR_DEF   SEG, 0, 0, 0, 0
-PAGE
+; PAGE
 
 ;               Compatible monochrome display
 
@@ -138,7 +138,7 @@ PAGE
 ;               Second part of enhanced display                              P1C
 
        DESCR_DEF   SEG, ECCRT_SIZE, ECCRT@_HI_LO, ECCRT@_HI_HI, CPL0_DATA_ACCESS
-PAGE
+; PAGE
 
 ;               Code segment for ROM code, system IDT
 
@@ -162,7 +162,7 @@ MSEG@_HI        EQU     008H
 ;               Data segment for patch code, system IDT
 
        DESCR_DEF   SEG, MAX_SEG_LEN, MSEG@_LO, MSEG@_HI, CPL0_DATA_ACCESS
-PAGE
+; PAGE
 
 ;               Code segment for ROM code, virtual IDT
 
@@ -179,7 +179,7 @@ PAGE
 ;               Data segment for patch code, virtual IDT
 
        DESCR_DEF   SEG, NULL_SEG_LEN, NSEG@_LO, NSEG@_HI, NULL_ACCESS
-PAGE
+; PAGE
 
 ;               Temporary descriptors for ES, CS, SS, and DS
 
@@ -190,12 +190,12 @@ PAGE
        DESCR_DEF   SEG, MAX_SEG_LEN, NSEG@_LO, NSEG@_HI, CPL0_DATA_ACCESS
 
        DESCR_DEF   SEG, MAX_SEG_LEN, NSEG@_LO, NSEG@_HI, CPL0_DATA_ACCESS
-PAGE
+; PAGE
 
 ; These DQ's pad out the space between the last MultiPC descriptor and the
 ; PMVM descriptors.  They don't need initialization.
 
-       DQ      9 DUP (0)     ; These 9 are for the Monitor descriptors
+       times 9 dq 0; These 9 are for the Monitor descriptors
 
 ;               This is for the keyboard owner (not used)
 
@@ -203,20 +203,20 @@ PAGE
 
 ;               These 16 are for the virtual timer support
 
-       DQ      16 DUP (0)
+       times 16 dq 0
 
 ; The following 32 descriptors are for exception condition task gates.
 
-       REPT    32
+       %rep 32
        DQ       0
-       ENDM
+       %endmacro
 
 ; The following 16 pairs are for the hardware interrupt handling tasks.
 
-       REPT    16
+       %rep 16
        DQ       0
        DQ       0
-       ENDM
+       %endmacro
 
 ; The following pair is for the DISPATCH task
 
@@ -233,7 +233,7 @@ PAGE
 
        DESCR_DEF   SEG, 01FFFH, 00000H, 0FH, CPL0_DATA_ACCESS
 
-       DQ      13 DUP (0)      ; Reserved guys
+       times 13 dq 0; Reserved guys
 
 ; The following guys are junk !  Used before the first TSS allocated. These
 ;  have to be in the PMVM location in the GDT.
@@ -246,7 +246,7 @@ PAGE
 
        DESCR_DEF   SEG, GDT_LEN, 0D000H, 0, CPL0_DATA_ACCESS ; LDT as data
 
-GDT_DATA_END    LABEL   WORD
+GDT_DATA_END:
 
 COPY_LEN        EQU     GDT_DATA_END-GDT_DATA_START
 
@@ -254,15 +254,15 @@ COPY_LEN        EQU     GDT_DATA_END-GDT_DATA_START
 ;       End of pre-allocated GDT
 ;
 
-PAGE
+; PAGE
 
-GDT_BLD         PROC    NEAR
+GDT_BLD:
 
 ; Copy the pre-initialized GDT into its proper location in memory
 
         CLI                             ; All string operations go forward
 
-        MOV     SI,OFFSET GDT_DATA_START ; DS:SI points to the pre-initialized
+        MOV     SI,GDT_DATA_START ; DS:SI points to the pre-initialized
                                         ;   GDT above
         MOV     CX,COPY_LEN/2           ; CX = number of words to copy
         MOV     DI,GDT_LOC              ; ES:DI points to the GDT location
@@ -320,9 +320,9 @@ ALLSET:
 
         RET
 
-GDT_BLD         ENDP
+; ENDP GDT_BLD
 
-PAGE
+; PAGE
 ; SREG_2_24BITS converts the segment register 16 bit value in the AX register
 ; into a 24 bit value in DH and AX
 ;
@@ -332,7 +332,7 @@ PAGE
 ;                  DH = 24 bit high byte
 
 
-SREG_2_24BITS PROC    NEAR
+SREG_2_24BITS:
 
 ; Put the high four bits of AH into the low four bits of DH
 
@@ -350,9 +350,9 @@ SREG_2_24BITS PROC    NEAR
 
         RET
 
-SREG_2_24BITS ENDP
+; ENDP SREG_2_24BITS
 
-PAGE
+; PAGE
 ; ADDOFF adds the 16 bit offset in BX to the 24 bit value in DL and AX.  The
 ; result is left in DH and BX.
 ;
@@ -363,7 +363,7 @@ PAGE
 ;       Output:    DH = 24 bit high byte
 ;                  BX = 24 bit low word
 
-ADDOFF  PROC    NEAR
+ADDOFF:
 
         MOV     DH,DL                   ; Restore the high byte that was saved
                                         ;   in DL
@@ -372,8 +372,8 @@ ADDOFF  PROC    NEAR
                                         ;   byte
         RET
 
-ADDOFF  ENDP
+; ENDP ADDOFF
 
-PROG    ENDS
+; END SECTION .PROG
 
-        END
+        ; END

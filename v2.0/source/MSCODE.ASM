@@ -2,29 +2,29 @@
 ; MSCODE.ASM -- MSDOS code
 ;
 
-INCLUDE DOSSEG.ASM
-INCLUDE STDSW.ASM
+%include "DOSSEG.ASM"
+%include "STDSW.ASM"
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-ASSUME  CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+SECTION .CODE
+; ASSUME  CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-.xcref
-INCLUDE DOSSYM.ASM
-INCLUDE DEVSYM.ASM
-.cref
-.list
+; .xcref
+%include "DOSSYM.ASM"
+%include "DEVSYM.ASM"
+; .cref
+; .list
 
-IFNDEF  KANJI
+%ifndef KANJI
 KANJI   EQU     0       ; FALSE
-ENDIF
+%endif
 
-IFNDEF  IBM
+%ifndef IBM
 IBM     EQU     0
-ENDIF
+%endif
 
-IFNDEF  HIGHMEM
+%ifndef HIGHMEM
 HIGHMEM  EQU     0
-ENDIF
+%endif
 
 
         i_need  USER_SP,WORD
@@ -47,31 +47,31 @@ ENDIF
         i_need  LEAVEADDR,WORD
         i_need  NULLDEVPT,DWORD
 
-        IF NOT IBM
+        %if NOT IBM
         i_need  OEM_HANDLER,DWORD
-        ENDIF
+        %endif
 
-        EXTRN   DSKSTATCHK:NEAR,GETBP:NEAR,DSKREAD:NEAR,DSKWRITE:NEAR
+        extern DSKSTATCHK,GETBP,DSKREAD,DSKWRITE
 
 
 BREAK   <Copyright notice and version>
 
 CODSTRT EQU     $
 
-        IF      NOT IBM
-        IF      NOT KANJI
-        PUBLIC  HEADER
+        %if NOT IBM
+        %if NOT KANJI
+        global HEADER
 HEADER  DB      13,10,"Microsoft MS-DOS version "
         DB      DOS_MAJOR_VERSION + "0"
         DB      "."
         DB      (DOS_MINOR_VERSION / 10) + "0"
         DB      (DOS_MINOR_VERSION MOD 10) + "0"
-        IF      HIGHMEM
+        %if HIGHMEM
         DB      "H"
-        ENDIF
-        ENDIF
-        IF      KANJI
-        PUBLIC  HEADER
+        %endif
+        %endif
+        %if KANJI
+        global HEADER
 HEADER  DB      13,10,82h,"M"+1fh,82h,"i"+20h,82h,"c"+20h,82h,"r"+20h,82h,"o"+20h
         DB      82h,"s"+20h,82h,"o"+20h,82h,"f"+20h,82h,"t"+20h
         DB      81h,40h,82h,"M"+1fh,82h,"S"+1fh,81h,5dh+1fh
@@ -81,12 +81,12 @@ HEADER  DB      13,10,82h,"M"+1fh,82h,"i"+20h,82h,"c"+20h,82h,"r"+20h,82h,"o"+20
         DB      82h,(DOS_MINOR_VERSION / 10)+"0"+1fh
         DB      82h,(DOS_MINOR_VERSION MOD 10)+"0"+1fh
         DB      94h,0c5h
-        ENDIF
+        %endif
         DB      13,10
         DB      "Copyright 1981,82,83 Microsoft Corp.",13,10,"$"
-        ENDIF
+        %endif
 BREAK   <System call entry points and dispatcher>
-ASSUME  CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
         procedure   SYSTEM_CALL,NEAR
 entry   QUIT                                   ; INT 20H entry point
@@ -95,12 +95,12 @@ entry   QUIT                                   ; INT 20H entry point
 
 entry   COMMAND                         ; Interrupt call entry point (INT 21H)
 
-        IF      NOT IBM
+        %if NOT IBM
         CMP     AH,SET_OEM_HANDLER
         JB      NOTOEM
         JMP     $SET_OEM_HANDLER
 NOTOEM:
-        ENDIF
+        %endif
 
         CMP     AH,MAXCOM
         JBE     SAVREGS
@@ -126,7 +126,7 @@ SAVREGS:
         MOV     [SaveBX],BX
         MOV     BX,CS
         MOV     DS,BX
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         INC     [INDOS]                 ; Flag that we're in the DOS
         MOV     AX,[user_SP]
         MOV     [NSP],AX
@@ -141,22 +141,22 @@ ASSUME  DS:DOSGROUP
 ; Here comes multitasking!!!
 ;
         MOV     DS,[CurrentPDB]
-        MOV     WORD PTR DS:[PDB_User_stack],SP
-        MOV     WORD PTR DS:[PDB_User_stack+2],SS
+        MOV     word DS:[PDB_User_stack],SP
+        MOV     word DS:[PDB_User_stack+2],SS
 
         MOV     BX,CS                   ; no holes here.
         MOV     SS,BX
-ASSUME  SS:DOSGROUP
+; ASSUME  SS:DOSGROUP
 
     entry   REDISP
-        MOV     SP,OFFSET DOSGROUP:AUXSTACK     ; Enough stack for interrupts
+        MOV     SP,AUXSTACK     ; Enough stack for interrupts
         STI                             ; Stack OK now
         PUSH    CS
         POP     DS
         XOR     BH,BH
         MOV     [CONSWAP],BH
         MOV     [IDLEINT],1
-        MOV     BYTE PTR [NoSetDir],0   ; set directories on search
+        MOV     byte [NoSetDir],0   ; set directories on search
         MOV     BL,AH
         SHL     BX,1
         CLD
@@ -171,14 +171,14 @@ ASSUME  SS:DOSGROUP
 IOROUT:
         CMP     [ERRORMODE],0
         JNZ     DISPCALL                ; Stay on AUXSTACK if INT 24
-        MOV     SP,OFFSET DOSGROUP:IOSTACK
+        MOV     SP,IOSTACK
         JMP     SHORT DISPCALL
 
 DSKROUT:
         MOV     [ERRORMODE],0           ; Cannot make non 1-12 calls in
         MOV     [WPERR],-1              ; error mode, so good place to
                                         ; make sure flags are reset
-        MOV     SP,OFFSET DOSGROUP:DSKSTACK
+        MOV     SP,DSKSTACK
         TEST    [CNTCFLAG],-1
         JZ      DISPCALL
         PUSH    AX
@@ -189,17 +189,17 @@ DISPCALL:
         PUSH    CS:[BX+DISPATCH]
         MOV     BX,[SaveBX]
         MOV     DS,[SaveDS]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         return
 
         entry LEAVE
-ASSUME  SS:NOTHING                      ; User routines may misbehave
+; ASSUME  SS:NOTHING; User routines may misbehave
         CLI
         DEC     [INDOS]
         MOV     SP,[user_SP]
         MOV     SS,[user_SS]
         MOV     BP,SP
-        MOV     BYTE PTR [BP.user_AX],AL
+        MOV     byte [BP.user_AX],AL
         MOV     AX,[NSP]
         MOV     [user_SP],AX
         MOV     AX,[NSS]
@@ -207,14 +207,14 @@ ASSUME  SS:NOTHING                      ; User routines may misbehave
         CALL    restore_world
 
         IRET
-SYSTEM_CALL ENDP
+; ENDP SYSTEM_CALL
 
 ;
 ; restore_world restores all registers ('cept SS:SP, CS:IP, flags) from
 ; the stack prior to giving the user control
 ;
-        ASSUME  DS:NOTHING,ES:NOTHING
-restore_tmp DW  ?
+        ; ASSUME  DS:NOTHING,ES:NOTHING
+restore_tmp: dw 0
         procedure   restore_world,NEAR
         POP     restore_tmp     ; POP     restore_tmp
         POP     AX              ; PUSH    ES
@@ -229,7 +229,7 @@ restore_tmp DW  ?
 world_ret:
         PUSH    restore_tmp     ; PUSH    restore_tmp
         return
-restore_world   ENDP
+; ENDP restore_world
 
 ;
 ; save_world saves complete registers on the stack
@@ -246,19 +246,19 @@ restore_world   ENDP
         PUSH    BX
         PUSH    AX
         JMP     SHORT world_ret
-save_world      ENDP
+; ENDP save_world
 
 ;
 ; get_user_stack returns the user's stack (and hence registers) in DS:SI
 ;
         procedure   get_user_stack,NEAR
-        LDS     SI,DWORD PTR [user_SP]
+        LDS     SI,dword [user_SP]
         return
-get_user_stack  ENDP
+; ENDP get_user_stack
 
 ; Standard Functions
-DISPATCH    LABEL WORD
-.lall
+DISPATCH:
+; .lall
         short_addr  $ABORT                          ;  0      0
 .xall
         short_addr  $STD_CON_INPUT                  ;  1      1
@@ -406,11 +406,11 @@ CPMFUNC:
         XOR     AL,AL
         return
 
-        IF      NOT IBM
+        %if NOT IBM
 BREAK <Set_OEM_Handler -- Set OEM sys call address and handle OEM Calls>
 
 $SET_OEM_HANDLER:
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       User registers, User Stack, INTS disabled
@@ -421,55 +421,55 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       Jumps to OEM_HANDLER if appropriate
 
         JNE     DO_OEM_FUNC             ; If above F8 try to jump to handler
-        MOV     WORD PTR [OEM_HANDLER],DX       ; Set Handler
-        MOV     WORD PTR [OEM_HANDLER+2],DS
+        MOV     word [OEM_HANDLER],DX       ; Set Handler
+        MOV     word [OEM_HANDLER+2],DS
         IRET                            ; Quick return, Have altered no registers
 
 DO_OEM_FUNC:
-        CMP     WORD PTR [OEM_HANDLER],-1
+        CMP     word [OEM_HANDLER],-1
         JNZ     OEM_JMP
         JMP     BADCALL                 ; Handler not initialized
 
 OEM_JMP:
         JMP     [OEM_HANDLER]
 
-        ENDIF
+        %endif
 
 
-ASSUME  SS:DOSGROUP
+; ASSUME  SS:DOSGROUP
 
 ;
 ; $Set_current_PDB takes BX and sets it to be the current process
 ;   *** THIS FUNCTION CALL IS SUBJECT TO CHANGE!!! ***
 ;
         procedure   $SET_CURRENT_PDB,NEAR
-        ASSUME  DS:NOTHING,SS:NOTHING
+        ; ASSUME  DS:NOTHING,SS:NOTHING
         MOV     [CurrentPDB],BX
         return
-$SET_CURRENT_PDB    ENDP
+; ENDP $SET_CURRENT_PDB
 
 ;
 ; $get_current_PDB returns in BX the current process
 ;   *** THIS FUNCTION CALL IS SUBJECT TO CHANGE!!! ***
 ;
         procedure   $GET_CURRENT_PDB,NEAR
-        ASSUME  DS:NOTHING,SS:NOTHING
+        ; ASSUME  DS:NOTHING,SS:NOTHING
         invoke  get_user_stack
         PUSH    [CurrentPDB]
         POP     [SI.user_BX]
         return
-$GET_CURRENT_PDB    ENDP
+; ENDP $GET_CURRENT_PDB
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 
 BREAK <NullDev -- Driver for null device>
         procedure   SNULDEV,FAR
-ASSUME DS:NOTHING,ES:NOTHING,SS:NOTHING
-        MOV     WORD PTR [NULLDEVPT],BX
-        MOV     WORD PTR [NULLDEVPT+2],ES
+; ASSUME DS:NOTHING,ES:NOTHING,SS:NOTHING
+        MOV     word [NULLDEVPT],BX
+        MOV     word [NULLDEVPT+2],ES
         return
-SNULDEV ENDP
+; ENDP SNULDEV
 
         procedure   INULDEV,FAR
         PUSH    ES
@@ -480,13 +480,13 @@ SNULDEV ENDP
         POP     ES
         return
 
-INULDEV ENDP
+; ENDP INULDEV
 
 
 BREAK <AbsDRD, AbsDWRT -- INT int_disk_read, int_disk_write handlers>>
 
 
-        IF      IBM
+        %if IBM
 ERRIN:                                  ; Codes returned by BIOS
         DB      2                       ; NO RESPONSE
         DB      6                       ; SEEK FAILURE
@@ -503,91 +503,91 @@ ERROUT:                                 ; DISK ERRORS RETURNED FROM INT 25 and 2
         DB      3                       ; WRITE ATTEMPT TO WRITE-PROTECT DISK
 
 NUMERR  EQU     $-ERROUT
-        ENDIF
+        %endif
 
         procedure   ABSDRD,FAR
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
 
         CLI
         MOV     [user_SS],SS
         MOV     [user_SP],SP
         PUSH    CS
         POP     SS
-ASSUME  SS:DOSGROUP
-        MOV     SP,OFFSET DOSGROUP:DSKSTACK
-        INC     BYTE PTR [INDOS]
+; ASSUME  SS:DOSGROUP
+        MOV     SP,DSKSTACK
+        INC     byte [INDOS]
         STI
         CLD
         PUSH    ES
         PUSH    DS
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         invoke  GETBP
         POP     DS
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         JC      ILEAVE
         invoke  DSKREAD
 TLEAVE:
         JZ      ILEAVE
 
-        IF      IBM
+        %if IBM
 ; Translate the error code to ancient 1.1 codes
         PUSH    ES
         PUSH    CS
         POP     ES
         XOR     AH,AH                   ; Nul error code
         MOV     CX,NUMERR               ; Number of possible error conditions
-        MOV     DI,OFFSET DOSGROUP:ERRIN   ; Point to error conditions
+        MOV     DI,ERRIN   ; Point to error conditions
         REPNE   SCASB
         JNZ     LEAVECODE               ; Not found
         MOV     AH,ES:[DI+NUMERR-1]     ; Get translation
 LEAVECODE:
         POP     ES
-        ENDIF
+        %endif
 
         STC
 ILEAVE:
         POP     ES
         CLI
-        DEC     BYTE PTR [INDOS]
+        DEC     byte [INDOS]
         MOV     SP,[user_SP]
         MOV     SS,[user_SS]
-ASSUME  SS:NOTHING
+; ASSUME  SS:NOTHING
         STI
         return
-ABSDRD  ENDP
+; ENDP ABSDRD
 
         procedure   ABSDWRT,FAR
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
 
         CLI
         MOV     [user_SS],SS
         MOV     [user_SP],SP
         PUSH    CS
         POP     SS
-ASSUME  SS:DOSGROUP
-        MOV     SP,OFFSET DOSGROUP:DSKSTACK
-        INC     BYTE PTR [INDOS]
+; ASSUME  SS:DOSGROUP
+        MOV     SP,DSKSTACK
+        INC     byte [INDOS]
         STI
         CLD
         PUSH    ES
         PUSH    DS
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         invoke  GETBP
         POP     DS
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         JC      ILEAVE
         invoke  DSKWRITE
         JMP     TLEAVE
-ABSDWRT ENDP
+; ENDP ABSDWRT
 
 
 
         procedure   SYS_RETURN,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         entry   SYS_RET_OK
         call    get_user_stack
         PUSH    [SI.user_F]
@@ -606,10 +606,10 @@ DO_RET:
         PUSHF
         POP     [SI.user_F]             ; dump on his flags
         return
-SYS_RETURN  ENDP
+; ENDP SYS_RETURN
 
 do_ext
 
-CODE    ENDS
-        END
+; END SECTION .CODE
+        ; END
 

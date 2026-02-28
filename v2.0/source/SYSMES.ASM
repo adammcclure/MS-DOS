@@ -1,28 +1,28 @@
-   TITLE Message file for MS-DOS SYS Program
+   ; TITLE Message file for MS-DOS SYS Program
 
 FALSE   EQU     0
 TRUE    EQU     NOT FALSE
 
-        INCLUDE DOSSYM.ASM
+        %include "DOSSYM.ASM"
 
-Message MACRO   label,text
-        PUBLIC  label,label&Len
+%macro Message 2
+        global label,label&Len
 label       DB  text
 label&Len   DW  $-label
-ENDM
+%endmacro
 
 
 IBMJAPVER EQU   FALSE
 
-CONST   SEGMENT PUBLIC BYTE
+SECTION .CONST
 
 ; only this message must be terminated with a $
-        PUBLIC  BadVer
+        global BadVer
 BADVER  DB      "Incorrect DOS version",13,10,"$"
 
-        IF      IBMJAPVER
+        %if IBMJAPVER
         Message BadDisk,<"Destination disk cannot be booted">
-        ENDIF
+        %endif
 
         Message BadDrv,<"Invalid drive specification">
         Message BadParm,<"Invalid parameter">
@@ -30,22 +30,22 @@ BADVER  DB      "Incorrect DOS version",13,10,"$"
         Message BadSiz,<"Incompatible system size">
         Message Done,<"System transferred">
 
-        PUBLIC  GetSys,SysDrv,GetSysLen
+        global GetSys,SysDrv,GetSysLen
 GETSYS      DB      "Insert system disk in drive "
 SYSDRV      DB      "A",13,10
             DB      "and strike any key when ready",13,10
 GetSysLen   DW  GetSysLen-GetSys
 
-CONST   ENDS
+; END SECTION .CONST
 
-DATA    SEGMENT BYTE PUBLIC
-DATA    ENDS
+SECTION .DATA
+; END SECTION .DATA
 
-CODE    SEGMENT
-DG      GROUP   CODE,CONST,DATA
-        ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
+SECTION .CODE
+; DG      GROUP   CODE,CONST,DATA
+        ; ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
 
-CODE    ENDS
-        END
+; END SECTION .CODE
+        ; END
 
 

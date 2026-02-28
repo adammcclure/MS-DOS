@@ -1,6 +1,6 @@
 
-        PAGE    ,132
-        TITLE   DOS - KEYB Command  -  Interrupt 2F Handler
+        ; PAGE    ,132
+        ; TITLE   DOS - KEYB Command  -  Interrupt 2F Handler
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -44,20 +44,20 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-        INCLUDE KEYBEQU.INC            ;;
-        INCLUDE KEYBSHAR.INC           ;;
-        INCLUDE KEYBMAC.INC            ;;
-        INCLUDE KEYBCMD.INC            ;;
-        INCLUDE KEYBCPSD.INC           ;;
-        INCLUDE KEYBI9C.INC            ;;
+        %include "KEYBEQU.INC";;
+        %include "KEYBSHAR.INC";;
+        %include "KEYBMAC.INC";;
+        %include "KEYBCMD.INC";;
+        %include "KEYBCPSD.INC";;
+        %include "KEYBI9C.INC";;
                                        ;;
-        PUBLIC KEYB_INT_2F             ;;
+        global KEYB_INT_2F;;
                                        ;;
-        EXTRN  ERROR_BEEP:NEAR         ;;
+        extern ERROR_BEEP;;
                                        ;;
-CODE    SEGMENT PUBLIC 'CODE'          ;;
+SECTION .CODE;;
                                        ;;
-        ASSUME  CS:CODE,DS:CODE        ;;
+        ; ASSUME  CS:CODE,DS:CODE;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -111,13 +111,13 @@ VERSION_MAJOR   EQU   01H              ;;
 VERSION_MINOR   EQU   00H              ;;
                                        ;;
 CARRY_FLAG      EQU   01H              ;;
-RESTORE_BP       DW    ?               ;;
+RESTORE_BP: dw 0;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-KEYB_INT_2F   PROC                     ;;
+KEYB_INT_2F:;;
                                        ;;
         PUSH  DS                       ;;
         PUSH  BX                       ;;
@@ -134,7 +134,7 @@ KEYB_INT_2F   PROC                     ;;
 CHECK_REQUEST_CODE:                    ;; Y..check request code
         MOV   RESTORE_BP,BP            ;;;;;;;;;;;
         MOV   BP,SP                             ;;  Clear CARRY flag
-        AND   WORD PTR [BP]+12,NOT CARRY_FLAG   ;;
+        AND   word [BP]+12,NOT CARRY_FLAG   ;;
         MOV   BP,RESTORE_BP                     ;;
                                        ;;;;;;;;;;;
                                        ;;
@@ -144,7 +144,7 @@ INT_2F_CP_QUERY:                       ;;
         MOV   AX,-1                    ;; Y..process query
         MOV   BH,VERSION_MAJOR         ;;
         MOV   BL,VERSION_MINOR         ;;
-        MOV   DI,OFFSET SD             ;;
+        MOV   DI,SD             ;;
         PUSH  CS                       ;;
         POP   ES                       ;;
         JMP   INT_2F_DONE              ;;
@@ -174,7 +174,7 @@ INT_2F_ERROR_FLAG:                     ;;
         MOV   AX,1                     ;;
         MOV   RESTORE_BP,BP            ;;;;;;
         MOV   BP,SP                        ;;
-        OR    WORD PTR [BP]+12,CARRY_FLAG  ;; Set carry flag
+        OR    word [BP]+12,CARRY_FLAG  ;; Set carry flag
         MOV   BP,RESTORE_BP                ;;
                                        ;;;;;;
         JMP   INT_2F_DONE              ;;
@@ -197,7 +197,7 @@ INT_2F_CONTINUE1:                      ;; ELSE
 INT_2F_LANG_ERROR_FLAG:                ;;   ELSE
         MOV   RESTORE_BP,BP            ;;;;;;     Set CARRY flag
         MOV   BP,SP                        ;;
-        OR    WORD PTR [BP]+12,CARRY_FLAG  ;;
+        OR    word [BP]+12,CARRY_FLAG  ;;
         MOV   BP,RESTORE_BP                ;;
                                        ;;;;;;
         JMP   INT_2F_DONE              ;;
@@ -207,9 +207,9 @@ INT_2F_DONE:                           ;;
         POP   CX                       ;;
         POP   BX                       ;;;;;;;
         POP   DS                            ;;
-        CMP   WORD PTR CS:SD.OLD_INT_2F,0   ;; Q..are we the last in the chain?
+        CMP   word CS:SD.OLD_INT_2F,0   ;; Q..are we the last in the chain?
         JNE   INT_2F_JMP                    ;; N..call next in chain
-        CMP   WORD PTR CS:SD.OLD_INT_2F+2,0 ;; Q..are we the last in the chain?
+        CMP   word CS:SD.OLD_INT_2F+2,0 ;; Q..are we the last in the chain?
         JNE   INT_2F_JMP                    ;; N..call next in chain
                                        ;;;;;;;
         IRET                           ;; Y..return to caller
@@ -218,8 +218,8 @@ INT_2F_JMP:                            ;;
                                        ;;
         JMP   CS:SD.OLD_INT_2F         ;;
                                        ;;
-KEYB_INT_2F   ENDP                     ;;
+; ENDP KEYB_INT_2F;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-CODE   ENDS
-       END
+; END SECTION .CODE
+       ; END

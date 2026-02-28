@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)mshead.asm	1.1 85/04/10
 ; TITLE   MSHEAD.ASM -- MS-DOS DEFINITIONS
-PAGE
+; PAGE
 ; MS-DOS  High-performance operating system for the 8086  version 1.28
 ;	by Microsoft MSDOS development group:
 ;	    TP (Ret.)
@@ -108,8 +108,8 @@ PAGE
 ;
 ; *************************************************************
 
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
 
 Break <SEGMENT DECLARATIONS>
 
@@ -120,15 +120,15 @@ Break <SEGMENT DECLARATIONS>
 ; segment ordering for MSDOS
 ;
 
-include dosseg.asm
+%include "dosseg.asm"
 
 AsmVar	<Installed>
 
-START		SEGMENT BYTE PUBLIC 'START'
-		ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
-	JMP	near ptr DOSINIT
-START		ENDS
+SECTION .START
+		; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	JMP	near DOSINIT
+; END SECTION .START
 
-LAST		SEGMENT PARA PUBLIC 'LAST'
-	Extrn	DOSINIT:NEAR
-LAST		ENDS
+SECTION .LAST
+	extern DOSINIT
+; END SECTION .LAST

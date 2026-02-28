@@ -27,9 +27,9 @@
 ;   06/28/86  0.02	Name change from MEMM386 to MEMM
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 ; ---------------------------------------------------
 ;
@@ -149,14 +149,14 @@ STK_SIZE	equ	4000h			; TO BE ADDED
 
 ;   structure for 386 descriptor
 
-desc	struc
+struc desc
 LIMIT		dw	0	; offset of last byte in segment
 BASE_LOW	dw	0	; Low 16 bits of 24 bit base address
 BASE_HIGH	db	0	; High 8 bits of 24 bit base address
 RIGHTS		db	0	; access rights
 RES386		db	0	; reserved for 386
 BASE_XHI	db	0	; High 8 bits of 32 bit base address
-desc	ends
+endstruc
 
 ; MASK for RES386
 
@@ -166,41 +166,41 @@ R_LIMIT_XHI	equ	00001111b	; limit bits 16..19
 
 ; IDT_ENTRY - for interrupt and task gate definitions in IDT
 
-IDT_ENTRY	macro	sel, off, acc
+%macro IDT_ENTRY 3
 		dw	off		; offset
 		dw	sel		; selector
 		db	0		; word count, unused for trap/int gates
 		db	acc		; access rights byte
 		dw	0		; reserved, must be 0 for 386
-endm
+%endmacro
 
 
 ; GDT_ENTRY - for static initialisation of GDT entries
 
-GDT_ENTRY	macro	BaseLow, BaseHi, Size, Access
+%macro GDT_ENTRY 4
 		dw	Size - 1	; segment limit
 		dw	BaseLow 	; low word of 24 bit base address
 		db	BaseHi		; high byte of base address
 		db	Access		; access rights byte
 		dw	0		; reserved, must be 0 for 386
-endm
+%endmacro
 
 
 ; LDT_ENTRY - for static initialisation of LDT entries
 
-LDT_ENTRY	macro	BaseLow, BaseHi, Size, Access
+%macro LDT_ENTRY 4
 		dw	Size - 1	; segment limit
 		dw	BaseLow 	; low word of 24 bit base address
 		db	BaseHi		; high byte of base address
 		db	Access		; access rights byte
 		dw	0		; reserved, must be 0 for 386
-endm
+%endmacro
 
 
 ;***	286 TSS Format
 ;
 
-TSS286STRUC	struc
+struc TSS286STRUC
 
 	TSS286_BackLink dw	0		; back link selector to TSS
 	TSS286_SP0	dw	0		; ring 0 sp
@@ -225,12 +225,12 @@ TSS286STRUC	struc
 	TSS286_DS	dw	0		; DS
 	TSS286_LDT	dw	0		; LDT
 
-TSS286STRUC	ends
+endstruc
 
 ;***	386 TSS Format
 ;
 
-TSS386STRUC	struc
+struc TSS386STRUC
 
 	TSS386_BackLink dw	0		; back link selector to TSS
 	TSS386_Unused1	dw	0		; unused
@@ -271,7 +271,7 @@ TSS386STRUC	struc
 	TSS386_Unused11 dw	0		; Unused
 	TaskAttributes	dw	0		; Task Attributes
 	BitMapBase	dw	0		; offset of Base of Bit Map
-TSS386STRUC	ends
+endstruc
 
-.list	; end of DESC.INC
+; .list; end of DESC.INC
 

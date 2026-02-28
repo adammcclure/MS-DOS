@@ -1,5 +1,5 @@
-PAGE	,132
-TITLE	DOS - Code Page Switching - Printer Device Driver
+; PAGE	,132
+; TITLE	DOS - Code Page Switching - Printer Device Driver
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  FILENAME:		CPS Printer Device Driver Main Code
@@ -40,30 +40,30 @@ TITLE	DOS - Code Page Switching - Printer Device Driver
 ;AN001; p2685  Long delay on CHCP before failure message	   12/10/87 J.K.
 ;******************************************************************************
 					;;
-INCLUDE CPSPEQU.INC			;;
+%include "CPSPEQU.INC";;
 					;;
-PUBLIC	PRINTER_DESC_NUM		;;
-PUBLIC	PRINTER_DESC_TBL		;;
-PUBLIC	INIT_CHK,TABLE,DEVICE_NUM	;; WGR						 ;AN000;
-PUBLIC	INVOKE				;; WGR						 ;AN000;
-PUBLIC	BUF0,BUF1,BUF2,BUF3		;; WGR						 ;AN000;
-PUBLIC	HARD_SL1,RAM_SL1		;;
-PUBLIC	HARD_SL2,RAM_SL2		;;
-PUBLIC	HARD_SL3,RAM_SL3		;;
-PUBLIC	HARD_SL4,RAM_SL4		;;
-PUBLIC	RESERVED1,RESERVED2		;;
+global PRINTER_DESC_NUM;;
+global PRINTER_DESC_TBL;;
+global INIT_CHK,TABLE,DEVICE_NUM;; WGR						 ;AN000;
+global INVOKE;; WGR						 ;AN000;
+global BUF0,BUF1,BUF2,BUF3;; WGR						 ;AN000;
+global HARD_SL1,RAM_SL1;;
+global HARD_SL2,RAM_SL2;;
+global HARD_SL3,RAM_SL3;;
+global HARD_SL4,RAM_SL4;;
+global RESERVED1,RESERVED2;;
 					;;
-EXTRN	RESIDENT_END:WORD		;;
-EXTRN	STACK_ALLOCATED:WORD		;;
-EXTRN	FONT_PARSER:NEAR,FTABLE:WORD	;;
-EXTRN	INIT:NEAR			;;
+extern RESIDENT_END;;
+extern STACK_ALLOCATED;;
+extern FONT_PARSER,FTABLE;;
+extern INIT;;
 					;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
 					;;
-CSEG	SEGMENT PARA PUBLIC 'CODE'      ;;
-	ASSUME	CS:CSEG 		;;
+SECTION .CSEG;;
+	; ASSUME	CS:CSEG;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -79,36 +79,36 @@ CSEG	SEGMENT PARA PUBLIC 'CODE'      ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-DEV_HDR0: DW	OFFSET DEV_HDR1 	;; becomes pointer to next device header
+DEV_HDR0: DW	DEV_HDR1 	;; becomes pointer to next device header
 	DW	0			;; must be zero for no link
 	DW	0e040H			;; attribute (Char device)
 					;; supports IOCTL calls
-	DW	OFFSET STRATEGY0	;; pointer to device "strategy" routine
-	DW	OFFSET INTERRUPT0	;; pointer to device "interrupt handler"
+	DW	STRATEGY0	;; pointer to device "strategy" routine
+	DW	INTERRUPT0	;; pointer to device "interrupt handler"
 DEV_NAME0: DB	'PRN     '              ;; device name( length : NAME_LEN)
 					;;
-DEV_HDR1: DW	OFFSET DEV_HDR2 	;; becomes pointer to next device header
+DEV_HDR1: DW	DEV_HDR2 	;; becomes pointer to next device header
 	DW	0			;; must be zero for no link
 	DW	0e040H			;; attribute (Char device)
 					;; supports IOCTL calls
-	DW	OFFSET STRATEGY1	;; pointer to device "strategy" routine
-	DW	OFFSET INTERRUPT1	;; pointer to device "interrupt handler"
+	DW	STRATEGY1	;; pointer to device "strategy" routine
+	DW	INTERRUPT1	;; pointer to device "interrupt handler"
 DEV_NAME1: DB	'LPT1    '              ;; device name( length : NAME_LEN)
 					;;
-DEV_HDR2: DW	OFFSET DEV_HDR3 	;; becomes pointer to next device header
+DEV_HDR2: DW	DEV_HDR3 	;; becomes pointer to next device header
 	DW	0			;; must be zero for no link
 	DW	0e040H			;; attribute (Char device)
 					;; supports IOCTL calls
-	DW	OFFSET STRATEGY2	;; pointer to device "strategy" routine
-	DW	OFFSET INTERRUPT2	;; pointer to device "interrupt handler"
+	DW	STRATEGY2	;; pointer to device "strategy" routine
+	DW	INTERRUPT2	;; pointer to device "interrupt handler"
 DEV_NAME2: DB	'LPT2    '              ;; device name( length : NAME_LEN)
 					;;
 					;;
 DEV_HDR3: DD	-1			;; becomes pointer to next device header
 	DW	0e040H			;; attribute (Char device)
 					;; supports IOCTL calls
-	DW	OFFSET STRATEGY3	;; pointer to device "strategy" routine
-	DW	OFFSET INTERRUPT3	;; pointer to device "interrupt handler"
+	DW	STRATEGY3	;; pointer to device "strategy" routine
+	DW	INTERRUPT3	;; pointer to device "interrupt handler"
 DEV_NAME3: DB	'LPT3    '              ;; device name( length : NAME_LEN)
 					;;
 					;;
@@ -263,7 +263,7 @@ RAM_SL4L:	SLTS  <,>		;; -- max. no. of code pages allowed
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;; hard/RAM buffered slots on codepages
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-HBUF_SL1 LABEL	WORD			;; hardware slots' buffer for LPT1/PRN
+HBUF_SL1:;; hardware slots' buffer for LPT1/PRN
 	DW	0FFFFH			;; ---- only for CART-SLOTS
 	DW	0FFFFH			;;
 	DW	0FFFFH			;;
@@ -279,7 +279,7 @@ HBUF_SL1 LABEL	WORD			;; hardware slots' buffer for LPT1/PRN
 	DW	0FFFFH			;;
 ;;upto	hardsl_max+1, there are as many HARD_SLn
 					;;
-HBUF_SL2 LABEL	WORD			;; hardware slots' buffer for LPT2
+HBUF_SL2:;; hardware slots' buffer for LPT2
 	DW	0FFFFH			;; ---- only for CART-SLOTS
 	DW	0FFFFH			;;
 	DW	0FFFFH			;;
@@ -295,7 +295,7 @@ HBUF_SL2 LABEL	WORD			;; hardware slots' buffer for LPT2
 	DW	0FFFFH			;;
 ;;upto	hardsl_max+1, there are as many HARD_SLn
 					;;
-HBUF_SL3 LABEL	WORD			;; hardware slots' buffer for LPT3
+HBUF_SL3:;; hardware slots' buffer for LPT3
 	DW	0FFFFH			;; ---- only for CART-SLOTS
 	DW	0FFFFH			;;
 	DW	0FFFFH			;;
@@ -312,7 +312,7 @@ HBUF_SL3 LABEL	WORD			;; hardware slots' buffer for LPT3
 ;;upto	hardsl_max+1, there are as many HARD_SLn
 					;;
 					;;
-RBUF_SL1 LABEL	WORD			;; ram slots' buffer for LPT1/PRN
+RBUF_SL1:;; ram slots' buffer for LPT1/PRN
 	DW	0FFFFH			;;
 	DW	0FFFFH			;;
 	DW	0FFFFH			;;
@@ -327,7 +327,7 @@ RBUF_SL1 LABEL	WORD			;; ram slots' buffer for LPT1/PRN
 	DW	0FFFFH			;;
 ;;upto ramsl_max, there are as many RAM_SLn
 					;;
-RBUF_SL2 LABEL	WORD			;; ram slots' buffer for LPT2
+RBUF_SL2:;; ram slots' buffer for LPT2
 	DW	0FFFFH			;;
 	DW	0FFFFH			;;
 	DW	0FFFFH			;;
@@ -342,7 +342,7 @@ RBUF_SL2 LABEL	WORD			;; ram slots' buffer for LPT2
 	DW	0FFFFH			;;
 ;;upto ramsl_max, there are as many RAM_SLn
 					;;
-RBUF_SL3 LABEL	WORD			;; ram slots' buffer for LPT3
+RBUF_SL3:;; ram slots' buffer for LPT3
 	DW	0FFFFH			;;
 	DW	0FFFFH			;;
 	DW	0FFFFH			;;
@@ -357,7 +357,7 @@ RBUF_SL3 LABEL	WORD			;; ram slots' buffer for LPT3
 	DW	0FFFFH			;;
 ;;upto ramsl_max, there are as many RAM_SLn
 					;;
-FTDL_OFF1 LABEL WORD			;; offset of FTSTART for PRN/LPT1
+FTDL_OFF1:;; offset of FTSTART for PRN/LPT1
 	DW	0			;; NOTE : must be only two bytes for
 	DW	0			;;	  codepage positioning
 	DW	0			;;	  calculation as compared
@@ -373,7 +373,7 @@ FTDL_OFF1 LABEL WORD			;; offset of FTSTART for PRN/LPT1
 	DW	0			;;
 ;;upto the max. of {ramsl_max,hardsl_max}
 					;;
-FTDL_OFF2 LABEL WORD			;; offset of FTSTART for LPT2
+FTDL_OFF2:;; offset of FTSTART for LPT2
 	DW	0			;;
 	DW	0			;;
 	DW	0			;;
@@ -389,7 +389,7 @@ FTDL_OFF2 LABEL WORD			;; offset of FTSTART for LPT2
 	DW	0			;;
 ;;upto the max. of {ramsl_max,hardsl_max}
 					;;
-FTDL_OFF3 LABEL WORD			;; offset of FTSTART for LPT3
+FTDL_OFF3:;; offset of FTSTART for LPT3
 	DW	0			;;
 	DW	0			;;
 	DW	0			;;
@@ -420,7 +420,7 @@ db	'PRINTER_DESC'                  ;;
 					;;
 PRINTER_DESC_NUM DW 3			;; number of PRINTER_DESCn
 					;;
-PRINTER_DESC_TBL LABEL WORD		;;
+PRINTER_DESC_TBL:;;
 	DW	OFFSET(PRINTER_DESC1)	;;
 	DW	OFFSET(PRINTER_DESC2)	;;
 	DW	OFFSET(PRINTER_DESC3)	;;
@@ -450,8 +450,8 @@ PRINTER_DESC1 : 			;;
 					;; (MUST BE ADJACENT...no blanks bet.:)
 CTL4201_H :	DB  5,ESC_CHAR,'I',0,ESC_CHAR,"6" ;;  selection control 1
 CTL4201_R :	DB  5,ESC_CHAR,'I',4,ESC_CHAR,"6" ;;  selection control 2
-		db  26	dup (0) 	;;  for CTL4201_H
-		db  26	dup (0) 	;;  for CTL4201_R
+		times 26 db 0;;  for CTL4201_H
+		times 26 db 0;;  for CTL4201_R
 					;;
 CTL4201_B	DB  CTL_MAX	DUP (0) ;; max. two selection
 		DB  CTL_MAX	DUP (0) ;;
@@ -483,8 +483,8 @@ CTL5202_H :	DB  12,ESC_CHAR,91,84,5,0,00,00,0FFH,0FFH,00   ;; selection control 
 		 dB  ESC_CHAR,"6"             ;;
 		DB  12,ESC_CHAR,91,84,5,0,00,00,0FFH,0FFH,00   ;; selection control 2
 		 dB  ESC_CHAR,"6"             ;;
-		db  19 dup (0)		;;  for CTL5202_H selection 1
-		db  19 dup (0)		;;  for CTL5202_H selection 2
+		times 19 db 0;;  for CTL5202_H selection 1
+		times 19 db 0;;  for CTL5202_H selection 2
 CTL5202_R :	DB  0			;;
 					;;
 CTL5202_B	DB  CTL_MAX	DUP (0) ;; max. two selection
@@ -514,12 +514,12 @@ CTL4208_H :	DB  0Bh,ESC_CHAR,49h,0Ah    ;;	selection control 1
 		DB  ESC_CHAR,49h,03
 		DB  ESC_CHAR,49h,02
 		DB  ESC_CHAR,36h
-		db  20	dup (0)
+		times 20 db 0
 CTL4208_R :	DB  0Bh,ESC_CHAR,49h,0Eh    ;;	selection control 2
 		DB  ESC_CHAR,49h,7
 		DB  ESC_CHAR,49h,6
 		DB  ESC_CHAR,36h
-		db  20	dup (0) 	;;  for CTLres1_H and CTRLres1_R
+		times 20 db 0;;  for CTLres1_H and CTRLres1_R
 					;;
 CTL4208_B	DB  CTL_MAX	DUP (0) ;; max. two selection
 		DB  CTL_MAX	DUP (0) ;;
@@ -546,8 +546,8 @@ PRINTER_DESC4 : 			;;
 					;; (32 bytes for each control)
 					;; (MUST BE ADJACENT...no blanks bet.:)
 CTLres2_H :	DB  0			;;  selection control 1
-CTLres2_R :	DB  32	dup (0) 	;;  selection control 2
-		db  32	dup (0) 	;;  for CTLres2_H and CTRLres2_R
+CTLres2_R :	DB  times 32 db 0 	;;  selection control 2
+		times 32 db 0;;  for CTLres2_H and CTRLres2_R
 					;;
 CTLres2_B	DB  CTL_MAX	DUP (0) ;; max. two selection
 		DB  CTL_MAX	DUP (0) ;;
@@ -555,7 +555,7 @@ CTLres2_B	DB  CTL_MAX	DUP (0) ;; max. two selection
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
 					;;
-TEMP_SI 	DW	?		;;
+TEMP_SI: dw 0;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -589,14 +589,14 @@ REQ_NORM3 GIH	<,,,,,> 		;; for LPT3
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-TABLE	       LABEL	BYTE		   ; table header				 ;AN000;
+TABLE:; table header				 ;AN000;
 DEVICE_NUM     DW	ZERO		   ; initialized to zero devices		 ;AN000;
 	       DW	TABLE1_1	   ; pointer to table 2 for device 1		 ;AN000;
 	       DW	TABLE2_1	   ; pointer to table 2 for device 2		 ;AN000;
 	       DW	TABLE3_1	   ; pointer to table 2 for device 3		 ;AN000;
 	       DW	TABLE4_1	   ; pointer to table 2 for device 4		 ;AN000;
 											 ;AN000;
-TABLE1_1       LABEL	WORD								 ;AN000;
+TABLE1_1:;AN000;
 	       DW	FOUR		   ; 4 pointer follow				 ;AN000;
 	       DW	TABLE1_2	   ; pointer to table 3 (device name)		 ;AN000;
 	       DW	TABLE1_3	   ; pointer to table 4 (device id)		 ;AN000;
@@ -604,15 +604,15 @@ TABLE1_1       LABEL	WORD								 ;AN000;
 	       DW	TABLE1_5	   ; pointer to table 6 (num desg's and fonts)   ;AN000;
 	       DW	-1		   ; reserved					 ;AN000;
 											 ;AN000;
-TABLE1_2       LABEL	WORD		   ; device name (ie. PRN)			 ;AN000;
+TABLE1_2:; device name (ie. PRN)			 ;AN000;
 	       DW	ZERO		   ; length					 ;AN000;
 	       DB	"        "         ; value                                       ;AN000;
 											 ;AN000;
-TABLE1_3       LABEL	WORD		   ; device id. (eg. 4201,5202..)		 ;AN000;
+TABLE1_3:; device id. (eg. 4201,5202..)		 ;AN000;
 	       DW	ZERO		   ; length					 ;AN000;
 	       DB	"        "         ; value                                       ;AN000;
 											 ;AN000;
-TABLE1_4       LABEL	WORD		   ; hardware code pages (10 max.)		 ;AN000;
+TABLE1_4:; hardware code pages (10 max.)		 ;AN000;
 	       DW	ZERO		   ; number					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
@@ -625,12 +625,12 @@ TABLE1_4       LABEL	WORD		   ; hardware code pages (10 max.)		 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 											 ;AN000;
-TABLE1_5       LABEL	WORD		   ; Designates and fonts			 ;AN000;
+TABLE1_5:; Designates and fonts			 ;AN000;
 	       DW	ZERO		   ; values given (0 - 2 valid) 		 ;AN000;
 	       DW	-1		   ; n value					 ;AN000;
 	       DW	-1		   ; m value					 ;AN000;
 											 ;AN000;
-TABLE2_1       LABEL	WORD								 ;AN000;
+TABLE2_1:;AN000;
 	       DW	FOUR		   ; 4 pointer follow				 ;AN000;
 	       DW	TABLE2_2	   ; pointer to table 3 (device name)		 ;AN000;
 	       DW	TABLE2_3	   ; pointer to table 4 (device id)		 ;AN000;
@@ -638,15 +638,15 @@ TABLE2_1       LABEL	WORD								 ;AN000;
 	       DW	TABLE2_5	   ; pointer to table 6 (num desg's and fonts)   ;AN000;
 	       DW	-1		   ; reserved					 ;AN000;
 											 ;AN000;
-TABLE2_2       LABEL	WORD		   ; device name (ie. PRN)			 ;AN000;
+TABLE2_2:; device name (ie. PRN)			 ;AN000;
 	       DW	ZERO		   ; length					 ;AN000;
 	       DB	"        "         ; value                                       ;AN000;
 											 ;AN000;
-TABLE2_3       LABEL	WORD		   ; device id. (eg. 4201,5202..)		 ;AN000;
+TABLE2_3:; device id. (eg. 4201,5202..)		 ;AN000;
 	       DW	ZERO		   ; length					 ;AN000;
 	       DB	"        "         ; value                                       ;AN000;
 											 ;AN000;
-TABLE2_4       LABEL	WORD		   ; hardware code pages (10 max.)		 ;AN000;
+TABLE2_4:; hardware code pages (10 max.)		 ;AN000;
 	       DW	ZERO		   ; number					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
@@ -659,12 +659,12 @@ TABLE2_4       LABEL	WORD		   ; hardware code pages (10 max.)		 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 											 ;AN000;
-TABLE2_5       LABEL	WORD		   ; Designates and fonts			 ;AN000;
+TABLE2_5:; Designates and fonts			 ;AN000;
 	       DW	ZERO		   ; values given (0 - 2 valid) 		 ;AN000;
 	       DW	-1		   ; n value					 ;AN000;
 	       DW	-1		   ; m value					 ;AN000;
 											 ;AN000;
-TABLE3_1       LABEL	WORD								 ;AN000;
+TABLE3_1:;AN000;
 	       DW	FOUR		   ; 4 pointer follow				 ;AN000;
 	       DW	TABLE3_2	   ; pointer to table 3 (device name)		 ;AN000;
 	       DW	TABLE3_3	   ; pointer to table 4 (device id)		 ;AN000;
@@ -672,15 +672,15 @@ TABLE3_1       LABEL	WORD								 ;AN000;
 	       DW	TABLE3_5	   ; pointer to table 6 (num desg's and fonts)   ;AN000;
 	       DW	-1		   ; reserved					 ;AN000;
 											 ;AN000;
-TABLE3_2       LABEL	WORD		   ; device name (ie. PRN)			 ;AN000;
+TABLE3_2:; device name (ie. PRN)			 ;AN000;
 	       DW	ZERO		   ; length					 ;AN000;
 	       DB	"        "         ; value                                       ;AN000;
 											 ;AN000;
-TABLE3_3       LABEL	WORD		   ; device id. (eg. 4201,5202..)		 ;AN000;
+TABLE3_3:; device id. (eg. 4201,5202..)		 ;AN000;
 	       DW	ZERO		   ; length					 ;AN000;
 	       DB	"        "         ; value                                       ;AN000;
 											 ;AN000;
-TABLE3_4       LABEL	WORD		   ; hardware code pages (10 max.)		 ;AN000;
+TABLE3_4:; hardware code pages (10 max.)		 ;AN000;
 	       DW	ZERO		   ; number					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
@@ -693,12 +693,12 @@ TABLE3_4       LABEL	WORD		   ; hardware code pages (10 max.)		 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 											 ;AN000;
-TABLE3_5       LABEL	WORD		   ; Designates and fonts			 ;AN000;
+TABLE3_5:; Designates and fonts			 ;AN000;
 	       DW	ZERO		   ; values given (0 - 2 valid) 		 ;AN000;
 	       DW	0		   ; n value					 ;AN000;
 	       DW	0		   ; m value					 ;AN000;
 											 ;AN000;
-TABLE4_1       LABEL	WORD								 ;AN000;
+TABLE4_1:;AN000;
 	       DW	FOUR		   ; 4 pointer follow				 ;AN000;
 	       DW	TABLE4_2	   ; pointer to table 3 (device name)		 ;AN000;
 	       DW	TABLE4_3	   ; pointer to table 4 (device id)		 ;AN000;
@@ -706,15 +706,15 @@ TABLE4_1       LABEL	WORD								 ;AN000;
 	       DW	TABLE4_5	   ; pointer to table 6 (num desg's and fonts)   ;AN000;
 	       DW	-1		   ; reserved					 ;AN000;
 											 ;AN000;
-TABLE4_2       LABEL	WORD		   ; device name (ie. PRN)			 ;AN000;
+TABLE4_2:; device name (ie. PRN)			 ;AN000;
 	       DW	ZERO		   ; length					 ;AN000;
 	       DB	"        "         ; value                                       ;AN000;
 											 ;AN000;
-TABLE4_3       LABEL	WORD		   ; device id. (eg. 4201,5202..)		 ;AN000;
+TABLE4_3:; device id. (eg. 4201,5202..)		 ;AN000;
 	       DW	ZERO		   ; length					 ;AN000;
 	       DB	"        "         ; value                                       ;AN000;
 											 ;AN000;
-TABLE4_4       LABEL	WORD		   ; hardware code pages (10 max.)		 ;AN000;
+TABLE4_4:; hardware code pages (10 max.)		 ;AN000;
 	       DW	ZERO		   ; number					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
@@ -727,14 +727,14 @@ TABLE4_4       LABEL	WORD		   ; hardware code pages (10 max.)		 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 	       DW	-1		   ; value					 ;AN000;
 											 ;AN000;
-TABLE4_5       LABEL	WORD		   ; Designates and fonts			 ;AN000;
+TABLE4_5:; Designates and fonts			 ;AN000;
 	       DW	ZERO		   ; values given (0 - 2 valid) 		 ;AN000;
 	       DW	0		   ; n value					 ;AN000;
 	       DW	0		   ; m value					 ;AN000;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-reserved1 DW	?			;; reserved for debugging used
-reserved2 dw	?			;;
+reserved1: dw 0;; reserved for debugging used
+reserved2: dw 0;;
 					;;
 ;;;;;;;;ASSUME	DS:NOTHING		;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -744,7 +744,7 @@ reserved2 dw	?			;;
 ;;	Retain the Request Header address for use by Interrupt routine
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-STRATEGY0 PROC	FAR			;;
+STRATEGY0:;;
 	PUSH	BX			;;
 	PUSH	BX			;;
 	LEA	BX, BUF0		;; BUF = BUF0  CS:[BX]
@@ -752,7 +752,7 @@ STRATEGY0 PROC	FAR			;;
 	MOV	buf.RH_PTRS,ES		;; segment
 	POP	BX			;;
 	RET				;;
-STRATEGY0 ENDP				;;
+; ENDP STRATEGY0;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;	LPT1 Device "strategy" entry point
@@ -760,7 +760,7 @@ STRATEGY0 ENDP				;;
 ;;	Retain the Request Header address for use by Interrupt routine
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-STRATEGY1 PROC	FAR			;;
+STRATEGY1:;;
 	PUSH	BX			;;
 	PUSH	BX			;;
 	LEA	BX, BUF1		;; BUF = BUF1  CS:[BX]
@@ -768,7 +768,7 @@ STRATEGY1 PROC	FAR			;;
 	MOV	buf.RH_PTRS,ES		;; segment
 	POP	BX			;;
 	RET				;;
-STRATEGY1 ENDP				;;
+; ENDP STRATEGY1;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;	LPT2 Device "strategy" entry point
@@ -776,7 +776,7 @@ STRATEGY1 ENDP				;;
 ;;	Retain the Request Header address for use by Interrupt routine
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-STRATEGY2 PROC	FAR			;;
+STRATEGY2:;;
 	PUSH	BX			;;
 	PUSH	BX			;;
 	LEA	BX, BUF2		;; BUF = BUF2  CS:[BX]
@@ -784,7 +784,7 @@ STRATEGY2 PROC	FAR			;;
 	MOV	buf.RH_PTRS,ES		;; segment
 	POP	BX			;;
 	RET				;;
-STRATEGY2 ENDP				;;
+; ENDP STRATEGY2;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;	LPT3 Device "strategy" entry point
@@ -792,7 +792,7 @@ STRATEGY2 ENDP				;;
 ;;	Retain the Request Header address for use by Interrupt routine
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-STRATEGY3 PROC	FAR			;;
+STRATEGY3:;;
 	PUSH	BX			;;
 	PUSH	BX			;;
 	LEA	BX, BUF3		;; BUF = BUF3  CS:[BX]
@@ -800,7 +800,7 @@ STRATEGY3 PROC	FAR			;;
 	MOV	buf.RH_PTRS,ES		;; segment
 	POP	BX			;;
 	RET				;;
-STRATEGY3 ENDP				;;
+; ENDP STRATEGY3;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;	Table of command / functions supported by LPTn
@@ -809,7 +809,7 @@ STRATEGY3 ENDP				;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;; CMD_CODES code supported by LPTn
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CMD_CODES LABEL BYTE			;;
+CMD_CODES:;;
 	DB	CMD_INI 		;;  Initialization
 	DB	CMD_WRT 		;;  output
 	DB	09			;;  output
@@ -827,7 +827,7 @@ CMD_INDX EQU	($-CMD_CODES)		;;  number of entries in CMD_CODES
 					;;   -- command = CMD_GIO and
 					;;	major function = MAF_PTR
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-GIO_CODES LABEL BYTE			;; minor GIO functions supported :
+GIO_CODES:;; minor GIO functions supported :
 	DB	MIF_DST 		;; - designate start
 	DB	MIF_DEN 		;; - designate end
 	DB	MIF_IVK 		;; - invoke
@@ -843,23 +843,23 @@ GIO_INDX EQU	($-GIO_CODES)		;;  number of entries in GIO_CODES
 					;; -- 2nd section matched with
 					;;    GIO_CODES for GIO_INDEX more
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CASES	LABEL	WORD			;;  in CMD_CODES order
+CASES:;;  in CMD_CODES order
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-	DW	OFFSET INIT		;;  0 - Initialization
-	DW	OFFSET WRITE		;;
-	DW	OFFSET WRITE		;;
-	DW	OFFSET WRITE		;;
+	DW	INIT		;;  0 - Initialization
+	DW	WRITE		;;
+	DW	WRITE		;;
+	DW	WRITE		;;
 					;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;  in GIO_CODES order
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-	DW	OFFSET DESIGNATE_START	;;
-	DW	OFFSET DESIGNATE_END	;;
-	DW	OFFSET INVOKE		;;
-	DW	OFFSET Q_INVOKED	;;
-	DW	OFFSET Q_LIST		;;
+	DW	DESIGNATE_START	;;
+	DW	DESIGNATE_END	;;
+	DW	INVOKE		;;
+	DW	Q_INVOKED	;;
+	DW	Q_LIST		;;
 					;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -879,7 +879,7 @@ MEM_REQUEST  DW    -1			;; flag used for first time memory
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-INTERRUPT0 PROC FAR			;; device interrupt entry point
+INTERRUPT0:;; device interrupt entry point
 					;;
 	PUSH	DS			;; save all registers Revised
 	PUSH	ES			;;
@@ -928,7 +928,7 @@ INTERRUPT0 PROC FAR			;; device interrupt entry point
 PRN_NO_STACK :				;;
 					;;
 					;;
-	MOV	DI,OFFSET IRPT_CMD_EXIT ;; return addr from command processor
+	MOV	DI,IRPT_CMD_EXIT ;; return addr from command processor
 					;;
 	PUSH	DI			;; push return address onto stack
 					;; command routine issues "RET"
@@ -942,25 +942,25 @@ PRN_NO_STACK :				;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	MOV	BUF.BFLAG,BF_PRN	;; INITIALIZE PRN BUFFER
 					;;
-	MOV	DI,OFFSET DEV_HDR0	;; PRN	Device header
+	MOV	DI,DEV_HDR0	;; PRN	Device header
 	MOV	BUF.DEV_HDRO,DI 	;;
 	MOV	BUF.DEV_HDRS,CS 	;; must be CS
 					;;
-	MOV	DI,OFFSET HBUF_SL1	;; PRN/LPT1 buffer for Hardware-slots
+	MOV	DI,HBUF_SL1	;; PRN/LPT1 buffer for Hardware-slots
 	MOV	BUF.HRBUFO,DI		;;
 					;;
-	MOV	DI,OFFSET RBUF_SL1	;; PRN/LPT1 buffer for RAM-slots
+	MOV	DI,RBUF_SL1	;; PRN/LPT1 buffer for RAM-slots
 	MOV	BUF.RMBUFO,DI		;;
 					;;
-	MOV	DI,OFFSET FTDL_OFF1	;;
+	MOV	DI,FTDL_OFF1	;;
 	MOV	BUF.FTDLO,DI		;;
 					;;
-	MOV	DI,OFFSET REQ_NORM1	;; PRN/LPT1 request header
+	MOV	DI,REQ_NORM1	;; PRN/LPT1 request header
 	MOV	BUF.RNORMO,DI		;;
 					;;
 	MOV	BUF.FSELEN,0		;; selection control length
 					;;
-	mov	buf.prn_bufo,offset buf0;;
+	mov	buf.prn_bufo,buf0;;
 					;;
 	JMP	COMMON_INTR		;; common interrupt handler
 					;;
@@ -986,7 +986,7 @@ PRN_MEM_DONE :				;;
 ;; LPT1 Device "interrupt" entry point
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INTERRUPT1 PROC FAR			;; device interrupt entry point
+INTERRUPT1:;; device interrupt entry point
 					;;
 	PUSH	DS			;; save all registers Revised
 	PUSH	ES			;;
@@ -1034,7 +1034,7 @@ INTERRUPT1 PROC FAR			;; device interrupt entry point
 					;;
 LPT1_NO_STACK : 			;;
 					;;
-	MOV	DI,OFFSET IRPT_CMD_EXIT ;; return addr from command processor
+	MOV	DI,IRPT_CMD_EXIT ;; return addr from command processor
 					;;
 	PUSH	DI			;; push return address onto stack
 					;; command routine issues "RET"
@@ -1047,7 +1047,7 @@ LPT1_NO_STACK : 			;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	MOV	BUF.BFLAG,BF_LPT1	;; INITIALIZE LPT1 BUFFER
 					;;
-	MOV	DI,OFFSET DEV_HDR1	;; LPT1 Device header
+	MOV	DI,DEV_HDR1	;; LPT1 Device header
 	MOV	BUF.DEV_HDRO,DI 	;;
 	MOV	BUF.DEV_HDRS,CS 	;; must be CS
 					;;....................................
@@ -1058,7 +1058,7 @@ LPT1_NO_STACK : 			;;
 	SUB	CX,DI			;;
 	LEA	SI, BUF0		;;
 	LEA	SI,[SI].RNORMO		;;
-	REP	MOVS ES:BYTE PTR[DI],CS:[SI]
+	REP	MOVS ES:byte[DI],CS:[SI]
 					;;
 	JMP	COMMON_INTR		;; common interrupt handler
 					;;
@@ -1080,13 +1080,13 @@ LPT1_MEM_DONE : 			;;
 					;;
 	JMP	COMMON_INTR		;; common interrupt handler
 					;;
-INTERRUPT1 ENDP 			;;
+; ENDP INTERRUPT1;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; LPT2 Device "interrupt" entry point
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INTERRUPT2 PROC FAR			;; device interrupt entry point
+INTERRUPT2:;; device interrupt entry point
 					;;
 	PUSH	DS			;; save all registers Revised
 	PUSH	ES			;;
@@ -1132,7 +1132,7 @@ INTERRUPT2 PROC FAR			;; device interrupt entry point
 					;;
 LPT2_NO_STACK : 			;;
 					;;
-	MOV	DI,OFFSET IRPT_CMD_EXIT ;; return addr from command processor
+	MOV	DI,IRPT_CMD_EXIT ;; return addr from command processor
 					;;
 	PUSH	DI			;; push return address onto stack
 					;; command routine issues "RET"
@@ -1146,26 +1146,26 @@ LPT2_NO_STACK : 			;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	MOV	BUF.BFLAG,BF_LPT2	;; initialise LPT2 buffer
 					;;
-	MOV	DI,OFFSET DEV_HDR2	;; LPT2 Device header
+	MOV	DI,DEV_HDR2	;; LPT2 Device header
 	MOV	BUF.DEV_HDRO,DI 	;;
 	MOV	BUF.DEV_HDRS,CS 	;; must be CS
 					;;
-	MOV	DI,OFFSET HBUF_SL2	;; LPT2 buffer for Hardware-slots
+	MOV	DI,HBUF_SL2	;; LPT2 buffer for Hardware-slots
 	MOV	BUF.HRBUFO,DI		;;
 					;;
-	MOV	DI,OFFSET RBUF_SL2	;; LPT2 buffer for RAM-slots
+	MOV	DI,RBUF_SL2	;; LPT2 buffer for RAM-slots
 	MOV	BUF.RMBUFO,DI		;;
 					;;
-	MOV	DI,OFFSET FTDL_OFF2	;;
+	MOV	DI,FTDL_OFF2	;;
 	MOV	BUF.FTDLO,DI		;;
 					;;
 					;;
-	MOV	DI,OFFSET REQ_NORM2	;; LPT2 request header
+	MOV	DI,REQ_NORM2	;; LPT2 request header
 	MOV	BUF.RNORMO,DI		;;
 					;;
 	MOV	BUF.FSELEN,0		;; selection control length
 					;;
-	mov	buf.prn_bufo,offset buf2;;
+	mov	buf.prn_bufo,buf2;;
 					;;
 	JMP	COMMON_INTR		;; common interrupt handler
 					;;
@@ -1186,13 +1186,13 @@ LPT2_MEM_DONE : 			;;
 					;;
 	JMP	COMMON_INTR		;; common interrupt handler
 					;;
-INTERRUPT2 ENDP 			;;
+; ENDP INTERRUPT2;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; LPT3 Device "interrupt" entry point
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INTERRUPT3 PROC FAR			;; device interrupt entry point
+INTERRUPT3:;; device interrupt entry point
 					;;
 	PUSH	DS			;; save all registers Revised
 	PUSH	ES			;;
@@ -1239,7 +1239,7 @@ INTERRUPT3 PROC FAR			;; device interrupt entry point
 					;;
 LPT3_NO_STACK : 			;;
 					;;
-	MOV	DI,OFFSET IRPT_CMD_EXIT ;; return addr from command processor
+	MOV	DI,IRPT_CMD_EXIT ;; return addr from command processor
 					;;
 	PUSH	DI			;; push return address onto stack
 					;; command routine issues "RET"
@@ -1253,26 +1253,26 @@ LPT3_NO_STACK : 			;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	MOV	BUF.BFLAG,BF_LPT3	;; INITIALIZE LPT3 BUFFER
 					;;
-	MOV	DI,OFFSET DEV_HDR3	;; LPT3 Device header
+	MOV	DI,DEV_HDR3	;; LPT3 Device header
 	MOV	BUF.DEV_HDRO,DI 	;;
 	MOV	BUF.DEV_HDRS,CS 	;; must be CS
 					;;
-	MOV	DI,OFFSET HBUF_SL3	;; LPT3 buffer for Hardware-slots
+	MOV	DI,HBUF_SL3	;; LPT3 buffer for Hardware-slots
 	MOV	BUF.HRBUFO,DI		;;
 					;;
-	MOV	DI,OFFSET RBUF_SL3	;; LPT3 buffer for RAM-slots
+	MOV	DI,RBUF_SL3	;; LPT3 buffer for RAM-slots
 	MOV	BUF.RMBUFO,DI		;;
 					;;
-	MOV	DI,OFFSET FTDL_OFF3	;;
+	MOV	DI,FTDL_OFF3	;;
 	MOV	BUF.FTDLO,DI		;;
 					;;
 					;;
-	MOV	DI,OFFSET REQ_NORM3	;; LPT3 request header
+	MOV	DI,REQ_NORM3	;; LPT3 request header
 	MOV	BUF.RNORMO,DI		;;
 					;;
 	MOV	BUF.FSELEN,0		;; selection control length
 					;;
-	mov	buf.prn_bufo,offset buf3;;
+	mov	buf.prn_bufo,buf3;;
 					;;
 	JMP	COMMON_INTR		;; common interrupt handler
 					;;
@@ -1293,7 +1293,7 @@ LPT3_MEM_DONE : 			;;
 					;;
 	JMP	COMMON_INTR		;; common interrupt handler
 					;;
-INTERRUPT3 ENDP 			;;
+; ENDP INTERRUPT3;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Common interrupt entry :
@@ -1306,15 +1306,15 @@ COMMON_INTR :				;;
 ; Check if header link has to be set
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	LDS	SI,DWORD PTR BUF.DEV_HDRO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	LDS	SI,dword BUF.DEV_HDRO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;  device header :  DS:[SI]
 	CMP	BUF.LPT_STRAO, -1	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	JNE	DOSLPT_FOUND		;; has been linked to DOS LPTn
 	CMP	BUF.LPT_STRAS, -1	;;
 	JNE	DOSLPT_FOUND		;; has been linked to DOS LPTn
-	LDS	SI,DWORD PTR BUF.DEV_HDRO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	LDS	SI,dword BUF.DEV_HDRO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;  next device header :  ES:[DI]
-	LES	DI,DWORD PTR HP.DH_NEXTO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	LES	DI,dword HP.DH_NEXTO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
 	PUSH	ES			;;
 	POP	AX			;;
@@ -1370,7 +1370,7 @@ X2:	MOV	BUF.LPT_INTRS,AX	;;
 					;; device name
 	JMP	L4			;;
 L3:					;;
-	LES	DI,DWORD PTR NHD.DH_NEXTO ;
+	LES	DI,dword NHD.DH_NEXTO ;
 					;;
 ;$ENDLOOP				;;
 	JMP	L1			;;
@@ -1392,7 +1392,7 @@ DOSLPT_FOUND :				;; device header link has been
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;; get RH address passed to
+	LES	DI,dword buf.rh_ptro ;; get RH address passed to
 					;;
 	MOV	AL,RH.RHC_CMD		;;
 	CMP	AL,CMD_GIO		;;
@@ -1400,7 +1400,7 @@ DOSLPT_FOUND :				;; device header link has been
 					;;
 	PUSH	CS			;;  non-GIO command
 	POP	ES			;;
-	MOV	DI,OFFSET CMD_CODES	;;
+	MOV	DI,CMD_CODES	;;
 	MOV	CX,CMD_INDX		;;
 					;; find if command is in CMD_CODES ?
 	REPNE	SCASB			;;
@@ -1419,7 +1419,7 @@ GIO_CASES :				;; supported GIO command
 					;; use minor function to locate
 	PUSH	CS			;;
 	POP	ES			;;
-	MOV	DI,OFFSET GIO_CODES	;;
+	MOV	DI,GIO_CODES	;;
 	MOV	CX,GIO_INDX		;;
 					;; find if command is in GIO_CODES ?
 	REPNE	SCASB			;;
@@ -1435,7 +1435,7 @@ SUPPORTED :				;; command/functions supported by LPTn
 					;;
 	XOR	AX,AX			;; initialize return to "no error"
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;; get RH address again
+	LES	DI,dword buf.rh_ptro ;; get RH address again
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;  At entry to command processing routine:
@@ -1455,7 +1455,7 @@ SUPPORTED :				;; command/functions supported by LPTn
 					;;
 IRPT_CMD_EXIT:				;; return from command routine
 					;; AX = value to OR into status word
-	LES	DI,dword ptr buf.rh_ptro ;; restore ES:DI as Request Header ptr
+	LES	DI,dword buf.rh_ptro ;; restore ES:DI as Request Header ptr
 	MOV	AX,RH.RHC_STA		;;
 	OR	AH,STAT_DONE		;; add "done" bit to status word
 	MOV	RH.RHC_STA,AX		;; store status into request header
@@ -1493,7 +1493,7 @@ RET0_NO_STACK : 			;;
 	POP	DS			;;
 	RET				;;
 					;;
-INTERRUPT0 ENDP 			;;
+; ENDP INTERRUPT0;;
 					;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1502,19 +1502,19 @@ INTERRUPT0 ENDP 			;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-NORM_DRIVER PROC			;; LPT OUTPUT to the DOS LPTn
+NORM_DRIVER:;; LPT OUTPUT to the DOS LPTn
 					;;
 	PUSH	BX			;; **** BUF. is changed ****
 	PUSH	BX			;;
 	POP	SI			;;
-	LES	BX,DWORD PTR BUF.RH_PTRO ;; pass the request header to the
-	CALL	DWORD PTR CS:[SI].LPT_STRAO ;; LPTn strategy routine.
+	LES	BX,dword BUF.RH_PTRO ;; pass the request header to the
+	CALL	dword CS:[SI].LPT_STRAO ;; LPTn strategy routine.
 					;;
 	POP	BX			;;
-	CALL	DWORD PTR BUF.LPT_INTRO ;; interrupt the DOS LPTn
+	CALL	dword BUF.LPT_INTRO ;; interrupt the DOS LPTn
 	RET				;;
 					;;
-NORM_DRIVER ENDP			;;
+; ENDP NORM_DRIVER;;
 					;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1523,11 +1523,11 @@ NORM_DRIVER ENDP			;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-WRITE	    PROC			;; LPT OUTPUT to the DOS LPTn
+WRITE:;; LPT OUTPUT to the DOS LPTn
 					;;
 					;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;; restore ES:DI as Request Header ptr
+	LES	DI,dword buf.rh_ptro ;; restore ES:DI as Request Header ptr
 					;;
 	MOV	AX,BUF.STATE		;;
 	CMP	AX,NORMAL		;;
@@ -1551,7 +1551,7 @@ WRT_DESIGNATE : 			;; DESIGNATE WRITE
 	JMP	WRT_IGNORE		;; already failed
 					;;
 WRT_DESG_GOOD : 			;;
-	MOV	SI,OFFSET FTABLE	;;
+	MOV	SI,FTABLE	;;
 	PUSH	CS			;;
 	POP	DS			;;
 					;;
@@ -1635,7 +1635,7 @@ SLOT_FOUND :				;;
 					;;
 	OR	BUF.STATUS,FAIL 	;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;;
+	LES	DI,dword buf.rh_ptro ;;
 	MOV	RH.RHC_STA,AX		;;
 	JMP	WRITE_RET		;; **** LOOP EXIT (fail)  ****
 					;;
@@ -1801,7 +1801,7 @@ GOOD_CLASS1 :				;;
 	MOV	DI,BUF.FTDLO		;;
 	ADD	DI,AX			;;
 					;;
-	MOV	AX,CS:WORD PTR [DI]	;; length copied to font buffer
+	MOV	AX,CS:word [DI]	;; length copied to font buffer
 					;;
 	POP	DX			;; stack -1
 	SHR	DX,1			;;
@@ -1821,7 +1821,7 @@ CTL_LOCATED :				;;
 	MOV	CX,CS:[SI].FTB_SELLEN	;;
 	AND	AX,AX			;;
 	JNZ	HASBEEN_COPIED		;;
-	MOV	ES:BYTE PTR [DI],CL	;; 1st byte is the length
+	MOV	ES:byte [DI],CL	;; 1st byte is the length
 	INC	AX			;;
 					;;
 HASBEEN_COPIED :			;;
@@ -1873,7 +1873,7 @@ FONT_SELECT :				;;
 	POP	CX			;; STACK -2
 	ADD	CX,DI			;;
 	POP	DI			;; STACK -1
-	MOV	CS:WORD PTR [DI],CX	;;
+	MOV	CS:word [DI],CX	;;
 					;;
 	MOV	CX,CS:[SI].FTB_DLEN	;; all font data for this code page is
 	SUB	CS:[SI].FTB_DLEN,CX	;; discarded
@@ -1905,7 +1905,7 @@ SELECT_BAD :				;; ++ BAD SELECT ++
 					;;
 	POP	CX			;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;;
+	LES	DI,dword buf.rh_ptro ;;
 	MOV	RH.RHC_STA,STAT_BADATA	;;
 					;;
 	OR	BUF.STATUS,FAIL 	;;
@@ -1954,7 +1954,7 @@ STORE_FONT_BUFFER :			;; *****************************
 					;;...................................
 	MOV	CX,CS:[SI].FTB_DLEN	;; length of font data
 					;;
-	MOV	AX,CS:WORD PTR [DI]	;; current destination
+	MOV	AX,CS:word [DI]	;; current destination
 					;;
 	ADD	AX,CX			;;
 	PUSH	AX			;; STACK A (next destination)
@@ -1968,7 +1968,7 @@ STORE_FONT_BUFFER :			;; *****************************
 	POP	CX			;; **** LOOP EXIT (no room) ****
 	POP	DI			;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;;
+	LES	DI,dword buf.rh_ptro ;;
 	MOV	RH.RHC_STA,STAT_BADATA	;;
 					;;
 	OR	BUF.STATUS,FAIL 	;;
@@ -1979,7 +1979,7 @@ ROOM_FOR_FONT : 			;;
 					;;
 	PUSH	DI			;; STACK B
 					;;
-	MOV	DI,CS:WORD PTR [DI]	;; current destination
+	MOV	DI,CS:word [DI]	;; current destination
 					;;
 	PUSH	SI			;; STACK C
 	PUSH	DS			;; STACK D
@@ -1995,7 +1995,7 @@ ROOM_FOR_FONT : 			;;
 	POP	SI			;; STACK C
 	POP	DI			;; STACK B
 	POP	AX			;; STACK A
-	MOV	CS:WORD PTR [DI],AX	;; next detination/current length
+	MOV	CS:word [DI],AX	;; next detination/current length
 					;;
 	POP	DS			;;
 	POP	CX			;;
@@ -2009,7 +2009,7 @@ FONT_DOWNLOAD : 			;; ***********************************
 					;; *  DOWNLOAD FONT TO THE DEVICE :  *
 	PUSH	ES			;; ***********************************
 	PUSH	DI			;;
-	LES	DI,dword ptr buf.rh_ptro ;; -- the logic can only support one
+	LES	DI,dword buf.rh_ptro ;; -- the logic can only support one
 					;;     physical device slot that can be
 					;;     downloaded.)
 	MOV	AX,CS:[SI].FTB_DLEN	;;
@@ -2026,16 +2026,16 @@ FONT_DOWNLOAD : 			;; ***********************************
 	PUSH	BX			;; **** BUF. is changed ****
 	PUSH	BX			;;
 	POP	SI			;;
-	LES	BX,DWORD PTR BUF.RH_PTRO ;; pass the request header to the
+	LES	BX,dword BUF.RH_PTRO ;; pass the request header to the
 					;;
 FDL_CALL_STR :				;;
-	CALL	DWORD PTR CS:[SI].LPT_STRAO ;; LPTn strategy routine.
+	CALL	dword CS:[SI].LPT_STRAO ;; LPTn strategy routine.
 	POP	BX			;;
 	POP	ES			;;
 	POP	SI			;;
 					;;
 FDL_CALL_ITR :				;;
-	CALL	DWORD PTR BUF.LPT_INTRO ;; interrupt the DOS LPTn
+	CALL	dword BUF.LPT_INTRO ;; interrupt the DOS LPTn
 					;;
 FDL_ITR_RETURN :			;;
 	MOV	AX,rh.RHC_STA		;;
@@ -2065,26 +2065,26 @@ WRT_NORMAL :				;;
 					;;
 WRT_ignore :				;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;;
+	LES	DI,dword buf.rh_ptro ;;
 	MOV	RH.RHC_STA,STAT_DEVERR	;;
 	JMP	WRITE_RET		;;
 					;;
 NO_MORE_FTBLK : 			;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;;
+	LES	DI,dword buf.rh_ptro ;;
 	MOV	RH.RHC_STA,0		;;
 					;;
 WRITE_RET :				;;
 	RET				;;
 					;;
-WRITE	    ENDP			;;
+; ENDP WRITE;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;====	Generic IOCTL Designate Start  ======
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DESIGNATE_START PROC			;;
+DESIGNATE_START:;;
 	MOV	AX,BUF.STATE		;;
 	CMP	AX,NORMAL		;;
 	JNE	DS_00			;G; ALL OF THESE EXTRA JUMPS ARE
@@ -2593,7 +2593,7 @@ FTDL_LOOP :				;;
 	and	ax,at_load		;;
 	jz	ftdl_next		;;
 					;;
-	MOV	CS:WORD PTR[DI],0	;; the font length in font buffer is 0
+	MOV	CS:word[DI],0	;; the font length in font buffer is 0
 					;;
 ftdl_next :				;;
 	INC	SI			;;
@@ -2693,7 +2693,7 @@ DST_FT_LOCATED: 			;;
 					;;
 	POP	DI			;;
 	ADD	DI,BUF.FTDLO		;;
-	MOV	CX,CS:WORD PTR [DI]	;;
+	MOV	CX,CS:word [DI]	;;
 					;;....................................
 					;; DOWNLOAD THE FONT TO DEVICE
 	MOV	SI,BUF.RNORMO		;;
@@ -2711,9 +2711,9 @@ DST_FT_LOCATED: 			;;
 	POP	ES			;;
 	MOV	BX,SI			;; ES:BX = REQ_NORMn (CS:[SI])
 					;;
-	CALL	DWORD PTR CS:[DI].LPT_STRAO
+	CALL	dword CS:[DI].LPT_STRAO
 					;;
-	CALL	DWORD PTR CS:[DI].LPT_INTRO
+	CALL	dword CS:[DI].LPT_INTRO
 					;;
 	POP	BX			;;
 					;;
@@ -2731,7 +2731,7 @@ fdl_good2 :				;;
 					;;
 					;;
 DST_RETURN :				;;
-	LES	DI,dword ptr buf.rh_ptro ;;
+	LES	DI,dword buf.rh_ptro ;;
 	MOV	RH.RHC_STA,AX		;;
 					;;
 	push	cs			;;
@@ -2798,10 +2798,10 @@ DST_IVK_CP :				;;
 					;;
 	PUSH	AX			;;
 	LEA	SI,[SI].GIH_GBA 	;;
-	MOV	CS:WORD PTR [SI],AX
+	MOV	CS:word [SI],AX
 	INC	SI			;;
 	INC	SI			;;
-	MOV	CS:WORD PTR [SI],CS	;;
+	MOV	CS:word [SI],CS	;;
 	POP	SI			;;
 	MOV	CS:[SI].GB2_LEN,2	;;
 	MOV	AX,CS:[DI].SLT_CP	;;
@@ -2817,14 +2817,14 @@ DST_IVK_CP :				;;
 					;;
 	JMP	INVOKE			;;
 					;;
-DESIGNATE_START ENDP			;;
+; ENDP DESIGNATE_START;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;====	Generic IOCTL Designate End  ======
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DESIGNATE_END PROC			;;
+DESIGNATE_END:;;
 					;;
 	MOV	AX,BUF.STATE		;;
 	CMP	AX,LOCKED		;; WGR						 ;AN000;
@@ -2993,7 +2993,7 @@ ASSIGN_NEXT :				;;
 	PUSH	DI			;;
 	MOV	DI,CS:[DI].SELH_O	;;
 	XOR	DX,DX			;;
-	MOV	DL,CS:BYTE PTR [SI]	;;
+	MOV	DL,CS:byte [SI]	;;
 	ADD	DX,DI			;;
 	INC	DX			;; of the length byte
 					;;
@@ -3068,12 +3068,12 @@ DEN_RET :				;;
 	MOV	BUF.STATE,CPSW		;; end of designate cycle
 					;;
 DE_11:					;; WGR						 ;AN000;
-	LES	DI,dword ptr buf.rh_ptro ;;
+	LES	DI,dword buf.rh_ptro ;;
 	MOV	RH.RHC_STA,AX		;;
 					;;
 	RET				;;
 					;;
-DESIGNATE_END ENDP			;;
+; ENDP DESIGNATE_END;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -3081,7 +3081,7 @@ DESIGNATE_END ENDP			;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-INVOKE	PROC				;; ALSO JUMP FROM REFRESH
+INVOKE:;; ALSO JUMP FROM REFRESH
 					;;
 	MOV	AX,BUF.STATE		;;
 	CMP	AX,CPSW 		;;
@@ -3186,13 +3186,13 @@ IVK_RAMCP :				;; code page found in RAM slots
 	CMP	CS:[BX].STATE,LOCKED	;; WGR are we locked?				 ;AN000;
 	JNE	IR_0			;; WGR no..continue				 ;AN000;
 	MOV	CS:[BX].SAVED_CP,DX	;; WGR yes...save the code page 		 ;AN000;
-	CMP	BX,OFFSET BUF1		;; WGR if this is lpt1..then			 ;AN000;
+	CMP	BX,BUF1		;; WGR if this is lpt1..then			 ;AN000;
 	JNE	NEXT_1			;; WGR						 ;AN000;
 	LEA	SI,BUF0 		;; WGR copy to PRN buffer.			 ;AN000;
 	MOV	CS:[SI].SAVED_CP,DX	;; WGR						 ;AN000;
 	JMP	ALL_RESET		;; WGR						 ;AN000;
 NEXT_1: 				;; WGR						 ;AN000;
-	CMP	BX,OFFSET BUF0		;; WGR if this is PRN..then..			 ;AN000;
+	CMP	BX,BUF0		;; WGR if this is PRN..then..			 ;AN000;
 	JNE	NEXT_2			;; WGR						 ;AN000;
 	LEA	SI,BUF1 		;; WGR copy to lpt1 buffer.			 ;AN000;
 	MOV	CS:[SI].SAVED_CP,DX	;; WGR						 ;AN000;
@@ -3234,7 +3234,7 @@ FONT_LOCATED :				;;
 	SHR	DI,1			;; offset to the start of .FTDLEN
 					;;
 	add	DI,buf.ftdlo		;; length of font data
-	mov	cx,cs:word ptr [di]	;;
+	mov	cx,cs:word [di]	;;
 
 
 ;Before sending data, let's check the status of the printer
@@ -3260,9 +3260,9 @@ Send_Ram_Data:
 	POP	ES			;;
 	MOV	BX,SI			;; ES:BX = REQ_NORMn (CS:[SI])
 					;;
-	CALL	DWORD PTR CS:[DI].LPT_STRAO
+	CALL	dword CS:[DI].LPT_STRAO
 					;;
-	CALL	DWORD PTR CS:[DI].LPT_INTRO
+	CALL	dword CS:[DI].LPT_INTRO
 					;;
 	POP	BX			;;
 					;;
@@ -3311,13 +3311,13 @@ IVK_HWCPCP:				;; code page found in HWCP slots
 	CMP	CS:[BX].STATE,LOCKED	;; WGR are we locked?				 ;AN000;
 	JNE	IR_1			;; WGR no..continue				 ;AN000;
 	MOV	CS:[BX].SAVED_CP,DX	;; WGR yes...save the code page 		 ;AN000;
-	CMP	BX,OFFSET BUF1		;; WGR if this is lpt1..then			 ;AN000;
+	CMP	BX,BUF1		;; WGR if this is lpt1..then			 ;AN000;
 	JNE	NEXT_3			;; WGR						 ;AN000;
 	LEA	SI,BUF0 		;; WGR copy to PRN buffer.			 ;AN000;
 	MOV	CS:[SI].SAVED_CP,DX	;; WGR						 ;AN000;
 	JMP	ALL_RESET		;; WGR						 ;AN000;
 NEXT_3: 				;; WGR						 ;AN000;
-	CMP	BX,OFFSET BUF0		;; WGR if this is PRN..then..			 ;AN000;
+	CMP	BX,BUF0		;; WGR if this is PRN..then..			 ;AN000;
 	JNE	NEXT_4			;; WGR						 ;AN000;
 	LEA	SI,BUF1 		;; WGR copy to lpt1 buffer.			 ;AN000;
 	MOV	CS:[SI].SAVED_CP,DX	;; WGR						 ;AN000;
@@ -3421,9 +3421,9 @@ CTL_COMMON :				;;
 	POP	ES			;;
 	MOV	BX,SI			;; ES:BX = REQ_NORMn (CS:[SI])
 					;;
-	CALL	DWORD PTR CS:[DI].LPT_STRAO
+	CALL	dword CS:[DI].LPT_STRAO
 					;;
-	CALL	DWORD PTR CS:[DI].LPT_INTRO
+	CALL	dword CS:[DI].LPT_INTRO
 					;;
 	POP	BX			;;
 	POP	DI			;;
@@ -3552,15 +3552,15 @@ IVK_CMDERR :				;G;
 	MOV	AX,STAT_CMDERR		;G;
 					;;
 IVK_RET :				;;
-	LES	DI,dword ptr buf.rh_ptro;;
+	LES	DI,dword buf.rh_ptro;;
 	MOV	RH.RHC_STA,AX		;;
 					;;
 	RET				;;
 					;;
-INVOKE	ENDP				;;
+; ENDP INVOKE;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Prt_Status_Check	proc	near		;AN001;
+Prt_Status_Check:;AN001;
 ;Check the printer device status
 ;Out) if Zero flag set - Ok.
 ;     All registers saved.
@@ -3581,8 +3581,8 @@ Prt_Status_Check	proc	near		;AN001;
 	pop	es				;AN001;ES:BX -> REQ_NORMn (was cs:si)
 	mov	bx, si				;AN001;
 
-	call	dword ptr cs:[di].LPT_STRAO	;AN001;Strategy
-	call	dword ptr cs:[di].LPT_INTRO	;AN001;Intrrupt
+	call	dword cs:[di].LPT_STRAO	;AN001;Strategy
+	call	dword cs:[di].LPT_INTRO	;AN001;Intrrupt
 	test	cs:[si].RHC_STA, STAT_ERROR	;AN001;
 	pop	bx				;AN001;
 	pop	di				;AN001;
@@ -3590,7 +3590,7 @@ Prt_Status_Check	proc	near		;AN001;
 	pop	si				;AN001;
 	pop	es				;AN001;
 	ret					;AN001;
-Prt_Status_Check	endp			;AN001;
+; ENDP Prt_Status_Check;AN001;
 
 
 
@@ -3600,7 +3600,7 @@ Prt_Status_Check	endp			;AN001;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-Q_INVOKED PROC				;;
+Q_INVOKED:;;
 	push	ds			;;
 					;;
 	MOV	AX,BUF.STATE		;; ???????????????
@@ -3673,20 +3673,20 @@ QIV_CMDERR :				;G;
 	MOV	AX,STAT_CMDERR		;G;
 					;;
 QIV_RET :				;;
-	LES	DI,dword ptr buf.rh_ptro ;;
+	LES	DI,dword buf.rh_ptro ;;
 	MOV	RH.RHC_STA,AX		;;
 					;;
 	pop	ds			;;
 					;;
 	RET				;;
 					;;
-Q_INVOKED ENDP				;;
+; ENDP Q_INVOKED;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;====	Generic IOCTL Query List  =======
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Q_LIST	PROC				;;
+Q_LIST:;;
 					;;
 	push	ds			;;
 					;;
@@ -3785,13 +3785,13 @@ QLS_CMDERR :				;G;
 	MOV	AX,STAT_CMDERR		;G;
 					;;
 QLS_RET :				;;
-	LES	DI,dword ptr buf.rh_ptro ;;
+	LES	DI,dword buf.rh_ptro ;;
 	MOV	RH.RHC_STA,AX		;;
 					;;
 	pop	ds			;;
 	RET				;;
 					;;
-Q_LIST	ENDP				;;
+; ENDP Q_LIST;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	CHECK_PRINT_ACTIVE
@@ -3808,7 +3808,7 @@ Q_LIST	ENDP				;;
 ;		  THIS WILL not FIND OUT THAT THE PRINTER.SYS IS ACTIVE.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CHECK_PRINT_ACTIVE	PROC		;G;
+CHECK_PRINT_ACTIVE:;G;
 	PUSH	AX			;G; SAVE THE REGISTERS............
 	PUSH	SI			;G;
 	PUSH	DI			;G;
@@ -3842,10 +3842,10 @@ CPA_6:	POP	ES			;G; RESTORE REGISTERS.....
 	POP	SI			;G;
 	POP	AX			;G;
 	RET				;G;
-CHECK_PRINT_ACTIVE	ENDP		;G;
+; ENDP CHECK_PRINT_ACTIVE;G;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
-CSEG	ENDS
-	END
+; END SECTION .CSEG
+	; END

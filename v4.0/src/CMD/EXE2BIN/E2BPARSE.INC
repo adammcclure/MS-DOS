@@ -1,7 +1,7 @@
 
 
 
-data    segment public 'DATA'
+SECTION .data
 
 
 
@@ -79,25 +79,25 @@ Command_Line_Parms      equ     81h             ;                               
 ;*****************************************************************************
 ;
 
-Control          struc
+struc Control
 
-Match_Flags     dw      ?
-Function_Flags  dw      ?
-Result          dw      ?
-Values          dw      ?
-Num_Keywords    db      ?
-Keyword         db      ?
+Match_Flags: dw 0
+Function_Flags: dw 0
+Result: dw 0
+Values: dw 0
+Num_Keywords: db 0
+Keyword: db 0
 
-Control         ends
+endstruc
 
-File_Name_Return        struc                   ;                               ;AN000;
+struc File_Name_Return;                               ;AN000;
 
 Drive_Type      db      0                       ;                               ;AN000;
 Drive_Item_Tag  db      0                       ;                               ;AN000;
 Synonym         dw      0                       ;                               ;AN000;
 String_Value_ptr db     0                       ;File Name                      ;AN000;
 
-File_Name_Return     ends                       ;                               ;AN000;
+endstruc;                               ;AN000;
 
 
 ;
@@ -106,7 +106,7 @@ File_Name_Return     ends                       ;                               
 ;**************************************************************************
 ;
 
-Command_Line_Table label byte                      ;                               ;AN000;
+Command_Line_Table:;                               ;AN000;
 
         dw      Command_Control                 ;Point to next level            ;AN000;
         db      Delimiters_Only                 ;                               ;AN000;
@@ -120,7 +120,7 @@ Command_Line_Table label byte                      ;                            
 ;**************************************************************************
 ;
 
-Command_Control label byte                      ;                               ;AN000;
+Command_Control:;                               ;AN000;
 
         db      1,2                             ;File names Positional (1 required) ;AN000;
         dw      Positional_Control1             ;Pointer to control table       ;AN000;
@@ -134,7 +134,7 @@ Command_Control label byte                      ;                               
 ;**************************************************************************
 ;
 
-Positional_Control1 label byte                  ;                               ;AN000;
+Positional_Control1:;                               ;AN000;
 
         dw      Filespec                        ;Match_Flag                     ;AN000;
         dw      File_Table_Capitalize           ;No function flags              ;AN000;
@@ -142,7 +142,7 @@ Positional_Control1 label byte                  ;                               
         dw      No_Value                        ;No value ranges defined        ;AN000;
         db      None                            ;No defined switches/keywords   ;AN000;
 
-Positional_Control2 label byte                  ;                               ;AN000;
+Positional_Control2:;                               ;AN000;
 
         dw      Filespec+Optional               ;Match_Flag                     ;AN000;
 
@@ -151,7 +151,7 @@ Positional_Control2 label byte                  ;                               
         dw      No_Value                        ;No value ranges defined        ;AN000;
         db      None                            ;No defined switches/keywords   ;AN000;
 
-No_Value        label   byte                    ;                               ;AN000;
+No_Value:;                               ;AN000;
         db      0                               ;                               ;AN000;
 
 ;
@@ -159,7 +159,7 @@ No_Value        label   byte                    ;                               
 ; PARSE Return Buffers
 ;************************************************************************
 ;
-File_name_Buffer1   label  byte                 ;                               ;AN000;
+File_name_Buffer1:;                               ;AN000;
 
 rb_type1       db      0                        ;type returned                  ;AN000;
 rb_item_tag1   db      0                        ;matched item tag               ;AN000;
@@ -167,7 +167,7 @@ rb_synonym1    dw      0                        ;found synonyms                 
 rb_string1_off dw      0                        ;Offset of string               ;AN000;
 rb_string1_seg dw      0                        ;Offset of string               ;AN000;
 
-File_name_Buffer2   label  byte                 ;                               ;AN000;
+File_name_Buffer2:;                               ;AN000;
 
 rb_type2       db      0                        ;type returned                  ;AN000;
 rb_item_tag2   db      0                        ;matched item tag               ;AN000;
@@ -175,6 +175,6 @@ rb_synonym2    dw      0                        ;found synonyms                 
 rb_string2_off dw      0                        ;Offset of string               ;AN000;
 rb_string2_seg dw      0                        ;Offset of string               ;AN000;
 
-data    ends
+; END SECTION .data
 
 

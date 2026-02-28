@@ -1,7 +1,7 @@
-PAGE    60,132
-TITLE   INDEI15 - 386 XMA Emulator - Interrupt 15 handler
+; PAGE    60,132
+; TITLE   INDEI15 - 386 XMA Emulator - Interrupt 15 handler
 
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                             *
 * MODULE NAME     : INDEI15                                                   *
@@ -51,7 +51,7 @@ COMMENT #
 *                   Function 88H queries how many K are above the 1M          *
 *                   boundary.  We can't tell him how much is really there     *
 *                   because some of it is us and our XMA pages.  So for this  *
-*                   function we will just return the size of the MOVEBLOCK    *
+*                   function we will just return the of_size the MOVEBLOCK    *
 *                   buffer.  This function was moved to a real mode        P3C*
 *                   interrupt handler in module INDE15H.                   P3C*
 *                                                                             *
@@ -111,39 +111,39 @@ COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #
 
-        .286P                 ; Enable recognition of 286 privileged instructs.
+        CPU 286; Enable recognition of 286 privileged instructs.
 
-        .XLIST                ; Turn off the listing
-        INCLUDE INDEDAT.INC   ; Include the system data structures
+        ; .XLIST; Turn off the listing
+        %include "INDEDAT.INC"; Include the system data structures
 
-        IF1                   ; Only include the macros on the first pass
-        INCLUDE INDEOVP.MAC
-        ENDIF
-        .LIST                 ; Turn on the listing
+        %if 1  ; IF1 - pass-specific; Only include the macros on the first pass
+        %include "INDEOVP.MAC"
+        %endif
+        ; .LIST; Turn on the listing
 
-PROG    SEGMENT PARA PUBLIC 'PROG'
+SECTION .PROG
 
-        ASSUME  CS:PROG
-        ASSUME  DS:PROG
-        ASSUME  ES:NOTHING
-        ASSUME  SS:NOTHING
+        ; ASSUME  CS:PROG
+        ; ASSUME  DS:PROG
+        ; ASSUME  ES:NOTHING
+        ; ASSUME  SS:NOTHING
 
-INDEI15 LABEL   NEAR
+INDEI15:
 
-        EXTRN   EMULATE:NEAR            ; Entry point for INDEEMU
-        EXTRN   POPIO:NEAR              ; Entry in INDEEMU to check for single
+        extern EMULATE; Entry point for INDEEMU
+        extern POPIO; Entry in INDEEMU to check for single
                                         ;   step interrupts and return to the
                                         ;   V86 task
-        EXTRN   POPREGS:NEAR            ; Entry in INDEEXC to return to the  P2C
+        extern POPREGS; Entry in INDEEXC to return to the  P2C
                                         ;   V86 task
 
-        PUBLIC  INDEI15
-        PUBLIC  INT15
-        PUBLIC  TTTABLE
+        global INDEI15
+        global INT15
+        global TTTABLE
 
-PAGE
+; PAGE
 
-INT15   PROC    NEAR
+INT15:
 
         CLD                             ; All string operations go forward
 
@@ -152,21 +152,21 @@ INT15   PROC    NEAR
 ; function.  Function 88H queries the size of memory above 1M.  Function 89H
 ; is reserved but not supported so we return a return code of 86H.
 
-        CMP     SS:BYTE PTR [BP+BP_AX+1],87H ; Is AH asking for function 87H?
+        CMP     SS:byte [BP+BP_AX+1],87H ; Is AH asking for function 87H?
         JB      NOTMINE                 ; No.  It's too low.  It's out of our
                                         ;   range so we'll pass it on to the
                                         ;   real vector.
         JE      MOVEBLK                 ; It is 87H!  Let's go do the MOVEBLOCK.
 
-        CMP     SS:BYTE PTR [BP+BP_AX+1],89H ; Is AH asking for function 89H?
+        CMP     SS:byte [BP+BP_AX+1],89H ; Is AH asking for function 89H?
         JNE     NOTMINE                 ; No.  It's not our function so     @P3C
                                         ;   so we'll pass it on to the real
                                         ;   vector.
                                         ;                                   @P3D
-        MOV     SS:BYTE PTR [BP+BP_AX+1],86H ; It's 89H.  Sorry we don't support
+        MOV     SS:byte [BP+BP_AX+1],86H ; It's 89H.  Sorry we don't support
                                         ;   that function.  Put an 86H return
                                         ;   code in AH.
-        OR      WORD PTR SS:[BP+BP_FL],1 ; Set the carry flag
+        OR      word SS:[BP+BP_FL],1 ; Set the carry flag
         JMP     POPIO                   ; And return to the V86 task
 
 ; Hey, it's not MY interrupt.
@@ -179,7 +179,7 @@ NOTMINE:
 ; Function 88H code to query the size of memory above 1M was moved to      3@P3D
 ; INDE15H.
 
-PAGE
+; PAGE
 ; The user wants to move a block of memory.  Now the source and target of the
 ; MOVEBLOCK can each be below 1M or above 1M.  For addresses above 1M we must
 ; make adjustments so that the MOVEBLOCK is done to and/or from the MOVEBLOCK
@@ -338,13 +338,13 @@ MOV4:
 ; A-OK.
 
 MOVCOM:
-        MOV     SS:BYTE PTR [BP+BP_AX+1],0    ; Set a zero return code in AH
-        AND     WORD PTR SS:[BP+BP_FL],0FFFEH ; Reset the carry flag
-        OR      WORD PTR SS:[BP+BP_FL],40H    ; Set the zero flag
+        MOV     SS:byte [BP+BP_AX+1],0    ; Set a zero return code in AH
+        AND     word SS:[BP+BP_FL],0FFFEH ; Reset the carry flag
+        OR      word SS:[BP+BP_FL],40H    ; Set the zero flag
 
         JMP     POPIO                   ; Return to the V86 task
 
-PAGE
+; PAGE
 
 ; It's not a MOVEBLOCK function so we'll just pass the interrupt on to the real
 ; interrupt handler.
@@ -361,7 +361,7 @@ DOINT:
                                         ;   the stack.   This assumes that there
                                         ;   are indeed six bytes left on the
                                         ;   stack.
-        MOV     SS:WORD PTR [BP+BP_SP],DI ; Set the user's new SP
+        MOV     SS:word [BP+BP_SP],DI ; Set the user's new SP
 
         DATAOV                          ; Get the user's SS into our AX
         MOV     AX,SS:[BP+BP_SS]
@@ -400,7 +400,7 @@ DOINT:
         NOP                             ; Intel bug # A0-119
 
         AND     AX,3CFFH                ; Clean up the flags for our IRET
-        MOV     WORD PTR SS:[BP+BP_FL],AX ; Put them on our stack
+        MOV     word SS:[BP+BP_FL],AX ; Put them on our stack
 
         MOV     SI,SS:[BP+BP_EX]        ; Get the interrupt number
         SHL     SI,2                    ; Multiply by four 'cause interrupt
@@ -409,39 +409,39 @@ DOINT:
         MOV     DS,AX                   ;   all of memory as data
         LODSW                           ; Get the IP of the interrupt vector
                                         ;   from the interrupt vector table
-        MOV     WORD PTR SS:[BP+BP_IP],AX ; Put it in the IP saved on our stack
+        MOV     word SS:[BP+BP_IP],AX ; Put it in the IP saved on our stack
         LODSW                           ; Get the CS of the interrupt vector
                                         ;   from the interrupt vector table
-        MOV     WORD PTR SS:[BP+BP_CS],AX ; Put it in the CS saved on our stack
+        MOV     word SS:[BP+BP_CS],AX ; Put it in the CS saved on our stack
 
         JMP     POPREGS                 ; Now when we do an IRET we will    @P2C
                                         ;   actually be giving control to the
                                         ;   real INT 15H vector.
-INT15   ENDP
+; ENDP INT15
 
-PAGE
+; PAGE
 ;   Macros used to define data areas
 
 ; DDL - Define a label and make it public
 
-DDL     MACRO   NAME,SIZE
-        PUBLIC  &NAME
+%macro DDL 2
+        global &NAME
 &NAME   LABEL   &SIZE
-        ENDM
+        %endmacro
 
 
 ; DDW - Define a word and make it public
 
-DDW     MACRO   NAME,VALUE
-        IFNB    <&NAME>       ;; If a name was given then make it public
-        PUBLIC  &NAME
-        ENDIF
-        IFNB    <&VALUE>      ;; If a value was given then initialize the
+%macro DDW 2
+        %if 1  ; IFNB <&NAME>;; If a name was given then make it public
+        global &NAME
+        %endif
+        %if 1  ; IFNB <&VALUE>;; If a value was given then initialize the
 &NAME   DW      &VALUE        ;;    variable to that value
-        ELSE                  ;; Else initialize it to 0
+        %else;; Else initialize it to 0
 &NAME   DW      0
-        ENDIF
-        ENDM
+        %endif
+        %endmacro
 
 
 ; Now lets define some data.  Remember, these are all PUBLIC even though they
@@ -481,23 +481,23 @@ DDW     MACRO   NAME,VALUE
 
 TTTABLE:
         BLOCK = 0             ; Start with block number 0                   @D1A
-        REPT    20            ; Do 20 times (20 x 8 = 160)                  @D1A
+        %rep 20; Do 20 times (20 x 8 = 160)                  @D1A
         DW      BLOCK,BLOCK+1,BLOCK+2,BLOCK+3,BLOCK+4,BLOCK+5,BLOCK+6,BLOCK+7
                               ; Define eight translate table entries        @D1A
                               ;   initialized to the block number            D1A
         BLOCK = BLOCK + 8     ; Increment the block number to the next set  @D1A
-        ENDM                  ;   of eight translate table entries          @D1A
+        %endmacro;   of eight translate table entries          @D1A
 
-        DW      96 + 256*15 DUP(0FFFH) ; The rest of the translate table    @D1C
+        DW      96 + 256*times 15 db 0FFFH ; The rest of the translate table    @D1C
 
 TTTABLE_END:                  ; Label to mark the end of the translate table
 
 
 ; Define our stack for when we're in protect mode
 
-        DDW     MON_STACK_BASE,<500 DUP(0)>
+        DDW     MON_STACK_BASE,<times 500 db 0>
         DDL     SP_INIT,WORD  ; Top of the stack.  The initial SP points here.
 
-PROG    ENDS
+; END SECTION .PROG
 
-        END
+        ; END

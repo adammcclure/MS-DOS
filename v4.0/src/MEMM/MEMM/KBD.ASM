@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	KBD.ASM - - protected mode AT keyboard driver
+	; title	KBD.ASM - - protected mode AT keyboard driver
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -105,73 +105,73 @@ page	58,132
 ;	Written June 1984 by Chris Peters
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 
-include VDMseg.inc
-include desc.inc
-include kbd.inc
+%include "VDMseg.inc"
+%include "desc.inc"
+%include "kbd.inc"
 
 
 MASTER_IMR	equ	21h		; mask port for master 8259
 
 ;***	ROM BIOS data area, set up addresses
-romdata segment use16 at 40h
+SECTION .romdata
 	org	17h
-KeyState	db	?
-BreakState	db	?
-AltKey		db	?
-KbHead		dw	?
-KbTail		dw	?
-KbBuffer	dw	16 dup (?)
-KbBufferEnd	label	word
+KeyState: db 0
+BreakState: db 0
+AltKey: db 0
+KbHead: dw 0
+KbTail: dw 0
+KbBuffer: times 16 dw 0
+KbBufferEnd:
 
 	org	49h
-VidMode 	db	?
+VidMode: db 0
 	org	65h
-VidReg		db	?
+VidReg: db 0
 
 	org	71h
-fBreak		db	?
-fReset		dw	?
+fBreak: db 0
+fReset: dw 0
 
 	org	80h
-KbStart 	dw	?
-KbEnd		dw	?
+KbStart: dw 0
+KbEnd: dw 0
 
 	org	97h
-ATKbFlags	db	?
-romdata ends
+ATKbFlags: db 0
+; END SECTION .romdata
 
 
 
 ;***	Routines used by data table modules (Keyb??)
-public	SpecKey
-public	AlphaKey
-public	NormalKey
-public	Keys$2$13
-public	CapKey
-public	Cap$2$13
-public	FuncKey
-public	PadKey
-public	NumKey
-public	SpaceKey
-public	ShiftKey
-public	ScrollKey
-public	StateKey
+global SpecKey
+global AlphaKey
+global NormalKey
+global Keys$2$13
+global CapKey
+global Cap$2$13
+global FuncKey
+global PadKey
+global NumKey
+global SpaceKey
+global ShiftKey
+global ScrollKey
+global StateKey
 ;public AccKey
-public	AltShiftKey
-public	BufferFull
-public	ReBoot
-public	XBoot
-public	PrintScreen
-public	SysReq
+global AltShiftKey
+global BufferFull
+global ReBoot
+global XBoot
+global PrintScreen
+global SysReq
 
 
 
 
-DCODE	 segment
-	assume	cs:DCODE,ds:romdata,es:nothing
+SECTION .DCODE
+	; assume	cs:DCODE,ds:romdata,es:nothing
 
 
 ;***	Tables for foreign language key layout
@@ -184,26 +184,26 @@ DCODE	 segment
 
 ;*	Tables to map CNTRL ALT char
 ; extrn AltChrs 	:byte
-AltChrs 	label	byte
+AltChrs:
 ; extrn AltChrsEnd	:byte
-AltChrsEnd	label	byte
+AltChrsEnd:
 
 ; extrn AltMap		:byte
-AltMap		label	byte
+AltMap:
 
 
 ;*	Tables to map accented characters
 ; extrn AccentChTbl	:word
-AccentChTbl	label	word
+AccentChTbl:
 
 ; extrn AccentMpTbl	:word
-AccentMpTbl	label	word
+AccentMpTbl:
 
 
 ;*	Table of accent characters, shifted, ALTed and CTRLed.
 ;	defined using the AccChStruc struct
 ; extrn AccChTbl	:word
-AccChTbl	label	word
+AccChTbl:
 
 
 
@@ -227,9 +227,9 @@ BeepDur 	dw	ATBeepDur	;Count of half-cycles to beep
 ;
 ;	See Keyb?? files for structure information.
 ;
-ForeignTable	label	word
-KeyMapTable	label	word
-	public	KeyMapTable
+ForeignTable:
+KeyMapTable:
+	global KeyMapTable
 
 	db	0,0			;0
 	dw	BufferFull
@@ -406,13 +406,13 @@ KeyMapTable	label	word
 
 ;***	Tables for keypad with ALT and control
 ;	Same for foreign as normal
-AltKeyPad	label	byte
+AltKeyPad:
 	db	7,8,9,-1
 	db	4,5,6,-1
 	db	1,2,3
 	db	0,-1
 
-CtrlKeyPad	label	byte
+CtrlKeyPad:
 	db	119,-1,132,-1
 	db	115,-1,116,-1
 	db	117,-1,118
@@ -425,7 +425,7 @@ CtrlKeyPad	label	byte
 ;	Since uses alpha char as index, this is the same
 ;	for normal and foreign keyboards.
 ;
-AltTable label	byte
+AltTable:
 ;		 a, b, c, d, e, f, g, h, i, j, k, l, m
 	db	30,48,46,32,18,33,34,35,23,36,37,38,50
 ;		 n, o, p, q, r, s, t, u, v, w, x, y, z
@@ -433,12 +433,12 @@ AltTable label	byte
 
 
 
-	SUBTTL Keyboard Interrupt Handler
+	; SUBTTL Keyboard Interrupt Handler
 
 
 ;***	Keyboard interrupt handler
 ;
-handler proc	near
+handler:
 
 KbInt:
 ;*	sti
@@ -492,16 +492,16 @@ KBI2:
 ;*	map CTRL-ALT char
 ;	look up chars in table, if found then put out corresponding
 ;	entry from map table.
-	mov	si, offset AltChrs - 1	;Set up index to lookup
+	mov	si, AltChrs - 1	;Set up index to lookup
 KbI21:
 	inc	si			; Advance to next entry
-	cmp	si, offset AltChrsEnd
+	cmp	si, AltChrsEnd
 	jae	KbI22			;at end of table, so no remap
 	cmp	ah, cs:[si]
 	jne	KbI21			;this isn't it so loop
 ;	Found character, so do the mapping
-	sub	si, offset AltChrs
-	add	si, offset AltMap	;get index into remaped table
+	sub	si, AltChrs
+	add	si, AltMap	;get index into remaped table
 	pop	ax			;get scan code
 	mov	al, cs:[si]		;get new character to use
 	jmp	PutKRet
@@ -510,11 +510,11 @@ KbI22:
 KbI23:
 
 ;	les	si,[KeyVector]
-	mov	si, offset KeyMapTable
+	mov	si, KeyMapTable
 	mov	cx,cs:[si+bx]		;(cx) = lc, uc bytes
 	mov	al,cl			;(al) = lc code for key
 	mov	dl,[KeyState]		;(dl) = keyboard flags
-	jmp	word ptr cs:[si+bx+2]	;Call appropriate key handler
+	jmp	word cs:[si+bx+2]	;Call appropriate key handler
 ;***
 ;	for all key handler routines,
 ;
@@ -523,10 +523,10 @@ KbI23:
 ;	(AL) = lc code from cl
 ;	(AH) = scan code from keyboard
 
-handler endp
+; ENDP handler
 
 
-	SUBTTL	Key Routines
+	; SUBTTL	Key Routines
 
 ;***	Key handling routines, called as specified by the key table
 
@@ -846,12 +846,12 @@ FuncKey:
 	add	ah,10
 	test	dl,CtrlShift
 	jz	fk1			; Just ALT  function key
-	mov	bx,offset KeyMapTable
+	mov	bx,KeyMapTable
 	cmp	ah,104			; CTRL ALT f1 to use normal keyboard
 	jz	fk01
 	cmp	ah,105			; CTRL ALT f2 for foreign keyboard
 	jnz	fk1			; if not F1 or F2 then treat as ALT
-	mov	bx,offset ForeignTable
+	mov	bx,ForeignTable
 fk01:
 	cli				; Change translation table used
 ;	mov	word ptr [KeyVector],bx
@@ -1067,13 +1067,13 @@ RestoreRegs:
 	pop	cx
 	pop	bx
 	pop	ax
-ppp	proc	near
+ppp:
 	ret
-ppp	endp
+; ENDP ppp
 ;	iret
 
 
-	SUBTTL Subroutines
+	; SUBTTL Subroutines
 
 
 
@@ -1084,7 +1084,7 @@ ppp	endp
 ;
 ;	EXIT:	(dx), (al) destroyed.
 ;
-VideoOn proc near
+VideoOn:
 	mov	al,20h		; EOI to control port
 ;	out	20h,al
 	call	EnableKB	; Enable AT keyboard
@@ -1094,7 +1094,7 @@ VideoOn proc near
 	mov	dx,3d8h
 	out	dx,al		; Enable video controller
 vdo1:	ret
-VideoOn endp
+; ENDP VideoOn
 
 
 
@@ -1107,7 +1107,7 @@ VideoOn endp
 ;
 ;	EFFECTS:	Enables the Keyboard interface.
 ;
-EnableKB	proc near
+EnableKB:
 	cmp	[PCType], PC_AT
 	jne	ena1		;for non-AT simply ignore
 	pushf			;* save interrupt status
@@ -1119,7 +1119,7 @@ EnableKB	proc near
 ;*	sti
 ena1:
 	ret
-EnableKB	endp
+; ENDP EnableKB
 
 
 
@@ -1132,7 +1132,7 @@ EnableKB	endp
 ;
 ;	EFFECTS: Disables the Keyboard interface.
 ;
-DisableKB	proc near
+DisableKB:
 	cmp	[PCType], PC_AT
 	jne	dis1		; Ignore if not an AT
 	pushf			;* save interrupt status
@@ -1144,7 +1144,7 @@ DisableKB	proc near
 ;*	sti
 dis1:
 	ret
-DisableKB	endp
+; ENDP DisableKB
 
 
 
@@ -1163,7 +1163,7 @@ DisableKB	endp
 ;
 ;	WARNING: Uses in/out to keyboard port to beep speaker directly.
 ;
-ErrBeep proc near
+ErrBeep:
 	push	ax
 	push	bx
 	push	cx
@@ -1183,7 +1183,7 @@ bee2:	loop	bee2		; wait for half cycle
 	pop	bx
 	pop	ax
 	ret
-ErrBeep endp
+; ENDP ErrBeep
 
 
 
@@ -1203,7 +1203,7 @@ ErrBeep endp
 ;	and ignore.
 ;	If (ax) = -1 then the key is not put in buffer.
 ;
-PutKey	proc near
+PutKey:
 	cmp	ax, -1			; Code to ignore a key
 	jz	put2
 	cli				; Make sure only ones using buffer now
@@ -1225,7 +1225,7 @@ put1:
 	mov	[KbTail],si
 put2:
 	ret
-PutKey	endp
+; ENDP PutKey
 
 
 
@@ -1239,7 +1239,7 @@ PutKey	endp
 ;
 ;	USES:	PCType - to use PC/AT sequence, for AT - handles LEDs
 ;
-GetSCode	proc near
+GetSCode:
 	cmp	[PCType], PC_AT
 	je	gsc1			;handle AT differently
 	in	al,KbData		;get key code
@@ -1281,7 +1281,7 @@ gsc2:
 gsc3:
 	call	UpdateLeds		;update AT's leds
 	ret
-GetSCode	endp
+; ENDP GetSCode
 
 
 
@@ -1300,7 +1300,7 @@ xt_endcode:
 ;
 ;	WARNING: Assumes it is operating on an AT, must not be called for a PC.
 ;
-UpdateLeds	proc	near
+UpdateLeds:
 	pushf				;* save interrupt status
 	push	ax
 	cli
@@ -1336,7 +1336,7 @@ Updn1:
 	popf				;* restore original interrupt status
 ;*	sti
 	ret
-UpdateLeds	endp
+; ENDP UpdateLeds
 
 
 
@@ -1356,7 +1356,7 @@ UpdateLeds	endp
 ;	do handshaking to make sure they get there OK.
 ;	Must not be called for the PC.
 ;
-SendByte	proc near
+SendByte:
 	push	ax
 	push	cx
 	mov	ah, 03		; Set up count of retries
@@ -1390,7 +1390,7 @@ Sen5:
 	pop	cx
 	pop	ax
 	ret
-SendByte	endp
+; ENDP SendByte
 
 
 
@@ -1401,7 +1401,7 @@ SendByte	endp
 ;
 ;	EXIT:	(AL) Destroyed.
 ;
-WaitStatus	proc near
+WaitStatus:
 	push	cx
 	xor	cx,cx
 wai1:				;wait for empty buffer
@@ -1410,9 +1410,9 @@ wai1:				;wait for empty buffer
 	loopnz	wai1
 	pop	cx
 	ret
-WaitStatus	endp
+; ENDP WaitStatus
 
-	SUBTTL Initialization
+	; SUBTTL Initialization
 
 
 
@@ -1426,7 +1426,7 @@ init_bios:
 	push	ds
 	push	cs
 	pop	ds		; establish segment, since offsets are from cs
-	mov	dx,offset Kbint
+	mov	dx,Kbint
 	mov	ax,2509h
 	int	21h		;Set interrupt 9 (keyboard) vector
 
@@ -1436,11 +1436,11 @@ init1:	cmp	[KbStart],0
 	jnz	init2		;New PC/AT - KbStart already initialized
 	pushf				;* save interrupt status
 	cli			;For old PC - initialize pointers to KbBuffer
-	mov	ax,offset KbBuffer
+	mov	ax,KbBuffer
 	mov	[KbStart],ax
 	mov	[KbHead],ax
 	mov	[KbTail],ax
-	mov	[KbEnd],offset KbBufferEnd
+	mov	[KbEnd],KbBufferEnd
 	popf				;* restore original interrupt status
 ;*	sti
 init2:				; Start up in Foreign keyboard mode
@@ -1457,7 +1457,7 @@ init2:				; Start up in Foreign keyboard mode
 ;	mov	al, [systid]
 ;	mov	[PCType], al
 
-	assume	ds:romdata
+	; assume	ds:romdata
 	pop	ds
 
 ;	mov	dx,offset xt_endcode + 100h
@@ -1522,7 +1522,7 @@ ini1:
 	int	10h
 	jmp	ini1
 
-DCODE	 ends
+; END SECTION .DCODE
 
 ;***	getc - read character out of keyboard buffer
 ;
@@ -1540,12 +1540,12 @@ DCODE	 ends
 ;	USES	flags
 ;
 
-DCODE	 segment
+SECTION .DCODE
 
-	assume	cs:DCODE, ds:nothing, es:nothing, ss:nothing
+	; assume	cs:DCODE, ds:nothing, es:nothing, ss:nothing
 
-	public	kgetc
-kgetc	proc	far
+	global kgetc
+kgetc:
 
 	push	bx
 	push	cx
@@ -1601,8 +1601,8 @@ ge1:
 
 	ret
 
-kgetc	endp
+; ENDP kgetc
 
-DCODE	 ends
-	end
+; END SECTION .DCODE
+	; end
 

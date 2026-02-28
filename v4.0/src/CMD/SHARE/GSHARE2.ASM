@@ -1,6 +1,6 @@
-	Title	Share_2
+	; Title	Share_2
 ;				   $SALUT (0,36,41,44)
-				   include SHAREHDR.INC
+				   %include "SHAREHDR.INC"
 ;
 ;     Label: "The DOS SHARE Utility"
 ;	     "Version 4.00 (C) Copyright 1988 Microsoft"
@@ -8,17 +8,17 @@
 ;
 ;******************* END OF SPECIFICATIONS *************************************
 
-				   NAME Sharer2
+				   ; NAME Sharer2
 
 					   ;  INCLUDE DOSSYM.INC
 					   ;  INCLUDE SYSMSG.INC
-				   .xlist
-				   .xcref
-				   INCLUDE DOSSYM.INC
-				   INCLUDE SYSMSG.INC
-				   .cref
-				   .list
-				   page 80,132
+				   ; .xlist
+				   ; .xcref
+				   %include "DOSSYM.INC"
+				   %include "SYSMSG.INC"
+				   ; .cref
+				   ; .list
+				   ; page 80,132
 
 				   MSG_UTILNAME <SHARE>
 
@@ -28,31 +28,31 @@ AsmVars 			   <IBM, Installed>
 
 Installed			   =	TRUE ; for installed version
 
-OFF				   Macro reg,val
-				   IF	installed
-				   mov	reg,OFFSET val
-				   ELSE
-				   mov	si,OFFSET DOSGROUP:val
-				   ENDIF
-				   ENDM
+%macro OFF 2
+				   %if installed
+				   mov	reg,val
+				   %else
+				   mov	si,val
+				   %endif
+				   %endmacro
 
-ERRNZ				   Macro x
-				   IF	x    NE 0
-				   %out ERRNZ failed
-				   ENDIF
-				   ENDM
+%macro ERRNZ 1
+				   %if x    NE 0
+				   %warning ERRNZ failed
+				   %endif
+				   %endmacro
 					   ;---------------------------------------
 					   ; if we are installed, then define the
 					   ; base code segment of the sharer first
 					   ;---------------------------------------
 ;	$SALUT	(4,9,17,36)
 
-	IF	Installed
+	%if Installed
 
-	    Share   SEGMENT BYTE PUBLIC 'SHARE'
-	    Share   ENDS
+	    SECTION .Share
+	    ; END SECTION .Share
 
-	ENDIF
+	%endif
 
 				   ;---------------------------------------
 				   ; include the rest of the segment
@@ -61,40 +61,40 @@ ERRNZ				   Macro x
 				   ; segment ordering for MSDOS
 
 				   ;---------------------------------------
-	include dosseg.asm
+	%include "dosseg.asm"
 
-	CONSTANTS SEGMENT
+	SECTION .CONSTANTS
 
-	extrn	DataVersion:BYTE   ; version number of DOS data.
-	extrn	JShare:BYTE	   ; location of DOS jump table.
-	extrn	sftFCB:DWORD	   ; [SYSTEM] pointer to FCB cache table
-	extrn	KeepCount:WORD	   ; [SYSTEM] LRU count for FCB cache
-	extrn	CurrentPDB:WORD
+	extern DataVersion; version number of DOS data.
+	extern JShare; location of DOS jump table.
+	extern sftFCB; [SYSTEM] pointer to FCB cache table
+	extern KeepCount; [SYSTEM] LRU count for FCB cache
+	extern CurrentPDB
 
-	CONSTANTS ENDS
+	; END SECTION .CONSTANTS
 
-	DATA	SEGMENT
+	SECTION .DATA
 
-	extrn	ThisSFT:DWORD	   ; pointer to SFT entry
-	extrn	WFP_start:WORD	   ; pointer to name string
-	extrn	User_ID:WORD
-	extrn	Proc_ID:WORD
-	extrn	SFT_addr:DWORD
-	extrn	Arena_Head:WORD
-	extrn	fshare:BYTE
-	extrn	pJFN:DWORD
-	extrn	JFN:WORD
+	extern ThisSFT; pointer to SFT entry
+	extern WFP_start; pointer to name string
+	extern User_ID
+	extern Proc_ID
+	extern SFT_addr
+	extern Arena_Head
+	extern fshare
+	extern pJFN
+	extern JFN
 
-	IF	DEBUG
+	%if DEBUG
 
-	    extrn   BugLev:WORD
-	    extrn   BugTyp:WORD
-	    include bugtyp.asm
+	    extern BugLev
+	    extern BugTyp
+	    %include "bugtyp.asm"
 
-	ENDIF
+	%endif
 
 
-	DATA	ENDS
+	; END SECTION .DATA
 
 				   ;---------------------------------------
 				   ; if we are not installed, then the
@@ -103,28 +103,28 @@ ERRNZ				   Macro x
 				   ; define our own code segment
 				   ;---------------------------------------
 
-	.sall
-	IF	NOT	INSTALLED
+	; .sall
+	%if NOT	INSTALLED
 
-	    CODE    SEGMENT BYTE PUBLIC 'CODE'
+	    SECTION .CODE
 
-	    ASSUME  SS:DOSGROUP,CS:DOSGROUP
+	    ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-	ELSE
+	%else
 
-	    Share   SEGMENT BYTE PUBLIC 'SHARE'
+	    SECTION .Share
 
-	    ASSUME  SS:DOSGROUP,CS:SHARE
+	    ; ASSUME  SS:DOSGROUP,CS:SHARE
 
-	ENDIF
+	%endif
 
-	Extrn	FreLock:WORD,Serial:WORD
-	Extrn	MFT_Enter:NEAR,MFTClose:NEAR,MFTClu:NEAR,MFTCloseP:NEAR
-	Extrn	MFTCloN:NEAR
-	Extrn	Set_Mult_Block:NEAR,Clr_Mult_Block:NEAR,Chk_Block:NEAR
-	Extrn	MFT_Get:NEAR
+	extern FreLock,Serial
+	extern MFT_Enter,MFTClose,MFTClu,MFTCloseP
+	extern MFTCloN
+	extern Set_Mult_Block,Clr_Mult_Block,Chk_Block
+	extern MFT_Get
 
-	include mft.inc
+	%include "mft.inc"
 
 ;  $SALUT (4,4,9,41)
 
@@ -262,19 +262,19 @@ fnm10$5:
 
 fnm11: cmp [si].mft_flag,MFLG_FRE
 
-   IF	NOT  DEBUG
+   %if NOT  DEBUG
        jl   fnm20			; at END, am out of space
-   ELSE
+   %else
        jl   fnm20j
-   ENDIF
+   %endif
 
    jz	fnm12				; is a free record
    add	si,[si].mft_len 		; skip name record
    JMP	SHORT fnm11
 
-   IF	DEBUG
+   %if DEBUG
 fnm20j: jmp fnm20
-   ENDIF
+   %endif
 
 fnm12: mov ax,[si].mft_len		; Have free record, (ax) = total length
    cmp	ax,dx
@@ -380,11 +380,11 @@ fnm20:
    pop	bx
    pop	dx
 
-   IF	DEBUG
+   %if DEBUG
        jnc  fnm10j
-   ELSE
+   %else
        jnc  fnm10			; go back and find that space
-   ENDIF
+   %endif
 
 					;---------------------------------------
 					; no space, return w/error
@@ -397,9 +397,9 @@ fnm50: pop ax
 
    ret
 
-   IF	DEBUG
+   %if DEBUG
 fnm10j: jmp fnm10
-   ENDIF
+   %endif
 
    EndProc FNM
 
@@ -551,8 +551,8 @@ gcm10: mov ax,si
    Procedure RMN,NEAR
 
    mov	si,bx
-   mov	ax,word ptr [si].mft_sptr
-   or	ax,word ptr [si].mft_lptr
+   mov	ax,word [si].mft_sptr
+   or	ax,word [si].mft_lptr
    jnz	RMNIER1 			; not clean - internal error
    mov	si,bx				; (ds:si) = fwa name record
 
@@ -587,7 +587,7 @@ rmnerr1 db "RMN: SFT LCK fields not 0", 13, 10, 0
 
    Procedure MRG,near
 
-   assume ds:nothing,es:nothing
+   ; assume ds:nothing,es:nothing
 
    push si
    push bx
@@ -646,9 +646,9 @@ mrg9: pop bx
    lea	si,[bx].mft_sptr-sf_chain	; ds:[si].sf_chain point to prev link
 rsc1: or si,si
    jz	rscier
-   cmp	word ptr [si].sf_chain,di
+   cmp	word [si].sf_chain,di
    jnz	rsc15
-   cmp	word ptr [si].sf_chain+2,ax
+   cmp	word [si].sf_chain+2,ax
    jz	rsc2
 rsc15: lds si,[si].sf_chain
    jmp	rsc1
@@ -656,17 +656,17 @@ rsc15: lds si,[si].sf_chain
 					; (es:di) is sft
 					; (ds:si) is prev sft link
 					;---------------------------------------
-rsc2: mov ax,word ptr es:[di].sf_chain
-   mov	word ptr ds:[si].sf_chain,ax
-   mov	ax,word ptr es:[di].sf_chain+2
-   mov	word ptr ds:[si].sf_chain+2,ax
+rsc2: mov ax,word es:[di].sf_chain
+   mov	word ds:[si].sf_chain,ax
+   mov	ax,word es:[di].sf_chain+2
+   mov	word ds:[si].sf_chain+2,ax
 
    push cs
    pop	ds
    xor	bx,bx
    xchg bx,es:[di].sf_MFT		; (DS:bx) = MFT address
 					;    and 0 MFT pointer (show free)
-   cmp	word ptr [bx].mft_sptr,0	; set z flag if no more sft
+   cmp	word [bx].mft_sptr,0	; set z flag if no more sft
 
    ret
 
@@ -750,9 +750,9 @@ sle1: and si,si
    cmp	bp,User_ID			;dcl
    jnz	sce1$5				; doesn't belong to user        ;dcl
    mov	bp,es				;dcl
-   cmp	bp,WORD PTR ThisSFT+2
+   cmp	bp,word ThisSFT+2
    jnz	sce1$5
-   cmp	si,WORD PTR ThisSFT
+   cmp	si,word ThisSFT
 sce1$5: mov si,[di]			; (ds:si) = address of next lock record
    jz	sle3				; owned by user - ignore
 
@@ -872,7 +872,7 @@ $$EN1:
 
    Procedure CPS,NEAR
 
-   ASSUME DS:NOTHING,ES:NOTHING
+   ; ASSUME DS:NOTHING,ES:NOTHING
 
    SaveReg <DS,SI,ES,DI,AX,BX,CX>
 
@@ -975,7 +975,7 @@ cps31:
 
    Procedure CPJ,NEAR
 
-   assume ds:nothing,es:nothing
+   ; assume ds:nothing,es:nothing
 
    mov	cx,ds:[PDB_JFN_length]
    les	di,ds:[PDB_JFN_pointer]
@@ -984,7 +984,7 @@ cpj1: repne scasb
 
    retnz				; none found
 
-   mov	byte ptr es:[di-1],-1		; free this
+   mov	byte es:[di-1],-1		; free this
    jcxz CPJret				; Found one in last JFN entry
    jmp	cpj1				; keep looking
 CPJret:
@@ -1009,7 +1009,7 @@ CPJret:
 
    Procedure SFM,NEAR
 
-   ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+   ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 
    mov	bx,cs:[bx].mft_serl
 
@@ -1037,7 +1037,7 @@ CPJret:
 
    Procedure ShChk,NEAR
 
-   ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+   ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 
    CMP	ES:[DI].sf_ref_count,0
    JZ	BadSFT
@@ -1076,7 +1076,7 @@ BadSFT: stc
 
    Procedure ShSave,NEAR
 
-   ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+   ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 
    MOV	AL,ES:[DI].sf_attr		; move attribute (for reopen)
    MOV	[SI].FCB_l_attr,AL
@@ -1119,14 +1119,14 @@ BadSFT: stc
 
    Procedure ShCol,NEAR
 
-   ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+   ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 
 					;---------------------------------------
 					; Collapse the files ONLY if
 					;  the mode is for net FCB's
 					;---------------------------------------
 
-   MOV	AL,BYTE PTR [SI].sf_mode
+   MOV	AL,byte [SI].sf_mode
    AND	AL,sharing_mask
    CMP	AL,sharing_net_FCB
    JNZ	UseJFN
@@ -1153,11 +1153,11 @@ OpenScan:
    MOV	AX,ES:[DI].sf_mft
    CMP	AX,[SI].sf_mft
    JNZ	OpenNext
-   MOV	AX,WORD PTR ES:[DI].sf_UID
-   CMP	AX,WORD PTR [SI].sf_uid
+   MOV	AX,word ES:[DI].sf_UID
+   CMP	AX,word [SI].sf_uid
    JNZ	OpenNext
-   MOV	AX,WORD PTR ES:[DI].sf_pid
-   CMP	AX,WORD PTR [SI].sf_pid
+   MOV	AX,word ES:[DI].sf_pid
+   CMP	AX,word [SI].sf_pid
    JZ	OpenFound
 OpenNext:
    INC	BX
@@ -1183,7 +1183,7 @@ OpenFound:
 
    RestoreReg <AX,DI,ES,SI,DS>
 
-   ASSUME DS:NOTHING
+   ; ASSUME DS:NOTHING
 
    INC	ES:[DI].sf_ref_count		;   d->refcount++;
    XOR	BX,BX				; find jfn with sfn as contents
@@ -1192,13 +1192,13 @@ JFNScan:
    CallInstall pJFNFromHandle,multDOS,32,AX,AX
 
    JC	UseJFN				; ran out of handles?
-   CMP	AL,BYTE PTR ES:[DI]		; does JFN have SFN?
+   CMP	AL,byte ES:[DI]		; does JFN have SFN?
    jz	JFNfound			; YES, go return JFN
    INC	BX				; no, look at next
    JMP	JFNScan
 JFNFound:
    LDS	SI,pJFN
-   MOV	BYTE PTR [SI],0FFh		; free JFN
+   MOV	byte [SI],0FFh		; free JFN
    MOV	AX,BX				; return JFN
 
    ret
@@ -1233,7 +1233,7 @@ UseJFN:
 
    Procedure ShCloseFile,NEAR
 
-   ASSUME DS:DOSGroup,ES:NOTHING,SS:DOSGroup
+   ; ASSUME DS:DOSGroup,ES:NOTHING,SS:DOSGroup
 
    SaveReg <AX,BX,CX,DX,SI,DI,BP,DS,ES>
 
@@ -1245,7 +1245,7 @@ ShCl:
 
    call FNM				; attempt to find name in list
 
-   ASSUME DS:NOTHING
+   ; ASSUME DS:NOTHING
 
    JC	ShCloseDone			; can't find, signal success
 
@@ -1279,8 +1279,8 @@ ShClNext:
 					; Everything matches.  Set up ThisSFT
 					;  and walk the chain from the beginning.
 					;--------------------------------------
-   MOV	WORD PTR ThisSFT,SI
-   MOV	WORD PTR ThisSFT+2,DS
+   MOV	word ThisSFT,SI
+   MOV	word ThisSFT+2,DS
 					;--------------------------------------
 					; Close all handles for this SFT
 					;--------------------------------------
@@ -1403,7 +1403,7 @@ ShCloseDone:
 
    Procedure ShSU,near
 
-   ASSUME DS:NOTHING,ES:NOTHING
+   ; ASSUME DS:NOTHING,ES:NOTHING
 
    nop
 ;  int 3
@@ -1520,10 +1520,10 @@ $$IF13:
 					;
 					; We always copy size and firclus
 					;---------------------------------------
-	       mov  bx,word ptr es:[di].sf_size
-	       mov  word ptr [si].sf_size,bx
-	       mov  bx,word ptr es:[di].sf_size+2
-	       mov  word ptr [si].sf_size+2,bx
+	       mov  bx,word es:[di].sf_size
+	       mov  word [si].sf_size,bx
+	       mov  bx,word es:[di].sf_size+2
+	       mov  word [si].sf_size+2,bx
 	       test [si].sf_flags,ifs_flag ;				       ;AN000;
 
 ;	       $if  nz			; if non-FAT			       ;AC003;
@@ -1639,10 +1639,10 @@ $$IF4:
    mov	es:[di].sf_time,bx
    mov	bx,[si].sf_date 		; update date
    mov	es:[di].sf_date,bx
-   mov	bx,word ptr [si].sf_size	; update size
-   mov	word ptr es:[di].sf_size,bx
-   mov	bx,word ptr [si].sf_size+2
-   mov	word ptr es:[di].sf_size+2,bx
+   mov	bx,word [si].sf_size	; update size
+   mov	word es:[di].sf_size,bx
+   mov	bx,word [si].sf_size+2
+   mov	word es:[di].sf_size+2,bx
    test es:[di].sf_flags,ifs_flag	;				       ;AN000;
 
 ;  $if	nz				; if non-FAT			       ;AC003;
@@ -1780,7 +1780,7 @@ $$EN26:
 
    Procedure INTERR,NEAR
 
-   ASSUME DS:NOTHING,ES:NOTHING,SS:NOTHING
+   ; ASSUME DS:NOTHING,ES:NOTHING,SS:NOTHING
 
    SaveReg <BX,SI,DS>			; save registers that get clobbered
 
@@ -1811,9 +1811,9 @@ IntErrMsg DB "Share: Internal error", 13, 10, 0
 
    Break <INT 2F handler>
 
-   IF	installed
+   %if installed
 
-       public skip_check
+       global skip_check
 
 skip_check db 0 			; start with do checking
 
@@ -1821,11 +1821,11 @@ state_change db 0			; SHARE change in state flag
 					; 0 - no change in state
 					; 1 - SHARE load state has changed
 
-CONT   DD   ?
+CONT: dd 0
 
-INT2F  PROC FAR
+INT2F:
 
-       ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:NOTHING
+       ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:NOTHING
        cmp  ah,multSHARE
        jnz  ContJ
 
@@ -1908,7 +1908,7 @@ $$EN29:
 	   MOV	AH,Get_In_Vars		;    if SHARE =1 and DOS =1 - no change;AN011;
 	   INT	21h			;    if SHARE = 		       ;AN011;
 
-	   ASSUME ES:DOSGROUP
+	   ; ASSUME ES:DOSGROUP
 
 	   mov	al,skip_check		; get the SHARE operating mode	       ;AN011;
 	   cmp	al,1			;  is it a /nc	  -  tell DOS  " 1 "   ;AN011;
@@ -1924,30 +1924,30 @@ $$IF45:
 ;      $endif				;				       ;AN011;
 $$IF44:
 
-       ASSUME ES:nothing
+       ; ASSUME ES:nothing
 
        iret
 ContJ:
        JMP  CONT
-INT2F  ENDP
+; ENDP INT2F
 
-       ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+       ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGroup
 
-IRP    rtn,<MFT_enter, MFTClose, MFTclU, MFTCloseP, MFTCloN, set_mult_block, clr_mult_block>
+; IRP    rtn,<MFT_enter, MFTClose, MFTclU, MFTCloseP, MFTCloN, set_mult_block, clr_mult_block>
 J&rtn  proc far
        call rtn
        ret
 j&rtn  endp
-endm
+%endmacro
 
-IRP    rtn,<chk_block, MFT_get, ShSave, ShChk, ShCol, ShCloseFile, ShSU>
+; IRP    rtn,<chk_block, MFT_get, ShSave, ShChk, ShCol, ShCloseFile, ShSU>
 J&rtn  proc far
        call rtn
        ret
 j&rtn  endp
-endm
+%endmacro
 
-IRP    sect,<critShare>
+; IRP    sect,<critShare>
        Procedure E&sect,NEAR
        PUSH AX
        MOV  AX,8000h+sect
@@ -1963,9 +1963,9 @@ IRP    sect,<critShare>
        POP  AX
        ret
        EndProc L&sect
-       ENDM
+       %endmacro
 
-   ENDIF
+   %endif
 
    BREAK <MFT and Lock Record Data Area>
 
@@ -1983,57 +1983,57 @@ IRP    sect,<critShare>
 
 PoolSize = 2048
 
-   PUBLIC MFT
+   global MFT
 
 MFT DB	0				; free
    DW	PoolSize			; PoolSize bytes long
 
-   IF	not  Installed
+   %if not  Installed
 
        DB   (PoolSize-3) DUP(0) 	; leave rest of record
 MEND   DB   -1				; END record
 
 lck1   DW   0				; link
-       DB   SIZE RLR_entry-2 DUP(0)
-lck2   DW   OFFSET DOSGROUP:lck1	; link
-       DB   SIZE RLR_entry-2 DUP(0)
-lck3   DW   OFFSET DOSGROUP:lck2	; link
-       DB   SIZE RLR_entry-2 DUP(0)
-lck4   DW   OFFSET DOSGROUP:lck3	; link
-       DB   SIZE RLR_entry-2 DUP(0)
-lck5   DW   OFFSET DOSGROUP:lck4	; link
-       DB   SIZE RLR_entry-2 DUP(0)
-lck6   DW   OFFSET DOSGROUP:lck5	; link
-       DB   SIZE RLR_entry-2 DUP(0)
-lck7   DW   OFFSET DOSGROUP:lck6	; link
-       DB   SIZE RLR_entry-2 DUP(0)
-lck8   DW   OFFSET DOSGROUP:lck7	; link
-       DB   SIZE RLR_entry-2 DUP(0)
+       DB   RLR_entry_size-times 2 db 0
+lck2   DW   lck1	; link
+       DB   RLR_entry_size-times 2 db 0
+lck3   DW   lck2	; link
+       DB   RLR_entry_size-times 2 db 0
+lck4   DW   lck3	; link
+       DB   RLR_entry_size-times 2 db 0
+lck5   DW   lck4	; link
+       DB   RLR_entry_size-times 2 db 0
+lck6   DW   lck5	; link
+       DB   RLR_entry_size-times 2 db 0
+lck7   DW   lck6	; link
+       DB   RLR_entry_size-times 2 db 0
+lck8   DW   lck7	; link
+       DB   RLR_entry_size-times 2 db 0
 
-       CODE ENDS
+       ; END SECTION .CODE
 
-       %out Ignore this END error (blasted assembler)
+       %warning Ignore this END error (blasted assembler)
 
-   ENDIF
+   %endif
 
-IF Installed
+%if Installed
 
-   ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:NOTHING
+   ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-   IF1
+   %if 1  ; IF1 - pass-specific
 InitSpace DW PoolSize
-   ELSE
-       IF   shareinit-MFT LT PoolSize
+   %else
+       %if shareinit-MFT LT PoolSize
 InitSpace  DW	PoolSize
-       ELSE
+       %else
 InitSpace  DW	shareinit-MFT
-       ENDIF
-   ENDIF
+       %endif
+   %endif
 InitLocks DW 20
 
 
-JTable LABEL BYTE
-   DD	?
+JTable:
+   dd 0
    DD	JMFT_Enter			;   1	MFT_enter
    DD	JMFTClose			;   2	MFTClose
    DD	JMFTclU 			;   3	MFTclU
@@ -2055,8 +2055,8 @@ JTableLen = $ - JTable
 				   ;  STRUCTURE TO DEFINE ADDITIONAL
 				   ;  COMMAND LINE PARAMETERS
 				   ;---------------------------------------
-PARMS	LABEL	DWORD
-	DW	OFFSET PARMSX	   ; POINTER TO PARMS STRUCTURE
+PARMS:
+	DW	PARMSX	   ; POINTER TO PARMS STRUCTURE
 	DB	0		   ; NO DELIMITER LIST FOLLOWS
 	DB	0		   ; NUMBER OF ADDITIONAL DELIMITERS
 
@@ -2064,21 +2064,21 @@ PARMS	LABEL	DWORD
 				   ;  STRUCTURE TO DEFINE SORT
 				   ;  SYNTAX REQUIREMENTS
 				   ;---------------------------------------
-PARMSX	LABEL	BYTE
+PARMSX:
 	DB	0,0		   ; THERE ARE NO POSITIONAL PARAMETERS
 	DB	1		   ; THERE ARE ONLY ONE TYPE OF SWITCH
-	DW	OFFSET SW	   ; POINTER TO THE SWITCH DEFINITION AREA
+	DW	SW	   ; POINTER TO THE SWITCH DEFINITION AREA
 	DW	0		   ; THERE ARE NO KEYWORDS IN SHARE SYNTAX
 
 				   ;---------------------------------------
 				   ;  STRUCTURE TO DEFINE THE SWITCHES
 				   ;---------------------------------------
 
-SW	LABEL	WORD
+SW:
 	DW	08001H		   ; MUST BE NUMERIC
 	DW	0		   ; NO FUNCTION FLAGS
-	DW	OFFSET SWITCH_BUFF ; PLACE RESULT IN SWITCH BUFFER
-	DW	OFFSET VALUES	   ; NEED VALUE LIST
+	DW	SWITCH_BUFF ; PLACE RESULT IN SWITCH BUFFER
+	DW	VALUES	   ; NEED VALUE LIST
 	DB	3		   ; TWO SWITCHES IN FOLLOWING LIST
 F_SW	DB	"/F",0		   ; /F: INDICATES n FILESPACE REQUESTED
 L_SW	DB	"/L",0		   ; /L: INDICATES m LOCKS REQUESTED
@@ -2089,7 +2089,7 @@ N_SW	DB	"/NC",0 	   ; /NC: INDICATES no checking required
 				   ;  VALUE LIST DEFINITION FOR n
 				   ;---------------------------------------
 
-VALUES	LABEL	BYTE
+VALUES:
 	DB	1		   ; ONE VALUE ALLOWED
 	DB	1		   ; ONLY ONE RANGE
 	DB	FILE_SWITCH	   ; IDENTIFY IT AS n
@@ -2100,11 +2100,11 @@ VALUES	LABEL	BYTE
 				   ;---------------------------------------
 ;		$SALUT	  (4,17,27,36)
 
-SWITCH_BUFF	LABEL	  BYTE
-SW_TYPE 	DB	  ?	   ; TYPE RETURNED
-SW_ITEM_TAG	DB	  ?	   ; SPACE FOR ITEM TAG
-SW_SYN		DW	  ?	   ; POINTER TO SWITCH LIST ENTRY
-SW_VALUE	DD	  ?	   ; SPACE FOR VALUE
+SWITCH_BUFF:
+SW_TYPE: db 0; TYPE RETURNED
+SW_ITEM_TAG: db 0; SPACE FOR ITEM TAG
+SW_SYN: dw 0; POINTER TO SWITCH LIST ENTRY
+SW_VALUE: dd 0; SPACE FOR VALUE
 
 ;  $SALUT (4,4,9,41)
 
@@ -2121,15 +2121,15 @@ SW_VALUE	DD	  ?	   ; SPACE FOR VALUE
    PUSH CS
    POP	DS
 
-   ASSUME DS:SHARE
+   ; ASSUME DS:SHARE
 
    MOV	BX,InitSpace
 
    SUB	BX,3
-   MOV	SI,OFFSET MFT
-   MOV	WORD PTR [SI+1],BX		; length of first item
+   MOV	SI,MFT
+   MOV	word [SI+1],BX		; length of first item
    ADD	SI,BX				; link to end of structure
-   MOV	BYTE PTR [SI],-1		; signal end
+   MOV	byte [SI],-1		; signal end
    INC	SI				; point to next free byte
 
    MOV	CX,initlocks			; count for loop
@@ -2140,7 +2140,7 @@ $$DO48:
 
        MOV  [SI].RLR_next,AX		; link in previous
        MOV  AX,SI			; this is now previous
-       ADD  SI,SIZE RLR_Entry		; move to next object
+       ADD  SI,RLR_Entry_size		; move to next object
 
 ;  $enddo loop				;				       ;AC000;
    LOOP $$DO48
@@ -2161,10 +2161,10 @@ $$DO48:
 
    MOV	AX,(Get_Interrupt_Vector SHL 8) + 2Fh
    INT	21h
-   MOV	WORD PTR CONT,BX
-   MOV	WORD PTR CONT+2,ES
+   MOV	word CONT,BX
+   MOV	word CONT+2,ES
    MOV	AX,(Set_Interrupt_Vector SHL 8) + 2Fh
-   MOV	DX,OFFSET INT2F
+   MOV	DX,INT2F
    INT	21h
 					;---------------------------------------
 					; Notify the DOS that we are around so that
@@ -2173,7 +2173,7 @@ $$DO48:
    MOV	AH,Get_In_Vars
    INT	21h
 
-   ASSUME ES:DOSGROUP
+   ; ASSUME ES:DOSGROUP
 
    mov	al,skip_check			; get the SHARE operating mode	       ;AN011;
    cmp	al,1				;  is it a /nc	  -  tell DOS  " 1 "   ;AN011;
@@ -2189,8 +2189,8 @@ $$IF50:
 					; Cram in the new jump table
 					;---------------------------------------
    CLI
-   MOV	SI,OFFSET JTable
-   MOV	DI,OFFSET JShare
+   MOV	SI,JTable
+   MOV	DI,JShare
    MOV	CX,JTableLen/2
    REP	MOVSW
 					;---------------------------------------
@@ -2199,7 +2199,7 @@ $$IF50:
 					; change it (via reallocation) to 16,8.
 					; The old table is lost.
 					;---------------------------------------
-   ASSUME DS:NOTHING
+   ; ASSUME DS:NOTHING
 
    CMP	KeepCount,0
 
@@ -2218,9 +2218,9 @@ $$IF50:
 					; Compute this size in paragraphs
 					;---------------------------------------
        MOV  AX,16
-       MOV  CX,size sf_entry
+       MOV  CX,sf_entry_size
        MUL  CX
-       ADD  AX,(size sf) - 2
+       ADD  AX,(sf_size) - 2
 					;---------------------------------------
 					; This size is in bytes...
 					; Round up to paragraph size
@@ -2235,17 +2235,17 @@ $$IF50:
 					; Word on stack is current TNR size.
 					; Make dos point to new table
 					;---------------------------------------
-       MOV  WORD PTR ES:[BX].SYSI_FCB,0
-       MOV  WORD PTR ES:[BX].SYSI_FCB+2,SS
+       MOV  word ES:[BX].SYSI_FCB,0
+       MOV  word ES:[BX].SYSI_FCB+2,SS
        POP  SI
-       ADD  WORD PTR ES:[BX].SYSI_FCB+2,SI
+       ADD  word ES:[BX].SYSI_FCB+2,SI
 					;---------------------------------------
 					; Initialize table parts, next link
 					;   and size
 					;---------------------------------------
-       MOV  DS,WORD PTR ES:[BX].SYSI_FCB+2
-       MOV  WORD PTR DS:[sfLink],-1
-       MOV  WORD PTR DS:[sfLink+2],-1
+       MOV  DS,word ES:[BX].SYSI_FCB+2
+       MOV  word DS:[sfLink],-1
+       MOV  word DS:[sfLink+2],-1
        MOV  DS:[sfcount],16
 					;---------------------------------------
 					; Set up succeeding LRU size
@@ -2263,7 +2263,7 @@ $$IF52:
 					;---------------------------------------
    LES	DI,ES:[BX].SYSI_FCB
 
-   ASSUME ES:Nothing
+   ; ASSUME ES:Nothing
 
    MOV	CX,ES:[DI].SFCount
    LEA	DI,[DI].SFTable
@@ -2272,16 +2272,16 @@ $$IF52:
 $$DO54:
 
        MOV  ES:[DI].sf_ref_count,0
-       MOV  WORD PTR ES:[DI].sf_position,0
-       MOV  WORD PTR ES:[DI].sf_position+2,0
-       ADD  DI,SIZE sf_entry
+       MOV  word ES:[DI].sf_position,0
+       MOV  word ES:[DI].sf_position+2,0
+       ADD  DI,sf_entry_size
 
 ;  $enddo loop				;				       ;AC000;
    LOOP $$DO54
 
    STI
 
-   ASSUME ES:NOTHING
+   ; ASSUME ES:NOTHING
 
    XOR	BX,BX
    MOV	CX,5				; StdIN,StdOUT,StdERR,StdAUX,StdPRN
@@ -2314,7 +2314,7 @@ $$DO56:
 
    Procedure SHAREINIT,NEAR
 
-   ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:STACK
+   ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:STACK
 
 ;  int 3
    nop
@@ -2339,11 +2339,11 @@ $$DO56:
    MOV	AH,Get_In_Vars
    INT	21h
 
-   ASSUME ES:DOSGROUP
+   ; ASSUME ES:DOSGROUP
 
    CMP	DataVersion,ShareDataVersion
 
-   ASSUME ES:NOTHING
+   ; ASSUME ES:NOTHING
 
 ;  $if	ne				; if not same as us			;AC000;
    JE $$IF58
@@ -2442,9 +2442,9 @@ $$IF66:
 					; requested by the user
 					;---------------------------------------
    MOV	AX,initlocks
-   MOV	SI,size RLR_Entry
+   MOV	SI,RLR_Entry_size
    MUL	SI
-   ADD	AX,OFFSET MFT
+   ADD	AX,MFT
    ADC	DX,0
    ADD	AX,InitSpace
    ADC	DX,0
@@ -2484,7 +2484,7 @@ $$IF68:
    MOV	SS,AX				;				       ;AC001;
    MOV	SP,100h 			;				       ;AC001;
 
-   ASSUME SS:NOTHING
+   ; ASSUME SS:NOTHING
 					;---------------------------------------
 					; Continue with rest of initialization
 					;---------------------------------------
@@ -2537,7 +2537,7 @@ No_Mem_Error		  equ	 8	; insufficient memory message number   ;AN000;
 					;---------------------------------------
 					; Load the Messages
 					;---------------------------------------
-EXTRN SYSLOADMSG:NEAR			;				       ;AN000;
+extern SYSLOADMSG;				       ;AN000;
 
    call SYSLOADMSG			;				       ;AN000;
 
@@ -2550,9 +2550,9 @@ EXTRN SYSLOADMSG:NEAR			;				       ;AN000;
        push ss				;   just in case
        push ax				;
 
-xxx    proc far 			;				       ;AN000;
+xxx:;				       ;AN000;
        ret				;				       ;AN000;
-xxx    endp				;				       ;AN000;
+; ENDP xxx;				       ;AN000;
 
 ;  $ENDIF				; endif - we have a MAJOR problem      ;AN000;
 $$IF70:
@@ -2600,23 +2600,23 @@ $$IF70:
 					;   installed " message.  The parse
 					;   routine will set it up to work
 					;   for parseing.
-SUBLIST 		  LABEL  WORD
+SUBLIST:
 
 			  db	 sub_size ; size of sublist
 			  db	 0	; reserved
-msg_offset		  dw	 offset SHARE_Name ; insert 'SHARE'
+msg_offset		  dw	 SHARE_Name ; insert 'SHARE'
 
-msg_segment		  LABEL  WORD
+msg_segment:
 
-IF			  NOT	 INSTALLED
+%if NOT	 INSTALLED
 
 			  dw	 CODE
 
-ELSE
+%else
 
 			  dw	 SHARE
 
-ENDIF
+%endif
 
 num_ins 		  db	 1	; only one insert
 			  db	 Char_Field_ASCIIZ ; data type flag - ascii z string
@@ -2626,7 +2626,7 @@ min_ins 		  db	 SHARE_Name_Size ; minimum field size
 
 sub_size		  equ	 $ - SUBLIST
 
-SHARE_Name		  LABEL  WORD
+SHARE_Name:
 
 			  db	 "SHARE"
 
@@ -2650,14 +2650,14 @@ SHARE_Name_Size 	  equ	 $ - Share_Name
 ;  $if	e				; set up implied substitution	       ;AC009;
    JNE $$IF72
 
-       ASSUME DS:nothing,ES:DOSGROUP
+       ; ASSUME DS:nothing,ES:DOSGROUP
 
        mov  num_ins,cl			; set number of inserts to 0	       ;AN009;
-       mov  BYTE PTR max_ins,030h	; set maximum size of insert	       ;AN009;
-       mov  BYTE PTR min_ins,1		; set minimum size of insert	       ;AN009;
+       mov  byte max_ins,030h	; set maximum size of insert	       ;AN009;
+       mov  byte min_ins,1		; set minimum size of insert	       ;AN009;
        push ds				; set up segment		       ;AN009;
        pop  [msg_segment]		;				       ;AN009;
-       mov  BYTE PTR ds:[si],0		; turn it into a ASCIIZ string	       ;AN009;
+       mov  byte ds:[si],0		; turn it into a ASCIIZ string	       ;AN009;
        cmp  si,msg_offset		; is there something there?	       ;AN009;
 ;      $if  a				; if it is...			       ;AN009;
        JNA $$IF73
@@ -2670,7 +2670,7 @@ $$IF72:
 ;  $if	e				; if it is...			       ;AN000;
    JNE $$IF76
        inc  cx				;
-       mov  msg_offset,OFFSET SHARE_name ; ensure the pointer is right	       ;AN010;
+       mov  msg_offset,SHARE_name ; ensure the pointer is right	       ;AN010;
 ;  $endif				;
 $$IF76:
    push cs				; ensure that SYSMSG has proper        ;AC009;
@@ -2681,7 +2681,7 @@ $$IF76:
 					;--------------------------------------
 					; Output the Message
 					;---------------------------------------
-EXTRN SYSDISPMSG:NEAR			;				       ;AN000;
+extern SYSDISPMSG;				       ;AN000;
 
    CALL SYSDISPMSG			;				       ;AN000;
 
@@ -2731,9 +2731,9 @@ $$IF78:
 ;
 ;******************-  END  OF PSEUDOCODE -**************************************
 
-   public Get_DOS_Error
+   global Get_DOS_Error
 
-   Get_DOS_Error PROC NEAR
+   Get_DOS_Error:
 
    mov	ax,(GetExtendedError shl 8)	; DOS ext. error		       ;AN000;
    xor	bx,bx
@@ -2811,7 +2811,7 @@ Syntax_Error		  equ	 9	; maximum PARSE error # 	       ;AN000;
 					;--------------------------------------
 					;  Get address of command line
 					;--------------------------------------
-EXTRN SYSPARSE:NEAR			;				       ;AN000;
+extern SYSPARSE;				       ;AN000;
 
    MOV	SI,0081H			; OFFSET OF COMMAND LINE IN PSP        ;AN000;
    MOV	AH,62H				; AH=GET PSP ADDRESS FUNCTION CALL     ;AN000;
@@ -2821,7 +2821,7 @@ EXTRN SYSPARSE:NEAR			;				       ;AN000;
    PUSH CS				;				       ;AN000;
    POP	ES				;				       ;AN000;
 
-   ASSUME ES:SHARE			;				       ;AN000;
+   ; ASSUME ES:SHARE;				       ;AN000;
 
 					;--------------------------------------
 					;  Loop for each operand at DS:SI
@@ -2845,7 +2845,7 @@ $$DO80:
 
        MOV  AX,Syntax_Error		; Parse syntax error - just in case    ;AN000;
        MOV  BX,DX			; PLACE RESULT ADDRESS IN BX	       ;AN000;
-       CMP  BX,OFFSET SWITCH_BUFF	;				       ;AN000;
+       CMP  BX,SWITCH_BUFF	;				       ;AN000;
 
 ;      $if  ne				; if no pointer 		       ;AN000;
        JE $$IF82
@@ -2856,14 +2856,14 @@ $$LL82:
 ;      $endif				; endif - error 		       ;AN000;
 $$IF82:
 
-       MOV  AX,WORD PTR SW_VALUE	; load the value		       ;AN000;
+       MOV  AX,word SW_VALUE	; load the value		       ;AN000;
        MOV  BX,SW_SYN			; load pointer to synonym	       ;AN000;
 
 					;--------------------------------------
 					;  If user said  /F:n, then
 					;--------------------------------------
 
-       CMP  BX,OFFSET F_SW		; IF USER SPECIFIED /F		       ;AN000;
+       CMP  BX,F_SW		; IF USER SPECIFIED /F		       ;AN000;
 
 ;      $if  e				;				       ;AN000;
        JNE $$IF84
@@ -2883,7 +2883,7 @@ $$IF84:
 					;---------------------------------------
 					;  If user said /L:m, then update INITlocks
 					;---------------------------------------
-	   CMP	BX,OFFSET L_SW		; IF USER SPECIFIED /L		       ;AN000;
+	   CMP	BX,L_SW		; IF USER SPECIFIED /L		       ;AN000;
 
 ;	   $if	e			; if it is				;AN000;
 	   JNE $$IF88
@@ -2903,7 +2903,7 @@ $$IF88:
 					;---------------------------------------
 					;  If user said /NC, then update check_flag
 					;---------------------------------------
-	       CMP  BX,OFFSET N_SW	; IF USER SPECIFIED /NC 	       ;AN010;
+	       CMP  BX,N_SW	; IF USER SPECIFIED /NC 	       ;AN010;
 ;	       $if  ne			; if error			       ;AC010;
 	       JE $$IF92
 		   MOV	AX,Syntax_Error ; Parse syntax error		       ;AN000;
@@ -2949,7 +2949,7 @@ $$IF97:
 
    ret					; this should never be used
 
-Parse_Ret_Code label byte
+Parse_Ret_Code:
 
    db	0				; Ret Code 0 -
    db	9				; Ret Code 1 - Too many parameters
@@ -2964,16 +2964,16 @@ Parse_Ret_Code label byte
 
    EndProc ShComndParse 		;				       ;AN000;
 
-   include msgdcl.inc
+   %include "msgdcl.inc"
 
-   SHARE ENDS
+   ; END SECTION .SHARE
 
-   STACK SEGMENT STACK
-   DB	278  + 128 DUP (?)		; 278 == IBM's ROM requirements
-   STACK ENDS
+   SECTION .STACK
+   DB	278  + times 128 db 0		; 278 == IBM's ROM requirements
+   ; END SECTION .STACK
 
-ENDIF
+%endif
 
-   END	shareinit
+   ; END	shareinit
 
 

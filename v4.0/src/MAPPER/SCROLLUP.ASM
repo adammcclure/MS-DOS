@@ -1,10 +1,10 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS VioScrollUp mapper
+; title CP/DOS VioScrollUp mapper
 ;
-vioxxx  segment byte public 'vio'
-        assume  cs:vioxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .vioxxx
+        ; assume  cs:vioxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -30,27 +30,27 @@ vioxxx  segment byte public 'vio'
 ; *
 ; *************************************************************************
 
-        public vioscrollup
-        .sall
-        .xlist
-        include macros.inc
-        .list
+        global vioscrollup
+        ; .sall
+        ; .xlist
+        %include "macros.inc"
+        ; .list
 
 error_bvs_parameter equ 0002h
 
-str     struc
-old_bp   dw      ?
-return   dd      ?
-handle   dw      ?        ; vio handle
-cell     dd      ?        ; cell to be written
-lines    dw      ?        ; number of blank lines
-rightcol dw      ?        ; right column
-botrow   dw      ?        ; bottom row
-leftcol  dw      ?        ; left column
-toprow   dw      ?        ; top row
-str     ends
+struc str
+old_bp: dw 0
+return: dd 0
+handle: dw 0; vio handle
+cell: dd 0; cell to be written
+lines: dw 0; number of blank lines
+rightcol: dw 0; right column
+botrow: dw 0; bottom row
+leftcol: dw 0; left column
+toprow: dw 0; top row
+endstruc
 
-vioscrollup proc   far
+vioscrollup:
         Enter   VioScrollUp             ; save registers
 
         mov     bx,[bp].lines           ; get number of blank lines
@@ -96,8 +96,8 @@ ar02:   mov     ah,06h                  ; set scroll up function code
 error:  mov     ax,error_bvs_parameter  ; set error code
 
 exit:   Mexit                           ; pop registers
-        ret     size str - 6            ; return
+        ret     str_size - 6            ; return
 
-vioscrollup endp
-vioxxx  ends
-        end
+; ENDP vioscrollup
+; END SECTION .vioxxx
+        ; end

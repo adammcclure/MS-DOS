@@ -1,7 +1,7 @@
 
 
-	PAGE	,132
-	TITLE	DOS - Keyboard Definition File
+	; PAGE	,132
+	; TITLE	DOS - Keyboard Definition File
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - - NLS Support - Keyboard Definition File
@@ -44,8 +44,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
 				       ;;
-CODE	SEGMENT PUBLIC 'CODE'          ;;
-	ASSUME CS:CODE,DS:CODE	       ;;
+SECTION .CODE;;
+	; ASSUME CS:CODE,DS:CODE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;***************************************
@@ -54,7 +54,7 @@ CODE	SEGMENT PUBLIC 'CODE'          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				     ;;
 DB   0FFh,'KEYB   '                  ;; signature
-DB   8 DUP(0)			     ;; reserved
+times 8 db 0;; reserved
 DW   650			     ;; maximum size of Common Xlat Sect
 DW   350			     ;; max size of Specific Xlat Sect
 DW   400			     ;; max size of State Logic
@@ -62,77 +62,77 @@ DW   0				     ;;AC000;reserved
 DW   19 			     ;;AC000 number of IDs
 DW   17 			     ;;AC000 number of languages
 DB   'GR'                            ;; LANGUAGE CODE TABLE
-DW   OFFSET GE_LANG_ENT,0	     ;;
+DW   GE_LANG_ENT,0	     ;;
 DB   'SP'                            ;;
-DW   OFFSET SP_LANG_ENT,0	     ;;
+DW   SP_LANG_ENT,0	     ;;
 DB   'PO'                            ;;
-DW   OFFSET PO_LANG_ENT,0	     ;;
+DW   PO_LANG_ENT,0	     ;;
 DB   'FR'                            ;;
-DW   OFFSET FR2_LANG_ENT,0	     ;;
+DW   FR2_LANG_ENT,0	     ;;
 DB   'DK'                            ;;
-DW   OFFSET DK_LANG_ENT,0	     ;;
+DW   DK_LANG_ENT,0	     ;;
 DB   'SG'                            ;;
-DW   OFFSET SG_LANG_ENT,0	     ;;
+DW   SG_LANG_ENT,0	     ;;
 DB   'IT'                            ;;
-DW   OFFSET IT2_LANG_ENT,0	     ;;
+DW   IT2_LANG_ENT,0	     ;;
 DB   'UK'                            ;;
-DW   OFFSET UK2_LANG_ENT,0	     ;;
+DW   UK2_LANG_ENT,0	     ;;
 DB   'SF'                            ;;
-DW   OFFSET SF_LANG_ENT,0	     ;;
+DW   SF_LANG_ENT,0	     ;;
 DB   'BE'                            ;;
-DW   OFFSET BE_LANG_ENT,0	     ;;
+DW   BE_LANG_ENT,0	     ;;
 DB   'NL'                            ;;
-DW   OFFSET NL_LANG_ENT,0	     ;;
+DW   NL_LANG_ENT,0	     ;;
 DB   'NO'                            ;;
-DW   OFFSET NO_LANG_ENT,0	     ;;
+DW   NO_LANG_ENT,0	     ;;
 DB   'CF'                            ;;
-DW   OFFSET CF_LANG_ENT,0	     ;;
+DW   CF_LANG_ENT,0	     ;;
 DB   'SV'                            ;;
-DW   OFFSET SV_LANG_ENT,0	     ;;
+DW   SV_LANG_ENT,0	     ;;
 DB   'SU'                            ;;
-DW   OFFSET Su_LANG_ENT,0	     ;;
+DW   Su_LANG_ENT,0	     ;;
 DB   'LA'                            ;;
-DW   OFFSET LA_LANG_ENT,0	     ;;
+DW   LA_LANG_ENT,0	     ;;
 DB   'US'                            ;;
-DW   OFFSET DUMMY_ENT,0 	     ;;
+DW   DUMMY_ENT,0 	     ;;
 DW    172			     ;;AN000;ID CODE TABLE ***************************
-DW   OFFSET SP_LANG_ENT,0	     ;;AN000;
+DW   SP_LANG_ENT,0	     ;;AN000;
 DW    163			     ;;AN000;
-DW   OFFSET PO_LANG_ENT,0	     ;;AN000;
+DW   PO_LANG_ENT,0	     ;;AN000;
 DW    120			     ;;AN000;
-DW   OFFSET FR1_LANG_ENT,0	     ;;AN000;
+DW   FR1_LANG_ENT,0	     ;;AN000;
 DW    189			     ;;AN000;
-DW   OFFSET FR2_LANG_ENT,0	     ;;AN000;
+DW   FR2_LANG_ENT,0	     ;;AN000;
 DW    159			     ;;AN000;
-DW   OFFSET DK_LANG_ENT,0	     ;;AN000;
+DW   DK_LANG_ENT,0	     ;;AN000;
 DW    000			     ;;AN000;
-DW   OFFSET SG_LANG_ENT,0	     ;;AN000;
+DW   SG_LANG_ENT,0	     ;;AN000;
 DW    129			     ;;AN000;
-DW   OFFSET GE_LANG_ENT,0	     ;;AN000;
+DW   GE_LANG_ENT,0	     ;;AN000;
 DW    142			     ;;AN000;
-DW   OFFSET IT1_LANG_ENT,0	     ;;AN000;
+DW   IT1_LANG_ENT,0	     ;;AN000;
 DW    141			     ;;AN000;
-DW   OFFSET IT2_LANG_ENT,0	     ;;AN000;
+DW   IT2_LANG_ENT,0	     ;;AN000;
 DW    168			     ;;AN000;
-DW   OFFSET UK1_LANG_ENT,0	     ;;AN000;
+DW   UK1_LANG_ENT,0	     ;;AN000;
 DW    166			     ;;AN000;
-DW   OFFSET UK2_LANG_ENT,0	     ;;AN000;
+DW   UK2_LANG_ENT,0	     ;;AN000;
 DW    150			     ;;AN000;
-DW   OFFSET SF_LANG_ENT,0	     ;;AN000;
+DW   SF_LANG_ENT,0	     ;;AN000;
 DW    120			     ;;AN000;
-DW   OFFSET BE_LANG_ENT,0	     ;;AN000;
+DW   BE_LANG_ENT,0	     ;;AN000;
 DW    143			     ;;AN000;
-DW   OFFSET NL_LANG_ENT,0	     ;;AN000;
+DW   NL_LANG_ENT,0	     ;;AN000;
 DW    155			     ;;AN000;
-DW   OFFSET NO_LANG_ENT,0	     ;;AN000;
+DW   NO_LANG_ENT,0	     ;;AN000;
 DW    058			     ;;AN000;
-DW   OFFSET CF_LANG_ENT,0	     ;;AN000;
+DW   CF_LANG_ENT,0	     ;;AN000;
 DW    153			     ;;AN000;
-DW   OFFSET SV_LANG_ENT,0	     ;;AN000;
+DW   SV_LANG_ENT,0	     ;;AN000;
 DW    171			     ;;AN000;
-DW   OFFSET LA_LANG_ENT,0	     ;;AN000;
+DW   LA_LANG_ENT,0	     ;;AN000;
 DW    103			     ;;AN000;
-DW   OFFSET DUMMY_ENT,0 	     ;;AN000;
+DW   DUMMY_ENT,0 	     ;;AN000;
 ;				     ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;***************************************
@@ -140,263 +140,263 @@ DW   OFFSET DUMMY_ENT,0 	     ;;AN000;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-   EXTRN SP_LOGIC:NEAR		       ;;
-   EXTRN SP_437_XLAT:NEAR	       ;;
-   EXTRN SP_850_XLAT:NEAR	       ;;
+   extern SP_LOGIC;;
+   extern SP_437_XLAT;;
+   extern SP_850_XLAT;;
 				       ;;
 SP_LANG_ENT:			       ;; language entry for SPANISH
   DB   'SP'                            ;;
   DW   172			       ;; AN000;ID entry  (ID CODE)
-  DW   OFFSET SP_LOGIC,0	       ;; pointer to LANG kb table
+  DW   SP_LOGIC,0	       ;; pointer to LANG kb table
   DB   1			       ;; AN000;number of IDs
   DB   2			       ;; number of code pages
   DW   850			       ;; code page
-  DW   OFFSET SP_850_XLAT,0	       ;; table pointer
+  DW   SP_850_XLAT,0	       ;; table pointer
   DW   437			       ;; code page
-  DW   OFFSET SP_437_XLAT,0	       ;; table pointer
+  DW   SP_437_XLAT,0	       ;; table pointer
 				       ;;
 ;*****************************************************************************
-    EXTRN FR1_LOGIC:NEAR		 ;;AN000;
-    EXTRN FR1_437_XLAT:NEAR		 ;;AN000;
-    EXTRN FR1_850_XLAT:NEAR		 ;;AN000;
+    extern FR1_LOGIC;;AN000;
+    extern FR1_437_XLAT;;AN000;
+    extern FR1_850_XLAT;;AN000;
 					 ;;
  FR1_LANG_ENT:				 ;;AN000; language entry for FRANCE
    DB	'FR'                             ;;AN000; SECONDARY KEYBOARD ID VALUE
    DW	120				 ;;AN000; ID entry
-   DW	OFFSET FR1_LOGIC,0		 ;;AN000; pointer to LANG kb table
+   DW	FR1_LOGIC,0		 ;;AN000; pointer to LANG kb table
    DB	2				 ;;AN000; number of code pages
    DB	2				 ;;AN000; number of ids
    DW	437				 ;;AN000; code page
-   DW	OFFSET FR1_437_XLAT,0		 ;;AN000; table pointer
+   DW	FR1_437_XLAT,0		 ;;AN000; table pointer
    DW	850				 ;;AN000; code page
-   DW	OFFSET FR1_850_XLAT,0		 ;;AN000; table pointer
+   DW	FR1_850_XLAT,0		 ;;AN000; table pointer
 					 ;;AN000;
 ;*****************************************************************************
-    EXTRN FR2_LOGIC:NEAR		 ;;AC000;
-    EXTRN FR2_437_XLAT:NEAR		 ;;AC000;
-    EXTRN FR2_850_XLAT:NEAR		 ;;AC000;
+    extern FR2_LOGIC;;AC000;
+    extern FR2_437_XLAT;;AC000;
+    extern FR2_850_XLAT;;AC000;
 					 ;;
  FR2_LANG_ENT:				 ;; language entry for FRANCE
    DB	'FR'                             ;; PRIMARY  KEYBOARD ID VALUE
    DW	189				 ;;AC000; ID entry
-   DW	OFFSET FR2_LOGIC,0		 ;;AC000; pointer to LANG kb table
+   DW	FR2_LOGIC,0		 ;;AC000; pointer to LANG kb table
    DB	1				 ;;AC000; number of ids
    DB	2				 ;;AC000; number of code pages
    DW	437				 ;;AC000; code page
-   DW	OFFSET FR2_437_XLAT,0		 ;;AC000; table pointer
+   DW	FR2_437_XLAT,0		 ;;AC000; table pointer
    DW	850				 ;;AC000; code page
-   DW	OFFSET FR2_850_XLAT,0		 ;;AC000; table pointer
+   DW	FR2_850_XLAT,0		 ;;AC000; table pointer
 					 ;;
 ;****************************************************************************
-   EXTRN PO_LOGIC:NEAR			 ;;AC000;
-   EXTRN PO_850_XLAT:NEAR		 ;;AC000;
-   EXTRN PO_860_XLAT:NEAR		 ;;AC000;
+   extern PO_LOGIC;;AC000;
+   extern PO_850_XLAT;;AC000;
+   extern PO_860_XLAT;;AC000;
 					 ;;
 PO_LANG_ENT:				 ;; language entry for PORTUGAL
   DB   'PO'                              ;;
   DW   163				 ;;AN000; ID entry
-  DW   OFFSET PO_LOGIC,0		 ;; pointer to LANG kb table
+  DW   PO_LOGIC,0		 ;; pointer to LANG kb table
   DB   1				 ;;AC000; number of ids
   DB   2				 ;;AC000; number of code pages
   DW   850				 ;;AC000; code page
-  DW   OFFSET PO_850_XLAT,0		 ;;AC000; table pointer
+  DW   PO_850_XLAT,0		 ;;AC000; table pointer
   DW   860				 ;;AC000; code page
-  DW   OFFSET PO_860_XLAT,0		 ;;AC000; table pointer
+  DW   PO_860_XLAT,0		 ;;AC000; table pointer
 					 ;;
 ;*****************************************************************************
-   EXTRN DK_LOGIC:NEAR			 ;;
-   EXTRN DK_850_XLAT:NEAR		 ;;AC000;
-   EXTRN DK_865_XLAT:NEAR		 ;;AC000;
+   extern DK_LOGIC;;
+   extern DK_850_XLAT;;AC000;
+   extern DK_865_XLAT;;AC000;
 					 ;;
  DK_LANG_ENT:				 ;; language entry for DENMARK
    DB	'DK'                             ;;
    DW	159				 ;;AN000; ID entry
-   DW	OFFSET DK_LOGIC,0		 ;; pointer to LANG kb table
+   DW	DK_LOGIC,0		 ;; pointer to LANG kb table
    DB	1				 ;;AN000;number of ids
    DB	2				 ;;AC000; number of code pages
    DW	850				 ;;AC000; code page
-   DW	OFFSET DK_850_XLAT,0		 ;;AC000; table pointer
+   DW	DK_850_XLAT,0		 ;;AC000; table pointer
    DW	865				 ;;AC000; code page
-   DW	OFFSET DK_865_XLAT,0		 ;;AC000; table pointer
+   DW	DK_865_XLAT,0		 ;;AC000; table pointer
 					 ;;
 ;*****************************************************************************
-   EXTRN SG_LOGIC:NEAR			 ;;
-   EXTRN SG_850_XLAT:NEAR		 ;;
-   EXTRN SG_437_XLAT:NEAR		 ;;
+   extern SG_LOGIC;;
+   extern SG_850_XLAT;;
+   extern SG_437_XLAT;;
 					 ;;
 SG_LANG_ENT:				 ;; language entry for SWISS GERMAN
   DB   'SG'                              ;;
   DW   000				 ;;AN001; ID entry
-  DW   OFFSET SG_LOGIC,0		 ;; pointer to LANG kb table
+  DW   SG_LOGIC,0		 ;; pointer to LANG kb table
   DB   1				 ;;AN000; number of ids
   DB   2				 ;;AC000; number of code pages
   DW   850				 ;; code page ;;;dcl 850 now default March 8, 1988
-  DW   OFFSET SG_850_XLAT,0		 ;; table pointer
+  DW   SG_850_XLAT,0		 ;; table pointer
   DW   437				 ;; code page
-  DW   OFFSET SG_437_XLAT,0		 ;; table pointer
+  DW   SG_437_XLAT,0		 ;; table pointer
 					 ;;
 ;*****************************************************************************
-   EXTRN SF_LOGIC:NEAR			 ;;
-   EXTRN SF_850_XLAT:NEAR		 ;;
-   EXTRN SF_437_XLAT:NEAR		 ;;
+   extern SF_LOGIC;;
+   extern SF_850_XLAT;;
+   extern SF_437_XLAT;;
 					 ;;
 SF_LANG_ENT:				 ;; language entry for SWISS FRENCH
   DB   'SF'                              ;;
   DW   150				 ;;AN000; ID entry
-  DW   OFFSET SF_LOGIC,0		 ;; pointer to LANG kb table
+  DW   SF_LOGIC,0		 ;; pointer to LANG kb table
   DB   1			       ;;AN000; number of ids
   DB   2				 ;;AC000; number of code pages
   DW   850				 ;; code page ;;;dcl 850 now default March 8, 1988
-  DW   OFFSET SF_850_XLAT,0		 ;; table pointer
+  DW   SF_850_XLAT,0		 ;; table pointer
   DW   437				 ;; code page
-  DW   OFFSET SF_437_XLAT,0		 ;; table pointer
+  DW   SF_437_XLAT,0		 ;; table pointer
 					 ;;
 ;*****************************************************************************
-   EXTRN GE_LOGIC:NEAR			 ;;
-   EXTRN GE_437_XLAT:NEAR		 ;;
-   EXTRN GE_850_XLAT:NEAR		 ;;
+   extern GE_LOGIC;;
+   extern GE_437_XLAT;;
+   extern GE_850_XLAT;;
 					 ;;
 GE_LANG_ENT:				 ;; language entry for GERMANY
   DB   'GR'                              ;;
   DW   129				 ;;AN000; ID entry
-  DW   OFFSET GE_LOGIC,0		 ;; pointer to LANG kb table
+  DW   GE_LOGIC,0		 ;; pointer to LANG kb table
   DB   1			       ;;AN000; number of ids
   DB   2				 ;;AC000; number of code pages
   DW   437				 ;; code page
-  DW   OFFSET GE_437_XLAT,0		 ;; table pointer
+  DW   GE_437_XLAT,0		 ;; table pointer
   DW   850				 ;; code page
-  DW   OFFSET GE_850_XLAT,0		 ;; table pointer
+  DW   GE_850_XLAT,0		 ;; table pointer
 					 ;;
 ;*****************************************************************************
-    EXTRN IT1_LOGIC:NEAR		 ;;AN000;
-    EXTRN IT1_437_XLAT:NEAR		 ;;AN000;
-    EXTRN IT1_850_XLAT:NEAR		 ;;AN000;
+    extern IT1_LOGIC;;AN000;
+    extern IT1_437_XLAT;;AN000;
+    extern IT1_850_XLAT;;AN000;
 					 ;;
  IT1_LANG_ENT:				 ;;AN000; language entry for ITALY
    DB	'IT'                             ;;AN000; SECONDARY KEYBOARD ID VALUE
    DW	142				 ;;AN000; ID entry
-   DW	OFFSET IT1_LOGIC,0		 ;;AN000; pointer to LANG kb table
+   DW	IT1_LOGIC,0		 ;;AN000; pointer to LANG kb table
    DB	2				 ;;AN000;number of ids
    DB	2				 ;;AN000; number of code pages
    DW	437				 ;;AN000; code page
-   DW	OFFSET IT1_437_XLAT,0		 ;;AN000; table pointer
+   DW	IT1_437_XLAT,0		 ;;AN000; table pointer
    DW	850				 ;;AN000; code page
-   DW	OFFSET IT1_850_XLAT,0		 ;;AN000; table pointer
+   DW	IT1_850_XLAT,0		 ;;AN000; table pointer
 					 ;;
 ;*****************************************************************************
-    EXTRN IT2_LOGIC:NEAR		 ;;
-    EXTRN IT2_437_XLAT:NEAR		 ;;
-    EXTRN IT2_850_XLAT:NEAR		 ;;
+    extern IT2_LOGIC;;
+    extern IT2_437_XLAT;;
+    extern IT2_850_XLAT;;
 					 ;;
  IT2_LANG_ENT:				 ;;AC000; language entry for ITALY
    DB	'IT'                             ;;AC000;  PRIMARY KEYBOARD ID VALUE
    DW	141				 ;;AN000; ID entry
-   DW	OFFSET IT2_LOGIC,0		 ;;AN000; pointer to LANG kb table
+   DW	IT2_LOGIC,0		 ;;AN000; pointer to LANG kb table
    DB	1				;;AC000; number of ids
    DB	2				 ;;AC000; number of code pages
    DW	437				 ;;AC000; code page
-   DW	OFFSET IT2_437_XLAT,0		 ;;AC000; table pointer
+   DW	IT2_437_XLAT,0		 ;;AC000; table pointer
    DW	850				 ;;AC000; code page
-   DW	OFFSET IT2_850_XLAT,0		 ;;AC000; table pointer
+   DW	IT2_850_XLAT,0		 ;;AC000; table pointer
 					 ;;
 ;*****************************************************************************
-    EXTRN UK1_LOGIC:FAR 		 ;;AN000;
-    EXTRN UK1_437_XLAT:FAR		 ;;AN000;
-    EXTRN UK1_850_XLAT:FAR		 ;;AN000;
+    extern UK1_LOGIC;;AN000;
+    extern UK1_437_XLAT;;AN000;
+    extern UK1_850_XLAT;;AN000;
 					 ;;
  UK1_LANG_ENT:				 ;;AN000; language entry for UNITED KINGDOM
    DB	'UK'                             ;;AN000; SECONDARY KEYBOARD ID VALUE
    DW	168				 ;;AN000; ID entry
-   DW	OFFSET UK1_LOGIC,0		 ;;AN000; pointer to LANG kb table
+   DW	UK1_LOGIC,0		 ;;AN000; pointer to LANG kb table
    DB	2				;;AN000; number of ids
    DB	2				 ;;AN000; number of code pages
    DW	437				 ;;AN000; code page
-   DW	OFFSET UK1_437_XLAT,0		 ;;AN000; table pointer
+   DW	UK1_437_XLAT,0		 ;;AN000; table pointer
    DW	850				 ;;AN000; code page
-   DW	OFFSET UK1_850_XLAT,0		 ;;AN000; table pointer
+   DW	UK1_850_XLAT,0		 ;;AN000; table pointer
 					 ;;
 ;*****************************************************************************
-    EXTRN UK2_LOGIC:FAR 		 ;;AC000;
-    EXTRN UK2_437_XLAT:FAR		 ;;AC000;
-    EXTRN UK2_850_XLAT:FAR		 ;;AC000;
+    extern UK2_LOGIC;;AC000;
+    extern UK2_437_XLAT;;AC000;
+    extern UK2_850_XLAT;;AC000;
 					 ;;
  UK2_LANG_ENT:				 ;;AN000; language entry for UNITED KINGDOM
    DB	'UK'                             ;;AC000; PRIMARY KEYBOARD ID VALUE
    DW	166				 ;;AC000; ID entry
-   DW	OFFSET UK2_LOGIC,0		 ;;AC000; pointer to LANG kb table
+   DW	UK2_LOGIC,0		 ;;AC000; pointer to LANG kb table
    DB	1				;; AN000;number of ids
    DB	2				 ;;AN000; number of code pages
    DW	437				 ;;AC000; code page
-   DW	OFFSET UK2_437_XLAT,0		 ;;AC000; table pointer
+   DW	UK2_437_XLAT,0		 ;;AC000; table pointer
    DW	850				 ;;AC000; code page
-   DW	OFFSET UK2_850_XLAT,0		 ;;AC000; table pointer
+   DW	UK2_850_XLAT,0		 ;;AC000; table pointer
 					 ;;
 ;*****************************************************************************
-   EXTRN BE_LOGIC:NEAR			 ;;
-   EXTRN BE_437_XLAT:NEAR		 ;;
-   EXTRN BE_850_XLAT:NEAR		 ;;
+   extern BE_LOGIC;;
+   extern BE_437_XLAT;;
+   extern BE_850_XLAT;;
 					 ;;
 BE_LANG_ENT:				 ;; language entry for BELGIUM
   DB   'BE'                              ;;
   DW   120				 ;;AN000; ID entry
-  DW   OFFSET BE_LOGIC,0		 ;; pointer to LANG kb table
+  DW   BE_LOGIC,0		 ;; pointer to LANG kb table
   DB   1				 ;;AN000; number of ids
   DB   2				 ;;AN000; number of code pages
   DW   850				 ;; code page ;; default to 850 - same as country.sys
-  DW   OFFSET BE_850_XLAT,0		 ;; table pointer
+  DW   BE_850_XLAT,0		 ;; table pointer
   DW   437				 ;; code page
-  DW   OFFSET BE_437_XLAT,0		 ;; table pointer
+  DW   BE_437_XLAT,0		 ;; table pointer
 					 ;;
 ;*****************************************************************************
 ;*****************************************************************************
-     EXTRN NL_LOGIC:NEAR		 ;;
-     EXTRN NL_437_XLAT:NEAR		 ;;
-     EXTRN NL_850_XLAT:NEAR		 ;;
+     extern NL_LOGIC;;
+     extern NL_437_XLAT;;
+     extern NL_850_XLAT;;
 					 ;;
   NL_LANG_ENT:				 ;; language entry for NETHERLANDS
     DB	 'NL'                            ;;
     DW	 143				 ;;AN000; ID entry
-    DW	 OFFSET NL_LOGIC,0		 ;; pointer to LANG kb table
+    DW	 NL_LOGIC,0		 ;; pointer to LANG kb table
     DB	 1				 ;;AN000; number of ids
     DB	 2				 ;;AN000; number of code pages
     DW	 437				 ;; code page
-    DW	 OFFSET NL_437_XLAT,0		 ;; table pointer
+    DW	 NL_437_XLAT,0		 ;; table pointer
     DW	 850				 ;; code page
-    DW	 OFFSET NL_850_XLAT,0		 ;; table pointer
+    DW	 NL_850_XLAT,0		 ;; table pointer
 					 ;;
 ;*****************************************************************************
 ;*****************************************************************************
-     EXTRN NO_LOGIC:NEAR		 ;;
-     EXTRN NO_850_XLAT:NEAR		 ;;AC000;
-     EXTRN NO_865_XLAT:NEAR		 ;;AC000;
+     extern NO_LOGIC;;
+     extern NO_850_XLAT;;AC000;
+     extern NO_865_XLAT;;AC000;
 					 ;;
   NO_LANG_ENT:				 ;; language entry for NORWAY
     DB	 'NO'                            ;;
     DW	 155				 ;;AN000; ID entry
-    DW	 OFFSET NO_LOGIC,0		 ;; pointer to LANG kb table
+    DW	 NO_LOGIC,0		 ;; pointer to LANG kb table
     DB	 1				 ;;AN000; number of ids
     DB	 2				 ;;AN000; number of code pages
     DW	 850				 ;;AC000; code page
-    DW	 OFFSET NO_850_XLAT,0		 ;;AC000; table pointer
+    DW	 NO_850_XLAT,0		 ;;AC000; table pointer
     DW	 865				 ;;AC000; code page
-    DW	 OFFSET NO_865_XLAT,0		 ;;AC000; table pointer
+    DW	 NO_865_XLAT,0		 ;;AC000; table pointer
 					 ;;
 ;*****************************************************************************
 ;*****************************************************************************
-     EXTRN SV_LOGIC:NEAR		 ;;
-     EXTRN SV_437_XLAT:NEAR		 ;;
-     EXTRN SV_850_XLAT:NEAR		 ;;
+     extern SV_LOGIC;;
+     extern SV_437_XLAT;;
+     extern SV_850_XLAT;;
 					 ;;
   SV_LANG_ENT:				 ;; language entry for SWEDEN
     DB	 'SV'                            ;;
     DW	 153				 ;;AN000; ID entry
-    DW	 OFFSET SV_LOGIC,0		 ;; pointer to LANG kb table
+    DW	 SV_LOGIC,0		 ;; pointer to LANG kb table
     DB	 1				 ;;AN000; number of ids
     DB	 2				 ;;AN000; number of code pages
     DW	 437				 ;; code page
-    DW	 OFFSET SV_437_XLAT,0		 ;; table pointer
+    DW	 SV_437_XLAT,0		 ;; table pointer
     DW	 850				 ;; code page
-    DW	 OFFSET SV_850_XLAT,0		 ;; table pointer
+    DW	 SV_850_XLAT,0		 ;; table pointer
 					 ;;
 ;*****************************************************************************
 ;*****************************************************************************
@@ -408,65 +408,65 @@ BE_LANG_ENT:				 ;; language entry for BELGIUM
  SU_LANG_ENT:				;; language entry for FINLAND
    DB	'SU'                            ;;
    DW	153				;; ID entry
-   DW	OFFSET Sv_LOGIC,0		;; pointer to LANG kb table
+   DW	Sv_LOGIC,0		;; pointer to LANG kb table
    DB	1				;; number of ids
    DB	2				;; number of code pages
    DW	850				;; code page  ;;;dcl 850 now default, March 8, 1988
-   DW	OFFSET Sv_850_XLAT,0		;; table pointer
+   DW	Sv_850_XLAT,0		;; table pointer
    DW	437				;; code page
-   DW	OFFSET Sv_437_XLAT,0		;; table pointer
+   DW	Sv_437_XLAT,0		;; table pointer
 					;;
 ;*****************************************************************************
 ;*****************************************************************************
-     EXTRN CF_LOGIC:NEAR		 ;;
-     EXTRN CF_863_XLAT:NEAR		 ;;
-     EXTRN CF_850_XLAT:NEAR		 ;;
+     extern CF_LOGIC;;
+     extern CF_863_XLAT;;
+     extern CF_850_XLAT;;
 					 ;;
   CF_LANG_ENT:				 ;; language entry for Canadian-French
     DB	 'CF'                            ;;
     DW	 058				 ;; ID entry
-    DW	 OFFSET CF_LOGIC,0		 ;; pointer to LANG kb table
+    DW	 CF_LOGIC,0		 ;; pointer to LANG kb table
     DB	 1				 ;; number of ids
     DB	 2				 ;; number of code pages
     DW	 863				 ;; code page
-    DW	 OFFSET CF_863_XLAT,0		 ;; table pointer
+    DW	 CF_863_XLAT,0		 ;; table pointer
     DW	 850				 ;; code page
-    DW	 OFFSET CF_850_XLAT,0		 ;; table pointer
+    DW	 CF_850_XLAT,0		 ;; table pointer
 					 ;;
 ;*****************************************************************************
-     EXTRN LA_LOGIC:NEAR		 ;;
-     EXTRN LA_850_XLAT:NEAR		 ;;
-     EXTRN LA_437_XLAT:NEAR		 ;;
+     extern LA_LOGIC;;
+     extern LA_850_XLAT;;
+     extern LA_437_XLAT;;
 					 ;;
   LA_LANG_ENT:				 ;; language entry for LATIN AMERICAN
     DB	 'LA'                            ;;
     DW	 171				 ;;AN000; ID entry
-    DW	 OFFSET LA_LOGIC,0		 ;; pointer to LANG kb table
+    DW	 LA_LOGIC,0		 ;; pointer to LANG kb table
     DB	 1				 ;;AN000; number of ids
     DB	 2				 ;;AN000; number of code pages
     DW	 850				 ;; code page
-    DW	 OFFSET LA_850_XLAT,0		 ;; table pointer
+    DW	 LA_850_XLAT,0		 ;; table pointer
     DW	 437				 ;; code page  ; default to 437 -same as country.sys
-    DW	 OFFSET LA_437_XLAT,0		 ;; table pointer
+    DW	 LA_437_XLAT,0		 ;; table pointer
 					 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
 DUMMY_ENT:			       ;; language entry
   DB   'XX'                            ;;
   DW   103			       ;;AC000; ID entry
-  DW   OFFSET DUMMY_LOGIC,0	       ;; pointer to LANG kb table
+  DW   DUMMY_LOGIC,0	       ;; pointer to LANG kb table
   DB   1			       ;;AC000; number of ids
   DB   5			       ;;AC000; number of code pages
   DW   437			       ;; code page
-  DW   OFFSET DUMMY_XLAT_437,0	       ;; table pointer
+  DW   DUMMY_XLAT_437,0	       ;; table pointer
   DW   850			       ;; code page
-  DW   OFFSET DUMMY_XLAT_850,0	       ;; table pointer
+  DW   DUMMY_XLAT_850,0	       ;; table pointer
   DW   860			       ;; code page
-  DW   OFFSET DUMMY_XLAT_860,0	       ;; table pointer
+  DW   DUMMY_XLAT_860,0	       ;; table pointer
   DW   863			       ;; code page
-  DW   OFFSET DUMMY_XLAT_863,0	       ;; table pointer
+  DW   DUMMY_XLAT_863,0	       ;; table pointer
   DW   865			       ;; code page
-  DW   OFFSET DUMMY_XLAT_865,0	       ;; table pointer
+  DW   DUMMY_XLAT_865,0	       ;; table pointer
 				       ;;
 DUMMY_LOGIC:			       ;;
    DW  LOGIC_END-$		       ;; length
@@ -503,5 +503,5 @@ DUMMY_XLAT_863: 		       ;;
 ;*****************************************************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-CODE	 ENDS			       ;;
-	 END			       ;;
+; END SECTION .CODE;;
+	 ; END;;

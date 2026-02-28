@@ -1,4 +1,4 @@
-page	,132	;								;an000;bgb
+; page	,132;								;an000;bgb
 ;*****************************************************************************	;an000;bgb
 ;*****************************************************************************	;an000;bgb
 ;UTILITY NAME: FORMAT.COM							;an000;bgb
@@ -12,24 +12,24 @@ page	,132	;								;an000;bgb
 ;	       AC000 - Changed code DOS 3.3 spec additions			;an000;bgb
 ;*****************************************************************************	;an000;bgb
 										;an000;bgb
-	EXTRN	command_line_buffer:byte					;an000;bgb;an005;bgb
+	extern command_line_buffer;an000;bgb;an005;bgb
 ;*****************************************************************************	;an000;bgb
 ; Include Files 								;an000;bgb
 ;*****************************************************************************	;an000;bgb
-.xlist										;an000;bgb
-include pathmac.inc								;an040;bgb
-include chkseg.inc								;an000;bgb
-INCLUDE CPMFCB.INC								;an000;bgb
-INCLUDE CHKEQU.INC								;an000;bgb
-.list										;an000;bgb
-INCLUDE CHKMSG.INC								;an000;bgb
-.xlist										;an000;bgb
-INCLUDE SYSMSG.INC								;an000;bgb
-.list										;an000;bgb
+; .xlist;an000;bgb
+%include "pathmac.inc";an040;bgb
+%include "chkseg.inc";an000;bgb
+%include "CPMFCB.INC";an000;bgb
+%include "CHKEQU.INC";an000;bgb
+; .list;an000;bgb
+%include "CHKMSG.INC";an000;bgb
+; .xlist;an000;bgb
+%include "SYSMSG.INC";an000;bgb
+; .list;an000;bgb
       ; 									;an000;bgb
-cstack	 segment para stack 'STACK'                                             ;an000;bgb
-	db	62 dup ("-Stack!-")      ; (362-80h) is the additional IBM ROM  ;an000;bgb
-cstack	 ends									;an000;bgb
+SECTION .cstack;an000;bgb
+	times 62 db "-Stack!-"; (362-80h) is the additional IBM ROM  ;an000;bgb
+; END SECTION .cstack;an000;bgb
 										;an000;bgb
 										;an000;bgb
 ;*****************************************************************************	;an000;bgb
@@ -38,33 +38,33 @@ cstack	 ends									;an000;bgb
 MSG_UTILNAME  <CHKDSK>								;an000;bgb
 										;an000;bgb
 ;.xlist 									 ;an000;bgb
-data	segment public para 'DATA'                                              ;an000;bgb
+SECTION .data;an000;bgb
 Msg_Services	<MSGDATA>							;an000;bgb
-data	ends									;an000;bgb
+; END SECTION .data;an000;bgb
 										;an000;bgb
-code	segment public para 'CODE'                                              ;an000;bgb
+SECTION .code;an000;bgb
 pathlabl	msgret								;an040;bgb
 Msg_Services	<NEARmsg>							;an000;bgb
 Msg_Services	<LOADmsg>							;an000;bgb
 Msg_Services	<DISPLAYmsg,CHARmsg,NUMmsg,TIMEmsg,DATEmsg>			;an000;bgb
 pathlabl	msgret								;an040;bgb
 Msg_Services	<CHKDSK.CLA,CHKDSK.CLB,CHKDSK.CLC,CHKDSK.CLD,CHKDSK.CL1,CHKDSK.CL2,CHKDSK.CTL> ;an037;bgb
-code	ends									;an000;bgb
-.list										;an000;bgb
+; END SECTION .code;an000;bgb
+; .list;an000;bgb
 										;an000;bgb
 ;										;an000;bgb
 ;*****************************************************************************	;an000;bgb
 ; Public Declarations								;an000;bgb
 ;*****************************************************************************	;an000;bgb
-	Public	SysLoadMsg							;an000;bgb
-	Public	SysDispMsg							;an000;bgb
+	global SysLoadMsg;an000;bgb
+	global SysDispMsg;an000;bgb
 										;an000;bgb
 										;an000;bgb
 ;										;an000;bgb
 ;***************************************************************************	;an000;bgb
 ; Message Structures								;an000;bgb
 ;***************************************************************************	;an000;bgb
-Message_Table struc				;				;an000;bgb;AN000;
+struc Message_Table;				;an000;bgb;AN000;
 Entry1	dw	0				;				;an000;bgb;AN000;
 Entry2	dw	0				;				;an000;bgb;AN000;
 Entry3	dw	0				;				;an000;bgb;AN000;
@@ -72,9 +72,9 @@ Entry4	dw	0				;				;an000;bgb;AN000;
 Entry5	db	0				;				;an000;bgb;AN000;
 Entry6	db	0				;				;an000;bgb;AN000;
 Entry7	dw	0				;				;an000;bgb;AN000;
-Message_Table ends				;				;an000;bgb;AN000;
+endstruc;				;an000;bgb;AN000;
 										;an000;bgb
-code	segment public para 'CODE'              ;                               ;an000;bgb;AN000;
+SECTION .code;                               ;an000;bgb;AN000;
 ;*****************************************************************************	;an000;bgb
 ;Routine name&gml Display_Interface						;an000;bgb
 ;*****************************************************************************	;an000;bgb
@@ -103,8 +103,8 @@ code	segment public para 'CODE'              ;                               ;an
 ;	Restore registers							;an000;bgb
 ;	ret									;an000;bgb
 ;*****************************************************************************	;an000;bgb
-Public	Display_Interface							;an000;bgb
-Display_Interface   proc			;				;an000;bgb;AN000;
+global Display_Interface;an000;bgb
+Display_Interface:;				;an000;bgb;AN000;
 	push	ds								;an000;bgb
 	push	ax								;an000;bgb
 	push	bx								;an000;bgb
@@ -131,9 +131,9 @@ Display_Interface   proc			;				;an000;bgb;AN000;
 	pop	ax								;an000;bgb
 	pop	ds								;an000;bgb
 	ret					;All done			;an000;bgb;AN000;
-Display_Interface      endp			;				;an000;bgb;AN000;
+; ENDP Display_Interface;				;an000;bgb;AN000;
 										;an000;bgb
-include msgdcl.inc
+%include "msgdcl.inc"
 
-code	ends									;an000;bgb
-	end									;an000;bgb
+; END SECTION .code;an000;bgb
+	; end;an000;bgb

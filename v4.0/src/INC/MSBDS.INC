@@ -1,5 +1,5 @@
 
-%OUT MSBDS.INC...
+%warning MSBDS.INC...
 ;	SCCSID = @(#)IBMBDS.ASM 1.9 85/09/16
 ;==============================================================================
 ;REVISION HISTORY:
@@ -34,51 +34,51 @@ FFSMALL 	    EQU     2
 FFHARDFILE	    EQU     5
 FFOTHER 	    EQU     7
 
-BDS_TYPE	STRUC
-LINK		DD		?	; LINK TO NEXT BDS
-DRIVENUM	DB		?	; INT 13 DRIVE NUMBER
-DRIVELET	DB		?	; DOS DRIVE NUMBER
-BYTEPERSEC	DW		?	; NUMBER OF BYTES/SEC
-SECPERCLUS	DB		?	; SEC PER ALLOCATION UNIT
-RESSEC		DW		?	; NUMBER OF RESERVED SECTORS
-CFAT		DB		?	; NUMBER OF FATS
-CDIR		DW		?	; NUMBER OF DIRECTORY ENTRIES
-DRVLIM		DW		?	; NUMBER OF SECTORS ON MEDIUM
-MEDIAD		DB		?	; MEDIA DESCRIPTOR BYTE
-CSECFAT 	DW		?	; NUMBER OF SECTORS/FAT
-SECLIM		DW		?	; SECTORS PER TRACK
-HDLIM		DW		?	; MAX NUMBER OF HEADS
-HIDSEC_L	DW		?	; NUMBER OF HIDDEN SECTORS
+struc BDS_TYPE
+LINK: dd 0; LINK TO NEXT BDS
+DRIVENUM: db 0; INT 13 DRIVE NUMBER
+DRIVELET: db 0; DOS DRIVE NUMBER
+BYTEPERSEC: dw 0; NUMBER OF BYTES/SEC
+SECPERCLUS: db 0; SEC PER ALLOCATION UNIT
+RESSEC: dw 0; NUMBER OF RESERVED SECTORS
+CFAT: db 0; NUMBER OF FATS
+CDIR: dw 0; NUMBER OF DIRECTORY ENTRIES
+DRVLIM: dw 0; NUMBER OF SECTORS ON MEDIUM
+MEDIAD: db 0; MEDIA DESCRIPTOR BYTE
+CSECFAT: dw 0; NUMBER OF SECTORS/FAT
+SECLIM: dw 0; SECTORS PER TRACK
+HDLIM: dw 0; MAX NUMBER OF HEADS
+HIDSEC_L: dw 0; NUMBER OF HIDDEN SECTORS
 HIDSEC_H	dw		0	;J.K.87
 DRVLIM_L	dw		0	;J.K.87
 DRVLIM_H	dw		0	;J.K.87
-FATSIZ		DB		?	; FLAGS...
-OPCNT		DW		?	; OPEN REF. COUNT
-FORMFACTOR	DB		?	; FORM FACTOR INDEX
-FLAGS		DW		?	; VARIOUS FLAGS
-CCYLN		DW		?	; MAX NUMBER OF CYLINDERS
-RBYTEPERSEC	DW		?	; RECOMMENDED BPB
-RSECPERCLUS	DB		?
-RRESSEC 	DW		?
-RCFAT		DB		?
-RCDIR		DW		?
-RDRVLIM 	DW		?
-RMEDIAD 	DB		?
-RCSECFAT	DW		?
-RSECLIM 	DW		?
-RHDLIM		DW		?
-RHIDSEC_L	DW		?
+FATSIZ: db 0; FLAGS...
+OPCNT: dw 0; OPEN REF. COUNT
+FORMFACTOR: db 0; FORM FACTOR INDEX
+FLAGS: dw 0; VARIOUS FLAGS
+CCYLN: dw 0; MAX NUMBER OF CYLINDERS
+RBYTEPERSEC: dw 0; RECOMMENDED BPB
+RSECPERCLUS: db 0
+RRESSEC: dw 0
+RCFAT: db 0
+RCDIR: dw 0
+RDRVLIM: dw 0
+RMEDIAD: db 0
+RCSECFAT: dw 0
+RSECLIM: dw 0
+RHDLIM: dw 0
+RHIDSEC_L: dw 0
 RHIDSEC_H	DW		0	;J.K.87
 RDRVLIM_L	dw		0	;J.K.87
 RDRVLIM_H	dw		0	;J.K.87
-RESERVE 	DB		6 DUP (?)	; RESERVED FOR FUTURE
-TRACK		DB		?	; LAST TRACK ACCESSED ON DRIVE
-TIM_LO		DW		?	; TIME OF LAST ACCESS. KEEP
-TIM_HI		DW		?	; THESE CONTIGUOUS.
-VOLID		DB		12 DUP (?)	; VOLUME ID OF MEDIUM
+RESERVE: times 6 db 0; RESERVED FOR FUTURE
+TRACK: db 0; LAST TRACK ACCESSED ON DRIVE
+TIM_LO: dw 0; TIME OF LAST ACCESS. KEEP
+TIM_HI: dw 0; THESE CONTIGUOUS.
+VOLID: times 12 db 0; VOLUME ID OF MEDIUM
 VOL_SERIAL	dd	0	  ;J.K.87 Current volume serial number from Boot record
-FILESYS_Id	db	9 dup (0) ;J.K.87 Current file system id from Boot record
-BDS_TYPE	ENDS
+FILESYS_Id: times 9 db 0;J.K.87 Current file system id from Boot record
+endstruc
 
 BPBSIZE     =	TRACK - RBYTEPERSEC ; SIZE IN BYTES OF RECBPB AREA IN THE BDS
 
@@ -87,9 +87,9 @@ BPBSIZE     =	TRACK - RBYTEPERSEC ; SIZE IN BYTES OF RECBPB AREA IN THE BDS
 ;	BDS structure for mini disk - J.K. 4/7/86
 ;*********************************************************************
 
-BDSM_type	struc
+struc BDSM_type
 mlink		DW	-1			;Link to next structure
-		DW	?
+		dw 0
 mdriveNum	DB	80			;Int 13 Drive Number
 mdriveLet	DB	3			;Logical Drive Number
 mBytePerSec	DW	512
@@ -111,7 +111,7 @@ mOPCNT		DW	0			;Open Ref. Count
 mFormFactor	DB	3			;Form Factor
 mFLAGS		DW	0020H			;Various Flags
 mcCyln		dw	40			;max number of cylinders
-mRecBPB 	db	31 dup (0)		;Recommended BPB for drive
+mRecBPB: times 31 db 0;Recommended BPB for drive
 mTrack		db	-1
 IsMini		dw	1			;Overlapping TIM_LOH
 Hidden_Trks	dw	0			;Overlapping TIM_HIH
@@ -121,7 +121,7 @@ mVol_Serial	dd	0	   ;Current volume serial number from Boot record
 mFileSys_Id	db	"FAT12   " ;Current file system id from Boot record
 		db	0
 
-BDSM_type	ENDS
+endstruc
 ;******************************************************************************
 Max_mini_dsk_num = 23	      ;J.K. 4/7/86 - max # of mini disk ibmbio can support
 ;

@@ -1,13 +1,13 @@
-	TITLE	Assembler helper routines for FLUSH13
+	; TITLE	Assembler helper routines for FLUSH13
 
-PAGE	58,132
+; PAGE	58,132
 
 
 memS	EQU	1		; Small model
 ?PLM	=	0		; Standard 'C'
 ?WIN	=	0		; Not windows
 
-include cmacros.inc
+%include "cmacros.inc"
 
 ;extern int	 IOCTLOpen(char *);
 ;extern int	 IOCTLWrite(int,char *,int);
@@ -145,4 +145,4 @@ cEnd
 
 sEnd	CODE
 
-	end
+	; end

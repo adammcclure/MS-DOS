@@ -1,7 +1,7 @@
-PAGE 55,132				;AN000;
-NAME	SELECT				;AN000;
-TITLE	SELECT - GET_HELP_ID		;AN000;
-SUBTTL	Get_Help.asm			;AN000;
+; PAGE 55,132;AN000;
+; NAME	SELECT;AN000;
+; TITLE	SELECT - GET_HELP_ID;AN000;
+; SUBTTL	Get_Help.asm;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	GET_HELP_ID
@@ -14,8 +14,8 @@ SUBTTL	Get_Help.asm			;AN000;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	SEGMENT PARA PUBLIC 'SELECT'    ;AN000;segment for far routine
-	ASSUME	CS:SELECT		;AN000;
+SECTION .SELECT;AN000;segment for far routine
+	; ASSUME	CS:SELECT;AN000;
 					;
 					;
 INP_HELP_ID	DW     12,10,10 	;AN000; help_id  1, row', col'   STR_DOS_LOC
@@ -145,8 +145,8 @@ SCR_HELP_ID_LEN EQU    28		;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 THREE	DW	3			;AN000;
 					;
-	PUBLIC	GET_HELP_ID		;AN000;
-GET_HELP_ID	PROC			;AN000;
+	global GET_HELP_ID;AN000;
+GET_HELP_ID:;AN000;
 	CMP	AX,1			;AN000;
 	JNE	GH_8			;AN000;
 					;
@@ -221,13 +221,13 @@ GH_15:	POP	SI			;AN000;
 	POP	CX			;AN000;
 GH_20:					;AN000;
 	RET				;AN000;
-GET_HELP_ID	ENDP			;AN000;
+; ENDP GET_HELP_ID;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS				;AN000;
-	END	GET_HELP_ID		;AN000;
+; END SECTION .SELECT;AN000;
+	; END	GET_HELP_ID;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

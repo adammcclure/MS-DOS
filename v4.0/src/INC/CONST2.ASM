@@ -1,14 +1,14 @@
 ;	SCCSID = @(#)const2.asm 1.4 85/07/24
-TITLE	CONST2 - More constants data
-NAME	CONST2
+; TITLE	CONST2 - More constants data
+; NAME	CONST2
 
-.xlist
-.xcref
-INCLUDE DOSSYM.INC
-include dosseg.asm
-INCLUDE DEVSYM.INC
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.INC"
+%include "dosseg.asm"
+%include "DEVSYM.INC"
+; .cref
+; .list
 
 Break <Initialized data and data used at DOS initialization>
 
@@ -24,7 +24,7 @@ Break <Initialized data and data used at DOS initialization>
 
 	AsmVars <Kanji, Debug, Redirector, ShareF>
 
-CONSTANTS	SEGMENT WORD PUBLIC 'CONST'
+SECTION .CONSTANTS
 
 ;
 ; Table of routines for assignable devices
@@ -46,14 +46,14 @@ CONSTANTS	SEGMENT WORD PUBLIC 'CONST'
 
 ; Default SFTs for boot up
 
-Public CONST001S,CONST001E
-CONST001s	label byte
-	PUBLIC	sftabl
-sftabl	LABEL	DWORD			; [SYSTEM] file table
+global CONST001S,CONST001E
+CONST001s:
+	global sftabl
+sftabl:; [SYSTEM] file table
 	DW	-1			; [SYSTEM] link to next table
 	DW	-1			; [SYSTEM] link seg to next table
 	DW	sf_default_number	; [SYSTEM] Number of entries in table
-	DB	sf_default_number DUP ( (SIZE sf_entry) DUP (0)); [SYSTEM]
+	DB	sf_default_number DUP ( (sf_entry_size) DUP (0)); [SYSTEM]
 
 ; the next two variables relate to the position of the logical stdout/stdin
 ; cursor.  They are only meaningful when stdin/stdout are assigned to the
@@ -79,26 +79,26 @@ sftabl	LABEL	DWORD			; [SYSTEM] file table
 ; The following table is a list of addresses that the sharer patches to be
 ; PUSH AX to enable the critical sections
 ;
-PUBLIC	CritPatch
-CritPatch LABEL WORD
-IRP sect,<critDisk,critDevice>
-IF (NOT REDIRECTOR) AND (NOT SHAREF)
+global CritPatch
+CritPatch:
+; IRP sect,<critDisk,critDevice>
+%if (NOT REDIRECTOR) AND (NOT SHAREF)
 	Short_Addr  E&sect
 	Short_Addr  L&sect
-ELSE
+%else
 	DW	0
 	DW	0
-ENDIF
-ENDM
+%endif
+%endmacro
 	DW	0
 
 ;
 ; WARNING!!!  PRINT and PSPRINT *REQUIRE* ErrorMode to precede INDOS.
 ; Also, IBM server 1.0 requires this also.
 ;
-	EVEN			; Force swap area to start on word boundry
-PUBLIC	SWAP_START
-SWAP_START	LABEL BYTE
+	align 2; Force swap area to start on word boundry
+global SWAP_START
+SWAP_START:
 	I_am	ErrorMode,BYTE		; Flag for INT 24 processing
 	I_am	INDOS,BYTE,<0>		; DOS status for interrupt processing
 	I_am	WPErr,BYTE,<-1> 	; Write protect error flag
@@ -120,9 +120,9 @@ SWAP_START	LABEL BYTE
 					; F.C. 2/17/86
 	I_am	CPSWFLAG,BYTE,<0>	; Code Page Switching Flag  DOS 4.00
 	I_am	CPSWSAVE,BYTE,<0>	; copy of above in case of ABORT
-	EVEN
- PUBLIC Swap_Always
- Swap_Always	LABEL	BYTE
+	align 2
+ global Swap_Always
+ Swap_Always:
 	I_am	USER_IN_AX,WORD 	; User INPUT AX value (used for
 					;   extended error type stuff.	NOTE:
 					;   does not have Correct value on
@@ -142,7 +142,7 @@ SWAP_START	LABEL BYTE
 	I_am	DidCTRLC,BYTE		; true -> we did a ^C exit
 	I_am	SpaceFlag,BYTE		; true -> embedded spaces are allowed in FCB
 ; Warning!  The following items are accessed as a WORD in TIME.ASM
-	EVEN
+	align 2
 	I_am	DAY,BYTE,<0>		; Day of month
 	I_am	MONTH,BYTE,<0>		; Month of year
 	I_am	YEAR,WORD,<0>		; Year (with century)
@@ -154,25 +154,25 @@ SWAP_START	LABEL BYTE
 	I_am	fAborting,BYTE,<0>	; TRUE => abort in progress
 
 ; Combination of all device call parameters
-	PUBLIC	DEVCALL 		;
+	global DEVCALL;
 DEVCALL SRHEAD	<>			; basic header for disk packet
-	PUBLIC	CALLUNIT
-CALLUNIT    LABEL   BYTE		; unit number for disk
-CALLFLSH    LABEL   WORD		;
+	global CALLUNIT
+CALLUNIT:; unit number for disk
+CALLFLSH:;
 	I_am	CALLMED,BYTE		; media byte
-CALLBR	    LABEL   DWORD		;
-	PUBLIC	CALLXAD 		;
-CALLXAD     LABEL   DWORD		;
+CALLBR:;
+	global CALLXAD;
+CALLXAD:;
 	I_am	CALLRBYT,BYTE		;
-	PUBLIC	CALLVIDM		;
-CALLVIDM    LABEL   DWORD		;
-	DB	3 DUP(?)		;
-	PUBLIC CallBPB			;
-CALLBPB     LABEL   DWORD		;
+	global CALLVIDM;
+CALLVIDM:;
+	times 3 db 0;
+	global CallBPB;
+CALLBPB:;
 	I_am	CALLSCNT,WORD		;
-	PUBLIC	CALLSSEC
-CALLSSEC    LABEL    WORD		;
-	    DW	    ?			;
+	global CALLSSEC
+CALLSSEC:;
+	    dw 0;
 	I_am	CALLVIDRW,DWORD 	;
 					;
 	I_am	CALLNEWSC,DWORD 	; starting sector for >32mb
@@ -180,11 +180,11 @@ CALLSSEC    LABEL    WORD		;
 					;
 ; Same as above for I/O calls		;
 					;
-	PUBLIC	IOCall			;
+	global IOCall;
 IOCALL	SRHEAD	<>			;
-IOFLSH	LABEL	WORD			;
-	PUBLIC	IORCHR			;
-IORCHR	LABEL	BYTE			;
+IOFLSH:;
+	global IORCHR;
+IORCHR:;
 	I_am	IOMED,BYTE		;
 	I_am	IOXAD,DWORD		;
 	I_am	IOSCNT,WORD		;
@@ -193,19 +193,19 @@ IORCHR	LABEL	BYTE			;
 	I_am	DSKSTCALL,2,<DRDNDHL,0> ;
 	I_am	DSKSTCOM,1,<DEVRDND>	;
 	I_am	DSKSTST,WORD		;
-	DB	8 DUP (0)		;
+	times 8 db 0;
 	I_am	DSKCHRET,BYTE		;
 	short_addr  DEVIOBUF		;
-	DW	?			; DOS segment set at Init
+	dw 0; DOS segment set at Init
 	I_AM	DSKSTCNT,WORD,<1>	;
 	DW	0			;
 
 	I_am	CreatePDB,BYTE		; flag for creating a process
-	PUBLIC	Lock_Buffer		;
-Lock_Buffer LABEL    DWORD		;MS. DOS Lock Buffer for Ext Lock
-	    DD	    ?			;MS. position
-	    DD	    ?			;MS. length
-CONST001e	label byte
+	global Lock_Buffer;
+Lock_Buffer:;MS. DOS Lock Buffer for Ext Lock
+	    dd 0;MS. position
+	    dd 0;MS. length
+CONST001e:
 
-CONSTANTS	ENDS
-	END
+; END SECTION .CONSTANTS
+	; END

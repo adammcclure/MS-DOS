@@ -1,5 +1,5 @@
 
-	PAGE	,132
+	; PAGE	,132
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -13,14 +13,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
 					;;
-CSEG	SEGMENT PUBLIC 'CODE'           ;;
-	ASSUME	CS:CSEG 		;;
-	ASSUME	DS:NOTHING		;;
+SECTION .CSEG;;
+	; ASSUME	CS:CSEG;;
+	; ASSUME	DS:NOTHING;;
 					;;
-PUBLIC	msg_no_init_p			;;
-PUBLIC	msg_no_init			;;
-PUBLIC	msg_bad_syntax			;;
-PUBLIC	msg_insuff_mem			;;
+global msg_no_init_p;;
+global msg_no_init;;
+global msg_bad_syntax;;
+global msg_insuff_mem;;
 					;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -33,9 +33,9 @@ PUBLIC	msg_insuff_mem			;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-INCLUDE PTRMSG.INC
+%include "PTRMSG.INC"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CSEG	ENDS
-	END
+; END SECTION .CSEG
+	; END
 

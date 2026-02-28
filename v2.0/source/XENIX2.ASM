@@ -2,24 +2,24 @@
 ; xenix file calls for MSDOS
 ;
 
-INCLUDE DOSSEG.ASM
+%include "DOSSEG.ASM"
 
-IFNDEF  KANJI
+%ifndef KANJI
 KANJI   EQU     0       ;FALSE
-ENDIF
+%endif
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-        ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+        ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.xlist
-.xcref
-INCLUDE DOSSYM.ASM
-INCLUDE DEVSYM.ASM
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.ASM"
+%include "DEVSYM.ASM"
+; .cref
+; .list
 
-TITLE   XENIX - IO system to mimic UNIX
-NAME    XENIX
+; TITLE   XENIX - IO system to mimic UNIX
+; NAME    XENIX
 
         i_need  NoSetDir,BYTE
         i_need  CURDRV,BYTE
@@ -44,18 +44,18 @@ NAME    XENIX
 
 BREAK <Local data>
 
-CODE        ENDS
-DATA        SEGMENT BYTE PUBLIC 'DATA'
+; END SECTION .CODE
+SECTION .DATA
 
 
-PushSave    DW      ?
-PushES      DW      ?
-PushBX      DW      ?
+PushSave: dw 0
+PushES: dw 0
+PushBX: dw 0
 
-xenix_count     DW      ?
+xenix_count: dw 0
 
-DATA        ENDS
-CODE        SEGMENT BYTE PUBLIC 'CODE'
+; END SECTION .DATA
+SECTION .CODE
 
 
 BREAK <get_sf_from_sfn - translate a sfn into sf pointer>
@@ -69,7 +69,7 @@ BREAK <get_sf_from_sfn - translate a sfn into sf pointer>
 ;               ES,DI indeterminate
 ;
         procedure   get_sf_from_sfn,NEAR
-        ASSUME  DS:DOSGROUP,ES:NOTHING
+        ; ASSUME  DS:DOSGROUP,ES:NOTHING
         PUSH    AX                      ; we trash AX in process
         LES     DI,[sft_addr]
 
@@ -84,7 +84,7 @@ get_sfn_loop:
 get_sf_gotten:
         ADD     AX,ES:[DI].sft_count    ; reset to index in this table
         PUSH    BX
-        MOV     BX,SIZE sf_entry
+        MOV     BX,sf_entry_size
         MUL     BL                      ; number of bytes offset into table
         POP     BX
         ADD     AX,sft_table            ; offset into sf table structure
@@ -100,7 +100,7 @@ get_sf_jfn_ret:
 get_sf_ret:
         POP     AX                      ; remember him?
         RET
-get_sf_from_sfn ENDP
+; ENDP get_sf_from_sfn
 
 BREAK <get_sf_from_jfn - translate a jfn into sf pointer>
 ;
@@ -113,7 +113,7 @@ BREAK <get_sf_from_jfn - translate a jfn into sf pointer>
 ;               ES,DI is indeterminate
 ;
         procedure   get_sf_from_jfn,NEAR
-        ASSUME  DS:DOSGROUP,ES:NOTHING
+        ; ASSUME  DS:DOSGROUP,ES:NOTHING
         PUSH    AX                      ; save him
         invoke  get_jfn_pointer
         JC      get_sf_jfn_invalid
@@ -124,7 +124,7 @@ BREAK <get_sf_from_jfn - translate a jfn into sf pointer>
         invoke  get_sf_from_sfn         ; check this sfn out...
         JMP     SHORT get_sf_jfn_ret    ; condition codes are properly set
 
-get_sf_from_jfn ENDP
+; ENDP get_sf_from_jfn
 
 BREAK <get_jfn_pointer - map a jfn into a pointer to jfn>
 ;
@@ -136,7 +136,7 @@ BREAK <get_jfn_pointer - map a jfn into a pointer to jfn>
 ;           JC  <bad jfn>
 ;
         procedure   Get_jfn_pointer,NEAR
-        ASSUME  DS:DOSGROUP,ES:NOTHING
+        ; ASSUME  DS:DOSGROUP,ES:NOTHING
         CMP     BX,FilPerProc
         JAE     get_jfn_bad
         MOV     ES,[CurrentPDB]
@@ -148,7 +148,7 @@ BREAK <get_jfn_pointer - map a jfn into a pointer to jfn>
 get_jfn_bad:
         STC
         RET
-get_jfn_pointer ENDP
+; ENDP get_jfn_pointer
 
 
 BREAK <$Close - release a handle>
@@ -162,7 +162,7 @@ BREAK <$Close - release a handle>
 ;           AX = error_invalid_handle
 ;
         procedure   $Close,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
 
         context DS
 
@@ -172,16 +172,16 @@ close_bad_handle:
         error   error_invalid_handle
 
 close_jfn:
-        MOV     AL,BYTE PTR ES:[DI]
+        MOV     AL,byte ES:[DI]
         CMP     AL,0FFh
         JE      close_bad_handle
-        MOV     BYTE PTR ES:[DI],0FFh;
+        MOV     byte ES:[DI],0FFh;
         XOR     AH,AH
         invoke  get_sf_from_sfn
         JC      close_bad_handle
         PUSH    ES
         POP     DS
-        ASSUME  DS:NOTHING
+        ; ASSUME  DS:NOTHING
         DEC     [DI].sf_ref_count       ; no more reference
         LEA     DX,[DI].sf_fcb
 ;
@@ -189,7 +189,7 @@ close_jfn:
 ;
         TEST    [DI.sf_fcb.fcb_DevID],devid_file_clean+devid_device
         JNZ     close_ok
-        PUSH    WORD PTR [DI].sf_attr
+        PUSH    word [DI].sf_attr
         invoke  MOVNAMENOSET
         POP     BX
         MOV     [Attrib],BL
@@ -200,7 +200,7 @@ close_jfn:
 close_ok:
         transfer    SYS_RET_OK
 
-$Close  ENDP
+; ENDP $Close
 
 
 BREAK <PushDMA, PopDMA, ptr_normalize - set up local dma and save old>
@@ -211,35 +211,35 @@ BREAK <PushDMA, PopDMA, ptr_normalize - set up local dma and save old>
 ;           old DMA is pushed
 
         procedure   PushDMA,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
 
         MOV     PushES,ES
         MOV     PushBX,BX
         POP     PushSave
-        LES     BX,DWORD PTR [DMAADD]   ; get old dma
+        LES     BX,dword [DMAADD]   ; get old dma
         PUSH    ES
         PUSH    BX
         PUSH    PushSave
         invoke  ptr_normalize           ; get new dma
-        MOV     WORD PTR [DMAADD],DX    ; save IT!
-        MOV     WORD PTR [DMAADD+2],DS
+        MOV     word [DMAADD],DX    ; save IT!
+        MOV     word [DMAADD+2],DS
         MOV     ES,PushES
         MOV     BX,PushBX
         RET
-PushDMA ENDP
+; ENDP PushDMA
 
 ; PopDMA
 ; input:    old DMA under ret address on stack
 ; output:   [DMAADD] set to old version and stack popped
         procedure   PopDMA,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
 
         POP     PushSave
-        POP     WORD PTR [DMAADD]
-        POP     WORD PTR [DMAADD+2]
+        POP     word [DMAADD]
+        POP     word [DMAADD+2]
         PUSH    PushSave
         RET
-PopDMA  ENDP
+; ENDP PopDMA
 
 ; ptr_normalize
 ; input:    DS:DX is a pointer
@@ -270,7 +270,7 @@ PopDMA  ENDP
 ;       POP     AX
 
         RET
-ptr_normalize   ENDP
+; ENDP ptr_normalize
 
 BREAK <$Read - Do file/device I/O>
 ;
@@ -287,7 +287,7 @@ BREAK <$Read - Do file/device I/O>
 ;
 
         procedure   $Read,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
 
         invoke  PushDMA
         CALL    IO_setup
@@ -309,7 +309,7 @@ IO_done:
         MOV     [SI].user_CX,CX         ; stash our CX
         invoke  PopDMA                  ; get old DMA
         transfer    SYS_RET_OK
-$Read   ENDP
+; ENDP $Read
 
 BREAK <$Write - Do file/device I/O>
 ;
@@ -326,7 +326,7 @@ BREAK <$Write - Do file/device I/O>
 ;
 
         procedure   $Write,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
 
         invoke  PushDMA
         CALL    IO_setup
@@ -336,10 +336,10 @@ BREAK <$Write - Do file/device I/O>
         invoke  $FCB_RANDOM_WRITE_BLOCK ; do write
         JMP     IO_done
 
-$write  ENDP
+; ENDP $write
 
 IO_setup:
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         context DS
         MOV     xenix_count,CX
         invoke  Get_sf_from_jfn
@@ -349,7 +349,7 @@ IO_setup:
         LEA     DX,[DI].sf_fcb
         PUSH    ES
         POP     DS
-        ASSUME  DS:NOTHING
+        ; ASSUME  DS:NOTHING
         RET
 
 BREAK <$LSEEK - set random record field>
@@ -366,7 +366,7 @@ BREAK <$LSEEK - set random record field>
 ;           AX = error_invalid_handle
 ;              = error_invalid_function
         procedure   $LSEEK,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         CMP     AL,3
         JB      lseek_get_sf
         error   error_invalid_function
@@ -376,7 +376,7 @@ lseek_get_sf:
         invoke  get_sf_from_jfn
         PUSH    ES
         POP     DS
-        ASSUME  DS:NOTHING
+        ; ASSUME  DS:NOTHING
         JC      lseek_bad
 ;
 ; don't seek device
@@ -395,7 +395,7 @@ lseek_dispatch:
 ; first, get end of file
         XCHG    AX,DX               ; AX <- low
         XCHG    DX,CX               ; DX <- high
-        ASSUME  DS:NOTHING
+        ; ASSUME  DS:NOTHING
         ADD     AX,[DI+sf_fcb+fcb_FILSIZ]
         ADC     DX,[DI+sf_fcb+fcb_FILSIZ+2]
         JMP     SHORT lseek_ret
@@ -405,8 +405,8 @@ lseek_beginning:
         XCHG    DX,CX               ; DX <- high
 
 lseek_ret:
-        MOV     WORD PTR [DI+sf_fcb+fcb_RR],AX
-        MOV     WORD PTR [DI+sf_fcb+fcb_RR+2],DX
+        MOV     word [DI+sf_fcb+fcb_RR],AX
+        MOV     word [DI+sf_fcb+fcb_RR+2],DX
         invoke  get_user_stack
         MOV     [SI.user_DX],DX
         MOV     [SI.user_AX],AX
@@ -416,13 +416,13 @@ lseek_current:
 ; ES:DI is pointer to sf... need to invoke  set random record for place
         XCHG    AX,DX               ; AX <- low
         XCHG    DX,CX               ; DX <- high
-        ADD     AX,WORD PTR [DI+sf_fcb+fcb_RR]
-        ADC     DX,WORD PTR [DI+sf_fcb+fcb_RR+2]
+        ADD     AX,word [DI+sf_fcb+fcb_RR]
+        ADC     DX,word [DI+sf_fcb+fcb_RR+2]
         JMP     lseek_ret
 
 lseek_bad:
         error   error_invalid_handle
-$lseek  ENDP
+; ENDP $lseek
 
 
 BREAK <$IOCTL - return/set device dependent stuff>
@@ -444,7 +444,7 @@ BREAK <$IOCTL - return/set device dependent stuff>
 ;              = error_invalid_data
 
         procedure   $IOCTL,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         MOV     SI,DS                   ;Stash DS for calls 2,3,4 and 5
         context DS
         CMP     AL,3
@@ -459,7 +459,7 @@ ioctl_check_permissions:
         CMP     AL,2
         JAE     ioctl_control_string
         CMP     AL,0
-        MOV     AL,BYTE PTR ES:[DI+sf_fcb+fcb_devid]
+        MOV     AL,byte ES:[DI+sf_fcb+fcb_devid]
         JZ      ioctl_read              ; read the byte
         OR      DH,DH
         JZ      ioctl_check_device      ; can I set with this data?
@@ -468,15 +468,15 @@ ioctl_check_permissions:
 ioctl_check_device:
         TEST    AL,devid_ISDEV          ; can I set this handle?
         JZ      ioctl_bad_fun           ; no, it is a file.
-        MOV     BYTE PTR ES:[DI+sf_fcb+fcb_devid],DL
+        MOV     byte ES:[DI+sf_fcb+fcb_devid],DL
         transfer    SYS_RET_OK
 
 ioctl_read:
         XOR     AH,AH
         TEST    AL,devid_ISDEV          ; Should I set high byte
         JZ      ioctl_no_high           ; no
-        LES     DI,DWORD PTR ES:[DI+sf_fcb+fcb_FIRCLUS]  ;Get device pointer
-        MOV     AH,BYTE PTR ES:[DI.SDEVATT+1]   ;Get high byte
+        LES     DI,dword ES:[DI+sf_fcb+fcb_FIRCLUS]  ;Get device pointer
+        MOV     AH,byte ES:[DI.SDEVATT+1]   ;Get high byte
 ioctl_no_high:
         invoke  get_user_stack
         MOV     DX,AX
@@ -484,9 +484,9 @@ ioctl_no_high:
         transfer    SYS_RET_OK
 
 ioctl_control_string:
-        TEST    BYTE PTR ES:[DI+sf_fcb+fcb_devid],devid_ISDEV   ; can I?
+        TEST    byte ES:[DI+sf_fcb+fcb_devid],devid_ISDEV   ; can I?
         JZ      ioctl_bad_fun           ; no, it is a file.
-        LES     DI,DWORD PTR ES:[DI+sf_fcb+fcb_FIRCLUS]  ;Get device pointer
+        LES     DI,dword ES:[DI+sf_fcb+fcb_FIRCLUS]  ;Get device pointer
         XOR     BL,BL           ; Unit number of char dev = 0
         JMP     SHORT ioctl_do_string
 
@@ -553,25 +553,25 @@ ioctl_control_read:
 ioctl_control_call:
         MOV     AL,DRDWRHL
         MOV     AH,BL                           ;Unit number
-        MOV     WORD PTR [IOCALL.REQLEN],AX
+        MOV     word [IOCALL.REQLEN],AX
         XOR     AX,AX
         MOV     [IOCALL.REQSTAT],AX
         MOV     [IOMED],AL
         MOV     [IOSCNT],CX
-        MOV     WORD PTR [IOXAD],DX
-        MOV     WORD PTR [IOXAD+2],SI
+        MOV     word [IOXAD],DX
+        MOV     word [IOXAD+2],SI
         PUSH    ES
         POP     DS
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     SI,DI                   ;DS:SI -> driver
         PUSH    SS
         POP     ES
-        MOV     BX,OFFSET DOSGROUP:IOCALL       ;ES:BX -> Call header
+        MOV     BX,IOCALL       ;ES:BX -> Call header
         invoke  DEVIOCALL2
         MOV     AX,[IOSCNT]             ;Get actual bytes transferred
         transfer    SYS_RET_OK
 
-$IOCTL  ENDP
+; ENDP $IOCTL
 
 BREAK <File_Times - modify write times on a handle>
 ;
@@ -617,10 +617,10 @@ filetimes_set:
         MOV     ES:[DI.sf_fcb.fcb_FDATE],DX
         AND     ES:[DI.sf_fcb.fcb_DEVID],NOT devid_file_clean
         transfer    SYS_RET_OK
-$file_times ENDP
+; ENDP $file_times
 
 do_ext
 
-CODE    ENDS
-    END
+; END SECTION .CODE
+    ; END
                            

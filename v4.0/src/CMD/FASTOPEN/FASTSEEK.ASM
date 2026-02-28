@@ -1,25 +1,25 @@
-	Page 84,132 ;
-Title	FASTOPEN
+	; Page 84,132;
+; Title	FASTOPEN
 
 ;--------------- INCLUDE FILES -----------------
-.xcref
-.xlist
+; .xcref
+; .xlist
 debug=0 		  ;this is an equate only for DOSMAC.inc
-INCLUDE DOSMAC.inc
-.list
-.cref
-INCLUDE dirent.inc
-INCLUDE fastsegs.inc	  ; Cannot declare this in DOS includes
-INCLUDE fastopen.inc	  ; This include file also contains DOS equates
+%include "DOSMAC.inc"
+; .list
+; .cref
+%include "dirent.inc"
+%include "fastsegs.inc"; Cannot declare this in DOS includes
+%include "fastopen.inc"; This include file also contains DOS equates
 
 
-CSEG_MAIN   SEGMENT   PARA   PUBLIC 'CODE'       ; Cseg_Seek segment
+SECTION .CSEG_MAIN; Cseg_Seek segment
 
-EXTRN	VECTOR_DELETE:dword	; jump vector inside Cseg_Seek to make
+extern VECTOR_DELETE; jump vector inside Cseg_Seek to make
 				; a FAR call to FSeek Delete function within
 				; the segment
 
-CSEG_MAIN      ENDS
+; END SECTION .CSEG_MAIN
 
 
 ;*****************************************************************************
@@ -32,26 +32,26 @@ CSEG_MAIN      ENDS
 ;		 On entry, only DS is set, ES is set to Cache segment later
 ;*****************************************************************************
 
-CSEG_SEEK   SEGMENT   PARA   PUBLIC 'code'
-	 assume  cs:cseg_seek,ds:nothing,es:nothing,ss:nothing
+SECTION .CSEG_SEEK
+	 ; assume  cs:cseg_seek,ds:nothing,es:nothing,ss:nothing
 
-PUBLIC	 Seek_name_cache_seg									   ;AN000;
-PUBLIC	 Seek_Num_Of_drives
-PUBLIC	 Seek_extent_drive_Buff 								   ;AN000;
-PUBLIC	 Seek_Total_Ext_Count									   ;AN000;
-PUBLIC	 Seek_Total_Name_Count									   ;AN000;
-PUBLIC	 Seek_Name_Drive_Buff									   ;AN000;
-PUBLIC	 Seek_Name_Cache_Buff									   ;AN000;
-PUBLIC	 End_Seek
-PUBLIC	 Check_Flag
+global Seek_name_cache_seg;AN000;
+global Seek_Num_Of_drives
+global Seek_extent_drive_Buff;AN000;
+global Seek_Total_Ext_Count;AN000;
+global Seek_Total_Name_Count;AN000;
+global Seek_Name_Drive_Buff;AN000;
+global Seek_Name_Cache_Buff;AN000;
+global End_Seek
+global Check_Flag
 												   ;AN000;
-PUBLIC	 Fk_Open
-PUBLIC	 Fk_Close										   ;AN000;
-PUBLIC	 Fk_Insert										   ;AN000;
-PUBLIC	 Fk_Delete
-PUBLIC	 Fk_Lookup										   ;AN000;
-PUBLIC	 Fk_Truncate
-PUBLIC	 Fk_Purge
+global Fk_Open
+global Fk_Close;AN000;
+global Fk_Insert;AN000;
+global Fk_Delete
+global Fk_Lookup;AN000;
+global Fk_Truncate
+global Fk_Purge
 
 
 ;;---------- FASTSEEK LOCAL VARIABLES ---------------------
@@ -151,13 +151,13 @@ Seek_extent_drive_Buff	     dw      0		     ; starting address of extent			;AN00
 ;-------------------------------------------------------------------------------
 
 
-FK_OPEN    PROC    FAR
+FK_OPEN:
 
        push   cs			 ; establish addressability				   ;AN000;
        pop    ds			 ; DS --> code segment					   ;AN000;
-       assume ds:Cseg_Seek									   ;AN000;
+       ; assume ds:Cseg_Seek;AN000;
        mov    es, Seek_Name_Cache_Seg	 ; setup cache buff segment			   ;AN000;
-       assume es:Cseg_Init		 ; ES --> cache buffer segment				   ;AN000;
+       ; assume es:Cseg_Init; ES --> cache buffer segment				   ;AN000;
        mov    First_Phys_Clusnum,cx	 ; save physical cluster number 			       ;AN000;
        mov    func_cod,al
 
@@ -340,7 +340,7 @@ Open_exit:
        CALL   Check_it
        ret				 ; return						   ;AN000;
 
-Fk_Open   endp
+; ENDP Fk_Open
 
 
 
@@ -372,14 +372,14 @@ Fk_Open   endp
 ;
 ;---------------------------------------------------------------------------
 
-FK_CLOSE    PROC   FAR
+FK_CLOSE:
 												   ;AN000;
 ; Search for Drive header in the Cache buffer using Drive ID in DL
        push   cs			 ; establish addressability				   ;AN000;
        pop    ds			 ; DS --> code segment					   ;AN000;
-       assume ds:Cseg_Seek									   ;AN000;
+       ; assume ds:Cseg_Seek;AN000;
        mov    es, Seek_Name_Cache_Seg	 ; setup cache buff segment register			   ;AN000;
-       assume es:Cseg_Init		 ; ES --> cache buffer segment				   ;AN000;
+       ; assume es:Cseg_Init; ES --> cache buffer segment				   ;AN000;
        mov    First_Phys_Clusnum, CX	 ; save phys cluster number				   ;AN000;
        mov    func_cod,al
 
@@ -480,7 +480,7 @@ Close_Exit:
        CALL   Check_it
        ret				 ; return						   ;AN000;
 
-FK_CLOSE   ENDP
+; ENDP FK_CLOSE
 
 
 
@@ -514,13 +514,13 @@ FK_CLOSE   ENDP
 ;
 ;-------------------------------------------------------------------------
 
-FK_DELETE   PROC   FAR
+FK_DELETE:
 
        push   cs			 ; establish addressability				   ;AN000;
        pop    ds			 ; DS --> code segment					   ;AN000;
-       assume ds:Cseg_Seek									   ;AN000;
+       ; assume ds:Cseg_Seek;AN000;
        mov    es, Seek_Name_Cache_Seg	 ; setup cache buff segment register			   ;AN000;
-       assume es:Cseg_Init		 ; ES --> cache buffer segment				   ;AN000;
+       ; assume es:Cseg_Init; ES --> cache buffer segment				   ;AN000;
        mov    First_Phys_Clusnum,cx	 ; save phys cluster number				   ;AN000;
        mov    func_cod,al
 
@@ -675,7 +675,7 @@ Delete_Free_buff:
        mov   ax,es:[di].Free_Ptr	    ; connect current header				   ;AN000;
        mov   es:[si].FH_Next_Hdr_Ptr, ax    ; to the Free AREA					   ;AN000;
        mov   es:[di].Free_Ptr,si								   ;AN000;
-       mov   cx, SIZE File_Header	 ; start with file header size				   ;AN000;
+       mov   cx, File_Header_size	 ; start with file header size				   ;AN000;
        mov   di,Drive_Hdr_Ptr									   ;AN000;
        add   es:[di].Free_Size,cx	    ; update free area size				   ;AN000;
        clc				    ; make sure caary is clear
@@ -693,7 +693,7 @@ Del_Look_Extent:
        mov   si,Cur_Hdr_Ptr		    ; SI-->Current Header				      ;AN000;
        mov   ax, -2			    ; mark header as discontinuous			       ;AN000;
        mov   es:[si],ax 		    ; free area  (12/28)				   ;AN000;
-       mov   cx, SIZE File_Header	    ; start with file header size			   ;AN000;
+       mov   cx, File_Header_size	    ; start with file header size			   ;AN000;
 
        mov   ax,es:[si].FH_Next_Extn_Ptr    ; AX-->first extent under this hdr			   ;AN000;
        mov   es:[si].FH_Next_Hdr_Ptr,ax     ; connect this header to first extnt		    ;AN000;
@@ -703,7 +703,7 @@ Del_Look_Extent:
        mov   es:[si],ax 		    ; free area 					   ;AN000;
 
 Delete_Loop:
-       add   cx, SIZE Extent_Header	    ; add size of extent				   ;AN000;
+       add   cx, Extent_Header_size	    ; add size of extent				   ;AN000;
        cmp   es:[si].EH_Next_Extn_Ptr, -1   ; current extent last extent ?					  ;AN000;
        je    Del_Update_Free_Size	    ; yes - jump  (12/28)				    ;AN000;
        mov   ax,es:[si].EH_Next_Extn_Ptr    ; get pointer to next extent			   ;AN000;
@@ -735,7 +735,7 @@ Open_Chk_Que:
        CALL  Check_it
        ret				    ; exit						   ;AN000;
 
-FK_DELETE   ENDP
+; ENDP FK_DELETE
 
 
 
@@ -768,12 +768,12 @@ FK_DELETE   ENDP
 ;
 ;------------------------------------------------------------------------
 
-FK_INSERT   PROC   FAR
+FK_INSERT:
 	push   cs			    ; Establish addressability				     ;AN000;
 	pop    ds			    ; DS --> code segment				     ;AN000;
-	assume ds:Cseg_Seek									   ;AN000;
+	; assume ds:Cseg_Seek;AN000;
 	mov    es, Seek_Name_Cache_Seg	    ; setup cache buff segment register 		     ;AN000;
-	assume es:Cseg_Init		    ; ES --> cache buffer segment			     ;AN000;
+	; assume es:Cseg_Init; ES --> cache buffer segment			     ;AN000;
 
 	mov   first_phys_clusNum,cx	    ; save cluster numbers				     ;AN000;
 	mov   Logical_ClusNum,bx								   ;AN000;
@@ -1180,7 +1180,7 @@ Insert_exit:
        CALL  Check_it			    ; analyse the queue (debugging)
        ret				    ; EXIT						   ;AN000;
 
-FK_INSERT   ENDP
+; ENDP FK_INSERT
 
 
 
@@ -1230,13 +1230,13 @@ FK_INSERT   ENDP
 ;
 ;---------------------------------------------------------------
 
-FK_LOOKUP   PROC   FAR		   ; on entry DS = seg ID of INIT
+FK_LOOKUP:; on entry DS = seg ID of INIT
 
        push   cs			 ; establish addressability				   ;AN000;
        pop    ds			 ; DS --> code segment					   ;AN000;
-       assume ds:Cseg_Seek									   ;AN000;
+       ; assume ds:Cseg_Seek;AN000;
        mov    es, Seek_Name_Cache_Seg	 ; setup cache buff segment register			   ;AN000;
-       assume es:Cseg_Init		 ; ES --> cache buffer segment				   ;AN000;
+       ; assume es:Cseg_Init; ES --> cache buffer segment				   ;AN000;
        mov    First_Phys_Clusnum,cx	 ; save phys cluster number				   ;AN000;
        mov    Logical_ClusNum,bx
        mov    func_cod,al
@@ -1506,7 +1506,7 @@ Look_Exit:
        CALL   Check_it
        ret				; exit
 
-FK_LOOKUP   endp
+; ENDP FK_LOOKUP
 
 
 
@@ -1540,13 +1540,13 @@ FK_LOOKUP   endp
 ;
 ;---------------------------------------------------------------
 
-Fk_TRUNCATE   PROC   FAR
+Fk_TRUNCATE:
 
        push   cs			 ; establish addressability				   ;AN000;
        pop    ds			 ; DS --> code segment					   ;AN000;
-       assume ds:Cseg_Seek									   ;AN000;
+       ; assume ds:Cseg_Seek;AN000;
        mov    es, Seek_Name_Cache_Seg	 ; setup cache buff segment register			   ;AN000;
-       assume es:Cseg_Init		 ; ES --> cache buffer segment				   ;AN000;
+       ; assume es:Cseg_Init; ES --> cache buffer segment				   ;AN000;
        mov    First_Phys_Clusnum,cx	 ; save phys cluster number				   ;AN000;
        mov    Logical_ClusNum,bx								   ;AN000;
        mov    func_cod,al
@@ -1663,7 +1663,7 @@ Trunc_More:
 TRUNC_LOOP:				 ; loop for subsequent extents
        mov   ax, -2			 ; mark current extent as free				   ;AN000;
        mov   es:[si],ax 		 ; discontinuous free areas				   ;AN000;
-       add   cx, SIZE Extent_Header	 ; add size of extent					   ;AN000;
+       add   cx, Extent_Header_size	 ; add size of extent					   ;AN000;
 
        mov   ax,es:[si].EH_Next_LRU_Ptr  ; AX = address of Next LRU extent
        cmp   ax, -1			 ; any next LRU extent??
@@ -1753,7 +1753,7 @@ Trunc_Exit:
       CALL  Check_it
       ret				 ; return						   ;AN000;
 
-FK_TRUNCATE	ENDP
+; ENDP FK_TRUNCATE
 
 
 
@@ -1780,22 +1780,22 @@ FK_TRUNCATE	ENDP
 ;
 ;-----------------------------------------------------------------------------
 
-FK_PURGE   PROC    FAR	       ; Purge Cache buffers
+FK_PURGE:; Purge Cache buffers
 
        push   cs
        pop    ds			  ; DS=Code seg id used for addressing
-       ASSUME  ds:Cseg_Seek		  ; local variables				      ;AN000;
+       ; ASSUME  ds:Cseg_Seek; local variables				      ;AN000;
 
        mov    si,Seek_Extent_Drive_Buff   ; SI-->beginning of extent drive			   ;AN000;
        mov    es,Seek_Name_Cache_Seg	  ; ES = addressability to Cseg_Init			   ;AN000;
-       ASSUME  es:Cseg_Init		  ;							   ;AN000;
+       ; ASSUME  es:Cseg_Init;							   ;AN000;
        mov    cx,Seek_Num_Of_drives	  ; number of drives
 
 Main_Loop2:				  ; ES:SI-->cache buffer
        mov    ax,es:[si].Drive_Number	  ; get drive id
        cmp    al,dl			  ; drive id found ??
        je     purge_buffer		  ; yes - purge drive id buffer
-       mov    ax, size Drive_Header	  ; ax size of drive heder
+       mov    ax, Drive_Header_size	  ; ax size of drive heder
        add    ax, es:[si].Buff_Size	  ; ax = offset to next header
        add    si,ax			  ; (2/11)SI-->next drive header			      ;AN000;
        LOOP   main_loop2		  ; try next header
@@ -1806,13 +1806,13 @@ Purge_Buffer:				  ; SI-->drive header
        mov    cx,es:[si].BUFF_size	  ; drive extent cache size				   ;AN000;
        mov    es:[si].FREE_Size,cx	  ; set drive free buffer size				       ;AN000;
        mov    ax,si
-       add    ax, size Drive_Header	  ; ax = size of drive header
+       add    ax, Drive_Header_size	  ; ax = size of drive header
        mov    es:[si].FREE_Ptr,ax	  ; set Free buffer address
 
 ; Makesure to fill extent cache buffer with zeros.  Otherwise, Free Mark left
 ; previous run will generate illegal Free_Buff pointer.
        mov    al,0
-       add    si, size Drive_Header	  ; SI-->first extent area
+       add    si, Drive_Header_size	  ; SI-->first extent area
 Ext_loop:				  ; fill extent cahe buffer with zeros
        mov    es:[si],al		  ; CX = extent cache size
        inc    si			  ; next byte
@@ -1823,7 +1823,7 @@ FK_Exit:
        CALL  Check_it
        ret											   ;AN000;
 
-FK_PURGE    ENDP
+; ENDP FK_PURGE
 
 
 
@@ -1855,7 +1855,7 @@ FK_PURGE    ENDP
 ;
 ;----------------------------------------------------------------------
 
-FIND_DRIVE_HEADER    PROC     NEAR
+FIND_DRIVE_HEADER:
 
        mov    di,Drive_Hdr_Ptr		; DI-->address of prev drive header
        cmp    drv_id,dl 		; drive id same as previous drive id  (1/11/88)
@@ -1891,7 +1891,7 @@ Drive_Buff_Found:			; drive buffer found
 Drive_Exit:				; return
        ret											   ;AN000;
 
-FIND_DRIVE_HEADER     endp
+; ENDP FIND_DRIVE_HEADER
 
 
 
@@ -1924,7 +1924,7 @@ FIND_DRIVE_HEADER     endp
 ;
 ;---------------------------------------------------------------
 
-FIND_FILE_HEADER    PROC    NEAR
+FIND_FILE_HEADER:
 
        push  si 			; save registers					   ;AN000;
        push  cx 										   ;AN000;
@@ -1988,7 +1988,7 @@ Fh_Exit:
        pop  si											   ;AN000;
        ret				; return						   ;AN000;
 
-FIND_FILE_HEADER    ENDP
+; ENDP FIND_FILE_HEADER
 
 
 
@@ -2018,7 +2018,7 @@ FIND_FILE_HEADER    ENDP
 ; REVISION HISTORY:  New  (5/87)
 ;---------------------------------------------------------------
 
-FIND_EXTENT	 PROC	 NEAR
+FIND_EXTENT:
 
        push  si 			    ; save registers					   ;AN000;
        push  cx 										   ;AN000;
@@ -2071,7 +2071,7 @@ Eh_Exit:
 
        ret				; return						   ;AN000;
 
-FIND_EXTENT	 ENDP
+; ENDP FIND_EXTENT
 
 
 
@@ -2113,7 +2113,7 @@ FIND_EXTENT	 ENDP
 ;-----------------------------------------------------------------------
 
 
-FIND_CLUSTER_LOCATION	PROC   NEAR
+FIND_CLUSTER_LOCATION:
 
 ;--------------------------------------------------------------------------
 ; Check to see that the given logical cluster number falls within the
@@ -2256,7 +2256,7 @@ Fe_Extent_Exit:
        RET				; exit							   ;AN000;
 
 
-FIND_CLUSTER_LOCATION	 ENDP
+; ENDP FIND_CLUSTER_LOCATION
 
 
 
@@ -2280,7 +2280,7 @@ FIND_CLUSTER_LOCATION	 ENDP
 ;
 ;-----------------------------------------------------------------------
 
-FIND_LRU_HEADER    PROC    NEAR
+FIND_LRU_HEADER:
 
        push  bx 										   ;AN000;
        mov   hdr_flag,0 		; initilialize flags					   ;AN000;
@@ -2313,7 +2313,7 @@ F1h_Exit:				; exit
 
        ret											   ;AN000;
 
-FIND_LRU_HEADER    endp
+; ENDP FIND_LRU_HEADER
 
 
 
@@ -2334,7 +2334,7 @@ FIND_LRU_HEADER    endp
 ;
 ;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-FIND_LRU_EXTENT    PROC     NEAR
+FIND_LRU_EXTENT:
 
        mov   LRU_Prev_Extent, -1	   ; reset flags							;AN000;
        mov   LRU_Extent, -1		   ;									;AN000;
@@ -2369,7 +2369,7 @@ Fle_Set_Flag:
 Fle_Exit:
        ret				   ; exit						      ;AN000;
 
-FIND_LRU_EXTENT    ENDP
+; ENDP FIND_LRU_EXTENT
 
 
 
@@ -2394,7 +2394,7 @@ FIND_LRU_EXTENT    ENDP
 ;
 ;----------------------------------------------------------------------
 
-MAKE_NEW_HEADER     PROC
+MAKE_NEW_HEADER:
 
 ; Check if the OPEN Queue was previously empty using two cases. If open queue
 ; is empty, then the new header should be marked as first header in the queue.
@@ -2457,7 +2457,7 @@ Set_Single_Header:			 ; yes mark new header as last hdr
        clc
        ret				    ; exit
 
-MAKE_NEW_HEADER    ENDP
+; ENDP MAKE_NEW_HEADER
 
 
 
@@ -2491,7 +2491,7 @@ MAKE_NEW_HEADER    ENDP
 ;
 ;----------------------------------------------------------------------
 
-FIND_FREE_BUFFER    PROC     NEAR
+FIND_FREE_BUFFER:
 
        mov    di,drive_Hdr_Ptr	       ; DI-->Drive Header					   ;AN000;
        cmp    es:[di].free_size,0      ; any free area left ??					   ;AN000;
@@ -2548,10 +2548,10 @@ Free_Chk_Close_QUE:		       ; SI-->CLOSE queue
        push   ds
        mov    ax,Cseg_Main
        mov    ds,ax
-       assume ds:Cseg_Main
+       ; assume ds:Cseg_Main
        CALL   VECTOR_DELETE	       ; delete the file
        pop    ds
-       assume ds:Cseg_Seek
+       ; assume ds:Cseg_Seek
 
        mov    From_FreeBuff,0	       ; clear flag
        mov    Free_Flag,1	       ; set flag to indicate discontinuous free area
@@ -2666,14 +2666,14 @@ Free_Open_Cl_Buffer:		       ;
        mov    es:[di].Free_Ptr,si      ; connect header or extent to free area			   ;AN000;
 
 ; Increase the Free_Size entry in Drive Header
-       mov    ax, Size File_Header     ; size is same for both header or extent 		   ;AN000;
+       mov    ax, File_Header_size     ; size is same for both header or extent 		   ;AN000;
        add    es:[di].Free_Size, ax    ; update free buffer count				   ;AN000;
        mov    Free_Flag,1	       ; set flag for discontinuous free area			   ;AN000;
        clc
 Free_Exit:			       ; exit
       ret			       ; return 						   ;AN000;
 
-FIND_FREE_BUFFER    endp
+; ENDP FIND_FREE_BUFFER
 
 
 
@@ -2696,7 +2696,7 @@ FIND_FREE_BUFFER    endp
 ;
 ;----------------------------------------------------------------------
 
-MAKE_MRU_HEADER    PROC    NEAR
+MAKE_MRU_HEADER:
 
        mov   si,Cur_Hdr_Ptr		 ; SI-->Current Header					   ;AN000;
        cmp   es:[si].FH_Next_Hdr_Ptr,-1  ; current header LRU header				   ;AN000;
@@ -2719,7 +2719,7 @@ Move_To_Top:
 					 ;
        ret
 
-Make_MRU_Header  ENDP
+; ENDP Make_MRU_Header
 
 
 
@@ -2747,7 +2747,7 @@ Make_MRU_Header  ENDP
 ;
 ;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-MAKE_MRU_EXTENT     PROC    NEAR
+MAKE_MRU_EXTENT:
 
        mov   si,Cur_Hdr_Ptr		 ; SI-->Current Header					   ;AN000;
        mov   ax,Cur_Extn_Ptr
@@ -2789,7 +2789,7 @@ Make_MRU_Exit:
        clc
        ret				    ; return
 
-MAKE_MRU_EXTENT     ENDP
+; ENDP MAKE_MRU_EXTENT
 
 
 
@@ -2813,7 +2813,7 @@ MAKE_MRU_EXTENT     ENDP
 ;
 ;----------------------------------------------------------------------
 
-JOIN_PREV_TO_NEXT    PROC
+JOIN_PREV_TO_NEXT:
 
        cmp   Prev_Hdr_Ptr, -1		 ; current hdr first file header ??			   ;AN000;
        jne   join_prev_hdr		 ; no, close gap					   ;AN000;
@@ -2842,7 +2842,7 @@ Join_Prev_Hdr:
 Join_Exit:
        ret				 ; exit 						   ;AN000;
 
-JOIN_PREV_TO_NEXT   ENDP
+; ENDP JOIN_PREV_TO_NEXT
 
 
 
@@ -2868,12 +2868,12 @@ JOIN_PREV_TO_NEXT   ENDP
 ;
 ;----------------------------------------------------------------------
 
-UPDATE_FREE_AREA     PROC
+UPDATE_FREE_AREA:
 
        mov   di,Drive_Hdr_Ptr		 ; DI-->drive header					   ;AN000;
        mov   si,es:[di].Free_Ptr	 ; SI-->current free pointerted 			  ;AN000;
 					 ;
-       mov   ax, Size Extent_Header								   ;AN000;
+       mov   ax, Extent_Header_size								   ;AN000;
        sub   es:[di].Free_Size, ax	 ; update free area size				   ;AN000;
 
        cmp   Free_Flag, 1		 ; continuous free area ??				   ;AN000;
@@ -2894,13 +2894,13 @@ UPDATE_FREE_AREA     PROC
 ; the size of extent of header structure.
 ;----------------------------------------------------------------------
 Ext_Add_Free_Ptr:
-       mov   ax, size File_Header	 ; calculate the address of				   ;AN000;
+       mov   ax, File_Header_size	 ; calculate the address of				   ;AN000;
        add   es:[di].Free_Ptr,ax	 ; next free area by adding size of			   ;AN000;
 					 ; a extent or header. Both same size
 Update_Free_Exit:
        ret				 ; exit 						   ;AN000;
 
-UPDATE_FREE_AREA     ENDP
+; ENDP UPDATE_FREE_AREA
 
 
 
@@ -2910,7 +2910,7 @@ UPDATE_FREE_AREA     ENDP
 ;
 ;----------------------------------------------------------------------
 
-CHECK_IT   PROC    NEAR
+CHECK_IT:
 
        pushf				      ; save all registers
        push   bx
@@ -2929,16 +2929,16 @@ check_exit:
        popf
        ret
 
-CHECK_IT    ENDP
+; ENDP CHECK_IT
 
 
 
 ; Calculate the size of the Cseg_Seek module in bytes
-	IF  ($-Cseg_Seek) MOD 16								   ;AN000;
+	%if ($-Cseg_Seek) MOD 16;AN000;
 	   ORG ($-Cseg_Seek)+16-(($-Cseg_Seek) MOD 16)						   ;AN000;
-	ENDIF											   ;AN000;
-END_SEEK   label   word
+	%endif;AN000;
+END_SEEK:
 
 
-CSEG_SEEK    ENDS
-     END
+; END SECTION .CSEG_SEEK
+     ; END

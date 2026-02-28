@@ -1,4 +1,4 @@
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                             *
 * MODULE NAME     : INDEACC                                                   *
@@ -34,7 +34,7 @@ COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #
 
-PAGE
+; PAGE
 ;       RECORD DEFINITIONS FOR ACCESS RIGHTS BYTES
 ;       ====== =========== === ====== ====== =====
 ;
@@ -98,7 +98,7 @@ DPL2                    EQU     01000000B
 DPL1                    EQU     00100000B
 DPL0                    EQU     00000000B
 
-PAGE
+; PAGE
 ;       Code Segments - Interpretation of access rights for CS.
 ;                       Identical to data segments except for two fields.
 
@@ -154,7 +154,7 @@ CPL0_CODE_ACCESS        EQU     10011011B     ; Present
                                               ; Readable
                                               ; Accessed
 
-PAGE
+; PAGE
 ;       System Segments - Interpretation of access rights for TR/LDTR as well as
 ;                         the four gate types.  The access rights byte for the
 ;                         GDTR and IDTR is undefined, meaning anyone can access

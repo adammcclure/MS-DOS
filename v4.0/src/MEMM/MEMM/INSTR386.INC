@@ -26,538 +26,538 @@
 ;   07/01/86  0.03	Added 32 arithmetic defines
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 ;***	OP32_IRET - 32 bit mode iret
-OP32_IRET	macro
+%macro OP32_IRET 0
 	db	66h
 	iret
-	endm
+	%endmacro
 
 ;***	OP32 - instruction prefix to invert sense of operand size attribute
 
-OP32	macro
+%macro OP32 0
 	db	66h
-	endm
+	%endmacro
 
 
 ;***	EA32 - instruction prefix to invert sense of effective addr attribute
 
-EA32	macro
+%macro EA32 0
 	db	67h
-	endm
+	%endmacro
 
 
 ;*** FS and GS overides
-FSOVER	macro
+%macro FSOVER 0
 	db	64h
-	endm
-GSOVER	macro
+	%endmacro
+%macro GSOVER 0
 	db	65h
-	endm
+	%endmacro
 
 ;   *** General Register 32 bit moves ***
 
-MOV_EBX_EAX	macro
+%macro MOV_EBX_EAX 0
 	db  66h
 	mov bx, ax
-	endm
+	%endmacro
 
-MOV_EAX_EBX	macro
+%macro MOV_EAX_EBX 0
 	db  66h
 	mov ax, bx
-	endm
+	%endmacro
 
-MOV_ECX_EAX	macro
+%macro MOV_ECX_EAX 0
 	db  66h
 	mov cx, ax
-	endm
+	%endmacro
 
-MOV_EAX_ECX	macro
+%macro MOV_EAX_ECX 0
 	db  66h
 	mov ax, cx
-	endm
+	%endmacro
 
-MOV_EDX_EAX	macro
+%macro MOV_EDX_EAX 0
 	db  66h
 	mov dx, ax
-	endm
+	%endmacro
 
-MOV_EAX_EDX	macro
+%macro MOV_EAX_EDX 0
 	db  66h
 	mov ax, dx
-	endm
+	%endmacro
 
-MOV_EDI_EAX	macro
+%macro MOV_EDI_EAX 0
 	db  66h
 	mov di, ax
-	endm
+	%endmacro
 
-MOV_EAX_EDI	macro
+%macro MOV_EAX_EDI 0
 	db  66h
 	mov ax, di
-	endm
+	%endmacro
 
-MOV_ESI_EAX	macro
+%macro MOV_ESI_EAX 0
 	db  66h
 	mov si, ax
-	endm
+	%endmacro
 
-MOV_EAX_ESI	macro
+%macro MOV_EAX_ESI 0
 	db  66h
 	mov ax, si
-	endm
+	%endmacro
 
-MOV_EBP_EAX	macro
+%macro MOV_EBP_EAX 0
 	db  66h
 	mov bp, ax
-	endm
+	%endmacro
 
-MOV_EAX_EBP	macro
+%macro MOV_EAX_EBP 0
 	db  66h
 	mov ax, bp
-	endm
+	%endmacro
 
-MOV_ESP_EAX	macro
+%macro MOV_ESP_EAX 0
 	db  66h
 	mov sp, ax
-	endm
+	%endmacro
 
-MOV_EAX_ESP	macro
+%macro MOV_EAX_ESP 0
 	db  66h
 	mov ax, sp
-	endm
+	%endmacro
 
 ;   *** Special Register/EAX 32 bit moves ***
 
-MOV_CR0_EAX	macro
+%macro MOV_CR0_EAX 0
 	db	0Fh,22h,0C0h
-	endm
+	%endmacro
 
-MOV_CR0_EBX	macro
+%macro MOV_CR0_EBX 0
 	db	0Fh,22h,0C3h
-	endm
+	%endmacro
 
-MOV_CR0_ECX	macro
+%macro MOV_CR0_ECX 0
 	db	0Fh,22h,0C1h
-	endm
+	%endmacro
 
-MOV_CR0_EDX	macro
+%macro MOV_CR0_EDX 0
 	db	0Fh,22h,0C2h
-	endm
+	%endmacro
 
-MOV_CR0_ESP	macro
+%macro MOV_CR0_ESP 0
 	db	0Fh,22h,0C4h
-	endm
+	%endmacro
 
-MOV_CR0_EBP	macro
+%macro MOV_CR0_EBP 0
 	db	0Fh,22h,0C5h
-	endm
+	%endmacro
 
-MOV_CR0_ESI	macro
+%macro MOV_CR0_ESI 0
 	db	0Fh,22h,0C6h
-	endm
+	%endmacro
 
-MOV_CR0_EDI	macro
+%macro MOV_CR0_EDI 0
 	db	0Fh,22h,0C7h
-	endm
+	%endmacro
 
-MOV_EAX_CR0	macro
+%macro MOV_EAX_CR0 0
 	db	0Fh,20h,0C0h
-	endm
+	%endmacro
 
-MOV_EBX_CR0	macro
+%macro MOV_EBX_CR0 0
 	db	0Fh,20h,0C3h
-	endm
+	%endmacro
 
-MOV_ECX_CR0	macro
+%macro MOV_ECX_CR0 0
 	db	0Fh,20h,0C1h
-	endm
+	%endmacro
 
-MOV_EDX_CR0	macro
+%macro MOV_EDX_CR0 0
 	db	0Fh,20h,0C2h
-	endm
+	%endmacro
 
-MOV_ESP_CR0	macro
+%macro MOV_ESP_CR0 0
 	db	0Fh,20h,0C4h
-	endm
+	%endmacro
 
-MOV_EBP_CR0	macro
+%macro MOV_EBP_CR0 0
 	db	0Fh,20h,0C5h
-	endm
+	%endmacro
 
-MOV_ESI_CR0	macro
+%macro MOV_ESI_CR0 0
 	db	0Fh,20h,0C6h
-	endm
+	%endmacro
 
-MOV_EDI_CR0	macro
+%macro MOV_EDI_CR0 0
 	db	0Fh,20h,0C7h
-	endm
+	%endmacro
 
-MOV_CR2_EAX	macro
+%macro MOV_CR2_EAX 0
 	db	0Fh,22h,0D0h
-	endm
+	%endmacro
 
-MOV_EAX_CR2	macro
+%macro MOV_EAX_CR2 0
 	db	0Fh,20h,0D0h
-	endm
+	%endmacro
 
-MOV_CR3_EAX	macro
+%macro MOV_CR3_EAX 0
 	db	0Fh,22h,0D8h
-	endm
+	%endmacro
 
-MOV_EAX_CR3	macro
+%macro MOV_EAX_CR3 0
 	db	0Fh,20h,0D8h
-	endm
+	%endmacro
 
-MOV_DR0_EAX	macro
+%macro MOV_DR0_EAX 0
 	db	0Fh,23h,0C0h
-	endm
+	%endmacro
 
-MOV_DR0_EBX	macro
+%macro MOV_DR0_EBX 0
 	db	0Fh,23h,0C3h
-	endm
+	%endmacro
 
-MOV_DR1_EAX	macro
+%macro MOV_DR1_EAX 0
 	db	0Fh,23h,0C8h
-	endm
+	%endmacro
 
-MOV_DR2_EAX	macro
+%macro MOV_DR2_EAX 0
 	db	0Fh,23h,0D0h
-	endm
+	%endmacro
 
-MOV_DR3_EAX	macro
+%macro MOV_DR3_EAX 0
 	db	0Fh,23h,0D8h
-	endm
+	%endmacro
 
-MOV_DR6_EAX	macro
+%macro MOV_DR6_EAX 0
 	db	0Fh,23h,0F0h
-	endm
+	%endmacro
 
-MOV_DR7_EAX	macro
+%macro MOV_DR7_EAX 0
 	db	0Fh,23h,0F8h
-	endm
+	%endmacro
 
-MOV_EAX_DR0	macro
+%macro MOV_EAX_DR0 0
 	db	0Fh,21h,0C0h
-	endm
+	%endmacro
 
-MOV_ECX_DR0	macro
+%macro MOV_ECX_DR0 0
 	db	0Fh,21h,0C1h
-	endm
+	%endmacro
 
-MOV_EDX_DR0	macro
+%macro MOV_EDX_DR0 0
 	db	0Fh,21h,0C2h
-	endm
+	%endmacro
 
-MOV_EAX_DR1	macro
+%macro MOV_EAX_DR1 0
 	db	0Fh,21h,0C8h
-	endm
+	%endmacro
 
-MOV_EAX_DR2	macro
+%macro MOV_EAX_DR2 0
 	db	0Fh,21h,0D0h
-	endm
+	%endmacro
 
-MOV_EAX_DR3	macro
+%macro MOV_EAX_DR3 0
 	db	0Fh,21h,0D8h
-	endm
+	%endmacro
 
-MOV_EAX_DR6	macro
+%macro MOV_EAX_DR6 0
 	db	0Fh,21h,0F0h
-	endm
+	%endmacro
 
-MOV_EAX_DR7	macro
+%macro MOV_EAX_DR7 0
 	db	0Fh,21h,0F8h
-	endm
+	%endmacro
 
-MOV_TR6_EAX	macro
+%macro MOV_TR6_EAX 0
 	db	0Fh,26h,0F0h
-	endm
+	%endmacro
 
-MOV_EAX_TR6	macro
+%macro MOV_EAX_TR6 0
 	db	0Fh,24h,0F0h
-	endm
+	%endmacro
 
-MOV_TR7_EAX	macro
+%macro MOV_TR7_EAX 0
 	db	0Fh,26h,0F8h
-	endm
+	%endmacro
 
-MOV_EAX_TR7	macro
+%macro MOV_EAX_TR7 0
 	db	0Fh,24h,0F8h
-	endm
+	%endmacro
 
 ;   *** 32 bit Register/Immediate moves ***
 
-MOV_EAX_	macro	imm
+%macro MOV_EAX_ 1
 	db	66h, 0B8h
 	dd	imm
-	endm
+	%endmacro
 
-MOV_EBX_	macro	imm
+%macro MOV_EBX_ 1
 	db	66h, 0BBh
 	dd	imm
-	endm
+	%endmacro
 
-MOV_ECX_	macro	imm
+%macro MOV_ECX_ 1
 	db	66h, 0B9h
 	dd	imm
-	endm
+	%endmacro
 
-MOV_EDX_	macro	imm
+%macro MOV_EDX_ 1
 	db	66h, 0BAh
 	dd	imm
-	endm
+	%endmacro
 
-MOV_EDI_	macro	imm
+%macro MOV_EDI_ 1
 	db	66h, 0BFh
 	dd	imm
-	endm
+	%endmacro
 
-MOV_ESI_	macro	imm
+%macro MOV_ESI_ 1
 	db	66h, 0BEh
 	dd	imm
-	endm
+	%endmacro
 
-MOV_EBP_	macro	imm
+%macro MOV_EBP_ 1
 	db	66h, 0BDh
 	dd	imm
-	endm
+	%endmacro
 
-MOV_ESP_	macro	imm
+%macro MOV_ESP_ 1
 	db	66h, 0BCh
 	dd	imm
-	endm
+	%endmacro
 
 ;   *** 32-bit immediate arithmetic instructions
 
-ADD_EAX_	macro	imm
+%macro ADD_EAX_ 1
 	db	66h,05h
 	dd	imm
-	endm
+	%endmacro
 
-ADD_EBX_	macro	imm
+%macro ADD_EBX_ 1
 	db	66h,81h,0C3h
 	dd	imm
-	endm
+	%endmacro
 
-ADD_ECX_	macro	imm
+%macro ADD_ECX_ 1
 	db	66h,81h,0C1h
 	dd	imm
-	endm
+	%endmacro
 
-ADD_EDX_	macro	imm
+%macro ADD_EDX_ 1
 	db	66h,81h,0C2h
 	dd	imm
-	endm
+	%endmacro
 
-SUB_EAX_	macro	imm
+%macro SUB_EAX_ 1
 	db	66h,2Dh
 	dd	imm
-	endm
+	%endmacro
 
-SUB_EBX_	macro	imm
+%macro SUB_EBX_ 1
 	db	66h,81h,0EBh
 	dd	imm
-	endm
+	%endmacro
 
-SUB_ECX_	macro	imm
+%macro SUB_ECX_ 1
 	db	66h,81h,0E9h
 	dd	imm
-	endm
+	%endmacro
 
-SUB_EDX_	macro	imm
+%macro SUB_EDX_ 1
 	db	66h,81h,0EAh
 	dd	imm
-	endm
+	%endmacro
 
-CMP_EAX_	macro	imm
+%macro CMP_EAX_ 1
 	db	66h,3Dh
 	dd	imm
-	endm
+	%endmacro
 
-CMP_EBX_	macro	imm
+%macro CMP_EBX_ 1
 	db	66h,81h,0FBh
 	dd	imm
-	endm
+	%endmacro
 
-CMP_ECX_	macro	imm
+%macro CMP_ECX_ 1
 	db	66h,81h,0F9h
 	dd	imm
-	endm
+	%endmacro
 
-CMP_EDX_	macro	imm
+%macro CMP_EDX_ 1
 	db	66h,81h,0FAh
 	dd	imm
-	endm
+	%endmacro
 
 ;   *** New Segment Register/AX moves ***
 
-MOV_FS_AX	macro
+%macro MOV_FS_AX 0
 	db	8Eh,0E0h
-	endm
+	%endmacro
 
-MOV_AX_FS	macro
+%macro MOV_AX_FS 0
 	db	8Ch,0E0h
-	endm
+	%endmacro
 
-MOV_GS_AX	macro
+%macro MOV_GS_AX 0
 	db	8Eh,0E8h
-	endm
+	%endmacro
 
-MOV_AX_GS	macro
+%macro MOV_AX_GS 0
 	db	8Ch,0E8h
-	endm
+	%endmacro
 
 ;   *** New Segment Register pushes & pops ***
 
-PUSH_FS 	macro
+%macro PUSH_FS 0
 	db	0Fh,0A0h
-	endm
+	%endmacro
 
-PUSH_GS 	macro
+%macro PUSH_GS 0
 	db	0Fh,0A8h
-	endm
+	%endmacro
 
-POP_FS		macro
+%macro POP_FS 0
 	db	0Fh,0A1h
-	endm
+	%endmacro
 
-POP_GS		macro
+%macro POP_GS 0
 	db	0Fh,0A9h
-	endm
+	%endmacro
 
 ;   *** New Segment Register offset 16 memory moves ***
 
-MOV_off16_FS	macro	off16
+%macro MOV_off16_FS 1
 	db	8Ch,26h
 	dw	off16
-	endm
+	%endmacro
 
-MOV_FS_off16	macro	off16
+%macro MOV_FS_off16 1
 	db	8Eh,26h
 	dw	off16
-	endm
+	%endmacro
 
-MOV_off16_GS	macro	off16
+%macro MOV_off16_GS 1
 	db	8Ch,2Eh
 	dw	off16
-	endm
+	%endmacro
 
-MOV_GS_off16	macro	off16
+%macro MOV_GS_off16 1
 	db	8Eh,2Eh
 	dw	off16
-	endm
+	%endmacro
 
 ;   *** General Register 32 bit pushes & pops ***
 
-PUSH_EAX	macro
+%macro PUSH_EAX 0
 	db  66h
 	push	ax
-	endm
+	%endmacro
 
-POP_EAX 	macro
+%macro POP_EAX 0
 	db  66h
 	pop	ax
-	endm
+	%endmacro
 
-PUSH_EBX	macro
+%macro PUSH_EBX 0
 	db  66h
 	push	bx
-	endm
+	%endmacro
 
-POP_EBX 	macro
+%macro POP_EBX 0
 	db  66h
 	pop	bx
-	endm
+	%endmacro
 
-PUSH_ECX	macro
+%macro PUSH_ECX 0
 	db  66h
 	push	cx
-	endm
+	%endmacro
 
-POP_ECX 	macro
+%macro POP_ECX 0
 	db  66h
 	pop	cx
-	endm
+	%endmacro
 
-PUSH_EDX	macro
+%macro PUSH_EDX 0
 	db  66h
 	push	dx
-	endm
+	%endmacro
 
-POP_EDX 	macro
+%macro POP_EDX 0
 	db  66h
 	pop	dx
-	endm
+	%endmacro
 
-PUSH_EDI	macro
+%macro PUSH_EDI 0
 	db  66h
 	push	di
-	endm
+	%endmacro
 
-POP_EDI 	macro
+%macro POP_EDI 0
 	db  66h
 	pop	di
-	endm
+	%endmacro
 
-PUSH_ESI	macro
+%macro PUSH_ESI 0
 	db  66h
 	push	si
-	endm
+	%endmacro
 
-POP_ESI 	macro
+%macro POP_ESI 0
 	db  66h
 	pop	si
-	endm
+	%endmacro
 
-PUSH_EBP	macro
+%macro PUSH_EBP 0
 	db  66h
 	push	bp
-	endm
+	%endmacro
 
-POP_EBP 	macro
+%macro POP_EBP 0
 	db  66h
 	pop	bp
-	endm
+	%endmacro
 
-PUSH_ESP	macro
+%macro PUSH_ESP 0
 	db  66h
 	push	sp
-	endm
+	%endmacro
 
-POP_ESP 	macro
+%macro POP_ESP 0
 	db  66h
 	pop	sp
-	endm
+	%endmacro
 
 
 ;   *** General Register 32 bit xors ***
 
-XOR_EAX_EAX	macro
+%macro XOR_EAX_EAX 0
 	db	66h
 	xor	ax, ax
-	endm
+	%endmacro
 
-XOR_EBX_EBX	macro
+%macro XOR_EBX_EBX 0
 	db	66h
 	xor	bx, bx
-	endm
+	%endmacro
 
-XOR_ECX_ECX	macro
+%macro XOR_ECX_ECX 0
 	db	66h
 	xor	cx, cx
-	endm
+	%endmacro
 
-XOR_EDX_EDX	macro
+%macro XOR_EDX_EDX 0
 	db	66h
 	xor	dx, dx
-	endm
+	%endmacro
 
-XOR_EBP_EBP	macro
+%macro XOR_EBP_EBP 0
 	db	66h
 	xor	bp, bp
-	endm
+	%endmacro
 
-.list	; end of INSTR386.INC
+; .list; end of INSTR386.INC

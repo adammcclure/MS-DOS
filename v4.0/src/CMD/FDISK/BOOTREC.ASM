@@ -1,20 +1,20 @@
 ;       Static Name Aliases
 ;
-        TITLE   bootrec.asm - master boot record images for fdisk
+        ; TITLE   bootrec.asm - master boot record images for fdisk
 
-_TEXT   SEGMENT BYTE PUBLIC 'CODE'
-_TEXT   ENDS
-_DATA   SEGMENT WORD PUBLIC 'DATA'
-_DATA   ENDS
-CONST   SEGMENT WORD PUBLIC 'CONST'
-CONST   ENDS
-_BSS    SEGMENT WORD PUBLIC 'BSS'
-_BSS    ENDS
+SECTION ._TEXT
+; END SECTION ._TEXT
+SECTION ._DATA
+; END SECTION ._DATA
+SECTION .CONST
+; END SECTION .CONST
+SECTION ._BSS
+; END SECTION ._BSS
 
-DGROUP  GROUP     CONST,  _BSS,   _DATA
-        ASSUME  CS: _TEXT, DS: DGROUP, SS: DGROUP, ES: DGROUP
+; DGROUP  GROUP     CONST,  _BSS,   _DATA
+        ; ASSUME  CS: _TEXT, DS: DGROUP, SS: DGROUP, ES: DGROUP
 
-_DATA   SEGMENT  WORD PUBLIC 'DATA'
+SECTION ._DATA
 
 ;
 ;               extern  struct struct-name BootRecordData;
@@ -23,14 +23,14 @@ _DATA   SEGMENT  WORD PUBLIC 'DATA'
 ;
 
 
-PUBLIC  _master_boot_record
-        public  _master_boot_record
-_master_boot_record label   byte
+global _master_boot_record
+        global _master_boot_record
+_master_boot_record:
 
-include fdboot.inc
-include fdboot.inc
+%include "fdboot.inc"
+%include "fdboot.inc"
 
-_DATA      ENDS
+; END SECTION ._DATA
 
-END
+; END
 

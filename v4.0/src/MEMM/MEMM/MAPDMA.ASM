@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	MapDMA - Ensure all DMA transfers are physically contiguous
+	; title	MapDMA - Ensure all DMA transfers are physically contiguous
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -66,61 +66,61 @@ page	58,132
 ;	    unmapped, in which case no relocation is necessary)
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	MapDMA
-	public	DMA_Pages
-	public	DMA_PAGE_COUNT
+	global MapDMA
+	global DMA_Pages
+	global DMA_PAGE_COUNT
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include page.inc
-	include	instr386.inc
-	include	vm386.inc
-	include emmdef.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "page.inc"
+	%include "instr386.inc"
+	%include "vm386.inc"
+	%include "emmdef.inc"
 ;
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 ;
-ABS0	segment use16 at 0000h
-ABS0	ends
+SECTION .ABS0
+; END SECTION .ABS0
 
-_DATA	segment
+SECTION ._DATA
 
-extrn	_page_frame_base:dword	; Page Table Entry pointers for windows 0-3
-extrn	_pft386:word		; ptr to array of Page Table entries
+extern _page_frame_base; Page Table Entry pointers for windows 0-3
+extern _pft386; ptr to array of Page Table entries
 ;extrn	_current_map:byte	; current mapping register values
-extrn	PF_Base:word		; Base addr of page frame
-extrn	_total_pages:word	; total number of EMM pages
-extrn	Page_Dir:word		
+extern PF_Base; Base addr of page frame
+extern _total_pages; total number of EMM pages
+extern Page_Dir
 
 xfer_map	dw	0	; map of windows participating in DMA xfer
-_DATA	ends
+; END SECTION ._DATA
 
-_TEXT	segment
+SECTION ._TEXT
 
-	extrn	ErrHndlr:near
-	extrn	MapLinear:near
+	extern ErrHndlr
+	extern MapLinear
 
-_TEXT	ends
+; END SECTION ._TEXT
 
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 ;
-_DATA	segment
+SECTION ._DATA
 
 ;
 ;    DMA_Pages - EMM Pages for DMA relocation. Each is an index into pft386.
@@ -129,16 +129,16 @@ _DATA	segment
 ;	entries are left at NULL_PAGE.
 ;	This array should be initialized at boot time.
 ;
-DMA_Pages	dw	8 dup (NULL_PAGE)   ; null for start
+DMA_Pages: times 8 dw NULL_PAGE; null for start
 DMA_PAGE_COUNT	dw	0		    ; number of above initialised
 
-_DATA	ends
+; END SECTION ._DATA
 
 ;------------------------------------------------------------------------------
-_TEXT	segment
+SECTION ._TEXT
 
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP		   
-	page
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
+	; page
 ;******************************************************************************
 ;   MapDMA - Relocate (if necessary) EMM pages to ensure that a DMA transfer
 ;	     is contiguous
@@ -161,7 +161,7 @@ _TEXT	segment
 ;	   Flags
 ;   STACK:
 ;******************************************************************************
-MapDMA proc	 near
+MapDMA:
 ;
 	PUSH_EBX
 	PUSH_EAX			; save original address
@@ -512,10 +512,10 @@ DMA_excp:
 	mov	bx,ErrDMA		
 	jmp	ErrHndlr			; don't come back
 	
-MapDMA		endp
+; ENDP MapDMA
 
 
-	page
+	; page
 ;******************************************************************************
 ;   IsMapped - Check whether or not a window is unmapped
 ;
@@ -532,7 +532,7 @@ MapDMA		endp
 ;	   Flags
 ;   STACK:
 ;******************************************************************************
-isMapped	proc	near
+isMapped:
 	les	di,_page_frame_base[si]	; es:di = addr of page table entry
 	op32
 	mov	bx,es:[di]		; ebx = page table entry for window
@@ -540,10 +540,10 @@ isMapped	proc	near
 	op32
 	cmp	bx,dx			; q: is it mapped to itself (unmapped)?
 	ret
-isMapped	endp
+; ENDP isMapped
 
 
-	page
+	; page
 ;******************************************************************************
 ;   chk_loc - Check the location of a given address and update map accordingly
 ;
@@ -560,7 +560,7 @@ isMapped	endp
 ;	   Flags
 ;   STACK:
 ;******************************************************************************
-chk_loc 	proc	near
+chk_loc:
 	push_eax			; save address
 	push	cx
 ;
@@ -583,8 +583,8 @@ outside:
 	pop	cx
 	pop_eax
 	ret
-chk_loc 	endp
-	page
+; ENDP chk_loc
+	; page
 ;******************************************************************************
 ;	set_selector - set up a selector address/attrib
 ;
@@ -594,7 +594,7 @@ chk_loc 	endp
 ;		to desired address.
 ;
 ;******************************************************************************
-set_selector	proc	near
+set_selector:
 ;
 	PUSH_EAX
 	push	di
@@ -625,9 +625,9 @@ set_selector	proc	near
 	POP_EAX
 	ret
 ;
-set_selector	endp
+; ENDP set_selector
 
-_TEXT	ends				; end of segment
+; END SECTION ._TEXT; end of segment
 ;
-	end				; end of module
+	; end; end of module
 

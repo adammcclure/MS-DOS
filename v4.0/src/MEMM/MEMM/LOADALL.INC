@@ -26,9 +26,9 @@
 ;
 ;******************************************************************************
 ;
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 LODAL286	equ	050Fh		; instruction as a WORD
 LODAL386	equ	070Fh		; instruction as a WORD
@@ -40,20 +40,20 @@ LODAL386	equ	070Fh		; instruction as a WORD
 ;
 ;   Structure of a 286 system table/segment descriptor cache:
 ;
-DescCache286	struc
+struc DescCache286
 dc2_BASElo	dw	0000		; low word of base (0..15)
 dc2_BASEhi	db	00		; high byte of base (16..24)
 dc2_AR		db	00		; access rights byte
 dc2_LIMIT	dw	0000		; segment limit
-DescCache286	ends
+endstruc
 ;
 ;   Structure of the 286 LOADALL buffer
 ;
-LoadAllBuf286	struc
+struc LoadAllBuf286
 
-ll2_None1	db	6 dup (0)	; temp
+ll2_None1: times 6 db 0; temp
 ll2_MSW 	dw	0000		; MSW
-ll2_None2	db	14 dup (0)	; temp
+ll2_None2: times 14 db 0; temp
 ll2_TR		dw	0000		; TR
 ll2_FLAGS	dw	0000		; FLAGS
 ll2_IP		dw	0000		; IP
@@ -74,16 +74,16 @@ ll2_AX		dw	0000		; AX
 ;
 ;  System table and segment descriptor caches
 ;
-ll2_EScache	db	size DescCache286 dup (00)
-ll2_CScache	db	size DescCache286 dup (00)
-ll2_SScache	db	size DescCache286 dup (00)
-ll2_DScache	db	size DescCache286 dup (00)
-ll2_GDTcache	db	size DescCache286 dup (00)
-ll2_LDTcache	db	size DescCache286 dup (00)
-ll2_IDTcache	db	size DescCache286 dup (00)
-ll2_TSScache	db	size DescCache286 dup (00)
+ll2_EScache	db	DescCachetimes_size 286 db 00
+ll2_CScache	db	DescCachetimes_size 286 db 00
+ll2_SScache	db	DescCachetimes_size 286 db 00
+ll2_DScache	db	DescCachetimes_size 286 db 00
+ll2_GDTcache	db	DescCachetimes_size 286 db 00
+ll2_LDTcache	db	DescCachetimes_size 286 db 00
+ll2_IDTcache	db	DescCachetimes_size 286 db 00
+ll2_TSScache	db	DescCachetimes_size 286 db 00
 
-LoadAllBuf286	ends
+endstruc
 ;
 
 ;
@@ -95,7 +95,7 @@ LoadAllBuf286	ends
 ;
 ;   Structure of a 386 system table/segment descriptor cache:
 ;
-DescCache386	struc
+struc DescCache386
 dc3_AR1 	db	00		; base 16..23	(ignored)
 dc3_AR2 	db	00		; access rights byte
 dc3_AR3 	db	00		; limit 16..19	(ignored), B/D, G
@@ -104,11 +104,11 @@ dc3_BASElo	dw	0000		; low word of base
 dc3_BASEhi	dw	0000		; high word of base
 dc3_LIMITlo	dw	0000		; low word of limit
 dc3_LIMIThi	dw	0000		; high word of limit
-DescCache386	ends
+endstruc
 ;
 ;   Structure of the 386 LOADALL buffer
 ;
-LoadAllBuf386	struc
+struc LoadAllBuf386
 
 ll3_CR0 	dw	0000		; low word of CR0
 ll3_CR0hi	dw	0000		; high word of CR0
@@ -155,19 +155,19 @@ ll3_ES		dw	0000		; ES
 ;
 ;  System table and segment descriptor caches
 ;
-ll3_TSScache	db	size DescCache386 dup (00)
-ll3_IDTcache	db	size DescCache386 dup (00)
-ll3_GDTcache	db	size DescCache386 dup (00)
-ll3_LDTcache	db	size DescCache386 dup (00)
-ll3_GScache	db	size DescCache386 dup (00)
-ll3_FScache	db	size DescCache386 dup (00)
-ll3_DScache	db	size DescCache386 dup (00)
-ll3_SScache	db	size DescCache386 dup (00)
-ll3_CScache	db	size DescCache386 dup (00)
-ll3_EScache	db	size DescCache386 dup (00)
+ll3_TSScache	db	DescCachetimes_size 386 db 00
+ll3_IDTcache	db	DescCachetimes_size 386 db 00
+ll3_GDTcache	db	DescCachetimes_size 386 db 00
+ll3_LDTcache	db	DescCachetimes_size 386 db 00
+ll3_GScache	db	DescCachetimes_size 386 db 00
+ll3_FScache	db	DescCachetimes_size 386 db 00
+ll3_DScache	db	DescCachetimes_size 386 db 00
+ll3_SScache	db	DescCachetimes_size 386 db 00
+ll3_CScache	db	DescCachetimes_size 386 db 00
+ll3_EScache	db	DescCachetimes_size 386 db 00
 
 ll3_temps	db	134h dup (00)	; padding for internal temps
 
-LoadAllBuf386	ends
+endstruc
 
-.list	; end of LOADALL.INC
+; .list; end of LOADALL.INC

@@ -1,4 +1,4 @@
-.XLIST
+; .XLIST
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -18,12 +18,12 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-        EXTRN    COPY_SD_AREA:NEAR     ;;
+        extern COPY_SD_AREA;;
                                        ;;
-        EXTRN    SD_DEST_PTR :BYTE     ;;
-        EXTRN    SHARED_DATA :BYTE     ;;
+        extern SD_DEST_PTR ;;
+        extern SHARED_DATA ;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-.LIST
+; .LIST
 

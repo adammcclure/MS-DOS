@@ -1,18 +1,18 @@
-page 80,132
+; page 80,132
 
-title CP/DOS  DosQFsInfo  mapper
+; title CP/DOS  DosQFsInfo  mapper
 
-buffer	segment word public 'buffer'
+SECTION .buffer
 
-clsdr40  dw    ?
-avlcls40 dw    ?
-secalc40 dw    ?
-bytsec40 dw    ?
+clsdr40: dw 0
+avlcls40: dw 0
+secalc40: dw 0
+bytsec40: dw 0
 
-buffer	ends
+; END SECTION .buffer
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -47,23 +47,23 @@ dosxxx	segment byte public 'dos'
 ; *
 ; *************************************************************************
 
-	public	DosQFsInfo
-	.sall
-	.xlist
-	include macros.inc
-	include error.inc
-	.list
+	global DosQFsInfo
+	; .sall
+	; .xlist
+	%include "macros.inc"
+	%include "error.inc"
+	; .list
 
-str	struc
-old_bp	dw	?
-return	dd	?
-FSIBS40 dw	?	; info buffer size
-FSIB40	dd	?	; info buffer
-ILL40	dw	?	; info level
-DRNUM40 dw	?	; driver number
-str	ends
+struc str
+old_bp: dw 0
+return: dd 0
+FSIBS40: dw 0; info buffer size
+FSIB40: dd 0; info buffer
+ILL40: dw 0; info level
+DRNUM40: dw 0; driver number
+endstruc
 
-DosQFsInfo proc   far
+DosQFsInfo:
 	Enter	Dosqfsinfo	   ; push registers
 
 	mov	dx,[bp].drnum40    ; load drive number
@@ -81,7 +81,7 @@ valdr40:;
 	mov	ax,buffer	   ; set the data segment and save
 	push	ax		   ; space information in the data area
 	pop	ds
-	assume	ds:buffer
+	; assume	ds:buffer
 	mov	avlcls40,bx	   ; save available cluster
 	mov	clsdr40,dx	   ; save clusters per drive
 	mov	bytsec40,cx	   ; save bytes per sector
@@ -127,10 +127,10 @@ bufok40:;
 
 erret40:;
 	mexit			   ; pop registers
-	ret	size str - 6	   ; return
+	ret	str_size - 6	   ; return
 
-DosQFsInfo  endp
+; ENDP DosQFsInfo
 
-dosxxx	ends
+; END SECTION .dosxxx
 
-	end
+	; end

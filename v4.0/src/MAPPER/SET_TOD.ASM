@@ -1,10 +1,10 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosSetDateTime mapper
+; title CP/DOS DosSetDateTime mapper
 ;
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -22,35 +22,35 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-	    public   dossetdatetime
-	    .sall
-	    include  macros.inc
+	    global dossetdatetime
+	    ; .sall
+	    %include "macros.inc"
 
 error_ts_datetime equ 0002h
 
-str	    struc
-old_bp	    dw	     ?
-return	    dd	     ?
-Data	    dd	     ?	       ; TOD data pointer
-str	    ends
+struc str
+old_bp: dw 0
+return: dd 0
+Data: dd 0; TOD data pointer
+endstruc
 
-dossetdatetime	proc far
+dossetdatetime:
 	    Enter    dossetdatetime	   ; push registers
 
 	    lds      si,[bp].data	   ; set TOD data pointer and load
 					   ;   info into registers
-	    mov      ch,byte ptr [si]	   ; load hour
-	    mov      cl,byte ptr [si]+1    ;	 minutes
-	    mov      dh,byte ptr [si]+2    ;	 seconds
-	    mov      dl,byte ptr [si]+3    ;	 hundredths
+	    mov      ch,byte [si]	   ; load hour
+	    mov      cl,byte [si]+1    ;	 minutes
+	    mov      dh,byte [si]+2    ;	 seconds
+	    mov      dl,byte [si]+3    ;	 hundredths
 
 	    mov      ah,2dh		   ; set time opcode
 	    int      21h		   ; set new time
 	    push     ax 		   ; check for error later
 
-	    mov      dl,byte ptr [si]+4    ; load day
-	    mov      dh,byte ptr [si]+5    ;	 month
-	    mov      cx,word ptr [si]+6    ;	 year
+	    mov      dl,byte [si]+4    ; load day
+	    mov      dh,byte [si]+5    ;	 month
+	    mov      cx,word [si]+6    ;	 year
 
 	    mov      ah,2bh		   ; new date opcode
 	    int      21h		   ; set new date
@@ -67,10 +67,10 @@ error:	    mov      ax,error_ts_datetime  ; set error code
 
 exit:	    sub      ax,ax		   ; set good return code
 exit1:	    Mexit			   ; pop registers
-	    ret      size str - 6	   ; return
+	    ret      str_size - 6	   ; return
 
-dossetdatetime endp
+; ENDP dossetdatetime
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

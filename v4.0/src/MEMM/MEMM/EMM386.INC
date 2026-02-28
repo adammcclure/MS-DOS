@@ -24,9 +24,9 @@
 ;	06/28/86 0.02		Name change from MEMM386 to MEMM
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 ;
 ;   Message Flag Equates
@@ -46,4 +46,4 @@ PF_WARN_MSG	equ   1000000000b	; PF located over ROM warning message
 ;
 KILLER_MSG =	INC_PRC_MSG+INC_DOS_MSG+MEM_ERR_MSG+INS_ERR_MSG+NO_PF_MSG
 ;
-.list	; end of EMM386.INC
+; .list; end of EMM386.INC

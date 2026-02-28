@@ -1,28 +1,28 @@
-page 80,132
+; page 80,132
 
-title CP/DOS  DosFindFirst  mapper
+; title CP/DOS  DosFindFirst  mapper
 
 
-        include find.inc
+        %include "find.inc"
 
-FindSegment     segment word public 'find'
+SECTION .FindSegment
 
-                        public  SearchCount
+                        global SearchCount
 SearchCount             dw      0
-                        public  ReturnBufferSave
+                        global ReturnBufferSave
 ReturnBufferSave        dd      0
-                        public  CurrentDTA
+                        global CurrentDTA
 CurrentDTA              dw      0
-                        public  ReturnLengthToGo
+                        global ReturnLengthToGo
 ReturnLengthToGo        dw      0
 
-                        public  SaveDTA
-SaveDTA                 Label   dword
-                        public  SaveDTAOffset
+                        global SaveDTA
+SaveDTA:
+                        global SaveDTAOffset
 SaveDTAOffset           dw      0
-                        public  SaveDTASegment
+                        global SaveDTASegment
 SaveDTASegment          dw      0
-                        public  SaveDTAFlag
+                        global SaveDTAFlag
 SaveDTAFlag             db      0               ; 0 -> not saved
                                                 ; 1 -> is saved
 
@@ -31,25 +31,25 @@ SaveDTAFlag             db      0               ; 0 -> not saved
 ;  in the word is the offset into the 'FindSegment' to the DTA that we should
 ;  use.
 
-                public  FindDTAs
-FindDTAs        label   word
-                rept    MaxFinds
+                global FindDTAs
+FindDTAs:
+                %rep MaxFinds
                 dtastr  <>
-                endm
+                %endmacro
 
-                public  FindHandles
-FindHandles     label   word
+                global FindHandles
+FindHandles:
 FindDTAIndex    =       0
-                rept    MaxFinds
+                %rep MaxFinds
                 dw      FindDTAs + FindDTAIndex
-FindDTAIndex    =       FindDTAIndex + size dtastr
-                endm
+FindDTAIndex    =       FindDTAIndex + dtastr_size
+                %endmacro
 
 
-FindSegment     ends
+; END SECTION .FindSegment
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ; ************************************************************************* *
 ; *
@@ -94,33 +94,33 @@ dosxxx  segment byte public 'dos'
 ; *
 ; *************************************************************************
 ;
-        public  DosFindFirst
-        .sall
-        .xlist
-        include macros.inc
-        .list
+        global DosFindFirst
+        ; .sall
+        ; .xlist
+        %include "macros.inc"
+        ; .list
 
 
-str     struc
-old_bp          dw      ?
-return          dd      ?
+struc str
+old_bp: dw 0
+return: dd 0
 ReservedZero    dd      0       ; reserved
-FindCountPtr    dd      ?       ; number of entries to find
-FindBufferLen   dw      ?       ; result buffer lenght
-FindBufferPtr   dd      ?       ; result buffer pointer
-FileAttribute   dw      ?       ; search attribute
-DirHandlePtr    dd      ?       ; directory search handle
-PathNamePtr     dd      ?       ; file path name pointer
-str     ends
+FindCountPtr: dd 0; number of entries to find
+FindBufferLen: dw 0; result buffer lenght
+FindBufferPtr: dd 0; result buffer pointer
+FileAttribute: dw 0; search attribute
+DirHandlePtr: dd 0; directory search handle
+PathNamePtr: dd 0; file path name pointer
+endstruc
 
 
-DosFindFirst  proc   far
+DosFindFirst:
 
         Enter   DosFindFirst
 
         mov     ax,seg FindSegment      ; get address to our data
         mov     ds,ax
-        assume  ds:FindSegment
+        ; assume  ds:FindSegment
 
 ; Search for an available Find Handle
 
@@ -131,7 +131,7 @@ DosFindFirst  proc   far
 ;       2) the high order bit of the DTA pointer is used to indicate that
 ;           the handle is allocated
 
-        mov     si,offset FindSegment:FindHandles
+        mov     si,FindHandles
         mov     cx,MaxFinds
 
 ; DS:[SI] -> Find DTA Pointer Table
@@ -210,7 +210,7 @@ HandleFound:
         les     di,[bp].FindCountPtr    ; load result buffer pointer
         mov     ax,es:[di]              ; save the search
         mov     SearchCount,ax          ;                count
-        mov     es:word ptr [di],0      ; set found count to zero
+        mov     es:word [di],0      ; set found count to zero
 
         cmp     ax,0                    ; just in case they try to trick us!
         jne     DoSearch
@@ -221,7 +221,7 @@ HandleFound:
 
 DoSearch:
         lds     dx,[bp].PathNamePtr    ; load address of asciiz string
-        assume  ds:nothing
+        ; assume  ds:nothing
         mov     cx,[bp].FileAttribute  ; load the attribute
         mov     ax,04E00h
         int     21h                    ; find the first occurance of file
@@ -232,20 +232,20 @@ DoSearch:
 FindFirstOK:
         mov     ax,seg FindSegment
         mov     ds,ax
-        assume  ds:FindSegment
+        ; assume  ds:FindSegment
 
         mov     ax,[bp].FindBufferLen  ; load the buffer length
         mov     ReturnLengthToGo,ax    ; save low order buffer length
 
         les     di,[bp].FindBufferPtr  ; load result buffer pointer
 
-        mov     word ptr ReturnBufferSave+0,di
-        mov     word ptr ReturnBufferSave+2,es
+        mov     word ReturnBufferSave+0,di
+        mov     word ReturnBufferSave+2,es
 
 ; Move find data into the return areas
 
 MoveFindData:
-        sub     ReturnLengthToGo,size FileFindBuf ; check if result buffer is larg enough
+        sub     ReturnLengthToGo,FileFindBuf_size ; check if result buffer is larg enough
         jnc     BufferLengthOk         ; it is ok
 
         mov     ax,8                   ; report 'Insufficient memory'
@@ -269,18 +269,18 @@ BufferLengthOk:
         mov     es:[di].Access_Time,ax
         mov     es:[di].Write_Time,ax
 
-        mov     ax,ds:word ptr [si].DTAFileSize+0    ; save file size
-        mov     es:word ptr [di].File_Size+0,ax
-        mov     es:word ptr [di].FAlloc_Size+0,ax
-        mov     ax,ds:word ptr [si].DTAFileSize+2
-        mov     es:word ptr [di].File_Size+2,ax
-        mov     es:word ptr [di].FAlloc_Size+2,ax
+        mov     ax,ds:word [si].DTAFileSize+0    ; save file size
+        mov     es:word [di].File_Size+0,ax
+        mov     es:word [di].FAlloc_Size+0,ax
+        mov     ax,ds:word [si].DTAFileSize+2
+        mov     es:word [di].File_Size+2,ax
+        mov     es:word [di].FAlloc_Size+2,ax
 
-        test    es:word ptr [di].FAlloc_Size,001ffh
+        test    es:word [di].FAlloc_Size,001ffh
         jz      AllocateSizeSet
 
-        and     es:word ptr [di].FAlloc_Size,not 001ffh
-        add     es:word ptr [di].FAlloc_Size,00200h
+        and     es:word [di].FAlloc_Size,not 001ffh
+        add     es:word [di].FAlloc_Size,00200h
 
 AllocateSizeSet:
         xor     ax,ax
@@ -305,11 +305,11 @@ EndOfName:
         mov     es:[di].String_len,al
 
         add     di,bx
-        mov     word ptr ReturnBufferSave+0,di
-        mov     word ptr ReturnBufferSave+2,es
+        mov     word ReturnBufferSave+0,di
+        mov     word ReturnBufferSave+2,es
 
         les     di,[bp].FindCountPtr
-        inc     word ptr es:[di]
+        inc     word es:[di]
 
 ;
 ;  Check if the request was for more than one
@@ -331,7 +331,7 @@ ErrorExit:
         push    ax
         mov     ax,seg FindSegment
         mov     ds,ax
-        assume  ds:FindSegment
+        ; assume  ds:FindSegment
         cmp     SaveDTAFlag,0
         je      DoNotRestore
 
@@ -345,10 +345,10 @@ DoNotRestore:
         pop     ax
 
         mexit                              ; pop registers
-        ret     size str - 6               ; return
+        ret     str_size - 6               ; return
 
-DosFindFirst endp
+; ENDP DosFindFirst
 
-dosxxx  ends
+; END SECTION .dosxxx
 
-        end
+        ; end

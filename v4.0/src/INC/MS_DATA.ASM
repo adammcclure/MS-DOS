@@ -3,12 +3,12 @@
  
 Break <Uninitialized data overlayed by initialization code>
  
-DATA    SEGMENT WORD PUBLIC 'DATA'
+SECTION .DATA
 ; Init code overlaps with data area below
  
         ORG     0
-PUBLIC MSDAT001S,MSDAT001E
-MSDAT001S       label byte
+global MSDAT001S,MSDAT001E
+MSDAT001S:
  
         I_am    TIMEBUF,6               ; Time read from clock device
         I_am    DEVIOBUF,2              ; Buffer for I/O under file assignment
@@ -28,15 +28,15 @@ MSDAT001S       label byte
 ; Temporary directory entry for use by many routines.  Device directory
 ; entries (bogus) are built here.
 ;
-        PUBLIC  DevFCB
-DEVFCB  LABEL   BYTE                    ; Uses NAME1, NAME2, combined
+        global DevFCB
+DEVFCB:; Uses NAME1, NAME2, combined
 ; WARNING..  do not alter position of NAME1 relative to DEVFCB
 ; without first examining BUILD_DEVICE_ENT. Look carefully at DOS_RENAME
 ; as well as it is the only guy who uses NAME2 and DESTSTART.
         I_am    NAME1,12                ; File name buffer
         I_am    NAME2,13                ;
         I_am    DESTSTART,WORD          ;
-        DB      ((SIZE DIR_ENTRY) - ($ - DEVFCB)) DUP (?)
+        DB      ((DIR_ENTRY_size) - ($ - DEVFCB)) DUP (?)
 ;
 ; End Temporary directory entry.
 ;
@@ -59,7 +59,7 @@ DEVFCB  LABEL   BYTE                    ; Uses NAME1, NAME2, combined
         I_am    VOLID,BYTE              ;
         I_am    exit_type,BYTE          ; type of exit...
  
-        EVEN
+        align 2
  
 ; WARNING - the following two items are accessed as a word
         I_am    CREATING,BYTE           ; true => creating a file
@@ -134,7 +134,7 @@ DEVFCB  LABEL   BYTE                    ; Uses NAME1, NAME2, combined
  
  
 ; make those pushes fast!!!
-EVEN
+align 2
 StackSize   =   180h                    ; gross but effective
 ;;;StackSize   =   300h                    ; This is a "trial" change IBM hasn't
 ;;;                                        ; made up their minds about
@@ -144,17 +144,17 @@ StackSize   =   180h                    ; gross but effective
 ; This is NO problem as long as AUXSTACK comes immediately before DSKSTACK
 ;
  
-        PUBLIC  RENAMEDMA,AuxStack,DskStack,IOStack
-RENAMEDMA   LABEL   BYTE                ; See DOS_RENAME
+        global RENAMEDMA,AuxStack,DskStack,IOStack
+RENAMEDMA:; See DOS_RENAME
  
         DB      StackSize DUP (?)       ;
-AuxStack    LABEL   BYTE
+AuxStack:
  
         DB      StackSize DUP (?)       ;
-DskStack    LABEL   BYTE
+DskStack:
  
         DB      StackSize DUP (?)       ;
-IOStack LABEL   BYTE
+IOStack:
  
  
 ; patch space for Boca folks.
@@ -162,8 +162,8 @@ IOStack LABEL   BYTE
 ; NOTE: We include the decl of ibmpatch in ms-dos even though it is not needed.
 ;       This allows the REDIRector to work on either IBM or MS-DOS.
  
-PUBLIC  IBMPATCH
-IBMPATCH    label byte
+global IBMPATCH
+IBMPATCH:
         I_am    PRINTER_FLAG,BYTE,<0>   ; [SYSTEM] status of PRINT utility
         I_am    VOLCHNG_FLAG,BYTE,<0>   ; [SYSTEM] true if volume label created
         I_am    VIRTUAL_OPEN,BYTE,<0>   ; [SYSTEM] non-zero if we opened a virtual file
@@ -176,19 +176,19 @@ IBMPATCH    label byte
       I_am     ACT_PAGE,WORD,<-1>       ;;;;;;; ;BL ; active EMS page                       ;AN000;
  
  
-SWAP_END    LABEL   BYTE
-PUBLIC  SWAP_END
+SWAP_END:
+global SWAP_END
  
 ; THE FOLLOWING BYTE MUST BE HERE, IMMEDIATELY FOLLOWING SWAP_END. IT CANNOT
 ;   BE USED. If the size of the swap data area is ODD, it will be rounded up
 ;   to include this byte.
-        DB      ?
+        db 0
  
             DB      (512+80+32-(SWAP_END-ibmpatch)) DUP (?)
  
-MSDAT001e       label byte
+MSDAT001e:
  
 .xall
  
-DATA    ENDS
+; END SECTION .DATA
 

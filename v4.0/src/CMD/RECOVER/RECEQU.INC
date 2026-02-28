@@ -1,5 +1,5 @@
 ;fsexec equ true
-const	segment public para 'const'     ;AC000;bgb
+SECTION .const;AC000;bgb
 Len_FS_ID_String equ 8			; length of fat_12 and fat_16 strings ;AN000;bgb
 Command_Line_Length equ 128		; length of command line area  ;AN000;bgb
 Len_FS_String_End equ 8 		; length of rec.exe + 0H   ;AN000;bgb
@@ -91,7 +91,7 @@ Len_FS_String_Buffer equ 13
 ; DATA STRUCTURES
 ;-------------------------------------------------------------------------------
 
-Exec_Block_Parms struc
+struc Exec_Block_Parms
 Segment_Env	dw  0
 Offset_Command	dw  0
 Segment_Command dw  0
@@ -100,45 +100,45 @@ Segment_FCB1	dw  0
 Offset_FCB2	dw  0
 Segment_FCB2	dw  0
 
-Exec_Block_Parms ends
+endstruc
 
 
 
 ;-------------------------------------------------------------------------------
 ; media id
 ;-------------------------------------------------------------------------------
-Media_ID struc									;AN000;
+struc Media_ID;AN000;
 Media_ID_Info_Level dw 0							;AN000;
 Media_ID_Serial_Number dd 0							;AN000;
-Media_ID_Volume_Label db 11 dup(" ")                                            ;AN000;
-Media_ID_File_System db 8  dup(" ")                                             ;AN000;
-Media_ID ends									;AN000;
+Media_ID_Volume_Label: times 11 db " ";AN000;
+Media_ID_File_System: times 8 db " ";AN000;
+endstruc;AN000;
 
 ;-------------------------------------------------------------------------------
 ; device parameters
 ;-------------------------------------------------------------------------------
-A_DeviceParameters	struc
+struc A_DeviceParameters
 
-SpecialFunctions	db	?
-DeviceType		db	?
-DeviceAttributes	dw	?
-NumberOfCylinders	dw	?
-MediaType		db	?
-BytePerSector		dw	?
-SectorsPerCluster	db	?
-ReservedSectors 	dw	?
-NumberOfFATs		db	?
-RootEntries		dw	?
-TotalSectors		dw	?
-MediaDescriptor 	db	?
-SectorsPerFAT		dw	?
-SectorsPerTrack 	dw	?
-Heads			dw	?
-HiddenSectors		dd	?
-Ext_Total_Sectors	dd	?
-Reserved_Area		db	6 dup(?)
+SpecialFunctions: db 0
+DeviceType: db 0
+DeviceAttributes: dw 0
+NumberOfCylinders: dw 0
+MediaType: db 0
+BytePerSector: dw 0
+SectorsPerCluster: db 0
+ReservedSectors: dw 0
+NumberOfFATs: db 0
+RootEntries: dw 0
+TotalSectors: dw 0
+MediaDescriptor: db 0
+SectorsPerFAT: dw 0
+SectorsPerTrack: dw 0
+Heads: dw 0
+HiddenSectors: dd 0
+Ext_Total_Sectors: dd 0
+Reserved_Area: times 6 db 0
 
-A_DeviceParameters	ends
+endstruc
 
 
 
@@ -146,29 +146,29 @@ A_DeviceParameters	ends
 ;-------------------------------------------------------------------------------
 ; relative sector buffer
 ;-------------------------------------------------------------------------------
-Relative_Sector_Buffer	struc			;				;AN000;
+struc Relative_Sector_Buffer;				;AN000;
 
-Start_Sector_Low	dw	?		;Low word of RBA sector 	;AN000;
-Start_Sector_High	dw	?		;High word of RBA sector	;AN000;
-Number_Sectors		dw	?		;Number of sectors		;AN000;
-Buffer_Offset		dw	?		;Address of data buffer 	;AN000;
-Buffer_Segment		dw	?		;				;AN000;
+Start_Sector_Low: dw 0;Low word of RBA sector 	;AN000;
+Start_Sector_High: dw 0;High word of RBA sector	;AN000;
+Number_Sectors: dw 0;Number of sectors		;AN000;
+Buffer_Offset: dw 0;Address of data buffer 	;AN000;
+Buffer_Segment: dw 0;				;AN000;
 
-Relative_Sector_Buffer ends			;				;AN000;
+endstruc;				;AN000;
 
 
 ;-------------------------------------------------------------------------------
 ; xal ????
 ;-------------------------------------------------------------------------------
-XAL	struc									;AN000;
+struc XAL;AN000;
 
-XAL_Tsize	dw	?							;AN000;
-XAL_TCount	dw	?							;AN000;
-XAL_LSize	dw	?							;AN000;
-XAL_LCount	dw	?							;AN000;
-XAL_Data	db	512-8 dup(?)						;AN000;
+XAL_Tsize: dw 0;AN000;
+XAL_TCount: dw 0;AN000;
+XAL_LSize: dw 0;AN000;
+XAL_LCount: dw 0;AN000;
+XAL_Data	db	512-times 8 db 0						;AN000;
 
-XAL	ends									;AN000;
+endstruc;AN000;
 
 ;-------------------------------------------------------------------------------
-const	ends
+; END SECTION .const

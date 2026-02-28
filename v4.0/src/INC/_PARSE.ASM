@@ -1,6 +1,6 @@
-page           60,132
-name           _parse
-title          C to PARSER interface
+; page           60,132
+; name           _parse
+; title          C to PARSER interface
 ;-------------------------------------------------------------------
 ;
 ;       MODULE:         _parse
@@ -17,7 +17,7 @@ title          C to PARSER interface
 
 ;       extrn   sysparse:far
 
-        public  _parse
+        global _parse
 
 ;-------------------------------------------------------------------
 
@@ -39,19 +39,19 @@ DrvSW   equ     1       ; Support drive only format
 QusSW   equ     0       ; Support quoted string format
 ;-------------------------------------------------------------------
 
-_DATA   segment byte public 'DATA'
-_DATA   ends
+SECTION ._DATA
+; END SECTION ._DATA
 
-_TEXT   segment byte public 'CODE'
+SECTION ._TEXT
 
-        ASSUME  CS: _TEXT
-        ASSUME  DS: _DATA
+        ; ASSUME  CS: _TEXT
+        ; ASSUME  DS: _DATA
 
 ;-------------------------------------------------------------------
-include parse.asm               ; include the parser
+%include "parse.asm"; include the parser
 ;-------------------------------------------------------------------
 
-_parse  proc    near
+_parse:
 
         push    bp              ; save user's base pointer
         mov     bp,sp           ; set bp to current sp
@@ -109,9 +109,9 @@ _parse  proc    near
         pop     bp              ; restore user's bp
         ret
 
-_parse  endp
+; ENDP _parse
 
-_TEXT   ends                    ; end code segment
-        end
+; END SECTION ._TEXT; end code segment
+        ; end
 
 

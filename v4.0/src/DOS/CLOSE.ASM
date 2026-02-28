@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)close.asm	1.1 85/04/09
-TITLE	DOS_CLOSE/COMMIT - Internal SFT close and commit call for MSDOS
-NAME	DOS_CLOSE
+; TITLE	DOS_CLOSE/COMMIT - Internal SFT close and commit call for MSDOS
+; NAME	DOS_CLOSE
 ; Internal Close and Commit calls to close a local or NET SFT.
 ;
 ;   DOS_CLOSE
@@ -17,17 +17,17 @@ NAME	DOS_CLOSE
 ;
 ; get the appropriate segment definitions
 ;
-.xlist
-include dosseg.asm
+; .xlist
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+; .cref
+; .list
 
 Installed = TRUE
 
@@ -43,11 +43,11 @@ Installed = TRUE
 	i_need	JShare,DWORD
 	i_need	HIGH_SECTOR,WORD	 ;F.C. >32mb
 	i_need	OLD_FIRSTCLUS,WORD	  ;F.O. >32mb
-if debug
+%if debug
 	I_need	BugLev,WORD
 	I_need	BugTyp,WORD
-include bugtyp.asm
-endif
+%include "bugtyp.asm"
+%endif
 
 Break <DOS_CLOSE -- CLOSE FILE from SFT>
 
@@ -64,7 +64,7 @@ Break <DOS_CLOSE -- CLOSE FILE from SFT>
 
 	procedure   DOS_CLOSE,NEAR
 	DOSAssume   CS,<DS>,"DOS_Close"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	LES	DI,[THISSFT]
 	Assert	ISSFT,<ES,DI>,<"DOS_CLOSE">
@@ -130,7 +130,7 @@ CloseEntry:
 ;
 rdir:
 	CALL	DirFromSFT
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	AL,error_access_denied
 	JNC	clook
 	JMP	CloseFinish		; pretend the close worked.
@@ -177,15 +177,15 @@ nofcb:
 	MOV	AL,[SI].sf_attr 	;FT.					;AN000;
 	MOV	ES:[DI].dir_attr,AL	;FT.					;AN000;
 setattr:
-	OR	BYTE PTR ES:[DI.dir_attr],attr_archive	;Set archive
+	OR	byte ES:[DI.dir_attr],attr_archive	;Set archive
 	MOV	AX,ES:[DI.dir_first]	;AN011;F.O. save old first clusetr
 	MOV	[OLD_FIRSTCLUS],AX	;AN011;F.O. save old first clusetr
 
 	MOV	AX,[SI.sf_firclus]
 	MOV	ES:[DI.dir_first],AX	;Set firclus pointer
-	MOV	AX,WORD PTR [SI.sf_size]
+	MOV	AX,word [SI.sf_size]
 	MOV	ES:[DI.dir_size_l],AX	;Set size
-	MOV	AX,WORD PTR [SI.sf_size+2]
+	MOV	AX,word [SI.sf_size+2]
 	MOV	ES:[DI.dir_size_h],AX
 	MOV	AX,[SI.sf_date]
 	MOV	ES:[DI.dir_date],AX	;Set date
@@ -216,8 +216,8 @@ yesdirty:
 	OR	CX,CX			  ;AN005; first cluster 0; may be truncated
 	JNZ	do_update2		  ;AN005; no, do update
 	MOV	AH,3			  ;AN005; do a delete cache entry
-	MOV	DI,WORD PTR [SI.sf_dirsec]   ;AN005; cx:di = dir sector
-	MOV	CX,WORD PTR [SI.sf_dirsec+2] ;AN005;
+	MOV	DI,word [SI.sf_dirsec]   ;AN005; cx:di = dir sector
+	MOV	CX,word [SI.sf_dirsec+2] ;AN005;
 	MOV	DH,[SI.sf_dirpos]	     ;AN005; dh= dir pos
 	JMP	SHORT do_update 	;AN011;F.O.
 do_update2:				;AN011;F.O.
@@ -272,7 +272,7 @@ EndProc DOS_Close
 ;
 Procedure   FREE_SFT,NEAR
 	DOSAssume   CS,<DS>,"Free_SFT"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	PUSHF		; Save carry state
 	MOV	AX,ES:[DI.sf_ref_count]
@@ -303,13 +303,13 @@ EndProc Free_SFT
 ;   Registers modified: ALL
 
 Procedure   DirFromSFT,NEAR
-	ASSUME	DS:DOSGroup,ES:NOTHING
+	; ASSUME	DS:DOSGroup,ES:NOTHING
 
 	MOV	[EXTERR_LOCUS],errLOC_Disk
 	SaveReg <ES,DI>
-	MOV	DX,WORD PTR ES:[DI.sf_dirsec+2]  ;F.C. >32mb
+	MOV	DX,word ES:[DI.sf_dirsec+2]  ;F.C. >32mb
 	MOV	[HIGH_SECTOR],DX		 ;F.C. >32mb
-	MOV	DX,WORD PTR ES:[DI.sf_dirsec]
+	MOV	DX,word ES:[DI.sf_dirsec]
 
 	PUSH	[HIGH_SECTOR]			 ;F.C. >32mb
 	PUSH	DX
@@ -323,12 +323,12 @@ Procedure   DirFromSFT,NEAR
 	invoke	GETBUFFR
 	JC	PopDone
 	RestoreReg  <SI,DS>		; Get back SFT pointer
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	LES	DI,Curbuf
 	OR	ES:[DI.buf_flags],buf_isDIR
 	MOV	BX,DI			; ES:BX point to buffer header
 	LEA	DI,[DI].BUFINSIZ	; Point to buffer
-	MOV	AL,SIZE dir_entry
+	MOV	AL,dir_entry_size
 	MUL	[SI].sf_DirPos
 	ADD	DI,AX			; Point at the entry
 
@@ -350,7 +350,7 @@ Break	<DOS_Commit - update directory entries>
 
 	procedure   DOS_COMMIT,NEAR
 	DOSAssume   CS,<DS>,"DOS_Commit"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	LES	DI,[THISSFT]
 	MOV	BX,ES:[DI.sf_flags]
@@ -358,13 +358,13 @@ Break	<DOS_Commit - update directory entries>
 	retnz
 	TEST	BX,sf_isnet
 	JZ	LOCAL_COMMIT
-IF NOT Installed
+%if NOT Installed
 	transfer NET_COMMIT
-ELSE
+%else
 	MOV	AX,(multNET SHL 8) OR 7
 	INT	2FH
 	return
-ENDIF
+%endif
 
 ;
 ; Perform local commit operation by doing a close but not releaseing the SFT.
@@ -419,14 +419,14 @@ Procedure   SetSFTTimes,NEAR
 	MOV	ES:[DI.sf_date],AX
 	MOV	ES:[DI.sf_time],DX
 	XOR	AX,AX
-if installed
+%if installed
 	call	JShare + 14 * 4
-else
+%else
 	call	ShSU
-endif
+%endif
 	RestoreReg  <BX,AX>
 	return
 EndProc SetSFTTimes
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END

@@ -5,7 +5,7 @@
 ;   of days elapsed since 1-1-80 in si
 ;
 read_real_date: 		;mjb002
-	assume	ds:code,es:nothing
+	; assume	ds:code,es:nothing
 	PUSH	AX
 	PUSH	CX
 	PUSH	DX
@@ -25,10 +25,10 @@ read_real_date: 		;mjb002
 	jnc	read_ok 	;mjb002 jmp success
 	jmp	r_d_ret 	;mjb002 jmp error
 read_ok:			;mjb002 ******* get bcd values in binary *****
-	mov	byte ptr bin_date_time+0,ch  ;mjb002 store as hex value
-	mov	byte ptr bin_date_time+1,cl  ;mjb002 ...
-	mov	byte ptr bin_date_time+2,dh  ;mjb002 ...
-	mov	byte ptr bin_date_time+3,dl  ;mjb002 ...
+	mov	byte bin_date_time+0,ch  ;mjb002 store as hex value
+	mov	byte bin_date_time+1,cl  ;mjb002 ...
+	mov	byte bin_date_time+2,dh  ;mjb002 ...
+	mov	byte bin_date_time+3,dl  ;mjb002 ...
 	MOV	CS:DAYCNT2,2	 ;MJB002 READ OF R-T CLOCK SUCCESSFUL	  ;3.30
 	call	bcd_verify	;mjb002 verify bcd values in range
 	jc	r_d_ret 	;mjb002 jmp some value out of range
@@ -38,9 +38,9 @@ read_ok:			;mjb002 ******* get bcd values in binary *****
 	MOV	CS:DAYCNT2,0	 ;MJB002 VERIFY SUCCESSFUL		  ;3.30;3.30
 	call	in_bin		;mjb002 convert date to binary
 				;mjb002 ******* years since 1-1-80 *********
-	mov	al,byte ptr bin_date_time+1  ;mjb002 get years into century
+	mov	al,byte bin_date_time+1  ;mjb002 get years into century
 	cbw				     ;mjb002
-	cmp	byte ptr bin_date_time+0,20  ;mjb002 20th century?
+	cmp	byte bin_date_time+0,20  ;mjb002 20th century?
 	jnz	century_19		     ;mjb002 jmp no
 	add	ax,100		;mjb002 add in a century
 century_19:			;mjb002
@@ -61,22 +61,22 @@ century_19:			;mjb002
 	ADD	CS:DAYCNT2,AX	 ;MJB002 ADD ON DAYS IN ODD YEARS	  ;3.30
 	jmp	short leap_adjustment	;mjb002 account for leap year
 leap_year:			;mjb002 possibly account for a leap day
-	cmp	byte ptr bin_date_time+2,2   ;mjb002 is month february
+	cmp	byte bin_date_time+2,2   ;mjb002 is month february
 	jbe	no_leap_adjustment  ;mjb002 jan or feb. no leap day yet.
 leap_adjustment:		;mjb002 account for leap day
 	INC	CS:DAYCNT2	 ;MJB002 ...				  ;3.30
 no_leap_adjustment:		;mjb002 ******* get days of month *******
-	mov	cl,byte ptr bin_date_time+3    ;mjb002 ...
+	mov	cl,byte bin_date_time+3    ;mjb002 ...
 	xor	ch,ch		;mjb002
 	dec	cx		;mjb002 because of offset from day 1, not day 0
 	ADD	CS:DAYCNT2,CX	 ;MJB002 ******* GET DAYS IN MONTHS PRECEE;3.30DING *****
-	mov	cl,byte ptr bin_date_time+2   ;mjb002 get month
+	mov	cl,byte bin_date_time+2   ;mjb002 get month
 	xor	ch,ch		;mjb002
 	dec	cx		;mjb002 january starts at offset 0
 	shl	cx,1		;mjb002 word offset
-	mov	si,offset month_table	;mjb002 beginning of month_table
+	mov	si,month_table	;mjb002 beginning of month_table
 	add	si,cx		;mjb002 point into month table
-	mov	ax,word ptr [si];mjb002 get # days in previous months
+	mov	ax,word [si];mjb002 get # days in previous months
 	ADD	CS:DAYCNT2,AX	 ;MJB002 ...				  ;3.30
 r_d_ret:			;mjb002
 	MOV	SI,CS:DAYCNT2	 ;MJB002 RESULT IN SI			  ;3.30
@@ -99,26 +99,26 @@ Read_Real_Time:
 	int	1AH						      ;3.30*
 	jc	r_t_retj
 oktime:
-	mov	byte ptr bin_date_time,ch	; hours
-	mov	byte ptr bin_date_time+1,cl	; minutes
-	mov	byte ptr bin_date_time+2,dh	; seconds
-	mov	byte ptr bin_date_time+3,0	; unused for time
+	mov	byte bin_date_time,ch	; hours
+	mov	byte bin_date_time+1,cl	; minutes
+	mov	byte bin_date_time+2,dh	; seconds
+	mov	byte bin_date_time+3,0	; unused for time
 	call	bcd_verify
 	jc	r_t_retj
 	call	time_verify
 	jc	r_t_retj
 	call	in_bin
-	MOV	ch,byte ptr bin_date_time
-	MOV	cl,byte ptr bin_date_time+1
-	MOV	dh,byte PTR bin_date_time+2
-	MOV	dl,byte PTR bin_date_time+3
+	MOV	ch,byte bin_date_time
+	MOV	cl,byte bin_date_time+1
+	MOV	dh,byte bin_date_time+2
+	MOV	dl,byte bin_date_time+3
 	message ftestinit,<"Read Time   ">
 	mnum	ftestinit,cx
 	message ftestinit,<"  ">
 	mnum	ftestinit,dx
 	message ftestinit,<cr,lf>
 ; get time in ticks in CX:DX
-	CALL	word ptr cs:TimeToTicks 	;3.30
+	CALL	word cs:TimeToTicks 	;3.30
 	message ftestinit,<"Conv Time   ">
 	mnum	ftestinit,cx
 	message ftestinit,<"  ">
@@ -131,19 +131,19 @@ r_t_ret:
 ;   in_bin converts bin_date_time values from bcd to bin
 ;
 in_bin: 				     ;mjb002
-	assume	ds:code,es:nothing
-	mov	al,byte ptr bin_date_time+0  ; century or hours
+	; assume	ds:code,es:nothing
+	mov	al,byte bin_date_time+0  ; century or hours
 	call	bcd_to_bin		     ; ...
-	mov	byte ptr bin_date_time+0,al  ;
-	mov	al,byte ptr bin_date_time+1  ; years or minutes
+	mov	byte bin_date_time+0,al  ;
+	mov	al,byte bin_date_time+1  ; years or minutes
 	call	bcd_to_bin		     ; ...
-	mov	byte ptr bin_date_time+1,al  ;
-	mov	al,byte ptr bin_date_time+2  ; months or seconds
+	mov	byte bin_date_time+1,al  ;
+	mov	al,byte bin_date_time+2  ; months or seconds
 	call	bcd_to_bin		     ; ...
-	mov	byte ptr bin_date_time+2,al  ;
-	mov	al,byte ptr bin_date_time+3  ; days (not used for time)
+	mov	byte bin_date_time+2,al  ;
+	mov	al,byte bin_date_time+3  ; days (not used for time)
 	call	bcd_to_bin		     ; ...
-	mov	byte ptr bin_date_time+3,al  ;
+	mov	byte bin_date_time+3,al  ;
 	ret				     ;
 ;
 ;   bcd_to_bin converts two bcd nibbles in al (value <= 99.) to
@@ -151,7 +151,7 @@ in_bin: 				     ;mjb002
 ;   ah is destroyed
 ;
 bcd_to_bin:			;mjb002
-	assume	ds:nothing,es:nothing
+	; assume	ds:nothing,es:nothing
 	mov	ah,al		;mjb002 copy bcd number to ah
 	and	ax,0f00fh	;mjb002 clear unwanted nibbles
 	mov	bl,al		;mjb002 save units place

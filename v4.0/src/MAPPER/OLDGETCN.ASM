@@ -1,14 +1,14 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS DosGetCtryInfo mapper
+; title CP/DOS DosGetCtryInfo mapper
 
-Buffer  segment word public 'buffer'
+SECTION .Buffer
 CountryInfo     db      64
-Buffer  ends
+; END SECTION .Buffer
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -27,56 +27,56 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 ;
-            public   dosgetctryinfo
-            .sall
-            include  macros.inc
+            global dosgetctryinfo
+            ; .sall
+            %include "macros.inc"
 
 ;
-str         struc
-old_bp          dw      ?
-return          dd      ?
-ReturnLength    dd      ?
-BufferPtr       dd      ?
-CountryCodePtr  dd      ?
-BufferLength    dw      ?
-str         ends
+struc str
+old_bp: dw 0
+return: dd 0
+ReturnLength: dd 0
+BufferPtr: dd 0
+CountryCodePtr: dd 0
+BufferLength: dw 0
+endstruc
 ;
 
-cntry       struc                       ;country info. sturctrue
-ctry_code       dw      ?
-code_page       dw      ?
-dformat         dw      ?
-curr_sym        db      5  dup(?)
-thous_sep       db      2  dup(?)
-decimal_sep     db      2  dup(?)
-date_sep        db      2  dup(?)
-time_sep        db      2  dup(?)
-bit_field       dw      ?
-curr_cents      dw      ?
-tformat         dw      ?
-map_call        dd      ?
-data_sep        dw      ?
-ra                      5  dup(?)
-cntry       ends
+struc cntry;country info. sturctrue
+ctry_code: dw 0
+code_page: dw 0
+dformat: dw 0
+curr_sym: times 5 db 0
+thous_sep: times 2 db 0
+decimal_sep: times 2 db 0
+date_sep: times 2 db 0
+time_sep: times 2 db 0
+bit_field: dw 0
+curr_cents: dw 0
+tformat: dw 0
+map_call: dd 0
+data_sep: dw 0
+ra                      times 5 db 0
+endstruc
 ;
 
-Doscntry       struc                       ;country info. sturctrue
- Ddformat         dw      ?
- Dcurr_sym        db      5  dup(?)
- Dthous_sep       db      2  dup(?)
- Ddecimal_sep     db      2  dup(?)
- Ddate_sep        db      2  dup(?)
- Dtime_sep        db      2  dup(?)
- Dbit_field       db      ?
- Dsig_digit       db      ?
- Dtformat         db      ?
- Dmap_call        dd      ?
- Ddata_sep        dw      ?
- DResv                    5  dup(?)
-Doscntry       ends
+struc Doscntry;country info. sturctrue
+ Ddformat: dw 0
+ Dcurr_sym: times 5 db 0
+ Dthous_sep: times 2 db 0
+ Ddecimal_sep: times 2 db 0
+ Ddate_sep: times 2 db 0
+ Dtime_sep: times 2 db 0
+ Dbit_field: db 0
+ Dsig_digit: db 0
+ Dtformat: db 0
+ Dmap_call: dd 0
+ Ddata_sep: dw 0
+ DResv                    times 5 db 0
+endstruc
 
 
-dosgetctryinfo  proc far
+dosgetctryinfo:
 
         Enter   Dosgetcntryinfo
 
@@ -92,14 +92,14 @@ dosgetctryinfo  proc far
 getinfo:
         mov     dx,seg buffer
         mov     ds,dx
-        assume  ds:buffer
-        mov     dx,offset buffer:CountryInfo
+        ; assume  ds:buffer
+        mov     dx,CountryInfo
 
         mov     ah,38h          ; remember: the al value was set above!!!
         int     21h
         jc      ErrorExit
 ;
-        mov     si,offset buffer:CountryInfo
+        mov     si,CountryInfo
         les     di,[bp].BufferPtr
         cld                            ;string move op.
 
@@ -123,10 +123,10 @@ NoFillNecessary:
 ErrorExit:
         Mexit
 
-        ret     size str - 6
+        ret     str_size - 6
 ;
-dosgetctryinfo endp
+; ENDP dosgetctryinfo
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

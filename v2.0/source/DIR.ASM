@@ -2,20 +2,20 @@
 ; Directory routines for MSDOS
 ;
 
-INCLUDE DOSSEG.ASM
+%include "DOSSEG.ASM"
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-        ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+        ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.xlist
-.xcref
-INCLUDE DOSSYM.ASM
-INCLUDE DEVSYM.ASM
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.ASM"
+%include "DEVSYM.ASM"
+; .cref
+; .list
 
-TITLE   DIR - Directory and path cracking
-NAME    Dir
+; TITLE   DIR - Directory and path cracking
+; NAME    Dir
 
         i_need  NoSetDir,BYTE
         i_need  EntFree,WORD
@@ -41,10 +41,10 @@ NAME    Dir
         i_need  DevString,BYTE
         i_need  DevStrLen,BYTE
 
-SUBTTL BUILDDIR,NEWDIR -- ALLOCATE DIRECTORIES
-PAGE
+; SUBTTL BUILDDIR,NEWDIR -- ALLOCATE DIRECTORIES
+; PAGE
     procedure   BUILDDIR,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       ES:BP Points to DPB
@@ -124,18 +124,18 @@ GOTRET:
         CLC
         return
 
-BUILDDIR    ENDP
+; ENDP BUILDDIR
 
 ;
 ; set up a . and .. directory entry for a directory
 ;
         procedure   SETDOTENT,NEAR
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     CX,4
         MOV     AX,2020H
         REP     STOSW
         STOSB
-        MOV     SI,WORD PTR [THISFCB]
+        MOV     SI,word [THISFCB]
         MOV     AL,attr_directory
         STOSB
         ADD     DI,10
@@ -149,14 +149,14 @@ ASSUME  DS:DOSGROUP
         STOSW
         STOSW
         return
-SETDOTENT   ENDP
+; ENDP SETDOTENT
 
-SUBTTL GETFILE, GETNAME, FINDNAME -- LOOK FOR A FILE
-PAGE
+; SUBTTL GETFILE, GETNAME, FINDNAME -- LOOK FOR A FILE
+; PAGE
         procedure   SEARCH,near
 
         entry   GETFILE
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 ; Same as GETNAME except ES:DI points to FCB on successful return
         invoke  MOVNAME
         retc
@@ -168,7 +168,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         return
 
         entry   GETNAME
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS,DX point to FCB
@@ -191,25 +191,25 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ; All other registers destroyed.
 
         invoke  MOVNAME
-ASSUME  ES:DOSGROUP
+; ASSUME  ES:DOSGROUP
         retc                    ; Bad file name?
 
         entry   FINDNAME
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         invoke  DEVNAME
         JC      FindEntry
         invoke  BUILDFCB
         return
-ASSUME  ES:NOTHING
+; ASSUME  ES:NOTHING
 
 ; NOTE THE FALL THROUGH
 
-SUBTTL FINDENTRY -- LOOK FOR AN ENTRY
-PAGE
+; SUBTTL FINDENTRY -- LOOK FOR AN ENTRY
+; PAGE
         entry   FindEntry
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       [THISDPB] set
@@ -237,7 +237,7 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
 ; All other registers destroyed.
 
         CALL    STARTSRCH
-        CMP     BYTE PTR [ATTRIB],attr_volume_id
+        CMP     byte [ATTRIB],attr_volume_id
                                 ; Looking for vol ID only ?
         JNZ     NOTVOLSRCH      ; No
         CALL    SETROOTSRCH     ; Yes force search of root
@@ -245,47 +245,47 @@ NOTVOLSRCH:
         CALL    GETENTRY
         entry   Srch
         PUSH    DS
-        MOV     DS,WORD PTR [CURBUF+2]
-ASSUME  DS:NOTHING
-        MOV     AH,BYTE PTR [BX]
+        MOV     DS,word [CURBUF+2]
+; ASSUME  DS:NOTHING
+        MOV     AH,byte [BX]
         OR      AH,AH                   ; End of directory?
         JZ      FREE
-        CMP     AH,BYTE PTR [DELALL]             ; Free entry?
+        CMP     AH,byte [DELALL]             ; Free entry?
         JZ      FREE
-        TEST    BYTE PTR [BX+11],attr_volume_id
+        TEST    byte [BX+11],attr_volume_id
                                         ; Volume ID file?
         JZ      CHKFNAM                 ; NO
-        INC     BYTE PTR [VOLID]
+        INC     byte [VOLID]
 CHKFNAM:
         MOV     SI,BX
         PUSH    SS
         POP     ES
-ASSUME  ES:DOSGROUP
-        MOV     DI,OFFSET DOSGROUP:NAME1
+; ASSUME  ES:DOSGROUP
+        MOV     DI,NAME1
         MOV     CX,11
 WILDCRD:
         REPE    CMPSB
         JZ      FOUND
-        CMP     BYTE PTR ES:[DI-1],"?"
+        CMP     byte ES:[DI-1],"?"
         JZ      WILDCRD
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         entry   NEXTENT
         LES     BP,[THISDPB]
-ASSUME  ES:NOTHING
+; ASSUME  ES:NOTHING
         CALL    NEXTENTRY
         JNC     SRCH
         JMP     SHORT SETESRET
 
 FREE:
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     CX,[LASTENT]
         CMP     CX,[ENTFREE]
         JAE     TSTALL
         MOV     [ENTFREE],CX
 TSTALL:
-        CMP     AH,BYTE PTR [DELALL]             ; At end of directory?
+        CMP     AH,byte [DELALL]             ; At end of directory?
         JZ      NEXTENT                 ; No - continue search
         MOV     [ENTLAST],CX
         STC
@@ -303,8 +303,8 @@ FOUND:
 ;
         MOV     CH,[SI]                 ; Attributes of file
         POP     DS
-ASSUME  DS:DOSGROUP
-        MOV     AH,BYTE PTR [ATTRIB]    ; Attributes of search
+; ASSUME  DS:DOSGROUP
+        MOV     AH,byte [ATTRIB]    ; Attributes of search
         TEST    CH,attr_volume_id       ; Volume ID file?
         JZ      check_one_volume_id     ; Nope check other attributes
         TEST    AH,attr_volume_id       ; Can we find Volume ID?
@@ -317,7 +317,7 @@ check_one_volume_id:
         ADD     SI,15
         CALL    MatchAttributes
         JZ      RETF
-        TEST    BYTE PTR [CREATING],-1  ; Pass back mismatch if creating
+        TEST    byte [CREATING],-1  ; Pass back mismatch if creating
         JZ      NEXTENT                 ; Otherwise continue searching
 RETF:
         LES     BP,[THISDPB]
@@ -327,10 +327,10 @@ SETESRET:
         POP     ES
         return
 
-SUBTTL GETENTRY, NEXTENTRY, GETENT -- STEP THROUGH DIRECTORY
-PAGE
+; SUBTTL GETENTRY, NEXTENTRY, GETENT -- STEP THROUGH DIRECTORY
+; PAGE
         entry   GETENTRY
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       [LASTENT] has directory entry
@@ -361,14 +361,14 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         invoke  DIRREAD
         POP     BX
 SETENTRY:
-        MOV     DX,WORD PTR [CURBUF]
+        MOV     DX,word [CURBUF]
         ADD     DX,BUFINSIZ
         ADD     BX,DX
         ADD     DX,ES:[BP.dpb_sector_size]       ; Always clears carry
         return
 
         entry   NEXTENTRY
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       Same as outputs of GETENTRY, above
@@ -383,9 +383,9 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         ADD     BX,32
         CMP     BX,DX
         JB      HAVIT
-        MOV     BL,BYTE PTR [SECCLUSPOS]
+        MOV     BL,byte [SECCLUSPOS]
         INC     BL
-        CMP     BL,BYTE PTR [CLUSFAC]
+        CMP     BL,byte [CLUSFAC]
         JB      SAMECLUS
         MOV     BX,[NXTCLUSNUM]
         CMP     BX,0FF8H
@@ -404,25 +404,25 @@ HAVIT:
         return
 
 SAMECLUS:
-        MOV     BYTE PTR [SECCLUSPOS],BL
+        MOV     byte [SECCLUSPOS],BL
         MOV     [LASTENT],AX
         PUSH    DS
         LDS     DI,[CURBUF]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     DX,[DI.BUFSECNO]
         INC     DX
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         invoke  FIRSTCLUSTER
         XOR     BX,BX
         JMP     SETENTRY
-Search  ENDP
+; ENDP Search
 
-SUBTTL GETCURRDIR -- GET CURRENT DIRECTORY
-PAGE
+; SUBTTL GETCURRDIR -- GET CURRENT DIRECTORY
+; PAGE
         procedure   Dir_search,NEAR
         entry   GETCURRDIR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       ES:BP Points to DPB
@@ -448,35 +448,35 @@ ASSUME  DS:NOTHING,ES:NOTHING
         POP     DS
         LEA     SI,[BP.dpb_dir_text]
         CALL    ROOTPATH
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         JNC     SETCURR
         MOV     ES:[BP.dpb_current_dir],0
 
 SETROOTSRCH:
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         XOR     AX,AX
         MOV     [DIRSTART],AX
-        MOV     BYTE PTR [SECCLUSPOS],AL
+        MOV     byte [SECCLUSPOS],AL
         DEC     AX
         MOV     [CLUSNUM],AX
         MOV     AX,ES:[BP.dpb_first_sector]
         MOV     DX,ES:[BP.dpb_dir_sector]
         SUB     AX,DX
-        MOV     BYTE PTR [CLUSFAC],AL
+        MOV     byte [CLUSFAC],AL
         MOV     [DIRSEC],DX
         return
 
 SETCURR:
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     AX,[DIRSTART]
         MOV     ES:[BP.dpb_current_dir],AX
         return
 
         entry   SETDIRSRCH
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       BX cluster number of start of directory
@@ -493,25 +493,25 @@ ASSUME  DS:NOTHING,ES:NOTHING
         JZ      SETROOTSRCH
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     [DIRSTART],BX
         MOV     AL,ES:[BP.dpb_cluster_mask]
         INC     AL
-        MOV     BYTE PTR [CLUSFAC],AL
+        MOV     byte [CLUSFAC],AL
         invoke  UNPACK
         MOV     [CLUSNUM],DI
         MOV     DX,BX
         XOR     BL,BL
-        MOV     BYTE PTR [SECCLUSPOS],BL
+        MOV     byte [SECCLUSPOS],BL
         invoke  FIGREC
         MOV     [DIRSEC],DX
         return
-Dir_search  ENDP
+; ENDP Dir_search
 
-SUBTTL MAKENODE -- CREATE A NEW NODE
-PAGE
+; SUBTTL MAKENODE -- CREATE A NEW NODE
+; PAGE
         procedure   MakeNode,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       AL - attribute to create
@@ -546,7 +546,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         CALL    GetPath
         MOV     DL,CL           ; Save CL info
         POP     CX
-        MOV     BYTE PTR [ATTRIB],CL
+        MOV     byte [ATTRIB],CL
         MOV     CX,AX
         JNC     make_exists     ; File existed
         JNZ     make_err_4      ; Path bad
@@ -565,12 +565,12 @@ make_type:
 make_exists:
         JZ      make_exists_dir
         MOV     AL,3            ; file exists type 3
-        TEST    BYTE PTR [ATTRIB],(attr_volume_id+attr_directory)
+        TEST    byte [ATTRIB],(attr_volume_id+attr_directory)
         JNZ     make_err_ret_5  ; but we wanted a volid or dir
         OR      CH,CH
         JS      make_dev        ; No furthur checks if device
         PUSH    CX
-        MOV     DS,WORD PTR [CURBUF+2]
+        MOV     DS,word [CURBUF+2]
         MOV     CH,[BX+dir_attr] ; Get file attributes
         TEST    CH,attr_read_only
         JNZ     make_err_ret_5P ; Cannot create on read only files
@@ -588,7 +588,7 @@ make_dev:
         JMP     SHORT make_save
 make_exists_dir:
         MOV     AL,1            ; directory exists
-        TEST    BYTE PTR [ATTRIB],attr_directory
+        TEST    byte [ATTRIB],attr_directory
         JZ      make_err_ret    ; we didn't want a directory
         CLC
         return                  ; just return
@@ -601,9 +601,9 @@ make_save:
 ;
         PUSH    SS
         POP     DS
-        ASSUME  DS:DOSGROUP
+        ; ASSUME  DS:DOSGROUP
         PUSHF                           ;Save state of flags
-        CMP     BYTE PTR [NAME1],'.'    ;Detect attempt to make '.' or '..'
+        CMP     byte [NAME1],'.'    ;Detect attempt to make '.' or '..'
         JNZ     NOTLDOT                 ; Needed because no '.' or '..' in root
         POPF
         MOV     AL,1                    ;Force type 2 error
@@ -628,20 +628,20 @@ SET2ERR:
         STC
         return
 make_set_fcb:
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         PUSH    ES
         LES     DI,[THISFCB]
         INC     DI
         PUSH    DS
         PUSH    SI
-        MOV     DS,WORD PTR [CURBUF+2]
-ASSUME  DS:NOTHING
+        MOV     DS,word [CURBUF+2]
+; ASSUME  DS:NOTHING
         MOV     SI,BX
         MOV     CX,11
         REP     MOVSB
         POP     SI
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         POP     ES
         CMP     AL,1
         JA      make_errors
@@ -652,13 +652,13 @@ make_errors:
         STC
         return
 
-MakeNode    ENDP
+; ENDP MakeNode
 
-SUBTTL GETPATH -- PARSE AN asciz PATH
-PAGE
+; SUBTTL GETPATH -- PARSE AN asciz PATH
+; PAGE
 
         procedure   GETPATH,near
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:SI Points to asciz path
@@ -673,8 +673,8 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ; Destroys all registers
 
         XOR     AX,AX
-        MOV     WORD PTR [DRIVESPEC],AX
-        MOV     BYTE PTR [ATTRIB],attr_directory+attr_system+attr_hidden
+        MOV     word [DRIVESPEC],AX
+        MOV     byte [ATTRIB],attr_directory+attr_system+attr_hidden
         LODSB
         invoke  PATHCHRCMP
         JZ      DEFAULTROOT
@@ -688,7 +688,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         PUSH    SI
         PUSH    SS
         POP     ES
-        CMP     BYTE PTR [device_availability],0
+        CMP     byte [device_availability],0
         JZ      NOWDEV
         CALL    GOTPRESTRING2
         JNC     BUILDFCBJ               ; If no carry then we have a device
@@ -723,8 +723,8 @@ DEFAULTROOT:
         POP     SI
         POP     DS
 ROOTSRCH:
-        INC     BYTE PTR [ROOTSTART]
-        CMP     BYTE PTR [SI],0
+        INC     byte [ROOTSTART]
+        CMP     byte [SI],0
         JZ      PATHISNULL
         PUSH    DS
         PUSH    SI
@@ -754,7 +754,7 @@ DRVSPEC:
         PUSH    AX
         context es
         CALL    GotPreString2
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
         POP     AX
         JNC     BuildFCBJ
         CALL    DRVPATH
@@ -771,15 +771,15 @@ DRVSPEC:
 
 PATHISNULL:
         CALL    SETROOTSRCH
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         XOR     AL,AL           ; Set zero (directory) clear carry
         return
 
 CHKDEV:
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         PUSH    SS
         POP     ES
-        MOV     DI,OFFSET DOSGROUP:DEVSTRING
+        MOV     DI,DEVSTRING
         XOR     CX,CX
         MOV     CL,DEVSTRLEN
 CHKPRESTRING:
@@ -798,7 +798,7 @@ GOTPRESTRING:
         invoke  PATHCHRCMP
         JNZ     NOPRESTRING
 GOTPRESTRING2:
-        MOV     DI,OFFSET DOSGROUP:NAME1
+        MOV     DI,NAME1
         MOV     CX,9
 TESTLOOP:
         invoke  GETLET
@@ -822,13 +822,13 @@ TESTDEVICE:
         POP     DS
         invoke  DEVNAME
         return
-GETPATH ENDP
+; ENDP GETPATH
 
-SUBTTL ROOTPATH, FINDPATH -- PARSE A PATH
-PAGE
+; SUBTTL ROOTPATH, FINDPATH -- PARSE A PATH
+; PAGE
         procedure   ROOTPATH,near
 
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       ES:BP Points to DPB
@@ -848,7 +848,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ; NOTE FALL THROUGH
 
     entry   FINDPATH
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       ES:BP Points to DPB
@@ -902,13 +902,13 @@ ASSUME  DS:NOTHING,ES:NOTHING
 check_device:
         PUSH    DS
         PUSH    SI
-        MOV     AL,BYTE PTR [SI]
+        MOV     AL,byte [SI]
 
 ;
 ; can we see all devices
 ;
         context DS
-        CMP     BYTE PTR [device_availability],0
+        CMP     byte [device_availability],0
         JZ      FindFile
 
 ;
@@ -918,7 +918,7 @@ check_device:
         context ES
         invoke  DevName         ; blast BX
         POP     ES
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
         JC      FindFile
         OR      AL,AL
         JNZ     FileInPath
@@ -930,7 +930,7 @@ check_device:
         return
 
 FindFile:
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
         PUSH    DI              ; Start of this element
         PUSH    ES
         PUSH    CX
@@ -940,21 +940,21 @@ FindFile:
         POP     DI
         JC      BADPATHPOP
         LDS     DI,[CURBUF]
-ASSUME  DS:NOTHING
-        TEST    BYTE PTR [BX+dir_attr],attr_directory
+; ASSUME  DS:NOTHING
+        TEST    byte [BX+dir_attr],attr_directory
         JZ      FileInPath
 
 ;
 ; if we are not setting the directory, then
 ; check for end of string
 ;
-        CMP     BYTE PTR [NoSetDir],0
+        CMP     byte [NoSetDir],0
         JZ      SetDir
         MOV     DX,DI
         MOV     AX,DS
         POP     DI
         POP     DS
-        CMP     BYTE PTR [DI],0
+        CMP     byte [DI],0
         JZ      SetRet
         PUSH    DS
         PUSH    DI
@@ -972,7 +972,7 @@ SetDir:
         PUSH    [DI.BUFSECNO]
         MOV     BX,DX
         CALL    SETDIRSRCH
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         POP     DX
         XOR     AL,AL
         invoke  GETBUFFR
@@ -980,12 +980,12 @@ ASSUME  DS:DOSGROUP
         POP     SI
         POP     AX
         POP     BX
-        MOV     DI,WORD PTR [CURBUF]
+        MOV     DI,word [CURBUF]
         ADD     SI,DI
         ADD     BX,DI
         POP     DI
         POP     DS
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     AL,[DI]
         OR      AL,AL
         JZ      SETRET
@@ -1027,12 +1027,12 @@ BADPATHPOP:
         OR      AL,AL   ; zero if bad element is last, non-zero if path too long
         STC
         return
-ROOTPATH    ENDP
+; ENDP ROOTPATH
 
-SUBTTL STARTSRCH -- INITIATE DIRECTORY SEARCH
-PAGE
+; SUBTTL STARTSRCH -- INITIATE DIRECTORY SEARCH
+; PAGE
         procedure   StartSrch,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       [THISDPB] Set
@@ -1046,12 +1046,12 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         LES     BP,[THISDPB]
         XOR     AX,AX
         MOV     [LASTENT],AX
-        MOV     BYTE PTR [VOLID],AL      ; No volume ID found
+        MOV     byte [VOLID],AL      ; No volume ID found
         DEC     AX
         MOV     [ENTFREE],AX
         MOV     [ENTLAST],AX
         return
-StartSrch   ENDP
+; ENDP StartSrch
 
 BREAK <MatchAttributes - the final check for attribute matching>
 
@@ -1062,7 +1062,7 @@ BREAK <MatchAttributes - the final check for attribute matching>
 ;           JNZ <nomatch>
 ;
         procedure MatchAttributes,near
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         PUSH    AX
         MOV     AL,[Attrib]         ; AL <- SearchSet
         NOT     AL                  ; AL <- SearchSet'
@@ -1075,10 +1075,10 @@ BREAK <MatchAttributes - the final check for attribute matching>
 ;
         POP     AX
         return
-MatchAttributes ENDP
+; ENDP MatchAttributes
 
 do_ext
 
-CODE    ENDS
-    END
+; END SECTION .CODE
+    ; END
                                                                                             

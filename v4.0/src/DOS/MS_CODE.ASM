@@ -3,22 +3,22 @@
 ; MSCODE.ASM -- MSDOS code
 ;
 
-.xlist
-.xcref
-include dossym.inc
-include devsym.inc
-include dosseg.asm
-include ifssym.inc
-include fastopen.inc
-include fastxxxx.inc
-.cref
-.list
+; .xlist
+; .xcref
+%include "dossym.inc"
+%include "devsym.inc"
+%include "dosseg.asm"
+%include "ifssym.inc"
+%include "fastopen.inc"
+%include "fastxxxx.inc"
+; .cref
+; .list
 
 AsmVars <Kanji, Debug>
 
-CODE	SEGMENT BYTE PUBLIC 'CODE'
+SECTION .CODE
 
-ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
     I_need  InDos,BYTE			; TRUE => we are in dos, no interrupt
     I_need  OpenBuf,128 		; temp name buffer
@@ -46,7 +46,7 @@ ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 BREAK <NullDev -- Driver for null device>
 
 procedure   SNULDEV,FAR
-ASSUME DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME DS:NOTHING,ES:NOTHING,SS:NOTHING
 	OR	ES:[BX.REQSTAT],STDON	; Set done bit
 entry INULDEV
 	RET				; MUST NOT BE A RETURN!
@@ -55,10 +55,10 @@ EndProc SNULDEV
 BREAK <AbsDRD, AbsDWRT -- INT int_disk_read, int_disk_write handlers>
 
 
-TABLE	SEGMENT
-Public MSC001S,MSC001E
-MSC001S label byte
-	IF	IBM
+SECTION .TABLE
+global MSC001S,MSC001E
+MSC001S:
+	%if IBM
 ; Codes returned by BIOS
 ERRIN:
 	DB	2			; NO RESPONSE
@@ -77,15 +77,15 @@ ERROUT:
 	DB	3			; WRITE ATTEMPT TO WRITE-PROTECT DISK
 
 NUMERR	EQU	$-ERROUT
-	ENDIF
-MSC001E label byte
+	%endif
+MSC001E:
 
-TABLE	ENDS
+; END SECTION .TABLE
 
 ;   AbsSetup - setup for abs disk functions
 
 Procedure   AbsSetup,NEAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:DOSGroup
 	INC	INDOS
 	STI
 	CLD
@@ -96,7 +96,7 @@ Procedure   AbsSetup,NEAR
 	MOV	ES:[BP.dpb_free_cnt],-1 ; do not trust user at all.
 errdriv:
 	POP	DS
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	retc
 
 	MOV	[HIGH_SECTOR],0 	;>32mb	from API			;AN000;
@@ -108,17 +108,17 @@ ASSUME	DS:NOTHING
 	PUSH	SI
 	PUSH	AX
 	Context DS
-	MOV	SI,OFFSET DOSGROUP:OPENBUF
+	MOV	SI,OPENBUF
 	MOV	[SI],AL
-	ADD	BYTE PTR [SI],"A"
-	MOV	WORD PTR [SI+1],003AH	; ":",0
+	ADD	byte [SI],"A"
+	MOV	word [SI+1],003AH	; ":",0
 	MOV	AX,0300H
 	CLC
 	INT	int_IBM 		; Will set carry if shared
 	POP	AX
 	POP	SI
 	POP	DS
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	retnc
 	MOV	ExtErr,error_not_supported
 	return
@@ -135,20 +135,20 @@ EndProc AbsSetup
 ;		    AL same as low byte of DI from INT 24
 
 	procedure   ABSDRD,FAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 	CLI
 	MOV	[user_SS],SS
 	MOV	[user_SP],SP
 	PUSH	CS
 	POP	SS
-ASSUME	SS:DOSGROUP
-	MOV	SP,OFFSET DOSGROUP:DSKSTACK
+; ASSUME	SS:DOSGROUP
+	MOV	SP,DSKSTACK
 	invoke	Save_World		      ;>32mb save all regs		;AN000;
 	PUSH	ES
 	CALL	AbsSetup
 	JC	ILEAVE
-if not ibmcopyright
+%if not ibmcopyright
 ; Here is a gross temporary fix to get around a serious design flaw in
 ;  the secondary cache.  The secondary cache does not check for media
 ;  changed (it should).  Hence, you can change disks, do an absolute
@@ -158,25 +158,25 @@ if not ibmcopyright
 	EnterCrit   critDisk
 	MOV	[CURSC_DRIVE],-1	      ; invalidate SC			;AN000;
 	LeaveCrit   critDisk
-endif
+%endif
 	invoke	DSKREAD
 TLEAVE:
 	JZ	ILEAVE
 
-	IF	IBM
+	%if IBM
 ; Translate the error code to ancient 1.1 codes
 	PUSH	ES
 	PUSH	CS
 	POP	ES
 	XOR	AH,AH			; Nul error code
 	MOV	CX,NUMERR		; Number of possible error conditions
-	MOV	DI,OFFSET DOSGROUP:ERRIN    ; Point to error conditions
+	MOV	DI,ERRIN    ; Point to error conditions
 	REPNE	SCASB
 	JNZ	LEAVECODE		; Not found
 	MOV	AH,ES:[DI+NUMERR-1]	; Get translation
 LEAVECODE:
 	POP	ES
-	ENDIF
+	%endif
 	MOV	[IFS_DRIVER_ERR],AX	;>32mb save error
 	STC
 ILEAVE:
@@ -185,7 +185,7 @@ ILEAVE:
 	CLI
 	DEC	INDOS
 	MOV	SS,[user_SS]
-ASSUME	SS:NOTHING
+; ASSUME	SS:NOTHING
 	MOV	SP,[user_SP]
 	MOV	AX,[IFS_DRIVER_ERR]	     ;>32mb restore error		;AN000;
 	STI
@@ -203,15 +203,15 @@ EndProc ABSDRD
 ;		    AL same as low byte of DI from INT 24
 
 	procedure   ABSDWRT,FAR
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 	CLI
 	MOV	[user_SS],SS
 	MOV	[user_SP],SP
 	PUSH	CS
 	POP	SS
-ASSUME	SS:DOSGROUP
-	MOV	SP,OFFSET DOSGROUP:DSKSTACK
+; ASSUME	SS:DOSGROUP
+	MOV	SP,DSKSTACK
 	invoke	Save_World		      ;>32mb save all regs		;AN000;
 
 	PUSH	ES
@@ -240,7 +240,7 @@ EndProc ABSDWRT
 
 Procedure GETBP,NEAR
 	DOSAssume   CS,<DS>,"GetBP"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	PUSH	AX
 	ADD	AL,1			; No increment; need carry flag
@@ -274,14 +274,14 @@ GETBP_CDS:
 	DOSAssume   CS,<DS>,"GotDPB"
 ; Load THISDPB from ES:BP
 
-	MOV	WORD PTR [THISDPB],BP
-	MOV	WORD PTR [THISDPB+2],ES
+	MOV	word [THISDPB],BP
+	MOV	word [THISDPB+2],ES
 	return
 EndProc GetBP
 
 BREAK <SYS_RET_OK SYS_RET_ERR CAL_LK ETAB_LK set system call returns>
 
-ASSUME	SS:DOSGROUP
+; ASSUME	SS:DOSGROUP
 
 ;
 ; These are the general system call exit mechanisms.  All internal system
@@ -290,7 +290,7 @@ ASSUME	SS:DOSGROUP
 ;
 
 procedure   SYS_RETURN,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 entry	SYS_RET_OK
 	invoke	FETCHI_CHECK		; TAG checking for FETCHI
 	invoke	get_user_stack
@@ -323,11 +323,11 @@ DO_RET:
 
 	entry	errorMap
 	PUSH	SI
-	MOV	SI,OFFSET DOSGROUP:ERR_TABLE_21
+	MOV	SI,ERR_TABLE_21
 	CMP	[FAILERR],0		; Check for SPECIAL case.
 	JZ	EXTENDED_NORMAL 	; All is OK.
 	MOV	[EXTERR],error_FAIL_I24 ; Ooops, this is the REAL reason
-	MOV	SI,OFFSET DOSGROUP:ERR_TABLE_21
+	MOV	SI,ERR_TABLE_21
 EXTENDED_NORMAL:
 	invoke	CAL_LK			; Set CLASS,ACTION,LOCUS for EXTERR
 	POP	SI
@@ -348,7 +348,7 @@ EndProc SYS_RETURN
 ; Destroys SI, FLAGS
 
 	procedure   CAL_LK,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 	PUSH	DS
 	PUSH	AX
@@ -396,7 +396,7 @@ EndProc CAL_LK
 ; Destroys ONLY AX and FLAGS
 
 	procedure   ETAB_LK,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 	PUSH	DS
 	PUSH	SI
@@ -404,9 +404,9 @@ ASSUME	DS:NOTHING,ES:NOTHING
 	PUSH	BX
 	Context DS
 	MOV	[EXTERR],AX		; Set EXTERR with "real" error
-	MOV	SI,OFFSET DOSGROUP:I21_MAP_E_TAB
+	MOV	SI,I21_MAP_E_TAB
 	MOV	BH,AL			; Real code to BH
-	MOV	BL,BYTE PTR [USER_IN_AX + 1]	; Sys call to BL
+	MOV	BL,byte [USER_IN_AX + 1]	; Sys call to BL
 TABLK2:
 	LODSW
 	CMP	AL,0FFH 		; End of table?
@@ -442,13 +442,13 @@ EndProc ETAB_LK
 
 BREAK <DOS 2F Handler and default NET 2F handler>
 
-IF installed
+%if installed
 
 ;
 ; SetBad sets up info for bad functions
 ;
 Procedure   SetBad,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	MOV	AX,error_invalid_function	; ALL NET REQUESTS get inv func
 	MOV	ExtErr_LOCUS,errLoc_UNK
 	STC
@@ -465,7 +465,7 @@ EndProc BadCall
 ; OKCall always sets carry to off.
 ;
 Procedure   OKCall,FAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	CLC
 	ret
 EndProc OKCall
@@ -477,11 +477,11 @@ EndProc OKCall
 ;   POP     ...
 ; The handler itself needs to make the AX available for the various routines.
 
-PUBLIC	Int2F
-INT2F	PROC	FAR
+global Int2F
+INT2F:
 
 INT2FNT:
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	STI
 	CMP	AH,multNET
 	JNZ	INT2FSHR
@@ -502,12 +502,12 @@ INT2FNLS:
 	JZ	TestInstall		; yes check for installation
 
 INT2FDOS:
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	CMP	AH,multDOS
 	JZ	DispatchDOS
 	IRET				; This assume that we are at the head
 					; of the list
-INT2F	ENDP
+; ENDP INT2F
 
 DispatchDOS:
 	PUSH	FOO			; push return address
@@ -540,7 +540,7 @@ Procedure   INT2F_etcetera,NEAR
 	return
 EndProc INT2F_etcetera
 
-ENDIF
+%endif
 ;Input: same as ABSDRD and ABSDWRT
 ;	 ES:BP -> DPB
 ;Functions: convert 32bit absolute RW input parms to 16bit input parms
@@ -548,7 +548,7 @@ ENDIF
 ;	 carry clear, parms ok
 ;
 Procedure   RW32_CONVERT,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	CMP	CX,-1			     ;>32mb  new format ?		;AN000;
 	JZ	new32format		     ;>32mb  yes			;AN000;
 	PUSH	AX			     ;>32mb  save ax			;AN000;
@@ -569,9 +569,9 @@ letold:
 	STC				     ;>32mb				;AN000;
 	return				     ;>32mb				;AN000;
 new32format:
-	MOV	DX,WORD PTR [BX.SECTOR_RBA+2];>32mb				;AN000;
+	MOV	DX,word [BX.SECTOR_RBA+2];>32mb				;AN000;
 	MOV	[HIGH_SECTOR],DX	     ;>32mb				;AN000;
-	MOV	DX,WORD PTR [BX.SECTOR_RBA]  ;>32mb				;AN000;
+	MOV	DX,word [BX.SECTOR_RBA]  ;>32mb				;AN000;
 	MOV	CX,[BX.ABS_RW_COUNT]	     ;>32mb				;AN000;
 	LDS	BX,[BX.BUFFER_ADDR]	     ;>32mb				;AN000;
 old_style:				     ;>32mb				;AN000;
@@ -586,7 +586,7 @@ EndProc RW32_CONVERT
 ;
 ;
 Procedure   Fastxxx_Purge,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSH	AX			      ; save regs.			;AN000;
 	PUSH	SI								;AN000;
 	PUSH	DX								;AN000;
@@ -610,5 +610,5 @@ nofast:
 	return				      ; exit				;AN000;
 EndProc Fastxxx_Purge
 
-CODE	ENDS
+; END SECTION .CODE
 

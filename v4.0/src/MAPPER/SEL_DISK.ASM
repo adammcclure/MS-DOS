@@ -1,10 +1,10 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosSelectDisk mapper
+; title CP/DOS DosSelectDisk mapper
 ;
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -21,19 +21,19 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dosselectdisk
-            .sall
-            .xlist
-            include  macros.inc
-            .list
+            global dosselectdisk
+            ; .sall
+            ; .xlist
+            %include "macros.inc"
+            ; .list
 
-str         struc
-old_bp      dw       ?
-Return      dd       ?
-Drive       dw       ?       ; drive number
-str         ends
+struc str
+old_bp: dw 0
+Return: dd 0
+Drive: dw 0; drive number
+endstruc
 
-dosselectdisk  proc  far
+dosselectdisk:
         Enter   Dosselectdisk         ; push registers
 
         mov     dx,[bp].drive         ; load drive number
@@ -45,10 +45,10 @@ dosselectdisk  proc  far
         sub     ax,ax                 ; set good return code
 
         mexit                         ; pop registers
-        ret     size str - 6          ; return
+        ret     str_size - 6          ; return
 
-dosselectdisk endp
+; ENDP dosselectdisk
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

@@ -38,32 +38,32 @@
 ;       +---------------------------+
 ;
 
-sys_fcb     STRUC
-fcb_drive   DB      ?
-fcb_name    DB      8 DUP (?)
-fcb_ext     DB      3 DUP (?)
-fcb_EXTENT  DW      ?
-fcb_RECSIZ  DW      ?                   ; Size of record (user settable)
-fcb_FILSIZ  DW      ?                   ; Size of file in bytes; used with the
+struc sys_fcb
+fcb_drive: db 0
+fcb_name: times 8 db 0
+fcb_ext: times 3 db 0
+fcb_EXTENT: dw 0
+fcb_RECSIZ: dw 0; Size of record (user settable)
+fcb_FILSIZ: dw 0; Size of file in bytes; used with the
                                         ; following word
-fcb_DRVBP   DW      ?                   ; BP for SEARCH FIRST and SEARCH NEXT
-fcb_FDATE   DW      ?                   ; Date of last writing
-fcb_FTIME   DW      ?                   ; Time of last writing
+fcb_DRVBP: dw 0; BP for SEARCH FIRST and SEARCH NEXT
+fcb_FDATE: dw 0; Date of last writing
+fcb_FTIME: dw 0; Time of last writing
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;                                                                          ;
-fcb_reserved DB      8 DUP (?)           ; RESERVED
+fcb_reserved: times 8 db 0; RESERVED
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
-fcb_NR      DB      ?                   ; Next record
-fcb_RR      DB      4 DUP (?)           ; Random record
-sys_fcb     ENDS
+fcb_NR: db 0; Next record
+fcb_RR: times 4 db 0; Random record
+endstruc
 
 FILDIRENT       = fcb_FILSIZ            ; Used only by SEARCH FIRST and SEARCH
                                         ; NEXT
 
-fcb_sfn         EQU     BYTE PTR fcb_reserved
+fcb_sfn         EQU     byte fcb_reserved
 
 ; Note that fcb_net_handle, fcb_nsl_drive, fcb_nsld_drive and fcb_l_drive
 ; all must point to the same byte.  Otherwise, the FCBRegen will fail.
@@ -77,32 +77,32 @@ fcb_sfn         EQU     BYTE PTR fcb_reserved
 ;
 ; Network FCB
 ;
-fcb_net_drive   EQU     BYTE PTR fcb_reserved+1
-fcb_net_handle  EQU     WORD PTR fcb_reserved+2
-fcb_netID       EQU     DWORD PTR fcb_reserved+4
+fcb_net_drive   EQU     byte fcb_reserved+1
+fcb_net_handle  EQU     word fcb_reserved+2
+fcb_netID       EQU     dword fcb_reserved+4
 
 ;
 ; No sharing local file FCB
 ;
-fcb_nsl_drive   EQU     BYTE PTR fcb_reserved+1
-fcb_nsl_bits    EQU     BYTE PTR fcb_reserved+2
-fcb_nsl_firclus EQU     WORD PTR fcb_reserved+3
-fcb_nsl_dirsec  EQU     WORD PTR fcb_reserved+5
-fcb_nsl_dirpos  EQU     BYTE PTR fcb_reserved+7
+fcb_nsl_drive   EQU     byte fcb_reserved+1
+fcb_nsl_bits    EQU     byte fcb_reserved+2
+fcb_nsl_firclus EQU     word fcb_reserved+3
+fcb_nsl_dirsec  EQU     word fcb_reserved+5
+fcb_nsl_dirpos  EQU     byte fcb_reserved+7
 
 ;
 ; No sharing local device FCB
 ;
-fcb_nsld_drive  EQU     BYTE PTR fcb_reserved+1
-fcb_nsld_drvptr EQU     DWORD PTR fcb_reserved+2
+fcb_nsld_drive  EQU     byte fcb_reserved+1
+fcb_nsld_drvptr EQU     dword fcb_reserved+2
 
 ;
 ; Sharing local FCB
 ;
-fcb_l_drive     EQU     BYTE PTR fcb_reserved+1
-fcb_l_firclus   EQU     WORD PTR fcb_reserved+2
-fcb_l_mfs       EQU     WORD PTR fcb_reserved+4
-fcb_l_attr      EQU     BYTE PTR fcb_reserved+6
+fcb_l_drive     EQU     byte fcb_reserved+1
+fcb_l_firclus   EQU     word fcb_reserved+2
+fcb_l_mfs       EQU     word fcb_reserved+4
+fcb_l_attr      EQU     byte fcb_reserved+6
 
 ;
 ; Bogusness:  the four cases are:

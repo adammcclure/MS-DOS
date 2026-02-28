@@ -1,7 +1,7 @@
-	PAGE	,132			;
+	; PAGE	,132;
 ;	SCCSID = @(#)sysinit2.asm	1.13 85/10/15
-TITLE	BIOS SYSTEM INITIALIZATION
-%OUT ...SYSINIT2
+; TITLE	BIOS SYSTEM INITIALIZATION
+%warning ...SYSINIT2
 
 ;==============================================================================
 ;REVISION HISTORY:
@@ -42,70 +42,70 @@ MSVER	   EQU	   FALSE
 ALTVECT    EQU	   FALSE		;Switch to build ALTVECT version
 KANJI	   EQU	   FALSE
 
-	IF	IBMJAPVER
+	%if IBMJAPVER
 NOEXEC	EQU	TRUE
-	ELSE
+	%else
 NOEXEC	EQU	FALSE
-	ENDIF
+	%endif
 
 DOSSIZE EQU	0A000H
 
-.xlist
+; .xlist
 ;	INCLUDE dossym.INC
-	include smdossym.inc	;J.K. Reduced version of DOSSYM.INC
-	INCLUDE devsym.INC
-	include ioctl.INC
-	include DEVMARK.inc
-.list
+	%include "smdossym.inc";J.K. Reduced version of DOSSYM.INC
+	%include "devsym.INC"
+	%include "ioctl.INC"
+	%include "DEVMARK.inc"
+; .list
 
-	IF	NOT IBM
-	IF	NOT IBMJAPVER
-	EXTRN	RE_INIT:FAR
-	ENDIF
-	ENDIF
+	%if NOT IBM
+	%if NOT IBMJAPVER
+	extern RE_INIT
+	%endif
+	%endif
 
-code segment public 'code'
-	extrn EC35_Flag: byte
-code ends
+SECTION .code
+	extern EC35_Flag: byte
+; END SECTION .code
 
-SYSINITSEG	SEGMENT PUBLIC 'SYSTEM_INIT' BYTE
+SECTION .SYSINITSEG
 
-ASSUME	CS:SYSINITSEG,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:SYSINITSEG,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	EXTRN	BADOPM:BYTE,CRLFM:BYTE,BADCOM:BYTE,BADMEM:BYTE,BADBLOCK:BYTE
-	EXTRN	BADSIZ_PRE:BYTE,BADLD_PRE:BYTE
+	extern BADOPM,CRLFM,BADCOM,BADMEM,BADBLOCK
+	extern BADSIZ_PRE,BADLD_PRE
 ;	 EXTRN	 BADSIZ_POST:BYTE,BADLD_POST:BYTE
-	EXTRN	SYSSIZE:BYTE,BADCOUNTRY:BYTE
+	extern SYSSIZE,BADCOUNTRY
 
-	EXTRN  dosinfo:dword,entry_point:dword,
-	EXTRN  MEMORY_SIZE:WORD,fcbs:byte,keep:byte
-	EXTRN  DEFAULT_DRIVE:BYTE,confbot:word,alloclim:word
-	EXTRN  BUFFERS:WORD,zero:byte,sepchr:byte
-	EXTRN  FILES:BYTE
-	EXTRN  count:word,chrptr:word
-	EXTRN  bufptr:byte,memlo:word,prmblk:byte,memhi:word
-	EXTRN  ldoff:word,area:word,PACKET:BYTE,UNITCOUNT:BYTE,
-	EXTRN  BREAK_ADDR:DWORD,BPB_ADDR:DWORD,drivenumber:byte
-	extrn  COM_Level:byte, CMMT:byte, CMMT1:byte, CMMT2:byte
-	extrn  Cmd_Indicator:byte
-	extrn  DoNotShowNum:byte
-	extrn  MultDeviceFlag:byte
-	extrn  DevMark_Addr:word			;AN005;
-	extrn  SetDevMarkFlag:byte			;AN005;
-	extrn  Org_Count:word				;AN012;
+	extern dosinfo,entry_point,
+	extern MEMORY_SIZE,fcbs,keep
+	extern DEFAULT_DRIVE,confbot,alloclim
+	extern BUFFERS,zero,sepchr
+	extern FILES
+	extern count,chrptr
+	extern bufptr,memlo,prmblk,memhi
+	extern ldoff,area,PACKET,UNITCOUNT,
+	extern BREAK_ADDR,BPB_ADDR,drivenumber
+	extern COM_Level, CMMT, CMMT1, CMMT2
+	extern Cmd_Indicator
+	extern DoNotShowNum
+	extern MultDeviceFlag
+	extern DevMark_Addr;AN005;
+	extern SetDevMarkFlag;AN005;
+	extern Org_Count;AN012;
 
-	EXTRN  Stall:near
-	EXTRN  Error_Line:near
+	extern Stall
+	extern Error_Line
 
-	PUBLIC Int24,Open_Dev,Organize,Mem_Err,Newline,CallDev,Badload
-	PUBLIC PrnDev,AuxDev,Config,Commnd,Condev,GetNum,BadFil,PrnErr
-	PUBLIC Round,Delim,Print,Set_Break
-	PUBLIC SetParms, ParseLine, DiddleBack
-	PUBLIC Skip_delim,SetDOSCountryInfo,Set_Country_Path,Move_Asciiz
-	PUBLIC Cntry_Drv,Cntry_Root,Cntry_Path
-	PUBLIC Delim
-	public PathString				;AN014;
-	public LShare					;AN014;
+	global Int24,Open_Dev,Organize,Mem_Err,Newline,CallDev,Badload
+	global PrnDev,AuxDev,Config,Commnd,Condev,GetNum,BadFil,PrnErr
+	global Round,Delim,Print,Set_Break
+	global SetParms, ParseLine, DiddleBack
+	global Skip_delim,SetDOSCountryInfo,Set_Country_Path,Move_Asciiz
+	global Cntry_Drv,Cntry_Root,Cntry_Path
+	global Delim
+	global PathString;AN014;
+	global LShare;AN014;
 
 ;
 ; The following set of routines is used to parse the DRIVPARM = command in
@@ -119,23 +119,23 @@ SetParms:
 	push	dx
 	push	cs
 	pop	ds
-	ASSUME DS:SYSINITSEG
+	; ASSUME DS:SYSINITSEG
 	xor	bx,bx
-	mov	bl,byte ptr drive
+	mov	bl,byte drive
 	inc	bl		    ; get it correct for IOCTL call (1=A,2=B...)
-	mov	dx,offset DeviceParameters
+	mov	dx,DeviceParameters
 	mov	ah, IOCTL
 	mov	al, GENERIC_IOCTL
 	mov	ch, RAWIO
 	mov	cl, SET_DEVICE_PARAMETERS
 	int	21H
-	test	word ptr Switches, flagec35
+	test	word Switches, flagec35
 	jz	Not_EC35
 
-	mov	cl, byte ptr drive	; which drive was this for?
+	mov	cl, byte drive	; which drive was this for?
 	mov	ax, Code		; get Code segment
 	mov	ds, ax			; set code segment
-	assume ds:code
+	; assume ds:code
 	mov	al, 1			; assume drive 0
 	shl	al, cl			; set proper bit depending on drive
 	or	ds:EC35_Flag, al	; set the bit in the permanent flags
@@ -146,7 +146,7 @@ Not_EC35:
 	pop	bx
 	pop	ax
 	pop	ds
-	assume ds:nothing
+	; assume ds:nothing
 	ret
 
 ;
@@ -156,13 +156,13 @@ DiddleBack:
 	push	ds
 	push	cs
 	pop	ds
-	assume	ds:sysinitseg
-	mov	word ptr DeviceParameters.DP_Cylinders,80
-	mov	byte ptr DeviceParameters.DP_DeviceType, DEV_3INCH720KB
-	mov	word ptr DeviceParameters.DP_DeviceAttributes,0
-	mov	word ptr switches,0	    ; zero all switches
+	; assume	ds:sysinitseg
+	mov	word DeviceParameters.DP_Cylinders,80
+	mov	byte DeviceParameters.DP_DeviceType, DEV_3INCH720KB
+	mov	word DeviceParameters.DP_DeviceAttributes,0
+	mov	word switches,0	    ; zero all switches
 	pop	ds
-	assume	ds:nothing
+	; assume	ds:nothing
 	ret
 
 ;
@@ -172,7 +172,7 @@ ParseLine:			    ; don't get character first time
 	push	ds
 	push	cs
 	pop	ds
-	ASSUME	DS:SYSINITSEG
+	; ASSUME	DS:SYSINITSEG
 NextSwtch:
 	cmp	al,CR			; carriage return?
 	jz	done_line
@@ -188,7 +188,7 @@ NextSwtch:
 
 getparm:
 	call	Check_Switch
-	mov	word ptr Switches,BX	     ; save switches read so far
+	mov	word Switches,BX	     ; save switches read so far
 	jc	swterr
 get_next:
 	invoke	getchr
@@ -198,16 +198,16 @@ swterr:
 	jmp	exitpl		    ; exit if error
 
 done_line:
-	test	word ptr Switches,flagdrive  ; see if drive specified
+	test	word Switches,flagdrive  ; see if drive specified
 	jnz	okay
 	stc			    ; mark error no-drive-specified
 	jmp	short exitpl
 
 okay:
-	mov	ax,word ptr switches
+	mov	ax,word switches
 	and	ax,0003H	    ; get flag bits for changeline and non-rem
-	mov	word ptr DeviceParameters.DP_DeviceAttributes,ax
-	mov	word ptr DeviceParameters.DP_TrackTableEntries, 0
+	mov	word DeviceParameters.DP_DeviceAttributes,ax
+	mov	word DeviceParameters.DP_TrackTableEntries, 0
 	clc			    ; everything is fine
 	call	SetDeviceParameters
 exitpl:
@@ -235,15 +235,15 @@ Check_Switch:
 	push	es
 	push	cs
 	pop	es
-	mov	cl,byte ptr switchlist	     ; get number of valid switches
+	mov	cl,byte switchlist	     ; get number of valid switches
 	mov	ch,0
-	mov	di,1+offset switchlist	; point to string of valid switches
+	mov	di,1+switchlist	; point to string of valid switches
 	repne	scasb
 	pop	es
 	jnz	err_check
 	mov	ax,1
 	shl	ax,cl		; set bit to indicate switch
-	mov	bx,word ptr switches	 ; get switches so far
+	mov	bx,word switches	 ; get switches so far
 	or	bx,ax		; save this with other switches
 	mov	cx,ax
 	test	ax, switchnum	; test against switches that require number to follow
@@ -254,9 +254,9 @@ Check_Switch:
 	jnz	err_swtch
 	invoke	getchr
 	push	bx			; preserve switches
-	mov	byte ptr cs:sepchr,' '          ; allow space separators
+	mov	byte cs:sepchr,' '          ; allow space separators
 	call	GetNum
-	mov	byte ptr cs:sepchr,0
+	mov	byte cs:sepchr,0
 	pop	bx			; restore switches
 ; Because GetNum does not consider carriage-return or line-feed as OK, we do
 ; not check for carry set here. If there is an error, it will be detected
@@ -280,11 +280,11 @@ err_check:
 ; variable at the beginning. Zero is OK for form factor and drive, however.
 ;
 Process_Num:
-	test	word ptr Switches,cx	 ; if this switch has been done before,
+	test	word Switches,cx	 ; if this switch has been done before,
 	jnz	done_ret	    ; ignore this one.
 	test	cx,flagdrive
 	jz	try_f
-	mov	byte ptr drive,al
+	mov	byte drive,al
 	jmp	short done_ret
 
 try_f:
@@ -293,7 +293,7 @@ try_f:
 ; Ensure that we do not get bogus form factors that are not supported
 	;cmp	al,Max_Dev_Type
 	;ja	done_ret
-	mov	byte ptr DeviceParameters.DP_DeviceType,al
+	mov	byte DeviceParameters.DP_DeviceType,al
 	jmp	short done_ret
 
 try_t:
@@ -301,18 +301,18 @@ try_t:
 	jz	done_ret	    ; if number entered was 0, assume default value
 	test	cx,flagcyln
 	jz	try_s
-	mov	word ptr DeviceParameters.DP_Cylinders,ax
+	mov	word DeviceParameters.DP_Cylinders,ax
 	jmp	short done_ret
 
 try_s:
 	test	cx,flagseclim
 	jz	try_h
-	mov	word ptr slim,ax
+	mov	word slim,ax
 	jmp	short done_ret
 ;
 ; Must be for number of heads
 try_h:
-	mov	word ptr hlim,ax
+	mov	word hlim,ax
 
 done_ret:
 	clc
@@ -330,33 +330,33 @@ SetDeviceParameters:
 	push	es
 	push	cs
 	pop	es
-ASSUME ES:SYSINITSEG
+; ASSUME ES:SYSINITSEG
 	xor	bx,bx
-	mov	bl,byte ptr DeviceParameters.DP_DeviceType
+	mov	bl,byte DeviceParameters.DP_DeviceType
 	cmp	bl,DEV_5INCH
 	jnz	Got_80
 	mov	cx,40			; 48tpi has 40 cylinders
-	mov	word ptr DeviceParameters.DP_Cylinders,cx
+	mov	word DeviceParameters.DP_Cylinders,cx
 Got_80:
 	shl	bx,1			; get index into BPB table
-	mov	si,offset BPBTable
-	mov	si,word ptr [si+bx]	; get address of BPB
+	mov	si,BPBTable
+	mov	si,word [si+bx]	; get address of BPB
 Set_RecBPB:
-	mov	di,offset DeviceParameters.DP_BPB	 ; es:di -> BPB
-	mov	cx,size a_BPB
+	mov	di,DeviceParameters.DP_BPB	 ; es:di -> BPB
+	mov	cx,a_BPB_size
 	cld
 	repe	movsb
 	pop	es
-ASSUME ES:NOTHING
-	test	word ptr switches,flagseclim
+; ASSUME ES:NOTHING
+	test	word switches,flagseclim
 	jz	see_heads
-	mov	ax,word ptr slim
-	mov	word ptr DeviceParameters.DP_BPB.BPB_SectorsPerTrack,ax
+	mov	ax,word slim
+	mov	word DeviceParameters.DP_BPB.BPB_SectorsPerTrack,ax
 see_heads:
-	test	word ptr switches,flagheads
+	test	word switches,flagheads
 	jz	Set_All_Done
-	mov	ax,word ptr hlim
-	mov	word ptr DeviceParameters.DP_BPB.BPB_Heads,ax
+	mov	ax,word hlim
+	mov	word DeviceParameters.DP_BPB.BPB_Heads,ax
 ;
 ; We need to set the media byte and the total number of sectors to reflect the
 ; number of heads. We do this by multiplying the number of heads by the number
@@ -374,7 +374,7 @@ see_heads:
 	mov	bl,0F0H
 	mov	al,2			; AL contains sectors/cluster
 	ja	Got_Correct_Mediad
-	mov	bl,byte ptr DeviceParameters.DP_BPB.BPB_MediaDescriptor
+	mov	bl,byte DeviceParameters.DP_BPB.BPB_MediaDescriptor
 	je	Got_Correct_Mediad
 ; We have one head - OK for 48tpi medium
 	mov	al,1			; AL contains sectors/cluster
@@ -386,13 +386,13 @@ see_heads:
 Dec_Mediad:
 	dec	bl			; adjust for one head
 Got_Correct_Mediad:
-	mov	byte ptr DeviceParameters.DP_BPB.BPB_MediaDescriptor,bl
-	mov	byte ptr DeviceParameters.DP_BPB.BPB_SectorsPerCluster,al
+	mov	byte DeviceParameters.DP_BPB.BPB_MediaDescriptor,bl
+	mov	byte DeviceParameters.DP_BPB.BPB_SectorsPerCluster,al
 	clc
 Set_All_Done:
 	RET
 
-ASSUME DS:NOTHING, ES:NOTHING
+; ASSUME DS:NOTHING, ES:NOTHING
 
 NOCHAR1: STC
 	 return
@@ -428,7 +428,7 @@ Findit: 				;AN000;
 	PUSH	DI
 	MOV	BP,SI
 	DEC	BP
-	MOV	SI,OFFSET COMTAB	;Prepare to search command table
+	MOV	SI,COMTAB	;Prepare to search command table
 	MOV	CH,0
 FINDCOM:
 	MOV	DI,BP
@@ -441,12 +441,12 @@ FINDCOM:
 	SAHF
 	LODSB				;Get indicator letter
 	JNZ	FINDCOM
-	cmp	byte ptr es:[di], CR	;AN011;The next char might be CR,LF
+	cmp	byte es:[di], CR	;AN011;The next char might be CR,LF
 	je	GotCom0 		;AN011; such as in "REM",CR,LF case.
-	cmp	byte ptr es:[di], LF	;AN011;
+	cmp	byte es:[di], LF	;AN011;
 	je	GotCom0 		;AN011;
 	push	ax			;AN010;
-	mov	al, byte ptr es:[di]	;AN010;Now the next char. should be a delim.
+	mov	al, byte es:[di]	;AN010;Now the next char. should be a delim.
 	call	delim			;AN010;
 	pop	ax			;AN010;
 	jnz	findcom 		;AN010;
@@ -568,17 +568,17 @@ Get_Cmt_End:				;AN000;
 End_Commd_Line_Brdg: jmp End_Commd_Line ;AN000; else jmp to End_Commd_Line
 
 Org_Put_Zero:				;AN000; Make the filename in front of
-	mov	byte ptr es:[di], 0	;AN000;  the comment string to be an asciiz.
+	mov	byte es:[di], 0	;AN000;  the comment string to be an asciiz.
 	inc	di			;AN000;
 	jmp	End_Commd_Line		;AN000;  (Maybe null if device=/*)
 End_file_slash: 			;AN000; AL = "/" option char.
-	mov	byte ptr es:[di],0	;AN000; make a filename an asciiz
+	mov	byte es:[di],0	;AN000; make a filename an asciiz
 	inc	di			;AN000; and
 	stosb				;AN000; store "/" after that.
 	jmp	Org5			;AN000; continue with the rest of the line
 
 End_Copy_File:				;AN000;
-	mov	byte ptr es:[di-1], 0	;AN000; make it an asciiz and handle the next char.
+	mov	byte es:[di-1], 0	;AN000; make it an asciiz and handle the next char.
 	cmp	al, LF			;AN000;
 	je	End_Commd_Line_brdg	;AN000;
 	jmp	Org5			;AN000;
@@ -741,7 +741,7 @@ MAPCASE:
 CONVLOOP:
 	LODSB
 
-	IF	KANJI
+	%if KANJI
 	CALL	TESTKANJ
 	JZ	NORMCONV
 	INC	SI			;Skip next char
@@ -749,7 +749,7 @@ CONVLOOP:
 	JCXZ	CONVDONE		;Just ignore 1/2 kanji error
 ;Fall through, know AL is not in 'a'-'z' range
 NORMCONV:
-	ENDIF
+	%endif
 
 	CMP	AL,'a'
 	JB	NOCONV
@@ -765,7 +765,7 @@ CONVDONE:
 	POP	CX
 	return
 
-	IF	KANJI
+	%if KANJI
 TESTKANJ:
 	CMP	AL,81H
 	JB	NOTLEAD
@@ -787,9 +787,9 @@ ISLEAD:
 	INC	AX			;Reset zero
 	POP	AX
 	return
-	ENDIF
+	%endif
 
-ASSUME DS:NOTHING
+; ASSUME DS:NOTHING
 
 Yes_Break_Failed:			;device driver Init failed and aborted.
 	stc
@@ -809,18 +809,18 @@ SET_BREAK:
 ;of the drives.
 
 	PUSH	AX
-	MOV	AX,WORD PTR [BREAK_ADDR+2]  ;REMOVE THE INIT CODE
+	MOV	AX,word [BREAK_ADDR+2]  ;REMOVE THE INIT CODE
 	cmp	MultDeviceFlag, 0	    ;AN001;
 	jne	Set_Break_Continue	    ;AN001;Do not check it.
 	cmp	ax, [MEMHI]
 	jne	Set_Break_Continue	    ;if not same, then O.K.
 
-	cmp	word ptr [BREAK_ADDR],0
+	cmp	word [BREAK_ADDR],0
 	je	Yes_Break_failed	    ;[Break_addr+2]=[MEMHI] & [Break_addr]=0
 
 Set_Break_Continue:
 	MOV	[MEMHI],AX
-	MOV	AX,WORD PTR [BREAK_ADDR]
+	MOV	AX,word [BREAK_ADDR]
 	MOV	[MEMLO],AX
 	POP	AX			    ; NOTE FALL THROUGH
 	or	[SetDevMarkFlag], SETBRKDONE	;AN005; Signal the successful Set_break
@@ -858,20 +858,20 @@ Skip_Set_DEVMARKSIZE:					;AN005;
 	return
 
 MEM_ERR:
-	MOV	DX,OFFSET BADMEM
+	MOV	DX,BADMEM
 	PUSH	CS
 	POP	DS
 	CALL	PRINT
 	JMP	STALL
 
-CALLDEV:MOV	DS,WORD PTR CS:[ENTRY_POINT+2]
-	ADD	BX,WORD PTR CS:[ENTRY_POINT]	;Do a little relocation
+CALLDEV:MOV	DS,word CS:[ENTRY_POINT+2]
+	ADD	BX,word CS:[ENTRY_POINT]	;Do a little relocation
 	MOV	AX,DS:[BX]
-	PUSH	WORD PTR CS:[ENTRY_POINT]
-	MOV	WORD PTR CS:[ENTRY_POINT],AX
-	MOV	BX,OFFSET PACKET
+	PUSH	word CS:[ENTRY_POINT]
+	MOV	word CS:[ENTRY_POINT],AX
+	MOV	BX,PACKET
 	CALL	[ENTRY_POINT]
-	POP	WORD PTR CS:[ENTRY_POINT]
+	POP	word CS:[ENTRY_POINT]
 	return
 
 BADNUM:
@@ -933,7 +933,7 @@ B1:	MOV	AX,BX			; get proper count
 	pop	bx
 	return
 
-SKIP_DELIM	proc	near		;J.K.
+SKIP_DELIM:;J.K.
 ;Skip the delimeters pointed by CHRPTR.  AL will contain the first non delimeter
 ;character encountered and CHRPTR will point to the next character.
 ;This rouitne will assume the second "," found as a non delimiter character. So
@@ -957,10 +957,10 @@ Skip_delim_next:
 	jz	Skip_delim_next
 Skip_delim_exit:
 	return
-SKIP_DELIM	endp
+; ENDP SKIP_DELIM
 
 ;J.K. 5/26/86 *****************************************************************
-SetDOSCountryInfo	proc	near
+SetDOSCountryInfo:
 ;Input: ES:DI -> pointer to DOS_COUNTRY_CDPG_INFO
 ;	DS:0  -> buffer.
 ;	SI = 0
@@ -986,7 +986,7 @@ SetDOSCountryInfo	proc	near
 	push	si
 	push	cs
 	pop	es
-	mov	di, offset COUNTRY_FILE_SIGNATURE
+	mov	di, COUNTRY_FILE_SIGNATURE
 	mov	cx, 8			;length of the signature
 	repz	cmpsb
 	pop	si
@@ -994,15 +994,15 @@ SetDOSCountryInfo	proc	near
 	jnz	SetDOSData_fail 	;signature mismatch
 
 	add	si, 18			;SI -> county info type
-	cmp	byte ptr ds:[si], 1	;Only accept type 1 (Currently only 1 header type)
+	cmp	byte ds:[si], 1	;Only accept type 1 (Currently only 1 header type)
 	jne	SetDOSData_fail 	;cannot proceed. error return
 	inc	si			;SI -> file offset
-	mov	dx, word ptr ds:[si]	;Get the INFO file offset.
-	mov	cx, word ptr ds:[si+2]
+	mov	dx, word ds:[si]	;Get the INFO file offset.
+	mov	cx, word ds:[si+2]
 	mov	ax, 1024		;read 1024 bytes.
 	call	ReadInControlBuffer	;Read INFO
 	jc	SetDOSData_fail
-	mov	cx, word ptr ds:[si]	;get the # of country, codepage combination entries
+	mov	cx, word ds:[si]	;get the # of country, codepage combination entries
 	cmp	cx, 72			;cannot handle more than 72 entries.
 	ja	SetDOSData_fail
 	inc	si
@@ -1012,14 +1012,14 @@ SetDOSCountryInfo	proc	near
 	pop	di
 
 SetDOSCntry_find:			;Search for desired country_id,codepage_id.
-	cmp	ax, word ptr ds:[si+2]	;compare country_id
+	cmp	ax, word ds:[si+2]	;compare country_id
 	jne	SetDOSCntry_next
 	cmp	dx, 0			;No user specified code page ?
 	je	SetDOSCntry_any_codepage;then no need to match code page id.
-	cmp	dx, word ptr ds:[si+4]	;compare code page id
+	cmp	dx, word ds:[si+4]	;compare code page id
 	je	SetDOSCntry_got_it
 SetDOSCntry_next:
-	add	si, word ptr ds:[si]	;next entry
+	add	si, word ds:[si]	;next entry
 	inc	si
 	inc	si			;take a word for size of entry itself
 	loop	SetDOSCntry_find
@@ -1035,15 +1035,15 @@ SetDOSData_fail:
 	jmp	short	SetDOSCntry_fail
 
 SetDOSCntry_any_CodePage:		;use the code_page_id of the country_id found.
-	mov	dx, word ptr ds:[si+4]
+	mov	dx, word ds:[si+4]
 SetDOSCntry_got_it:			;found the matching entry
 	mov	cs:CntryCodePage_Id, dx ;save code page ID for this country.
-	mov	dx, word ptr ds:[si+10] ;get the file offset of country data
-	mov	cx, word ptr ds:[si+12]
+	mov	dx, word ds:[si+10] ;get the file offset of country data
+	mov	cx, word ds:[si+12]
 	mov	ax, 512 		;read 512 bytes
 	call	ReadInControlBuffer
 	jc	SetDOSCntry_fail
-	mov	cx, word ptr ds:[si]	;get the number of entries to handle.
+	mov	cx, word ds:[si]	;get the number of entries to handle.
 	inc	si
 	inc	si			;SI -> first entry
 
@@ -1052,13 +1052,13 @@ SetDOSCntry_data:
 	push	cx			;save # of entry left
 	push	si			;si -> current entry in Control buffer
 
-	mov	al, byte ptr ds:[si+2]	;get data entry id
+	mov	al, byte ds:[si+2]	;get data entry id
 	call	GetCountryDestination	;get the address of destination in ES:DI
 	jc	SetDOSCntry_data_next	;No matching data entry id in DOS
 
 
-	mov	dx, word ptr ds:[si+4]	;get offset of data
-	mov	cx, word ptr ds:[si+6]
+	mov	dx, word ds:[si+4]	;get offset of data
+	mov	cx, word ds:[si+6]
 	mov	ax, 4200h
 	stc
 	int	21h			;move pointer
@@ -1074,8 +1074,8 @@ SetDOSCntry_data:
 	cmp	ax, cx
 	jne	SetDOSData_fail
 
-	mov	dx, word ptr ds:[si+4]	;AN008;get offset of data again.
-	mov	cx, word ptr ds:[si+6]	;AN008;
+	mov	dx, word ds:[si+4]	;AN008;get offset of data again.
+	mov	cx, word ds:[si+6]	;AN008;
 	mov	ax, 4200h		;AN008;
 	stc				;AN008;
 	int	21h			;AN008;move pointer back again
@@ -1083,7 +1083,7 @@ SetDOSCntry_data:
 
 	push	si			;AN008;
 	mov	si, (512+8)		;AN008;get length of the data from the file
-	mov	cx, word ptr ds:[si]	;AN008;
+	mov	cx, word ds:[si]	;AN008;
 	pop	si			;AN008;
 	mov	dx, 512 		;AN008;start of data buffer
 	add	cx, 10			;AN008;Signature + A word for the length itself
@@ -1094,17 +1094,17 @@ SetDOSCntry_data:
 	cmp	ax, cx			;AN008;
 	jne	SetDOSData_fail 	;AN008;
 
-	mov	al, byte ptr ds:[si+2]	;save Data id for future use.
+	mov	al, byte ds:[si+2]	;save Data id for future use.
 	mov	si, (512+8)		;SI-> data buffer + id tag field
-	mov	cx, word ptr ds:[si]	;get the length of the file
+	mov	cx, word ds:[si]	;get the length of the file
 	inc	cx			;Take care of a word for lenght of tab
 	inc	cx			;itself.
 	cmp	cx, (2048 - 512 - 8)	;Fit into the buffer?
 	ja	SetDOSData_fail
 	cmp	al, SetCountryInfo	;is the data for SetCountryInfo table?
 	jne	SetDOSCntry_Mov 	;no, don't worry
-	push	word ptr es:[di+ccMono_Ptr-ccCountryInfoLen]	;AN009;Cannot destroy ccMono_ptr address. Save them.
-	push	word ptr es:[di+ccMono_Ptr-ccCountryInfoLen+2]	;AN009;At this time DI -> ccCountryInfoLen
+	push	word es:[di+ccMono_Ptr-ccCountryInfoLen]	;AN009;Cannot destroy ccMono_ptr address. Save them.
+	push	word es:[di+ccMono_Ptr-ccCountryInfoLen+2]	;AN009;At this time DI -> ccCountryInfoLen
 	push	di			;save DI
 
 	push	ax
@@ -1117,14 +1117,14 @@ SetDOSCntry_Mov:
 	cmp	al, SetCountryInfo	;was the ccMono_ptr saved?
 	jne	SetDOSCntry_data_next
 	pop	di			;restore DI
-	pop	word ptr es:[di+ccMono_Ptr-ccCountryInfoLen+2]	 ;AN009;restore
-	pop	word ptr es:[di+ccMono_Ptr-ccCountryInfoLen]	 ;AN009;
+	pop	word es:[di+ccMono_Ptr-ccCountryInfoLen+2]	 ;AN009;restore
+	pop	word es:[di+ccMono_Ptr-ccCountryInfoLen]	 ;AN009;
 
 SetDOSCntry_data_next:
 	pop	si			;restore control buffer pointer
 	pop	cx			;restore # of entries left
 	pop	di			;restore pointer to DSO_COUNTRY_CDPG
-	add	si, word ptr ds:[si]	;try to get the next entry
+	add	si, word ds:[si]	;try to get the next entry
 	inc	si
 	inc	si			;take a word of entry length itself
 ;	 loop	 SetDOSCntry_data
@@ -1134,10 +1134,10 @@ SetDOSCntry_data_next:
 	jmp	SetDOSCntry_data	;AN008;
 SetDOSCntry_OK: 			;AN008;
 	ret
-SetDOSCountryInfo	endp
+; ENDP SetDOSCountryInfo
 ;
 
-GetCountryDestination	proc	near
+GetCountryDestination:
 ;Get the destination address in the DOS country info table.
 ;Input: AL - Data ID
 ;	ES:DI -> DOS_COUNTRY_CDPG_INFO
@@ -1147,13 +1147,13 @@ GetCountryDestination	proc	near
 
 	push	cx
 	add	di, ccNumber_of_entries ;skip the reserved area, syscodepage etc.
-	mov	cx, word ptr es:[di]	;get the number of entries
+	mov	cx, word es:[di]	;get the number of entries
 	inc	di
 	inc	di			;SI -> the first start entry id
 GetCntryDest:
-	cmp	byte ptr es:[di], al
+	cmp	byte es:[di], al
 	je	GetCntryDest_OK
-	cmp	byte ptr es:[di], SetCountryInfo ;was it SetCountryInfo entry?
+	cmp	byte es:[di], SetCountryInfo ;was it SetCountryInfo entry?
 	je	GetCntryDest_1
 	add	di, 5			;next data id
 	jmp	short GetCntryDest_loop
@@ -1169,14 +1169,14 @@ GetCntryDest_OK:
 	inc	di			;now DI -> ccCountryInfoLen
 	jmp	short	GetCntryDest_exit
 GetCntryDest_OK1:
-	les	di, dword ptr es:[di+1] ;get the destination in ES:DI
+	les	di, dword es:[di+1] ;get the destination in ES:DI
 GetCntryDest_Exit:
 	pop	cx
 	ret
-GetCountryDestination	endp
+; ENDP GetCountryDestination
 
 ;
-ReadInControlBuffer	proc	near
+ReadInControlBuffer:
 ;Move file pointer to CX:DX
 ;Read AX bytes into the control buffer. (Should be less than 2 Kb)
 ;SI will be set to 0 hence DS:SI points to the control buffer.
@@ -1202,10 +1202,10 @@ ReadInControlBuffer	proc	near
 	int	21h			;should be less than 1024 bytes.
 RICB_exit:
 	ret
-ReadInControlBuffer	endp
+; ENDP ReadInControlBuffer
 
 ;
-SET_COUNTRY_PATH	proc	near
+SET_COUNTRY_PATH:
 ;In:  DS - SYSINITSEG, ES - CONFBOT, SI -> start of the asciiz path string
 ;     DOSINFO_EXT, CNTRY_DRV, CNTRY_ROOT, CNTRY_PATH
 ;     Assumes current directory is the ROOT directory.
@@ -1221,7 +1221,7 @@ SET_COUNTRY_PATH	proc	near
 
 	call	chk_drive_letter	;current DS:[SI] is a drive letter?
 	jc	SCP_Default_drv 	;no, use current default drive.
-	mov	al, byte ptr DS:[SI]
+	mov	al, byte DS:[SI]
 	inc	si
 	inc	si			;SI -> next char after ":"
 	jmp	short SCP_SetDrv
@@ -1231,8 +1231,8 @@ SCP_Default_drv:
 	add	al, "A"                 ;convert it to a character.
 SCP_SetDrv:
 	mov	cs:CNTRY_DRV, al	;set the drive letter.
-	mov	di, offset CNTRY_PATH
-	mov	al, byte ptr DS:[SI]
+	mov	di, CNTRY_PATH
+	mov	al, byte DS:[SI]
 	cmp	al, "\"
 	je	SCP_Root_Dir
 	cmp	al, cs:SWTCHR		;let's accept "/" as an directory delim
@@ -1242,7 +1242,7 @@ SCP_Root_Dir:
 	dec	di			;DI -> CNTRY_ROOT
 SCP_Path:
 	call	MOVE_ASCIIZ		;copy it
-	mov	di, offset CNTRY_DRV
+	mov	di, CNTRY_DRV
 SCPath_Exit:
 	push	ds			;switch ds, es
 	push	es
@@ -1250,20 +1250,20 @@ SCPath_Exit:
 	pop	es			;DS, ES value restored
 	pop	si
 	RET
-SET_COUNTRY_PATH	endp
+; ENDP SET_COUNTRY_PATH
 
 ;
-CHK_DRIVE_LETTER	proc	near
+CHK_DRIVE_LETTER:
 ;Check if DS:[SI] is a drive letter followed by ":".
 ;Assume that every alpha charater is already converted to UPPER CASE.
 ;Carry set if not.
 ;
 	push	ax
-	cmp	byte ptr ds:[si], "A"
+	cmp	byte ds:[si], "A"
 	jb	CDLetter_NO
-	cmp	byte ptr ds:[si], "Z"
+	cmp	byte ds:[si], "Z"
 	ja	CDLetter_NO
-	cmp	byte ptr ds:[si+1], ":"
+	cmp	byte ds:[si+1], ":"
 	jne	CDLetter_NO
 	jmp	short CDLetter_exit
 CDLetter_NO:
@@ -1271,19 +1271,19 @@ CDLetter_NO:
 CDLetter_exit:
 	pop	ax
 	ret
-CHK_DRIVE_LETTER	endp
+; ENDP CHK_DRIVE_LETTER
 
 ;
-MOVE_ASCIIZ	proc	near
+MOVE_ASCIIZ:
 ;In: DS:SI -> source ES:DI -> target
 ;Out: copy the string until 0.
 ;Assumes there exists a 0.
 MASCIIZ_loop:
 	movsb
-	cmp	byte ptr DS:[SI-1], 0	;Was it 0?
+	cmp	byte DS:[SI-1], 0	;Was it 0?
 	jne	MASCIIZ_loop
 	ret
-MOVE_ASCIIZ	endp
+; ENDP MOVE_ASCIIZ
 
 ;
 ;	DS:DX POINTS TO STRING TO OUTPUT (ASCIZ)
@@ -1297,9 +1297,9 @@ BADFIL:
 	POP	ES
 	MOV	SI,DX
 BADLOAD:
-	MOV	DX,OFFSET BADLD_PRE	;WANT TO PRINT CONFIG ERROR
+	MOV	DX,BADLD_PRE	;WANT TO PRINT CONFIG ERROR
 ;	 MOV	 BX,OFFSET BADLD_POST
-	mov	bx, offset CRLFM	;AN006;
+	mov	bx, CRLFM	;AN006;
 PRNERR:
 	PUSH	CS
 	POP	DS
@@ -1324,7 +1324,7 @@ PRINT:	MOV	AH,STD_CON_STRING_OUTPUT
 	return
 
 
-	IF	NOEXEC
+	%if NOEXEC
 ;
 ; LOAD NON EXE FILE CALLED [DS:DX] AT MEMORY LOCATION ES:BX
 ;
@@ -1385,7 +1385,7 @@ OKLD:
 	INT	21H
 	JC	LDCLS
 	MOV	SI,DX			;CHECK FOR EXE FILE
-	CMP	WORD PTR [SI],"ZM"
+	CMP	word [SI],"ZM"
 	CLC				; Assume OK
 	JNZ	LDCLS			; Only know how to do .COM files
 	STC
@@ -1409,7 +1409,7 @@ LDRET:	POP	DS
 	POP	BX
 	POP	AX
 	return
-	ENDIF
+	%endif
 
 ;
 ;  OPEN DEVICE POINTED TO BY DX, AL HAS ACCESS CODE
@@ -1419,7 +1419,7 @@ OPEN_DEV:
 	CALL	OPEN_FILE
 	JNC	OPEN_DEV3
 OPEN_DEV1:
-	MOV	DX,OFFSET NULDEV
+	MOV	DX,NULDEV
 	CALL	OPEN_FILE
 	return
 
@@ -1462,7 +1462,7 @@ INT24:
 ;	 POP	 AX
 ;	 IRET				 ;BACK TO USER
 
-	IF	ALTVECT
+	%if ALTVECT
 BOOTMES DB	13,10,"MS-DOS version "
 	DB	MAJOR_VERSION + "0"
 	DB	"."
@@ -1470,9 +1470,9 @@ BOOTMES DB	13,10,"MS-DOS version "
 	DB	(MINOR_VERSION MOD 10) + "0"
 	DB	13,10
 	DB	"Copyright 1981,88 Microsoft Corp.",13,10,"$"
-	ENDIF
+	%endif
 
-include copyrigh.inc			;P1821; Copyright statement
+%include "copyrigh.inc";P1821; Copyright statement
 
 NULDEV	DB	"NUL",0
 CONDEV	DB	"CON",0
@@ -1484,20 +1484,20 @@ CONFIG	DB	"\CONFIG.SYS",0
 CNTRY_DRV   DB	  "A:"
 CNTRY_ROOT  DB	  "\"
 CNTRY_PATH  DB	  "COUNTRY.SYS",0
-	    DB	  52 DUP (0)
+	    times 52 db 0
 
 COUNTRY_FILE_SIGNATURE db 0FFh,'COUNTRY'
 
-CntryCodePage_Id DW ?
+CntryCodePage_Id: dw 0
 
 COMMND	DB	"\COMMAND.COM",0
-	DB	51 dup (0)
+	times 51 db 0
 
-PathString db	64 dup (0)		;AN014;
+PathString: times 64 db 0;AN014;
 LShare	db	"SHARE.EXE",0,"/NC",0Dh,0Ah ;AN014;AN015;To be used by Load/exec.
 					;/NC parm will disable file sharing check.
 
-COMTAB	LABEL	BYTE
+COMTAB:
 ;;;;	   DB	   8,"AVAILDEV",'A'     ; NO LONGER SUPPORTED
 	DB	7,"BUFFERS",  'B'
 	DB	5,"BREAK",    'C'
@@ -1507,9 +1507,9 @@ COMTAB	LABEL	BYTE
 	DB	9,"LASTDRIVE",'L'
 	db     10,"MULTITRACK", 'M'     ;AN002;
 	DB	8,"DRIVPARM", 'P'       ; RS for DOS 3.2
-		IF     STACKSW
+		%if STACKSW
 	DB	6,"STACKS",   'K'       ; BAS for DOS 3.2
-		ENDIF
+		%endif
 	DB	7,"COUNTRY",  'Q'
 	DB	5,"SHELL",    'S'
 	db	7,"INSTALL",  'I'       ;AN000;
@@ -1521,16 +1521,16 @@ COMTAB	LABEL	BYTE
 	db	8,"SWITCHES", '1'       ;AN013;
 	DB	0
 
-public DeviceParameters
+global DeviceParameters
 DeviceParameters a_DeviceParameters <0,DEV_3INCH720KB,0,80>
 
 hlim	    dw	    2
 slim	    dw	    9
 
-public drive
-drive	db	?
+global drive
+drive: db 0
 
-public switches
+global switches
 Switches    dw	0
 
 ;
@@ -1620,5 +1620,5 @@ flagff		equ 10000000B
 
 SWTCHR	    EQU     "/"             ; switch follows this character
 
-SYSINITSEG	ENDS
-	END
+; END SECTION .SYSINITSEG
+	; END

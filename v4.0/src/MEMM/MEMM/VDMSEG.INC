@@ -29,134 +29,134 @@
 ;   06/03/88		add use16 to all segments
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
-ifndef	NOHIMEM
+%ifndef NOHIMEM
 ;
 ;  SEGMENT definitions and order
 ;
 
 ;*     CODE area containing EMM/VDISK headers and writeable Real mode code
-R_CODE		SEGMENT PARA USE16 PUBLIC 'R_CODE'
-R_CODE		ENDS
+SECTION .R_CODE
+; END SECTION .R_CODE
 
 ;*	Contains initialized variables and variables used at startup.
-_DATA		SEGMENT WORD USE16 PUBLIC 'DATA'
-_DATA		ENDS
+SECTION ._DATA
+; END SECTION ._DATA
 
 ;* read only constants for C
-CONST		SEGMENT WORD USE16 PUBLIC 'CONST'
-CONST		ENDS
+SECTION .CONST
+; END SECTION .CONST
 
 ;* uninitialized static data for C
-_BSS		SEGMENT WORD USE16 PUBLIC 'BSS'
-_BSS		ENDS
+SECTION ._BSS
+; END SECTION ._BSS
 
 ;* Ring 0 stack in VDM
-STACK		SEGMENT PARA USE16 STACK 'STACK'
-STACK		ENDS
+SECTION .STACK
+; END SECTION .STACK
 
 ;
 ; data group
 ;
-DGROUP	GROUP	_DATA,CONST,_BSS
+; DGROUP	GROUP	_DATA,CONST,_BSS
 
 ;*	The code comprising the system.  Must be READ-ONLY in real mode.
-_TEXT		SEGMENT BYTE USE16 PUBLIC 'CODE'
-_TEXT		ENDS
+SECTION ._TEXT
+; END SECTION ._TEXT
 
 ;*	Global Descriptor Table
-GDT		SEGMENT PARA USE16 COMMON
-GDT		ENDS
+SECTION .GDT
+; END SECTION .GDT
 
 ;*	Local Descriptor Table
-LDT		SEGMENT PARA USE16 COMMON
-LDT		ENDS
+SECTION .LDT
+; END SECTION .LDT
 
 ;*	Interrupt Descriptor Table
-IDT		SEGMENT PARA USE16 COMMON
-IDT		ENDS
+SECTION .IDT
+; END SECTION .IDT
 
 ;*	Task State Segment
-TSS		SEGMENT PARA USE16 COMMON
-TSS		ENDS
+SECTION .TSS
+; END SECTION .TSS
 
 ;*	Contains initialized variables and variables used at startup.
-PAGESEG 	SEGMENT PARA USE16 PUBLIC 'PAGES'
-PAGESEG 	ENDS
+SECTION .PAGESEG
+; END SECTION .PAGESEG
 
 ;*	Initialization code and variables.  Used for data later.
 ;	Must be last segment.
-LAST		SEGMENT PARA USE16 PUBLIC 'LAST'
-LAST		ENDS
+SECTION .LAST
+; END SECTION .LAST
 
 
 
-else
+%else
 ;
 ;  SEGMENT definitions and order
 ;
 
 ;*     CODE area containing EMM/VDISK headers and writeable Real mode code
-R_CODE		SEGMENT PARA USE16 PUBLIC 'R_CODE'
-R_CODE		ENDS
+SECTION .R_CODE
+; END SECTION .R_CODE
 
 ;*	Global Descriptor Table
-GDT		SEGMENT PARA USE16 COMMON
-GDT		ENDS
+SECTION .GDT
+; END SECTION .GDT
 
 ;*	Local Descriptor Table
-LDT		SEGMENT PARA USE16 COMMON
-LDT		ENDS
+SECTION .LDT
+; END SECTION .LDT
 
 ;*	Interrupt Descriptor Table
-IDT		SEGMENT PARA USE16 COMMON
-IDT		ENDS
+SECTION .IDT
+; END SECTION .IDT
 
 ;*	Task State Segment
-TSS		SEGMENT PARA USE16 COMMON
-TSS		ENDS
+SECTION .TSS
+; END SECTION .TSS
 
 ;*	Contains initialized variables and variables used at startup.
-_DATA		SEGMENT WORD USE16 PUBLIC 'DATA'
-_DATA		ENDS
+SECTION ._DATA
+; END SECTION ._DATA
 
 ;* read only constants for C
-CONST		SEGMENT WORD USE16 PUBLIC 'CONST'
-CONST		ENDS
+SECTION .CONST
+; END SECTION .CONST
 
 ;* uninitialized static data for C
-_BSS		SEGMENT WORD USE16 PUBLIC 'BSS'
-_BSS		ENDS
+SECTION ._BSS
+; END SECTION ._BSS
 
 ;* Ring 0 stack in VDM
-STACK		SEGMENT PARA USE16 STACK 'STACK'
-STACK		ENDS
+SECTION .STACK
+; END SECTION .STACK
 
 ;
 ; data group
 ;
-DGROUP	GROUP	_DATA,CONST,_BSS
+; DGROUP	GROUP	_DATA,CONST,_BSS
 
 ;*	The code comprising the system.  Must be READ-ONLY in real mode.
-_TEXT		SEGMENT BYTE USE16 PUBLIC 'CODE'
-_TEXT		ENDS
+SECTION ._TEXT
+; END SECTION ._TEXT
 
 ;*	Contains dynamically sized emm data structures.
-VDATA		SEGMENT WORD USE16 PUBLIC 'VDATA'
-VDATA		ENDS
+SECTION .VDATA
+; END SECTION .VDATA
 
 ;*	Contains initialized variables and variables used at startup.
-PAGESEG 	SEGMENT PARA USE16 PUBLIC 'PAGES'
-PAGESEG 	ENDS
+SECTION .PAGESEG
+; END SECTION .PAGESEG
 
 ;*	Initialization code and variables.  Used for data later.
 ;	Must be last segment.
-LAST		SEGMENT PARA USE16 PUBLIC 'LAST'
-LAST		ENDS
-endif
+SECTION .LAST
+; END SECTION .LAST
+%endif
 ;
 ;  segment related equates
 ;
@@ -164,5 +164,5 @@ endif
 ; ring 0 stack size
 STACK0_SIZE	equ	512
 
-.list	; end of VDMSEG.INC
+; .list; end of VDMSEG.INC
 

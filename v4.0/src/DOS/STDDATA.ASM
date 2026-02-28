@@ -3,31 +3,31 @@
 ; DATA Segment for MS-DOS
 ;
 
-.xlist
-.xcref
-include stdsw.asm
-include dosseg.asm
+; .xlist
+; .xcref
+%include "stdsw.asm"
+%include "dosseg.asm"
 debug = FALSE                           ; No dossym (too big)
-INCLUDE DOSMAC.INC
-INCLUDE SF.INC
-INCLUDE DIRENT.INC
-INCLUDE CURDIR.INC
-INCLUDE DPB.INC
-INCLUDE BUFFER.INC
-INCLUDE ARENA.INC
-INCLUDE VECTOR.INC
-INCLUDE DEVSYM.INC
-INCLUDE PDB.INC
-INCLUDE FIND.INC
-INCLUDE MI.INC
-.cref
-.list
+%include "DOSMAC.INC"
+%include "SF.INC"
+%include "DIRENT.INC"
+%include "CURDIR.INC"
+%include "DPB.INC"
+%include "BUFFER.INC"
+%include "ARENA.INC"
+%include "VECTOR.INC"
+%include "DEVSYM.INC"
+%include "PDB.INC"
+%include "FIND.INC"
+%include "MI.INC"
+; .cref
+; .list
 
-TITLE   STDDATA - DATA segment for MS-DOS
-NAME    STDDATA
+; TITLE   STDDATA - DATA segment for MS-DOS
+; NAME    STDDATA
 
 installed = TRUE
 
-include msdata.asm
-include msinit.asm
-	END
+%include "msdata.asm"
+%include "msinit.asm"
+	; END

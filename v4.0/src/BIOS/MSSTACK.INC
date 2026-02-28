@@ -43,7 +43,7 @@
 ; 6. Intercepts Ints 70, 72-77 for PC-ATs and other future products
 
 ;The following variables are for MSSTACK.inc
-		EVEN
+		align 2
 		dw	0	; SPARE FIELD BUT LEAVE THESE IN ORDER
 StackCount	dw	0
 StackAt 	dw	0
@@ -61,49 +61,49 @@ NextEntry	dw	Stacks+(DefaultCount*EntrySize)-EntrySize
 ;Macro Interrupt handler for the ordinary interrupt vectors and
 ;the shared interrupt vectors.
 ;*****************************
-Stack_Main	MACRO	AA
-	ASSUME	DS:NOTHING
-	ASSUME	ES:NOTHING
-	ASSUME	SS:NOTHING
-PUBLIC	Int&AA
-PUBLIC	Old&AA
+%macro Stack_Main 1
+	; ASSUME	DS:NOTHING
+	; ASSUME	ES:NOTHING
+	; ASSUME	SS:NOTHING
+global Int&AA
+global Old&AA
 ;-----------------------------
-	ife	IntSharingFlag		;if not IntSharingFlag
+	%if (IntSharingFlag) == 0;if not IntSharingFlag
 ;-----------------------------
 	Old&AA	DD	0
 Int&AA	PROC	FAR
 ;-----------------------------
-    else				;for shared interrupt. A Header exists.
+    %else;for shared interrupt. A Header exists.
 
-PUBLIC	FirstFlag&AA
+global FirstFlag&AA
 Int&AA	PROC	FAR
 	jmp	short	  Entry_Int&AA&_Stk
 	Old&AA	dd	  0		;Forward pointer
 		dw	  424Bh 	;compatible signature for Int. Sharing
 	FirstFlag&AA db   0		;the firstly hooked.
 	jmp	short	Intret_&AA	;Reset routine. We don't care this.
-		db	  7 dup (0)	;Reserved for future.
+		times 7 db 0;Reserved for future.
 Entry_Int&AA&_Stk:
 ;-----------------------------
-	endif
+	%endif
 ;-----------------------------
 
 ;
 ; Keyboard interrupt must have a three byte jump, a NOP and a zero byte
 ; as its first instruction for compatibility reasons
-	ifidn	<&aa>,<09>
+	%ifidn <&aa>,<09>
 	jmp	Keyboard_lbl
 	nop
 	db	0
-Keyboard_lbl	label	near
-	endif
+Keyboard_lbl:
+	%endif
 
 ; This patches INTERRUPT 75h to be "unhooked".  We do this Wierdness,
 ; rather than never hooking INT 75h, to maintain maximum compat. with IBMs
 ; post production patch.
 	push	ax
 
-	ifidn	<&aa>,<02>
+	%ifidn <&aa>,<02>
 
 ; *********************************************************************
 ;
@@ -133,7 +133,7 @@ Keyboard_lbl	label	near
 	push	es
 	mov	ax,0f000h
 	mov	es,ax
-	cmp	byte ptr es:[0fffeh],mdl_convert	;check if convertible
+	cmp	byte es:[0fffeh],mdl_convert	;check if convertible
 	pop	es
 	jne	Normal&aa
 
@@ -143,13 +143,13 @@ Keyboard_lbl	label	near
 
 Special&aa:
 	pop	ax
-	jmp	dword ptr Old&aa
+	jmp	dword Old&aa
 
 Normal&aa:
 
 ; *********************************************************************
 
-	endif
+	%endif
 
 	push	bp
 	push	es
@@ -179,7 +179,7 @@ Found&aa:
 	mov	sp,bp
 
 	pushf				; go execute the real interrupt handler
-	call	dword ptr old&aa	;  which will iret back to here
+	call	dword old&aa	;  which will iret back to here
 
 	mov	bp,sp			; retrieve the table offset for us
 	mov	bp,es:[bp]		   ;  but leave it on the stack
@@ -222,22 +222,22 @@ FoundBad&aa:
 int&aa	endp
 
 
-	endm
+	%endmacro
 
 ;*****************************						  ;3.30
 ;End of Macro definition						  ;3.30
 ;********************************************************************	  ;3.30
 ; THESE ARE THE INDIVIDUAL INTERRUPT HANDLERS				  ;3.30
 									  ;3.30
-	IRP	A,<02,08,09,70> 					  ;3.30
+	; IRP	A,<02,08,09,70>;3.30
 	IntSharingFlag=0						  ;3.30
 	Stack_Main &A							  ;3.30
-	ENDM								  ;3.30
+	%endmacro;3.30
 									  ;3.30
-	IRP	A,<0A,0B,0C,0D,0E,72,73,74,76,77>			  ;3.30
+	; IRP	A,<0A,0B,0C,0D,0E,72,73,74,76,77>;3.30
 	IntSharingFlag=1						  ;3.30
 	Stack_Main &A							  ;3.30
-	ENDM								  ;3.30
+	%endmacro;3.30
 									  ;3.30
 ;********************************************************************	  ;3.30
 ;Common routines							  ;3.30
@@ -268,13 +268,13 @@ inuse:
 found:
 	ret
 
-	page
+	; page
 
-fatal	proc	near
+fatal:
 	push	ds							  ;3.30
 	mov	ax, 0f000h		;loook at the model byte	  ;3.30
 	mov	ds, ax							  ;3.30
-	cmp	ds:byte ptr [0fffeh], mdl_convert	;convertible?	  ;3.30
+	cmp	ds:byte [0fffeh], mdl_convert	;convertible?	  ;3.30
 	pop	ds							  ;3.30
 	jne	Skip_NMIS						  ;3.30
 									  ;3.30
@@ -289,7 +289,7 @@ Skip_NMIS:								  ;3.30
 
 	mov	si,cs
 	mov	ds,si
-	mov	si,offset fatal_msg
+	mov	si,fatal_msg
 
 fatal_loop:
 	lodsb
@@ -303,4 +303,4 @@ fatal_loop:
 
 fatal_done:
 	jmp	fatal_done
-fatal	endp
+; ENDP fatal

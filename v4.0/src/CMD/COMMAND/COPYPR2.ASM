@@ -1,57 +1,57 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)copypr2.asm	1.1 85/05/14
 ;	SCCSID = @(#)copypr2.asm	1.1 85/05/14
-	INCLUDE comsw.asm
+	%include "comsw.asm"
 
-.xlist
-.xcref
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-.list
-.cref
+; .xlist
+; .xcref
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	FulDir_ptr:word 	;AN052;
-TRANDATA ENDS
+SECTION .TRANDATA;AC000;
+	extern FulDir_ptr;AN052;
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	ASCII:BYTE
-	EXTRN	BINARY:BYTE
-	EXTRN	CONCAT:BYTE
-	EXTRN	DESTBUF:BYTE
-	EXTRN	DESTFCB:BYTE
-	EXTRN	DESTINFO:BYTE
-	EXTRN	DESTISDIR:BYTE
-	EXTRN	DESTTAIL:WORD
-	EXTRN	DESTVARS:BYTE
-	EXTRN	DIRBUF:BYTE
-	EXTRN	DIRCHAR:BYTE
-	EXTRN	FIRSTDEST:BYTE
-	EXTRN	INEXACT:BYTE
-	EXTRN	MELCOPY:BYTE
-	EXTRN	NXTADD:WORD
-	EXTRN	PLUS:BYTE
-	EXTRN	SDIRBUF:BYTE
-	EXTRN	SRCINFO:BYTE
-	EXTRN	srcxname:byte
-	EXTRN	TPA:WORD
-	EXTRN	trgxname:byte
-	EXTRN	USERDIR1:BYTE
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern ASCII
+	extern BINARY
+	extern CONCAT
+	extern DESTBUF
+	extern DESTFCB
+	extern DESTINFO
+	extern DESTISDIR
+	extern DESTTAIL
+	extern DESTVARS
+	extern DIRBUF
+	extern DIRCHAR
+	extern FIRSTDEST
+	extern INEXACT
+	extern MELCOPY
+	extern NXTADD
+	extern PLUS
+	extern SDIRBUF
+	extern SRCINFO
+	extern srcxname
+	extern TPA
+	extern trgxname
+	extern USERDIR1
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-	EXTRN	BADPATH_ERR:NEAR	;AN022;
-	EXTRN	COPERR:NEAR		;AN052;
-	EXTRN	EXTEND_SETUP:NEAR	;AN022;
+	extern BADPATH_ERR;AN022;
+	extern COPERR;AN052;
+	extern EXTEND_SETUP;AN022;
 
-	PUBLIC	BUILDPATH
-	PUBLIC	SETSTARS
-	PUBLIC	SETASC
+	global BUILDPATH
+	global SETSTARS
+	global SETASC
 
-ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
 
 SETASC:
 ;
@@ -77,12 +77,12 @@ LOADSW:
 	OR	AL,AL
 	return
 
-public builddest
+global builddest
 BUILDDEST:
 	cmp	[DESTISDIR],-1
 	jnz	KNOWABOUTDEST			; Already done the figuring
-	MOV	DI,OFFSET TRANGROUP:USERDIR1
-	mov	bp,offset trangroup:DESTVARS
+	MOV	DI,USERDIR1
+	mov	bp,DESTVARS
 	call	BUILDPATH
 	invoke	RESTUDIR1
 
@@ -97,17 +97,17 @@ KNOWABOUTDEST:
 
 FIRSTDST:
 	mov	si,[DESTTAIL]			; Create an FCB of the original DEST
-	mov	di,offset trangroup:DESTFCB
+	mov	di,DESTFCB
 	mov	ax,PARSE_FILE_DESCRIPTOR SHL 8
 	INT	int_command
-	CMP	BYTE PTR [SI],0
+	CMP	byte [SI],0
 	JZ	GoodParse
 ;AD052; MOV	BYTE PTR [DI+1],"|"             ; must be illegal file name character
-	mov	dx,offset trangroup:fuldir_ptr	;AN052; Issue "File creation error"
+	mov	dx,fuldir_ptr	;AN052; Issue "File creation error"
 	jmp	coperr				;AN052;
 
 GoodParse:
-	mov	ax,word ptr [DESTBUF]		; Get drive
+	mov	ax,word [DESTBUF]		; Get drive
 	cmp	ah,':'
 	jz	DRVSPEC4
 	mov	al,'@'
@@ -166,16 +166,16 @@ SETCONC:
 	MOV	[NXTADD],DI			; New buffer
 
 NOTFIRSTDEST:
-	mov	bx,offset trangroup:DIRBUF+1	; Source of replacement chars
+	mov	bx,DIRBUF+1	; Source of replacement chars
 	cmp	[CONCAT],0
 	jz	GOTCHRSRC			; Not a concat
-	mov	bx,offset trangroup:SDIRBUF+1	; Source of replacement chars
+	mov	bx,SDIRBUF+1	; Source of replacement chars
 
 GOTCHRSRC:
-	mov	si,offset trangroup:DESTFCB+1	; Original dest name
+	mov	si,DESTFCB+1	; Original dest name
 	mov	di,[DESTTAIL]			; Where to put result
 
-public buildname
+global buildname
 BUILDNAME:
 	mov	cx,8
 
@@ -183,7 +183,7 @@ BUILDMAIN:
 	lodsb
 	cmp	al,'?'
 	jnz	NOTAMBIG
-	mov	al,byte ptr [BX]
+	mov	al,byte [BX]
 
 NOTAMBIG:
 	cmp	al,' '
@@ -195,7 +195,7 @@ NOSTORE:
 	loop	BUILDMAIN
 	mov	cl,3
 	mov	al,' '
-	cmp	byte ptr [SI],al
+	cmp	byte [SI],al
 	jz	ENDDEST 			; No extension
 	mov	al,dot_chr
 	stosb
@@ -204,7 +204,7 @@ BUILDEXT:
 	lodsb
 	cmp	al,'?'
 	jnz	NOTAMBIGE
-	mov	al,byte ptr [BX]
+	mov	al,byte [BX]
 
 NOTAMBIGE:
 	cmp	al,' '
@@ -256,7 +256,7 @@ pure_file:
 	jz	ISSIMPFILE			; If no path seps, done
 
 NOTPFILE:
-	mov	dx,word ptr [BP.BUF]
+	mov	dx,word [BP.BUF]
 	cmp	dl,0				;AN034; If no drive specified, get
 	jz	set_drive_spec			;AN034;    default drive dir
 	cmp	dh,':'
@@ -282,7 +282,7 @@ curdir_ok:					;AN022;
 	jnz	CHECKAMB			; jmp if no
 	mov	si,[BP.TTAIL]
 	mov	bl,':'
-	cmp	byte ptr [si-2],bl
+	cmp	byte [si-2],bl
 	jnz	KNOWNOTSPEC
 	mov	[BP.ISDIR],2			; Know is d:/file
 	jmp	short DOPCDJ
@@ -358,13 +358,13 @@ notpdir_try:					;AN022;
 	retz					; Know pure file, no path seps
 	mov	[bp.ISDIR],2			; assume d:/file
 	mov	si,[bp.TTAIL]
-	cmp	byte ptr [si],0
+	cmp	byte [si],0
 	jz	BADCDERRJ2			; Trailing '/'
 	mov	bl,dot_chr
-	cmp	byte ptr [si],bl
+	cmp	byte [si],bl
 	jz	BADCDERRJ2			; If . or .. pure cd should have worked
 	mov	bl,':'
-	cmp	byte ptr [si-2],bl
+	cmp	byte [si-2],bl
 	jz	DOPCD				; Know d:/file
 	mov	[bp.ISDIR],1			; Know path/file
 	dec	si				; Point at last '/'
@@ -429,22 +429,22 @@ SETSTARS:
 	stosb
 	return
 
-PUBLIC CompName
+global CompName
 COMPNAME:
 
-	mov	si,offset trangroup:DESTBUF	;g do name translate of target
-	mov	di,offset trangroup:TRGXNAME	;g save for name comparison
+	mov	si,DESTBUF	;g do name translate of target
+	mov	di,TRGXNAME	;g save for name comparison
 	mov	ah,xnametrans			;g
 	int	int_command			;g
 
-	MOV	si,offset trangroup:SRCXNAME	;g get name translate of source
-	MOV	di,offset trangroup:TRGXNAME	;g get name translate of target
+	MOV	si,SRCXNAME	;g get name translate of source
+	MOV	di,TRGXNAME	;g get name translate of target
 
 
 	invoke	STRCOMP
 
 	return
 
-TRANCODE ENDS
-	 END
+; END SECTION .TRANCODE
+	 ; END
 

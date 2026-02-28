@@ -1,13 +1,13 @@
 
-	PAGE	,132			;
-	TITLE	MSBIO1.asm - BIOS
+	; PAGE	,132;
+	; TITLE	MSBIO1.asm - BIOS
 ;==============================================================================
 ;REVISION HISTORY:
 ;AN000 - New for DOS Version 4.00 - J.K.
 ;AC000 - Changed for DOS Version 4.00 - J.K.
 ;AN00x - PTM number for DOS Version 4.00 - J.K.
 ;==============================================================================
-COMMENT *
+; COMMENT *
 THE LINK STEP IS PERFORMED BY USING THE FOLLOWING "NEW.ARF" FILE:
 msbio1+
 msSTACK+
@@ -37,44 +37,44 @@ iTEST=0
 
 PATHGEN =	1
 
-.SALL
-	%OUT	...MSBIO1.ASM
+; .SALL
+	%warning ...MSBIO1.ASM
 
 ; THIS IS A DOSMAC MACRO WHICH IS USED IN DEVSYM WHICH IS INCLUDED LATER
-BREAK	MACRO	SUBTITLE
-	SUBTTL	SUBTITLE
-	PAGE
-	ENDM
+%macro BREAK 1
+	; SUBTTL	SUBTITLE
+	; PAGE
+	%endmacro
 
-POPFF	MACRO
+%macro POPFF 0
 	JMP	$+3
 	IRET
 	PUSH	CS
 	CALL	$-2
-	ENDM
+	%endmacro
 
-	INCLUDE MSGROUP.INC	;DEFINE CODE SEGMENT
+	%include "MSGROUP.INC";DEFINE CODE SEGMENT
 
-SYSINITSEG SEGMENT PUBLIC 'SYSTEM_INIT'
-SYSINITSEG ENDS
+SECTION .SYSINITSEG
+; END SECTION .SYSINITSEG
 
 
-	INCLUDE JUMPMAC.INC
-PATHSTART MACRO INDEX,ABBR
-	IFDEF	PATHGEN
-	    PUBLIC  ABBR&INDEX&S,ABBR&INDEX&E
+	%include "JUMPMAC.INC"
+%macro PATHSTART 2
+	%ifdef PATHGEN
+	    global ABBR&INDEX&S,ABBR&INDEX&E
 	    ABBR&INDEX&S LABEL	 BYTE
-	ENDIF
-	ENDM
+	%endif
+	%endmacro
 
-PATHEND MACRO	INDEX,ABBR
-	IFDEF	PATHGEN
+%macro PATHEND 2
+	%ifdef PATHGEN
 	    ABBR&INDEX&E LABEL	 BYTE
-	ENDIF
-	ENDM
+	%endif
+	%endmacro
 
-	INCLUDE PUSHPOP.INC
-	INCLUDE DEVSYM.INC		;MJB001
+	%include "PUSHPOP.INC"
+	%include "DEVSYM.INC";MJB001
 
 ;   REV 2.1	5/1/83 ARR ADDED TIMER INT HANDLER AND CHANGED ORDER OF AUX
 ;		    PRN INIT FOR HAL0
@@ -119,7 +119,7 @@ PATHEND MACRO	INDEX,ABBR
 ;
 ;:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-	INCLUDE MSDSKPR.INC
+	%include "MSDSKPR.INC"
 
 LF	=	10			;LINE FEED
 CR	=	13			;CARRIAGE RETURN
@@ -135,46 +135,46 @@ INITSPOT =	534H			; ARR IBM WANTS 4 ZEROS HERE
 AKPORT	=	20H
 EOI	=	20H
 
-	ASSUME	CS:CODE,DS:NOTHING,ES:NOTHING
+	; ASSUME	CS:CODE,DS:NOTHING,ES:NOTHING
 
-	EXTRN	MEDIA$CHK:NEAR
-	EXTRN	GET$BPB:NEAR
-	EXTRN	DSK$INIT:NEAR
-	EXTRN	DSK$READ:NEAR
-	EXTRN	DSK$WRIT:NEAR
-	EXTRN	DSK$WRITV:NEAR
-	EXTRN	DSK$OPEN:NEAR
-	EXTRN	DSK$CLOSE:NEAR
-	EXTRN	DSK$REM:NEAR
-	EXTRN	GENERIC$IOCTL:NEAR
-	EXTRN	IOCTL$GETOWN:NEAR
-	EXTRN	IOCTL$SETOWN:NEAR
-	EXTRN	CON$READ:NEAR
-	EXTRN	CON$RDND:NEAR
-	EXTRN	CON$FLSH:NEAR
-	EXTRN	CON$WRIT:NEAR
+	extern MEDIA$CHK
+	extern GET$BPB
+	extern DSK$INIT
+	extern DSK$READ
+	extern DSK$WRIT
+	extern DSK$WRITV
+	extern DSK$OPEN
+	extern DSK$CLOSE
+	extern DSK$REM
+	extern GENERIC$IOCTL
+	extern IOCTL$GETOWN
+	extern IOCTL$SETOWN
+	extern CON$READ
+	extern CON$RDND
+	extern CON$FLSH
+	extern CON$WRIT
 ;	EXTRN	CON$GENIOCTL:NEAR		;J.K. 4/29/86
-	EXTRN	AUX$READ:NEAR
-	EXTRN	AUX$WRIT:NEAR
-	EXTRN	AUX$FLSH:NEAR
-	EXTRN	AUX$RDND:NEAR
-	EXTRN	AUX$WRST:NEAR
-	EXTRN	TIM$READ:NEAR
-	EXTRN	TIM$WRIT:NEAR
-	EXTRN	PRN$WRIT:NEAR
-	EXTRN	PRN$STAT:NEAR
-	EXTRN	PRN$TILBUSY:NEAR
-	EXTRN	PRN$GENIOCTL:NEAR
-	EXTRN	WRMSG:NEAR
+	extern AUX$READ
+	extern AUX$WRIT
+	extern AUX$FLSH
+	extern AUX$RDND
+	extern AUX$WRST
+	extern TIM$READ
+	extern TIM$WRIT
+	extern PRN$WRIT
+	extern PRN$STAT
+	extern PRN$TILBUSY
+	extern PRN$GENIOCTL
+	extern WRMSG
 
 ;DATA AREAS
-	extrn	Start_Sec_H:word	;AN000; Starting sector high word for
+	extern Start_Sec_H;AN000; Starting sector high word for
 					;disk I/O request. IBMDISK.ASM
 
-	INCLUDE MSBDATA.INC
+	%include "MSBDATA.INC"
 
-	IF	iTEST
-	    PUBLIC  MSGNUM
+	%if iTEST
+	    global MSGNUM
 MSGNUM:
 	    PUSHF
 	    TEST    FTESTBITS,AX
@@ -184,7 +184,7 @@ MSGNUM:
 	    PUSH    CX
 	    PUSH    ES
 	    PUSH    DI
-	    MOV     DI,OFFSET NUMBUF
+	    MOV     DI,NUMBUF
 	    PUSH    CS
 	    POP     ES
 	    MOV     CX,4
@@ -203,13 +203,13 @@ NUMLOOP:
 	    POP     ES
 	    POP     CX
 	    POP     BX
-	    MOV     SI,OFFSET NUMBUF
+	    MOV     SI,NUMBUF
 	    CALL    MSGOUT
 	    POP     SI
 	    POPF
 	    RET
 
-	    PUBLIC  MSGOUT
+	    global MSGOUT
 MSGOUT:
 	    PUSHF
 	    TEST    FTESTBITS,AX
@@ -227,13 +227,13 @@ MRET:
 	    POPF
 	    RET
 
-	    PUBLIC DUMPBYTES		;J.K. 4/9/86
+	    global DUMPBYTES;J.K. 4/9/86
 ;Dumpbytes will dump the bytes in memory in hex.  Space will be put in between
 ;the bytes and CR, LF will be put at the end. - J.K.
 ;Input: DS:SI -> buffer to dump in Hex.
 ;	CX -> # of bytes (Length of the buffer)
 ;
-DUMPBYTES proc near
+DUMPBYTES:
 	pushf
 	push	ax
 dumploops:
@@ -261,10 +261,10 @@ dumploops:
 	pop	ax
 	popf
 	ret
-DUMPBYTES	endp
+; ENDP DUMPBYTES
 
-	PUBLIC	Hex_to_ascii
-Hex_to_ascii	proc	near		;J.K. - 4/9/86
+	global Hex_to_ascii
+Hex_to_ascii:;J.K. - 4/9/86
 	and	ax, 0f0fh
 	add	ah, 30h
 	cmp	ah, 3ah
@@ -277,10 +277,10 @@ hta_$1:
 	add	al, 7
 hta_$2:
 	ret
-Hex_to_ascii	endp
+; ENDP Hex_to_ascii
 
-	PUBLIC	outchar
-Outchar proc	near
+	global outchar
+Outchar:
 	PUSH	AX
 	PUSH	SI
 	PUSH	DI
@@ -297,10 +297,10 @@ Outchar proc	near
 	POP	SI
 	POP	AX
 	RET
-Outchar endp
+; ENDP Outchar
 
-	ENDIF
-	INCLUDE MSMACRO.INC
+	%endif
+	%include "MSMACRO.INC"
 
 ;---------------------------------------------------
 ;
@@ -318,50 +318,50 @@ EXTRA	=	22			;USUALLY A POINTER TO VOL ID FOR ERROR 15
 START_L =	26			;AN000; Extended start sector (Low)
 START_H =	28			;AN000; Extended start sector (High)
 
-	PUBLIC	STRATEGY
-STRATEGY PROC	FAR
-	MOV	WORD PTR CS:[PTRSAV],BX
-	MOV	WORD PTR CS:[PTRSAV+2],ES
+	global STRATEGY
+STRATEGY:
+	MOV	word CS:[PTRSAV],BX
+	MOV	word CS:[PTRSAV+2],ES
 	RET
-STRATEGY ENDP
+; ENDP STRATEGY
 
-	PUBLIC CON$IN
-CON$IN	PROC	FAR
+	global CON$IN
+CON$IN:
 	PUSH	SI
-	MOV	SI,OFFSET CONTBL
+	MOV	SI,CONTBL
 	JMP	SHORT ENTRY
-CON$IN	ENDP
+; ENDP CON$IN
 
-	PUBLIC	AUX0$IN
-AUX0$IN PROC	FAR
+	global AUX0$IN
+AUX0$IN:
 	PUSH	SI
 	PUSH	AX
 	XOR	AL,AL
 	JMP	SHORT AUXENT
-AUX0$IN ENDP
+; ENDP AUX0$IN
 
-	PUBLIC AUX1$IN
-AUX1$IN PROC	FAR
+	global AUX1$IN
+AUX1$IN:
 	PUSH	SI
 	PUSH	AX
 	MOV	AL,1
 	JMP	short AUXENT		;J.K. 4/15/86
-AUX1$IN ENDP
+; ENDP AUX1$IN
 
 ;SB33102****************************************************************
 ;SB  Add code to handle two more COM Ports
 ;boban
 
-	PUBLIC  AUX2$IN
-AUX2$IN proc far
+	global AUX2$IN
+AUX2$IN:
 	push	si
 	push	ax
 	mov	al,2
 	jmp	short AUXENT
-AUX2$IN endp
+; ENDP AUX2$IN
 
-	PUBLIC  AUX3$IN
-AUX3$IN proc far
+	global AUX3$IN
+AUX3$IN:
 	push	si
 	push	ax
 	mov	al,3
@@ -370,60 +370,60 @@ AUX3$IN proc far
 ;SB33102****************************************************************
 
 AUXENT:
-	MOV	SI,OFFSET AUXTBL
+	MOV	SI,AUXTBL
 	JMP	SHORT ENTRY1
-AUX3$IN ENDP
+; ENDP AUX3$IN
 
-PRN0$IN PROC	FAR
-	PUBLIC	PRN0$IN
+PRN0$IN:
+	global PRN0$IN
 
 	PUSH	SI
 	PUSH	AX
 	XOR	AX,AX
 	JMP	SHORT PRNENT
-PRN0$IN ENDP
+; ENDP PRN0$IN
 
-	PUBLIC	PRN1$IN
-PRN1$IN PROC	FAR
+	global PRN1$IN
+PRN1$IN:
 	PUSH	SI
 	PUSH	AX
 	XOR	AL,AL
 	MOV	AH,1
 	JMP	SHORT PRNENT
-PRN1$IN ENDP
+; ENDP PRN1$IN
 
-	PUBLIC PRN2$IN
-PRN2$IN PROC	FAR
+	global PRN2$IN
+PRN2$IN:
 	PUSH	SI
 	PUSH	AX
 	MOV	AL,1
 	MOV	AH,2
 	JMP	SHORT PRNENT
-PRN2$IN ENDP
+; ENDP PRN2$IN
 
-	PUBLIC PRN3$IN
-PRN3$IN PROC	FAR
+	global PRN3$IN
+PRN3$IN:
 	PUSH	SI
 	PUSH	AX
 	MOV	AL,2
 	MOV	AH,3
 PRNENT:
-	MOV	SI,OFFSET PRNTBL
+	MOV	SI,PRNTBL
 	MOV	CS:[PRINTDEV],AH	;SAVE INDEX INTO ARRAY OF RETRY COUNTS
 	JMP	SHORT ENTRY1
-PRN3$IN ENDP
+; ENDP PRN3$IN
 
-	PUBLIC	TIM$IN
-TIM$IN	PROC	FAR
+	global TIM$IN
+TIM$IN:
 	PUSH	SI
-	MOV	SI,OFFSET TIMTBL
+	MOV	SI,TIMTBL
 	JMP	SHORT ENTRY
-TIM$IN	ENDP
+; ENDP TIM$IN
 
-	PUBLIC	DSK$IN
-DSK$IN	PROC	FAR
+	global DSK$IN
+DSK$IN:
 	PUSH	SI
-	MOV	SI,OFFSET DSKTBL
+	MOV	SI,DSKTBL
 
 ENTRY:
 	PUSH	AX
@@ -439,12 +439,12 @@ ENTRY1:
 	MOV	CS:[AUXNUM],AL		;SAVE CHOICE OF AUX/PRN DEVICE
 
 	LDS	BX,CS:[PTRSAV]		;GET POINTER TO I/O PACKET
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 
-	MOV	AL,BYTE PTR DS:[BX].UNIT ;AL = UNIT CODE
-	MOV	AH,BYTE PTR DS:[BX].MEDIA ;AH = MEDIA DESCRIP
-	MOV	CX,WORD PTR DS:[BX].COUNT ;CX = COUNT
-	MOV	DX,WORD PTR DS:[BX].START ;DX = START SECTOR
+	MOV	AL,byte DS:[BX].UNIT ;AL = UNIT CODE
+	MOV	AH,byte DS:[BX].MEDIA ;AH = MEDIA DESCRIP
+	MOV	CX,word DS:[BX].COUNT ;CX = COUNT
+	MOV	DX,word DS:[BX].START ;DX = START SECTOR
 
 ;SB34MSB100*********************************************************************
 ;SB
@@ -476,7 +476,7 @@ ENTRY1:
 ;SB	
 ;SB NOTE:Remember not to destroy the registers which have been set up before
 
-	CMP	SI,OFFSET DSKTBL
+	CMP	SI,DSKTBL
 	JNZ	DSK_REQ_CONT		; Not Disk Req
 	CMP	DX,-1
 	JNZ	DSK_REQ_16
@@ -491,7 +491,7 @@ DSK_REQ_CONT:
 ;SB34MSB100*********************************************************************
 
 	XCHG	DI,AX
-	MOV	AL,BYTE PTR DS:[BX].CMD
+	MOV	AL,byte DS:[BX].CMD
 	CMP	AL,CS:[SI]		;ARR 2.41
 	JA	CMDERR
 
@@ -501,17 +501,17 @@ DSK_REQ_CONT:
 	ADD	SI,AX
 	XCHG	AX,DI
 
-	LES	DI,DWORD PTR DS:[BX].TRANS
+	LES	DI,dword DS:[BX].TRANS
 
 	PUSH	CS
 	POP	DS
 
-	ASSUME	DS:CODE
+	; ASSUME	DS:CODE
 
 	CLD
-	JMP	WORD PTR [SI+1] 	;GO DO COMMAND
-DSK$IN	ENDP
-	PAGE
+	JMP	word [SI+1] 	;GO DO COMMAND
+; ENDP DSK$IN
+	; PAGE
 ;=====================================================
 ;=
 ;=	SUBROUTINES SHARED BY MULTIPLE DEVICES
@@ -521,44 +521,44 @@ DSK$IN	ENDP
 ;
 ;	EXIT - ALL ROUTINES RETURN THROUGH THIS PATH
 ;
-	PUBLIC	BUS$EXIT
-BUS$EXIT PROC	FAR
-	ASSUME	DS:NOTHING
+	global BUS$EXIT
+BUS$EXIT:
+	; ASSUME	DS:NOTHING
 	MOV	AH,00000011B
 	JMP	SHORT ERR1
 
-	PUBLIC	CMDERR
+	global CMDERR
 CMDERR:
 	MOV	AL,3			;UNKNOWN COMMAND ERROR
 
-	PUBLIC	ERR$CNT
+	global ERR$CNT
 ERR$CNT:
 	LDS	BX,CS:[PTRSAV]
-	ASSUME	DS:NOTHING
-	SUB	WORD PTR [BX].COUNT,CX	;# OF SUCCESSFUL I/O'S
+	; ASSUME	DS:NOTHING
+	SUB	word [BX].COUNT,CX	;# OF SUCCESSFUL I/O'S
 
-	PUBLIC	ERR$EXIT
+	global ERR$EXIT
 ERR$EXIT:
 	MOV	AH,10000001B		;MARK ERROR RETURN
 	JMP	SHORT ERR1
-BUS$EXIT ENDP
+; ENDP BUS$EXIT
 
-EXITP	PROC	FAR
-	ASSUME	DS:CODE      ; WE ARE NOT SURE THIS IS CORRECT 3/18/86
+EXITP:
+	; ASSUME	DS:CODE; WE ARE NOT SURE THIS IS CORRECT 3/18/86
 EXIT$ZER:
 	LDS	BX,[PTRSAV]
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	XOR	AX,AX
-	MOV	WORD PTR [BX].COUNT,AX	;INDICATE NO CHARS READ
+	MOV	word [BX].COUNT,AX	;INDICATE NO CHARS READ
 
-	PUBLIC	EXIT
+	global EXIT
 EXIT:
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	MOV	AH,00000001B
 ERR1:
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	LDS	BX,CS:[PTRSAV]
-	MOV	WORD PTR [BX].STATUS,AX ;MARK OPERATION COMPLETE
+	MOV	word [BX].STATUS,AX ;MARK OPERATION COMPLETE
 
 	POP	BX
 	POP	ES
@@ -570,7 +570,7 @@ ERR1:
 	POP	AX
 	POP	SI
 	RET				;RESTORE REGS AND RETURN
-EXITP	ENDP
+; ENDP EXITP
 
 ;-------------------------------------------------------------
 ;
@@ -578,11 +578,11 @@ EXITP	ENDP
 ;
 ;	CALLED VIA INT 29H
 ;
-	PUBLIC	CHROUT
+	global CHROUT
 CHROUT	=	29H
 
-	PUBLIC	OUTCHR
-OUTCHR	PROC	FAR
+	global OUTCHR
+OUTCHR:
 	PUSH	AX
 	PUSH	SI
 	PUSH	DI
@@ -599,17 +599,17 @@ OUTCHR	PROC	FAR
 	POP	SI
 	POP	AX
 	IRET
-OUTCHR	ENDP
+; ENDP OUTCHR
 ;----------------------------------------------
 ;
 ;	SET DX TO AUXNUM
 ;
-	PUBLIC GETDX
-GETDX	PROC	NEAR
-	MOV	DX,WORD PTR CS:[AUXNUM]
+	global GETDX
+GETDX:
+	MOV	DX,word CS:[AUXNUM]
 	RET
-GETDX	ENDP
-	PAGE
+; ENDP GETDX
+	; PAGE
 ;************************************************** ARR 2.15
 
 ;-----------------------------------------------
@@ -641,5 +641,5 @@ GETDX	ENDP
 ;	 POP	 AX
 ;	 IRET
 ;************************************************** ARR 2.15
-CODE	ENDS
-	END
+; END SECTION .CODE
+	; END

@@ -1,61 +1,61 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)copypr1.asm	1.1 85/05/14
 ;	SCCSID = @(#)copypr1.asm	1.1 85/05/14
-	INCLUDE comsw.asm
+	%include "comsw.asm"
 
-.xlist
-.xcref
-	INCLUDE DOSSYM.INC
+; .xlist
+; .xcref
+	%include "DOSSYM.INC"
 ;	INCLUDE DEVSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-.list
-.cref
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	DEVWMES_ptr:word
-	EXTRN	ext_open_parms:byte	;AN000;
-	EXTRN	ext_open_seg:word	;AN000;
-	EXTRN	ext_open_off:word	;AN000;
-	EXTRN	Extend_buf_sub:byte	;AN000;
-	EXTRN	LOSTERR_ptr:word
-	EXTRN	NOSPACE_ptr:word
-	EXTRN	OVERWR_ptr:word
-TRANDATA ENDS
+SECTION .TRANDATA;AC000;
+	extern DEVWMES_ptr
+	extern ext_open_parms;AN000;
+	extern ext_open_seg;AN000;
+	extern ext_open_off;AN000;
+	extern Extend_buf_sub;AN000;
+	extern LOSTERR_ptr
+	extern NOSPACE_ptr
+	extern OVERWR_ptr
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	ASCII:BYTE
-	EXTRN	BINARY:BYTE
-	EXTRN	CFLAG:BYTE
-	EXTRN	CONCAT:BYTE
-	EXTRN	concat_xa:byte		;AC000;
-	EXTRN	DESTBUF:BYTE
-	EXTRN	DESTCLOSED:BYTE
-	EXTRN	DESTHAND:WORD
-	EXTRN	DESTISDEV:BYTE
-	EXTRN	DESTSWITCH:WORD
-	EXTRN	INEXACT:BYTE
-	EXTRN	NOWRITE:BYTE
-	EXTRN	NXTADD:WORD
-	EXTRN	plus_comma:byte 	;AN000;
-	EXTRN	RDEOF:BYTE
-	EXTRN	src_xa_seg:word 	;AN000;
-	EXTRN	SRCISDEV:BYTE
-	EXTRN	string_ptr_2:word	;AN000;
-	EXTRN	TERMREAD:BYTE
-	EXTRN	TPA:WORD
-	EXTRN	WRITTEN:WORD
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern ASCII
+	extern BINARY
+	extern CFLAG
+	extern CONCAT
+	extern concat_xa;AC000;
+	extern DESTBUF
+	extern DESTCLOSED
+	extern DESTHAND
+	extern DESTISDEV
+	extern DESTSWITCH
+	extern INEXACT
+	extern NOWRITE
+	extern NXTADD
+	extern plus_comma;AN000;
+	extern RDEOF
+	extern src_xa_seg;AN000;
+	extern SRCISDEV
+	extern string_ptr_2;AN000;
+	extern TERMREAD
+	extern TPA
+	extern WRITTEN
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-	EXTRN	ENDCOPY:NEAR
+	extern ENDCOPY
 
-	PUBLIC	FLSHFIL
-	PUBLIC	TRYFLUSH
+	global FLSHFIL
+	global TRYFLUSH
 
-ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
 
 TRYFLUSH:
 	mov	al,[CONCAT]
@@ -86,7 +86,7 @@ NOTEXISTS:
 	CMP	[SRCISDEV],0
 	JNZ	PROCDEST			; Same name on device OK
 	CMP	[CONCAT],0			; Concatenation?
-	MOV	DX,OFFSET TRANGROUP:OVERWR_ptr
+	MOV	DX,OVERWR_ptr
 	JNZ	NO_CONCAT_ERR			;AC000; If not, overwrite error
 	JMP	COPERR				;AC000;
 
@@ -95,11 +95,11 @@ NO_CONCAT_ERR:					;AC000;
 
 PROCDEST:
 	MOV	AX,EXTOPEN SHL 8		;AC000; open the file
-	mov	si,offset trangroup:destbuf	;AN030; get file name
+	mov	si,destbuf	;AN030; get file name
 	mov	di,-1				;AN030; indicate no parameters
 	cmp	src_xa_seg,no_xa_seg		;AN030; is there an XA segment?
 	jz	cont_no_xa			;AN030; no - no parameters
-	mov	di,offset trangroup:Ext_open_parms ;AN030; get parameters
+	mov	di,Ext_open_parms ;AN030; get parameters
 	mov	bx,src_xa_seg			;AN030; get extended attribute segment
 	mov	ext_open_seg,bx 		;AN030; put it in parameter list
 	mov	ext_open_off,0			;AN030; offset is 0
@@ -125,7 +125,7 @@ xa_set_error:					;AN030; error occurred on XA
 	invoke	set_ext_error_msg		;AN030; get extended error
 
 ext_err_set:					;AN030;
-	mov	string_ptr_2,offset trangroup:destbuf ;AN000; get address of failed string
+	mov	string_ptr_2,destbuf ;AN000; get address of failed string
 	mov	Extend_buf_sub,one_subst	;AN030; put number of subst in control block
 
 COPERRJ2:					;AN030;
@@ -146,7 +146,7 @@ dest_open_okay: 				;AC030
 	test	dl,devid_ISDEV
 	jz	exists				;AC030; Dest a device
 
-	mov	al,BYTE PTR [DESTSWITCH]
+	mov	al,byte [DESTSWITCH]
 	AND	AL,SwitchA+SwitchB
 	JNZ	TESTBOTH
 	MOV	AL,[ASCII]			; Neither set, use current setting
@@ -189,7 +189,7 @@ EXISTS:
 ; has been scribbled already (if dest had been named first, NOWRITE would
 ; be set).
 ;
-	MOV	DX,OFFSET TRANGROUP:LOSTERR_ptr ; Tell him he's not going to get it
+	MOV	DX,LOSTERR_ptr ; Tell him he's not going to get it
 	invoke	std_Eprintf			;AC022;
 	MOV	[NXTADD],0			; Set return
 	INC	[TERMREAD]			; Tell Read to give up
@@ -208,12 +208,12 @@ NOCHECKING:
 	XOR	DX,DX
 	PUSH	DS
 	MOV	DS,[TPA]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	AH,WRITE
 	INT	int_command
 	POP	DS
-ASSUME	DS:TRANGROUP
-	MOV	DX,OFFSET TRANGROUP:NOSPACE_ptr
+; ASSUME	DS:TRANGROUP
+	MOV	DX,NOSPACE_ptr
 	JC	xa_set_error_Jmp		;AC022; Failure
 	sub	cx,ax
 	retz					; Wrote all supposed to
@@ -227,9 +227,9 @@ ASSUME	DS:TRANGROUP
 	retz					; Wrote one byte less (the ^Z)
 
 DEVWRTERR:
-	MOV	DX,OFFSET TRANGROUP:DEVWMES_ptr
+	MOV	DX,DEVWMES_ptr
 
-PUBLIC COPERR
+global COPERR
 COPERR:
 	INVOKE	std_Eprintf			;AC022;
 
@@ -244,7 +244,7 @@ COPERRP:
 	INT	int_command
 
 NoClose:
-	MOV	DX,OFFSET TRANGROUP:DESTBUF
+	MOV	DX,DESTBUF
 	MOV	AH,UNLINK
 	INT	int_command			; And delete it
 	MOV	[CFLAG],0
@@ -271,6 +271,6 @@ SEEKEND:
 	jc	xa_set_error_Jmp		;AC022; Failure
 	return
 
-TRANCODE ENDS
-	 END
+; END SECTION .TRANCODE
+	 ; END
 

@@ -1,7 +1,7 @@
 ;	SCCSID = @(#)dup.asm	1.1 85/04/10
 ;	SCCSID = @(#)dup.asm	1.1 85/04/10
-TITLE	DOS_DUP - Internal SFT DUP (for network SFTs)
-NAME	DOS_DUP
+; TITLE	DOS_DUP - Internal SFT DUP (for network SFTs)
+; NAME	DOS_DUP
 ; Low level DUP routine for use by EXEC when creating a new process. Exports
 ;   the DUP to the server machine and increments the SFT ref count
 ;
@@ -15,17 +15,17 @@ NAME	DOS_DUP
 ;
 ; get the appropriate segment definitions
 ;
-.xlist
-include dosseg.asm
+; .xlist
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+; .cref
+; .list
 
 	i_need	THISSFT,DWORD
 
@@ -48,7 +48,7 @@ BREAK <DOS_DUP -- DUP SFT across network>
 ;	that time.
 
 	procedure   DOS_DUP,NEAR
-	ASSUME	ES:NOTHING,SS:NOTHING
+	; ASSUME	ES:NOTHING,SS:NOTHING
 
 	LES	DI,ThisSFT
 	Entry	Dos_Dup_Direct
@@ -64,5 +64,5 @@ DO_INC:
 
 EndProc DOS_DUP
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END

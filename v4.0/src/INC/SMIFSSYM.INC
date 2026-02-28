@@ -1,5 +1,5 @@
 
-	PAGE	60,132
+	; PAGE	60,132
 ;	SCCSID = @(#)smifssym.inc 1.0 87/05/11
 ;
 ;   Modification history:
@@ -24,28 +24,28 @@
     IFSIOCTL	EQU	0002H	;  Supports IOCTL functions
     IFSUSESHARE EQU	0001H	;  Uses DOS share support (vs own share)
 
-IFSHEADER	STRUC
+struc IFSHEADER
 IFS_NEXT	DD	-1	; Next header in list (-1=end)
 IFS_NAME	DB	"        " ; IFS name
-IFS_ATTRIBUTE	DW	?	; Attributes
+IFS_ATTRIBUTE: dw 0; Attributes
 IFS_VERSION	DW	0	; Request level supported
-IFS_DOSCALL@	DD	?	; DOS interface routine
+IFS_DOSCALL@: dd 0; DOS interface routine
 				;   (set by TUPPER before the init call)
-IFS_CALL@	DW	?	; Function entry point
-IFSHEADER	ENDS
+IFS_CALL@: dw 0; Function entry point
+endstruc
 
 ;=====================
 ; IFS Request Header
 ;=====================
 
-IFSRH		STRUC
-IFSR_LENGTH	DW    ? 		; Total length of request
-IFSR_FUNCTION	DB    ? 		; Requested function
-IFSR_RETCODE	DB    ? 		; Explicit error
-IFSR_RETCLASS	DB    ? 		; Error class
-IFSR_RESV1	DB    17 DUP(0) 	; DOS reserved
-IFSR_FCN_PARMS	DB    38 DUP(0) 	; Additional parameters
-IFSRH		ENDS
+struc IFSRH
+IFSR_LENGTH: dw 0; Total length of request
+IFSR_FUNCTION: db 0; Requested function
+IFSR_RETCODE: db 0; Explicit error
+IFSR_RETCLASS: db 0; Error class
+IFSR_RESV1: times 17 db 0; DOS reserved
+IFSR_FCN_PARMS: times 38 db 0; Additional parameters
+endstruc
 
 ; IFSR_FUNCTION codes
 ;	Control requests:
@@ -56,7 +56,7 @@ IFSEXECAPI     EQU     4
 IFSCRITMSG     EQU     5
 IFSCBUPDATE    EQU     6
 ; INIT function.
-IFSR_PARMS@	   =  DWORD PTR  IFSR_FCN_PARMS    ; command parameters
-IFSR_RESSIZE	   =  WORD  PTR  IFSR_FCN_PARMS+4  ; driver total size
+IFSR_PARMS@	   =  dword  IFSR_FCN_PARMS    ; command parameters
+IFSR_RESSIZE	   =  word  IFSR_FCN_PARMS+4  ; driver total size
 LENGTH_INIT	   EQU IFSR_RESSIZE-IFSRH+2
 

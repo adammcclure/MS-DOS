@@ -1,20 +1,20 @@
-	IF1								  ;3.30
+	%if 1  ; IF1 - pass-specific;3.30
 
-SaveReg MACRO	reglist 		;; push those registers
-IRP reg,<reglist>
+%macro SaveReg 1;; push those registers
+; IRP reg,<reglist>
 	?stackdepth = ?stackdepth + 1
 	PUSH	reg
-ENDM
-ENDM
-.xcref	SaveReg
+%endmacro
+%endmacro
+; .xcref	SaveReg
 
 
-RestoreReg  MACRO   reglist		;; pop those registers
-IRP reg,<reglist>
+%macro RestoreReg 1;; pop those registers
+; IRP reg,<reglist>
 	?stackdepth = ?stackdepth - 1
 	POP	reg
-ENDM
-ENDM
-.xcref	RestoreReg
+%endmacro
+%endmacro
+; .xcref	RestoreReg
 
-	ENDIF								  ;3.30
+	%endif;3.30

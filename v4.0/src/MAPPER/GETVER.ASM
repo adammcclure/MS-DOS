@@ -1,9 +1,9 @@
-page 80,132
+; page 80,132
 
-title CP/DOS DosGetVersion mapper
+; title CP/DOS DosGetVersion mapper
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -18,32 +18,32 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-	    public   dosgetversion
-	    .sall
-	    include  macros.inc
+	    global dosgetversion
+	    ; .sall
+	    %include "macros.inc"
 
-str	    struc
-old_bp	    dw	     ?
-Return	    dd	     ?
-Data	    dd	     ?	     ; return data area pointer
-str	    ends
+struc str
+old_bp: dw 0
+Return: dd 0
+Data: dd 0; return data area pointer
+endstruc
 
-dosgetversion	proc	far
+dosgetversion:
 	Enter	dosgetversion
 	lds	si,[bp].data	      ; set pointer
 
 	mov	ah,30h		      ; get DOS version
 	int	21h
 
-	mov	byte ptr [si],ah      ; minor version
-	mov	byte ptr [si]+1,al    ; major version
+	mov	byte [si],ah      ; minor version
+	mov	byte [si]+1,al    ; major version
 
 exit:	mexit			      ; pop registers
 	sub	ax,ax
-	ret	size str - 6
+	ret	str_size - 6
 ;
-dosgetversion endp
+; ENDP dosgetversion
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

@@ -1,18 +1,18 @@
 ;	SCCSID = @(#)share.asm	1.1 85/04/10
-TITLE   SHARING ROUTINES - Routines for file Sharing
-NAME    SHARE
+; TITLE   SHARING ROUTINES - Routines for file Sharing
+; NAME    SHARE
 
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.xlist
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+; .cref
+; .list
 
 AsmVars <IBM, Installed>
 
@@ -44,13 +44,13 @@ Installed = True
 
 	procedure   SHARE_CHECK,NEAR
 	DOSAssume   CS,<DS>,"Share_Check"
-	ASSUME  ES:NOTHING
+	; ASSUME  ES:NOTHING
 
-if installed
+%if installed
 	call    JShare + 1 * 4
-else
+%else
 	Call    MFT_Enter
-endif
+%endif
 	return
 
 EndProc SHARE_CHECK
@@ -68,7 +68,7 @@ EndProc SHARE_CHECK
 
 	procedure   SHARE_VIOLATION,NEAR
 	DOSAssume   CS,<DS>,"Share_Violation"
-	ASSUME  ES:NOTHING
+	; ASSUME  ES:NOTHING
 
 	PUSH    DS
 	PUSH    ES
@@ -100,13 +100,13 @@ EndProc SHARE_VIOLATION
 
 	procedure   ShareEnd,Near
 	DOSAssume   CS,<DS>,"ShareEnd"
-	ASSUME  ES:NOTHING
+	; ASSUME  ES:NOTHING
 
-if installed
+%if installed
 	Call    JShare + 2 * 4
-else
+%else
 	Call    MFTClose
-endif
+%endif
 	return
 
 EndProc ShareEnd
@@ -125,7 +125,7 @@ break <ShareEnter - attempt to enter a node into the sharing set>
 
 Procedure   ShareEnter,NEAR
 	DOSAssume   CS,<DS>,"ShareEnter"
-	assume  es:nothing
+	; assume  es:nothing
 
 	SaveReg <CX>
 retry:
@@ -147,5 +147,5 @@ done:
 	return
 EndProc ShareEnter
 
-CODE    ENDS
-    END
+; END SECTION .CODE
+    ; END

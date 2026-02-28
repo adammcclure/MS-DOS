@@ -7,18 +7,18 @@
 ;
 
 
-Define_Msg macro Message_Name			;				;AN000;
+%macro Define_Msg 1;				;AN000;
 						;
 Create_Msg Message_Name,Message_Number,Handle,Sublist,Count,Class,Function,Input;AN000;
 						;
-	endm					;				;AN000;
+	%endmacro;				;AN000;
 
 ;-----------------------------------------------------------------------------
 
-Create_Msg macro Parm1,Parm2,Parm3,Parm4,Parm5,Parm6,Parm7,Parm8;		;AN000;
+%macro Create_Msg 8;		;AN000;
 
-Public	Parm1
-Parm1	label	word				;				;AN000;
+global Parm1
+Parm1:;				;AN000;
 	dw	Parm2				;				;AN000;
 	dw	Parm3				;				;AN000;
 	dw	Parm4				;				;AN000;
@@ -26,7 +26,7 @@ Parm1	label	word				;				;AN000;
 	db	Parm6				;				;AN000;
 	db	Parm7				;				;AN000;
 	dw	Parm8				;				;AN000;
-	endm					;				;AN000;
+	%endmacro;				;AN000;
 
 
 ;
@@ -35,22 +35,22 @@ Parm1	label	word				;				;AN000;
 ;*****************************************************************************
 ;
 
-	Extrn	DriveLetter:Byte
-	Extrn	SystemDriveLetter:Byte
-	Extrn	CurrentHead:Byte
-	Extrn	CurrentCylinder:Word
-	Extrn	FdskSiz:Word
-	Extrn	SysSiz:Word
-	Extrn	BadSiz:Word
-	Extrn	DataSiz:Word
-	Extrn	Drive_Letter_Msg:Byte
-	Extrn	PercentComplete:Byte
-	Extrn	AllocSize:Dword
-	Extrn	AllocNum:Word
-	Extrn	Serial_Num_Low:Word
-	Extrn	Serial_Num_High:Word
-	Extrn	Command_Old_Ptr:Word
-	Extrn	Msg_Allocation_Unit_Val:Dword
+	extern DriveLetter
+	extern SystemDriveLetter
+	extern CurrentHead
+	extern CurrentCylinder
+	extern FdskSiz
+	extern SysSiz
+	extern BadSiz
+	extern DataSiz
+	extern Drive_Letter_Msg
+	extern PercentComplete
+	extern AllocSize
+	extern AllocNum
+	extern Serial_Num_Low
+	extern Serial_Num_High
+	extern Command_Old_Ptr
+	extern Msg_Allocation_Unit_Val
 
 ;
 ;*****************************************************************************
@@ -86,8 +86,8 @@ Reserved		equ	0
 
 
 
-data	segment public	para	'DATA'
-	assume	ds:data
+SECTION .data
+	; assume	ds:data
 
 
 ;
@@ -101,11 +101,11 @@ data	segment public	para	'DATA'
 ;
 
 ;---------------------------			;
-Sublist_msgCurrentTrack label dword		;				;AN000;
+Sublist_msgCurrentTrack:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset PercentComplete	;				;AN000;
+	dw		PercentComplete	;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Unsgn_Bin_Word ;				 ;AN000;
@@ -113,14 +113,14 @@ Sublist_msgCurrentTrack label dword		;				;AN000;
 	db		3			;Min % is 0			;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgInsertDisk	label dword		;				;AN000;
-Sublist_msgReInsertDisk label dword		;				;AN000;
-Sublist_MsgHardDiskWarning label dword		;
-Sublist_msgFormatNotSupported label dword	;				;AN000;
+Sublist_msgInsertDisk:;				;AN000;
+Sublist_msgReInsertDisk:;				;AN000;
+Sublist_MsgHardDiskWarning:;
+Sublist_msgFormatNotSupported:;				;AN000;
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset DriveLetter	;				;AN000;
+	dw		DriveLetter	;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_Char ;			   ;AN000;
@@ -128,11 +128,11 @@ Sublist_msgFormatNotSupported label dword	;				;AN000;
 	db		1			;				;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgInsertDOSDisk label dword		;				;AN000;
+Sublist_msgInsertDOSDisk:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset SystemDriveLetter;				;AN000;
+	dw		SystemDriveLetter;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_Char ;				;AN000;
@@ -140,11 +140,11 @@ Sublist_msgInsertDOSDisk label dword		;				;AN000;
 	db		1			;				;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgTotalDiskSpace label dword		;				;AN000;
+Sublist_msgTotalDiskSpace:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset FdskSiz		;				;AN000;
+	dw		FdskSiz		;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Unsgn_Bin_Dword ;				 ;AN000;
@@ -152,11 +152,11 @@ Sublist_msgTotalDiskSpace label dword		;				;AN000;
 	db		10			;4,000,000,000 limit		;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgSystemSpace	label dword		;				;AN000;
+Sublist_msgSystemSpace:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset SysSiz		;				;AN000;
+	dw		SysSiz		;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Unsgn_Bin_DWord ;			   ;AN000;
@@ -164,11 +164,11 @@ Sublist_msgSystemSpace	label dword		;				;AN000;
 	db		10			;64k*3 max			;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgBadSpace	label dword		;				;AN000;
+Sublist_msgBadSpace:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset BadSiz		;				;AN000;
+	dw		BadSiz		;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Unsgn_Bin_DWord ;			   ;AN000;
@@ -176,11 +176,11 @@ Sublist_msgBadSpace	label dword		;				;AN000;
 	db		10			;4,000,000,000 max		;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgDataSpace	label dword		;				;AN000;
+Sublist_msgDataSpace:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		Offset DataSiz		;				;AN000;
+	dw		DataSiz		;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Unsgn_Bin_DWord ;			   ;AN000;
@@ -188,11 +188,11 @@ Sublist_msgDataSpace	label dword		;				;AN000;
 	db		10			;4,000,000,000 max		;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgWhatIsVolumeId?  label dword 	;				;AN000;
+Sublist_msgWhatIsVolumeId?:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset DriveLetter	;				;AN000;
+	dw		DriveLetter	;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_Char ;				;AN000;
@@ -200,7 +200,7 @@ Sublist_msgWhatIsVolumeId?  label dword 	;				;AN000;
 	db		1			;				;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgEXECFailure	label dword		;				;AN000;
+Sublist_msgEXECFailure:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
@@ -212,11 +212,11 @@ Sublist_msgEXECFailure	label dword		;				;AN000;
 	db		2			;				;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgAllocNum	label dword		;				;AN000;
+Sublist_msgAllocNum:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset AllocNum 	;				;AN000;
+	dw		AllocNum 	;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Unsgn_Bin_Word ;				;AN000;
@@ -224,11 +224,11 @@ Sublist_msgAllocNum	label dword		;				;AN000;
 	db		10			;				;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgAllocSize	label dword		;				;AN000;
+Sublist_msgAllocSize:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset AllocSize	;				;AN000;
+	dw		AllocSize	;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Unsgn_Bin_DWord ;				  ;AN000;
@@ -236,11 +236,11 @@ Sublist_msgAllocSize	label dword		;				;AN000;
 	db		10			;				;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_msgSerialNumber label dword		;				;AN000;
+Sublist_msgSerialNumber:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset Serial_Num_Low	;				;AN000;
+	dw		Serial_Num_Low	;				;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Bin_Hex_Word ;				;AN000;
@@ -249,7 +249,7 @@ Sublist_msgSerialNumber label dword		;				;AN000;
 	db		'0'                     ;Display leading 0's            ;AN000;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset Serial_Num_High	;				;AN000;
+	dw		Serial_Num_High	;				;AN000;
 	dw		data			;				;AN000;
 	db		2			;				;AN000;
 	db		Right_Align+Bin_hex_Word ;				;AN000;
@@ -257,8 +257,8 @@ Sublist_msgSerialNumber label dword		;				;AN000;
 	db		4			;				;AN000;
 	db		'0'                     ;                               ;AN000;
 
-Public	Sublist_MsgParse_Error
-Sublist_msgParse_Error	      label dword	;				;AN000;
+global Sublist_MsgParse_Error
+Sublist_msgParse_Error:;				;AN000;
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
@@ -270,11 +270,11 @@ Sublist_msgParse_Error	      label dword	;				;AN000;
 	db		01			;				;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_MsgVerify	label dword		;				;AN000;
+Sublist_MsgVerify:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset Msg_Allocation_Unit_Val; 			;AN000;
+	dw		Msg_Allocation_Unit_Val; 			;AN000;
 	dw		data			;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Unsgn_Bin_DWord;				;AN000;
@@ -856,6 +856,6 @@ Input		= N_A				;				;AN000;
 
 
 
-data ends
+; END SECTION .data
 
 

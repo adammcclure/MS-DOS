@@ -1,8 +1,8 @@
-PAGE	60,132				;
-	TITLE	DEBMES.SAL - DEBUGGER MESSAGES PC DOS
-	IF1
-	    %OUT    COMPONENT=DEBUG, MODULE=DEBMES
-	ENDIF
+; PAGE	60,132;
+	; TITLE	DEBMES.SAL - DEBUGGER MESSAGES PC DOS
+	%if 1  ; IF1 - pass-specific
+	    %warning COMPONENT=DEBUG, MODULE=DEBMES
+	%endif
 
 ;******************* START OF SPECIFICATIONS *****************************
 ;
@@ -61,11 +61,11 @@ PAGE	60,132				;
 ;	     "Licensed Material - Property of Microsoft  "
 ;
 ;******************** END OF SPECIFICATIONS ******************************
-.xlist
+; .xlist
 
-	include sysmsg.inc		;an000;message retriever
+	%include "sysmsg.inc";an000;message retriever
 
-.list
+; .list
 
 msg_utilname <DEBUG>			;an000;DEBUG messages
 
@@ -84,14 +84,14 @@ FALSE	EQU	0
 TRUE	EQU	NOT FALSE
 
 ;SYSVER 	 EQU FALSE		 ;if true, i/o direct to bios
-	INCLUDE SYSVER.INC
+	%include "SYSVER.INC"
 
 ;=========================================================================
 ; macro disp_message: the macro takes the message obtained in get_message
 ;		      and displays it to the applicable screen device.
 ;=========================================================================
 
-disp_message macro tbl			;an000;display message macro
+%macro disp_message 1;an000;display message macro
 
 	push	si			;an000;save affected reg
 	push	di			;an000;
@@ -121,7 +121,7 @@ disp_message macro tbl			;an000;display message macro
 	pop	si			;an000;
 
 
-endm					;an000;end macro disp_message
+%endmacro;an000;end macro disp_message
 
 ;=========================================================================
 ; macro disp_message: end macro
@@ -129,34 +129,34 @@ endm					;an000;end macro disp_message
 
 
 
-CODE	SEGMENT PUBLIC BYTE
-CODE	ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST	SEGMENT PUBLIC BYTE
-CONST	ENDS
+SECTION .CONST
+; END SECTION .CONST
 
-CSTACK	SEGMENT STACK
-CSTACK	ENDS
+SECTION .CSTACK
+; END SECTION .CSTACK
 
-DATA	SEGMENT PUBLIC BYTE
+SECTION .DATA
 
-DATA	ENDS
+; END SECTION .DATA
 
-DG	GROUP	CODE,CONST,CSTACK,DATA
+; DG	GROUP	CODE,CONST,CSTACK,DATA
 
 
-code	segment public byte		;an000;code segment
-	assume	cs:dg,ds:dg,ss:dg,es:dg ;an000;
+SECTION .code;an000;code segment
+	; assume	cs:dg,ds:dg,ss:dg,es:dg;an000;
 
-	public	printf			;an000;share printf
+	global printf;an000;share printf
 ;;	public	disp_fatal		;an000;fatal error display
-	public	pre_load_message	;an000;message pre load
+	global pre_load_message;an000;message pre load
 
-.xlist
+; .xlist
 
 msg_services <MSGDATA>
 
-.list
+; .list
 
 ;=========================================================================
 ;	  include sysmsg.inc - message retriever services
@@ -173,7 +173,7 @@ msg_services <MSGDATA>
 ;		   CLSDmsg
 ;=========================================================================
 
-.xlist
+; .xlist
 
 msg_services <LOADmsg>			;an000;load the messages
 msg_services <DISPLAYmsg,CHARmsg,NUMmsg>;an000;get and display messages
@@ -182,7 +182,7 @@ msg_services <DEBUG.CLA,DEBUG.CLB>	;an000;message types
 msg_services <DEBUG.CLC,DEBUG.CLD>	;an000;
 msg_services <DEBUG.CL1,DEBUG.CL2>	;an000;
 
-.list
+; .list
 
 ;=========================================================================
 ; printf: printf is a replacement of the printf procedure used in DOS
@@ -195,7 +195,7 @@ msg_services <DEBUG.CL1,DEBUG.CL2>	;an000;
 ;	  get_message and disp_message operate on these tables.
 ;=========================================================================
 
-printf	proc	near			;an000;printf procedure
+printf:;an000;printf procedure
 
 	disp_message dx 		;an000;display a message
 ;;	$if	c			;an000;if an error occurred
@@ -204,7 +204,7 @@ printf	proc	near			;an000;printf procedure
 
 	ret				;an000;return to caller
 
-printf	endp				;an000;end printf
+; ENDP printf;an000;end printf
 
 
 ;=========================================================================
@@ -234,7 +234,7 @@ printf	endp				;an000;end printf
 ;	Date	  : 6/15/87
 ;=========================================================================
 
-PRE_LOAD_MESSAGE	proc	near		;an000;pre-load messages
+PRE_LOAD_MESSAGE:;an000;pre-load messages
 
 	call	SYSLOADMSG			;an000;invoke loader
 
@@ -248,25 +248,25 @@ $$IF1:
 
 	ret					;an000;return to caller
 
-PRE_LOAD_MESSAGE	endp			;an000;end proc
+; ENDP PRE_LOAD_MESSAGE;an000;end proc
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-code	ends				;an000;end code segment
+; END SECTION .code;an000;end code segment
 
 
-CONST	SEGMENT PUBLIC BYTE
+SECTION .CONST
 
-	PUBLIC	ENDMES_PTR,CRLF_PTR,NAMBAD_PTR
-	PUBLIC	NOTFND_PTR,NOROOM_PTR,BADVER
-	PUBLIC	NOSPACE_PTR,DRVLET
-	PUBLIC	ACCMES_PTR,PROMPT_PTR
-	PUBLIC	TOOBIG_PTR,SYNERR_PTR,BACMES_PTR
-	PUBLIC	HEXERR_PTR,HEXWRT_PTR,WRTMES_PTR,EXEBAD_PTR,EXEWRT_PTR
-	PUBLIC	EXECEMES_PTR, PARITYMES_PTR, NONAMESPEC_PTR
-	PUBLIC	dr1_ptr,dr2_ptr,dr3_ptr,dr4_ptr 	;ac000;new messages
-	PUBLIC	CHANGE_FLAG_PTR,DF_ERROR,BF_ERROR,BR_ERROR,BP_ERROR
-	PUBLIC	CONSTEND
+	global ENDMES_PTR,CRLF_PTR,NAMBAD_PTR
+	global NOTFND_PTR,NOROOM_PTR,BADVER
+	global NOSPACE_PTR,DRVLET
+	global ACCMES_PTR,PROMPT_PTR
+	global TOOBIG_PTR,SYNERR_PTR,BACMES_PTR
+	global HEXERR_PTR,HEXWRT_PTR,WRTMES_PTR,EXEBAD_PTR,EXEWRT_PTR
+	global EXECEMES_PTR, PARITYMES_PTR, NONAMESPEC_PTR
+	global dr1_ptr,dr2_ptr,dr3_ptr,dr4_ptr;ac000;new messages
+	global CHANGE_FLAG_PTR,DF_ERROR,BF_ERROR,BR_ERROR,BP_ERROR
+	global CONSTEND
 
 ;======================= TABLE STRUCTURE =================================
 ;
@@ -280,12 +280,12 @@ CONST	SEGMENT PUBLIC BYTE
 ;
 ;=========================================================================
 
-	IF	SYSVER
+	%if SYSVER
 
-	    PUBLIC  BADDEV_PTR,BADLSTMES_PTR
+	    global BADDEV_PTR,BADLSTMES_PTR
 
 
-baddev_ptr  label   word		;an000;"Bad device name",0
+baddev_ptr:;an000;"Bad device name",0
 	    dw	    0006		;an000;message number 6
 	    db	    UTILITY_MSG_CLASS	   ;an000;utility message
 	    dw	    stdout		;an000;display handle
@@ -294,7 +294,7 @@ baddev_ptr  label   word		;an000;"Bad device name",0
 	    db	    no_input		;an000;no keyboard input
 	    dw	    00			;an000;no keyboard buffer
 
-badlstmes_ptr label word		;an000;"Couldn't open list device
+badlstmes_ptr:;an000;"Couldn't open list device
 					;      PRN","Enter name of list
 					;      device?"
 	    dw	    0007		;an000;message number 7
@@ -306,7 +306,7 @@ badlstmes_ptr label word		;an000;"Couldn't open list device
 	    dw	    00			;an000;no keyboard buffer
 
 
-	ENDIF
+	%endif
 
 ;================= REPLACEABLE PARAMETER SUBLIST STRUCTURE ===============
 ;
@@ -326,10 +326,10 @@ badlstmes_ptr label word		;an000;"Couldn't open list device
 ;		replaceable parameter sublists
 ;=========================================================================
 
-db_synerr_sub label dword		;an000;synerr parameters
+db_synerr_sub:;an000;synerr parameters
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:arg_buf		;an000;point to argument buffer
+	dd	arg_buf		;an000;point to argument buffer
 	db	01			;an000;parameter one
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -337,10 +337,10 @@ db_synerr_sub label dword		;an000;synerr parameters
 	db	00			;an000;minimum width
 	db	pad_blank		;an000;blank pad
 
-db_change_sub label dword		;an000;synerr parameters
+db_change_sub:;an000;synerr parameters
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:arg_buf		;an000;point to argument buffer
+	dd	arg_buf		;an000;point to argument buffer
 	db	01			;an000;parameter one
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -348,10 +348,10 @@ db_change_sub label dword		;an000;synerr parameters
 	db	00			;an000;minimum width
 	db	pad_blank		;an000;blank pad
 
-db_drive_error label dword		;an000;drive error parameters
+db_drive_error:;an000;drive error parameters
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:drvlet		;an000;point to drive letter
+	dd	drvlet		;an000;point to drive letter
 	db	01			;an000;parameter one
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -366,7 +366,7 @@ db_drive_error label dword		;an000;drive error parameters
 ;=========================================================================
 
 
-crlf_ptr label	word			;an000;13,10,0
+crlf_ptr:;an000;13,10,0
 	dw	0008			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -376,7 +376,7 @@ crlf_ptr label	word			;an000;13,10,0
 	dw	00			;an000;no keyboard buffer
 
 
-bacmes_ptr label word			;an000;32,8,0
+bacmes_ptr:;an000;32,8,0
 	dw	0044			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -386,7 +386,7 @@ bacmes_ptr label word			;an000;32,8,0
 	dw	00			;an000;no keyboard buffer
 
 
-badver	label	word			;an000;"Incorrect DOS version"
+badver:;an000;"Incorrect DOS version"
 	dw	0001			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -395,7 +395,7 @@ badver	label	word			;an000;"Incorrect DOS version"
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-endmes_ptr label word			;an000;13,10,"Program terminated
+endmes_ptr:;an000;13,10,"Program terminated
 					;	      normally",0
 	dw	0009			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
@@ -406,7 +406,7 @@ endmes_ptr label word			;an000;13,10,"Program terminated
 	dw	00			;an000;no keyboard buffer
 
 
-nambad_ptr label word			;an000;"Invalid drive specification",0
+nambad_ptr:;an000;"Invalid drive specification",0
 	dw	0010			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -416,7 +416,7 @@ nambad_ptr label word			;an000;"Invalid drive specification",0
 	dw	00			;an000;no keyboard buffer
 
 
-notfnd_ptr label word			;an000;"File not found",0
+notfnd_ptr:;an000;"File not found",0
 	dw	0002			;an000;message number
 	db	Ext_Err_Class		;an000;extended error
 	dw	stderr			;an000;display handle
@@ -426,7 +426,7 @@ notfnd_ptr label word			;an000;"File not found",0
 	dw	00			;an000;no keyboard buffer
 
 
-noroom_ptr label word			;an000;"File creation error",0
+noroom_ptr:;an000;"File creation error",0
 	dw	0012			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -436,7 +436,7 @@ noroom_ptr label word			;an000;"File creation error",0
 	dw	00			;an000;no keyboard buffer
 
 
-nospace_ptr label word			;an000;"Insufficient space on disk",0
+nospace_ptr:;an000;"Insufficient space on disk",0
 	dw	0013			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -446,49 +446,49 @@ nospace_ptr label word			;an000;"Insufficient space on disk",0
 	dw	00			;an000;no keyboard buffer
 
 
-dr1_ptr label	word			;an000;"Disk error reading drive %1"
+dr1_ptr:;an000;"Disk error reading drive %1"
 	dw	0014			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_drive_error	;an000;sublist
+	dw	db_drive_error	;an000;sublist
 	dw	01			;an000;no subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-dr2_ptr label	word			;an000;"Disk error writing drive %1"
+dr2_ptr:;an000;"Disk error writing drive %1"
 	dw	0015			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_drive_error	;an000;sublist
+	dw	db_drive_error	;an000;sublist
 	dw	01			;an000;no subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-dr3_ptr label	word			;an000;"Write protect error reading
+dr3_ptr:;an000;"Write protect error reading
 					;	drive %1"
 	dw	0016			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_drive_error	;an000;sublist
+	dw	db_drive_error	;an000;sublist
 	dw	01			;an000;no subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-dr4_ptr label	word			;an000;"Write protect error writing
+dr4_ptr:;an000;"Write protect error writing
 					;	drive %1"
 	dw	0017			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_drive_error	;an000;sublist
+	dw	db_drive_error	;an000;sublist
 	dw	01			;an000;no subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-toobig_ptr label word			;an000;"Insufficient memory",0
+toobig_ptr:;an000;"Insufficient memory",0
 	dw	0008			;an000;message number
 	db	Ext_Err_Class		;an000;utility message
 	dw	stderr			;an000;display handle
@@ -497,17 +497,17 @@ toobig_ptr label word			;an000;"Insufficient memory",0
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-synerr_ptr label word			;an000;"%1^Error",0
+synerr_ptr:;an000;"%1^Error",0
 	dw	0019			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_synerr_sub	;an000;sublist
+	dw	db_synerr_sub	;an000;sublist
 	dw	01			;an000;1 sub - leading spaces
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-hexerr_ptr label word			;an000;"Error in EXE or HEX file",0
+hexerr_ptr:;an000;"Error in EXE or HEX file",0
 	dw	0020			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -516,7 +516,7 @@ hexerr_ptr label word			;an000;"Error in EXE or HEX file",0
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-exebad_ptr label word			;an000;"Error in EXE or HEX file",0
+exebad_ptr:;an000;"Error in EXE or HEX file",0
 	dw	0020			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -526,7 +526,7 @@ exebad_ptr label word			;an000;"Error in EXE or HEX file",0
 	dw	00			;an000;no keyboard buffer
 
 
-hexwrt_ptr label word			;an000;"EXE and HEX files cannot be
+hexwrt_ptr:;an000;"EXE and HEX files cannot be
 					;	written",0
 	dw	0021			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
@@ -536,7 +536,7 @@ hexwrt_ptr label word			;an000;"EXE and HEX files cannot be
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-exewrt_ptr label word			;an000;"EXE and HEX files cannot be
+exewrt_ptr:;an000;"EXE and HEX files cannot be
 					;	written",0
 	dw	0021			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
@@ -547,7 +547,7 @@ exewrt_ptr label word			;an000;"EXE and HEX files cannot be
 	dw	00			;an000;no keyboard buffer
 
 
-execemes_ptr label word 		;an000;"EXEC failure",0
+execemes_ptr:;an000;"EXEC failure",0
 	dw	0022			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -557,7 +557,7 @@ execemes_ptr label word 		;an000;"EXEC failure",0
 	dw	00			;an000;no keyboard buffer
 
 
-nonamespec_ptr label word		;an000;"(W)rite error, no destination
+nonamespec_ptr:;an000;"(W)rite error, no destination
 					;	defined",0
 	dw	0023			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
@@ -567,7 +567,7 @@ nonamespec_ptr label word		;an000;"(W)rite error, no destination
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-accmes_ptr label word			;an000;Access denied",0
+accmes_ptr:;an000;Access denied",0
 	dw	0024			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -577,7 +577,7 @@ accmes_ptr label word			;an000;Access denied",0
 	dw	00			;an000;no keyboard buffer
 
 
-paritymes_ptr label word		;an000;"Parity error or nonexistant
+paritymes_ptr:;an000;"Parity error or nonexistant
 					;	memory error detected",0
 	dw	0025			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
@@ -588,7 +588,7 @@ paritymes_ptr label word		;an000;"Parity error or nonexistant
 	dw	00			;an000;no keyboard buffer
 
 
-prompt_ptr label word			;an000;"-",0
+prompt_ptr:;an000;"-",0
 	dw	0026			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
@@ -598,11 +598,11 @@ prompt_ptr label word			;an000;"-",0
 	dw	00			;an000;no keyboard buffer
 
 
-change_flag_ptr label word		;an000;"%1 -",0
+change_flag_ptr:;an000;"%1 -",0
 	dw	0027			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_change_sub	;an000;sublist
+	dw	db_change_sub	;an000;sublist
 	dw	01			;an000;no subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
@@ -613,59 +613,59 @@ br_error	db	"br",0
 bp_error	db	"bp",0
 drvlet		db	"A",0
 
-CONSTEND LABEL	BYTE
+CONSTEND:
 
-CONST	ENDS
+; END SECTION .CONST
 
-DATA	SEGMENT PUBLIC BYTE
+SECTION .DATA
 
-	PUBLIC	HEX_ARG1,HEX_ARG2,HEX_PTR,ARG_BUF
-	PUBLIC	ARG_BUF_PTR,ADD_PTR,ERR_TYPE
-	PUBLIC	CRLF_PTR,ADD_ARG,SUB_ARG,PROMPT_PTR
-	PUBLIC	REGISTER_PTR,REG_NAME,REG_CONTENTS
-	PUBLIC	SINGLE_REG_PTR,SINGLE_REG_ARG
-	PUBLIC	ERRMES_PTR,LOC_PTR,LOC_ADD
-	PUBLIC	LITTLE_PTR,BIG_PTR,LITTLE_CONTENTS
-	PUBLIC	BIG_CONTENTS,COMP_PTR,COMP_ARG1,COMP_ARG2
-	PUBLIC	COMP_ARG3,COMP_ARG4,COMP_ARG5,COMP_ARG6
-	PUBLIC	WRTMES_PTR,WRT_ARG1,WRT_ARG2
-	PUBLIC	IOTYP,MESTYP
-	PUBLIC	ONE_CHAR_BUF,ONE_CHAR_BUF_PTR
-	PUBLIC	OPBUF,UNASSEM_LN_PTR
+	global HEX_ARG1,HEX_ARG2,HEX_PTR,ARG_BUF
+	global ARG_BUF_PTR,ADD_PTR,ERR_TYPE
+	global CRLF_PTR,ADD_ARG,SUB_ARG,PROMPT_PTR
+	global REGISTER_PTR,REG_NAME,REG_CONTENTS
+	global SINGLE_REG_PTR,SINGLE_REG_ARG
+	global ERRMES_PTR,LOC_PTR,LOC_ADD
+	global LITTLE_PTR,BIG_PTR,LITTLE_CONTENTS
+	global BIG_CONTENTS,COMP_PTR,COMP_ARG1,COMP_ARG2
+	global COMP_ARG3,COMP_ARG4,COMP_ARG5,COMP_ARG6
+	global WRTMES_PTR,WRT_ARG1,WRT_ARG2
+	global IOTYP,MESTYP
+	global ONE_CHAR_BUF,ONE_CHAR_BUF_PTR
+	global OPBUF,UNASSEM_LN_PTR
 
-	PUBLIC	xm_han_ret_ptr
-	PUBLIC	xm_mapped_ptr
-	PUBLIC	xm_err80_ptr
-	PUBLIC	xm_err83_ptr
-	PUBLIC	xm_err84_ptr
-	PUBLIC	xm_err85_ptr
-	PUBLIC	xm_err86_ptr
-	PUBLIC	xm_err87_ptr
-	PUBLIC	xm_err88_ptr
-	PUBLIC	xm_err89_ptr
-	PUBLIC	xm_err8a_ptr
-	PUBLIC	xm_err8b_ptr
-	PUBLIC	xm_err8d_ptr
-	PUBLIC	xm_err8e_ptr
-	PUBLIC	xm_err_gen_ptr
-	PUBLIC	xm_parse_err_ptr
-	PUBLIC	xm_status_ptr
-	PUBLIC	xm_page_seg_ptr
-	PUBLIC	xm_deall_ptr
-	PUBLIC	xm_errff_ptr
-	PUBLIC	xm_unall_ptr
-	PUBLIC	xm_han_alloc_ptr
+	global xm_han_ret_ptr
+	global xm_mapped_ptr
+	global xm_err80_ptr
+	global xm_err83_ptr
+	global xm_err84_ptr
+	global xm_err85_ptr
+	global xm_err86_ptr
+	global xm_err87_ptr
+	global xm_err88_ptr
+	global xm_err89_ptr
+	global xm_err8a_ptr
+	global xm_err8b_ptr
+	global xm_err8d_ptr
+	global xm_err8e_ptr
+	global xm_err_gen_ptr
+	global xm_parse_err_ptr
+	global xm_status_ptr
+	global xm_page_seg_ptr
+	global xm_deall_ptr
+	global xm_errff_ptr
+	global xm_unall_ptr
+	global xm_han_alloc_ptr
 
-	EXTRN	XM_HANDLE_RET:word
-	EXTRN	XM_LOG:byte
-	EXTRN	XM_PHY:byte
-	EXTRN	XM_PAGE_CNT:word
-	EXTRN	XM_FRAME:word
-	EXTRN	XM_DEALL_HAN:word
-	EXTRN	XM_ALLOC_PG:word
-	EXTRN	XM_TOTAL_PG:word
-	EXTRN	XM_HAN_ALLOC:word
-	EXTRN	XM_HAN_TOTAL:word
+	extern XM_HANDLE_RET
+	extern XM_LOG
+	extern XM_PHY
+	extern XM_PAGE_CNT
+	extern XM_FRAME
+	extern XM_DEALL_HAN
+	extern XM_ALLOC_PG
+	extern XM_TOTAL_PG
+	extern XM_HAN_ALLOC
+	extern XM_HAN_TOTAL
 
 ;=========================================================================
 ;		    begin parameter sublists
@@ -673,10 +673,10 @@ DATA	SEGMENT PUBLIC BYTE
 
 ;======================= unassemble parameter sublists ===================
 
-db_unassem_sb1 label dword		;an000;unassemble parameter 1
+db_unassem_sb1:;an000;unassemble parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:arg_buf		;an000;point to argument buffer
+	dd	arg_buf		;an000;point to argument buffer
 	db	01			;an000;parameter one
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -684,10 +684,10 @@ db_unassem_sb1 label dword		;an000;unassemble parameter 1
 	db	00			;an000;minimum width
 	db	pad_blank		;an000;blank pad
 
-db_unassem_sb2 label dword		;an000;unassemble parameter 2
+db_unassem_sb2:;an000;unassemble parameter 2
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:opbuf		;an000;point to argument buffer
+	dd	opbuf		;an000;point to argument buffer
 	db	02			;an000;parameter two
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -698,10 +698,10 @@ db_unassem_sb2 label dword		;an000;unassemble parameter 2
 
 ;================== hex argument parameter sublists ======================
 
-db_hexarg_sb1 label dword		;an000;hex argument parameter 1
+db_hexarg_sb1:;an000;hex argument parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:hex_arg1		;an000;point to argument buffer
+	dd	hex_arg1		;an000;point to argument buffer
 	db	01			;an000;parameter one
 	db	right_align+bin_hex_word
 					;an000;right align/word/hexadecimal
@@ -709,10 +709,10 @@ db_hexarg_sb1 label dword		;an000;hex argument parameter 1
 	db	04			;an000;minimum of 4 bytes
 	db	pad_zero		;an000;blank pad
 
-db_hexarg_sb2 label dword		;an000;hex argument parameter 2
+db_hexarg_sb2:;an000;hex argument parameter 2
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:hex_arg2		;an000;point to argument buffer
+	dd	hex_arg2		;an000;point to argument buffer
 	db	02			;an000;parameter two
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -720,10 +720,10 @@ db_hexarg_sb2 label dword		;an000;hex argument parameter 2
 	db	04			;an000;minimum of 4 bytes
 	db	pad_zero		;an000;blank pad
 
-db_hexarg_sb3 label dword		;an000;hex argument parameter 3
+db_hexarg_sb3:;an000;hex argument parameter 3
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:arg_buf		;an000;point to argument buffer
+	dd	arg_buf		;an000;point to argument buffer
 	db	03			;an000;parameter one
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -734,10 +734,10 @@ db_hexarg_sb3 label dword		;an000;hex argument parameter 3
 
 ;================== hex add parameter sublists ===========================
 
-db_hexadd_sb1 label dword		;an000;hex add parameter 1
+db_hexadd_sb1:;an000;hex add parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:add_arg		;an000;point to add_arg
+	dd	add_arg		;an000;point to add_arg
 	db	01			;an000;parameter one
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -745,10 +745,10 @@ db_hexadd_sb1 label dword		;an000;hex add parameter 1
 	db	04			;an000;minimum of 4 bytes
 	db	pad_zero		;an000;blank pad
 
-db_hexadd_sb2 label dword		;an000;hex argument parameter 1
+db_hexadd_sb2:;an000;hex argument parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:sub_arg		;an000;point to sub_arg
+	dd	sub_arg		;an000;point to sub_arg
 	db	02			;an000;parameter two
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -761,10 +761,10 @@ db_hexadd_sb2 label dword		;an000;hex argument parameter 1
 ;================== single register parameter sublists ===================
 ;string: "%1 %2",13,10,":",0
 
-db_singrg_sb1 label dword		;an000;single register parameter 1
+db_singrg_sb1:;an000;single register parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:arg_buf		;an000;point to argument buffer
+	dd	arg_buf		;an000;point to argument buffer
 	db	01			;an000;parameter one
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -772,10 +772,10 @@ db_singrg_sb1 label dword		;an000;single register parameter 1
 	db	00			;an000;minimum of 0 bytes
 	db	pad_blank		;an000;blank pad
 
-db_singrg_sb2 label dword		;an000;single register parameter 2
+db_singrg_sb2:;an000;single register parameter 2
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:single_reg_arg	;an000;point single_reg_arg
+	dd	single_reg_arg	;an000;point single_reg_arg
 	db	02			;an000;parameter two
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -786,10 +786,10 @@ db_singrg_sb2 label dword		;an000;single register parameter 2
 ;================== register parameter sublists ==========================
 ;string: "%1=%2  ",0
 
-db_regist_sb1 label dword		;an000;register parameter 1
+db_regist_sb1:;an000;register parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:reg_name		;an000;point to reg_name
+	dd	reg_name		;an000;point to reg_name
 	db	01			;an000;parameter one
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -797,10 +797,10 @@ db_regist_sb1 label dword		;an000;register parameter 1
 	db	02			;an000;minimum of 0 bytes
 	db	pad_blank		;an000;blank pad
 
-db_regist_sb2 label dword		;an000;register parameter 2
+db_regist_sb2:;an000;register parameter 2
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:reg_contents 	;an000;point to reg_contents
+	dd	reg_contents 	;an000;point to reg_contents
 	db	02			;an000;parameter two
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -811,10 +811,10 @@ db_regist_sb2 label dword		;an000;register parameter 2
 ;================== error message parameter sublists =====================
 ;string: "%1 Error",0
 
-db_error_sb1 label dword		;an000;error message parameter 1
+db_error_sb1:;an000;error message parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:err_type		;an000;point to argument buffer
+	dd	err_type		;an000;point to argument buffer
 	db	01			;an000;parameter one
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -825,10 +825,10 @@ db_error_sb1 label dword		;an000;error message parameter 1
 ;================== writing message parameter sublists ===================
 ;string: "Writing %1%2 bytes",0
 
-db_wrtmes_sb1 label dword		;an000;wrtmes parameter 1
+db_wrtmes_sb1:;an000;wrtmes parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:wrt_arg1		;an000;point to argument buffer
+	dd	wrt_arg1		;an000;point to argument buffer
 	db	01			;an000;parameter one
 	db	right_align+bin_hex_word
 					;an000;right align/word/hexadecimal
@@ -836,10 +836,10 @@ db_wrtmes_sb1 label dword		;an000;wrtmes parameter 1
 	db	04			;an000;minimum of 4 bytes
 	db	pad_zero		;an000;blank pad
 
-db_wrtmes_sb2 label dword		;an000;wrtmes parameter 2
+db_wrtmes_sb2:;an000;wrtmes parameter 2
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:wrt_arg2		;an000;point to argument buffer
+	dd	wrt_arg2		;an000;point to argument buffer
 	db	02			;an000;parameter two
 	db	left_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -850,10 +850,10 @@ db_wrtmes_sb2 label dword		;an000;wrtmes parameter 2
 ;================== loc address parameter sublists =======================
 ;string: "%1:%2=",0
 
-db_locadd_sb1 label dword		;an000;loc address parameter 1
+db_locadd_sb1:;an000;loc address parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:arg_buf		;an000;point to argument buffer
+	dd	arg_buf		;an000;point to argument buffer
 	db	01			;an000;parameter one
 	db	right_align+Char_field_ASCIIZ
 					;an000;left align/ASCIZZ/character
@@ -861,10 +861,10 @@ db_locadd_sb1 label dword		;an000;loc address parameter 1
 	db	00			;an000;minimum of 0 bytes
 	db	pad_blank		;an000;blank pad
 
-db_locadd_sb2 label dword		;an000;loc address parameter 2
+db_locadd_sb2:;an000;loc address parameter 2
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:loc_add		;an000;point to loc_add
+	dd	loc_add		;an000;point to loc_add
 	db	02			;an000;parameter two
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -875,10 +875,10 @@ db_locadd_sb2 label dword		;an000;loc address parameter 2
 ;================== little contents parameter sublists ===================
 ;string "%1",0
 
-db_little_sb1 label dword		;an000;one byte output parameter 1
+db_little_sb1:;an000;one byte output parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:little_contents	;an000;point to little_contents
+	dd	little_contents	;an000;point to little_contents
 	db	01			;an000;parameter one
 	db	right_align+bin_hex_byte
 					;an000;left align/byte/hexadecimal
@@ -889,10 +889,10 @@ db_little_sb1 label dword		;an000;one byte output parameter 1
 ;================== big argument parameter sublists ======================
 ;string: "%1",0
 
-db_big_sb1 label dword			;an000;word argument parameter 1
+db_big_sb1:;an000;word argument parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:big_contents 	;an000;point to big_contents
+	dd	big_contents 	;an000;point to big_contents
 	db	01			;an000;parameter one
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -903,10 +903,10 @@ db_big_sb1 label dword			;an000;word argument parameter 1
 ;======================= comp argument parameter sublists ================
 ;string "%1:%2  %3  %4  %5:%6",0
 
-db_comp_sb1 label dword 		;an000;comp argument parameter 1
+db_comp_sb1:;an000;comp argument parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:comp_arg1		;an000;point to comp_arg1
+	dd	comp_arg1		;an000;point to comp_arg1
 	db	01			;an000;parameter one
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -914,10 +914,10 @@ db_comp_sb1 label dword 		;an000;comp argument parameter 1
 	db	04			;an000;minimum of 4 bytes
 	db	pad_zero		;an000;blank pad
 
-db_comp_sb2 label dword 		;an000;comp argument parameter 2
+db_comp_sb2:;an000;comp argument parameter 2
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:comp_arg2		;an000;point to comp_arg2
+	dd	comp_arg2		;an000;point to comp_arg2
 	db	02			;an000;parameter two
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -925,10 +925,10 @@ db_comp_sb2 label dword 		;an000;comp argument parameter 2
 	db	04			;an000;minimum of 4 bytes
 	db	pad_zero		;an000;blank pad
 
-db_comp_sb3 label dword 		;an000;comp argument parameter 3
+db_comp_sb3:;an000;comp argument parameter 3
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:comp_arg3		;an000;point to comp_arg3
+	dd	comp_arg3		;an000;point to comp_arg3
 	db	03			;an000;parameter three
 	db	right_align+bin_hex_byte
 					;an000;left align/byte/hexadecimal
@@ -936,10 +936,10 @@ db_comp_sb3 label dword 		;an000;comp argument parameter 3
 	db	02			;an000;minimum of 2 bytes
 	db	pad_zero		;an000;blank pad
 
-db_comp_sb4 label dword 		;an000;comp argument parameter 4
+db_comp_sb4:;an000;comp argument parameter 4
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:comp_arg4		;an000;point to comp_arg4
+	dd	comp_arg4		;an000;point to comp_arg4
 	db	04			;an000;parameter four
 	db	right_align+bin_hex_byte
 					;an000;left align/byte/hexadecimal
@@ -947,10 +947,10 @@ db_comp_sb4 label dword 		;an000;comp argument parameter 4
 	db	02			;an000;minimum of 2 bytes
 	db	pad_zero		;an000;blank pad
 
-db_comp_sb5 label dword 		;an000;comp argument parameter 5
+db_comp_sb5:;an000;comp argument parameter 5
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:comp_arg5		;an000;point to comp_arg5
+	dd	comp_arg5		;an000;point to comp_arg5
 	db	05			;an000;parameter five
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -958,10 +958,10 @@ db_comp_sb5 label dword 		;an000;comp argument parameter 5
 	db	04			;an000;minimum of 4 bytes
 	db	pad_zero		;an000;blank pad
 
-db_comp_sb6 label dword 		;an000;comp argument parameter 6
+db_comp_sb6:;an000;comp argument parameter 6
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:comp_arg6		;an000;
+	dd	comp_arg6		;an000;
 	db	06			;an000;parameter 6
 	db	right_align+bin_hex_word
 					;an000;left align/word/hexadecimal
@@ -972,10 +972,10 @@ db_comp_sb6 label dword 		;an000;comp argument parameter 6
 ;======================= disk error parameter sublists ===================
 ;string: "%1 error %2 drive %3",0
 
-db_disk_sb1 label dword 		;an000;disk argument parameter 1
+db_disk_sb1:;an000;disk argument parameter 1
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:mestyp		;an000;point to mestyp
+	dd	mestyp		;an000;point to mestyp
 	db	01			;an000;parameter one
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -983,10 +983,10 @@ db_disk_sb1 label dword 		;an000;disk argument parameter 1
 	db	00			;an000;minimum of 0 bytes
 	db	pad_blank		;an000;blank pad
 
-db_disk_sb2 label dword 		;an000;disk argument parameter 2
+db_disk_sb2:;an000;disk argument parameter 2
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:iotyp		;an000;point to iotyp
+	dd	iotyp		;an000;point to iotyp
 	db	02			;an000;parameter two
 	db	left_align+Char_field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -994,10 +994,10 @@ db_disk_sb2 label dword 		;an000;disk argument parameter 2
 	db	00			;an000;minimum of 0 bytes
 	db	pad_blank		;an000;blank pad
 
-db_disk_sb3 label dword 		;an000;disk argument parameter 3
+db_disk_sb3:;an000;disk argument parameter 3
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:drive		;an000;point to drive
+	dd	drive		;an000;point to drive
 	db	03			;an000;parameter three
 	db	left_align+char_field_char
 					;an000;left align/character/character
@@ -1005,10 +1005,10 @@ db_disk_sb3 label dword 		;an000;disk argument parameter 3
 	db	00			;an000;minimum of 0 bytes
 	db	pad_blank		;an000;blank pad
 
-arg_buf_sb1 label dword 		;an000;argument sublist
+arg_buf_sb1:;an000;argument sublist
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:arg_buf		;an000;point to argument buffer
+	dd	arg_buf		;an000;point to argument buffer
 	db	01			;an000;parameter one
 	db	left_align+Char_Field_ASCIIZ
 					;an000;left align/ASCIIZ/character
@@ -1016,10 +1016,10 @@ arg_buf_sb1 label dword 		;an000;argument sublist
 	db	00			;an000;minimum of 0 bytes
 	db	pad_blank		;an000;blank pad
 
-one_char_sb1 label dword		;an000;character buffer sublist
+one_char_sb1:;an000;character buffer sublist
 	db	Sublist_Length		;an000;sublist size
 	db	reserved		;an000;reserved
-	dd	dg:one_char_buf 	;an000;point to argument buffer
+	dd	one_char_buf 	;an000;point to argument buffer
 	db	01			;an000;parameter one
 	db	left_align+Char_Field_Char
 					;an000;left align/character/character
@@ -1027,20 +1027,20 @@ one_char_sb1 label dword		;an000;character buffer sublist
 	db	00			;an000;minimum of 0 bytes
 	db	pad_blank		;an000;blank pad
 
-xm_han_sub	label	dword		;an000;sublist for handles
+xm_han_sub:;an000;sublist for handles
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_HANDLE_RET	;an000;parameter 1
+	dd	XM_HANDLE_RET	;an000;parameter 1
 	db	01			;an000;parameter 1
 	db	right_align+Bin_Hex_Word;an000;
 	db	04			;an000;maximum width
 	db	04			;an000;minimum width
 	db	30h			;an000;pad with zeros
 
-xm_map_sub	label	dword		;an000;sublist for mappings
+xm_map_sub:;an000;sublist for mappings
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_LOG		;an000;parameter 1
+	dd	XM_LOG		;an000;parameter 1
 	db	01			;an000;parameter 1
 	db	right_align+Bin_Hex_Byte;an000;
 	db	02			;an000;maximum width
@@ -1049,17 +1049,17 @@ xm_map_sub	label	dword		;an000;sublist for mappings
 
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_PHY		;an000;parameter 2
+	dd	XM_PHY		;an000;parameter 2
 	db	02			;an000;parameter 2
 	db	right_align+Bin_Hex_Byte;an000;
 	db	02			;an000;maximum width
 	db	02			;an000;minimum width
 	db	30h			;an000;pad with zeros
 
-xm_sta_sub	label	word		;an000;sublist for status
+xm_sta_sub:;an000;sublist for status
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_HANDLE_RET	;an000;parameter 1
+	dd	XM_HANDLE_RET	;an000;parameter 1
 	db	01			;an000;parameter 1
 	db	right_align+Bin_Hex_Word;an000;
 	db	04			;an000;maximum width
@@ -1068,17 +1068,17 @@ xm_sta_sub	label	word		;an000;sublist for status
 
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_PAGE_CNT		;an000;parameter 2
+	dd	XM_PAGE_CNT		;an000;parameter 2
 	db	02			;an000;parameter 2
 	db	right_align+Bin_Hex_Word;an000;
 	db	04			;an000;maximum width
 	db	04			;an000;minimum width
 	db	30h			;an000;pad with zeros
 
-xm_page_seg_sub label	word		;an000;sublist for frame seg status
+xm_page_seg_sub:;an000;sublist for frame seg status
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_PHY		;an000;parameter 1
+	dd	XM_PHY		;an000;parameter 1
 	db	01			;an000;parameter 1
 	db	right_align+Bin_Hex_Byte;an000;
 	db	02			;an000;maximum width
@@ -1087,27 +1087,27 @@ xm_page_seg_sub label	word		;an000;sublist for frame seg status
 
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_FRAME		;an000;parameter 2
+	dd	XM_FRAME		;an000;parameter 2
 	db	02			;an000;parameter 2
 	db	right_align+Bin_Hex_Word;an000;
 	db	04			;an000;maximum width
 	db	04			;an000;minimum width
 	db	30h			;an000;pad with zeros
 
-xm_deall_sub	label	word		;an000;sublist for handle deallocation
+xm_deall_sub:;an000;sublist for handle deallocation
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_DEALL_HAN 	;an000;parameter 1
+	dd	XM_DEALL_HAN 	;an000;parameter 1
 	db	01			;an000;parameter 1
 	db	right_align+Bin_Hex_Byte;an000;
 	db	04			;an000;maximum width
 	db	04			;an000;minimum width
 	db	30h			;an000;pad with zeros
 
-xm_unall_sub	label	word		;an000;sublist unallocated page report
+xm_unall_sub:;an000;sublist unallocated page report
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_ALLOC_PG		;an000;parameter 1
+	dd	XM_ALLOC_PG		;an000;parameter 1
 	db	01			;an000;parameter 1
 	db	right_align+Bin_Hex_Word;an000;
 	db	04			;an000;maximum width
@@ -1116,7 +1116,7 @@ xm_unall_sub	label	word		;an000;sublist unallocated page report
 
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_TOTAL_PG		;an000;parameter 1
+	dd	XM_TOTAL_PG		;an000;parameter 1
 	db	02			;an000;parameter 1
 	db	right_align+Bin_Hex_Word;an000;
 	db	04			;an000;maximum width
@@ -1124,10 +1124,10 @@ xm_unall_sub	label	word		;an000;sublist unallocated page report
 	db	20h			;an000;pad with zeros
 
 
-xm_han_alloc_sub label	 word		 ;an000;sublist unallocated page report
+xm_han_alloc_sub:;an000;sublist unallocated page report
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_HAN_ALLOC 	;an000;parameter 1
+	dd	XM_HAN_ALLOC 	;an000;parameter 1
 	db	01			;an000;parameter 1
 	db	right_align+Bin_Hex_Word;an000;
 	db	04			;an000;maximum width
@@ -1136,7 +1136,7 @@ xm_han_alloc_sub label	 word		 ;an000;sublist unallocated page report
 
 	db	Sublist_Length		;an000;11 bytes
 	db	Reserved		;an000;reserved field
-	dd	dg:XM_HAN_TOTAL 	;an000;parameter 1
+	dd	XM_HAN_TOTAL 	;an000;parameter 1
 	db	02			;an000;parameter 1
 	db	right_align+Bin_Hex_Word;an000;
 	db	04			;an000;maximum width
@@ -1147,176 +1147,176 @@ xm_han_alloc_sub label	 word		 ;an000;sublist unallocated page report
 ;=========================================================================
 
 
-unassem_ln_ptr label word		;an000;"%1%2",0
+unassem_ln_ptr:;an000;"%1%2",0
 	dw	0032			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_unassem_sb1	;an000;sublist
+	dw	db_unassem_sb1	;an000;sublist
 	dw	02			;an000;2 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-hex_ptr label	word			;an000;"%1:%2 %3",0
+hex_ptr:;an000;"%1:%2 %3",0
 	dw	0033			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_hexarg_sb1	;an000;sublist
+	dw	db_hexarg_sb1	;an000;sublist
 	dw	03			;an000;3 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-add_ptr label	word			;an000;"%1  %2",0
+add_ptr:;an000;"%1  %2",0
 	dw	0034			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_hexadd_sb1	;an000;sublist
+	dw	db_hexadd_sb1	;an000;sublist
 	dw	02			;an000;2 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
 
-single_reg_ptr label word		;an000;"%1 %2",13,10,":",0
+single_reg_ptr:;an000;"%1 %2",13,10,":",0
 	dw	0035			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_singrg_sb1	;an000;sublist
+	dw	db_singrg_sb1	;an000;sublist
 	dw	02			;an000;2 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
 
-register_ptr label word 		;an000;"%1=%2  ",0 ex: AX=FFFF
+register_ptr:;an000;"%1=%2  ",0 ex: AX=FFFF
 	dw	0036			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_regist_sb1	;an000;sublist
+	dw	db_regist_sb1	;an000;sublist
 	dw	02			;an000;2 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-errmes_ptr label word			;an000;"%1 Error",0
+errmes_ptr:;an000;"%1 Error",0
 	dw	0037			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_error_sb1 	;an000;sublist
+	dw	db_error_sb1 	;an000;sublist
 	dw	01			;an000;1 sub
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-wrtmes_ptr label word			;an000;"Writing %1 bytes",0
+wrtmes_ptr:;an000;"Writing %1 bytes",0
 	dw	0038			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_wrtmes_sb1	;an000;sublist
+	dw	db_wrtmes_sb1	;an000;sublist
 	dw	01			;an000;1 sub
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-loc_ptr label	word			;an000:"%1;%2=",0 ex:CX:0000
+loc_ptr:;an000:"%1;%2=",0 ex:CX:0000
 	dw	0039			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_locadd_sb1	;an000;sublist
+	dw	db_locadd_sb1	;an000;sublist
 	dw	02			;an000;2 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-little_ptr label word			;an000;"%1",0 ex:FF
+little_ptr:;an000;"%1",0 ex:FF
 	dw	0040			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_little_sb1	;an000;sublist
+	dw	db_little_sb1	;an000;sublist
 	dw	01			;an000;1 sub
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-big_ptr label	word			;an000;"%1",0
+big_ptr:;an000;"%1",0
 	dw	0041			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_big_sb1		;an000;sublist
+	dw	db_big_sb1		;an000;sublist
 	dw	01			;an000;1 sub
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-comp_ptr label	word			;an000;"%1:%2  %3  %4  %5:%6",0
+comp_ptr:;an000;"%1:%2  %3  %4  %5:%6",0
 	dw	0042			;an000;message number
 	db	UTILITY_MSG_CLASS	   ;an000;utility message
 	dw	stdout			;an000;display handle
-	dw	dg:db_comp_sb1		;an000;sublist
+	dw	db_comp_sb1		;an000;sublist
 	dw	06			;an000;6 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-arg_buf_ptr label	word		;an000;"%1"
+arg_buf_ptr:;an000;"%1"
 	dw	0046			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
-	dw	dg:arg_buf_sb1		;an000;sublist
+	dw	arg_buf_sb1		;an000;sublist
 	dw	01			;an000;1 sub
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
 
-one_char_buf_ptr label	word		;an000;"%1"
+one_char_buf_ptr:;an000;"%1"
 	dw	0047			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
-	dw	dg:one_char_sb1 	;an000;sublist
+	dw	one_char_sb1 	;an000;sublist
 	dw	01			;an000;1 sub
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_unall_ptr	label	word		;an000;unallocated message report
+xm_unall_ptr:;an000;unallocated message report
 	dw	0050			;an000;"%1 of a total %2 EMS pages
 					;      have been allocated",cr,lf
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
-	dw	dg:XM_UNALL_SUB 	;an000;sublist
+	dw	XM_UNALL_SUB 	;an000;sublist
 	dw	02			;an000;1 sub
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_han_alloc_ptr label	 word		;an000;unallocated message report
+xm_han_alloc_ptr:;an000;unallocated message report
 	dw	0051			;an000;"%1 of a total %2 EMS handles
 					;      have been allocated",cr,lf
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
-	dw	dg:XM_HAN_ALLOC_SUB	;an000;sublist
+	dw	XM_HAN_ALLOC_SUB	;an000;sublist
 	dw	02			;an000;2 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_han_ret_ptr	label	word		;an000;prints handle created
+xm_han_ret_ptr:;an000;prints handle created
 	dw	0055			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
-	dw	dg:XM_HAN_SUB		;an000;sublist
+	dw	XM_HAN_SUB		;an000;sublist
 	dw	01			;an000;1 sub
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_mapped_ptr	label	word		;an000;prints log/phy pages
+xm_mapped_ptr:;an000;prints log/phy pages
 	dw	0056			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
-	dw	dg:XM_MAP_SUB		;an000;sublist
+	dw	XM_MAP_SUB		;an000;sublist
 	dw	02			;an000;2 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err80_ptr	label	word		;an000;ems error message
+xm_err80_ptr:;an000;ems error message
 	dw	0057			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1325,7 +1325,7 @@ xm_err80_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err83_ptr	label	word		;an000;ems error message
+xm_err83_ptr:;an000;ems error message
 	dw	0058			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1334,7 +1334,7 @@ xm_err83_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err84_ptr	label	word		;an000;ems error message
+xm_err84_ptr:;an000;ems error message
 	dw	0059			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1343,7 +1343,7 @@ xm_err84_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err85_ptr	label	word		;an000;ems error message
+xm_err85_ptr:;an000;ems error message
 	dw	0060			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1352,7 +1352,7 @@ xm_err85_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err86_ptr	label	word		;an000;ems error message
+xm_err86_ptr:;an000;ems error message
 	dw	0061			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1361,7 +1361,7 @@ xm_err86_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err87_ptr	label	word		;an000;ems error message
+xm_err87_ptr:;an000;ems error message
 	dw	0062			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1370,7 +1370,7 @@ xm_err87_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err88_ptr	label	word		;an000;ems error message
+xm_err88_ptr:;an000;ems error message
 	dw	0063			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1379,7 +1379,7 @@ xm_err88_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err89_ptr	label	word		;an000;ems error message
+xm_err89_ptr:;an000;ems error message
 	dw	0064			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1388,7 +1388,7 @@ xm_err89_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err8a_ptr	label	word		;an000;ems error message
+xm_err8a_ptr:;an000;ems error message
 	dw	0065			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1397,7 +1397,7 @@ xm_err8a_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err8b_ptr	label	word		;an000;ems error message
+xm_err8b_ptr:;an000;ems error message
 	dw	0066			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1406,7 +1406,7 @@ xm_err8b_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err8d_ptr	label	word		;an000;ems error message
+xm_err8d_ptr:;an000;ems error message
 	dw	0067			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1415,7 +1415,7 @@ xm_err8d_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err8e_ptr	label	word		;an000;ems error message
+xm_err8e_ptr:;an000;ems error message
 	dw	0068			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1424,7 +1424,7 @@ xm_err8e_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_err_gen_ptr	label	word		;an000;ems error message
+xm_err_gen_ptr:;an000;ems error message
 	dw	0070			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1433,7 +1433,7 @@ xm_err_gen_ptr	label	word		;an000;ems error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_parse_err_ptr label	word		;an000;input error message
+xm_parse_err_ptr:;an000;input error message
 	dw	0071			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
@@ -1442,36 +1442,36 @@ xm_parse_err_ptr label	word		;an000;input error message
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_status_ptr	label	word		;an000;prints status of EMS
+xm_status_ptr:;an000;prints status of EMS
 	dw	0072			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
-	dw	dg:XM_STA_SUB		;an000;sublist
+	dw	XM_STA_SUB		;an000;sublist
 	dw	02			;an000;2 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_page_seg_ptr label	word		;an000;"Physical page %1 = Frame
+xm_page_seg_ptr:;an000;"Physical page %1 = Frame
 					;	segment %2"
 	dw	0075			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
-	dw	dg:XM_PAGE_SEG_SUB	;an000;sublist
+	dw	XM_PAGE_SEG_SUB	;an000;sublist
 	dw	02			;an000;2 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_deall_ptr	label	word		;an000;"Handle %1 deallocated"
+xm_deall_ptr:;an000;"Handle %1 deallocated"
 
 	dw	0076			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
 	dw	stdout			;an000;display handle
-	dw	dg:XM_DEALL_SUB 	;an000;sublist
+	dw	XM_DEALL_SUB 	;an000;sublist
 	dw	01			;an000;1 subs
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-xm_errff_ptr	    label word		;an000;"EMS not installed"
+xm_errff_ptr:;an000;"EMS not installed"
 
 	dw	0078			;an000;message number
 	db	UTILITY_MSG_CLASS	;an000;utility messages
@@ -1481,44 +1481,44 @@ xm_errff_ptr	    label word		;an000;"EMS not installed"
 	db	no_input		;an000;no keyboard input
 	dw	00			;an000;no keyboard buffer
 
-arg_buf 	db   80 dup (?) 	;an000;argument buffer
-one_char_buf	db   ?			;an000;character buffer
+arg_buf: times 80 db 0;an000;argument buffer
+one_char_buf: db 0;an000;character buffer
 
 opbuf	db	51h dup (?)
 
-hex_arg1 dw	?
-hex_arg2 dw	?
+hex_arg1: dw 0
+hex_arg2: dw 0
 
-add_arg dw	?
-sub_arg dw	?
+add_arg: dw 0
+sub_arg: dw 0
 
-single_reg_arg dw ?
+single_reg_arg: dw 0
 
-reg_name dw	?
-reg_contents dw ?
+reg_name: dw 0
+reg_contents: dw 0
 
-err_type db	3	dup(0)		;ac000;changed to hold bf,bp,etc.
+err_type: times 3 db 0;ac000;changed to hold bf,bp,etc.
 
-wrt_arg1 dw	?
-wrt_arg2 dw	?
+wrt_arg1: dw 0
+wrt_arg2: dw 0
 
-loc_add dw	?
+loc_add: dw 0
 
-little_contents dw ?
-big_contents dw ?
+little_contents: dw 0
+big_contents: dw 0
 
-comp_arg1 dw	?
-comp_arg2 dw	?
-comp_arg3 dw	?
-comp_arg4 dw	?
-comp_arg5 dw	?
-comp_arg6 dw	?
+comp_arg1: dw 0
+comp_arg2: dw 0
+comp_arg3: dw 0
+comp_arg4: dw 0
+comp_arg5: dw 0
+comp_arg6: dw 0
 
-mestyp	dw	?
-iotyp	dw	?
-drive	db	?
+mestyp: dw 0
+iotyp: dw 0
+drive: db 0
 
 
-DATA	ENDS
-	END
+; END SECTION .DATA
+	; END
 

@@ -23,9 +23,9 @@
 ;   07/06/86  0.04	Changed save area struct (SBP).
 ;   05/25/88            Changed to meet LIM 4.0 Spec (PC)
 ;******************************************************************************
-ifndef	INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 ;******************************************************************************
 ;	G E N E R A L	D E F I N E S
@@ -152,134 +152,134 @@ OS_DISABLED	equ	2
 ;
 ;  stack frame after pushad on real/virtual mode entry
 ;
-r67_Frame	struc
-rDI	dd	?
-rSI	dd	?
-rBP	dd	?
-rSP	dd	?
-rBX	dd	?
-rDX	dd	?
-rCX	dd	?
-rAX	dd	?
-retaddr dw	?
-rCS	dw	?
-PFlag	dw	?
-rDS	dw	?
-rES	dw	?
-rGS	dw	?
-rFS	dw	?
-r67_Frame	ends
+struc r67_Frame
+rDI: dd 0
+rSI: dd 0
+rBP: dd 0
+rSP: dd 0
+rBX: dd 0
+rDX: dd 0
+rCX: dd 0
+rAX: dd 0
+retaddr: dw 0
+rCS: dw 0
+PFlag: dw 0
+rDS: dw 0
+rES: dw 0
+rGS: dw 0
+rFS: dw 0
+endstruc
 
 
 ;
 ; for _handle_table
 ;
-HandleTable_struc	struc
+struc HandleTable_struc
 ht_index	dw	NULL_PAGE	; index into emm_page for handle's pgs
 ht_count	dw	0		; number of emm_pages for this handle
-HandleTable_struc	ends
+endstruc
 
 ;
 ; for _save_area
 ;
-SaveMap_struc	struc
+struc SaveMap_struc
 s_handle	dw	NULL_HANDLE				; owning handle
 s_map		dw	EMM32_PHYS_PAGES dup (NULL_PAGE)	; EMM page #s
-SaveMap_struc	ends
+endstruc
 
 ;
 ; structure linking segment with physical page number
 ;
-Mappable_Page	struc
-mappable_seg	dw	?
-mappable_pg	dw	?
-Mappable_Page	ends
+struc Mappable_Page
+mappable_seg: dw 0
+mappable_pg: dw 0
+endstruc
 
 ;
 ; Get Partial Page Map
 ;
-gppm_struc	struc
-gppm_count	dw	?
-gppm_segs	dw	?
-gppm_struc	ends
+struc gppm_struc
+gppm_count: dw 0
+gppm_segs: dw 0
+endstruc
 
 ;
 ; Structures used as arguments to Map Handle Array function
 ;
 
 ; For subfunction 0:
-mha_array0	struc
-mha0_log_pg	dw	?
-mha0_phys_pg	dw	?
-mha_array0	ends
+struc mha_array0
+mha0_log_pg: dw 0
+mha0_phys_pg: dw 0
+endstruc
 
 ; For subfunction 1:
-mha_array1	struc
-mha1_log_pg	dw	?
-mha1_seg	dw	?
-mha_array1	ends
+struc mha_array1
+mha1_log_pg: dw 0
+mha1_seg: dw 0
+endstruc
 
 ; Used by Map and Jump and Map and Call -- Identical to mha_array0 and 1
-log_phys_map_struct  struc
-log_page_number      dw ?
-phys_page_number_seg dw ?
-log_phys_map_struct  ends
+struc log_phys_map_struct
+log_page_number: dw 0
+phys_page_number_seg: dw 0
+endstruc
 
 ; Map and Jump structure
-maj_struct	struc
-maj_target_address   dd ?
-maj_log_phys_map_len db ?
-maj_map_address      dd ?
-maj_struct	ends
+struc maj_struct
+maj_target_address: dd 0
+maj_log_phys_map_len: db 0
+maj_map_address: dd 0
+endstruc
 
 ; Map and Call structure
-mac_struct	struc
-mac_target_address   dd ?
-mac_new_page_map_len db ?
-mac_new_map_address  dd ?
-mac_old_page_map_len db ?
-mac_old_map_address  dd ?
-mac_reserved         dw 4 dup (?)
-mac_struct	ends
+struc mac_struct
+mac_target_address: dd 0
+mac_new_page_map_len: db 0
+mac_new_map_address: dd 0
+mac_old_page_map_len: db 0
+mac_old_map_address: dd 0
+mac_reserved: times 4 dw 0
+endstruc
 
 ; Move / Exchange memory structure
-mem_memory_descriptor_struct	struc
-mem_memory_type      db ?
-mem_handle	     dw ?
-mem_initial_offset   dw ?
-mem_initial_seg_page dw ?
-mem_memory_descriptor_struct	ends
+struc mem_memory_descriptor_struct
+mem_memory_type: db 0
+mem_handle: dw 0
+mem_initial_offset: dw 0
+mem_initial_seg_page: dw 0
+endstruc
 
 
-mem_struct	struc
-mem_region_length   dd	?
-mem_source	    db	(SIZE mem_memory_descriptor_struct) dup (?)
-mem_dest	    db	(SIZE mem_memory_descriptor_struct) dup (?)
-mem_struct	ends
+struc mem_struct
+mem_region_length: dd 0
+mem_source	    db	(mem_memory_descriptor_struct_size) dup (?)
+mem_dest	    db	(mem_memory_descriptor_struct_size) dup (?)
+endstruc
 
 ;
 ; Fast Register Set Description
 ;
-FRS_struc	struc
+struc FRS_struc
 FRS_Window	dw	MAX_PHYS_PAGES dup (NULL_PAGE)	; emm page numbers
 FRS_alloc	dw	0				; Is this set allocated
-FRS_struc	ends
+endstruc
 
-	page
+	; page
 ;****************************************************************************
 ;
 ;   Dword_Align -- Aligns code to dword boundry by inserting nops
 ;
 ;****************************************************************************
 
-Dword_Align MACRO Seg_Name
-IF (($ - OFFSET Seg_Name:0) MOD 4)
+%macro Dword_Align 1
+%if (($ - OFFSET Seg_Name:0) MOD 4)
 	db	90h		     ;; Nop in code / else byte of 90h in data
 	Dword_Align Seg_Name
-ENDIF
-	    ENDM
+%endif
+	    %endmacro
 
-	page
+	; page
 ;***********************************************
 ;
 ; Validate_Handle - check the handle in DX
@@ -292,18 +292,18 @@ ENDIF
 ;	USES:	EDX
 ;
 ;***********************************************
-Validate_Handle MACRO	Death_Label
+%macro Validate_Handle 1
 
 	cmp	dx, [_handle_table_size]	;Q: handle in range ?
 	jae	Death_Label			;  N: go to error label
 	shl	dx, 2				;  Y: convert handle to
-	add	dx, offset _handle_table	;     pointer
+	add	dx, _handle_table	;     pointer
 	xchg	bx, dx
 	cmp	[bx.ht_index], NULL_PAGE	;Q: is this handle active ?
 	xchg	bx, dx
 	je	Death_Label			;  N: return error
 
-	ENDM
+	%endmacro
 
 ;***********************************************
 ;
@@ -317,14 +317,14 @@ Validate_Handle MACRO	Death_Label
 ;	USES:	EDX
 ;
 ;***********************************************
-Handle2HandlePtr MACRO
+%macro Handle2HandlePtr 0
 
 	shl	dx, 2				;  Y: convert handle to
-	add	dx, offset _handle_table	;     pointer
+	add	dx, _handle_table	;     pointer
 
-	ENDM
+	%endmacro
 
-.list		; end of EMMDEF.INC
+; .list; end of EMMDEF.INC
 
 
 

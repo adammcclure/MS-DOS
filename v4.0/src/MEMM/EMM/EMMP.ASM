@@ -1,6 +1,6 @@
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	EMMP - EMM protected mode functions
+	; title	EMMP - EMM protected mode functions
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986, 1987
@@ -30,17 +30,17 @@ page	58,132
 ;	This file contains the EMM functions which require greatest efficiency.
 ;
 ;******************************************************************************
-.lfcond					; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 
 ;	include	protseg.inc
-	include vdmseg.inc
-	include page.inc
+	%include "vdmseg.inc"
+	%include "page.inc"
 ;	include vdmm.inc
-	include vm386.inc
-	include	vdmsel.inc
-	include emmdef.inc
-	include	desc.inc
+	%include "vm386.inc"
+	%include "vdmsel.inc"
+	%include "emmdef.inc"
+	%include "desc.inc"
 ;	include vmdm.inc
 ;	include vpicd.inc
 ;	include vdmmmac.inc
@@ -48,43 +48,43 @@ page	58,132
 ;******************************************************************************
 ;	P U B L I C S
 ;******************************************************************************
-_TEXT	segment
-	public	_MapHandlePage
-	public	_SavePageMap
-	public	_RestorePageMap
-	public	_GetSetPageMap
-	public	_GetSetPartial
-	public	_MapHandleArray
-	public	_AlterMapAndJump
-	public	_AlterMapAndCall
+SECTION ._TEXT
+	global _MapHandlePage
+	global _SavePageMap
+	global _RestorePageMap
+	global _GetSetPageMap
+	global _GetSetPartial
+	global _MapHandleArray
+	global _AlterMapAndJump
+	global _AlterMapAndCall
 ;	public	TS_VEMMD_MC_Ret
-	public	_MoveExchangeMemory
-	public	_AlternateMapRegisterSet
+	global _MoveExchangeMemory
+	global _AlternateMapRegisterSet
 ;	public	VEMMD_Set_Map_Region
 ;	public	VEMMD_Unset_Map_Region
 ;	public	_VMpte_to_EMMpte
 ;	public	_Remap_EMM
-	public	_Get_Key_Val
-_TEXT	ends
+	global _Get_Key_Val
+; END SECTION ._TEXT
 
-	page
+	; page
 ;******************************************************************************
 ;	E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 
-_TEXT	segment
+SECTION ._TEXT
 
-extrn	_source_addr:near
-extrn	_dest_addr:near
+extern _source_addr
+extern _dest_addr
 
-extrn	SetDescInfoResident:near
-extrn	SegOffTo24Resident:near
+extern SetDescInfoResident
+extern SegOffTo24Resident
 
-extrn	ErrHndlr:near
+extern ErrHndlr
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-_DATA	SEGMENT
+SECTION ._DATA
 
 ;extrn	_regp:dword				;  pointer to entry stack frame
 ;extrn	VEMMD_pt:dword
@@ -94,74 +94,74 @@ _DATA	SEGMENT
 ;extrn	_MaxEMMSize:dword
 ;extrn	_VEMMD_PgFrame:word
 ;extrn	_VEMMD_Last_Offset:word
-extrn	PF_Base:word
-extrn	_OSEnabled:dword
+extern PF_Base
+extern _OSEnabled
 ;extrn	NullAvailPTE:dword
 ;extrn	NullUnavailPTE:dword
 
-extrn	_total_pages:word			; total # of EMM pages in system
+extern _total_pages; total # of EMM pages in system
 
 ;
 ; table of offsets into in to the first page table
 ; for user logical emm page map
 ;
-extrn	_page_frame_base:dword
+extern _page_frame_base
 
-extrn	_pft386:word
+extern _pft386
 
-extrn	_mappable_pages:word			; table of mappable pages
-extrn	_mappable_page_count:word		; how many in the table
-extrn	_page_frame_pages:word			; how many in the page frame
-extrn	_physical_page_count:word		; number of physical pages
-extrn	_VM1_EMM_Pages:word			; pages not in the page frame
+extern _mappable_pages; table of mappable pages
+extern _mappable_page_count; how many in the table
+extern _page_frame_pages; how many in the page frame
+extern _physical_page_count; number of physical pages
+extern _VM1_EMM_Pages; pages not in the page frame
 ;extrn	_VM1_EMM_Offset:word			; offset of these in a context
-extrn	_cntxt_pages:byte			; number of pages in a context
-extrn	_cntxt_bytes:byte			; number of bytes in a context
+extern _cntxt_pages; number of pages in a context
+extern _cntxt_bytes; number of bytes in a context
 
 
 ;
 ; table of indexes into the above - maps segment to physical page
 ;
-extrn	EMM_MPindex:byte
+extern EMM_MPindex
 
 ;
 ; ptr to table of emm page # for each handle's logical pages.
 ;
-extrn	_emm_page:word
+extern _emm_page
 
 ;
 ;  handle data structure
 ;
-extrn	_handle_table:word
-extrn	_handle_table_size:word
+extern _handle_table
+extern _handle_table_size
 
 ;
 ;   save area for handles
 ;
-extrn	_save_map:byte
+extern _save_map
 
 ;
 ; Save area and misc variables for 4.0 function 27
 ;
-extrn	EMM_savES:word
-extrn	EMM_savDI:word
+extern EMM_savES
+extern EMM_savDI
 
-extrn	CurRegSetn:byte
-extrn	FRS_free:byte
-extrn	CurRegSet:dword
-extrn	FRS_array:word
+extern CurRegSetn
+extern FRS_free
+extern CurRegSet
+extern FRS_array
 
-extrn	_regp:word
-_DATA	ENDS
+extern _regp
+; END SECTION ._DATA
 
-	page
+	; page
 ;******************************************************************************
 ;	C O D E
 ;******************************************************************************
-_TEXT	SEGMENT
-assume	cs:_TEXT, ds:DGROUP, ss:DGROUP
+SECTION ._TEXT
+; assume	cs:_TEXT, ds:DGROUP, ss:DGROUP
 
-	page
+	; page
 ;***********************************************
 ;
 ; normalize
@@ -175,7 +175,7 @@ assume	cs:_TEXT, ds:DGROUP, ss:DGROUP
 ;	NOTE:	Sel and Off should not be BX,DX,AX
 ;
 ;***********************************************
-normalize	MACRO	Sel,Off
+%macro normalize 2
 
 	push	dx
 	push	ax
@@ -204,7 +204,7 @@ normalize	MACRO	Sel,Off
 	pop	ax
 	pop	dx
 
-	ENDM
+	%endmacro
 
 ;***********************************************
 ;
@@ -218,10 +218,10 @@ normalize	MACRO	Sel,Off
 ;	USES:	DI
 ;
 ;***********************************************
-Get_space_from_stack	MACRO	Len
+%macro Get_space_from_stack 1
 
 	sub	di, Len
-	ENDM
+	%endmacro
 
 ;***********************************************
 ;
@@ -234,10 +234,10 @@ Get_space_from_stack	MACRO	Len
 ;	USES:	SI
 ;
 ;***********************************************
-release_space_to_stack	MACRO	Len
+%macro release_space_to_stack 1
 
 	add	si, Len
-	ENDM
+	%endmacro
 
 ;***********************************************
 ;
@@ -252,7 +252,7 @@ release_space_to_stack	MACRO	Len
 ;	USES:	ax,bx,cx,dx,es
 ;
 ;***********************************************
-Set_EMM_GDT	MACRO	handle
+%macro Set_EMM_GDT 1
 
 	mov	bx, handle			; GDT selector
 	call	SegOffTo24Resident		; AL:DX <-- 24 bit base address
@@ -261,7 +261,7 @@ Set_EMM_GDT	MACRO	handle
 	push	GDTD_GSEL
 	pop	es				; ES:0 <-- GDT
 	call	SetDescInfoResident		; set GDT entry
-	ENDM
+	%endmacro
 
 ;***********************************************
 ;
@@ -275,13 +275,13 @@ Set_EMM_GDT	MACRO	handle
 ;	USES:	bx,es
 ;
 ;***********************************************
-Set_Byte_Gran	MACRO	handle
+%macro Set_Byte_Gran 1
 
 	mov	bx, handle			; GDT selector
 	push	GDTD_GSEL
 	pop	es				; ES:0 <-- GDT
-	and	byte ptr es:[bx+6],NOT R_GRAN	; clear gran bit
-	ENDM
+	and	byte es:[bx+6],NOT R_GRAN	; clear gran bit
+	%endmacro
 
 ;***********************************************
 ;
@@ -295,13 +295,13 @@ Set_Byte_Gran	MACRO	handle
 ;	USES:	bx,es
 ;
 ;***********************************************
-Set_Page_Gran	MACRO	handle
+%macro Set_Page_Gran 1
 
 	mov	bx, handle			; GDT selector
 	push	GDTD_GSEL
 	pop	es				; ES:0 <-- GDT
-	or	byte ptr es:[bx+6], R_GRAN	; set gran bit
-	ENDM
+	or	byte es:[bx+6], R_GRAN	; set gran bit
+	%endmacro
 
 ;***********************************************
 ;
@@ -314,13 +314,13 @@ Set_Page_Gran	MACRO	handle
 ;	USES:	Reg
 ;
 ;***********************************************
-Get_FRS_window	MACRO	Reg
+%macro Get_FRS_window 1
 
-	mov	Reg, word ptr [CurRegSet]	; just offset (assume dgroup)
+	mov	Reg, word [CurRegSet]	; just offset (assume dgroup)
 	add	Reg, FRS_window			; points to FRS window entries
-	ENDM
+	%endmacro
 
-	page
+	; page
 ;**********************************************************************
 ;
 ;   map_EMM_page - set page table entries for a page frame
@@ -331,7 +331,7 @@ Get_FRS_window	MACRO	Reg
 ;	DESTROY:EAX,BX
 ;
 ;***********************************************
-map_EMM_page	proc	near
+map_EMM_page:
 	cmp	ax,[_physical_page_count]	;Q: valid physical page# ?
 	jae	short mEp_inv_page		;  N: invalid page number
 						;  Y: continue with it
@@ -375,7 +375,7 @@ map_EMM_page	proc	near
 	;
 
 	shl	bx,2	 		; bx <-- index * 4
-	add	bx,offset DGROUP:_page_frame_base ; bx = offset for entry in _page_frame_base
+	add	bx,_page_frame_base ; bx = offset for entry in _page_frame_base
 	les	di,[bx]			; es:di <-- page frame address
 
 	;
@@ -411,9 +411,9 @@ mEp_inv_page:
 	stc
 	ret
 
-map_EMM_page	endp
+; ENDP map_EMM_page
 
-	page
+	; page
 ;**********************************************************************
 ;
 ;    unmap_page - unmap a physical page
@@ -422,7 +422,7 @@ map_EMM_page	endp
 ;	DESTROY:EAX
 ;
 ;**********************************************************************
-unmap_page	proc	near
+unmap_page:
 	;
 	; find FRS entry for the physical page and
 	; update it as unmapped
@@ -440,11 +440,11 @@ unmap_page	proc	near
 	; find out the segment of the physical page
 	;
 	mov	cx, [_physical_page_count]
-	mov	di, offset DGROUP:_mappable_pages
+	mov	di, _mappable_pages
 unmap_page_loop:
 	cmp	ax, [di].mappable_pg
 	je	unmap_page_found
-	add	di, size Mappable_Page
+	add	di, Mappable_Page_size
 	loop	unmap_page_loop
 
 	jmp	short unmap_page_exit	; non-found : just return
@@ -458,7 +458,7 @@ unmap_page_found:
 	;
 	xchg	ax,bx
 	shl	bx,2	 		; bx <-- index * 4
-	add	bx,offset DGROUP:_page_frame_base ; bx <-- points to PTE address of phys page#
+	add	bx,_page_frame_base ; bx <-- points to PTE address of phys page#
 	les	di,[bx]			; es:di <-- points to PTE of page frame
 	xchg	ax,bx
 
@@ -492,9 +492,9 @@ unmap_page_exit:
 	pop	di
 	pop	es
 	ret
-unmap_page	endp
+; ENDP unmap_page
 
-	page
+	; page
 ;**********************************************************************
 ;
 ;   map_page - map a logical page to a phyical page
@@ -505,7 +505,7 @@ unmap_page	endp
 ;	DESTROY:EAX,BX
 ;
 ;**********************************************************************
-map_page	proc	near
+map_page:
 	cmp	ax,[_physical_page_count]	;Q: valid physical page# ?
 	jae	short mp_inv_phy		;  N: invalid page number
 						;  Y: continue with it
@@ -534,23 +534,23 @@ mp_unmap_page:
 	ret
 
 mp_inv_emm_page:
-	mov	byte ptr [bp.rAX+1],SOURCE_CORRUPTED
+	mov	byte [bp.rAX+1],SOURCE_CORRUPTED
 	stc
 	ret
 
 mp_inv_phy:
-	mov	byte ptr [bp.rAX+1],PHYS_PAGE_RANGE
+	mov	byte [bp.rAX+1],PHYS_PAGE_RANGE
 	stc
 	ret
 
 mp_inv_log:
-	mov	byte ptr [bp.rAX+1],LOG_PAGE_RANGE
+	mov	byte [bp.rAX+1],LOG_PAGE_RANGE
 	stc
 	ret
-map_page	endp
+; ENDP map_page
 
 
-	page
+	; page
 ;***********************************************
 ;
 ; _MapHandlePage - map a handle's page
@@ -576,11 +576,11 @@ map_page	endp
 ;***********************************************
 
 Dword_Align	_TEXT
-_MapHandlePage	proc	near
+_MapHandlePage:
 
 	Validate_Handle	<short mhp_inv_handle>
 
-	mov	byte ptr [bp.rAX+1],OK	; Assume success!
+	mov	byte [bp.rAX+1],OK	; Assume success!
 	movzx	eax, al			; Physical page
 	movzx	ebx, bx			; Logical page
 
@@ -592,12 +592,12 @@ _MapHandlePage	proc	near
 	jmp	map_page		; Common page mapping code
 
 mhp_inv_handle:
-	mov	byte ptr [bp.rAX+1], INVALID_HANDLE
+	mov	byte [bp.rAX+1], INVALID_HANDLE
 	ret
 
-_MapHandlePage	endp
+; ENDP _MapHandlePage
 
-	page
+	; page
 ;***********************************************
 ;
 ; _SavePageMap	- save current page mapping
@@ -619,14 +619,14 @@ _MapHandlePage	endp
 ;***********************************************
 
 Dword_Align	_TEXT
-_SavePageMap	proc	near
+_SavePageMap:
 	cmp	[_page_frame_pages], 4
 	jb	short srpm_nopf		; no page frame
 
 	mov	ax, dx			; Save for later
 	Validate_Handle	<short srpm_inv_handle>
 					; check state of handle's page area
-	imul	bx,ax,SIZE SaveMap_struc ; BX = offset within Save Area for
+	imul	bx,ax,SaveMap_struc_size ; BX = offset within Save Area for
 					;  this handle's save area
 	lea	di,_save_map[bx]	; DS:DI points to handle's save area
 	cmp	[di].s_handle,NULL_HANDLE
@@ -641,24 +641,24 @@ _SavePageMap	proc	near
 	movsd					; move to save area
 	movsd					; Lim 3.2 has only 4 page frames
 
-	mov	byte ptr [bp.rAX+1],OK	; ok return
+	mov	byte [bp.rAX+1],OK	; ok return
 	ret
 
 spm_prev_saved:
-	mov	byte ptr [bp.rAX+1],MAP_PREV_SAVED
+	mov	byte [bp.rAX+1],MAP_PREV_SAVED
 	ret
 
 srpm_inv_handle:					; Shared error returns
-	mov	byte ptr [bp.rAX+1],INVALID_HANDLE
+	mov	byte [bp.rAX+1],INVALID_HANDLE
 	ret
 
 srpm_nopf:
-	mov	byte ptr [bp.rAX+1], EMM_HW_MALFUNCTION ; No page frame!!!
+	mov	byte [bp.rAX+1], EMM_HW_MALFUNCTION ; No page frame!!!
 	ret
 
-_SavePageMap	endp
+; ENDP _SavePageMap
 
-	page
+	; page
 ;***********************************************
 ;
 ; _RestorePageMap - restore handle's saved page mapping
@@ -681,14 +681,14 @@ _SavePageMap	endp
 ;***********************************************
 
 Dword_Align	_TEXT
-_RestorePageMap	proc	near
+_RestorePageMap:
 	cmp	[_page_frame_pages], 4
 	jb	short srpm_nopf		; no page frame
 
 	mov	ax, dx			; Save for later
 	Validate_Handle	srpm_inv_handle
 					; check state of handle's page area
-	imul	bx,ax,SIZE SaveMap_struc ; BX = offset within Save Area for
+	imul	bx,ax,SaveMap_struc_size ; BX = offset within Save Area for
 					;  this handle's save area
 	lea	si,_save_map[bx]	; DS:SI points to handle's save area
 	cmp	[si].s_handle,NULL_HANDLE
@@ -696,7 +696,7 @@ _RestorePageMap	proc	near
 	je	short rpm_no_map_saved	; N: return error
 					; Y: restore it
 
-	mov	byte ptr [bp.rAX+1],OK		; Assume success
+	mov	byte [bp.rAX+1],OK		; Assume success
 	mov	[si].s_handle,NULL_HANDLE	; null handle's save area
 
 	lea	si,[si].s_map			; SI -> handle's save area
@@ -709,12 +709,12 @@ _RestorePageMap	proc	near
 	jmp	_set_windows			; Restore mapping
 
 rpm_no_map_saved:
-	mov	byte ptr [bp.rAX+1],NO_MAP_SAVED
+	mov	byte [bp.rAX+1],NO_MAP_SAVED
 	ret
 
-_RestorePageMap	endp
+; ENDP _RestorePageMap
 
-	page
+	; page
 ;***********************************************
 ;
 ; _GetSetPageMap - get/set page map to/from external save area
@@ -742,7 +742,7 @@ _RestorePageMap	endp
 ;
 ;***********************************************
 Dword_Align	_TEXT
-_GetSetPageMap	proc	near
+_GetSetPageMap:
 
 	cmp	al,GSPM_GET	   	;Q: get page map subfunction ?
 	je	short _get_map		;  Y: get it
@@ -761,20 +761,20 @@ gspm_chk_size:
 
 	mov	al, [_cntxt_bytes]		; size of map
 	mov	ah, OK				; ok return
-	mov	word ptr [bp.rAX], ax
+	mov	word [bp.rAX], ax
 	ret
 
 gspm_inv_subfun:
-	mov	byte ptr [bp.rAX+1],INVALID_SUBFUNCTION
+	mov	byte [bp.rAX+1],INVALID_SUBFUNCTION
 	ret
 
 gspm_inv_fun:
-	mov	byte ptr [bp.rAX+1],INVALID_FUNCTION
+	mov	byte [bp.rAX+1],INVALID_FUNCTION
 	ret
 
-_GetSetPageMap	endp
+; ENDP _GetSetPageMap
 
-	page
+	; page
 ;***********************************************
 ;
 ; _get_map - save current mapping register state to external area
@@ -794,7 +794,7 @@ _GetSetPageMap	endp
 ;
 ;***********************************************
 Dword_Align	_TEXT
-_get_map	proc
+_get_map:
 
 	cld
 	call	_dest_addr			; DX:AX ptr for client's buff
@@ -807,12 +807,12 @@ _get_map	proc
 	stosw					; save # pages
 	shr	cx, 1				; now dwords
 	rep movsd				; mov bytes to current map area
-	mov	byte ptr [bp.rAX+1],OK		; ok return
+	mov	byte [bp.rAX+1],OK		; ok return
 	ret
 
-_get_map	endp
+; ENDP _get_map
 
-	page
+	; page
 ;***********************************************
 ;
 ; _set_map - restore mapping register state
@@ -837,9 +837,9 @@ _get_map	endp
 ;		
 ;***********************************************
 Dword_Align	_TEXT
-_set_map	proc	near
+_set_map:
 
-	mov	byte ptr [bp.rAX+1],OK		; Assume success
+	mov	byte [bp.rAX+1],OK		; Assume success
 	Get_FRS_window	DI			; Get pointer to current window
 						; before DS gets trashed
 	push	ds
@@ -863,15 +863,15 @@ _set_map	proc	near
 	jmp	_set_windows			; make it effective
 
 sm_inv_source:
-	mov	byte ptr [bp.rAX+1], SOURCE_CORRUPTED
+	mov	byte [bp.rAX+1], SOURCE_CORRUPTED
 	ret
 
 sm_exit:
 	ret
 
-_set_map	endp
+; ENDP _set_map
 
-	page
+	; page
 ;***********************************************
 ;
 ; _set_windows - re-map all mapped physical pages
@@ -891,12 +891,12 @@ _set_map	endp
 ;
 ;***********************************************
 ;
-_set_windows	proc	near
+_set_windows:
 ;
 	xor	ax, ax			; start from PHYS page 0
 	Get_FRS_Window	SI		; SI <-- current FRS map
 sw_loop:
-	mov	bx, word ptr [si]	; BX <-- emm page #
+	mov	bx, word [si]	; BX <-- emm page #
 	add	si, 2		  	; prepare for next PHYS page
 	cmp	bx, 0FFFFh	  	; not mapped ?
 	je	sw_unmap_page		;  Y: unmap it
@@ -905,7 +905,7 @@ sw_loop:
 	mov	di, bx
 	shl	di, 2			; SI <-- _pft386 offset of emm page
 	add	di, [_pft386]
-	cmp	dword ptr [di], 0	; pte not mapped ?
+	cmp	dword [di], 0	; pte not mapped ?
 	je	sw_corrupt		;  Y: error
 	push	eax
 	call	map_EMM_page		; map a page
@@ -926,13 +926,13 @@ sw_unmap_page:
 	jmp	short sw_done_page
 
 sw_corrupt:
-	mov	byte ptr [bp.rAX+1], SOURCE_CORRUPTED
+	mov	byte [bp.rAX+1], SOURCE_CORRUPTED
 	pop	dx
 	ret
 
-_set_windows	endp
+; ENDP _set_windows
 
-	page
+	; page
 ;*******************************************************************************
 ;
 ;	LIM 4.0 EXTRAS for Windows
@@ -963,7 +963,7 @@ _set_windows	endp
 ; USED: BX,CX,DX,SI,DI
 ;
 ;***********************************************
-_GetSetPartial	proc	near
+_GetSetPartial:
 	cmp	al, 0			; Get...?
 	jne	gsppm_not0
 
@@ -974,7 +974,7 @@ _GetSetPartial	proc	near
 	mov	es, dx
 	mov	di, ax
 	cld
-	lods	word ptr fs:[si]
+	lods	word fs:[si]
 	stosw				; Save count in save area
 	or	ax, ax
 	jz	gsppm_ok		; nothing to do
@@ -984,7 +984,7 @@ _GetSetPartial	proc	near
 	cmp	cx, dx
 	ja	gsppm_inv_phys
 gsppm_get_loop:
-	lods	word ptr fs:[si]		; Get segment
+	lods	word fs:[si]		; Get segment
 	shr	ax, 10				; 16k page number
 	sub	ax, CONV_STRT_PG		; first page in emm_mpindex arr
 	jb	gsppm_inv_seg			; only pages above 256k
@@ -1013,7 +1013,7 @@ gsppm_get_loop:
 	loop	gsppm_get_loop
 
 gsppm_ok:
-	mov	byte ptr [bp.rAX+1], OK
+	mov	byte [bp.rAX+1], OK
 	ret
 	
 gsppm_not0:
@@ -1023,7 +1023,7 @@ gsppm_not0:
 	call	_source_addr			; uses AX, DX
 	mov	fs, dx
 	mov	si, ax
-	movzx	ecx, word ptr fs:[si]		; Get count from save area
+	movzx	ecx, word fs:[si]		; Get count from save area
 	add	si, 2
 	jecxz	gsppm_ok			; Zero count, do nothing
 
@@ -1032,11 +1032,11 @@ gsppm_not0:
 	ja	short gsppm_corrupt		; can't be more than phys pages
 gsppm_set_loop:
 	push	esi
-	movzx	eax, word ptr fs:[si]		; Get Physical page
+	movzx	eax, word fs:[si]		; Get Physical page
 	cmp	ax, [_mappable_page_count]
 	jae	gsppm_sl_bad
 
-	movzx	esi, word ptr fs:[si+2]		; Get mapping (emm page#)
+	movzx	esi, word fs:[si+2]		; Get mapping (emm page#)
 	mov	di,dx
 	add	di,ax
 	add	di,ax				; di <-- current FRS phy page
@@ -1066,7 +1066,7 @@ gsppm_unmap:
 gsppm_sl_bad:
 	pop	esi
 gsppm_corrupt:
-	mov	byte ptr [bp.rAX+1], SOURCE_CORRUPTED
+	mov	byte [bp.rAX+1], SOURCE_CORRUPTED
 	ret
 
 gsppm_not1:
@@ -1076,21 +1076,21 @@ gsppm_not1:
 	ja	short gsppm_inv_phys
 	shl	bx, 2				; Size = pages * 4 + 2
 	add	bx, 2
-	mov	byte ptr [bp.rAX], bl
+	mov	byte [bp.rAX], bl
 	jmp	gsppm_ok
 
 gsppm_inv_subfun:
-	mov	byte ptr [bp.rAX+1], INVALID_SUBFUNCTION
+	mov	byte [bp.rAX+1], INVALID_SUBFUNCTION
 	ret
 
 gsppm_inv_phys:
 gsppm_inv_seg:
-	mov	byte ptr [bp.rAX+1], PHYS_PAGE_RANGE
+	mov	byte [bp.rAX+1], PHYS_PAGE_RANGE
 	ret
 
-_GetSetPartial	endp
+; ENDP _GetSetPartial
 
-	page
+	; page
 ;***********************************************
 ;
 ; _MapHandleArray - map an array of a handle's pages
@@ -1124,7 +1124,7 @@ _GetSetPartial	endp
 ;
 ;***********************************************
 Dword_Align	_TEXT
-_MapHandleArray	proc	near
+_MapHandleArray:
 	mov	si, ax
 	push	dx
 	call	_source_addr			; DX:AX <-- mapping array
@@ -1138,7 +1138,7 @@ MapHandleArray_Entry_2:
 
 	Validate_Handle <mha_inv_handle>
 
-	mov	byte ptr [bp.rAX+1], OK		; Assume success
+	mov	byte [bp.rAX+1], OK		; Assume success
 	movzx	ecx, cx
 	jecxz	short mha_exit			;   none to do, just return
 
@@ -1154,7 +1154,7 @@ mha_sub0:
 	movzx	ebx, fs:[si.mha0_log_pg]	; logical page number
 	call	map_page			; map it if possible
 	jc	short mha_exit			; Error code already set
-	add	si, size mha_array0
+	add	si, mha_array0_size
 	loop	mha_sub0
 	jmp	short mha_exit
 
@@ -1180,7 +1180,7 @@ mha_sub1:
 	movzx	ebx, fs:[si.mha1_log_pg]	; the logical page
 	call	map_page			; try to map it
 	jc	short mha_exit			; error code already set
-	add	si, size mha_array1
+	add	si, mha_array1_size
 	loop	mha_sub1			; back for next segment to map
 
 mha_exit:
@@ -1189,20 +1189,20 @@ mha_exit:
 	ret
 						; ERRORS...
 mha_inv_handle:
-	mov	byte ptr [bp.rAX+1], INVALID_HANDLE
+	mov	byte [bp.rAX+1], INVALID_HANDLE
 	ret
 mha_inv_sub:
-	mov	byte ptr [bp.rAX+1], INVALID_SUBFUNCTION
+	mov	byte [bp.rAX+1], INVALID_SUBFUNCTION
 	ret
 mha_inv_seg:
-	mov	byte ptr [bp.rAX+1], PHYS_PAGE_RANGE
+	mov	byte [bp.rAX+1], PHYS_PAGE_RANGE
 	jmp	mha_exit
 
-_MapHandleArray	endp
+; ENDP _MapHandleArray
 
 
 
-	page
+	; page
 ;***********************************************
 ;
 ; _AlterMapAndJump - map an array of a handle's pages and Jump to a
@@ -1229,7 +1229,7 @@ _MapHandleArray	endp
 ;
 ;**********************************************
 
-_AlterMapAndJump    PROC    NEAR
+_AlterMapAndJump:
 
 	push	dx
 	mov	si, ax
@@ -1240,43 +1240,43 @@ _AlterMapAndJump    PROC    NEAR
 	push	si
 	push	ax
 	push	dx					; save EMM handle
-	mov	dx, WORD PTR gs:[si.maj_map_address]	; AX:DX <-- map array
-	mov	ax, WORD PTR gs:[si.maj_map_address+2]
+	mov	dx, word gs:[si.maj_map_address]	; AX:DX <-- map array
+	mov	ax, word gs:[si.maj_map_address+2]
 	Set_EMM_GDT	EMM2_GSEL
 	mov	fs, bx					; FS:0 <-- map array
 	pop	dx					; restore handle
 	pop	ax					; restore subfunction
-	movzx	ecx, byte ptr gs:[si.maj_log_phys_map_len] ; Length of map
+	movzx	ecx, byte gs:[si.maj_log_phys_map_len] ; Length of map
 	xor	si, si					; FS:SI <-- map array
 	call	MapHandleArray_Entry_2	    ; Map the array
 	pop	si
 
-	mov	ah, byte ptr [bp.rAX+1]
+	mov	ah, byte [bp.rAX+1]
 	or	ah, ah
 	jnz	SHORT AMJ_Error
-	mov	eax, dword ptr gs:[si.maj_target_address]
-	mov	word ptr [bp.retaddr], ax  ; Put jump address in place of
+	mov	eax, dword gs:[si.maj_target_address]
+	mov	word [bp.retaddr], ax  ; Put jump address in place of
 	shr	eax, 16 		   ; old IRET return address
-	mov	word ptr [bp.rCS], ax
+	mov	word [bp.rCS], ax
 	;
 	; now, pop 5 words from client's stack because we are not
 	; going to go back. (See AlterMapAndCall for client's
 	; Stack frame structure)
 	;
-	mov	edi, dword ptr [bp.rFS+2+VTFO.VMTF_ESP]	; clients's ESP
+	mov	edi, dword [bp.rFS+2+VTFO.VMTF_ESP]	; clients's ESP
 	add	edi, 5 * 2				; "pop" 5 words
-	mov	dword ptr [bp.rFS+2+VTFO.VMTF_ESP], edi	; save it
+	mov	dword [bp.rFS+2+VTFO.VMTF_ESP], edi	; save it
 	;
 	; tell EMMpEntry to patch CS:IP onto its' iretd stack frame
 	;
-	or	word ptr [bp.PFlag], PFLAG_PATCH_CS_IP
+	or	word [bp.PFlag], PFLAG_PATCH_CS_IP
 AMJ_Error:				    ; Do the jump
 	ret
 
-_AlterMapAndJump    ENDP
+; ENDP _AlterMapAndJump
 
 
-	page
+	; page
 ;***********************************************
 ;
 ; _AlterMapAndCall - map an array of a handle's pages and call a procedure
@@ -1303,7 +1303,7 @@ _AlterMapAndJump    ENDP
 ;
 ;***********************************************
 
-_AlterMapAndCall    PROC    NEAR
+_AlterMapAndCall:
 
 	cmp	al, 2			; Q: Which subfuction ?
 	ja	AMC_inv_sub		;  >2: invalid subfunction
@@ -1319,10 +1319,10 @@ _AlterMapAndCall    PROC    NEAR
 	; check new and old map's length
 	;
 	xor	ch, ch
-	mov	cl, byte ptr gs:[si.mac_old_page_map_len] ; CX = Length of old map
+	mov	cl, byte gs:[si.mac_old_page_map_len] ; CX = Length of old map
 	cmp	cx, [_physical_page_count]
 	jae	AMC_inv_phys_pages
-	mov	cl, byte ptr gs:[si.mac_new_page_map_len] ; CX = Length of new map
+	mov	cl, byte gs:[si.mac_new_page_map_len] ; CX = Length of new map
 	cmp	cx, [_physical_page_count]
 	jae	AMC_inv_phys_pages
 	;
@@ -1331,8 +1331,8 @@ _AlterMapAndCall    PROC    NEAR
 	push	ax
 	push	dx
 
-	mov	edi, dword ptr [bp.rFS+2+VTFO.VMTF_ESP]	; clients's ESP
-	mov	ax, word ptr [bp.rFS+2+VTFO.VMTF_SS]	; client's SS
+	mov	edi, dword [bp.rFS+2+VTFO.VMTF_ESP]	; clients's ESP
+	mov	ax, word [bp.rFS+2+VTFO.VMTF_SS]	; client's SS
 	xor	dx, dx					; AX:DX <-- Seg:Off of Client's Stack
 
 	push	ax				; client's Stack Segment
@@ -1345,8 +1345,8 @@ _AlterMapAndCall    PROC    NEAR
 	pop	es				; ES:0 <-- GDT
 	mov	bx, cs				; selector
 	and	bl, SEL_LOW_MASK
-	mov	dx, word ptr es:[bx + 2]	; get lower 16 bit of Base
-	mov	al, byte ptr es:[bx + 4]	; get upper 8 bit of Base
+	mov	dx, word es:[bx + 2]	; get lower 16 bit of Base
+	mov	al, byte es:[bx + 4]	; get upper 8 bit of Base
 	shr	dx, 4
 	shl	al, 4
 	or	dh, al				; get the segment value
@@ -1362,8 +1362,8 @@ _AlterMapAndCall    PROC    NEAR
 	; cause they (CX and EMM1_GSEL) get destroy
 	;
 	push	cx
-	push	word ptr gs:[si].mac_target_address+2
-	push	word ptr gs:[si].mac_target_address
+	push	word gs:[si].mac_target_address+2
+	push	word gs:[si].mac_target_address
 	;
 	; On the Client's stack :
 	;
@@ -1389,7 +1389,7 @@ _AlterMapAndCall    PROC    NEAR
 	;
 	; save old map on stack
 	;
-	movzx	ecx, byte ptr gs:[si.mac_old_page_map_len]  ; CX = Length of old map
+	movzx	ecx, byte gs:[si.mac_old_page_map_len]  ; CX = Length of old map
 	shl	cx, 2				; CX * 4 (4 bytes each entry)
 	inc	cx				; one more for length
 	get_space_from_stack	CX		; ES:DI <-- space on stack
@@ -1405,8 +1405,8 @@ _AlterMapAndCall    PROC    NEAR
 	push	cx				; save #pages
 
 	cld
-	mov	dx, word ptr gs:[si.mac_old_map_address]    ; AX:DX <-- map array
-	mov	ax, word ptr gs:[si.mac_old_map_address+2]
+	mov	dx, word gs:[si.mac_old_map_address]    ; AX:DX <-- map array
+	mov	ax, word gs:[si.mac_old_map_address+2]
 	push	es
 	Set_EMM_GDT	USER1_GSEL
 	pop	es
@@ -1450,8 +1450,8 @@ _AlterMapAndCall    PROC    NEAR
 	push	si
 	push	ax
 	push	dx					; save EMM handle
-	mov	dx, WORD PTR gs:[si.mac_new_map_address]; AX:DX <-- map array
-	mov	ax, WORD PTR gs:[si.mac_new_map_address+2]
+	mov	dx, word gs:[si.mac_new_map_address]; AX:DX <-- map array
+	mov	ax, word gs:[si.mac_new_map_address+2]
 	push	es
 	Set_EMM_GDT	USER1_GSEL
 	pop	es
@@ -1459,13 +1459,13 @@ _AlterMapAndCall    PROC    NEAR
 	xor	si, si
 	pop	dx					; restore handle
 	pop	ax					; restore subfunction
-	movzx	ecx, byte ptr gs:[si.mac_new_page_map_len]
+	movzx	ecx, byte gs:[si.mac_new_page_map_len]
 	call	MapHandleArray_Entry_2	    ; Map the array
 	pop	si			    ; Restore structure pointer
 	pop	di			    ; restore "stack" pointer
 	pop	dx
 	pop	ax
-	mov	bh, byte ptr [bp.rAX+1]
+	mov	bh, byte [bp.rAX+1]
 	or	bh, bh
 	pop	bx
 	jnz	AMC_map_Error
@@ -1483,7 +1483,7 @@ _AlterMapAndCall    PROC    NEAR
 	stosw
 	mov	ax, bx				; CS for return from called code
 	stosw
-	mov	ax, offset AMC_return_address	; IP for return from called code
+	mov	ax, AMC_return_address	; IP for return from called code
 	mov	es:[di], ax			; "push" without decrement "SP"
 	cld
 	;
@@ -1497,18 +1497,18 @@ _AlterMapAndCall    PROC    NEAR
 	pop	cx				; Stack Segment
 
 	push	0
-	push	word ptr [bp].rGS
+	push	word [bp].rGS
 	push	0
-	push	word ptr [bp].rFS
+	push	word [bp].rFS
 	push	0
-	push	word ptr [bp].rDS
+	push	word [bp].rDS
 	push	0
-	push	word ptr [bp].rES
+	push	word [bp].rES
 	push	0
 	push	cx				; client's SS
 	push	edi				; client's ESP
 	push	PFLAG_VM			; VM bit
-	mov	bx, word ptr [bp].PFlag
+	mov	bx, word [bp].PFlag
 	and	bx, not PFLAG_VIRTUAL		; clear fake bit
 	push	bx
 	push	0
@@ -1518,13 +1518,13 @@ _AlterMapAndCall    PROC    NEAR
 	;
 	; restore registers context from stack frame
 	;
-	mov	eax, dword ptr [bp].rAX
-	mov	ebx, dword ptr [bp].rBX
-	mov	ecx, dword ptr [bp].rCX
-	mov	edx, dword ptr [bp].rDX
-	mov	esi, dword ptr [bp].rSI
-	mov	edi, dword ptr [bp].rDI
-	mov	ebp, dword ptr [bp].rFS+2	; clients's EBP
+	mov	eax, dword [bp].rAX
+	mov	ebx, dword [bp].rBX
+	mov	ecx, dword [bp].rCX
+	mov	edx, dword [bp].rDX
+	mov	esi, dword [bp].rSI
+	mov	edi, dword [bp].rDI
+	mov	ebp, dword [bp].rFS+2	; clients's EBP
 	;
 	; return to virtual mode via iretd with calling address on stack
 	;
@@ -1540,7 +1540,7 @@ AMC_map_Error:
 	xchg	si, di
 	release_space_to_stack	CX		; DS:SI <-- space on stack
 	;
-	movzx	ecx, byte ptr gs:[di.mac_old_page_map_len]  ; CX = Length of old map
+	movzx	ecx, byte gs:[di.mac_old_page_map_len]  ; CX = Length of old map
 	shl	cx, 2				; CX * 4 (4 bytes each entry)
 	inc	cx				; one more for length
 	release_space_to_stack	CX		; DS:SI <-- space on stack
@@ -1558,7 +1558,7 @@ AMC_map_Error:
 	ret
 
 AMC_Stack_Fram_Size:
-	mov	byte ptr [bp.rAX+1], OK		; No error
+	mov	byte [bp.rAX+1], OK		; No error
 	mov	ax, [_mappable_page_count]	; assume ALL mappable pages
 	shl	ax, 2				; 4 bytes per page
 	add	ax, 1 + (3+5)*2		; map length
@@ -1566,18 +1566,18 @@ AMC_Stack_Fram_Size:
 			       		; + 5 registers pushed
 	add	al, [_cntxt_bytes]		; FRS context
 	adc	ah, 0
-	mov	word ptr [bp.rBX], ax
+	mov	word [bp.rBX], ax
 	ret
 
 AMC_inv_phys_pages:
-	mov	byte ptr [bp.rAX+1], PHYS_PAGE_RANGE
+	mov	byte [bp.rAX+1], PHYS_PAGE_RANGE
 	ret
 
 AMC_inv_sub:
-	mov	byte ptr [bp.rAX+1], INVALID_SUBFUNCTION
+	mov	byte [bp.rAX+1], INVALID_SUBFUNCTION
 	ret
 
-_AlterMapAndCall    ENDP
+; ENDP _AlterMapAndCall
 
 
 ;******************************************************************************
@@ -1591,7 +1591,7 @@ _AlterMapAndCall    ENDP
 ;
 ;******************************************************************************
 
-AMC_return_address proc	far
+AMC_return_address:
 
 ;
 ; This will causes an illegal instruction trap and goes into protected
@@ -1606,8 +1606,8 @@ AMC_return_address proc	far
 	mov	ax, sp			; saves stack frame address
 	mov	[_regp], ax		; to _regp
 
-	mov	esi, dword ptr [bp.VTFOE.VMTF_ESP]	; clients's ESP
-	mov	ax, word ptr [bp.VTFOE.VMTF_SS]		; client's SS
+	mov	esi, dword [bp.VTFOE.VMTF_ESP]	; clients's ESP
+	mov	ax, word [bp.VTFOE.VMTF_SS]		; client's SS
 	xor	dx, dx					; AX:DX <-- Seg:Off of Client's Stack
 
 	Set_EMM_GDT	EMM2_GSEL
@@ -1665,17 +1665,17 @@ AMC_return_address proc	far
 	pop	ds			; DS <-- Client's Stack
 	push	ax
 	lodsw
-	mov	word ptr [bp.VTFOE+VMTF_EIP], ax
+	mov	word [bp.VTFOE+VMTF_EIP], ax
 	lodsw
-	mov	word ptr [bp.VTFOE+VMTF_CS], ax
+	mov	word [bp.VTFOE+VMTF_CS], ax
 	lodsw
-	mov	word ptr [bp.VTFOE+VMTF_EFLAGS], ax
-	mov	word ptr [bp.VTFOE+VMTF_EFLAGShi], PFLAG_VM
+	mov	word [bp.VTFOE+VMTF_EFLAGS], ax
+	mov	word [bp.VTFOE+VMTF_EFLAGShi], PFLAG_VM
 	pop	ax
 	;
 	; save client's new stack pointer
 	;
-	mov	dword ptr [bp.VTFOE.VMTF_ESP], esi
+	mov	dword [bp.VTFOE.VMTF_ESP], esi
 	popad
 	pop	esi
 	pop	ebx
@@ -1688,9 +1688,9 @@ AMC_return_address proc	far
 
 	iretd
 
-AMC_return_address endp
+; ENDP AMC_return_address
 
-	page
+	; page
 ;******************************************************************************
 ;
 ;   _MoveExchangeMemory
@@ -1821,8 +1821,8 @@ AMC_return_address endp
 ;==============================================================================
 
 
-_MoveExchangeMemory proc near
-	mov	byte ptr [bp.rAX+1], OK     ; Assume everything work OK
+_MoveExchangeMemory:
+	mov	byte [bp.rAX+1], OK     ; Assume everything work OK
 	cld				    ; Assume forward direction
 
 	cmp	al, 1			    ; Q: Valid subfunction?
@@ -1838,8 +1838,8 @@ _MoveExchangeMemory proc near
 
 	push	bp
 	mov	bp,[_regp]
-	mov	ax, word ptr [bp.rDS]	    ; DX:AX <-- move/xchg struct
-	mov	dx, word ptr [bp.rSI]
+	mov	ax, word [bp.rDS]	    ; DX:AX <-- move/xchg struct
+	mov	dx, word [bp.rSI]
 	Set_EMM_GDT	USER1_GSEL	    ; use USER1_GSEL since both EMM1_GSEL
 					    ; and EMM2_GSEL will be used
 	mov	ds, bx
@@ -1885,7 +1885,7 @@ mem_dest_gt_source:
 	jae	SHORT mem_no_overlap	    ;	 N: Continue
 	test	al, 1			    ; Q: Is this an exchange?
 	jnz	mem_inv_overlap 	    ;	 Y: Error -- Cant overlap xchg
-	mov	byte ptr [bp.rAX+1], VALID_OVERLAP ; Assume everything OK but overlap
+	mov	byte [bp.rAX+1], VALID_OVERLAP ; Assume everything OK but overlap
 	or	al, Overlap_Flag	    ;	 N: Note this for later
 	test	al, Source_GT_Dest_Flag	    ; Q: Is it gonna be backward copy
 	jnz	mem_no_overlap		    ;    N: Continue
@@ -1923,8 +1923,8 @@ mem_no_overlap:
 	push	fs
 	pop	ds			; DS <-- DGROUP
 	get_FRS_Window	SI
-	push	word ptr [SI]	       ; save 1st pgae's mapping on stack
-	push	word ptr [SI+2]	       ; save 2st page's mapping on stack
+	push	word [SI]	       ; save 1st pgae's mapping on stack
+	push	word [SI+2]	       ; save 2st page's mapping on stack
 
 	;
 	; setup dest
@@ -2355,7 +2355,7 @@ mem_conv_to_conv:
 	;
 	; test for overlapping transfer
 	;
-	mov	byte ptr [bp.rAX+1], VALID_OVERLAP ; assume valid overlap
+	mov	byte [bp.rAX+1], VALID_OVERLAP ; assume valid overlap
 	sub	edi, esi		    ; EDI = Source - Destination
 	jg	SHORT mem_dest_gt_source_2  ; Don't negate if Dest > Source
 	or	al, Source_GT_Dest_Flag     ; Set flag to note Source > Dest
@@ -2378,7 +2378,7 @@ mem_dest_gt_source_2:
 	jmp	short mem_conv_copy
 
 mem_no_overlap_2:
-	mov	byte ptr [ebp.rAX+1], OK	; Everything worked OK
+	mov	byte [ebp.rAX+1], OK	; Everything worked OK
 	mov	edx, 1				; increment value of 1
 	xor	esi, esi			; DS:ESI <-- source addr
 	xor	edi, edi			; ES:EDI <-- dest addr
@@ -2418,26 +2418,26 @@ mem_conv_done:
 
 mem_error_exit:
 	cld
-	mov	byte ptr [bp.rAX+1], ah	; error code already set in ah
+	mov	byte [bp.rAX+1], ah	; error code already set in ah
 	ret
 mem_valid_overlap:
-	mov	byte ptr [bp.rAX+1], VALID_OVERLAP
+	mov	byte [bp.rAX+1], VALID_OVERLAP
 	ret
 mem_no_error:
-	mov	byte ptr [bp.rAX+1], OK
+	mov	byte [bp.rAX+1], OK
 	ret
 
 mem_inv_sub:
-	mov	byte ptr [bp.rAX+1], INVALID_SUBFUNCTION
+	mov	byte [bp.rAX+1], INVALID_SUBFUNCTION
 	ret
 mem_inv_region_len:
-	mov	byte ptr [bp.rAX+1], INVALID_REGION_LENGTH
+	mov	byte [bp.rAX+1], INVALID_REGION_LENGTH
 	ret
 mem_bad_memory_types:
-	mov	byte ptr [bp.rAX+1], INVALID_MEMORY_TYPE
+	mov	byte [bp.rAX+1], INVALID_MEMORY_TYPE
 	ret
 mem_inv_overlap:
-	mov	byte ptr [bp.rAX+1], OVERLAPPING_EXCHANGE
+	mov	byte [bp.rAX+1], OVERLAPPING_EXCHANGE
 	ret
 ;
 ; discard old ax,bx,source seg_page#,dest seg_page#
@@ -2458,12 +2458,12 @@ mem_exit:
 	push	fs				; get DGROUP back into DS
 	pop	ds
 	get_FRS_Window	BX
-	pop	word ptr [bx+2]
-	pop	word ptr [bx]
+	pop	word [bx+2]
+	pop	word [bx]
 	cld					; string forward again
 	jmp	_set_windows			; remap all pages
 
-_MoveExchangeMemory endp
+; ENDP _MoveExchangeMemory
 
 
 ;******************************************************************************
@@ -2488,7 +2488,7 @@ _MoveExchangeMemory endp
 ;
 ;==============================================================================
 
-validate_for_Move_Or_Exchange    PROC NEAR
+validate_for_Move_Or_Exchange:
 
 	push	edx			    ; Used as temporary variable
 	push	eax
@@ -2525,9 +2525,9 @@ validate_for_Move_Or_Exchange    PROC NEAR
 	jmp	short ME_Map_OK			;  N: error
 
 ME_Map_Conventional:
-	movzx	edx, word ptr [di.mem_initial_seg_page]
+	movzx	edx, word [di.mem_initial_seg_page]
 	shl	edx, 4
-	movzx	edi, word ptr [di.mem_initial_offset]
+	movzx	edi, word [di.mem_initial_offset]
 	add	edx, edi		    ; EDX --> Conven mem to move/exch
 	mov	edi, edx		    ; Use EDI for test
 	add	edi, ecx		    ; EDI = Base + Move length
@@ -2592,10 +2592,10 @@ ME_Map_Inv_Wraparound:
 	mov	ah, INVALID_WRAPAROUND
 	ret
 
-validate_for_Move_Or_Exchange    ENDP
+; ENDP validate_for_Move_Or_Exchange
 
 
-	page
+	; page
 ;***********************************************
 ;
 ; _AlternateMapRegisterSet - handle alternative register sets
@@ -2626,13 +2626,13 @@ validate_for_Move_Or_Exchange    ENDP
 ;
 ;***********************************************
 Dword_Align	_TEXT
-_AlternateMapRegisterSet	proc	near
+_AlternateMapRegisterSet:
 	cmp	[_OSEnabled], OS_DISABLED
 	jae	short AMRS_NotAllowed	; Disabled by OS
 	cmp	al, 08h			; Valid sub-function?
 	ja	short AMRS_invalid
 	cld				; Done for all sub-functions
-	mov	byte ptr [bp.rAX+1], OK ; Assume success!
+	mov	byte [bp.rAX+1], OK ; Assume success!
 	movzx	esi, al			; get offset to function dispatch
 	shl	si, 1
 	jmp	CS:AMRS_map[si]		; go to relevant sub-function
@@ -2641,19 +2641,19 @@ AMRS_exit:				; Exit with AH already set
 	ret
 
 AMRS_NotAllowed:
-	mov	byte ptr [bp.rAX+1], ACCESS_DENIED
+	mov	byte [bp.rAX+1], ACCESS_DENIED
 	ret
 
 AMRS_invalid:
-	mov	byte ptr [bp.rAX+1], INVALID_SUBFUNCTION
+	mov	byte [bp.rAX+1], INVALID_SUBFUNCTION
 	ret				; Error return!
 
 AMRS_bad_src:
-	mov	byte ptr [bp.rAX+1], SOURCE_CORRUPTED
+	mov	byte [bp.rAX+1], SOURCE_CORRUPTED
 	ret				; Error return!
 
 AMRS_noDMA:
-	mov	byte ptr [bp.rAX+1], FRSET_NO_DMA
+	mov	byte [bp.rAX+1], FRSET_NO_DMA
 	ret				; Error return!
 
 Dword_Align	_TEXT
@@ -2668,7 +2668,7 @@ AMRS_map	dw	_TEXT:AMRS_get
 		dw	_TEXT:AMRS_noDMA		; AMRS_DMAdeassign
 		dw	_TEXT:AMRS_noDMA		; AMRS_DMAfree
 
-	page
+	; page
 ;***********************************************
 ;
 ; AMRS_get - get the current 'fast' register set
@@ -2692,15 +2692,15 @@ AMRS_map	dw	_TEXT:AMRS_get
 Dword_Align	_TEXT
 AMRS_get:
 	mov	al, [CurRegSetn]		; Get current set number
-	mov	byte ptr [bp.rBX], al		; to be picked up later
+	mov	byte [bp.rBX], al		; to be picked up later
 	or	al, al
 	jz	short AMRS_get0
 	ret					; non-zero - all done
 AMRS_get0:					; Echo save area address
 	movzx	eax, [EMM_savES]		; saved ES for reg set 0
-	mov	word ptr [bp.rES], ax
+	mov	word [bp.rES], ax
 	movzx	edi, [EMM_savDI]		; saved DI for reg set 0
-	mov	word ptr [bp.rDI], di
+	mov	word [bp.rDI], di
 	or	ax, ax
 	jnz	short AMRS_get2			; got dest addr
 	or	di, di
@@ -2718,7 +2718,7 @@ AMRS_get2:
 AMRS_get1:
 	ret
 	
-	page
+	; page
 ;***********************************************
 ;
 ; AMRS_set - set the current 'fast' register set
@@ -2743,7 +2743,7 @@ AMRS_set:
 	cmp	bl, FRS_COUNT			; Validate new Reg Set
 	jae	AMRS_inv_FRS
 	movzx	eax, bl
-	imul	eax, size FRS_struc
+	imul	eax, FRS_struc_size
 	xchg	ax, bx
 	lea	bx, FRS_array[bx]		; Get pointer to the new Reg Set
 	cmp	[bx.FRS_alloc], 0		; Make sure it is allocated
@@ -2755,15 +2755,15 @@ AMRS_set:
 	cmp	bl, [CurRegSetn]		; Setting the same reg set?
 	je	AMRS_exit			;   yes, just return
 AMRS_set0:					; Now set up new reg set
-	mov	word ptr [CurRegSet], ax	; Set Current reg. set Offset
+	mov	word [CurRegSet], ax	; Set Current reg. set Offset
 	mov	[CurRegSetn], bl
 
 	or	bl, bl				; Real register set?
 	jne	_set_windows			;   yes, go deal with it
 						;   no, deal with reg set 0
-	mov	ax, word ptr [bp.rES]		; Pick up user's pointer
+	mov	ax, word [bp.rES]		; Pick up user's pointer
 	mov	[EMM_savES], ax			; and save for AMRS_get
-	mov	dx, word ptr [bp.rDI]
+	mov	dx, word [bp.rDI]
 	mov	[EMM_savDI], dx			; AX:DX <-- regs cntxt restore area
 	push	ax
 	or	ax, dx
@@ -2778,7 +2778,7 @@ AMRS_set0:					; Now set up new reg set
 
 	mov	fs, bx				; FS:SI <-- FRS buffer
 	xor	si, si
-	lods	word ptr fs:[si]		; get saved count
+	lods	word fs:[si]		; get saved count
 	movzx	ecx, [_cntxt_pages]		; what it should be
 	cmp	ax, cx				; Sensible count?
 	jne	_set_windows			;   no, restore last context
@@ -2795,7 +2795,7 @@ AMRS_set0:					; Now set up new reg set
 	pop	fs
 	jmp	_set_windows			; set up mappings
 
-	page
+	; page
 ;***********************************************
 ;
 ; AMRS_size - get the size of the register set 0 save area
@@ -2815,10 +2815,10 @@ AMRS_set0:					; Now set up new reg set
 ;-----------------------------------------------
 AMRS_size:
 	movzx	eax, [_cntxt_bytes]		; Previously calculated value
-	mov	word ptr [bp.rDX], ax
+	mov	word [bp.rDX], ax
 	ret
 
-	page
+	; page
 ;***********************************************
 ;
 ; AMRS_allocate - allocate a fast register set
@@ -2845,12 +2845,12 @@ AMRS_allocate:
 AMRS_search:
 	cmp	[di.FRS_alloc], 0		; This one free?
 	je	short AMRS_foundRS		;   yes, bl has the number
-	add	di, size FRS_struc		; on to the next one
+	add	di, FRS_struc_size		; on to the next one
 	inc	bl
 	cmp	bl, FRS_COUNT			; Safety... should never fail
 	jb	short AMRS_search
 
-	mov	byte ptr [bp.rAX+1], EMM_SW_MALFUNCTION	; Honesty...
+	mov	byte [bp.rAX+1], EMM_SW_MALFUNCTION	; Honesty...
 	ret
 
 AMRS_foundRS:
@@ -2860,14 +2860,14 @@ AMRS_foundRS:
 	movzx	ecx, [_cntxt_pages]
 	shr	ecx, 1
 	rep movsd				; Initialise to current mapping
-	mov	byte ptr [bp.rBX], bl		; Return the number
+	mov	byte [bp.rBX], bl		; Return the number
 	ret
 
 AMRS_noRS:					; None free; return error
-	mov	byte ptr [bp.rAX+1], NO_MORE_FRSETS
+	mov	byte [bp.rAX+1], NO_MORE_FRSETS
 	ret
 
-	page
+	; page
 ;***********************************************
 ;
 ; AMRS_deallocate - deallocate a fast register set
@@ -2891,7 +2891,7 @@ AMRS_deallocate:
 	cmp	bl, FRS_COUNT
 	jae	short AMRS_undef_FRS		; Invalid Register set
 	movzx	eax, bl
-	imul	eax, size FRS_struc		; Offset into array
+	imul	eax, FRS_struc_size		; Offset into array
 	xchg	ax, bx
 	cmp	FRS_array[bx.FRS_alloc], 0	; Paranoid...
 	xchg	ax, bx
@@ -2904,13 +2904,13 @@ AMRS_deallocate:
 
 AMRS_Inv_FRS:
 AMRS_undef_FRS:
-	mov	byte ptr [bp.rAX+1], FRSET_UNDEFINED
+	mov	byte [bp.rAX+1], FRSET_UNDEFINED
 	ret
 
-_AlternateMapRegisterSet	endp
+; ENDP _AlternateMapRegisterSet
 
 
-	page
+	; page
 ;******************************************************************************
 ;   _Get_Key_Val - use the timer to get a random number for OSDisable Key
 ;
@@ -2923,14 +2923,14 @@ _AlternateMapRegisterSet	endp
 ;   USES    Flags, EAX, EDX
 ;
 ;------------------------------------------------------------------------------
-_Get_Key_Val	proc	near
+_Get_Key_Val:
 	call	Get_Counter_Value		; (Who cares about the junk in
 	mov	dx, ax				; the high words...?)
 	call	Get_Counter_Value		; Likely to be very close
 	mul	edx				; Mess it all up!
 	ret
 	
-_Get_Key_Val	endp
+; ENDP _Get_Key_Val
 
 ;******************************************************************************
 ;
@@ -2951,7 +2951,7 @@ _Get_Key_Val	endp
 ;
 ;------------------------------------------------------------------------------
 
-Get_Counter_Value	PROC NEAR
+Get_Counter_Value:
 
 System_Clock_Port   EQU 40h
 Sys_Clock_Ctrl_Port EQU 43h
@@ -2968,11 +2968,11 @@ Latch_Counter	    EQU 0
 	xchg	ah, al				; AX = Counter value
 	ret
 
-Get_Counter_Value	ENDP
+; ENDP Get_Counter_Value
 
 
-_TEXT	ENDS
-END
+; END SECTION ._TEXT
+; END
 
 
 

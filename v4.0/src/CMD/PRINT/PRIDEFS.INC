@@ -123,57 +123,57 @@
 ;
 ;
 ;******************* END OF SPECIFICATIONS *************************************
-                        subttl PRINT - Program Organization
-                        page
+                        ; subttl PRINT - Program Organization
+                        ; page
 ;******************* START PROGRAM ORGANIZATION *******************************
 ;
 ;
 ;Group / Label        Contents              File
-;              ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿ Ä¿
-;CODER         ³  Data buffer    ³  Ã PRINT_RM
-;              ÃÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ´ ÄÙ
-;              ³                 ³ Ä¿
-;              ³  Resident       ³  ³
-;              ³    Code         ³  ³
-;              ³                 ³  ³
-;filequeue --- ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ³
-;              ³  Resident       ³  ³
-;              ³    Initalization³  ÃÄ  PRINT_R
-;              ³      Code       ³  ³
-;              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ³
-;              ÃÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ´ ÄÙ
-;              ³  CL1 data       ³  ³
-;              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ³
-;              ³  CL2 data       ³
-;              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ³
-;              ³  CLB data       ³  ³
-;              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ÃÄ  PRINT_TM
-;              ³  CLC data       ³  ³
-;              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ³
-;              ³  CLD data       ³  ³
-;              ÃÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ´ ÄÙ
-;DG            ³  Transient      ³ Ä¿
-;              ³    code         ³  ³
-;              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ³
-;              ³  DispMsg        ³  ³
-;              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ³
-;              ³  SYSMSG         ³  ³
-;              ³    Code         ³  ³
-;              ³  Parser         ³  ³
-;              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ³
-;              ³  Transient      ³  ÃÄ  PRINT_T
-;              ³    data         ³  ³
-;              ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ³
-;              ³  Stack          ³  ³
-;transsize --- ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ ÄÙ
+;              ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿ Ã„Â¿
+;CODER         Â³  Data buffer    Â³  Ãƒ PRINT_RM
+;              ÃƒÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÂ´ Ã„Ã™
+;              Â³                 Â³ Ã„Â¿
+;              Â³  Resident       Â³  Â³
+;              Â³    Code         Â³  Â³
+;              Â³                 Â³  Â³
+;filequeue --- ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  Â³
+;              Â³  Resident       Â³  Â³
+;              Â³    InitalizationÂ³  ÃƒÃ„  PRINT_R
+;              Â³      Code       Â³  Â³
+;              ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  Â³
+;              ÃƒÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÂ´ Ã„Ã™
+;              Â³  CL1 data       Â³  Â³
+;              ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  Â³
+;              Â³  CL2 data       Â³
+;              ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  Â³
+;              Â³  CLB data       Â³  Â³
+;              ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  ÃƒÃ„  PRINT_TM
+;              Â³  CLC data       Â³  Â³
+;              ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  Â³
+;              Â³  CLD data       Â³  Â³
+;              ÃƒÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÂ´ Ã„Ã™
+;DG            Â³  Transient      Â³ Ã„Â¿
+;              Â³    code         Â³  Â³
+;              ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  Â³
+;              Â³  DispMsg        Â³  Â³
+;              ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  Â³
+;              Â³  SYSMSG         Â³  Â³
+;              Â³    Code         Â³  Â³
+;              Â³  Parser         Â³  Â³
+;              ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  Â³
+;              Â³  Transient      Â³  ÃƒÃ„  PRINT_T
+;              Â³    data         Â³  Â³
+;              ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  Â³
+;              Â³  Stack          Â³  Â³
+;transsize --- Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™ Ã„Ã™
 ;
 ;
 ;*******************  END  ROGRAM ORGANIZATION  ********************************
 
-                        subttl PRINT - Data Space
-                        page
+                        ; subttl PRINT - Data Space
+                        ; page
 
-INCLUDE SYSVAR.INC
+%include "SYSVAR.INC"
 
 FALSE                   EQU  0
 TRUE                    EQU  NOT FALSE
@@ -182,19 +182,19 @@ IBM                      EQU  IBMVER
 ;IBMVER                  EQU  IBM
 ;MSVER                   EQU  FALSE
 
-                        IF   MSVER
+                        %if MSVER
 HARDINT                     EQU  FALSE  ;No hardware ints
 AINT                        EQU  FALSE  ;No need to do interrupt acknowledge
-                        ENDIF
+                        %endif
 
-                        IF   IBM
+                        %if IBM
 HARDINT                     EQU  TRUE
 INTLOC                      EQU  1CH    ;Hardware interrupt location (Timer)
 REBOOT                      EQU  19H    ;ROM BIOS "Bootstrap"
 AINT                        EQU  TRUE   ;Acknowledge interrupts
 EOI                         EQU  20H    ;End Of Interrupt "instruction"
 AKPORT                      EQU  20H    ;Interrupt Acknowledge port
-                        ENDIF
+                        %endif
 
 ;  The following values have to do with the ERRCNT variable and the CNTMES
 ;  message.  The values define levels at wich it is assumed an off-line error
@@ -205,13 +205,13 @@ AKPORT                      EQU  20H    ;Interrupt Acknowledge port
 ;  bounding event which determines the correct value is the time required to
 ;  do a form feed.
 
-                        IF   IBM
+                        %if IBM
 ERRCNT1                     EQU  1500
 ERRCNT2                     EQU  20000
-                        ELSE
+                        %else
 ERRCNT1                     EQU  1500
 ERRCNT2                     EQU  20000
-                        ENDIF
+                        %endif
 
 
 ;WARNING DANGER WARNING:
@@ -275,19 +275,19 @@ MaxFileLen              equ  64
 
 ;                 BITS DEFINED FOR THE MODE WORD
 ;                       FORMAT = 0WF00000ISSS0AAA
-;              Write   ÄÄÄÄÄÄÄÄÄÄÄÙ³     ³³   ÀÄÄÄ Access code
-;                0 = no commit     ³     ³³             0 = read
-;                1 = auto commit   ³     ³³             1 = write
-;                                  ³     ³³             2 = read/write
-;          Fail action ÄÄÄÄÄÄÄÄÄÄÄÄÙ     ³³             3 = execute
-;            0 = INT 24h                 ³³             4 = FCB
-;            1 = return error            ³³
-;                                        ³ÀÄÄÄ  Sharing mode
-;                                        ³         0 = compatability
-;                                        ³         1 = deny read/write
-;                                        ³         2 = deny write
-;                                        ³         3 = deny read
-;                                        ³         4 = deny none
+;              Write   Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™Â³     Â³Â³   Ã€Ã„Ã„Ã„ Access code
+;                0 = no commit     Â³     Â³Â³             0 = read
+;                1 = auto commit   Â³     Â³Â³             1 = write
+;                                  Â³     Â³Â³             2 = read/write
+;          Fail action Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™     Â³Â³             3 = execute
+;            0 = INT 24h                 Â³Â³             4 = FCB
+;            1 = return error            Â³Â³
+;                                        Â³Ã€Ã„Ã„Ã„  Sharing mode
+;                                        Â³         0 = compatability
+;                                        Â³         1 = deny read/write
+;                                        Â³         2 = deny write
+;                                        Â³         3 = deny read
+;                                        Â³         4 = deny none
 ;                                      Inherit
 ;                                        0 = pass handle to child
 ;                                        1 = no inherit
@@ -467,39 +467,39 @@ Std_Out_Dev             equ  1
 
 ;                                       $SALUT (0,41,46,52)
 
-.xlist
-.xcref
-BREAK                                   MACRO subtitle
-                                        SUBTTL subtitle
-                                        PAGE
-ENDM
+; .xlist
+; .xcref
+%macro BREAK 1
+                                        ; SUBTTL subtitle
+                                        ; PAGE
+%endmacro
 
-SaveReg                                 MACRO reglist ;; push those registers
-IRP                                     reg,<reglist>
+%macro SaveReg 1;; push those registers
+; IRP                                     reg,<reglist>
                                         PUSH reg
-ENDM
-ENDM
-.xcref                                  SaveReg
+%endmacro
+%endmacro
+; .xcref                                  SaveReg
 
-RestoreReg                              MACRO reglist ;; pop those registers
-IRP                                     reg,<reglist>
+%macro RestoreReg 1;; pop those registers
+; IRP                                     reg,<reglist>
                                         POP  reg
-ENDM
-ENDM
+%endmacro
+%endmacro
 ;                       $SALUT (4,25,30,41)
 
-                        INCLUDE DEVSYM.INC
-                        INCLUDE SYSCALL.INC
-                        INCLUDE ERROR.INC
-                        INCLUDE FIND.INC
-                        include dpl.asm
-                        INCLUDE PDB.INC
-                        INCLUDE SYSCALL.INC
-                        INCLUDE MI.INC
-                        INCLUDE SYSMSG.INC
-                        include versiona.inc
-.list
-.cref
+                        %include "DEVSYM.INC"
+                        %include "SYSCALL.INC"
+                        %include "ERROR.INC"
+                        %include "FIND.INC"
+                        %include "dpl.asm"
+                        %include "PDB.INC"
+                        %include "SYSCALL.INC"
+                        %include "MI.INC"
+                        %include "SYSMSG.INC"
+                        %include "versiona.inc"
+; .list
+; .cref
 
 
                         MSG_UTILNAME <PRINT>
@@ -510,28 +510,28 @@ error_queue_full        EQU  8
 error_name_too_long     EQU  12
 get_ea_by_handle equ 2
 
-IF1
-                        IF   IBM
+%if 1  ; IF1 - pass-specific
+                        %if IBM
 ;                            %out IBM VERSION
-                        ELSE
-                            %out MS-DOS VERSION
-                        ENDIF
-ENDIF
+                        %else
+                            %warning MS-DOS VERSION
+                        %endif
+%endif
 
 BREAK                   <Segment Definitions>
 
 
-CodeR                   Segment public para
-CodeR                   EndS
+SECTION .CodeR
+; END SECTION .CodeR
 
-Code                    Segment public para
-Code                    EndS
+SECTION .Code
+; END SECTION .Code
 
-Data                    Segment public byte
-Data                    EndS
+SECTION .Data
+; END SECTION .Data
 
-Stack                   Segment Stack
-Stack                   Ends
+SECTION .Stack
+; END SECTION .Stack
 
-DG                      group Code,Data,Stack
+; DG                      group Code,Data,Stack
 

@@ -13,39 +13,39 @@
 ;	DW	OFFSET modes	 pointer to list of display modes
 ;	DW	OFFSET fonts	 pointer to list of font resolutions
 ;
-;    ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;    ³ Loading mechanism bit incoding			    ³
-;    ³							    ³
-;    ³	 USER ? 					    ³
-;    ³	   ³	  BIOS SUPPORT				    ³
-;    ³	ÚÄÄÁÄÄ¿ ÚÄÄÁÄÄ¿ 				    ³
-;    ³							    ³
-;    ³	7 6 5 4 3 2 1 0 				    ³
-;    ³	x x x x 0 0 x x 				    ³
-;    ³	³ ³ ³ ³     ³ ÀÄÄ 1 - INT 10 - AX=1100H 	    ³
-;    ³	³ ³ ³ ³     ³					    ³
-;    ³	³ ³ ³ ³     ÀÄÄÄÄ 1 = INT 10 - AX=1400H 	    ³
-;    ³	³ ³ ³ ³ 					    ³
-;    ³	³ ³ ³ ÀÄÄÄÄÄÄÄÄÄÄ 1 = INT 1FH			    ³
-;    ³	³ ³ ³						    ³
-;    ³	³ ³ ÀÄÄÄÄÄÄÄÄÄÄÄÄ 1 = INT 43H			    ³
-;    ³	³ ³						    ³
-;    ³	³ ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄ 1 = LCD 1FH handling needed	    ³
-;    ³	³						    ³
-;    ³	ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ 1 = LCD 44H handling needed	    ³
-;    ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    Â³ Loading mechanism bit incoding			    Â³
+;    Â³							    Â³
+;    Â³	 USER ? 					    Â³
+;    Â³	   Â³	  BIOS SUPPORT				    Â³
+;    Â³	ÃšÃ„Ã„ÃÃ„Ã„Â¿ ÃšÃ„Ã„ÃÃ„Ã„Â¿ 				    Â³
+;    Â³							    Â³
+;    Â³	7 6 5 4 3 2 1 0 				    Â³
+;    Â³	x x x x 0 0 x x 				    Â³
+;    Â³	Â³ Â³ Â³ Â³     Â³ Ã€Ã„Ã„ 1 - INT 10 - AX=1100H 	    Â³
+;    Â³	Â³ Â³ Â³ Â³     Â³					    Â³
+;    Â³	Â³ Â³ Â³ Â³     Ã€Ã„Ã„Ã„Ã„ 1 = INT 10 - AX=1400H 	    Â³
+;    Â³	Â³ Â³ Â³ Â³ 					    Â³
+;    Â³	Â³ Â³ Â³ Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ 1 = INT 1FH			    Â³
+;    Â³	Â³ Â³ Â³						    Â³
+;    Â³	Â³ Â³ Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ 1 = INT 43H			    Â³
+;    Â³	Â³ Â³						    Â³
+;    Â³	Â³ Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ 1 = LCD 1FH handling needed	    Â³
+;    Â³	Â³						    Â³
+;    Â³	Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ 1 = LCD 44H handling needed	    Â³
+;    Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ;
-;    ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;    ³ Memory Requirements				    ³
-;    ³							    ³
-;    ³	7 6 5 4 3 2 1 0 				    ³
-;    ³	0 0 0 0 x x x x 				    ³
-;    ³		³ ³ ³ ÀÄÄ 200 scan lines		    ³
-;    ³		³ ³ ÀÄÄÄÄ 350 scan lines		    ³
-;    ³		³ ÀÄÄÄÄÄÄ 400 scan lines		    ³
-;    ³		ÀÄÄÄÄÄÄÄÄ 480 scan lines		    ³
-;    ³							    ³
-;    ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    Â³ Memory Requirements				    Â³
+;    Â³							    Â³
+;    Â³	7 6 5 4 3 2 1 0 				    Â³
+;    Â³	0 0 0 0 x x x x 				    Â³
+;    Â³		Â³ Â³ Â³ Ã€Ã„Ã„ 200 scan lines		    Â³
+;    Â³		Â³ Â³ Ã€Ã„Ã„Ã„Ã„ 350 scan lines		    Â³
+;    Â³		Â³ Ã€Ã„Ã„Ã„Ã„Ã„Ã„ 400 scan lines		    Â³
+;    Â³		Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„ 480 scan lines		    Â³
+;    Â³							    Â³
+;    Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ;
 ;	THE TABLES ARE FILLED BEYOND THE SUPPORTED MODES.  THIS
 ;	IS 'GUESSING' AT THE APPROACH FOR ANY FUTURE DISPLAY MODES
@@ -56,40 +56,40 @@
 ;	SUBSET OF THE EGA MODES.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IF1
-	%OUT .		     ®TABLES  .INC¯
-ENDIF
+%if 1  ; IF1 - pass-specific
+	%warning .		     Â®TABLES  .INCÂ¯
+%endif
 						;
-DISPLAY_CONFIG	LABEL	BYTE			;
+DISPLAY_CONFIG:;
 	DB	"EGA     "                      ; EGA SUPPORT
 DC_FONT DB	00000111b			;
-	DW	OFFSET EGA_MODES		;
-	DW	OFFSET EGA_FONT_SIZE		;
+	DW	EGA_MODES		;
+	DW	EGA_FONT_SIZE		;
 DC_ENTRY	EQU ($-DISPLAY_CONFIG)		;
 	DB	"EGA 8   "                      ; EGA (5153)
 	DB	00000001b			;
-	DW	OFFSET EGA_MODES		;
-	DW	OFFSET EGA8_FONT_SIZE		;
+	DW	EGA_MODES		;
+	DW	EGA8_FONT_SIZE		;
 	DB	"EGA 14  "                      ; EGA (5154)
 	DB	00000011b			;
-	DW	OFFSET EGA_MODES		;
-	DW	OFFSET EGA14_FONT_SIZE		;
+	DW	EGA_MODES		;
+	DW	EGA14_FONT_SIZE		;
 	DB	"EGA 14M "                      ; EGA (5151)
 	DB	00000011b			; WGR load 8x8 for > 25.       ;AN000;
-	DW	OFFSET EGAM_MODES		;
-	DW	OFFSET EGA14_FONT_SIZE		;
+	DW	EGAM_MODES		;
+	DW	EGA14_FONT_SIZE		;
 	DB	"LCD     "                      ; CONVERTIBLE
 	DB	00000001b			;
-	DW	OFFSET LCD_MODES		;
-	DW	OFFSET LCD_FONT_SIZE		;
+	DW	LCD_MODES		;
+	DW	LCD_FONT_SIZE		;
 	DB	"MONO    "                      ; MONOCHROME ADAPTER
 	DB	00000000b			;
-	DW	OFFSET MONO_MODES		;
-	DW	OFFSET MONO_FONT_SIZE		;
+	DW	MONO_MODES		;
+	DW	MONO_FONT_SIZE		;
 	DB	"CGA     "                      ; COLOUR GRAPHICS ADAPTER
 	DB	00000000b			;
-	DW	OFFSET MONO_MODES		;
-	DW	OFFSET MONO_FONT_SIZE		;
+	DW	MONO_MODES		;
+	DW	MONO_FONT_SIZE		;
 NUM_DISPLAY_CONFIG EQU ($-DISPLAY_CONFIG)/DC_ENTRY
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 EGA_MODES:			;
@@ -101,11 +101,11 @@ EGA_MODES:			;
 	DB	00110000b	;5
 	DB	00110000b	;6
 	DB	00000001b	;7
-	DB	11111111b     ;D;8 ÄÄÄÄÄÄ¿
-	DB	11111111b     ;D;9	 ³
+	DB	11111111b     ;D;8 Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+	DB	11111111b     ;D;9	 Â³
 	DB	11111111b     ;D;A    RESERVED
-	DB	11111111b     ;D;B	 ³
-	DB	11111111b     ;D;C ÄÄÄÄÄÄÙ
+	DB	11111111b     ;D;B	 Â³
+	DB	11111111b     ;D;C Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	DB	00110000b	;D
 	DB	00110000b	;E
 	DB	00100000b	;F
@@ -136,11 +136,11 @@ EGAM_MODES:			;
 	DB	11111111b	;5
 	DB	11111111b	;6
 	DB	00010001b	;7
-	DB	11111111b     ;D;8 ÄÄÄÄÄÄ¿
-	DB	11111111b     ;D;9	 ³
+	DB	11111111b     ;D;8 Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+	DB	11111111b     ;D;9	 Â³
 	DB	11111111b     ;D;A    RESERVED
-	DB	11111111b     ;D;B	 ³
-	DB	11111111b     ;D;C ÄÄÄÄÄÄÙ
+	DB	11111111b     ;D;B	 Â³
+	DB	11111111b     ;D;C Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	DB	11111111b	;D
 	DB	11111111b	;E
 	DB	00100000b	;F
@@ -170,11 +170,11 @@ LCD_MODES:			;
 	DB	11010000b	;5
 	DB	11010000b	;6
 	DB	00000010b	;7
-	DB	11111111b     ;D;8 ÄÄÄÄÄÄ¿
-	DB	11111111b     ;D;9	 ³
+	DB	11111111b     ;D;8 Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+	DB	11111111b     ;D;9	 Â³
 	DB	11111111b     ;D;A    RESERVED
-	DB	11111111b     ;D;B	 ³
-	DB	11111111b     ;D;C ÄÄÄÄÄÄÙ
+	DB	11111111b     ;D;B	 Â³
+	DB	11111111b     ;D;C Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	DB	11010000b	;D
 	DB	11010000b	;E
 	DB	11010000b	;F
@@ -205,11 +205,11 @@ MONO_FONT_SIZE: 		;
 	DB	11111111b	;5
 	DB	11111111b	;6
 	DB	11111111b	;7
-	DB	11111111b     ;D;8 ÄÄÄÄÄÄ¿
-	DB	11111111b     ;D;9	 ³
+	DB	11111111b     ;D;8 Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+	DB	11111111b     ;D;9	 Â³
 	DB	11111111b     ;D;A    RESERVED
-	DB	11111111b     ;D;B	 ³
-	DB	11111111b     ;D;C ÄÄÄÄÄÄÙ
+	DB	11111111b     ;D;B	 Â³
+	DB	11111111b     ;D;C Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	DB	11111111b	;D
 	DB	11111111b	;E
 	DB	11111111b	;F
@@ -239,11 +239,11 @@ EGA_FONT_SIZE:			;		this needs to be adjusted
 	DB	8		;5
 	DB	8		;6
 	DB	0		;7
-	DB	0FFH	      ;D;8 ÄÄÄÄÄÄ¿
-	DB	0FFH	      ;D;9	 ³
+	DB	0FFH	      ;D;8 Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+	DB	0FFH	      ;D;9	 Â³
 	DB	0FFH	      ;D;A    RESERVED
-	DB	0FFH	      ;D;B	 ³
-	DB	0FFH	      ;D;C ÄÄÄÄÄÄÙ
+	DB	0FFH	      ;D;B	 Â³
+	DB	0FFH	      ;D;C Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	DB	0		;D
 	DB	0		;E
 	DB	0		;F
@@ -273,11 +273,11 @@ EGA8_FONT_SIZE: 		;
 	DB	8		;5
 	DB	8		;6
 	DB	0FFH		;7
-	DB	0FFH	      ;D;8 ÄÄÄÄÄÄ¿
-	DB	0FFH	      ;D;9	 ³
+	DB	0FFH	      ;D;8 Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+	DB	0FFH	      ;D;9	 Â³
 	DB	0FFH	      ;D;A    RESERVED
-	DB	0FFH	      ;D;B	 ³
-	DB	0FFH	      ;D;C ÄÄÄÄÄÄÙ
+	DB	0FFH	      ;D;B	 Â³
+	DB	0FFH	      ;D;C Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	DB	8		;D
 	DB	8		;E
 	DB	8		;F
@@ -307,11 +307,11 @@ EGA14_FONT_SIZE:		;
 	DB	 8		;5
 	DB	 8		;6
 	DB	14		;7
-	DB	0FFH	      ;D;8 ÄÄÄÄÄÄ¿
-	DB	0FFH	      ;D;9	 ³
+	DB	0FFH	      ;D;8 Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+	DB	0FFH	      ;D;9	 Â³
 	DB	0FFH	      ;D;A    RESERVED
-	DB	0FFH	      ;D;B	 ³
-	DB	0FFH	      ;D;C ÄÄÄÄÄÄÙ
+	DB	0FFH	      ;D;B	 Â³
+	DB	0FFH	      ;D;C Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	DB	 8		;D
 	DB	 8		;E
 	DB	14		;F
@@ -341,11 +341,11 @@ LCD_FONT_SIZE:			;
 	DB	8		;5
 	DB	8		;6
 	DB	8		;7
-	DB	0FFH	      ;D;8 ÄÄÄÄÄÄ¿
-	DB	0FFH	      ;D;9	 ³
+	DB	0FFH	      ;D;8 Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+	DB	0FFH	      ;D;9	 Â³
 	DB	0FFH	      ;D;A    RESERVED
-	DB	0FFH	      ;D;B	 ³
-	DB	0FFH	      ;D;C ÄÄÄÄÄÄÙ
+	DB	0FFH	      ;D;B	 Â³
+	DB	0FFH	      ;D;C Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	DB	8		;D
 	DB	8		;E
 	DB	8		;F

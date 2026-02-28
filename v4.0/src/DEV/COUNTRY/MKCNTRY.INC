@@ -80,7 +80,7 @@ DATE_MDY        EQU     0
 DATE_DMY        EQU     1
 DATE_YMD        EQU     2
 ;
-CTRYSTR STRUC
+struc CTRYSTR
 ESIZE   DW      0                       ; SIZE OF ENTRY
 CNTRYID DW      0                       ; COUNTRY ID
 CODPAGE DW      0                       ; CODE PAGE ID
@@ -88,22 +88,22 @@ RESV1   DW      0                       ; RESERVED
 RESV2   DW      0                       ; RESERVED
 CDPOINT DW      0                       ; POINTER TO COUNTRY DATA
         DW      0
-CTRYSTR ENDS
+endstruc
 
-CTRYENT MACRO PARMS
+%macro CTRYENT 1
           CTRYSTR <PARMS>
 CNTRYCNT = CNTRYCNT+1
-        ENDM
+        %endmacro
 ;
-CTRYDAT STRUC
+struc CTRYDAT
         DW      0
         DB      0
         DB      0
         DW      0
         DW      0
-CTRYDAT ENDS
+endstruc
 ;
-CINFO   STRUC
+struc CINFO
         DW      0                       ; COUNTRY ID
         DW      0                       ; CODE PAGE
         DW      0                       ; DATE FORMAT
@@ -126,15 +126,15 @@ CINFO   STRUC
         DD      0                       ; RESERVED
         DB      0                       ; DATA LIST SEPARATOR
         DB      0
-        DW      5 DUP (0)               ; RESERVED
-CINFO   ENDS
+        times 5 dw 0; RESERVED
+endstruc
 ;
 CINFOSIZE       EQU     TYPE CINFO      ; SIZE OF COUNTRY INFO TABLE
 ;
-CTABLE  STRUC
+struc CTABLE
         DB      0FFh
         DB      'CTYINFO'
         DW      CINFOSIZE
-CTABLE  ENDS
+endstruc
 ;
 

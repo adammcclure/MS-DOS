@@ -1,7 +1,7 @@
-PAGE	60,132				   ;AN000;
-NAME	SELECT				   ;AN000;
-TITLE	INPUT.ASM - DOS SELECT.EXE	   ;AN000;
-SUBTTL	input.asm			   ;AN000;
+; PAGE	60,132;AN000;
+; NAME	SELECT;AN000;
+; TITLE	INPUT.ASM - DOS SELECT.EXE;AN000;
+; SUBTTL	input.asm;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
@@ -9,11 +9,11 @@ SUBTTL	input.asm			   ;AN000;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;
-DATA	SEGMENT BYTE PUBLIC 'DATA'      ;AN000; Define Dummy data segment
-	PUBLIC	WR_ICBVEC		;AN000;
-	PUBLIC	KD_BACKSPACE		;AN000;
+SECTION .DATA;AN000; Define Dummy data segment
+	global WR_ICBVEC;AN000;
+	global KD_BACKSPACE;AN000;
 					;
-	INCLUDE PCEQUATE.INC		;AN000;
+	%include "PCEQUATE.INC";AN000;
 					;
 SND_FREQ       EQU  440 		;AN000;    ;frequency of error beep
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1733,5 +1733,5 @@ WR_ALLOW_CHAR_LEN  EQU ($-WR_ALLOW_CHAR)     ;AN000;
 WR_ALLOW_NUM   DB   ' ,0-9,'                 ;AN000;
 WR_ALLOW_NUM_LEN   EQU ($-WR_ALLOW_NUM)      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DATA	ENDS				     ;AN000;
-	END				     ;AN000;
+; END SECTION .DATA;AN000;
+	; END;AN000;

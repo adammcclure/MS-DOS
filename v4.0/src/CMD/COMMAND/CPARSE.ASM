@@ -1,45 +1,45 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)cparse.asm 1.1 85/05/14
 ;	SCCSID = @(#)cparse.asm 1.1 85/05/14
-	INCLUDE comsw.asm
+	%include "comsw.asm"
 
-.xlist
-.xcref
-	INCLUDE DOSSYM.INC
-	INCLUDE DEVSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-.list
-.cref
+; .xlist
+; .xcref
+	%include "DOSSYM.INC"
+	%include "DEVSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BADCD_PTR:WORD		;AC022;
-	EXTRN	BADCPMES_ptr:word	;AC000;
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern BADCD_PTR;AC022;
+	extern BADCPMES_ptr;AC000;
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	comma:byte
-	EXTRN	cpyflag:byte
-	EXTRN	CURDRV:BYTE
-	EXTRN	ELCNT:BYTE
-	EXTRN	ELPOS:BYTE
-	EXTRN	EXPAND_STAR:BYTE
-	EXTRN	SKPDEL:BYTE
-	EXTRN	STARTEL:WORD
-	EXTRN	SWITCHAR:BYTE
-	EXTRN	switch_list:byte
-	EXTRN	TPA:WORD
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern comma
+	extern cpyflag
+	extern CURDRV
+	extern ELCNT
+	extern ELPOS
+	extern EXPAND_STAR
+	extern SKPDEL
+	extern STARTEL
+	extern SWITCHAR
+	extern switch_list
+	extern TPA
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
 
-	EXTRN	CERROR:NEAR
+	extern CERROR
 
-	PUBLIC	BADCDERR		;AC022;
-	PUBLIC	CPARSE
+	global BADCDERR;AC022;
+	global CPARSE
 
 SWCOUNT EQU	5			; Must agree with length of switch_list
 
@@ -100,7 +100,7 @@ SWCOUNT EQU	5			; Must agree with length of switch_list
 ;---------------
 
 CPARSE:
-ASSUME	DS:TRANGROUP,ES:TRANGROUP
+; ASSUME	DS:TRANGROUP,ES:TRANGROUP
 
 	xor	ax,ax
 	mov	[STARTEL],DI			; No path element (Is DI correct?)
@@ -157,7 +157,7 @@ ncperror:
 
 na_switch:
 	mov	dl,':'
-	cmp	byte ptr [si],dl
+	cmp	byte [si],dl
 	jne	anum_chard			; Drive not specified
 
 ;;;;	IF	KANJI		3/3/KK
@@ -225,7 +225,7 @@ testsplat:
 	cmp	al,star
 	jnz	testpath
 	or	bh,2
-	cmp	byte ptr [expand_star],0
+	cmp	byte [expand_star],0
 	jnz	expand_filename
 	jmp	SHORT testpath
 
@@ -258,7 +258,7 @@ testpath:
 	invoke	PATHCHRCMP
 	jnz	notspecial
 	or	bh,4
-	cmp	byte ptr [expand_star],0
+	cmp	byte [expand_star],0
 	jz	no_err_check
 	test	bh,2				; If just hit a '/', cannot have ? or * yet
 	jnz	badperr
@@ -324,12 +324,12 @@ anum_charj:
 	jmp	anum_char
 
 badperr2:
-	mov	dx,offset trangroup:BADCPMES_ptr
+	mov	dx,BADCPMES_ptr
 	jmp	CERROR
 
 badperr:
 BADCDERR:					;AC022; Issue "Invalid Directory"
-	MOV	DX,OFFSET TRANGROUP:BADCD_ptr	;AC022;     message
+	MOV	DX,BADCD_ptr	;AC022;     message
 	JMP	CERROR				;AC022;
 
 cperror:
@@ -382,8 +382,8 @@ Store_swt:
 	PUSH	CX
 	PUSH	CS
 	POP	ES
-ASSUME	ES:TRANGROUP
-	MOV	DI,OFFSET TRANGROUP:switch_list
+; ASSUME	ES:TRANGROUP
+	MOV	DI,switch_list
 	MOV	CX,SWCOUNT
 	OR	BP,fBadSwitch
 	REPNE	SCASB
@@ -398,7 +398,7 @@ out_tokenp:
 	POP	DI
 	POP	ES
 
-ASSUME	ES:NOTHING
+; ASSUME	ES:NOTHING
 out_token:
 	mov	al,0
 	stosb				; null at the end
@@ -413,5 +413,5 @@ move_char:
 	inc	[ELCNT] 		; increment element count for * substi
 	return
 
-TRANCODE	ENDS
-	END
+; END SECTION .TRANCODE
+	; END

@@ -1,39 +1,39 @@
-TITLE   CHKDSK Messages
+; TITLE   CHKDSK Messages
 
 FALSE   EQU     0
 TRUE    EQU     NOT FALSE
 
-.xlist
-.xcref
-        INCLUDE DOSSYM.ASM
+; .xlist
+; .xcref
+        %include "DOSSYM.ASM"
 ;The DOST: prefix is a DEC TOPS/20 directory prefix. Remove it for
 ;   assembly in MS-DOS assembly environments using MASM. The DOSSYM.ASM
 ;   file must exist though, it is included with OEM distribution.
-.cref
-.list
-CODE    SEGMENT PUBLIC BYTE
-CODE    ENDS
+; .cref
+; .list
+SECTION .CODE
+; END SECTION .CODE
 
-CONST   SEGMENT PUBLIC BYTE
-        EXTRN   HIDSIZ:WORD,HIDCNT:WORD,DIRCNT:WORD,DIRSIZ:WORD,FILCNT:WORD
-        EXTRN   FILSIZ:WORD,ORPHCNT:WORD,ORPHSIZ:WORD,BADSIZ:WORD,LCLUS:WORD
-        EXTRN   DOFIX:BYTE
-CONST   ENDS
+SECTION .CONST
+        extern HIDSIZ,HIDCNT,DIRCNT,DIRSIZ,FILCNT
+        extern FILSIZ,ORPHCNT,ORPHSIZ,BADSIZ,LCLUS
+        extern DOFIX
+; END SECTION .CONST
 
-DATA    SEGMENT PUBLIC BYTE
-        EXTRN   DSIZE:WORD
-DATA    ENDS
+SECTION .DATA
+        extern DSIZE
+; END SECTION .DATA
 
-DG      GROUP   CODE,CONST,DATA
+; DG      GROUP   CODE,CONST,DATA
 
 
-CODE    SEGMENT PUBLIC BYTE
-ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
+SECTION .CODE
+; ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
 
-        PUBLIC  RDSKERR,WDSKERR,SETSWITCH,PROMPTYN,DOINT26,CHAINREPORT,REPORT
-        EXTRN   RDONE:NEAR,PRTCHR:NEAR,PRINT:NEAR,DOCRLF:NEAR
-        EXTRN   DISP16BITS:NEAR,FINDCHAIN:NEAR
-        EXTRN   DISP32BITS:NEAR,DISPCLUS:NEAR
+        global RDSKERR,WDSKERR,SETSWITCH,PROMPTYN,DOINT26,CHAINREPORT,REPORT
+        extern RDONE,PRTCHR,PRINT,DOCRLF
+        extern DISP16BITS,FINDCHAIN
+        extern DISP32BITS,DISPCLUS
 
 DOINT26:
         PUSH    CX
@@ -48,17 +48,17 @@ DOINT26:
         POP     AX
         POP     CX
         JNC     RET23
-        MOV     SI,OFFSET DG:WRITING
+        MOV     SI,WRITING
         CALL    DSKERR
         JZ      DOINT26
 RET23:  RET
 
 RDSKERR:
-        MOV     SI,OFFSET DG:READING
+        MOV     SI,READING
         JMP     SHORT DSKERR
 
 WDSKERR:
-        MOV     SI,OFFSET DG:WRITING
+        MOV     SI,WRITING
 DSKERR:
         PUSH    AX
         PUSH    BX
@@ -74,16 +74,16 @@ HAVCOD:
         XOR     AH,AH
         MOV     DI,AX
         SHL     DI,1
-        MOV     DX,WORD PTR [DI+MESBAS] ; Get pointer to error message
+        MOV     DX,word [DI+MESBAS] ; Get pointer to error message
         CALL    PRINT          ; Print error type
-        MOV     DX,OFFSET DG:ERRMES
+        MOV     DX,ERRMES
         CALL    PRINT
         MOV     DX,SI
         CALL    PRINT
-        MOV     DX,OFFSET DG:DRVMES
+        MOV     DX,DRVMES
         CALL    PRINT
 ASK:
-        MOV     DX,OFFSET DG:REQUEST
+        MOV     DX,REQUEST
         CALL    PRINT
         MOV     AX,(STD_CON_INPUT_FLUSH SHL 8)+STD_CON_INPUT
         INT     21H             ; Get response
@@ -116,14 +116,14 @@ PROMPTYN:
         PUSH    SI
         CALL    PRINT
 PAGAIN:
-        MOV     DX,OFFSET DG:YES_NO
+        MOV     DX,YES_NO
         CALL    PRINT
-        MOV     DX,OFFSET DG:CONBUF
+        MOV     DX,CONBUF
         MOV     AH,STD_CON_STRING_INPUT
         INT     21H
         CALL    DOCRLF
-        MOV     SI,OFFSET DG:CONBUF+2
-        CMP     BYTE PTR [SI-1],0
+        MOV     SI,CONBUF+2
+        CMP     byte [SI-1],0
         JZ      PAGAIN
         LODSB
         OR      AL,20H          ;Convert to lower case
@@ -179,7 +179,7 @@ BADSWITCH:
         PUSH    AX
         MOV     DL,AH
         CALL    PRTCHR
-        MOV     DX,OFFSET DG:BADSWMES
+        MOV     DX,BADSWMES
         CALL    PRINT
         POP     AX
 RET10:  RET
@@ -197,10 +197,10 @@ RET10:  RET
 
 CHAINREPORT:
         XOR     DI,DI
-        MOV     BX,OFFSET DG:ORPHMES2
+        MOV     BX,ORPHMES2
         CALL    DISP16BITS
         CALL    FINDCHAIN
-        MOV     BX,OFFSET DG:CHNUMMES
+        MOV     BX,CHNUMMES
         MOV     SI,[ORPHCNT]
         XOR     DI,DI
         CALL    DISP16BITS              ;Tell user how many chains found
@@ -217,56 +217,56 @@ CHAINREPORT:
 
 REPORT:
         MOV     AX,[DSIZE]
-        MOV     BX,OFFSET DG:DSKSPC
+        MOV     BX,DSKSPC
         CALL    DISPCLUS                ;Total size
         CMP     [HIDCNT],0
         JZ      USERLIN
         MOV     AX,[HIDSIZ]             ;Hidden files
-        MOV     BX,OFFSET DG:INMES
+        MOV     BX,INMES
         CALL    DISPCLUS
         MOV     SI,[HIDCNT]
         XOR     DI,DI
-        MOV     BX,OFFSET DG:HIDMES
+        MOV     BX,HIDMES
         CALL    DISP16BITS
 USERLIN:
         CMP     [DIRCNT],0
         JZ      DIRLIN
         MOV     AX,[DIRSIZ]
-        MOV     BX,OFFSET DG:INMES
+        MOV     BX,INMES
         CALL    DISPCLUS
         MOV     SI,[DIRCNT]
         XOR     DI,DI
-        MOV     BX,OFFSET DG:DIRMES
+        MOV     BX,DIRMES
         CALL    DISP16BITS
 DIRLIN:
         CMP     [FILCNT],0
         JZ      ORPHLIN
         MOV     AX,[FILSIZ]             ;Regular files
-        MOV     BX,OFFSET DG:INMES
+        MOV     BX,INMES
         CALL    DISPCLUS
         MOV     SI,[FILCNT]
         XOR     DI,DI
-        MOV     BX,OFFSET DG:FILEMES
+        MOV     BX,FILEMES
         CALL    DISP16BITS
 ORPHLIN:
         MOV     AX,[ORPHSIZ]
         OR      AX,AX
         JZ      BADLIN
-        MOV     BX,OFFSET DG:INMES      ;Orphans
+        MOV     BX,INMES      ;Orphans
         CMP     [DOFIX],0
         JNZ     ALLSET1
-        MOV     BX,OFFSET DG:INMES2     ;Orphans
+        MOV     BX,INMES2     ;Orphans
 ALLSET1:
         CALL    DISPCLUS
         MOV     SI,[ORPHCNT]
         XOR     DI,DI
-        MOV     BX,OFFSET DG:ORPHMES
+        MOV     BX,ORPHMES
         CALL    DISP16BITS
 BADLIN:
         MOV     AX,[BADSIZ]
         OR      AX,AX
         JZ      AVAILIN
-        MOV     BX,OFFSET DG:BADSPC     ;Bad sectors
+        MOV     BX,BADSPC     ;Bad sectors
         CALL    DISPCLUS
 AVAILIN:
         MOV     AX,[DSIZE]
@@ -276,64 +276,64 @@ AVAILIN:
         SUB     AX,[BADSIZ]
         SUB     AX,[ORPHSIZ]
         SUB     AX,[LCLUS]
-        MOV     BX,OFFSET DG:FRESPC
+        MOV     BX,FRESPC
         CALL    DISPCLUS                ;Free space is whats left
-        MOV     AX,DS:WORD PTR [2]      ;Find out about memory
+        MOV     AX,DS:word [2]      ;Find out about memory
         MOV     DX,16
         MUL     DX
         MOV     SI,AX
         MOV     DI,DX
-        MOV     BX,OFFSET DG:TOTMEM
+        MOV     BX,TOTMEM
         CALL    DISP32BITS
-        MOV     AX,DS:WORD PTR [2]
+        MOV     AX,DS:word [2]
         MOV     DX,CS
         SUB     AX,DX
         MOV     DX,16
         MUL     DX
         MOV     SI,AX
         MOV     DI,DX
-        MOV     BX,OFFSET DG:FREMEM
+        MOV     BX,FREMEM
         CALL    DISP32BITS
         RET
 
-CODE    ENDS
+; END SECTION .CODE
 
 
-CONST   SEGMENT PUBLIC BYTE
+SECTION .CONST
 
-        EXTRN   HECODE:BYTE,SWITCHAR:BYTE,NOISY:BYTE,DOFIX:BYTE,CONBUF:BYTE
+        extern HECODE,SWITCHAR,NOISY,DOFIX,CONBUF
 
-        PUBLIC  CRLF2,CRLF,BADVER,BADDRV
-        PUBLIC  BADSUBDIR,CENTRY,CLUSBAD,BADATT,BADSIZM
-        PUBLIC  FIXMES,DIRECMES,CDDDMES
-        PUBLIC  FREEBYMESF_PRE,FREEBYMES_PRE,FREEBYMESF_POST,FREEBYMES_POST
-        PUBLIC  CREATMES,NDOTMES
-        PUBLIC  BADTARG1,BADTARG2,BADCD,FATALMES,BADRDMES
-        PUBLIC  BADDRVM,STACKMES,BADDPBDIR
-        PUBLIC  BADDRVM2
-        PUBLIC  NULNZ,NULDMES,BADCLUS,NORECDOT
-        PUBLIC  NORECDDOT,IDMES1,IDPOST,VNAME,TCHAR
-        PUBLIC  MONTAB,BADREAD_PRE,BADREAD_POST,BADWRITE_PRE
-        PUBLIC  BADWRITE_POST,BADCHAIN,CROSSMES_PRE,CROSSMES_POST
-        PUBLIC  FREEMES
-        PUBLIC  OPNERR
-        PUBLIC  CONTAINS,EXTENTS,NOEXTENTS,INDENT
-        PUBLIC  BADIDBYT,PTRANDIR,PTRANDIR2
+        global CRLF2,CRLF,BADVER,BADDRV
+        global BADSUBDIR,CENTRY,CLUSBAD,BADATT,BADSIZM
+        global FIXMES,DIRECMES,CDDDMES
+        global FREEBYMESF_PRE,FREEBYMES_PRE,FREEBYMESF_POST,FREEBYMES_POST
+        global CREATMES,NDOTMES
+        global BADTARG1,BADTARG2,BADCD,FATALMES,BADRDMES
+        global BADDRVM,STACKMES,BADDPBDIR
+        global BADDRVM2
+        global NULNZ,NULDMES,BADCLUS,NORECDOT
+        global NORECDDOT,IDMES1,IDPOST,VNAME,TCHAR
+        global MONTAB,BADREAD_PRE,BADREAD_POST,BADWRITE_PRE
+        global BADWRITE_POST,BADCHAIN,CROSSMES_PRE,CROSSMES_POST
+        global FREEMES
+        global OPNERR
+        global CONTAINS,EXTENTS,NOEXTENTS,INDENT
+        global BADIDBYT,PTRANDIR,PTRANDIR2
 
 
-MESBAS  DW      OFFSET DG:ERR0
-        DW      OFFSET DG:ERR1
-        DW      OFFSET DG:ERR2
-        DW      OFFSET DG:ERR3
-        DW      OFFSET DG:ERR4
-        DW      OFFSET DG:ERR5
-        DW      OFFSET DG:ERR6
-        DW      OFFSET DG:ERR7
-        DW      OFFSET DG:ERR8
-        DW      OFFSET DG:ERR9
-        DW      OFFSET DG:ERR10
-        DW      OFFSET DG:ERR11
-        DW      OFFSET DG:ERR12
+MESBAS  DW      ERR0
+        DW      ERR1
+        DW      ERR2
+        DW      ERR3
+        DW      ERR4
+        DW      ERR5
+        DW      ERR6
+        DW      ERR7
+        DW      ERR8
+        DW      ERR9
+        DW      ERR10
+        DW      ERR11
+        DW      ERR12
 
 CRLF2   DB      13,10
 CRLF    DB      13,10,"$"
@@ -390,7 +390,7 @@ NDOTMES DB      "   Does not exist.",13,10,"$"
 NULNZ   DB      "   First cluster number is invalid,",13,10
         DB      "    entry truncated.",13,10,"$"
 NULDMES DB      "   Directory is totally empty, no . or ..",13,10,"$"
-BADCLUS DB      "   Allocation error, size adjusted.",13,10,"$"
+BADCLUS DB      "   Allocation error, adjusted_size.",13,10,"$"
 NORECDOT DB     "   Cannot recover . entry, processing continued.",13,10,"$"
 NORECDDOT DB    "   Cannot recover .. entry,"
 
@@ -400,7 +400,7 @@ NORECDDOT DB    "   Cannot recover .. entry,"
 IDPOST  DB      13,10,"$"               ;WARNING this is currently the tail of
                                         ; the previos message!!!
 IDMES1  DB      "Volume "
-VNAME   DB      12 DUP(' ')
+VNAME: times 12 db ' '
         DB      "created $"
 TCHAR   DB      'a'
 MONTAB  DB      "JanFebMarAprMayJunJulAugSepOctNovDec"
@@ -415,8 +415,8 @@ BADWRITE_PRE DB     "Disk error writing FAT $"
 
 BADCHAIN DB     "   Has invalid cluster, file truncated."
 
-BADREAD_POST    LABEL   BYTE
-BADWRITE_POST   LABEL   BYTE
+BADREAD_POST:
+BADWRITE_POST:
 
 ;"<name of file followed by CR LF>CROSSMES_PRE<# of cluster>CROSSMES_POST"
 CROSSMES_POST   DB  13,10,"$"           ;WARNING Is tail of previos messages
@@ -472,6 +472,6 @@ CREATMES DB     "Insufficient room in root directory."
 OPNERR  DB      "   File not found.",13,10,"$"
 
 
-CONST   ENDS
-        END
+; END SECTION .CONST
+        ; END
                     

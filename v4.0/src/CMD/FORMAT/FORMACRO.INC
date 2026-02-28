@@ -11,44 +11,44 @@
 ;******************************************************************************
 ;
 
-      EXTRN Display_Interface:near
+      extern Display_Interface
 
 
 ;-----------------------------------------------------------------------------
 
-Message macro   Message_Name                    ;                               ;AN000;
+%macro Message 1;                               ;AN000;
                                                 ;
-        mov     dx,offset data:Message_Name     ;                               ;AN000;
+        mov     dx,Message_Name     ;                               ;AN000;
         call    Display_Interface               ;                               ;AN000;
-        endm                                    ;                               ;AN000;
+        %endmacro;                               ;AN000;
 
 ;-----------------------------------------------------------------------------
 
-Parse_Message macro                             ;                               ;AN000;
+%macro Parse_Message 0;                               ;AN000;
 
                                                 ;
         push    ds
         mov     dx,data
         mov     ds,dx
-        mov     word ptr Parse_Error_Msg,ax     ;                               ;AN000;
-        mov     dx,offset Parse_Error_Msg       ;                               ;AN000;
+        mov     word Parse_Error_Msg,ax     ;                               ;AN000;
+        mov     dx,Parse_Error_Msg       ;                               ;AN000;
         call    Display_Interface               ;                               ;AN000;
         pop     ds                              ;
-        endm                                    ;                               ;AN000;
+        %endmacro;                               ;AN000;
 
 ;-----------------------------------------------------------------------------
 
-Extended_Message macro                          ;                               ;AN000;
+%macro Extended_Message 0;                               ;AN000;
                                                 ;
 
         push    ds
         mov     dx,data
         mov     ds,dx
-        mov     word ptr Extended_Error_Msg,ax       ;                               ;AN000;
-        mov     dx,offset data:Extended_Error_Msg    ;                               ;AN000;
+        mov     word Extended_Error_Msg,ax       ;                               ;AN000;
+        mov     dx,Extended_Error_Msg    ;                               ;AN000;
         call    Display_Interface               ;                               ;AN000;
         pop     ds
-        endm                                    ;                               ;AN000;
+        %endmacro;                               ;AN000;
 
 ;
 ;*****************************************************************************
@@ -56,35 +56,35 @@ Extended_Message macro                          ;                               
 ;*****************************************************************************
 ;
 
-Procedure       macro   Proc_Name
+%macro Procedure 1
 
-Public  Proc_Name
-Proc_Name    proc
+global Proc_Name
+Proc_Name:
 
-        endm
+        %endmacro
 ;-----------------------------------------------------------------------------
 
-DOS_Call        macro   Function
+%macro DOS_Call 1
 
         mov     ah,Function
         int     21h
 
-        endm
+        %endmacro
 ;-----------------------------------------------------------------------------
 
-Popff   macro
+%macro Popff 0
 
         jmp     $+3
         iret
         push    cs
         call    $-2
 
-        endm
+        %endmacro
 
 
 ;-----------------------------------------------------------------------------
 
-Set_Data_Segment     macro
+%macro Set_Data_Segment 0
 
         push    ax
         mov     ax,data                         ;Point to data segment
@@ -93,9 +93,9 @@ Set_Data_Segment     macro
         pop     es
         pop     ax
 
-assume  ds:data,es:data
+; assume  ds:data,es:data
 
-        endm
+        %endmacro
 
 
 

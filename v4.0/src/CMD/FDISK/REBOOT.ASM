@@ -1,33 +1,33 @@
 
-	title	Reboot Support for FDISK
+	; title	Reboot Support for FDISK
 
-IF1
-	%OUT ASSEMBLING: Reboot
-	%OUT
-ENDIF
+%if 1  ; IF1 - pass-specific
+	%warning ASSEMBLING: Reboot
+	%warning 
+%endif
 
-ROMDATA segment at 040h
+SECTION .ROMDATA
 	org	072h
-BootType	dw	?
-ROMDATA ends
+BootType: dw 0
+; END SECTION .ROMDATA
 
-ROMBIOS segment at 0ffffh
+SECTION .ROMBIOS
 	org	0
-POR	label	far
-ROMBIOS ends
+POR:
+; END SECTION .ROMBIOS
 
-_text	segment byte public 'code'
-	assume	cs:_TEXT
-	assume	ds:nothing
-	assume	es:nothing
-	assume	ss:nothing
+SECTION ._text
+	; assume	cs:_TEXT
+	; assume	ds:nothing
+	; assume	es:nothing
+	; assume	ss:nothing
 
-	public	_reboot
-_reboot proc	near
+	global _reboot
+_reboot:
 
 	mov	ax,ROMDATA
 	mov	ds,ax
-	assume	ds:ROMDATA
+	; assume	ds:ROMDATA
 
 	mov	BootType,1234h
 
@@ -35,9 +35,9 @@ _reboot proc	near
 	cld
 	jmp	POR
 
-_reboot endp
+; ENDP _reboot
 
-_text	ends
+; END SECTION ._text
 
-	end
+	; end
 

@@ -53,21 +53,21 @@
 ;   o	Keep things consistent and force the user to have his software named
 ;	differently from the ROM names (BASIC1, BASIC2, etc).
 
-rom_header  STRUC
-    Signature1	DB  ?
-    Signature2	DB  ?
-    rom_length	DB  ?
-    init_jmp	DB  3 dup (?)
-    name_list	DB  ?
-rom_header  ENDS
+struc rom_header
+    Signature1: db 0
+    Signature2: db 0
+    rom_length: db 0
+    init_jmp: times 3 db 0
+    name_list: db 0
+endstruc
 
-name_struc  STRUC
-    name_len	DB  ?
-    name_text	DB  1 DUP (?)
-    name_jmp	DB  3 DUP (?)
-name_struc  ENDS
+struc name_struc
+    name_len: db 0
+    name_text: times 1 db 0
+    name_jmp: times 3 db 0
+endstruc
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ;
 ; Check for IBM HALO rom cartrides. DS:DX is a pointer to name
@@ -84,7 +84,7 @@ ROM_SCAN:
 ;
 	MOV	AX,0F000h
 	MOV	ES,AX
-	CMP	BYTE PTR ES:[0FFFEh],0FDh
+	CMP	byte ES:[0FFFEh],0FDh
 	JZ	SCAN_IT
 NO_ROM:
 	CLC
@@ -108,7 +108,7 @@ SCAN_MODULE:
 ;
 ; check for a valid header
 ;
-	CMP	WORD PTR ES:[DI],0AA55h
+	CMP	word ES:[DI],0AA55h
 	JZ	SCAN_LIST
 	ADD	AX,080h
 SCAN_END:
@@ -151,9 +151,9 @@ SCAN_NEXT:
 ; found a name. save entry location
 ;
 SCAN_FOUND:
-	CMP	BYTE PTR DS:[SI],'?'
+	CMP	byte DS:[SI],'?'
 	JZ	SCAN_SAVE
-	CMP	BYTE PTR DS:[SI],' '
+	CMP	byte DS:[SI],' '
 	JNZ	SCAN_NEXT
 SCAN_SAVE:
 	MOV	[rom_cs],ES
@@ -178,14 +178,14 @@ ROM_EXEC:
 	MOV	AX,(set_interrupt_vector SHL 8) + int_terminate
 	PUSH	DS
 	MOV	DS,[RESSEG]
-	ASSUME	DS:RESGROUP
-	MOV	DX,OFFSET RESGROUP:EXEC_WAIT
+	; ASSUME	DS:RESGROUP
+	MOV	DX,EXEC_WAIT
 	INT	int_command
 	MOV	DX,DS
 	MOV	ES,DX
-	ASSUME	ES:RESGROUP
+	; ASSUME	ES:RESGROUP
 	POP	DS
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 ;
 ; and create program header and dup all jfn's
 ;
@@ -241,7 +241,7 @@ GOT_STACK:
 	PUSH	[ROM_CS]
 	PUSH	[ROM_IP]
 	MOV	ES,DX
-ASSUME ES:NOTHING
-FOOBAR	PROC	FAR
+; ASSUME ES:NOTHING
+FOOBAR:
 	RET
-FOOBAR	ENDP
+; ENDP FOOBAR

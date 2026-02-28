@@ -2,148 +2,148 @@
 ; Macro file for MSDOS.
 ;
 
-SUBTTL BREAK a listing into pages and give new subtitles
-PAGE
-BREAK MACRO subtitle
- SUBTTL subtitle
- PAGE
-ENDM
+; SUBTTL BREAK a listing into pages and give new subtitles
+; PAGE
+%macro BREAK 1
+ ; SUBTTL subtitle
+ ; PAGE
+%endmacro
 
 BREAK <I_NEED: declare a variable external, if necessary, and allocate a size>
 
 ;
 ; declare a variable external and allocate a size
 ;
-I_NEED MACRO sym,len
- DATA SEGMENT BYTE PUBLIC 'DATA'
- IFIDN <len>,<WORD>
- EXTRN &sym:WORD
- ELSE
- IFIDN <len>,<DWORD>
- EXTRN &sym:DWORD
- ELSE
- EXTRN &sym:BYTE
- ENDIF
- ENDIF
- DATA ENDS
-ENDM
+%macro I_NEED 2
+ SECTION .DATA
+ %ifidn <len>,<WORD>
+ extern &sym
+ %else
+ %ifidn <len>,<DWORD>
+ extern &sym
+ %else
+ extern &sym
+ %endif
+ %endif
+ ; END SECTION .DATA
+%endmacro
 
 ;
 ; call a procedure that may be external. The call will be short.
 ;
-invoke MACRO name
-.xcref
- IF2
- IFNDEF name
- EXTRN name:NEAR
- ENDIF
- ENDIF
-.cref
+%macro invoke 1
+; .xcref
+ %if 1  ; IF2 - pass-specific
+ %ifndef name
+ extern name
+ %endif
+ %endif
+; .cref
  CALL name
-ENDM
+%endmacro
 
-PAGE
+; PAGE
 ;
 ; jump to a label that may be external. The jump will be near.
 ;
-transfer MACRO name
-.xcref
- IF2
- IFNDEF name
- EXTRN name:NEAR
- ENDIF
- ENDIF
-.cref
+%macro transfer 1
+; .xcref
+ %if 1  ; IF2 - pass-specific
+ %ifndef name
+ extern name
+ %endif
+ %endif
+; .cref
  JUMP name
-ENDM
+%endmacro
 
 ;
 ; get a short address in a word
 ;
-short_addr MACRO name
- IFDIF <name>,<?>
-.xcref
- IF2
- IFNDEF name
- EXTRN name:NEAR
- ENDIF
- ENDIF
-.cref
- DW OFFSET DOSGROUP:name
- ELSE
- DW ?
- ENDIF
-ENDM
+%macro short_addr 1
+ %ifnidn <name>,<?>
+; .xcref
+ %if 1  ; IF2 - pass-specific
+ %ifndef name
+ extern name
+ %endif
+ %endif
+; .cref
+ DW name
+ %else
+ dw 0
+ %endif
+%endmacro
 
 ;
 ; get a long address in a dword
 ;
-long_addr MACRO name
-.xcref
- IF2
- IFNDEF name
- EXTRN name:NEAR
- ENDIF
-.cref
+%macro long_addr 1
+; .xcref
+ %if 1  ; IF2 - pass-specific
+ %ifndef name
+ extern name
+ %endif
+; .cref
  DD name
-ENDM
+%endmacro
 
 ;
 ; declare a PROC near or far but PUBLIC nonetheless
 ;
-procedure MACRO name,distance
- PUBLIC name
-name PROC distance
-ENDM
+%macro procedure 2
+ global name
+; name PROC distance
+%endmacro
 
-PAGE
+; PAGE
 ;
 ; define a data item to be public and of an appropriate size/type
 ;
-I_AM MACRO name,size
- PUBLIC name
+%macro I_AM 2
+ global name
 
- IFIDN <size>,<WORD>
-name DW ?
- ELSE
- IFIDN <size>,<DWORD>
-name DD ?
- ELSE
- IFIDN <size>,<BYTE>
-name DB ?
- ELSE
-name DB size DUP (?)
- ENDIF
- ENDIF
- ENDIF
-ENDM
+ %ifidn <size>,<WORD>
+; name DW ?
+ %else
+ %ifidn <size>,<DWORD>
+; name DD ?
+ %else
+ %ifidn <size>,<BYTE>
+; name DB ?
+ %else
+; name DB size DUP (?)
+ %endif
+ %endif
+ %endif
+%endmacro
 
-PAGE
+; PAGE
 ;
 ; call the macro chain
 ;
-do_ext macro
-endm
+%macro do_ext 0
+%endmacro
 
-PAGE
+; PAGE
 
 ;
 ; define an entry in a procedure
 ;
-entry macro name
- PUBLIC name
+%macro entry 1
+ global name
 name:
-endm
+%endmacro
 
 BREAK <ERROR - print a message and then jump to a label>
 
-error macro code
- local a
-.xcref
+%macro error 1
+ ; LOCAL a
+; .xcref
  MOV AL,code
  transfer SYS_RET_ERR
-.cref
-ENDM
+; .cref
+%endmacro
 
 BREAK <JUMP - real jump that links up shortwise>
 ;
@@ -151,72 +151,72 @@ BREAK <JUMP - real jump that links up shortwise>
 ; if it is near enough or 3 byte jump to <lbl>
 ;
 
-jump macro lbl
- local a
-.xcref
+%macro jump 1
+ ; LOCAL a
+; .xcref
  a:
- ifndef lbl&_J ;; is this the first invocation
+ %ifndef lbl;; is this the first invocation
  JMP lbl
- ELSE
- IF lbl&_J GE $
+ %else
+ %if lbl&_J GE $
  JMP lbl
- ELSE
- IF ($-lbl&_J) GT 126 ;; is the jump too far away?
+ %else
+ %if ($-lbl&_J) GT 126;; is the jump too far away?
  JMP lbl
- ELSE ;; do the short one...
+ %else;; do the short one...
  JMP lbl&_J
- ENDIF
- ENDIF
- ENDIF
+ %endif
+ %endif
+ %endif
  lbl&_j = a
-.cref
-endm
+; .cref
+%endmacro
 
 BREAK <RETURN - return from a function>
 
-return macro
- local a
-.xcref
+%macro return 0
+ ; LOCAL a
+; .xcref
 a:
  RET
 ret_l = a
-.cref
-endm
+; .cref
+%endmacro
 
 BREAK <CONDRET - conditional return>
 
-makelab macro l,cc,ncc
- local a
+%macro makelab 3
+ ; LOCAL a
  j&ncc a ;; j<NCC> a:
  return ;; return
  a: ;; a:
  ret_&cc = ret_l ;; define ret_<CC> to be ret_l
-endm
+%endmacro
 
-condret macro cc,ncc
- local a,b
- ifdef ret_l ;; if ret_l is defined
- if (($ - ret_l) le 126) and ($ gt ret_l)
+%macro condret 2
+ ; LOCAL a,b
+ %ifdef ret_l;; if ret_l is defined
+ %if (($ - ret_l) le 126) and ($ gt ret_l)
  ;; if ret_l is near enough then
  a: j&cc ret_l ;; a: j<CC> to ret_l
  ret_&cc = a ;; define ret_<CC> to be a:
- else
+ %else
  makelab a,cc,ncc
- endif
- else
- ifdef ret_&cc ;; if ret_<CC> defined
- if (($ - ret_&cc) le 126) and ($ gt ret_&cc)
+ %endif
+ %else
+ %ifdef ret_;; if ret_<CC> defined
+ %if (($ - ret_&cc) le 126) and ($ gt ret_&cc)
  ;; if ret_<CC> is near enough
  a: j&cc ret_&cc ;; a: j<CC> to ret_<CC>
  ret_&cc = a ;; define ret_<CC> to be a:
- else
+ %else
  makelab a,cc,ncc
- endif
- else
+ %endif
+ %else
  makelab a,cc,ncc
- endif
- endif
-endm
+ %endif
+ %endif
+%endmacro
 ;condret macro cc,ncc
 ; local a,b
 ; ifdef ret_l ; if ret_l is defined
@@ -243,32 +243,32 @@ endm
 ;
 BREAK <RETZ - return if zero, links up shortwise if necessary>
 
-retz macro
+%macro retz 0
  condret z,nz
-endm
+%endmacro
 
 BREAK <RETNZ - return if not zero, links up shortwise if necessary>
 
-retnz macro
+%macro retnz 0
  condret nz,z
-endm
+%endmacro
 
 BREAK <RETC - return if carry set, links up shortwise if necessary>
 
-retc macro
+%macro retc 0
  condret c,nc
-endm
+%endmacro
 
 BREAK <RETNC - return if not carry, links up shortwise if necessary>
 
-retnc macro
+%macro retnc 0
  condret nc,c
-endm
+%endmacro
 
 BREAK <CONTEXT - set the DOS context to a particular register>
 
-context macro r
+%macro context 1
  PUSH SS
  POP r
- ASSUME r:DOSGROUP
-endm
+ ; ASSUME r:DOSGROUP
+%endmacro

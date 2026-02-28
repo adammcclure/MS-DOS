@@ -1,10 +1,10 @@
 ;
-page 80,132
+; page 80,132
 ;0
-title CP/DOS DosChgFilePtr mapper	    * * *
+; title CP/DOS DosChgFilePtr mapper	    * * *
 ;
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -24,22 +24,22 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-	    public   doschgfileptr
-	    .sall
-	    .xlist
-	    include  macros.inc
-	    .list
+	    global doschgfileptr
+	    ; .sall
+	    ; .xlist
+	    %include "macros.inc"
+	    ; .list
 
-str	    struc
-old_bp	    dw	     ?
-return	    dd	     ?
-newptr	    dd	     ?	     ; new file pointer
-movtyp	    dw	     ?	     ; move type
-dstnce	    dd	     ?	     ; distance to be moved
-handle	    dw	     ?	     ; file handle
-str	    ends
+struc str
+old_bp: dw 0
+return: dd 0
+newptr: dd 0; new file pointer
+movtyp: dw 0; move type
+dstnce: dd 0; distance to be moved
+handle: dw 0; file handle
+endstruc
 
-doschgfileptr  proc  far
+doschgfileptr:
 	    Enter    doschgfileptr	 ; push registers
 
 	    push     es
@@ -54,15 +54,15 @@ doschgfileptr  proc  far
 	    jc	     exit		 ; return if error
 
 	    lds      si,[bp].newptr	   ; set pointer
-	    mov      word ptr [si],ax	   ; save the new pointer
-	    mov      word ptr [si]+2,dx    ;
+	    mov      word [si],ax	   ; save the new pointer
+	    mov      word [si]+2,dx    ;
 	    sub      ax,ax		   ; set godd return code
 
 exit:	    mexit		       ;pop registers
-	    ret      size str - 6      ;return
+	    ret      str_size - 6      ;return
 
-doschgfileptr endp
+; ENDP doschgfileptr
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

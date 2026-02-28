@@ -1,8 +1,8 @@
 
 
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	title	ELIMFUNC - MEMM functions module
+	; title	ELIMFUNC - MEMM functions module
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -36,23 +36,23 @@
 ;   R_CODE segment.
 ;
 ;******************************************************************************
-.lfcond
-.386p
-	page
+; .lfcond
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	ELIM_Entry
-	public	EFunTab
-	public	EFUN_CNT
+	global ELIM_Entry
+	global EFunTab
+	global EFUN_CNT
 ;
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include vdmseg.inc
+	%include "vdmseg.inc"
 
 FALSE	equ	0
 TRUE	equ	not FALSE
@@ -61,18 +61,18 @@ TRUE	equ	not FALSE
 ;			E X T E R N A L    R E F E R E N C E S
 ;******************************************************************************
 ;
-_DATA	segment
-	extrn	Active_Status:byte
-	extrn	Auto_Mode:byte
-_DATA	ends
+SECTION ._DATA
+	extern Active_Status
+	extern Auto_Mode
+; END SECTION ._DATA
 
-_TEXT	segment
-	extrn	_AutoUpdate:near	; update auto mode status
-	extrn	GoVirtual:near
-	extrn	RRProc:near		; Return processor to real mode(RRTrap)
-_TEXT	ends
+SECTION ._TEXT
+	extern _AutoUpdate; update auto mode status
+	extern GoVirtual
+	extern RRProc; Return processor to real mode(RRTrap)
+; END SECTION ._TEXT
 
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
@@ -83,21 +83,21 @@ _TEXT	ends
 ;
 ;******************************************************************************
 ;
-R_CODE	segment
-	assume	cs:R_CODE, ds:DGROUP, es:DGROUP
+SECTION .R_CODE
+	; assume	cs:R_CODE, ds:DGROUP, es:DGROUP
 ;
 ;	ELIM functions table	- far calls
 ;
-EFunTab label	dword
-	dw	offset	E_GetStatus
+EFunTab:
+	dw	E_GetStatus
 	dw	seg	_TEXT
 
-	dw	offset	E_ONOFF
+	dw	E_ONOFF
 	dw	seg	_TEXT
 
 EFUN_CNT	equ	($-EFunTab)/4
 
-	page
+	; page
 ;******************************************************************************
 ;	ELIM_Entry - entry point for general ELIM functions
 ;
@@ -116,7 +116,7 @@ EFUN_CNT	equ	($-EFunTab)/4
 ;	USED: none
 ;
 ;******************************************************************************
-ELIM_Entry	proc	far
+ELIM_Entry:
 ;
 	push	bx
 	push	ds
@@ -141,18 +141,18 @@ EE_inv_func:
 	stc
 	jmp	short EE_exit
 ;
-ELIM_Entry	endp
+; ENDP ELIM_Entry
 
-R_CODE	ends
+; END SECTION .R_CODE
 
-	page
+	; page
 ;******************************************************************************
 ;
 ;	Code Segment _TEXT
 ;
 ;******************************************************************************
-_TEXT	segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP
 
 ;******************************************************************************
 ;	E_GetStatus - get ELIM/VDM status
@@ -168,7 +168,7 @@ _TEXT	segment
 ;	USED: none
 ;
 ;******************************************************************************
-E_GetStatus	proc	far
+E_GetStatus:
 ;
 	xor	ah,ah			; init to on
 	cmp	[Auto_Mode],0		; Q: auto mode ?
@@ -181,7 +181,7 @@ not_auto:
 EGS_exit:
 	ret
 ;
-E_GetStatus	endp
+; ENDP E_GetStatus
 
 ;******************************************************************************
 ;	E_ONOFF  - general ON/OFF code for ELIM
@@ -198,7 +198,7 @@ E_GetStatus	endp
 ;	USED: none
 ;
 ;******************************************************************************
-E_ONOFF proc	far
+E_ONOFF:
 ;
 	cmp	al,0			;Q: turn it on ?
 	jne	EOO_OFF 		;  N: check for OFF/AUTO
@@ -259,10 +259,10 @@ EOO_inv:
 	stc
 	jmp	short EOO_exit
 ;
-E_ONOFF endp
+; ENDP E_ONOFF
 
 ;
-_TEXT	ends
+; END SECTION ._TEXT
 
-	end
+	; end
 

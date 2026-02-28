@@ -1,8 +1,8 @@
 
 
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	TITLE	INIT - initialization code for MEMM
+	; TITLE	INIT - initialization code for MEMM
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -44,41 +44,41 @@
 ;   for EMM and VDM.
 ;
 ;******************************************************************************
-.lfcond
-.386p
-	page
+; .lfcond
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	Init_MEMM386
+	global Init_MEMM386
 
-	public	pool_size
-	public	msg_flag
-	public	Active_Status
-	public	Auto_Mode
-	public	dos_version
-	public	TEXT_Seg
-	public	STACK_Seg
-	public	GDT_Seg
-	public	IDT_Seg
-	public	TSS_Seg
-	public	driver_end
-	public	powr10
+	global pool_size
+	global msg_flag
+	global Active_Status
+	global Auto_Mode
+	global dos_version
+	global TEXT_Seg
+	global STACK_Seg
+	global GDT_Seg
+	global IDT_Seg
+	global TSS_Seg
+	global driver_end
+	global powr10
 
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include vdmseg.inc
-	include vdmsel.inc	; for Deb386 Init
-	include desc.inc	; "   "      "
-	include emm386.inc
-	include driver.equ
-	include driver.str
-	include ascii_sm.equ
+	%include "vdmseg.inc"
+	%include "vdmsel.inc"; for Deb386 Init
+	%include "desc.inc"; "   "      "
+	%include "emm386.inc"
+	%include "driver.equ"
+	%include "driver.str"
+	%include "ascii_sm.equ"
 ;
 ;  maximum value for SIZE parameter
 ;
@@ -97,14 +97,14 @@ DOS3X_ADJ	equ	1		; DOS 3.x base memory adjustment
 ;   macro for printing messages located in LAST segment
 ;	ENTRY: DX = offset LAST:message
 ;
-PRINT_MSG	macro
+%macro PRINT_MSG 0
 	push	ds
 	push	seg LAST
 	pop	ds		; ds = LAST
 	mov	ah,PRINT_STRING
 	int	MS_DOS		; output init message
 	pop	ds
-	ENDM
+	%endmacro
 
 
 ;******************************************************************************
@@ -112,17 +112,17 @@ PRINT_MSG	macro
 ;******************************************************************************
 ;
 ;
-_DATA	segment
+SECTION ._DATA
 
-	extrn	PF_Base:word
+	extern PF_Base
 ;	 extrn	 himem_use:byte      ;* this is defined in oemproc.asm since it
 				    ;  deals with memory so oem dependent
-	extrn	ext_size:word	    ; size of extended memory allocated
-	extrn	sys_size:word	    ; size of system memory allocated
+	extern ext_size; size of extended memory allocated
+	extern sys_size; size of system memory allocated
 
-_DATA	ends
+; END SECTION ._DATA
 
-ABS0	segment use16 at 0
+SECTION .ABS0
 	org 4*15h		; int 15h vector
 i15_vector	dw	0
 		dw	0
@@ -130,70 +130,70 @@ i15_vector	dw	0
 	org 4*67h		; int 67h vector
 i67_vector	dw	0
 		dw	0
-ABS0	ends
+; END SECTION .ABS0
 
 ;
-R_CODE	segment
-extrn	i15_Entry:near		; int15h patch code
-extrn	EMM_rEntry:near 	; int67h patch code
-extrn	i15_Old:word		; old int15 vector
-R_CODE	ends
+SECTION .R_CODE
+extern i15_Entry; int15h patch code
+extern EMM_rEntry; int67h patch code
+extern i15_Old; old int15 vector
+; END SECTION .R_CODE
 
 ;
-_TEXT	segment
+SECTION ._TEXT
 
-	extrn	Inst_chk_f:far		; check for MEMM already installed
-	extrn	FarGoVirtual:far	; go to virtual mode
-	extrn	get_token:near		; get token from command line
+	extern Inst_chk_f; check for MEMM already installed
+	extern FarGoVirtual; go to virtual mode
+	extern get_token; get token from command line
 
-_TEXT	ends
+; END SECTION ._TEXT
 ;
-LAST	segment
+SECTION .LAST
 
-	extrn	VerifyMachine:near
-	extrn	InitMess:byte
-	extrn	InstallMess:byte
-	extrn	ISizeMess:byte
-	extrn	ExtSizeMess:byte
-	extrn	SysSizeMess:byte
-	extrn	PFBAMess:byte
-	extrn	ActiveMess:byte
-	extrn	InactiveMess:byte
-	extrn	AutoMess:byte
-	extrn	InvParm:byte
-	extrn	InvPFBA:byte
-	extrn	InvMRA:byte
-	extrn	Adj_Size:byte
-	extrn	InsfMem:byte
-	extrn	Incorrect_DOS:byte
-	extrn	Incorrect_PRT:byte
-	extrn	Already_Inst:byte
-	extrn	No_PF_Avail:byte
-	extrn	PFWarning:byte
+	extern VerifyMachine
+	extern InitMess
+	extern InstallMess
+	extern ISizeMess
+	extern ExtSizeMess
+	extern SysSizeMess
+	extern PFBAMess
+	extern ActiveMess
+	extern InactiveMess
+	extern AutoMess
+	extern InvParm
+	extern InvPFBA
+	extern InvMRA
+	extern Adj_Size
+	extern InsfMem
+	extern Incorrect_DOS
+	extern Incorrect_PRT
+	extern Already_Inst
+	extern No_PF_Avail
+	extern PFWarning
 
-	extrn	Is386:far		; check for 386
-	extrn	EMM_Init:near		; initialization for EMM data structs
-	extrn	AllocMem:near		; allocate extended memory routine
-	extrn	InitTab:near		; OEM init code for tables
-	extrn	VDM_Init:near		; initialize VDM
-	extrn	DeallocMem:near 	; deallocate hi/extended memory routine
+	extern Is386; check for 386
+	extern EMM_Init; initialization for EMM data structs
+	extern AllocMem; allocate extended memory routine
+	extern InitTab; OEM init code for tables
+	extern VDM_Init; initialize VDM
+	extern DeallocMem; deallocate hi/extended memory routine
 
-	extrn	find_phys_pages:near	; find the mappable pages in 0-1M range
-	extrn	exclude_segments:near	; exclude segments within a range
-	extrn	estb_mach_state:near	; establish machine environment
+	extern find_phys_pages; find the mappable pages in 0-1M range
+	extern exclude_segments; exclude segments within a range
+	extern estb_mach_state; establish machine environment
 
-LAST	ends
+; END SECTION .LAST
 
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 
-	page
+	; page
 ;******************************************************************************
 ;	Data segment
 ;******************************************************************************
-_DATA	segment
+SECTION ._DATA
 ;
 dos_version	db	0h	; MS-DOS version
 pool_size	dw	0	; size of EMM Pages Pool in kbytes
@@ -203,7 +203,7 @@ driver_end	dw	0	; end of driver -> driver brk address
 		dw	seg LAST
 powr10		dw	1,10,100,1000,10000
 max_arg_len	equ	11		; maximum length of argument on cmd line
-arg_str 	db	max_arg_len+1	dup(0)
+arg_str 	db	max_arg_len+times 1 db 0
 ;
 ;  Active_Status is used to signal the termination condition for the
 ;	driver.  After the driver installs, Active_Status holds the
@@ -222,7 +222,7 @@ GDT_Seg 	dw	seg GDT 	; current segment for GDT
 IDT_Seg 	dw	seg IDT 	; current segment for IDT
 TSS_Seg 	dw	seg TSS 	; current segment for TSS
 
-_DATA	ends
+; END SECTION ._DATA
 
 
 ;******************************************************************************
@@ -231,8 +231,8 @@ _DATA	ends
 ;
 ;******************************************************************************
 ;
-_TEXT	segment
-	assume	cs:_TEXT
+SECTION ._TEXT
+	; assume	cs:_TEXT
 
 
 ;*************************************************************************
@@ -241,16 +241,16 @@ _TEXT	segment
 ;			also part of a .COM file
 ;
 ;*************************************************************************
-get_token_far		proc	far
+get_token_far:
 	call	get_token
 	ret
-get_token_far		endp
-_TEXT	ends
+; ENDP get_token_far
+; END SECTION ._TEXT
 
-LAST	segment
-	assume	cs:LAST, ds:DGROUP, es:DGROUP
+SECTION .LAST
+	; assume	cs:LAST, ds:DGROUP, es:DGROUP
 
-	page
+	; page
 ;******************************************************************************
 ;	Init - Initialization routine for MEMM.
 ;
@@ -268,7 +268,7 @@ LAST	segment
 ;	USED: none
 ;
 ;******************************************************************************
-Init_MEMM386	proc	far
+Init_MEMM386:
 	push	bx		; BP+10
 	push	dx		; BP+8
 	push	bp		; BP+6
@@ -287,11 +287,11 @@ Init_MEMM386	proc	far
 ;
 ;	initialize break address to not install
 ;
-	mov	word ptr ES:[bx.BRK_OFF],0000	; set it
+	mov	word ES:[bx.BRK_OFF],0000	; set it
 	mov	ax,seg R_CODE		; get brk addr segment
 	inc	ax			; reserve dos link pointer
 	mov	ES:[bx.BRK_SEG],ax	; break addr = cs - don't install
-	mov	byte ptr es:[bx.NUM_UNITS],0	; 0 - don't install
+	mov	byte es:[bx.NUM_UNITS],0	; 0 - don't install
 ;
 ;	verify that MEMM is not already installed
 ;
@@ -461,11 +461,11 @@ IE_setbrk:
 	pop	ds				; DS:SI <-- GDT
 	mov	bx, DEBX_GSEL
 	and	bl, SEL_LOW_MASK
-	mov	word ptr [bx], 1800h		; Limit = 20M
-	mov	word ptr [bx + 2], 0	
-	mov	byte ptr [bx + 4], 0		; Base = 0
-	mov	byte ptr [bx + 5], D_DATA0	; Ring 0 Data
-	mov	byte ptr [bx + 6], 80h		; Page Granularity
+	mov	word [bx], 1800h		; Limit = 20M
+	mov	word [bx + 2], 0	
+	mov	byte [bx + 4], 0		; Base = 0
+	mov	byte [bx + 5], D_DATA0	; Ring 0 Data
+	mov	byte [bx + 6], 80h		; Page Granularity
 
 	mov	ax, 4400h			; Initialize Deb386
 	mov	bx, DEBX_GSEL			; BIG selector for all addresses
@@ -491,14 +491,14 @@ IE_exit:
 ;
 ;  display signon message first
 ;
-	mov	dx,offset LAST:InitMess
+	mov	dx,InitMess
 	PRINT_MSG
 ;
 ; check for messages to display
 ;
 IE_Install:
 	mov	cx,MAX_MSG		; number of potential msgs
-	mov	si,offset msg_tbl	; table of messages
+	mov	si,msg_tbl	; table of messages
 m_loop:
 	test	[msg_flag],01		; q:is this one set?
 	jz	m_inc_ptr		; n: increment table pointer
@@ -514,24 +514,24 @@ m_inc_ptr:
 	loop	m_loop
 ;
 	mov	ax,[pool_size]		; size of EMM page pool in Kbytes
-	mov	di,offset LAST:ISizeMess; store decimal size in ASCII here.
+	mov	di,ISizeMess; store decimal size in ASCII here.
 	call	b2asc10 		; convert to ASCII...
 ;
 	mov	ax,[ext_size]
-IFNDEF	NOHIMEM
+%ifndef NOHIMEM
 	add	ax,[hi_size]
-endif
-	mov	di,offset LAST:ExtSizeMess ; store decimal size of ext/hi alloc
+%endif
+	mov	di,ExtSizeMess ; store decimal size of ext/hi alloc
 					   ; here
 	call	b2asc10
 
 	mov	ax,[sys_size]
-	mov	di,offset LAST:SysSizeMess ; system memory allocated
+	mov	di,SysSizeMess ; system memory allocated
 	call	b2asc10
 ;
 	mov	ax,[PF_Base]		; page frame base addr
 	shr	ax,8			; shift right to get significant digits
-	mov	di,offset LAST:PFBAMess+1; where to put ascii base address
+	mov	di,PFBAMess+1; where to put ascii base address
 base_loop:
 	push	ax			; save all digits
 	and	ax,0fh			; get one digit
@@ -547,7 +547,7 @@ skip_dig_adj:
 	shr	ax,4			; q: done?
 	jnz	base_loop		; n: do another
 ;					  y: print it
-	mov	dx,offset LAST:InstallMess
+	mov	dx,InstallMess
 	PRINT_MSG
 ;
 ;	 mov	 dx,offset LAST:AutoMess	 ; assume AUTO
@@ -567,20 +567,20 @@ skip_dig_adj:
 	cli				; clear ints
 	xor	ax,ax
 	mov	ds,ax				; DS -> 0:0
-	ASSUME	DS:ABS0
-	les	bx,dword ptr [i15_vector]	; DS:BX -> pts to old one
-	mov	ax,offset R_CODE:i15_Entry
+	; ASSUME	DS:ABS0
+	les	bx,dword [i15_vector]	; DS:BX -> pts to old one
+	mov	ax,i15_Entry
 	mov	[i15_vector],ax 		; set new ip
 	mov	ax,seg R_CODE			;
 	mov	[i15_vector+2],ax		; set new cs
 	mov	ds,ax				; DS -> R_CODE
-	ASSUME	DS:R_CODE
+	; ASSUME	DS:R_CODE
 	mov	[i15_Old],bx			; save old IP
 	mov	[i15_Old+2],es			; save old CS
 	popf					; restore IF
 	mov	ax,seg DGROUP
 	mov	ds,ax				; DS -> dgroup
-	ASSUME	DS:DGROUP
+	; ASSUME	DS:DGROUP
 ;
 ;   now patch int67 for EMM functions
 ;
@@ -588,15 +588,15 @@ skip_dig_adj:
 	cli				; clear ints
 	xor	ax,ax
 	mov	ds,ax				; DS -> 0:0
-	ASSUME	DS:ABS0
-	mov	ax,offset R_CODE:EMM_rEntry
+	; ASSUME	DS:ABS0
+	mov	ax,EMM_rEntry
 	mov	[i67_vector],ax 		; set new ip
 	mov	ax,seg R_CODE			;
 	mov	[i67_vector+2],ax		; set new cs
 	popf					; restore IF
 	mov	ax,seg DGROUP
 	mov	ds,ax				; DS -> dgroup
-	ASSUME	DS:DGROUP
+	; ASSUME	DS:DGROUP
 ;
 ; all done with no errors
 ;
@@ -616,10 +616,10 @@ IE_not_installed:
 	mov	ax,ERROR		; error return
 	jmp	IE_leave
 ;
-Init_MEMM386	endp
+; ENDP Init_MEMM386
 
 ;
-page
+; page
 ;******************************************************************************
 ;
 ;	parser - parse out MEMM parameters and set appropriate values
@@ -638,7 +638,7 @@ page
 ;
 ;******************************************************************************
 ;
-parser	proc	near
+parser:
 	push	ax		; BP+16
 	push	bx		; BP+14
 	push	cx		; BP+12
@@ -679,7 +679,7 @@ jmp_Xs:
 	jmp	chk_Xs
 
 ploop1:
-	mov	si,offset DGROUP:arg_str; ds:si = storage for argument
+	mov	si,arg_str; ds:si = storage for argument
 	mov	cx,max_arg_len		; maximum length of argument
 	call	get_token_far		; get next token
 	or	cx,cx			; q: anything there?
@@ -705,7 +705,7 @@ inv_parm:
 	jmp	short ploop1		; continue
 chk_siz:
 	mov	bx,cx			; bx = number of digits
-	mov	byte ptr [bx+si-1],' '	; terminate string
+	mov	byte [bx+si-1],' '	; terminate string
 	mov	cx,10			; decimal multiplier
 	xor	dx,dx			; clear upper 16 bits
 	xor	bx,bx			; clear temporary accumulator
@@ -904,7 +904,7 @@ parse_xit:				; restore registers and exit
 	pop	bx
 	pop	ax
 	ret
-parser	endp
+; ENDP parser
 ;
 ;   parser local data
 ;
@@ -912,23 +912,23 @@ parser	endp
 ;AUTO_LEN	 equ	 $-AUTO_parm
 
 
-msg_tbl 	label	word
-		dw	offset LAST:Incorrect_PRT ; Incorrect Processor Type
-		dw	offset LAST:Incorrect_DOS ; Incorrect Version of DOS
-		dw	offset LAST:InsfMem	  ; Insufficient Memory
-		dw	offset LAST:Already_Inst  ; Already Installed
-		dw	offset LAST:No_PF_Avail   ; No Page Frame Space Avail
-kill_end	label	word		; End of messages that kill driver
-		dw	offset LAST:Adj_Size	; Pool Size Adjusted
-		dw	offset LAST:InvPFBA	; Page Frame Base Addr Adjusted
-		dw	offset LAST:InvMRA	; Map Register Adjusted
-		dw	offset LAST:InvParm	; Invalid Parameter msg
-		dw	offset LAST:PFWarning	; Page Frame warning message
+msg_tbl:
+		dw	Incorrect_PRT ; Incorrect Processor Type
+		dw	Incorrect_DOS ; Incorrect Version of DOS
+		dw	InsfMem	  ; Insufficient Memory
+		dw	Already_Inst  ; Already Installed
+		dw	No_PF_Avail   ; No Page Frame Space Avail
+kill_end:; End of messages that kill driver
+		dw	Adj_Size	; Pool Size Adjusted
+		dw	InvPFBA	; Page Frame Base Addr Adjusted
+		dw	InvMRA	; Map Register Adjusted
+		dw	InvParm	; Invalid Parameter msg
+		dw	PFWarning	; Page Frame warning message
 MAX_MSG 	equ	(this byte - msg_tbl)/2 ; # of messages to display
 KILL_MSG	equ	(this byte - kill_end)/2; 1st four will abort driver
 ;
 
-page
+; page
 ;******************************************************************************
 ; handle_Xswitch - processes the X switch to make some segments non-mappable  ;
 ;									      ;
@@ -944,7 +944,7 @@ page
 ; author: ISP 8/24/88					      ;
 ;									      ;
 ;*****************************************************************************;
-handle_XSwitch	proc	near
+handle_XSwitch:
 ;
 	cmp	cx,5	    ; must have atleast 5 symbols
 	jb	error_Xs    ;
@@ -975,7 +975,7 @@ error_Xs:
 	stc		    ; set error and
 	ret		    ; return
 ;
-handle_XSwitch	endp
+; ENDP handle_XSwitch
 
 ;-----------------------------------------------------------------------;
 ; htoi									;
@@ -999,7 +999,7 @@ handle_XSwitch	endp
 ;-----------------------------------------------------------------------;
 
 
-htoi	proc	near
+htoi:
 	push	bx
 	xor	ax,ax
 	mov	bx,ax
@@ -1041,11 +1041,11 @@ htoi_not_digit:
 htoi_done:
 	pop	bx
 	ret
-htoi	endp
+; ENDP htoi
 
 
 
-page
+; page
 ;******************************************************************************
 ;
 ;	b2asc10 - converts binary to ascii decimal and store at CS:DI
@@ -1064,7 +1064,7 @@ page
 ;
 ;******************************************************************************
 ;
-b2asc10 proc	near
+b2asc10:
 ;
 	push	ax
 	push	bx
@@ -1111,13 +1111,13 @@ b2_make_strg:
 	pop	ax
 	ret				; *** return ***
 ;
-b2asc10 endp
+; ENDP b2asc10
 ;
 
-LAST	ends				; End of segment
+; END SECTION .LAST; End of segment
 ;
 
-	end				; End of module
+	; end; End of module
 
 
 

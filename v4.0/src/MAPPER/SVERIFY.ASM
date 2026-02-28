@@ -1,9 +1,9 @@
-page 80,132
+; page 80,132
 
-title CP/DOS DosSetVerify mapper
+; title CP/DOS DosSetVerify mapper
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -20,21 +20,21 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dossetverify
-            .sall
-            .xlist
-            include  macros.inc
-            .list
+            global dossetverify
+            ; .sall
+            ; .xlist
+            %include "macros.inc"
+            ; .list
 
 error_code  equ      0002h
 
-str         struc
-old_bp      dw       ?
-return      dd       ?
-verify      dw       ?      ; new verify settings value
-str         ends
+struc str
+old_bp: dw 0
+return: dd 0
+verify: dw 0; new verify settings value
+endstruc
 
-dossetverify proc    far
+dossetverify:
             Enter    dossetverify          ; push registers
 
             mov      ax,[bp].verify        ; check request
@@ -50,10 +50,10 @@ dossetverify proc    far
 error:      mov      ax,error_code         ; set error return code
 
 exit:       Mexit                          ; pop registers
-            ret      size str - 6          ; return
+            ret      str_size - 6          ; return
 
-dossetverify endp
+; ENDP dossetverify
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

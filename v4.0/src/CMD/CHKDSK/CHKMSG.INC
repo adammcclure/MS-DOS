@@ -6,18 +6,18 @@
 ;                                                                               ;an000;bgb
                                                                                 ;an000;bgb
                                                                                 ;an000;bgb
-Define_Msg macro Message_Name                   ;                               ;AN000;
+%macro Define_Msg 1;                               ;AN000;
                                                 ;                               ;an000;bgb
 Create_Msg Message_Name,Message_Number,Handle,Sublist,Count,Class,Function,Input;AN000;
                                                 ;                               ;an000;bgb
-        endm                                    ;                               ;AN000;
+        %endmacro;                               ;AN000;
                                                                                 ;an000;bgb
 ;-----------------------------------------------------------------------------  ;an000;bgb
                                                                                 ;an000;bgb
-Create_Msg macro Parm1,Parm2,Parm3,Parm4,Parm5,Parm6,Parm7,Parm8;               ;AN000;
+%macro Create_Msg 8;               ;AN000;
                                                                                 ;an000;bgb
-Public  Parm1                                                                   ;an000;bgb
-Parm1   label   word                            ;                               ;AN000;
+global Parm1;an000;bgb
+Parm1:;                               ;AN000;
         dw      Parm2                           ;                               ;AN000;
         dw      Parm3                           ;                               ;AN000;
         dw      Parm4                           ;                               ;AN000;
@@ -25,7 +25,7 @@ Parm1   label   word                            ;                               
         db      Parm6                           ;                               ;AN000;
         db      Parm7                           ;                               ;AN000;
         dw      Parm8                           ;                               ;AN000;
-        endm                                    ;                               ;AN000;
+        %endmacro;                               ;AN000;
                                                                                 ;an000;bgb
                                                                                 ;an000;bgb
 ;                                                                               ;an000;bgb
@@ -34,43 +34,43 @@ Parm1   label   word                            ;                               
 ;*****************************************************************************  ;an000;bgb
 ;                                                                               ;an000;bgb
                                                                                 ;an000;bgb
-        Extrn   Arg_Buf:Byte                                                    ;an000;bgb
-ifdef fsexec                                                                    ;an038;bgb
-        Extrn   Drive_Letter_Msg:Byte                                           ;an038;bgb;an000;bgb
-endif                                                                           ;an038;bgb
-        Extrn   TChar:Byte                                                      ;an000;bgb
-        Extrn   Cross_Clus:Byte                                                 ;an000;bgb
-        extrn   sernum:word                                                     ;an024;bgb
+        extern Arg_Buf;an000;bgb
+%ifdef fsexec;an038;bgb
+        extern Drive_Letter_Msg;an038;bgb;an000;bgb
+%endif;an038;bgb
+        extern TChar;an000;bgb
+        extern Cross_Clus;an000;bgb
+        extern sernum;an024;bgb
 ;                                                                               ;an000;bgb
 ;*****************************************************************************  ;an000;bgb
 ; Public Data                                                                   ;an000;bgb
 ;*****************************************************************************  ;an000;bgb
 ;                                                                               ;an000;bgb
                                                                                 ;an000;bgb
-        Public  Sublist_msg_Idmes                                               ;an000;bgb
-        Public  BadDrvm                                                         ;an000;bgb
-        Public  YES_BYTE                                                        ;an000;bgb
-        Public  NO_BYTE                                                         ;an000;bgb
-        Public  yn_arg                                                          ;an000;bgb
-        Public  orphcnt                                                         ;an000;bgb
-        Public  report_arg                                                      ;an000;bgb
-        Public  rarg1                                                           ;an000;bgb
-        Public  rarg3                                                           ;an000;bgb
-        Public  badrw_str                                                       ;an000;bgb
-        Public  badrw_num                                                       ;an000;bgb
-        Public  block_num                                                       ;an000;bgb
-        Public  fatal_arg1                                                      ;an000;bgb
-        Public  fatal_arg2                                                      ;an000;bgb
-        Public  file_arg1                                                       ;an000;bgb
-        Public  file_arg2                                                       ;an000;bgb
-        Public  free_arg1                                                       ;an000;bgb
-        Public  free_arg2                                                       ;an000;bgb
-        Public  free_arg3                                                       ;an000;bgb
-        Public  Fatal_End                                                       ;an000;bgb
-        Public  MonTab                                                          ;an000;bgb
-        public  fatmsg1                 ;an024;bgb                              ;an000;bgb
-        public  fatmsg2                 ;an024;bgb                              ;an000;bgb
-        extrn   orphsiz:word                                                    ;an049;bgb
+        global Sublist_msg_Idmes;an000;bgb
+        global BadDrvm;an000;bgb
+        global YES_BYTE;an000;bgb
+        global NO_BYTE;an000;bgb
+        global yn_arg;an000;bgb
+        global orphcnt;an000;bgb
+        global report_arg;an000;bgb
+        global rarg1;an000;bgb
+        global rarg3;an000;bgb
+        global badrw_str;an000;bgb
+        global badrw_num;an000;bgb
+        global block_num;an000;bgb
+        global fatal_arg1;an000;bgb
+        global fatal_arg2;an000;bgb
+        global file_arg1;an000;bgb
+        global file_arg2;an000;bgb
+        global free_arg1;an000;bgb
+        global free_arg2;an000;bgb
+        global free_arg3;an000;bgb
+        global Fatal_End;an000;bgb
+        global MonTab;an000;bgb
+        global fatmsg1;an024;bgb                              ;an000;bgb
+        global fatmsg2;an024;bgb                              ;an000;bgb
+        extern orphsiz;an049;bgb
                                                                                 ;an000;bgb
 ;                                                                               ;an000;bgb
 ;*****************************************************************************  ;an000;bgb
@@ -90,7 +90,7 @@ No_Function             equ     0                                               
                                                                                 ;an000;bgb
                                                                                 ;an000;bgb
                                                                                 ;an000;bgb
-data    segment public para 'data'              ; AN000;                        ;an000;bgb
+SECTION .data; AN000;                        ;an000;bgb
                                                                                 ;an000;bgb
 ;                                                                               ;an000;bgb
 ;*****************************************************************************  ;an000;bgb
@@ -103,11 +103,11 @@ data    segment public para 'data'              ; AN000;                        
 ;                                                                               ;an000;bgb
                                                                                 ;an000;bgb
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_msg_Orphmes2    label dword             ;                               ;an000;bgb
-Sublist_msg_Orphmes3    label dword             ;                               ;an000;bgb
-Sublist_msg_HidMes      label dword             ;                               ;an000;bgb
-Sublist_msg_DirMes      label dword             ;                               ;an000;bgb
-Sublist_msg_FileMes     label dword             ;                               ;an000;bgb
+Sublist_msg_Orphmes2:;                               ;an000;bgb
+Sublist_msg_Orphmes3:;                               ;an000;bgb
+Sublist_msg_HidMes:;                               ;an000;bgb
+Sublist_msg_DirMes:;                               ;an000;bgb
+Sublist_msg_FileMes:;                               ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;0bh                            ;an000;bgb;an049;bgb
         db              Reserved                ;00h                            ;an000;bgb;an049;bgb
@@ -128,17 +128,17 @@ Sublist_msg_FileMes     label dword             ;                               
         db              1                       ;min length of data             ;an000;bgb;an049;bgb
         db              Blank                   ;pad character                  ;an000;bgb;an049;bgb
 ;---------------------------                    ;                               ;an000;bgb;an049;bgb
-Sublist_msg_dskspc      label dword             ;                               ;an000;bgb;an049;bgb
-Sublist_msg_badspc      label dword             ;                               ;an000;bgb;an049;bgb
-Sublist_msg_frespc      label dword             ;                               ;an000;bgb;an049;bgb
-Sublist_msg_totmem      label dword             ;                               ;an000;bgb;an049;bgb
-Sublist_msg_fremem      label dword             ;                               ;an000;bgb;an049;bgb
-Sublist_msg_Freebymes   label dword             ;                               ;an000;bgb;an049;bgb
-Sublist_msg_alloc       label dword             ;                               ;an000;bgb;an049;bgb
+Sublist_msg_dskspc:;                               ;an000;bgb;an049;bgb
+Sublist_msg_badspc:;                               ;an000;bgb;an049;bgb
+Sublist_msg_frespc:;                               ;an000;bgb;an049;bgb
+Sublist_msg_totmem:;                               ;an000;bgb;an049;bgb
+Sublist_msg_fremem:;                               ;an000;bgb;an049;bgb
+Sublist_msg_Freebymes:;                               ;an000;bgb;an049;bgb
+Sublist_msg_alloc:;                               ;an000;bgb;an049;bgb
                                                                                 ;an000;bgb;an049;bgb
         db              Sublist_Length          ;0bh                            ;an000;bgb;an049;bgb
         db              Reserved                ;00h                            ;an000;bgb;an049;bgb
-        dw              dg:rarg1                ;offset  of data                ;an000;bgb;an049;bgb
+        dw              rarg1                ;offset  of data                ;an000;bgb;an049;bgb
         dw              dg                      ;segment of data                ;an000;bgb;an049;bgb
         db              1                       ;1st parm                       ;an000;bgb;an049;bgb
         db              Right_Align+Unsgn_Bin_DWord ;type of data               ;an000;bgb;an049;bgb
@@ -146,11 +146,11 @@ Sublist_msg_alloc       label dword             ;                               
         db              10                      ;min length of data             ;an000;bgb;an049;bgb
         db              Blank                   ;pad character                  ;an000;bgb;an049;bgb
 ;---------------------------                    ;                               ;an000;bgb;an049;bgb
-Sublist_msg_Extents     label   dword           ;                               ;an000;bgb
+Sublist_msg_Extents:;                               ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb
         db              Reserved                ;                               ;an000;bgb
-        dw              dg:arg_buf              ;                               ;an000;bgb
+        dw              arg_buf              ;                               ;an000;bgb
         dw              dg                      ;                               ;an000;bgb
         db              1                       ;                               ;an000;bgb
         db              Left_Align+Char_Field_ASCIIZ ;                          ;an000;bgb
@@ -159,7 +159,7 @@ Sublist_msg_Extents     label   dword           ;                               
         db              Blank                   ;                               ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb
         db              Reserved                ;                               ;an000;bgb
-        dw              dg:rarg1                ;                               ;an000;bgb
+        dw              rarg1                ;                               ;an000;bgb
         dw              dg                      ;                               ;an000;bgb
         db              2                       ;                               ;an000;bgb
         db              Left_Align+Unsgn_Bin_Word ;                            ;;an000;bgb
@@ -168,12 +168,12 @@ Sublist_msg_Extents     label   dword           ;                               
         db              Blank                   ;                               ;an000;bgb
                                                                                 ;an000;bgb
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_msg_Badr_arg    label   dword           ;                               ;an000;bgb
-Sublist_msg_Badw_arg    label   dword           ;                               ;an000;bgb
+Sublist_msg_Badr_arg:;                               ;an000;bgb
+Sublist_msg_Badw_arg:;                               ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb
         db              Reserved                ;                               ;an000;bgb
-        dw              dg:Badrw_Num            ;                               ;an000;bgb
+        dw              Badrw_Num            ;                               ;an000;bgb
         dw              dg                      ;                               ;an000;bgb
         db              1                       ;                               ;an000;bgb
         db              Left_Align+Unsgn_Bin_Word ;                            ;;an000;bgb
@@ -181,11 +181,11 @@ Sublist_msg_Badw_arg    label   dword           ;                               
         db              1                       ;                               ;an000;bgb
         db              Blank                   ;                               ;an000;bgb
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_msg_Badrdmes    label   dword           ;                               ;an000;bgb
+Sublist_msg_Badrdmes:;                               ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb;AN000;
         db              Reserved                ;                               ;an000;bgb;AN000;
-        dw              dg:Fatal_End            ;                               ;an000;bgb;AN000;
+        dw              Fatal_End            ;                               ;an000;bgb;AN000;
         dw              dg                      ;                               ;an000;bgb;AN000;
         db              1                       ;                               ;an000;bgb;AN000;
         db              Left_Align+Char_Field_ASCIIZ ;                          ;an000;bgb  ;AN000;
@@ -193,11 +193,11 @@ Sublist_msg_Badrdmes    label   dword           ;                               
         db              1                       ;                               ;an000;bgb;AN000;
         db              Blank                   ;                               ;an000;bgb;AN000;
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_msg_Crossmes    label   dword           ;                               ;an000;bgb
+Sublist_msg_Crossmes:;                               ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb
         db              Reserved                ;                               ;an000;bgb
-        dw              dg:Cross_Clus           ;                               ;an000;bgb
+        dw              Cross_Clus           ;                               ;an000;bgb
         dw              dg                      ;                               ;an000;bgb
         db              1                       ;                               ;an000;bgb
         db              Left_Align+Unsgn_Bin_Word  ;                            ;an000;bgb
@@ -205,11 +205,11 @@ Sublist_msg_Crossmes    label   dword           ;                               
         db              1                       ;                               ;an000;bgb
         db              Blank                   ;                               ;an000;bgb
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_msg_BadTarg     label   dword           ;                               ;an000;bgb
+Sublist_msg_BadTarg:;                               ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb
         db              Reserved                ;                               ;an000;bgb
-        dw              dg:arg_buf              ;                               ;an000;bgb
+        dw              arg_buf              ;                               ;an000;bgb
         dw              dg                      ;                               ;an000;bgb
         db              1                       ;                               ;an000;bgb
         db              Left_Align+Char_Field_ASCIIZ ;                          ;an000;bgb
@@ -217,11 +217,11 @@ Sublist_msg_BadTarg     label   dword           ;                               
         db              1                       ;                               ;an000;bgb
         db              Blank                   ;                               ;an000;bgb;AN000;
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_msg_IDmes       label   dword           ;                               ;an000;bgb
+Sublist_msg_IDmes:;                               ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb;AN000;
         db              Reserved                ;                               ;an000;bgb;AN000;
-        dw              dg:arg_buf              ;                               ;an000;bgb;AN000;
+        dw              arg_buf              ;                               ;an000;bgb;AN000;
         dw              dg                      ;                               ;an000;bgb;AN000;
         db              1                       ;                               ;an000;bgb;AN000;
         db              Left_Align+Char_Field_ASCIIZ ;                          ;an000;bgb  ;AN000;
@@ -248,11 +248,11 @@ Sublist_msg_IDmes       label   dword           ;                               
         db              Blank                   ;                               ;an000;bgb;AN000;
                                                                                 ;an000;bgb
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_Msg_File_Arg    label   dword           ;an000;dms                      ;an000;bgb
+Sublist_Msg_File_Arg:;an000;dms                      ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb;AN000;
         db              Reserved                ;                               ;an000;bgb;AN000;
-        dw              dg:arg_buf              ;                               ;an000;bgb;AN000;
+        dw              arg_buf              ;                               ;an000;bgb;AN000;
         dw              dg                      ;                               ;an000;bgb;AN000;
         db              1                       ;                               ;an000;bgb;AN000;
         db              Left_Align+Char_Field_ASCIIZ ;                          ;an000;bgb  ;AN000;
@@ -261,11 +261,11 @@ Sublist_Msg_File_Arg    label   dword           ;an000;dms                      
         db              Blank                   ;                               ;an000;bgb;AN000;
                                                                                 ;an000;bgb
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_Msg_Noisy       label   dword           ;an000;dms                      ;an000;bgb
+Sublist_Msg_Noisy:;an000;dms                      ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb;AN000;
         db              Reserved                ;                               ;an000;bgb;AN000;
-        dw              dg:arg_buf              ;                               ;an000;bgb;AN000;
+        dw              arg_buf              ;                               ;an000;bgb;AN000;
         dw              dg                      ;                               ;an000;bgb;AN000;
         db              1                       ;                               ;an000;bgb;AN000;
         db              Left_Align+Char_Field_ASCIIZ ;                          ;an000;bgb  ;AN000;
@@ -274,11 +274,11 @@ Sublist_Msg_Noisy       label   dword           ;an000;dms                      
         db              Blank                   ;                               ;an000;bgb;AN000;
                                                                                 ;an000;bgb
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_Msg_Orphmes     label   dword           ;an000;dms                      ;an000;bgb
+Sublist_Msg_Orphmes:;an000;dms                      ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;0bh                            ;an000;bgb;AN000;
         db              Reserved                ;00h                            ;an000;bgb;AN000;
-        dw              dg:orphsiz              ;offset of data                 ;an000;bgb;AN000;;an049;bgb
+        dw              orphsiz              ;offset of data                 ;an000;bgb;AN000;;an049;bgb
         dw              dg                      ;segment                        ;an000;bgb;AN000;
         db              1                       ;1st of 2 replaceable parms     ;an000;bgb;AN000;
         db              Left_Align+Unsgn_Bin_Word ;only 64k clusters            ;an000;bgb  ;AN000;
@@ -288,7 +288,7 @@ Sublist_Msg_Orphmes     label   dword           ;an000;dms                      
                                                                                 ;an000;bgb
         db              Sublist_Length          ;0b                             ;an000;bgb;AN000;
         db              Reserved                ;00                             ;an000;bgb;AN000;
-        dw              dg:orphcnt              ;offset                         ;an000;bgb;AN000;
+        dw              orphcnt              ;offset                         ;an000;bgb;AN000;
         dw              dg                      ;seg                            ;an000;bgb;AN000;
         db              2                       ;2nd replaceable parm           ;an000;bgb;AN000;
         db              Left_Align+Unsgn_Bin_dword ;double word                 ;an000;bgb;AN000;;an049;bgb
@@ -296,11 +296,11 @@ Sublist_Msg_Orphmes     label   dword           ;an000;dms                      
         db              1                       ;min len                        ;an000;bgb;AN000;
         db              Blank                   ;pad char                       ;an000;bgb;AN000;
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_Msg_Direcmes    label   dword           ;an000;dms                      ;an000;bgb
+Sublist_Msg_Direcmes:;an000;dms                      ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb;AN000;
         db              Reserved                ;                               ;an000;bgb;AN000;
-        dw              dg:arg_buf              ;                               ;an000;bgb;AN000;
+        dw              arg_buf              ;                               ;an000;bgb;AN000;
         dw              dg                      ;                               ;an000;bgb;AN000;
         db              1                       ;                               ;an000;bgb;AN000;
         db              Left_Align+Char_Field_ASCIIZ ;                          ;an000;bgb;AN000;
@@ -308,11 +308,11 @@ Sublist_Msg_Direcmes    label   dword           ;an000;dms                      
         db              1                       ;                               ;an000;bgb;AN000;
         db              Blank                   ;                               ;an000;bgb;AN000;
                                                                                 ;an000;bgb
-Sublist_Msg_Fatalmes    label   dword           ;an000;dms                      ;an000;bgb
+Sublist_Msg_Fatalmes:;an000;dms                      ;an000;bgb
                                                                                 ;an000;bgb
         db              Sublist_Length          ;                               ;an000;bgb;AN000;
         db              Reserved                ;                               ;an000;bgb;AN000;
-fatmsg1 dw              dg:fatal_arg1           ;                               ;an000;bgb;AN024;bgb
+fatmsg1 dw              fatal_arg1           ;                               ;an000;bgb;AN024;bgb
         dw              dg                      ;                               ;an000;bgb;AN000;
         db              1                       ;                               ;an000;bgb;AN000;
         db              Left_Align+Char_Field_ASCIIZ ;                          ;an000;bgb  ;AN000;
@@ -321,7 +321,7 @@ fatmsg1 dw              dg:fatal_arg1           ;                               
         db              Blank                   ;                               ;an000;bgb;AN000;
         db              Sublist_Length          ;                               ;an000;bgb;AN000;
         db              Reserved                ;                               ;an000;bgb;AN000;
-fatmsg2 dw              dg:fatal_arg2           ;                               ;an000;bgb;AN000;
+fatmsg2 dw              fatal_arg2           ;                               ;an000;bgb;AN000;
         dw              dg                      ;                               ;an000;bgb;AN000;
         db              2                       ;number 2 of 2 subs             ;an000;bgb;AN022;bgb
         db              Left_Align+Char_Field_ASCIIZ ;                          ;an000;bgb  ;AN000;
@@ -329,24 +329,24 @@ fatmsg2 dw              dg:fatal_arg2           ;                               
         db              1                       ;                               ;an000;bgb;AN000;
         db              Blank                   ;                               ;an000;bgb;AN000;
 ;---------------------------                    ;                               ;an000;bgb
-ifdef   fsexec                                                                  ;an038;bgb
-Sublist_msg_EXECFailure label   dword           ;                               ;an038;bgb;an000;bgb
+%ifdef fsexec;an038;bgb
+Sublist_msg_EXECFailure:;                               ;an038;bgb;an000;bgb
         db              Sublist_Length          ;                               ;an038;bgb;an000;bgb;AN000;
         db              Reserved                ;                               ;an038;bgb;an000;bgb;AN000;
-        dw              dg:Drive_Letter_Msg     ;                               ;an038;bgb;an000;bgb;AN000;
+        dw              Drive_Letter_Msg     ;                               ;an038;bgb;an000;bgb;AN000;
         dw              dg                      ;                               ;an038;bgb;an000;bgb;AN000;
         db              1                       ;                               ;an038;bgb;an000;bgb;AN000;
         db              Left_Align+Char_Field_ASCIIZ ;                          ;an038;bgb;an000;bgb  ;AN000;
         db              2                       ;                               ;an038;bgb;an000;bgb;AN000;
         db              2                       ;                               ;an038;bgb;an000;bgb;AN000;
         db              Blank                   ;                               ;an038;bgb;an000;bgb;AN000;
-endif                                                                           ;an000;bgb
+%endif;an000;bgb
                                                                                 ;an000;bgb
 ;---------------------------                    ;                               ;an000;bgb
-Sublist_msgSerialNumber label dword             ;                               ;an000;bgb;an024;bgb
+Sublist_msgSerialNumber:;                               ;an000;bgb;an024;bgb
         db              Sublist_Length          ;0b                             ;an000;bgb;an024;bgb
         db              Reserved                ;00                             ;an000;bgb;an024;bgb
-        dw              offset word ptr sernum+2 ;data field                    ;an000;bgb;an024;bgb
+        dw              word sernum+2 ;data field                    ;an000;bgb;an024;bgb
         dw              data                    ;                               ;an000;bgb;an024;bgb
         db              1                       ;#1 of 2                        ;an000;bgb;an024;bgb
         db              Right_Align+Bin_Hex_Word ;format                        ;an000;bgb;an024;bgb
@@ -356,7 +356,7 @@ Sublist_msgSerialNumber label dword             ;                               
                                                                                 ;an000;bgb;an024;bgb
         db              Sublist_Length          ;0b                             ;an000;bgb;an024;bgb
         db              Reserved                ;00                             ;an000;bgb;an024;bgb
-        dw              offset sernum           ;data field                     ;an000;bgb;an024;bgb
+        dw              sernum           ;data field                     ;an000;bgb;an024;bgb
         dw              data                    ;                               ;an000;bgb;an024;bgb
         db              2                       ;#2 of 2                        ;an000;bgb;an024;bgb
         db              Right_Align+Bin_hex_Word ;format                        ;an000;bgb;an024;bgb
@@ -365,12 +365,12 @@ Sublist_msgSerialNumber label dword             ;                               
         db              '0'                     ;pad char                       ;an000;bgb;an024;bgb
                                                                                 ;an000;bgb
 ;---------------------------                    ;                               ;an046;bgb
-Sublist_msg_parserr     label   dword           ;                               ;an046;bgb
+Sublist_msg_parserr:;                               ;an046;bgb
                                                                                 ;an046;bgb
         db              Sublist_Length          ;11                             ;an046;bgb
         db              Reserved                ;0                              ;an046;bgb
-public movsi
-movsi   dw              dg:command_line_buffer  ;off                            ;an046;bgb
+global movsi
+movsi   dw              command_line_buffer  ;off                            ;an046;bgb
         dw              dg                      ;seg                            ;an046;bgb
         db              0                       ;USE PERCENT ZERO               ;an046;bgb
         db              Left_Align+Char_Field_ASCIIZ ;type of data              ;an046;bgb
@@ -432,7 +432,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 7                             ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_dskspc         ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_dskspc         ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -441,7 +441,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 8                             ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_badspc         ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_badspc         ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -450,7 +450,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  =  9                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_hidmes         ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_hidmes         ; AN000;SM                      ;an000;bgb
 Count           = 2                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -459,7 +459,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 10                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_dirmes         ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_dirmes         ; AN000;SM                      ;an000;bgb
 Count           = 2                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -468,7 +468,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 11                            ; message number 11             ;an000;bgb
 Handle          = STDOUT                        ; crt                           ;an000;bgb
-Sublist         = dg:Sublist_msg_filemes        ; location of sublist           ;an000;bgb
+Sublist         = Sublist_msg_filemes        ; location of sublist           ;an000;bgb
 Count           = 2                             ; caontains 2 parameters        ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; type of msg                   ;an000;bgb
 Function        = NO_INPUT                      ; no input from user            ;an000;bgb
@@ -477,7 +477,7 @@ Input           = N_A                           ; not applicable              ;a
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 12                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_orphmes2       ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_orphmes2       ; AN000;SM                      ;an000;bgb
 Count           = 2                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -486,7 +486,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 13                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_orphmes3       ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_orphmes3       ; AN000;SM                      ;an000;bgb
 Count           = 2                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -495,7 +495,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 14                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_frespc         ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_frespc         ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -504,7 +504,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 15                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_totmem         ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_totmem         ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -513,7 +513,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 16                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_fremem         ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_fremem         ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -540,7 +540,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 20                            ; AN000;SM                      ;an000;bgb
 Handle          = STDERR                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_badr_arg       ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_badr_arg       ; AN000;SM                      ;an000;bgb
 Count           = 2                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -549,7 +549,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 21                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_direcmes       ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_direcmes       ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -558,7 +558,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 22                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_extents        ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_extents        ; AN000;SM                      ;an000;bgb
 Count           = 2                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -585,7 +585,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;          Corrections will not ;an000;bgbbe written to disk
 Message_Number  = 25                            ; AN000;SM                      ;an000;bgb
 Handle          = STDERR                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_fatalmes       ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_fatalmes       ; AN000;SM                      ;an000;bgb
 Count           = 2                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -594,7 +594,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 26                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_badrdmes       ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_badrdmes       ; AN000;SM                      ;an000;bgb
 Count           = 2                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -730,7 +730,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 42                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_crossmes       ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_crossmes       ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -739,7 +739,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 43                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_badtarg        ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_badtarg        ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -757,7 +757,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 45                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_freebymes      ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_freebymes      ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -766,7 +766,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 46                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_freebymes      ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_freebymes      ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -775,7 +775,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 47                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_idmes          ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_idmes          ; AN000;SM                      ;an000;bgb
 Count           = 3                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -784,7 +784,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 48                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_alloc          ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_alloc          ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -793,23 +793,23 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 49                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:Sublist_msg_alloc          ; AN000;SM                      ;an000;bgb
+Sublist         = Sublist_msg_alloc          ; AN000;SM                      ;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
 Input           = N_A                           ; AN000;SM                      ;an000;bgb
         Define_Msg   idmes2                     ; AN000;SM %1 bytes in each allo;an000;bgbcation unit
 ;----------------------                         ;                               ;an000;bgb
-ifdef   fsexec                                                                  ;an038;bgb
+%ifdef fsexec;an038;bgb
 Message_Number  = 50                            ; AN000;SM                      ;an038;bgb;an000;bgb
 Handle          = STDERR                        ; AN000;SM                      ;an038;bgb;an000;bgb
-Sublist         = dg:Sublist_msg_ExecFailure    ; AN000;SM                      ;an038;bgb;an000;bgb
+Sublist         = Sublist_msg_ExecFailure    ; AN000;SM                      ;an038;bgb;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an038;bgb;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;SM                      ;an038;bgb;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an038;bgb;an000;bgb
 Input           = N_A                           ; AN000;SM                      ;an038;bgb;an000;bgb
         Define_Msg   msgExecFailure             ; AN000;SM CHKDSK not available ;an038;bgb;an000;bgbon drive %1
-        endif                                                                   ;an038;bgb
+        %endif;an038;bgb
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 51                            ; AN000;SM                      ;an000;bgb
 Handle          = STDOUT                        ; AN000;SM                      ;an000;bgb
@@ -831,7 +831,7 @@ Input           = N_A                           ; AN000;SM                      
 ;----------------------                         ;          attributes truncated ;an000;bgb
 Message_Number  = 53                            ; AN000;SM                      ;an000;bgb
 Handle          = STDERR                        ; AN000;SM                      ;an000;bgb
-Sublist         = dg:sublist_msg_parserr        ; AN000;SM                      ;an046;bgb;an000;bgb
+Sublist         = sublist_msg_parserr        ; AN000;SM                      ;an046;bgb;an000;bgb
 Count           = 1                             ; AN000;SM                      ;an046;bgb;an000;bgb
 Class           = PARSE_ERR_CLASS               ; AN000;SM                      ;an000;bgb
 Function        = NO_INPUT                      ; AN000;SM                      ;an000;bgb
@@ -876,7 +876,7 @@ Input           = N_A                           ;                               
 ;-----------------------                                                        ;an000;bgb
 Message_Number  = 0                             ;                               ;an000;bgb
 Handle          = STDERR                        ;                               ;an000;bgb;AN000;
-Sublist         = dg:sublist_msg_parserr        ;                               ;an046;bgbbgb000;
+Sublist         = sublist_msg_parserr        ;                               ;an046;bgbbgb000;
 Count           = 1                             ;                               ;an046;bgb;AN000;
 Class           = Parse_Err_Class               ;                               ;an000;bgb;AN000;
 Function        = No_Function                   ;                               ;an000;bgb;AN000;
@@ -885,7 +885,7 @@ Input           = N_A                           ;                               
 ;-----------------------                                                        ;an000;bgb
 Message_Number  = 58                            ; AN000;dms                     ;an000;bgb
 Handle          = STDERR                        ; AN000;dms                     ;an000;bgb
-Sublist         = dg:Sublist_msg_orphmes           ; AN000;dms                  ;an000;bgb
+Sublist         = Sublist_msg_orphmes           ; AN000;dms                  ;an000;bgb
 Count           = 2                             ; AN000;dms                     ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;dms                     ;an000;bgb
 Function        = NO_INPUT                      ; AN000;dms                     ;an000;bgb
@@ -912,7 +912,7 @@ Input           = N_A                           ; AN000;dms                     
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 61                            ; AN000;dms                     ;an000;bgb
 Handle          = STDERR                        ; AN000;dms                     ;an000;bgb
-Sublist         = dg:Sublist_Msg_Badw_arg          ; AN000;dms                  ;an000;bgb
+Sublist         = Sublist_Msg_Badw_arg          ; AN000;dms                  ;an000;bgb
 Count           = 1                             ; AN000;dms                     ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;dms                     ;an000;bgb
 Function        = NO_INPUT                      ; AN000;dms                     ;an000;bgb
@@ -921,7 +921,7 @@ Input           = N_A                           ; AN000;dms                     
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 62                            ; AN000;dms                     ;an000;bgb
 Handle          = STDOUT                        ; AN000;dms                     ;an042;bgb;an000;bgb
-Sublist         = dg:Sublist_Msg_Noisy             ; AN000;dms                  ;an000;bgb
+Sublist         = Sublist_Msg_Noisy             ; AN000;dms                  ;an000;bgb
 Count           = 1                             ; AN000;dms                     ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;dms                     ;an000;bgb
 Function        = NO_INPUT                      ; AN000;dms                     ;an000;bgb
@@ -939,7 +939,7 @@ Input           = N_A                           ; AN000;dms                     
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 64                            ; AN000;dms                     ;an000;bgb
 Handle          = STDERR                        ; AN000;dms                     ;an000;bgb
-Sublist         = dg:Sublist_Msg_File_Arg          ; AN000;dms                  ;an000;bgb
+Sublist         = Sublist_Msg_File_Arg          ; AN000;dms                  ;an000;bgb
 Count           = 1                             ; AN000;dms                     ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN000;dms                     ;an000;bgb
 Function        = NO_INPUT                      ; AN000;dms                     ;an000;bgb
@@ -957,7 +957,7 @@ Input           = N_A                           ; AN000;dms                     
 ;----------------------                         ;                               ;an000;bgb
 Message_Number  = 70                            ; AN017;bgb                     ;an000;bgb
 Handle          = STDOUT                        ; AN017;bgb                     ;an000;bgb
-Sublist         = dg:Sublist_msg_alloc          ; AN017;bgb                     ;an000;bgb
+Sublist         = Sublist_msg_alloc          ; AN017;bgb                     ;an000;bgb
 Count           = 1                             ; AN017;bgb                     ;an000;bgb
 Class           = UTILITY_MSG_CLASS             ; AN017;bgb                     ;an000;bgb
 Function        = NO_INPUT                      ; AN017;bgb                     ;an000;bgb
@@ -1021,27 +1021,27 @@ NO_BYTE         DB      "n"                                                     
 MONTAB          DB      "JanFebMarAprMayJunJulAugSepOctNovDec"                  ;an000;bgb
                                                                                 ;an000;bgb
                                                                                 ;an000;bgb
-yn_arg      dw      ?                                                           ;an000;bgb
+yn_arg: dw 0;an000;bgb
                                                                                 ;an000;bgb
 ;orph_num    dw      ?  ;from orphsiz; = number of lost clusters                 ;an000;bgb;an049;bgb
-orphcnt     dd      ?  ;number of chains of lost clusters                       ;an000;bgb
+orphcnt: dd 0;number of chains of lost clusters                       ;an000;bgb
                                                                                 ;an000;bgb
-report_arg  dw      ?                                                           ;an000;bgb
-rarg1       dd      ? ;changed to dword                                         ;an000;bgb;an049;bgb
-rarg3       dd      ? ;changed to dword                                         ;an000;bgb;an049;bgb
+report_arg: dw 0;an000;bgb
+rarg1: dd 0;changed to dword                                         ;an000;bgb;an049;bgb
+rarg3: dd 0;changed to dword                                         ;an000;bgb;an049;bgb
                                                                                 ;an000;bgb
 baddrvm     DB      " A.",0                                                     ;an000;bgb
-badrw_str   dw      ?                                                           ;an000;bgb
-badrw_num   dw      ?                                                           ;an000;bgb
-block_num   dw      ?                                                           ;an000;bgb
-fatal_arg1  dw      ?                                                           ;an000;bgb
-fatal_arg2  dw      ?                                                           ;an000;bgb
-file_arg1   dw      ?                                                           ;an000;bgb
-file_arg2   dw      ?                                                           ;an000;bgb
-free_arg1   dw      ?                                                           ;an000;bgb
-free_arg2   dw      ?                                                           ;an000;bgb
-free_arg3   dw      ?                                                           ;an000;bgb
+badrw_str: dw 0;an000;bgb
+badrw_num: dw 0;an000;bgb
+block_num: dw 0;an000;bgb
+fatal_arg1: dw 0;an000;bgb
+fatal_arg2: dw 0;an000;bgb
+file_arg1: dw 0;an000;bgb
+file_arg2: dw 0;an000;bgb
+free_arg1: dw 0;an000;bgb
+free_arg2: dw 0;an000;bgb
+free_arg3: dw 0;an000;bgb
 fatal_end   db     ".",0                                                        ;an000;bgb
                                                                                 ;an000;bgb
                                                                                 ;an000;bgb
-data ends                                       ; AN000;                        ;an000;bgb
+; END SECTION .data; AN000;                        ;an000;bgb

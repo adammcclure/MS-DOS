@@ -1,25 +1,25 @@
-CODE    SEGMENT PARA PUBLIC 'CODE'      ;AN000;segment for near routine
+SECTION .CODE;AN000;segment for near routine
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-        PUBLIC  _MAIN                   ;AN000;
-_MAIN   PROC    FAR                     ;AN000;
+        global _MAIN;AN000;
+_MAIN:;AN000;
         RET                             ;AN000;
-_MAIN   ENDP                            ;AN000;
+; ENDP _MAIN;AN000;
                                         ;
-        PUBLIC  INDBC                   ;AN000;
-INDBC   PROC    FAR                     ;AN000;
+        global INDBC;AN000;
+INDBC:;AN000;
         RET                             ;AN000;
-INDBC   ENDP                            ;AN000;
+; ENDP INDBC;AN000;
                                         ;
-        PUBLIC  BOXDR                   ;AN000;
-BOXDR   PROC    FAR                     ;AN000;
+        global BOXDR;AN000;
+BOXDR:;AN000;
         RET                             ;AN000;
-BOXDR   ENDP                            ;AN000;
+; ENDP BOXDR;AN000;
                                         ;
-        PUBLIC  GRAPH                   ;AN000;
-GRAPH   PROC    FAR                     ;AN000;
+        global GRAPH;AN000;
+GRAPH:;AN000;
         RET                             ;AN000;
-GRAPH   ENDP                            ;AN000;
+; ENDP GRAPH;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CODE    ENDS                            ;AN000;
-        END                             ;AN000;
+; END SECTION .CODE;AN000;
+        ; END;AN000;
 

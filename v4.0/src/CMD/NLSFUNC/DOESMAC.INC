@@ -1,40 +1,40 @@
-CallInstall MACRO   name,mpx,fn,save,restore
-BREAK	MACRO	subtitle
-	SUBTTL	subtitle
-	PAGE
-ENDM
-.xcref	break
-IF Installed
-    IFNB    <save>
+%macro CallInstall 5
+%macro BREAK 1
+	; SUBTTL	subtitle
+	; PAGE
+%endmacro
+; .xcref	break
+%if Installed
+    %if 1  ; IFNB <save>
 	SaveReg <save>
-    ENDIF
+    %endif
 	MOV	AX,(mpx SHL 8) + fn
 	INT	2Fh
-    IFNB    <restore>
+    %if 1  ; IFNB <restore>
 	RestoreReg  <restore>
-    ENDIF
-ELSE
+    %endif
+%else
 	Invoke	name
-ENDIF
-ENDM
+%endif
+%endmacro
 
 BREAK <SaveReg - save a set of registers>
 
-SaveReg MACRO	reglist 		;; push those registers
-IRP reg,<reglist>
+%macro SaveReg 1;; push those registers
+; IRP reg,<reglist>
 	?stackdepth = ?stackdepth + 1
 	PUSH	reg
-ENDM
-ENDM
-.xcref	SaveReg
+%endmacro
+%endmacro
+; .xcref	SaveReg
 
 BREAK <RestoreReg - unsave some registers>
 
-RestoreReg  MACRO   reglist		;; pop those registers
-IRP reg,<reglist>
+%macro RestoreReg 1;; pop those registers
+; IRP reg,<reglist>
 	?stackdepth = ?stackdepth - 1
 	POP	reg
-ENDM
-ENDM
-.xcref	RestoreReg
+%endmacro
+%endmacro
+; .xcref	RestoreReg
 

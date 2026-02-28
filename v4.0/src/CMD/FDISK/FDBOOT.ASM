@@ -9,8 +9,8 @@
 ; 2. A partition table at the end of the boot record, followed by the required signature.
 ;
 ;
-_data   segment public
-        assume  cs:_data,ds:_data
+SECTION ._data
+        ; assume  cs:_data,ds:_data
 
         org 600h
 
@@ -32,12 +32,12 @@ _data   segment public
         db   0eah
         dw   $+4,0
 entry2:
-        mov si,offset tab      ;partition table
+        mov si,tab      ;partition table
         mov bl,4        ;number of table entries
 next:
-        cmp byte ptr[si],80h  ;is this a bootable entry?
+        cmp byte[si],80h  ;is this a bootable entry?
         je boot         ;yes
-        cmp byte ptr[si],0    ;no, is boot indicator zero?
+        cmp byte[si],0    ;no, is boot indicator zero?
         jne bad         ;no, it must be x"00" or x"80" to be valid
         add si,16       ;yes, go to next entry
         dec bl
@@ -51,10 +51,10 @@ next1:
         add si,16       ;next table entry
         dec bl          ;# entries left
         jz tabok        ;all entries look ok
-        cmp byte ptr[si],0    ;all remaining entries should begin with zero
+        cmp byte[si],0    ;all remaining entries should begin with zero
         je next1        ;this one is ok
 bad:
-        mov si,offset m1 ;oops - found a non-zero entry - the table is bad
+        mov si,m1 ;oops - found a non-zero entry - the table is bad
 msg:
         lodsb           ;get a message character
         cmp al,0
@@ -80,19 +80,19 @@ rdboot:
         int 13h         ;recalibrate
         dec di          ;reduce retry count
         jnz rdboot      ;if retry count above zero, go retry
-        mov si,offset m2 ;all retries done - permanent error - point to message,
+        mov si,m2 ;all retries done - permanent error - point to message,
         jmp msg          ;go display message and loop
 goboot:
-        mov si,offset m3 ;prepare for invalid boot record
+        mov si,m3 ;prepare for invalid boot record
         mov di,07dfeh
-        cmp word ptr [di],0aa55h ;does the boot record have the
+        cmp word [di],0aa55h ;does the boot record have the
                                    ;    required signature?
         jne msg         ;no, display invalid system boot record message
         mov si,bp       ;yes, pass partition table entry address
         db 0eah
         dw 7c00h,0
 
-include fdisk5.cl1
+%include "fdisk5.cl1"
 
         org 7beh
 tab:                    ;partition table
@@ -114,6 +114,6 @@ tab:                    ;partition table
         dw 0,0          ;partition 4 # of sectors
 signa   db 55h,0aah     ;signature
 
-_data   ends
-        end
+; END SECTION ._data
+        ; end
 

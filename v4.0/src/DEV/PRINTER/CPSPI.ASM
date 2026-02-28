@@ -1,5 +1,5 @@
 
-	PAGE	,132
+	; PAGE	,132
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -22,31 +22,31 @@
 ;;			  ++++++++++++++++++++++++
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-INCLUDE CPSPEQU.INC			;;
+%include "CPSPEQU.INC";;
 					;;
-PUBLIC	INIT				;;
-PUBLIC	CODE_END			;; for MAP listing only
-PUBLIC	RESIDENT_END			;;
-PUBLIC	STACK_ALLOCATED 		;;
-					;;
-					;;
-EXTRN	PRINTER_DESC_NUM:WORD		;;
-EXTRN	PRINTER_DESC_TBL:WORD		;;
-EXTRN	INIT_CHK:WORD,TABLE:WORD	;;
-EXTRN	HARD_SL1:BYTE,RAM_SL1:BYTE	;;
-EXTRN	HARD_SL2:BYTE,RAM_SL2:BYTE	;;
-EXTRN	HARD_SL3:BYTE,RAM_SL3:BYTE	;;
-EXTRN	HARD_SL4:BYTE,RAM_SL4:BYTE	;;
-EXTRN	RESERVED1:WORD,RESERVED2:WORD	;;
-					;;
-EXTRN	MSG_NO_INIT_P:BYTE		;;
-EXTRN	MSG_NO_INIT:BYTE		;;
-EXTRN	MSG_BAD_SYNTAX:BYTE		;;
-EXTRN	MSG_INSUFF_MEM:BYTE		;;
+global INIT;;
+global CODE_END;; for MAP listing only
+global RESIDENT_END;;
+global STACK_ALLOCATED;;
 					;;
 					;;
-CSEG	SEGMENT PARA PUBLIC 'CODE'      ;;
-	ASSUME	CS:CSEG 		;;
+extern PRINTER_DESC_NUM;;
+extern PRINTER_DESC_TBL;;
+extern INIT_CHK,TABLE;;
+extern HARD_SL1,RAM_SL1;;
+extern HARD_SL2,RAM_SL2;;
+extern HARD_SL3,RAM_SL3;;
+extern HARD_SL4,RAM_SL4;;
+extern RESERVED1,RESERVED2;;
+					;;
+extern MSG_NO_INIT_P;;
+extern MSG_NO_INIT;;
+extern MSG_BAD_SYNTAX;;
+extern MSG_INSUFF_MEM;;
+					;;
+					;;
+SECTION .CSEG;;
+	; ASSUME	CS:CSEG;;
 					;;
 					;;
 CODE_END     EQU $			;; end of resident code
@@ -307,18 +307,18 @@ STACK_ALLOCATED  DW -1			;; end of extended resident area
 ; two bytes field (accept for the device and id name)
 ;
 ; TABLE HEADER :
-; ÍÍÍÍÍÍÍÍÍÍÍÍÍÍ
-;    ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;    ³ N = Number of devices.	  ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;    ³	 Device  # 1  offset	 ÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄ>ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´		  ³			     ³
-;    ³	 Device  # 2  offset	  ³		  ³	 Table_1  (a)	     ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´		  ³			     ³
-;    ³	 Device  # 3  offset	  ³		  ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;    ³	 Device  # 4  offset	  ³
-;    ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+; ÃÃÃÃÃÃÃÃÃÃÃÃÃÃ
+;    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    Â³ N = Number of devices.	  Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;    Â³	 Device  # 1  offset	 Ã„Ã…Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„>ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´		  Â³			     Â³
+;    Â³	 Device  # 2  offset	  Â³		  Â³	 Table_1  (a)	     Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´		  Â³			     Â³
+;    Â³	 Device  # 3  offset	  Â³		  Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;    Â³	 Device  # 4  offset	  Â³
+;    Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ;
 ;
 ; N = 1,2,3 or 4.  A two bytes number indicating the number of device specified.
@@ -329,30 +329,30 @@ STACK_ALLOCATED  DW -1			;; end of extended resident area
 ;
 ;
 ; TABLE_1 :
-; ÍÍÍÍÍÍÍÍÍ
+; ÃÃÃÃÃÃÃÃÃ
 ;
-;    ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿	      ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;    ³ N = Number of Offsets.	  ³	      ³ 			 ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´    ÚÄÄÄÄÄÄ³      Table_2  (a)	 ³
-;    ³	 Device Name  offset	 ÄÅÄÄÄÄÙ      ³ 			 ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´	      ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;    ³	 Device  Id   offset	 ÄÅÄÄÄÄÄÄ¿
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´	 ³    ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;    ³	 Device  HWCP offset	 ÄÅÄÄÄÄ¿ ³    ³ 			 ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´    ³ ÀÄÄÄÄ³      Table_3  (a)	 ³
-;    ³	 Device  Desg offset	 ÄÅÄÄ¿ ³      ³ 			 ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´  ³ ³      ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;    ³	    "Reserved"            ³  ³ ³
-;    ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ  ³ ³      ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;				     ³ ³      ³ 			 ³
-;				     ³ ÀÄÄÄÄÄÄ³      Table_4  (a)	 ³
-;				     ³	      ³ 			 ³
-;				     ³	      ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;				     ³	      ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;				     ³	      ³ 			 ³
-;				     ÀÄÄÄÄÄÄÄÄ³      Table_5  (a)	 ³
-;					      ³ 			 ³
-;					      ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿	      ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    Â³ N = Number of Offsets.	  Â³	      Â³ 			 Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Â³      Table_2  (a)	 Â³
+;    Â³	 Device Name  offset	 Ã„Ã…Ã„Ã„Ã„Ã„Ã™      Â³ 			 Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´	      Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;    Â³	 Device  Id   offset	 Ã„Ã…Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´	 Â³    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    Â³	 Device  HWCP offset	 Ã„Ã…Ã„Ã„Ã„Ã„Â¿ Â³    Â³ 			 Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´    Â³ Ã€Ã„Ã„Ã„Ã„Â³      Table_3  (a)	 Â³
+;    Â³	 Device  Desg offset	 Ã„Ã…Ã„Ã„Â¿ Â³      Â³ 			 Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´  Â³ Â³      Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;    Â³	    "Reserved"            Â³  Â³ Â³
+;    Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™  Â³ Â³      ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;				     Â³ Â³      Â³ 			 Â³
+;				     Â³ Ã€Ã„Ã„Ã„Ã„Ã„Ã„Â³      Table_4  (a)	 Â³
+;				     Â³	      Â³ 			 Â³
+;				     Â³	      Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;				     Â³	      ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;				     Â³	      Â³ 			 Â³
+;				     Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â³      Table_5  (a)	 Â³
+;					      Â³ 			 Â³
+;					      Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ;
 ;
 ;  N=Length of table_1, or the number of offsets contained in table_1.
@@ -361,13 +361,13 @@ STACK_ALLOCATED  DW -1			;; end of extended resident area
 ;
 ;
 ; TABLE_2 :
-; ÍÍÍÍÍÍÍÍÍ
+; ÃÃÃÃÃÃÃÃÃ
 ;
-;    ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;    ³ N = Length of devices name ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;    ³	  Device   name 	  ³
-;    ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    Â³ N = Length of devices name Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;    Â³	  Device   name 	  Â³
+;    Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ;
 ; N = Length of device name.  Device length is always 8 byte long.
 ; Device Name : the name of the device (eg. LPT1, CON, PRN).  The name
@@ -376,13 +376,13 @@ STACK_ALLOCATED  DW -1			;; end of extended resident area
 ;
 ;
 ; TABLE_3 :
-; ÍÍÍÍÍÍÍÍÍ
+; ÃÃÃÃÃÃÃÃÃ
 ;
-;    ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;    ³ N = Length of Id name.	  ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;    ³	   Id	Name		  ³
-;    ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    Â³ N = Length of Id name.	  Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;    Â³	   Id	Name		  Â³
+;    Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ;
 ; N = Length of id name.  Id name length is always 8 byte long.
 ; Id Name : the name of the id (eg. EGA, VGA, 3812).  The name
@@ -391,21 +391,21 @@ STACK_ALLOCATED  DW -1			;; end of extended resident area
 ;
 ;
 ; TABLE_4 :
-; ÍÍÍÍÍÍÍÍÍ
+; ÃÃÃÃÃÃÃÃÃ
 ;
-;    ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;    ³ N = Length of table.	  ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;    ³	  HWCP	#  1		  ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;    ³	  HWCP	#  2		  ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;    ³		.		  ³
-;    ³		.		  ³
-;    ³		.		  ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;    ³	  HWCP	#  10		  ³
-;    ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    Â³ N = Length of table.	  Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;    Â³	  HWCP	#  1		  Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;    Â³	  HWCP	#  2		  Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;    Â³		.		  Â³
+;    Â³		.		  Â³
+;    Â³		.		  Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;    Â³	  HWCP	#  10		  Â³
+;    Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ;
 ;
 ; N = Length of table in words. Or the number of HWCP's.
@@ -415,15 +415,15 @@ STACK_ALLOCATED  DW -1			;; end of extended resident area
 ;
 ;
 ; TABLE_5 :
-; ÍÍÍÍÍÍÍÍÍ
+; ÃÃÃÃÃÃÃÃÃ
 ;
-;    ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;    ³ N = Length of table.	  ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;    ³	  Designate		  ³
-;    ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;    ³	  Font			  ³
-;    ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;    ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;    Â³ N = Length of table.	  Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;    Â³	  Designate		  Â³
+;    ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;    Â³	  Font			  Â³
+;    Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ;
 ; N = Lenght of table.	0 - nothing was specified
 ;			1 - Only a designate was specified.
@@ -436,24 +436,24 @@ STACK_ALLOCATED  DW -1			;; end of extended resident area
 ;
 
 ;RESERVED MEMORY:
-TABLE_1 	DW	?			; Pointer at offsets.
-TABLE_2 	DW	?			; Pointer at device name.
-TABLE_3 	DW	?			; Pointer at id name.
-TABLE_4 	DW	?			; Pointer at hwcp.
-TABLE_5 	DW	?			; Pointer at desg and font.
+TABLE_1: dw 0; Pointer at offsets.
+TABLE_2: dw 0; Pointer at device name.
+TABLE_3: dw 0; Pointer at id name.
+TABLE_4: dw 0; Pointer at hwcp.
+TABLE_5: dw 0; Pointer at desg and font.
 ;TABLE		 DB	 290 DUP (?)		 ; Table of parsed parms. Max 4 devices.
-DEVNUM		DW	?			; Counter to number of devices.
-RIGHT_FLAG	DB	?			; Flag to indicate a left bracket.
-DEV_ERR_FLG	DB	?			; Device name error flag.
-ID_ERR_FLG	DB	?			; Id name error flag.
-ERROR_FLAG	DB	?			; Error flag_terminate program if set to 1.
-COMMA_FLAG	DB	?			; Indicate the number of commas incounterd.
-HWCP_FLAG	DB	?			; Flag for multiple hwcps.
-DESG_FLAG	DB	?			; Flag indicates desg. and font.
+DEVNUM: dw 0; Counter to number of devices.
+RIGHT_FLAG: db 0; Flag to indicate a left bracket.
+DEV_ERR_FLG: db 0; Device name error flag.
+ID_ERR_FLG: db 0; Id name error flag.
+ERROR_FLAG: db 0; Error flag_terminate program if set to 1.
+COMMA_FLAG: db 0; Indicate the number of commas incounterd.
+HWCP_FLAG: db 0; Flag for multiple hwcps.
+DESG_FLAG: db 0; Flag indicates desg. and font.
 
 ;Main part of program-links different sumbroutines together
 
-PARSER		PROC
+PARSER:
 
 		PUSH	AX			; ;;;;;;;;;;;;;;;;;;
 		PUSH	BX			; ;
@@ -477,7 +477,7 @@ GET_PARMS_A:	CALL	GET_CHAR		; Get command character in AL .
 		CALL	IS_DELIM		; If not a delimiter then.
 		JNE	GET_PARMS_A		; Check next character.
 
-		MOV	DI,OFFSET TABLE 	; Get the table address.
+		MOV	DI,TABLE 	; Get the table address.
 		ADD	DI,02H			; Point at devices offsets.
 		MOV	BX,DI			;
 		ADD	BX,08H			; Point BX at parms offsets.
@@ -530,13 +530,13 @@ ID:		MOV	ID_ERR_FLG,00H		; Set id error flag off.
 		JE	EXIT_A			; Print error message and exit
 		JMP	EXIT_H			; Then exit.
 
-EXIT_A: 	MOV	DI,OFFSET TABLE 	; Load table offset
-		MOV	DS:WORD PTR [DI],00H	; Set error to on.
+EXIT_A: 	MOV	DI,TABLE 	; Load table offset
+		MOV	DS:word [DI],00H	; Set error to on.
 		STC				; Set carry flag
 		JMP	EXIT_P			; Exit parse.
 
-EXIT_H: 	MOV	DI,OFFSET TABLE 	; Load table offset.
-		ADD	DS:WORD PTR [DI],01H	; Increment number of devices.
+EXIT_H: 	MOV	DI,TABLE 	; Load table offset.
+		ADD	DS:word [DI],01H	; Increment number of devices.
 		CMP	DEVNUM,08H		; If 4 devices loaded
 		JE	EXIT_C			; Then exit parse.
 		ADD	DEVNUM,02H		; Increment the number of devices
@@ -557,7 +557,7 @@ EXIT_P: 	POP	SI			; ;;;;;;;;;;;;;;;;;;
 		POP	AX			; ;;;;;;;;;;;;;;;;;;
 		RET
 
-PARSER		ENDP
+; ENDP PARSER
 
 
 ;********************************************************
@@ -565,9 +565,9 @@ PARSER		ENDP
 ;** to by ES:SI into AL.			       **
 ;********************************************************
 
-GET_CHAR	PROC
+GET_CHAR:
 
-		MOV	AL,ES:BYTE PTR [SI]	; Load character pointed to
+		MOV	AL,ES:byte [SI]	; Load character pointed to
 		CMP	AL,09H			; by ES:[SI] in AL.
 		JE	ZOFF			; If tab then O.K
 		CMP	AL,20H			; Turn Z-flag on
@@ -578,7 +578,7 @@ ZOFF:		INC	SI			; is below
 TURN_Z_ON:	CMP	AL,AL			;   delimiters ).
 GET_CHAR_X:	RET
 
-GET_CHAR	ENDP
+; ENDP GET_CHAR
 
 
 ;********************************************************
@@ -587,7 +587,7 @@ GET_CHAR	ENDP
 ;** If character is lower case, convert to upper case. **
 ;********************************************************
 
-IS_ALPHA	PROC
+IS_ALPHA:
 
 		PUSH	AX			; Save value of AL
 		AND	AL,0DFH 		; Convert to upper case
@@ -601,7 +601,7 @@ IS_ALPHA	PROC
 IS_ALPHA_X:	POP	AX			; Restore value of AL
 IA_X:		RET
 
-IS_ALPHA	ENDP
+; ENDP IS_ALPHA
 
 
 ;********************************************************
@@ -609,7 +609,7 @@ IS_ALPHA	ENDP
 ;** AL register is a digit (i.e. 1..9). 	       **
 ;********************************************************
 
-IS_DIGIT	PROC
+IS_DIGIT:
 
 		CMP	AL,'0'                  ; If < '0' then
 		JB	IS_NUM_X		; NZ-flag is set, exit
@@ -618,7 +618,7 @@ IS_DIGIT	PROC
 		CMP	AL,AL			; Set Z-flag to indecate digit
 IS_NUM_X:	RET
 
-IS_DIGIT	ENDP
+; ENDP IS_DIGIT
 
 
 ;********************************************************
@@ -626,7 +626,7 @@ IS_DIGIT	ENDP
 ;** AL is a delimiter. ('+',' ',';',',','=',tab)       **
 ;********************************************************
 
-IS_DELIM	PROC
+IS_DELIM:
 
 		CMP	AL,' '                  ; Test for space.
 		JE	IS_DELIM_X		; Z-flag is set, exit
@@ -640,7 +640,7 @@ IS_DELIM	PROC
 
 IS_DELIM_X:	RET				; Exit
 
-IS_DELIM	ENDP
+; ENDP IS_DELIM
 
 
 ;********************************************************
@@ -648,10 +648,10 @@ IS_DELIM	ENDP
 ;** store in table.  Update offset.		       **
 ;********************************************************
 
-DEVICE_PARSE	PROC
+DEVICE_PARSE:
 
 		MOV	DI,TABLE_2
-		MOV	DS:WORD PTR [DI],0008H	; Save dev name size.
+		MOV	DS:word [DI],0008H	; Save dev name size.
 		ADD	DI,02H			; Increment DI.
 		MOV	CX,9			; Set counter.
 NEXT_C: 	CALL	IS_ALPHA		; if Check then.
@@ -669,7 +669,7 @@ NEXT_C: 	CALL	IS_ALPHA		; if Check then.
 SAVE_C: 	DEC	CX			; Decrement counter.
 		CMP	CX,0			; If counter zero then.
 		JE	ERR_DEV_PAR		; Error.
-		MOV	DS:BYTE PTR [DI],AL	; Save char in table.
+		MOV	DS:byte [DI],AL	; Save char in table.
 		INC	DI			; Increment pointer.
 		CALL	GET_CHAR		; Get another char.
 		JZ	ERR_DEV_PAR
@@ -681,12 +681,12 @@ ERR_DEV_PAR:	MOV	DEV_ERR_FLG,01H 	; Set error flag.
 ADD_SPACE1:	DEC	CX			; Check counter.
 		CMP	CX,1
 		JL	DEV_PAR_X		; Exit if already 8.
-LL1:		MOV	DS:BYTE PTR [DI],' '    ; Pad name with spaces.
+LL1:		MOV	DS:byte [DI],' '    ; Pad name with spaces.
 		INC	DI			; Increment pointer.
 		LOOP	LL1			; Loop again.
 DEV_PAR_X:	RET
 
-DEVICE_PARSE	ENDP
+; ENDP DEVICE_PARSE
 
 
 ;********************************************************
@@ -694,10 +694,10 @@ DEVICE_PARSE	ENDP
 ;** store in table.  Update offset.		       **
 ;********************************************************
 
-ID_PARSE	PROC
+ID_PARSE:
 
 		MOV	DI,TABLE_3
-		MOV	DS:WORD PTR [DI],0008H	; Save dev name size.
+		MOV	DS:word [DI],0008H	; Save dev name size.
 		ADD	DI,02H			; Increment DI.
 		MOV	RIGHT_FLAG,00H		; Clear flag.
 		MOV	CX,9			; Set counter.
@@ -719,7 +719,7 @@ NEXT_I: 	CALL	IS_ALPHA		; If Check then.
 SAVE_I: 	DEC	CX			; Decrement counter.
 		CMP	CX,0			; If counter zero then.
 		JLE	ERR_ID_PAR		; Error.
-		MOV	DS:BYTE PTR [DI],AL	; Save char in table.
+		MOV	DS:byte [DI],AL	; Save char in table.
 		INC	DI			; Increment pointer.
 		CALL	GET_CHAR		; Get another char.
 		JZ	ADD_SPACE2		; Exit routine.
@@ -745,13 +745,13 @@ ADD_SPACE2:	DEC	CX			; Check counter.
 		CMP	CX,1
 		JL	ID_PAR_X		; Exit if already 8.
 
-LL2:		MOV	DS:BYTE PTR [DI],' '    ; Pad name with spaces.
+LL2:		MOV	DS:byte [DI],' '    ; Pad name with spaces.
 		INC	DI			; Increment pointer.
 		LOOP	LL2			; Loop again.
 
 ID_PAR_X:	RET
 
-ID_PARSE	ENDP
+; ENDP ID_PARSE
 
 ;********************************************************
 ;** HWCP_PARMS : Scane for the hardware code page, and **
@@ -762,7 +762,7 @@ ID_PARSE	ENDP
 ;********************************************************
 
 
-HWCP_PARMS	PROC
+HWCP_PARMS:
 
 		MOV	COMMA_FLAG,00H		; Set the comma flag off.
 		MOV	ERROR_FLAG,00H		; Set the error flag off.
@@ -804,7 +804,7 @@ HWCP_2: 	CMP	RIGHT_FLAG,01H		; If left bracket not set
 HP1:		JMP	HWCP			; Jump too long.
 
 COM_2_HC:	MOV	DI,TABLE_4		; DI points at hwcp table
-		MOV	DS:WORD PTR [DI],0000H	; Set number of pages to
+		MOV	DS:word [DI],0000H	; Set number of pages to
 		MOV	COMMA_FLAG,00H		; Zero and reset comma flag.
 		ADD	DI,02H			; Increment DI.
 		MOV	TABLE_5,DI		; Desg. Table starts at end
@@ -819,7 +819,7 @@ RB1:		MOV	ERROR_FLAG,02H		; Set end of line flag.
 		MOV	TABLE_5,BX		; table, and save in table_5
 		MOV	DI,TABLE_1		; Point at table of offsets
 		ADD	DI,08H			; Set at DESG offset
-		MOV	DS:WORD PTR [DI],BX	; Update table.
+		MOV	DS:word [DI],BX	; Update table.
 		JMP	HP_X			; Exit
 
 
@@ -836,7 +836,7 @@ HWCP:		CMP	RIGHT_FLAG,01H		; If left brackets not
 
 HP_X:		RET
 
-HWCP_PARMS	ENDP
+; ENDP HWCP_PARMS
 
 
 ;********************************************************
@@ -844,21 +844,21 @@ HWCP_PARMS	ENDP
 ;** number and change it from hex to binary.	       **
 ;********************************************************
 
-HWCP_PARSE	PROC
+HWCP_PARSE:
 
 		MOV	DI,TABLE_4		; Load address of hwcpages.
-		ADD	DS:WORD PTR [DI],0001H	; Set count to 1
+		ADD	DS:word [DI],0001H	; Set count to 1
 
 		CALL	GET_NUMBER		; Convert number to binary.
 		CMP	ERROR_FLAG,01H		; If error then
 		JE	HWCP_X			; Exit.
-		MOV	DS:WORD PTR [DI+2],BX	; Else, save binary page number
+		MOV	DS:word [DI+2],BX	; Else, save binary page number
 		ADD	DI,04H			; Increment counter
 		MOV	TABLE_5,DI		; Set pointer of designate num
 
 HWCP_X: 	RET
 
-HWCP_PARSE	ENDP
+; ENDP HWCP_PARSE
 
 
 ;********************************************************
@@ -866,7 +866,7 @@ HWCP_PARSE	ENDP
 ;** and convert them from hex to binary numbers.       **
 ;********************************************************
 
-MUL_HWCP	PROC
+MUL_HWCP:
 
 		MOV	DI,TABLE_4		; Load offset of table_4
 		MOV	BX,DI			; in DI and Bx.
@@ -892,16 +892,16 @@ MH4:		ADD	HWCP_FLAG,01H		; Set hwcp flag on (0 off)
 		ADD	DI,02H			; Increment table pointer
 		PUSH	BX			; Save Bx
 		CALL	GET_NUMBER		; Convert number to binary.
-		MOV	DS:WORD PTR [DI],BX	; Add number to table
+		MOV	DS:word [DI],BX	; Add number to table
 		POP	BX			; Restore BX.
 		CMP	ERROR_FLAG,01H		; If error then
 		JE	MH_X			; Exit.
-		ADD	DS:WORD PTR [BX],01H	; Increment hwcp count.
+		ADD	DS:word [BX],01H	; Increment hwcp count.
 		DEC	SI			; Point at character in AL
 		JMP	MH1			;   (delimeter or ')').
 MH_X:		RET
 
-MUL_HWCP	ENDP
+; ENDP MUL_HWCP
 
 
 
@@ -914,12 +914,12 @@ MUL_HWCP	ENDP
 ;********************************************************
 
 
-DESG_PARMS	PROC
+DESG_PARMS:
 
 		MOV	DI,TABLE_1		; Get offset of dev in DI
 		MOV	BX,TABLE_5		; & offset of desg. in BX.
 		ADD	DI,08			; Location of desg offset in table.
-		MOV	DS:WORD PTR [DI],BX	; Update table.
+		MOV	DS:word [DI],BX	; Update table.
 		MOV	COMMA_FLAG,00H		; Set comma flag off.
 
 		cmp	al,'('
@@ -974,7 +974,7 @@ DP1:		CMP	ERROR_FLAG,01H		; If error flag on then
 
 DP_X:		RET
 
-DESG_PARMS	ENDP
+; ENDP DESG_PARMS
 
 
 
@@ -984,7 +984,7 @@ DESG_PARMS	ENDP
 ;********************************************************
 
 
-DESG_FONT	PROC
+DESG_FONT:
 
 
 		MOV	DI,TABLE_5		; Get desg font table.
@@ -1004,8 +1004,8 @@ DF1:		CALL	GET_CHAR		; Load a character in AL.
 DF2:		CMP	COMMA_FLAG,01H		; If comma flag on
 		JE	DF3			; then error, exit
 		MOV	COMMA_FLAG,01H		; Set comma flag on
-		ADD	DS:WORD PTR [DI],01H	  ; Increment desg counter.
-		MOV	DS:WORD PTR [DI+2],0FFFFH ; Load ffffh for desg empty
+		ADD	DS:word [DI],01H	  ; Increment desg counter.
+		MOV	DS:word [DI+2],0FFFFH ; Load ffffh for desg empty
 		JMP	DF1			  ; field.
 
 DF3:		MOV	ERROR_FLAG,01H		; Set error flag on.
@@ -1015,7 +1015,7 @@ DF4:		CMP	DESG_FLAG,00H		; If desg flag off
 		JE	DF3			; then error, exit
 		JMP	DF_X			; Else exit.
 
-DF5:		ADD	DS:WORD PTR [DI],01H	; Increment desg font count.
+DF5:		ADD	DS:word [DI],01H	; Increment desg font count.
 		CMP	DESG_FLAG,01H		; If desg flag is on
 		JE	DF6			; then get font.
 		CMP	COMMA_FLAG,01H		; if comma flag is on
@@ -1028,14 +1028,14 @@ DF6:		ADD	DI,02H			; adjust pointer to font.
 DF7:		CALL	GET_NUMBER		; Get a number & convert to
 		CMP	ERROR_FLAG,01H		; binary.
 		JE	DF_X			; If error flag set, Exit.
-		MOV	DS:WORD PTR [DI+2],BX	; Store number in table.
+		MOV	DS:word [DI+2],BX	; Store number in table.
 		CMP	DESG_FLAG,02H		; If desg and font flag
 		JNE	DF1			; not set, then get char.
 		CALL	FIND_RIGHT_BR		; Check for right bracket.
 
 DF_X:		RET
 
-DESG_FONT	ENDP
+; ENDP DESG_FONT
 
 
 ;********************************************************
@@ -1043,21 +1043,21 @@ DESG_FONT	ENDP
 ;** change it from decimal to binary.		       **
 ;********************************************************
 
-DESG_PARSE	PROC
+DESG_PARSE:
 
 		MOV	DI,TABLE_5		; Load designate location
-		ADD	DS:WORD PTR [DI],0001H	; Update table count.
+		ADD	DS:word [DI],0001H	; Update table count.
 
 		CALL	GET_NUMBER		; Get the ascii number and
 		CMP	ERROR_FLAG,01H		; conver it to binary
 		JE	DESG_X			; If error then exit
 
-		MOV	DS:WORD PTR [DI+2],BX	; Else, save desg number
+		MOV	DS:word [DI+2],BX	; Else, save desg number
 
 
 DESG_X: 	RET
 
-DESG_PARSE	ENDP
+; ENDP DESG_PARSE
 
 
 ;********************************************************
@@ -1065,7 +1065,7 @@ DESG_PARSE	ENDP
 ;** to a binary number and store it in BX	       **
 ;********************************************************
 
-GET_NUMBER	PROC
+GET_NUMBER:
 
 		MOV	CX,0AH			; Set multiplying factor
 		XOR	BX,BX			; Clear DX
@@ -1088,7 +1088,7 @@ ERR_NUM:	MOV	ERROR_FLAG,01H		; Set error code to 1.
 
 GET_NUM_X:	RET
 
-GET_NUMBER	ENDP
+; ENDP GET_NUMBER
 
 
 ;********************************************************
@@ -1096,27 +1096,27 @@ GET_NUMBER	ENDP
 ;** different offsets of the different tables	       **
 ;********************************************************
 
-UPDATE_TABLE	PROC
+UPDATE_TABLE:
 
-		MOV	DS:WORD PTR [DI],BX	; Offset of offsets
+		MOV	DS:word [DI],BX	; Offset of offsets
 		MOV	TABLE_1,BX		; Table_1 points at offsets
 
 		MOV	DI,BX			;
 		ADD	BX,0CH			;
-		MOV	DS:WORD PTR [DI+2],BX	; Offset of DEVICE name.
+		MOV	DS:word [DI+2],BX	; Offset of DEVICE name.
 		MOV	TABLE_2,BX		; Table_2 point at device name.
 
 		ADD	BX,0AH			;
-		MOV	DS:WORD PTR [DI+4],BX	; Offset of ID name.
+		MOV	DS:word [DI+4],BX	; Offset of ID name.
 		MOV	TABLE_3,BX		; Table_3 point at ID name.
 
 		ADD	BX,0AH			;
-		MOV	DS:WORD PTR [DI+6],BX	; Offset of HWCP pages.
+		MOV	DS:word [DI+6],BX	; Offset of HWCP pages.
 		MOV	TABLE_4,BX		; Table_4 point at HWCP pages.
 
 		RET
 
-UPDATE_TABLE	ENDP
+; ENDP UPDATE_TABLE
 
 
 ;********************************************************
@@ -1124,13 +1124,13 @@ UPDATE_TABLE	ENDP
 ;** tables number one and two.			       **
 ;********************************************************
 
-OFFSET_TABLE	PROC
+OFFSET_TABLE:
 
 		MOV	DI,TABLE_1		; Increment the number
-		ADD	DS:WORD PTR [DI],01H	; of parms foun. (ie. id,hwcp
+		ADD	DS:word [DI],01H	; of parms foun. (ie. id,hwcp
 		RET				; and desg)
 
-OFFSET_TABLE	ENDP
+; ENDP OFFSET_TABLE
 
 
 ;********************************************************
@@ -1138,7 +1138,7 @@ OFFSET_TABLE	ENDP
 ;** ')' if cannot find it turns error flag on          **
 ;********************************************************
 
-FIND_RIGHT_BR	PROC
+FIND_RIGHT_BR:
 
 FBR1:		CMP	AL,')'                  ; If a right bracket
 		JE	FBR_X			; then exit.
@@ -1152,7 +1152,7 @@ FBR2:		MOV	ERROR_FLAG,01H		; Set error flag on
 FBR_X:		MOV	AL,20H			; Erase character from AL.
 		RET
 
-FIND_RIGHT_BR	ENDP
+; ENDP FIND_RIGHT_BR
 
 ;;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ;;
@@ -1187,7 +1187,7 @@ FIND_RIGHT_BR	ENDP
 ;;
 ;;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 					;;
-DEV_NUM dw	?			;;
+DEV_NUM: dw 0;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -1224,7 +1224,7 @@ DID_THREE EQU	  00004H		;; third  "
 DID_FOUR  EQU	  00008H		;; fourth "
 ;;maximun number of device_id = 16	;;
 					;;
-DID_BIT LABEL WORD			;;
+DID_BIT:;;
 	DW	DID_ONE 		;;
 	DW	DID_TWO 		;;
 	DW	DID_THREE		;;
@@ -1236,35 +1236,35 @@ DID_BIT LABEL WORD			;;
 					;; parameters defined for the device_id
 					;; in the printer description table.
 					;;
-HRMAX	LABEL	word			;; number of hwcp+cart slots supported
+HRMAX:;; number of hwcp+cart slots supported
 	DW	0			;;  did = 1
 	DW	0			;;  did = 2
 	DW	0			;;  did = 3
 	DW	0			;;  did = 4
 ;upto max  DID_MAX			;;
 					;;
-CTMAX	LABEL	word			;; number of cart slots supported
+CTMAX:;; number of cart slots supported
 	DW	0			;;  did = 1
 	DW	0			;;  did = 2
 	DW	0			;;  did = 3
 	DW	0			;;  did = 4
 ;upto max  DID_MAX			;;
 					;;
-RMMAX	LABEL	word			;; number of ram-slots supported
+RMMAX:;; number of ram-slots supported
 	DW	0			;;  did = 1
 	DW	0			;;  did = 2
 	DW	0			;;  did = 3
 	DW	0			;;  did = 4
 ;upto max  DID_MAX			;;
 					;;
-RBUMAX	LABEL	word			;; number of ram-designate slots
+RBUMAX:;; number of ram-designate slots
 	DW	0			;;  did = 1
 	DW	0			;;  did = 2
 	DW	0			;;  did = 3
 	DW	0			;;  did = 4
 ;upto max  DID_MAX			;;
 					;;
-DESCO	LABEL	word			;; offset to the description table
+DESCO:;; offset to the description table
 					;; where the device_id is defined.
 	DW	-1			;;  did = 1
 	DW	-1			;;  did = 2
@@ -1272,7 +1272,7 @@ DESCO	LABEL	word			;; offset to the description table
 	DW	-1			;;  did = 4
 ;upto max  DID_MAX			;;
 					;;
-FSIZE	LABEL	word			;; font size of the device
+FSIZE:;; font size of the device
 	DW	 0			;;  did = 1
 	DW	 0			;;  did = 2
 	DW	 0			;;  did = 3
@@ -1290,18 +1290,18 @@ FSIZE	LABEL	word			;; font size of the device
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-HARD_SLA LABEL	word			;; index in the order of device in
-	DW	OFFSET	(HARD_SL1)	;; the PARSE-talbes
-	DW	OFFSET	(HARD_SL2)	;;
-	DW	OFFSET	(HARD_SL3)	;;
-	DW	OFFSET	(HARD_SL4)	;;
+HARD_SLA:;; index in the order of device in
+	DW	(HARD_SL1)	;; the PARSE-talbes
+	DW	(HARD_SL2)	;;
+	DW	(HARD_SL3)	;;
+	DW	(HARD_SL4)	;;
 ; up to DID_MAX 			;;
 					;;
-RAM_SLA LABEL	word			;;
-	DW	OFFSET (RAM_SL1)	;;
-	DW	OFFSET (RAM_SL2)	;;
-	DW	OFFSET (RAM_SL3)	;;
-	DW	OFFSET (RAM_SL4)	;;
+RAM_SLA:;;
+	DW	(RAM_SL1)	;;
+	DW	(RAM_SL2)	;;
+	DW	(RAM_SL3)	;;
+	DW	(RAM_SL4)	;;
 ; up to DID_MAX 			;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1312,7 +1312,7 @@ RAM_SLA LABEL	word			;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-INIT	PROC	NEAR			;;
+INIT:;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; parse the initialization parameters in DEVICE command
@@ -1323,7 +1323,7 @@ INIT	PROC	NEAR			;;
 	JNE	NOT_PRN 		;;
 					;;
 					;;
-	MOV	AX,OFFSET CODE_END	;; defined only once for each DEVICE
+	MOV	AX,CODE_END	;; defined only once for each DEVICE
 	XOR	CX,CX			;;
 	MOV	CL,4			;;
 	SHR	AX,CL			;;
@@ -1374,7 +1374,7 @@ PROCESS_TABLE : 			;;
 					;;
 	XOR	AX,AX			;;
 	MOV	AH,09H			;;
-	MOV	DX,OFFSET MSG_BAD_SYNTAX;;
+	MOV	DX,MSG_BAD_SYNTAX;;
 	INT	21H			;;
 					;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1398,7 +1398,7 @@ CS_LPEND1:				;;
 	SHL	AX,1			;;
 	SHL	AX,1			;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;; get Request Header address
+	LES	DI,dword buf.rh_ptro ;; get Request Header address
 ;	MOV	RH.RH0_ENDO,AX		;;
 	MOV	RH.RH0_ENDO,0		;;
 	MOV	RH.RH0_ENDS,CX		;;
@@ -1435,7 +1435,7 @@ SCAN_DESC:				;;
 $$DO1:
 	    PUSH    CX			;; save device count
 	    PUSH    SI			;; pointer to printer-descn's offset
-	    MOV     SI,CS:WORD PTR[SI]	;;
+	    MOV     SI,CS:word[SI]	;;
 	    AND     CX,CX		;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	$LEAVE	Z			;; LEAVE if no more device description
@@ -1558,7 +1558,7 @@ MORE_DEVICE :				;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	    MOV     CX,PSE.PAR_DNML	;; length of parsed device name
 	    LEA     DI,PSE.PAR_DNM	;; pointer to parse device name
 					;;
-	    LDS     SI,DWORD PTR BUF.DEV_HDRO ; get the offset to device-n header
+	    LDS     SI,dword BUF.DEV_HDRO ; get the offset to device-n header
 	    LEA     SI,HP.DH_NAME	;; "       offset to name of device-n
 	    REPE    CMPSB		;;
 	    POP     DI			;; get back offset to PAR_DEVOT
@@ -1673,7 +1673,7 @@ CS_LPEND2:				;;
 	SHL	AX,1			;;
 	SHL	AX,1			;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;; get Request Header address
+	LES	DI,dword buf.rh_ptro ;; get Request Header address
 	MOV	RH.RH0_ENDO,AX		;;
 	MOV	RH.RH0_ENDS,CX		;;
 	XOR	AX,AX			;; clear error code to be returned
@@ -1748,7 +1748,7 @@ CS_LPENd3:				;;
 					;;
 					;;
 CODE_STAYED :				;;
-	MOV	DI,OFFSET TABLE 	;;
+	MOV	DI,TABLE 	;;
 	push	CS			;;
 	POP	ES			;;
 					;;
@@ -1781,14 +1781,14 @@ MSG_LOOP :				;;
 	REPE	SCASB			;;
 	CLD				;;
 					;;
-	MOV	DI, OFFSET MSG_NO_INIT_P;;
+	MOV	DI, MSG_NO_INIT_P;;
 	MOV	DX,DI			;; for INT 21H
 	XOR	AX,AX			;;
 	MOV	AH,09H			;;
 	INT	21H			;;
 					;;
 					;;
-	MOV	DI, OFFSET MSG_NO_INIT	;;
+	MOV	DI, MSG_NO_INIT	;;
 	MOV	DX,DI			;; for INT 21H
 					;;
 	INC	CX			;;
@@ -1823,7 +1823,7 @@ INIT_RETURN :				;;
 					;;
 	RET				;;
 					;;
-INIT	ENDP				;;
+; ENDP INIT;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Call by INIT to extract parameters for the deivce_id
@@ -1836,7 +1836,7 @@ INIT	ENDP				;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
 					;;
-DID_EXTRACT PROC			;;
+DID_EXTRACT:;;
 					;;
 	PUSH	DX			;;
 					;;-----------------------------
@@ -2060,7 +2060,7 @@ END_MATCH_BAD : 			;;
 					;;
 	RET				;;
 					;;
-DID_EXTRACT ENDP			;;
+; ENDP DID_EXTRACT;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -2070,7 +2070,7 @@ DID_EXTRACT ENDP			;;
 ;; at entry :  CX = device order in parse table
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CHK_DID PROC				;;
+CHK_DID:;;
 					;;
 	push	cx			;;
 	push	di			;;
@@ -2203,7 +2203,7 @@ MULTIPLE_DONE : 			;;
 	MOV	SI,BUF.PDESCO		;;
 	MOV	SI,CS:[SI].SELH_O	;;
 	XOR	CX,CX			;;
-	MOV	CL,CS:BYTE PTR [SI]	;;
+	MOV	CL,CS:byte [SI]	;;
 	INC	CX			;; including the length byte
 					;;
 	MOV	DI,BUF.FTSTART		;; control template
@@ -2234,7 +2234,7 @@ DEF_FThwcp :				;;
 	MOV	DI,CTL5202_OFFS 	;; offset to the HWCP words
 					;;
 	MOV	AX,CS:[SI].SLT_CP	;;
-	MOV	ES:WORD PTR [DI],AX	;;
+	MOV	ES:word [DI],AX	;;
 					;;
 	INC	SI			;;
 	INC	SI			;;
@@ -2288,7 +2288,7 @@ RET_CHK_DID:				;;
 					;;
 	RET				;;
 					;;
-CHK_DID ENDP				;;
+; ENDP CHK_DID;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -2301,7 +2301,7 @@ CHK_DID ENDP				;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-DEV_CHECK PROC				;;
+DEV_CHECK:;;
 					;;
 	LEA	SI,BUF.PAR_EXTRACTO	;;
 					;;
@@ -2414,9 +2414,9 @@ DEV_CHECK_RET : 			;;
 	RET				;;
 					;;
 					;;
-DEV_CHECK ENDP				;;
+; ENDP DEV_CHECK;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-CSEG	ENDS
-	END
+; END SECTION .CSEG
+	; END

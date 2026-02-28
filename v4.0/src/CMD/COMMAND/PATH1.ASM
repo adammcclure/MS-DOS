@@ -1,15 +1,15 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)path1.asm	1.1 85/05/14
 ;	SCCSID = @(#)path1.asm	1.1 85/05/14
-.sall
-.xlist
-.xcref
-INCLUDE DOSSYM.INC
-    include comsw.asm
-    include comseg.asm
-    include comequ.asm
-.list
-.cref
+; .sall
+; .xlist
+; .xcref
+%include "DOSSYM.INC"
+    %include "comsw.asm"
+    %include "comseg.asm"
+    %include "comequ.asm"
+; .list
+; .cref
 
 break <Path.Asm>
 ;----------------------------------------------------------------------------
@@ -56,24 +56,24 @@ break <Path.Asm>
 ; DATA:
 ;---------------
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	baddrv_ptr:word
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern baddrv_ptr
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg:byte
-	EXTRN	BADPMES_ptr:word
-	EXTRN	curdrv:byte
-	EXTRN	EXECPATH:byte
-	EXTRN	search_best_buf:byte
-	EXTRN	search_error:word
-	EXTRN	string_ptr_2:word
-	EXTRN	tpbuf:byte
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern arg
+	extern BADPMES_ptr
+	extern curdrv
+	extern EXECPATH
+	extern search_best_buf
+	extern search_error
+	extern string_ptr_2
+	extern tpbuf
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE	;AC000;
+SECTION .TRANCODE;AC000;
 
-assume cs:trangroup, ds:trangroup, es:trangroup, ss:nothing
+; assume cs:trangroup, ds:trangroup, es:trangroup, ss:nothing
 
 break <Path_Search>
 ;------------------------------------------------------------------------------
@@ -105,11 +105,11 @@ break <Path_Search>
 pbuflen 	equ	128		; length of EXECPATH
 path_sep_char	equ	';'
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	fbuf:byte
-	EXTRN	pathinfo:word
-	EXTRN	psep_char:byte
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern fbuf
+	extern pathinfo
+	extern psep_char
+; END SECTION .TRANSPACE
 
 Procedure   Path_Search,NEAR
 
@@ -128,7 +128,7 @@ path_failure_jmp:
 
 path_search_ok:
 	call	store_pchar			; figure out the pathname separator
-	mov	DX, OFFSET TRANGROUP:fbuf	; clobber old dma value with
+	mov	DX, fbuf	; clobber old dma value with
 	trap	set_dma 			; a pointer to our dma buffer
 	push	ES
 	invoke	find_path			; get a handle (ES:DI) on user path
@@ -138,18 +138,18 @@ path_search_ok:
 	pop	ES
 
 	mov	BX, pbuflen			; copy/format argv[0] into temp buffer
-	mov	SI, OFFSET TRANGROUP:EXECPATH
+	mov	SI, EXECPATH
 	invoke	strip
 	jc	path_failure_jmp		; if possible, of course
 
 	mov	DX, SI				; search(EXECPATH, error_message)
-	mov	[search_error], OFFSET TRANGROUP:BADDRV_ptr
+	mov	[search_error], BADDRV_ptr
 	invoke	search				; must do at least one search
 	or	AX, AX				; find anything?
 	jz	path_noinit			; failure ... search farther
 
 	mov	BP, AX				; success... save filetype code
-	mov	DI, OFFSET TRANGROUP:EXECPATH
+	mov	DI, EXECPATH
 	mov	SI, DS:arg.argv[0].argpointer
 	mov	CX, DS:arg.argv[0].argstartel
 	sub	CX, SI				; compute prefix bytes to copy
@@ -212,11 +212,11 @@ AddPath:
 	mov	di,si
 	RestoreReg  <SI>
 	mov	al,psep_char
-	cmp	byte ptr [di],0 		; root (empty dir string)?
+	cmp	byte [di],0 		; root (empty dir string)?
 	jz	MovePath			; yes, no need for path char
 
 ScanEnd:
-	cmp	byte ptr [dI],0 		; end of string?
+	cmp	byte [dI],0 		; end of string?
 	jz	FoundEnd
 	inc	di
 	jmp	ScanEnd
@@ -248,7 +248,7 @@ path_noinit:
 	mov	BH, path_sep_char		; semicolon terminates pathstring
 	mov	DX, DS:arg.argv[0].argstartel	; this is where the last element starts
 	sub	DX, DS:arg.argv[0].argpointer	; form pointer into EXECPATH,
-	add	DX, OFFSET TRANGROUP:EXECPATH	; skipping over drive spec, if any
+	add	DX, EXECPATH	; skipping over drive spec, if any
 
 path_loop:
 	call	path_crunch			; pcrunch(EXECPATH, pathinfo)
@@ -266,7 +266,7 @@ path_failure:
 	jmp	path_exit			;AC000;  3/3/KK
 
 path_found:					; pathinfo[] points to winner
-	mov	DI, OFFSET TRANGROUP:EXECPATH
+	mov	DI, EXECPATH
 	mov	CX, pathinfo[4] 		; "new" pointer -- end of string
 	mov	SI, pathinfo[2] 		; "old" pointer -- beginning of string
 
@@ -278,7 +278,7 @@ path_found:					; pathinfo[] points to winner
 	push	ES
 	push	pathinfo[0]
 	pop	ES
-	cmp	Byte Ptr ES:[SI+2],'.'          ; Look for Current dir at start of path
+	cmp	byte ES:[SI+2],'.'          ; Look for Current dir at start of path
 	jnz	path_cpy
 
 	push	CX				; Save pointer to end of string
@@ -334,14 +334,14 @@ NotKanj1:
 	pop	DS				; return to our segment
 	dec	DI				; overwrite terminator
 	mov	AL, psep_char			; with a pathname separator
-	cmp	al,byte ptr [di-1]
+	cmp	al,byte [di-1]
 	jz	path_success
 
 path_store:					;AN000;  3/3/KK
 	stosb
 
 path_success:
-	mov	SI, OFFSET TRANGROUP:search_best_buf
+	mov	SI, search_best_buf
 	xor	CX, CX
 
 path_succ_loop:
@@ -423,7 +423,7 @@ Procedure   Path_Crunch,NEAR
 	push	SI
 	pushf
 	call	store_pchar			; figure out pathname separator
-	mov	DI, OFFSET TRANGROUP:tpbuf	; destination of concatenated string
+	mov	DI, tpbuf	; destination of concatenated string
 	mov	SI, pathinfo[4] 		; "new" pointer to start with
 	mov	pathinfo[2], SI 		; becomes "old" pointer
 	push	DS				; save old segment pointer
@@ -455,14 +455,14 @@ path_seg:
 	mov	BL, AL				; remember if we saw null or not...
 						;;; REMOVE NEXT 3 LINES FOR CURDIR SPEC
 	xor	AX, AX				; in case nothing in pathstr...
-	cmp	DI, OFFSET TRANGROUP:tpbuf	; was there really anything in pathstr?
+	cmp	DI, tpbuf	; was there really anything in pathstr?
 	je	path_cr_leave			; if nothing was copied, pathstr empty
 
 path_cr_look:					; form complete pathname
 	mov	al, psep_char			; add pathname separator for suffix
 	or	cl,cl				;AN000;  3/3/KK
 	jnz	path_cr_store			;AN000;  this is a trailing byte of ECS code 3/3/KK
-	cmp	al,byte ptr [di-1]
+	cmp	al,byte [di-1]
 	jz	path_cr_l1
 
 path_cr_store:					;AN000;  3/3/KK
@@ -476,8 +476,8 @@ path_cr_l2:
 	stosb					; the end of the path, up to and
 	or	AL, AL				; including the terminating null
 	jnz	path_cr_l2
-	mov	DX, OFFSET TRANGROUP:tpbuf	; and look for an appropriate file...
-	mov	[search_error], OFFSET TRANGROUP:BADPMES_ptr
+	mov	DX, tpbuf	; and look for an appropriate file...
+	mov	[search_error], BADPMES_ptr
 	invoke	search				; results are in AX & search_best_buf
 
 path_cr_leave:
@@ -503,5 +503,5 @@ EndProc Path_Crunch
 ;----------------------------------------------------------------------------
 
 
-trancode    ends
-END
+; END SECTION .trancode
+; END

@@ -1,18 +1,18 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)iparse.asm 4.1 87/04/28
 ;	SCCSID = @(#)iparse.asm 4.1 87/04/28
-TITLE	COMMAND interface to SYSPARSE
+; TITLE	COMMAND interface to SYSPARSE
 
-.xlist
-.xcref
-	INCLUDE comseg.asm		;AN000;
-.list
-.cref
+; .xlist
+; .xcref
+	%include "comseg.asm";AN000;
+; .list
+; .cref
 
 
-INIT		SEGMENT PUBLIC PARA	;AN000;
+SECTION .INIT;AN000;
 
-ASSUME	CS:RESGROUP,DS:RESGROUP,ES:NOTHING,SS:NOTHING	;AN000;
+; ASSUME	CS:RESGROUP,DS:RESGROUP,ES:NOTHING,SS:NOTHING;AN000;
 
 
 ;AD054; public	SYSPARSE		;AN000;
@@ -26,13 +26,13 @@ ASSUME	CS:RESGROUP,DS:RESGROUP,ES:NOTHING,SS:NOTHING	;AN000;
 	QusSW	equ	0		;AN025; do not include quoted string
 	DrvSW	equ	0		;AN025; do not include drive only
 
-.xlist
-.xcref
+; .xlist
+; .xcref
 ;AD054; INCLUDE parse.asm		;AN000;
-.list
-.cref
+; .list
+; .cref
 
 
-INIT	    ends			;AN000;
-	    end 			;AN000;
+; END SECTION .INIT;AN000;
+	    ; end;AN000;
 

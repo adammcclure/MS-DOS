@@ -1,5 +1,5 @@
-page	,132				;
-TITLE	RECOVER.SAL - MS-DOS File/Disk Recovery Utility
+; page	,132;
+; TITLE	RECOVER.SAL - MS-DOS File/Disk Recovery Utility
 ;----------------------------------------------------------
 ;
 ;	Recover - Program to rebuild an ms.dos directory
@@ -7,65 +7,65 @@ TITLE	RECOVER.SAL - MS-DOS File/Disk Recovery Utility
 ;	Copyright 1988 by Microsoft Corporation
 ;
 ;-----------------------------------------------------------
-.xlist
-	include recchng.inc		;an000;bgb
-	include recseg.inc		;AN000;bgb
-	INCLUDE DOSSYM.INC		;AN000;bgb
-	INCLUDE RECEQU.INC		;AN000;bgb
-	INCLUDE RECdata.INC		;AN000;bgb
-	INCLUDE recmacro.inc		;AN000;bgb
-	INCLUDE sysmsg.INC		;AN000;bgb
-	include pathmac.inc
+; .xlist
+	%include "recchng.inc";an000;bgb
+	%include "recseg.inc";AN000;bgb
+	%include "DOSSYM.INC";AN000;bgb
+	%include "RECEQU.INC";AN000;bgb
+	%include "RECdata.INC";AN000;bgb
+	%include "recmacro.inc";AN000;bgb
+	%include "sysmsg.INC";AN000;bgb
+	%include "pathmac.inc"
 	msg_utilname<recover>
 ;										;AN000;bgb
 ;*****************************************************************************
 ; Extrn Declarations
 ;*****************************************************************************
-data	segment public para 'DATA'	;An000;bgb
-	extrn	Askmsg:Byte
-	extrn	Baddrv:Byte
-	extrn	FatErrRead:Byte
-	extrn	FATErrWrite:Byte
-	extrn	Dirmsg:Byte
-	extrn	RecMsg:Byte
-	extrn	OpnErr:Byte
-	extrn	no_mem_arg:word 	;an013;bgb
-data	ends				;AN000;bgb
+SECTION .data;An000;bgb
+	extern Askmsg
+	extern Baddrv
+	extern FatErrRead
+	extern FATErrWrite
+	extern Dirmsg
+	extern RecMsg
+	extern OpnErr
+	extern no_mem_arg;an013;bgb
+; END SECTION .data;AN000;bgb
 
 
 ;******************************************************************************
 ; Public entries
 ;******************************************************************************
-code	segment public para 'code'	;An000;bgb
+SECTION .code;An000;bgb
 	pathlabl recover
-public	GetFat, getSmall, getfat1, getret, SetFat, setsmall, f_exists		;AN000;bgb
-public nofspec, kill_bl, endl, next_char
-Public	Main_Routine
+global GetFat, getSmall, getfat1, getret, SetFat, setsmall, f_exists;AN000;bgb
+global nofspec, kill_bl, endl, next_char
+global Main_Routine
 
-IF KANJI
-   public islead
-   PUBLIC	notlead
-   PUBLIC	dbcsmore
-   PUBLIC	TESTKANJ
-ENDIF
+%if KANJI
+   global islead
+   global notlead
+   global dbcsmore
+   global TESTKANJ
+%endif
 
 
 ;PUBLIC  stop
-public	setfat2, setfat1, setRet, GetKeystroke, Prompt, Load, ReadFt, WrtFat	;AN000;bgb
-public	wrtit,	wrtok, fEOF, EOFok, printerr, SFFromFCB, Main_Routine		;AN000;bgb
-public	slashok, kill_bl, next_char, name_copied, sja, sjb, not_root		;AN000;bgb
-public	same_drive, sj1, no_errors, same_dir, noname, drvok, See_If_File	;AN000;bgb
-public	step2,	step3, step4, direrr, fill_dir, file_spec			;AN000;bgb
-public	RecFil, recfil0, rexit1, int_23, rabort, rest_dir, no_fudge		;AN000;bgb
-public	int_24, int_24_back, ireti, Read_File, Bad_File_Read, read_fats 	;AN000;bgb
-public	fill_fat, rexit2, sfsize, stop_read, calc_fat_addr			;an027;bgb
-	EXTRN	Write_Disk:NEAR,Read_Disk:NEAR,report:NEAR			; AC000;SM
-	Extrn	Main_Init:Near
-	Extrn	Change_Blanks:Near						;an012;bgb
-	Extrn	Build_String:Near
-	extrn	seg_adj:near
-	extrn	exitpgm:near						       ;an026;bgb
-.list
+global setfat2, setfat1, setRet, GetKeystroke, Prompt, Load, ReadFt, WrtFat;AN000;bgb
+global wrtit,	wrtok, fEOF, EOFok, printerr, SFFromFCB, Main_Routine;AN000;bgb
+global slashok, kill_bl, next_char, name_copied, sja, sjb, not_root;AN000;bgb
+global same_drive, sj1, no_errors, same_dir, noname, drvok, See_If_File;AN000;bgb
+global step2,	step3, step4, direrr, fill_dir, file_spec;AN000;bgb
+global RecFil, recfil0, rexit1, int_23, rabort, rest_dir, no_fudge;AN000;bgb
+global int_24, int_24_back, ireti, Read_File, Bad_File_Read, read_fats;AN000;bgb
+global fill_fat, rexit2, sfsize, stop_read, calc_fat_addr;an027;bgb
+	extern Write_Disk,Read_Disk,report; AC000;SM
+	extern Main_Init
+	extern Change_Blanks;an012;bgb
+	extern Build_String
+	extern seg_adj
+	extern exitpgm;an026;bgb
+; .list
 
 ;*****************************************************************************	;an005;bgb
 ;   calc_fat_addr - calculate the seg/off of the fat cell from the cell number	;an005;bgb
@@ -137,7 +137,7 @@ Procedure GetFat,NEAR
 	JNAE $$IF1
 					;can now be 'FFFF'hex			;an005;bgb
 		call	calc_fat_addr		; ;set up div by para		;an005;bgb
-		mov	bx,word ptr es:[bx]	; get contents of fat		;an005;bgb
+		mov	bx,word es:[bx]	; get contents of fat		;an005;bgb
 ;	$ELSE	;small fat		    ;AN000;bgb
 	JMP SHORT $$EN1
 $$IF1:
@@ -146,7 +146,7 @@ getSmall:   push    ax			    ;save fat-num     ;       i = clus + clus/2;
 	    sar     ax,1		    ;div by 2	      ;
 	    pushf			    ;save low bit     ;
 	    add     si,ax		    ;clus + clus/2    ;
-	    mov     bx,word ptr [bx][si]    ;	    b = b[i];
+	    mov     bx,word [bx][si]    ;	    b = b[i];
 	    popf			    ;get low bit      ;
 ;	    $IF     C			;AN000;bgb
 	    JNC $$IF3
@@ -183,7 +183,7 @@ Procedure SetFat,NEAR
 ;	$IF	AE  ;changed to above because max clusters now 'ffff'hex	;an005;bgb
 	JNAE $$IF6
 	    call    calc_fat_addr	    ; calc the fat cell addr		;an005;bgb
-	    mov     word ptr es:[bx],dx     ; get the contents			;an005;bgb
+	    mov     word es:[bx],dx     ; get the contents			;an005;bgb
 ;	$ELSE
 	JMP SHORT $$EN6
 $$IF6:
@@ -192,7 +192,7 @@ setsmall:   SaveReg <ax,dx>  ;yes, 12 bit fat
 	    sar     ax,1     ; fat cell num /2
 	    pushf	     ; save result if ax was odd
 	    add     si,ax    ; offset = 1 1/2 bytes * fat cell num
-	    mov     ax,word ptr [bx][si]    ; get contents of fat cell
+	    mov     ax,word [bx][si]    ; get contents of fat cell
 	    popf    ; get results from div  ;	    if ((clus&1) != 0) {
 ;	    $IF     C	; was fat cell num odd?
 	    JNC $$IF8
@@ -206,7 +206,7 @@ setfat2:	and	ax,0f000h  ; no, even	;keep unchanged part
 ;	    $ENDIF
 $$EN8:
 setfat1:    or ax,dx		   ; move new value into ax
-	    mov     word ptr [bx][si],ax    ;	    b[i] = a;
+	    mov     word [bx][si],ax    ;	    b[i] = a;
 	    RestoreReg <dx,ax>
 ;	$ENDIF
 $$EN6:
@@ -256,7 +256,7 @@ Procedure Prompt,NEAR
 	    PUSH    DS
 	    MOV     BX,50H
 	    MOV     DS,BX
-	    MOV     DS:(BYTE PTR 4),AL	; Indicate drive changed
+	    MOV     DS:(byte 4),AL	; Indicate drive changed
 	    POP     DS
 NOSET:
 
@@ -358,7 +358,7 @@ wrtit:	    call    Write_Disk		    ;	    Write_Disk ();		;an005;bgb
 ;	    $LEAVE  C								;an015;bgb
 	    JC $$EN14
 wrtok:	    add     dx,cx		    ;	    fatStart += fatsize;	;an005;bgb
-	    dec     byte ptr fatcnt	    ;	} while (--fatcnt);		;an005;bgb
+	    dec     byte fatcnt	    ;	} while (--fatcnt);		;an005;bgb
 ;	$ENDDO	Z								;an005;bgb
 	JNZ $$DO14
 $$EN14:
@@ -408,12 +408,12 @@ procedure SFFromFCB,NEAR
 	MOV	AH,Get_IN_Vars		;52h
 	INT	21h			;   p = DOSBASE();
 					; bx = 0026, ax=5200 es=0257
-	LES	DI,DWORD PTR ES:[BX].SYSI_FCB ;load es:di w/ ptr to sf table
+	LES	DI,dword ES:[BX].SYSI_FCB ;load es:di w/ ptr to sf table
 					; es:di = 0b37:0000
 	LEA	DI,[DI].sfTable 	; di=6			  AC000;bgb
 	RestoreReg <BX>
 	SaveReg <DX>
-	MOV	AX,SIZE SF_Entry	;42
+	MOV	AX,SF_Entry_size	;42
 	MUL	BX			;0
 	ADD	DI,AX			;6
 	RestoreReg <DX,AX>
@@ -434,11 +434,11 @@ Procedure get_dpb_info,Near				      ;AN000;bgb
 ;	$IF	NZ  ;AN000;bgb
 	JZ $$IF17
 ; get sector size
-	    mov     ax,word ptr [bx].dpb_sector_size ; get physical sector size
+	    mov     ax,word [bx].dpb_sector_size ; get physical sector size
 	    mov     es:bytes_per_sector,ax ; save bytes per sector 200		   ;AN000;bgb
 ; get sectors per cluster
 	    xor     ch,ch		; zero out high byte ;ac000;bgb
-	    mov     cl,byte ptr [bx].dpb_cluster_mask ; get sectors/cluster - 1
+	    mov     cl,byte [bx].dpb_cluster_mask ; get sectors/cluster - 1
 	    inc     cx			;1+1=2		  ; get sectors / cluster
 	    mov     es:secall,cx	;2	   ; save sectors per cluster		   ;AC000;bgb
 ; get bytes per cluster
@@ -462,7 +462,7 @@ Procedure get_dpb_info,Near				      ;AN000;bgb
 	    mov     es:MaxClus,di	;163	     ; number of fat entries		  ;AC000;bgb
 ; number of fats (1 or 2)
 	    mov     ch,[bx].dpb_fat_count ; get number of fats on drive
-	    mov     byte ptr es:fatnum,ch ;2   ; save number of fats on disk	    ;AC000;bgb
+	    mov     byte es:fatnum,ch ;2   ; save number of fats on disk	    ;AC000;bgb
 ; max dir entries
 	    mov     bx,[bx].dpb_root_entries ; get max number of dir entries
 	    mov     ES:maxent,bx	;70	   ;					   ;AC000;bgb
@@ -487,7 +487,7 @@ endproc get_dpb_info			    ;			  ;AN000;bgb
 ;
 ;*****************************************************************************
 Procedure check_kanji,Near		;AN000;bgb
-	IF	KANJI
+	%if KANJI
 	    lea     dx,[fname_buffer]	;point to filename ;AC000;bgb
 	    PUSH    DX			;save regs
 	    PUSH    DI			;save regs
@@ -542,14 +542,14 @@ gotdele:    MOV     DI,DX ;point to?
 ;	    $endif								;an024;bgb
 same_dirjk:
 	    ret 							;AN000;bgb
-	ENDIF
-check_kanji endp			;				;AN000;bgb
+	%endif
+; ENDP check_kanji;				;AN000;bgb
 ;
 
 ;****************************************************************************
 ;****************************************************************************
 	break
-	IF	KANJI
+	%if KANJI
 TESTKANJ:   push    ds		 ;get dbcs vector				;an012;bgb
 	    push    si
 	    push    ax
@@ -559,11 +559,11 @@ TESTKANJ:   push    ds		 ;get dbcs vector				;an012;bgb
 	    sub     si,2	 ;prep for loop 				;an012;bgb
 dbcsmore:									;an012;bgb
 	    add     si,2		;point to next dbcs vector		;an012;bgb
-	    cmp     word ptr ds:[SI],bp ;do until 00 found in dbcs vector table ;an012;bgb
+	    cmp     word ds:[SI],bp ;do until 00 found in dbcs vector table ;an012;bgb
 	    je	    notlead		;00 found, quit 			;an012;bgb
-	    CMP     AL,byte ptr ds:[si] ;look at lead byte of dbcs char 	;an012;bgb
+	    CMP     AL,byte ds:[si] ;look at lead byte of dbcs char 	;an012;bgb
 	    jb	    dbcsmore		;al < lead byte means not dbcs		;an012;bgb
-	    CMP     al,byte ptr ds:[si+1] ;look at 2nd byte of dbcs		;an012;bgb
+	    CMP     al,byte ds:[si+1] ;look at 2nd byte of dbcs		;an012;bgb
 	    JBE     ISLEAD  ;if it is between the 2 chars, it is dbcs		;an012;bgb
 	    jmp     dbcsmore	 ;go get the next dbcs vector			;an012;bgb
 
@@ -583,7 +583,7 @@ ISLEAD:
 	    pop     si
 	    pop     ds
 	    RET
-	ENDIF
+	%endif
 
 
 
@@ -597,7 +597,7 @@ Procedure copy_fname,Near	       ;AN000;bgb				 ;an020;bgb
 ;get fcb1 from the psp
 slashok: mov	 cx,PSP_Segment 	 ;Get addrbility of psp 	 ;AN000;bgb
 	mov	ds,cx			;  "  "    "  "  "  "		;AN000;bgb
-	assume	ds:dg,es:dg		; "   "    "  "  "  "		;AN000;bgb
+	; assume	ds:dg,es:dg; "   "    "  "  "  "		;AN000;bgb
 	call	get_fcb
 
 										;An018;bgb
@@ -645,12 +645,12 @@ next_char:
 name_copied:				; got file name
 	push	es
 	pop	ds			;ds now points to data seg
-	assume	ds:dg
+	; assume	ds:dg
 
-	mov	byte ptr [di],0 	; nul terminate the pathname
+	mov	byte [di],0 	; nul terminate the pathname
 	dec	di			; adjust to the end of the pathname
 	    ret 								;an020;bgb
-copy_fname  endp			;					   ;an020;bgb
+; ENDP copy_fname;					   ;an020;bgb
 
 
 
@@ -672,7 +672,7 @@ Procedure get_fcb,Near		    ;AN000;bgb				      ;an020;bgb
 ;now get the filename from the command line					;an024;bgb;an020;bgb
 ; step 1 - point to end of cmd line						;an024;bgb
 	    mov     si,081h		;point to beginning of command line	;AN014;bgb
-	    mov     cl,byte ptr ds:[80h] ;get length of cmd line		;AN014;bgb
+	    mov     cl,byte ds:[80h] ;get length of cmd line		;AN014;bgb
 	    xor     ch,ch		;zero out hi byte for word arith	;AN014;bgb
 	    add     si,cx		;begin plus length of cmd line = end	;AN014;bgb
 	    dec     si			;point to last char, not CR		;an020;bgb
@@ -680,13 +680,13 @@ Procedure get_fcb,Near		    ;AN000;bgb				      ;an020;bgb
 	    mov     exit_sw,bp ;false						;an024;bgb
 ;	    $DO 			;do until back slash found		;AN014;bgb
 $$DO23:
-		cmp	byte ptr ds:[si],'\'	 ;look for back slash		;AN014;bgb
+		cmp	byte ds:[si],'\'	 ;look for back slash		;AN014;bgb
 ;		$IF	E		;find it?				;an024;bgb;AN014;bgb
 		JNE $$IF24
 		    mov     al,[si-1]	;get possible leading byte		;an024;bgb
-		    IF KANJI
+		    %if KANJI
 		    call    testkanj	;is it a leading byte of DBCS?		;an024;bgb
-		    ENDIF
+		    %endif
 ;		    $IF     Z		;no- then it is subdir delimiter	;an024;bgb
 		    JNZ $$IF25
 			mov exit_sw,true    ;so exit the search loop		;an024;bgb
@@ -701,7 +701,7 @@ $$IF24:
 		cmp	exit_sw,true						;an024;bgb
 ;		$LEAVE	E							;an024;bgb
 		JE $$EN23
-		cmp	byte ptr ds:[si],0	 ;look for 00 (not a filespec)	;AN018;bgb
+		cmp	byte ds:[si],0	 ;look for 00 (not a filespec)	;AN018;bgb
 ;		$IF	E							;an020;bgb
 		JNE $$IF30
 		    ret 							;an020;bgb
@@ -737,7 +737,7 @@ $$EN35:
 $$EN33:
 ;	$ENDIF									;AN014;bgb
 	    ret 								;an020;bgb
-get_fcb  endp			     ;						;an020;bgb
+; ENDP get_fcb;						;an020;bgb
 										;an020;bgb
 										;an020;bgb
 ;
@@ -817,13 +817,13 @@ $$DO41:
 ;   $LEAVE  E									;an024;bgb
     JE $$EN41
 	mov	al,[dirchar]	    ;05ch ; get directory separator character	;an024;bgb
-	cmp	al,byte ptr [di]    ; (cx has the pathname length)		;an024;bgb
+	cmp	al,byte [di]    ; (cx has the pathname length)		;an024;bgb
 ;	$IF	E			; reset direction, just in case 	;an024;bgb
 	JNE $$IF43
 	    mov     al,[di-1]	    ;get possible leading byte			;an024;bgb
-	    IF KANJI
+	    %if KANJI
 	       call    testkanj     ;see if it is leading byte			;an024;bgb
-	    ENDIF
+	    %endif
 ;	    $IF      Z		    ;not a leading byte? then its a '\' 	;an024;bgb
 	    JNZ $$IF44
 		mov lastbs,di							;an024;bgb
@@ -853,7 +853,7 @@ sja:
 	jcxz	sjb			; no more chars left, it refers to root
 	push	di								;an024;bgb
 	mov	di,lastbs							;an024;bgb
-	cmp	byte ptr [di-1],':'	  ; is the prvious character a disk def?;an024;bgb
+	cmp	byte [di-1],':'	  ; is the prvious character a disk def?;an024;bgb
 	pop	di								;an024;bgb
 	jne	not_root
 sjb:
@@ -898,10 +898,10 @@ same_drive:
 sj1:
 	push	di								;an024;bgb
 	mov	di,lastbs							;an024;bgb
-	mov	byte ptr [di],0 					   ;an024;bgb
+	mov	byte [di],0 					   ;an024;bgb
 	mov	ah,chdir		; change directory
 	int	21h
-	mov	byte ptr [di],'\'							 ;an024;bgb
+	mov	byte [di],'\'							 ;an024;bgb
 	pop	di								;an024;bgb
 	mov	al,Drive		;Get drive number		;AN000;bgb
 	add	al,"A"-1		;Make it drive letter		;AN000;
@@ -927,9 +927,9 @@ no_errors:
 ;-----------------------------------------------------------------------;
 same_dir:
 	lea	bx,fcb_copy		;point to 1st byte of fcb (drive num)  ;AC000;bgb
-	cmp	byte ptr [bx+1],' '	; must specify file name
+	cmp	byte [bx+1],' '	; must specify file name
 	jnz	drvok
-	cmp	byte ptr [bx],0 ;or drive specifier
+	cmp	byte [bx],0 ;or drive specifier
 	jnz	drvok
 	cmp	dbcs_sw,1		; or dbcs				;an024;bgb
 	jz	drvok								;an024;bgb
@@ -965,10 +965,10 @@ $$IF48:
 $$IF50:
 See_If_File:				;					;AN000;
 	lea	bx,fname_buffer 	;					;AC014;bgb
-	cmp	byte ptr [bx+1],':'	;if fname = 'a:' and.....		;ac020;bgb
+	cmp	byte [bx+1],':'	;if fname = 'a:' and.....		;ac020;bgb
 ;	$IF	E,AND			    ;					;an020;bgb
 	JNE $$IF52
-	cmp	word ptr [bx+2],bp ;set to zero       ;all zeros following that, then	      ;an020;bgb
+	cmp	word [bx+2],bp ;set to zero       ;all zeros following that, then	      ;an020;bgb
 ;	$IF	E			;then drive spec			;AN202;BGB
 	JNE $$IF52
 	    call    drive_spec		;only drive specified ;AN000;bgb
@@ -981,17 +981,17 @@ $$EN52:
 
 
 int_23: sti				;allow interrupts			;an026;bgb
-	lds	dx,cs:dword ptr [int_24_old_off]     ;point to old vector	   ;an026;bgb
+	lds	dx,cs:dword [int_24_old_off]     ;point to old vector	   ;an026;bgb
 	mov	al,24h			;which interrupt to set?		;an026;bgb;AC000;
 	DOS_Call Set_Interrupt_Vector	;set vector to old			;an026;bgb;AC000;
 
-	lds	dx,cs:dword ptr [int_23_old_off]     ;point to old vector	;an026;bgb
+	lds	dx,cs:dword [int_23_old_off]     ;point to old vector	;an026;bgb
 	mov	al,23h			;which interrupt to set?		;an026;bgb;AC000;
 	DOS_Call Set_Interrupt_Vector	;set vector to old			;an026;bgb;AC000;
 
 	PUSH	CS			;reset ds				;an026;bgb
 	POP	DS								;an026;bgb
-aSSUME	DS:DG									;an026;bgb
+; aSSUME	DS:DG;an026;bgb
 	call	rest_dir
 										;an026;bgb
 	mov	cs:ExitStatus,0 	   ; good return			   ;AC000;
@@ -1148,14 +1148,14 @@ endproc rest_dir
 ;*************************************************************************
 	int_24_retaddr dw int_24_back
 
-	int_24	proc	far
-	assume	ds:nothing,es:nothing,ss:nothing
+	int_24:
+	; assume	ds:nothing,es:nothing,ss:nothing
 	pushf				; ** MAKE CHANGES **
 	push	cs
 	push	[int_24_retaddr]
-	push	word ptr [hardch+2]
-	push	word ptr [hardch]
-	assume	ds:dg,es:dg,ss:dg	;AN000;bgb
+	push	word [hardch+2]
+	push	word [hardch]
+	; assume	ds:dg,es:dg,ss:dg;AN000;bgb
 	ret
 endproc int_24
 ;*************************************************************************
@@ -1164,7 +1164,7 @@ int_24_back:
 	jnz	ireti
 	push	cs
 	pop	ds
-assume	ds:dg,es:dg,ss:dg
+; assume	ds:dg,es:dg,ss:dg
 	call	rest_dir
 	ret				;Ret for common exit	     ;AC000;
 ireti:
@@ -1255,16 +1255,16 @@ $$EN73:
 $$IF78:
 	SaveReg <ES,DI> 		;Save regs
 	call	sfFromFCB		;Get sf pointer
-sfsize: sub	word ptr ES:[di].sf_size,ax ;Adjust internal file sizes
-	sbb	word ptr ES:[di].sf_size+2,bp ;   "  "	 "  "
+sfsize: sub	word ES:[di].sf_size,ax ;Adjust internal file sizes
+	sbb	word ES:[di].sf_size+2,bp ;   "  "	 "  "
 	sub	siztmp,ax		;Keep track of how much done
 	sbb	siztmp,bp		 ;
 	and	ES:[di].sf_flags,NOT devid_file_clean ; mark file dirty
 	RestoreReg <DI,ES>		;	    sfFromFCB(d)->flags &= ~CLEAN;
 	lea	di,fcb_copy
-	sub	word ptr [di].fcb_filsiz,ax ;And change the FCB
-	sbb	word ptr [di].fcb_filsiz+2,bp ;
-	and	byte ptr [di].fcb_nsl_bits,NOT devid_file_clean ; mark file dirty	  ;AN000;
+	sub	word [di].fcb_filsiz,ax ;And change the FCB
+	sbb	word [di].fcb_filsiz+2,bp ;
+	and	byte [di].fcb_nsl_bits,NOT devid_file_clean ; mark file dirty	  ;AN000;
 	mov	ax,lastfat		;AX = previous cluster
 	ret				;				      ;AN000;
 endproc Bad_File_Read			    ;				    ;AN000;
@@ -1294,7 +1294,7 @@ endproc Bad_File_Read			    ;				    ;AN000;
 ;	do for each para							;an005;bgb
 ;	   move 16 bytes into memory						;an005;bgb
 ;*****************************************************************************	;an005;bgb
-	  even
+	  align 2
 Procedure fill_fat,Near 		;AN000;bgb				;an005;bgb
 ; calc fat table length 							;an005;bgb
 	set_data_segment							;an005;bgb
@@ -1331,10 +1331,10 @@ Procedure fill_fat,Near 		;AN000;bgb				;an005;bgb
     inc     ax				; one more to go past our area		;an013;bgb
     DOS_Call GetCurrentPSP		;Get PSP segment address		;an013;bgb
     mov     ds,bx			;ds points to the psp			;an013;bgb
-    Assume  DS:Nothing			;point to psp				;an013;bgb
+    ; Assume  DS:Nothing;point to psp				;an013;bgb
     MOV     DX,DS:[2]			;get the last para of memory		;an013;bgb
     pop     ds									;an013;bgb
-    assume  ds:dg
+    ; assume  ds:dg
     cmp     dx,ax		     ;last-para must be greater or equal	;an013;bgb
 ;   $IF     AE		;it was, so complete filling the fat			;an013;bgb
     JNAE $$IF80
@@ -1399,7 +1399,7 @@ endproc printerr			    ;AN000;bgb		  ;AN000;
 Procedure chk_fat,Near			;				;AN000;bgb
 	push es
 step1a: mov	filsiz,bp		 ;start the file size at 0
-	mov	word ptr filsiz+2,bp	 ;start the file size at 0
+	mov	word filsiz+2,bp	 ;start the file size at 0
 	mov	dx,MaxClus		;	dx = MaxClus;
 	mov	target,ax		; target = last fat in this file
 	mov	exit_sw2,bp ;false	; set exit switch to no
@@ -1410,7 +1410,7 @@ $$DO86:
 ;	$STRTDO 			;    START here 1st time	 ;AN000;bgb
 $$SD86:
 step2:	    add     filsiz,cx		;add in cluster size
-	    adc     word ptr filsiz+2,bp ;inc 2nd word if there was a carry
+	    adc     word filsiz+2,bp ;inc 2nd word if there was a carry
 	    mov     ax,2		;start at first cluster
 ;	    $DO 			;DO until exit		     ;AN000;bgb
 $$DO88:
@@ -1439,7 +1439,7 @@ endproc chk_fat 						     ;AN000;bgb
 
 ;*****************************************************************************
 ;*****************************************************************************
-	  even
+	  align 2
 Procedure main_loop1,Near		;AN000;bgb
 ;	$DO				;AN000;bgb
 $$DO94:
@@ -1485,12 +1485,12 @@ endproc main_loop1			    ;				    ;AN000;bgb
 Procedure read_fats,Near	       ;AN000;bgb
 	push es
 	mov	filsiz,bp		 ;start the file size at 0		;an027;bgb
-	mov	word ptr filsiz+2,bp	 ;start the file size at 0		;an027;bgb
+	mov	word filsiz+2,bp	 ;start the file size at 0		;an027;bgb
 ;	$DO				;AN000;bgb
 $$DO101:
 step1:	    call    getfat		;   if (fEOF (GetFat (a)) {
 	    add     filsiz,cx		;add in cluster size			;an027;bgb
-	    adc     word ptr filsiz+2,bp ;inc 2nd word if there was a carry	;an027;bgb
+	    adc     word filsiz+2,bp ;inc 2nd word if there was a carry	;an027;bgb
 	    call    fEOF		;
 ;	$LEAVE	C			; goto step1a		       AN000;bgb
 	JC $$EN101
@@ -1512,16 +1512,16 @@ endproc read_fats			   ;				   ;AN000;bgb
 
 ;*****************************************************************************
 ;*****************************************************************************
-	even
+	align 2
 Procedure fill_dir,Near ;AN000;bgb
 	lea	si,dirent+7		;   s = &dirent[7];				  ;AC000;bgb
 ;	$DO				;AN000;bgb
 $$DO106:
-nam0:	    inc     byte ptr [si]	;   while (++*s > '9')
-	    cmp     byte ptr [si],'9'
+nam0:	    inc     byte [si]	;   while (++*s > '9')
+	    cmp     byte [si],'9'
 ;	$LEAVE	LE			;AN000;bgb
 	JLE $$EN106
-	    mov     byte ptr [si],'0'	;	*s-- = '0';
+	    mov     byte [si],'0'	;	*s-- = '0';
 	    dec     si
 ;	$ENDDO							     ;AN000;bgb
 	JMP SHORT $$DO106
@@ -1536,8 +1536,8 @@ nam1:	mov	ah,GET_DATE		;   dirent.dir_date = GetDate ();
 	add	dh,dh			; dh = dh * 32 (32-384)
 	rcl	cl,1
 	or	dh,dl
-	mov	byte ptr dirent+24,dh
-	mov	byte ptr dirent+25,cl
+	mov	byte dirent+24,dh
+	mov	byte dirent+25,cl
 	mov	ah,GET_TIME		;   dirent.dir_time = GetTime ();
 	int	21h
 	shr	dh,1			;seconds/2
@@ -1550,14 +1550,14 @@ nam1:	mov	ah,GET_DATE		;   dirent.dir_date = GetDate ();
 	add	cl,cl
 	rcl	ch,1
 	or	dh,cl
-	mov	byte ptr dirent+22,dh
-	mov	byte ptr dirent+23,ch
+	mov	byte dirent+22,dh
+	mov	byte dirent+23,ch
 	mov	ax,filsiz		;   dirent.dir_fsize = filsiz;
-	mov	word ptr dirent+28,ax
-	mov	ax,word ptr filsiz+2
-	mov	word ptr dirent+30,ax
+	mov	word dirent+28,ax
+	mov	ax,word filsiz+2
+	mov	word dirent+30,ax
 	mov	ax,target		;   dirent.dir_firclus = target;
-	mov	word ptr dirent+26,ax
+	mov	word dirent+26,ax
 	lea	si,dirent		; di:si --> directory entry		;an005;bgb
 	mov	cx,32			;move 32 bytes - 1 dir entry		;an005;bgb
 	rep	movsb			;move ds:si to es:di, then		;an005;bgb
@@ -1607,9 +1607,9 @@ endproc drive_spec			    ;				    ;AN000;bgb
 ;
 	pathlabl recover
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-code	ends
-	end				;recover ;AC000;bgb
+; END SECTION .code
+	; end;recover ;AC000;bgb
 
 

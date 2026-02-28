@@ -1,68 +1,68 @@
-comment $
+; comment $
 cmacros - assembly macros for interfacing to HHLs
 (C)Copyright 1988 Microsoft Corporation
 $
-if1
-outif MACRO name,defval,onmsg,offmsg
-    ifndef name
-	ifb <defval>
+%if 1  ; IF1 - pass-specific
+%macro outif 4
+    %ifndef name
+	%if 0  ; IFB <defval>
 	    name=0
-	else
+	%else
 	    name=defval
-	endif
-    endif
-    if name
+	%endif
+    %endif
+    %if name
 	name=1
-	ifnb <onmsg>
-	    %out ! onmsg
-	endif
-    else
-	ifnb <offmsg>
-	    %out ! offmsg
-	endif
-    endif
-endm
+	%if 1  ; IFNB <onmsg>
+	    %warning ! onmsg
+	%endif
+    %else
+	%if 1  ; IFNB <offmsg>
+	    %warning ! offmsg
+	%endif
+    %endif
+%endmacro
 
-error MACRO msg
+%macro error 1
 bug
-%out E r r o r ----- msg
-ENDM
-%out cMacros Version 1.04
+%warning E r r o r ----- msg
+%endmacro
+%warning cMacros Version 1.04
 outif memS,0,<Small Model>
 outif memM,0,<Medium Model>
 outif memL,0,<Large Model>
 outif memC,0,<Compact Model>
 outif memH,0,<Huge Model>
 memMOD= memS + memM + memL + memC + memH
-if memMOD ne 1
-if memMOD eq 0
+%if memMOD ne 1
+%if memMOD eq 0
 memS= 1
 outif memS,0,<Small Model>
-else
+%else
 error <Must have only 1 memory model selected>
-endif
-endif
+%endif
+%endif
 sizeC= memM + memL + memH
 sizeD= memL + memC + (memH*2)
 outif ?DF,0,<No segments or groups will be defined>
 outif ?WIN,0,<Windows Support>
 outif ?PLM,0,<PLM calling convention>
-endif
- .XCREF
- .XCREF ?N,?AX,?AH,?AL,?BX,?BH
- .XCREF ?BL,?CX,?CH,?CL,?DX,?DH
- .XCREF ?DL,?SI,?DI,?ES,?DS,?BP
- .XCREF ?SP,?SS,?CS
- .XCREF ?RSL,?CPD,?argl,?argc,?BA
- .XCREF ?ACB,???,?PO
- .XCREF ?PAS,?PC
- .XCREF Uconcat,mPush,mPop
- .XCREF ?RI,?pp,?pp1,?al1
- .XCREF ?aD,?AP,?Atal,?pd,?dd,?dd1,?ex1,?cas
- .XCREF ?pg,?pg1,?aloc,?cs1,?cs2
- .XCREF ?lb1,?lblpu
- .XCREF ?DF,?PLM,?WIN,?IA,?PU,?ADJ
- .CREF
+%endif
+ ; .XCREF
+ ; .XCREF ?N,?AX,?AH,?AL,?BX,?BH
+ ; .XCREF ?BL,?CX,?CH,?CL,?DX,?DH
+ ; .XCREF ?DL,?SI,?DI,?ES,?DS,?BP
+ ; .XCREF ?SP,?SS,?CS
+ ; .XCREF ?RSL,?CPD,?argl,?argc,?BA
+ ; .XCREF ?ACB,???,?PO
+ ; .XCREF ?PAS,?PC
+ ; .XCREF Uconcat,mPush,mPop
+ ; .XCREF ?RI,?pp,?pp1,?al1
+ ; .XCREF ?aD,?AP,?Atal,?pd,?dd,?dd1,?ex1,?cas
+ ; .XCREF ?pg,?pg1,?aloc,?cs1,?cs2
+ ; .XCREF ?lb1,?lblpu
+ ; .XCREF ?DF,?PLM,?WIN,?IA,?PU,?ADJ
+ ; .CREF
 ?RSL = 0
 ?CPD = 0
 ?ArgL = 0
@@ -98,583 +98,583 @@ endif
 ?SP = 0010000000000000B
 ?SS = 0100000000000000B
 ?CS = 1000000000000000B
-uconcat macro n1,n2,o1,o2,p1,p2
+%macro uconcat 6
 n1&n2 o1&o2 p1&p2
-endm
-mpush macro rV
-irp x,<ax,bx,cx,dx,si,di,es,ds,bp,sp,ss,cs>
-if rV AND ?&&x
+%endmacro
+%macro mpush 1
+; irp x,<ax,bx,cx,dx,si,di,es,ds,bp,sp,ss,cs>
+%if rV AND ?&&x
 push x
-endif
-endm
-endm
-mpop macro rV
-irp x,<cs,ss,sp,bp,ds,es,di,si,dx,cx,bx,ax>
-if rV AND ?&&x
+%endif
+%endmacro
+%endmacro
+%macro mpop 1
+; irp x,<cs,ss,sp,bp,ds,es,di,si,dx,cx,bx,ax>
+%if rV AND ?&&x
 pop x
-endif
-endm
-endm
-SAVE macro rL
+%endif
+%endmacro
+%endmacro
+%macro SAVE 1
 ?RSL = 0
 ?RI ?RSL,<rL>
-endm
-smashes macro n,rL
- .xcref
- .xcref ?SM&n
- .cref
+%endmacro
+%macro smashes 2
+ ; .xcref
+ ; .xcref ?SM&n
+ ; .cref
 ?SM&n = 0
 ?RI ?SM&n,<rL>
-endm
-?RI macro n,rL
-irp x,<rL>
+%endmacro
+%macro ?RI 2
+; irp x,<rL>
 ifdef ?&&x
 n = n or ?&&x
-endif
-endm
-endm
-parmB macro nl
+%endif
+%endmacro
+%endmacro
+%macro parmB 1
 ?pp <&nL>,<byte>,2,1
-endm
-parmW macro nl
+%endmacro
+%macro parmW 1
 ?pp <&nL>,<word>,2,2
-endm
-parmD macro nl
-ife ?PLM
-irp x,<nL>
+%endmacro
+%macro parmD 1
+%if (?PLM) == 0
+; irp x,<nL>
 ?pp <&&x>,<DWORD>,0,4
 ?pp <Off_&&x>,<WORD>,2,2
 ?pp <Seg_&&x>,<WORD>,2,2
-endm
-else
-irp x,<nL>
+%endmacro
+%else
+; irp x,<nL>
 ?pp <Seg_&&x>,<WORD>,2,2
 ?pp <Off_&&x>,<WORD>,2,2
 ?pp <&&x>,<DWORD>,0,4
-endm
-endif
-endm
-parmQ macro nl
+%endmacro
+%endif
+%endmacro
+%macro parmQ 1
 ?pp <&nL>,<QWORD>,8,8
-endm
-parmT macro nl
+%endmacro
+%macro parmT 1
 ?pp <&nL>,<TBYTE>,10,10
-endm
-if sizeC
-parmCP macro nl
+%endmacro
+%if sizeC
+%macro parmCP 1
 parmD <nl>
-endm
-else
-parmCP macro nl
+%endmacro
+%else
+%macro parmCP 1
 parmW <nl>
-endm
-endif
-if sizeD
-parmDP macro nl
+%endmacro
+%endif
+%if sizeD
+%macro parmDP 1
 parmD <nl>
-endm
-else
-parmDP macro nl
+%endmacro
+%else
+%macro parmDP 1
 parmW <nl>
-endm
-endif
-?pp macro nL,t,l,s
-if ?CPD
- .xcref
-ife ?PLM
-irp x,<nL>
+%endmacro
+%endif
+%macro ?pp 4
+%if ?CPD
+ ; .xcref
+%if (?PLM) == 0
+; irp x,<nL>
 ?pp1 x,<t>,%?PO,%?adj,%(?PO+?adj)
 ?PO = ?PO + l
- .xcref ?T&&x
+ ; .xcref ?T&&x
 ?T&&x = s
-endm
-else
-irp x,<nL>
+%endmacro
+%else
+; irp x,<nL>
 ?PO = ?PO + l
 ?pp1 x,<t>,%?PO,%?adj,%(?PO+?adj)
- .xcref ?T&&x
+ ; .xcref ?T&&x
 ?T&&x = s
-endm
-endif
- .cref
-else
-%out Parm(s) "&nl" declared outside proc def.
-endif
-endm
-?pp1 macro n,t,o,a,b
-ife ?PLM
+%endmacro
+%endif
+ ; .cref
+%else
+%warning Parm(s) "&nl" declared outside proc def.
+%endif
+%endmacro
+%macro ?pp1 5
+%if (?PLM) == 0
 n equ t ptr [bp+b]
-else
+%else
 n equ t ptr [bp+a+?PO-o]
-endif
-endm
-localB macro nL
-?aLoc <&nL>,<BYTE ptr>,1,1,0
-endm
-localW macro nL
-?aLoc <&nL>,<WORD PTR>,2,2,1
-endm
-localD macro nL
-irp x,<nL>
-?aLoc <Seg_&&x>,<WORD PTR>,2,2,1
-?aLoc <Off_&&x>,<WORD PTR>,2,2,1
-?aLoc <&&x>,<DWORD PTR>,0,4,1
-endm
-endm
-localQ macro nL
-?aLoc <&nL>,<QWORD PTR>,8,8,1
-endm
-localT macro nL
-?aLoc <&nL>,<TBYTE PTR>,10,10,1
-endm
-if sizeC
-localCP macro nL
+%endif
+%endmacro
+%macro localB 1
+?aLoc <&nL>,<byte>,1,1,0
+%endmacro
+%macro localW 1
+?aLoc <&nL>,<word>,2,2,1
+%endmacro
+%macro localD 1
+; irp x,<nL>
+?aLoc <Seg_&&x>,<word>,2,2,1
+?aLoc <Off_&&x>,<word>,2,2,1
+?aLoc <&&x>,<dword>,0,4,1
+%endmacro
+%endmacro
+%macro localQ 1
+?aLoc <&nL>,<qword>,8,8,1
+%endmacro
+%macro localT 1
+?aLoc <&nL>,<tword>,10,10,1
+%endmacro
+%if sizeC
+%macro localCP 1
 localD <nL>
-endm
-else
-localCP macro nL
+%endmacro
+%else
+%macro localCP 1
 localW <nL>
-endm
-endif
-if sizeD
-localDP macro nL
+%endmacro
+%endif
+%if sizeD
+%macro localDP 1
 localD <nL>
-endm
-else
-localDP macro nL
+%endmacro
+%else
+%macro localDP 1
 localW <nL>
-endm
-endif
-localV macro n,a
+%endmacro
+%endif
+%macro localV 2
 ?aLoc <&n>,,%(&a),0,1
-endm
-?aLoc macro nL,t,l,s,a
-if ?CPD
- .xcref
+%endmacro
+%macro ?aLoc 5
+%if ?CPD
+ ; .xcref
 ??? = ??? + l
-if a
+%if a
 ??? = ((??? + 1) AND 0FFFEH)
-endif
-irp x,<nL>
+%endif
+; irp x,<nL>
 ?aL1 x,<t>,%???
- .xcref ?T&&x
+ ; .xcref ?T&&x
 ?T&&x = s
-endm
- .cref
-else
-%out Locals "&nl" declared outside procedure def.
-endif
-endm
-?aL1 macro n,t,o
-if ?IA
+%endmacro
+ ; .cref
+%else
+%warning Locals "&nl" declared outside procedure def.
+%endif
+%endmacro
+%macro ?aL1 3
+%if ?IA
 n equ t [bp-?IA-o]
-else
+%else
 n equ t [bp-o]
-endif
-endm
-globalB macro n,i,s
+%endif
+%endmacro
+%macro globalB 3
 ?aD <n>,1
 ?dd n,1,<BYTE>,<DB>,<i>,<s>
-endm
-globalW macro n,i,s
+%endmacro
+%macro globalW 3
 ?aD <n>,2
 ?dd n,1,<WORD>,<DW>,<i>,<s>
-endm
-globalD macro n,i,s
+%endmacro
+%macro globalD 3
 ?aD <n>,4
 ?dd n,1,<DWORD>,<DD>,<i>,<s>
-endm
-globalQ macro n,i,s
+%endmacro
+%macro globalQ 3
 ?aD <n>,8
 ?dd n,1,<QWORD>,<DQ>,<i>,<s>
-endm
-globalT macro n,i,s
+%endmacro
+%macro globalT 3
 ?aD <n>,10
 ?dd n,1,<TBYTE>,<DT>,<i>,<s>
-endm
-if sizeC
-globalCP macro n,i,s
+%endmacro
+%if sizeC
+%macro globalCP 3
 globalD n,<i>,<s>
-endm
-else
-globalCP macro n,i,s
+%endmacro
+%else
+%macro globalCP 3
 globalW n,<i>,<s>
-endm
-endif
-if sizeD
-globalDP macro n,i,s
+%endmacro
+%endif
+%if sizeD
+%macro globalDP 3
 globalD n,<i>,<s>
-endm
-else
-globalDP macro n,i,s
+%endmacro
+%else
+%macro globalDP 3
 globalW n,<i>,<s>
-endm
-endif
-staticB macro n,i,s
+%endmacro
+%endif
+%macro staticB 3
 ?aD <n>,1
 ?dd n,0,<BYTE>,<DB>,<i>,<s>
-endm
-staticW macro n,i,s
+%endmacro
+%macro staticW 3
 ?aD <n>,2
 ?dd n,0,<WORD>,<DW>,<i>,<s>
-endm
-staticD macro n,i,s
+%endmacro
+%macro staticD 3
 ?aD <n>,4
 ?dd n,0,<DWORD>,<DD>,<i>,<s>
-endm
-staticQ macro n,i,s
+%endmacro
+%macro staticQ 3
 ?aD <n>,8
 ?dd n,0,<QWORD>,<DQ>,<i>,<s>
-endm
-staticT macro n,i,s
+%endmacro
+%macro staticT 3
 ?aD <n>,10
 ?dd n,0,<TBYTE>,<DT>,<i>,<s>
-endm
-if sizeC
-staticCP macro n,i,s
+%endmacro
+%if sizeC
+%macro staticCP 3
 staticD n,<i>,<s>
-endm
-else
-staticCP macro n,i,s
+%endmacro
+%else
+%macro staticCP 3
 staticW n,<i>,<s>
-endm
-endif
-if sizeD
-staticDP macro n,i,s
+%endmacro
+%endif
+%if sizeD
+%macro staticDP 3
 staticD n,<i>,<s>
-endm
-else
-staticDP macro n,i,s
+%endmacro
+%else
+%macro staticDP 3
 staticW n,<i>,<s>
-endm
-endif
-?dd macro n,p,t,d,i,s
-ife ?PLM
-n label t
+%endmacro
+%endif
+%macro ?dd 6
+%if (?PLM) == 0
+n:
 ?dd1 _&n,p,<d>,<i>,<s>
-else
+%else
 ?dd1 n,p,<d>,<i>,<s>
-endif
-endm
-?dd1 macro n,p,d,i,s
-if p
-PUBLIC n
-endif
-ifb <s>
+%endif
+%endmacro
+%macro ?dd1 5
+%if p
+global n
+%endif
+%if 0  ; IFB <s>
 n d i
-else
-ifb <i>
+%else
+%if 0  ; IFB <i>
 n d s DUP (?)
-else
+%else
 n d s DUP (i)
-endif
-endif
-endm
-externB macro nL
+%endif
+%endif
+%endmacro
+%macro externB 1
 ?ex1 <&nL>,1,<BYTE>
-endm
-externW macro nL
+%endmacro
+%macro externW 1
 ?ex1 <&nL>,2,<WORD>
-endm
-externD macro nL
+%endmacro
+%macro externD 1
 ?ex1 <&nL>,4,<DWORD>
-endm
-externQ macro nL
+%endmacro
+%macro externQ 1
 ?ex1 <&nL>,8,<QWORD>
-endm
-externT macro nL
+%endmacro
+%macro externT 1
 ?ex1 <&nL>,10,<TBYTE>
-endm
-externNP macro nL
+%endmacro
+%macro externNP 1
 ?ex1 <&nL>,2,<NEAR>
-endm
-externFP macro nL
+%endmacro
+%macro externFP 1
 ?ex1 <&nL>,4,<FAR>
-endm
-if sizeC
-externP macro nL
+%endmacro
+%if sizeC
+%macro externP 1
 ?ex1 <&nL>,4,<FAR>
-endm
-else
-externP macro nL
+%endmacro
+%else
+%macro externP 1
 ?ex1 <&nL>,2,<NEAR>
-endm
-endif
-if sizeC
-externCP macro nL
+%endmacro
+%endif
+%if sizeC
+%macro externCP 1
 ?ex1 <&nL>,4,<DWORD>
-endm
-else
-externCP macro nL
+%endmacro
+%else
+%macro externCP 1
 ?ex1 <&nL>,2,<WORD>
-endm
-endif
-if sizeD
-externDP macro nL
+%endmacro
+%endif
+%if sizeD
+%macro externDP 1
 ?ex1 <&nL>,4,<DWORD>
-endm
-else
-externDP macro nL
+%endmacro
+%else
+%macro externDP 1
 ?ex1 <&nL>,2,<WORD>
-endm
-endif
-?ex1 macro nL,s,d
-irp x,<nL>
- .xcref
- .xcref ?T&&x
- .cref
+%endmacro
+%endif
+%macro ?ex1 3
+; irp x,<nL>
+ ; .xcref
+ ; .xcref ?T&&x
+ ; .cref
 ?T&&x = s
-ife ?PLM
-extrn _&&x:&d
+%if (?PLM) == 0
+extern _&&x:&d
 x equ _&&x
-else
-extrn x:&d
-endif
-endm
-endm
-labelB macro nL
+%else
+extern x:&d
+%endif
+%endmacro
+%endmacro
+%macro labelB 1
 ?lb1 <&nL>,1,<BYTE>
-endm
-labelW macro nL
+%endmacro
+%macro labelW 1
 ?lb1 <&nL>,2,<WORD>
-endm
-labelD macro nL
+%endmacro
+%macro labelD 1
 ?lb1 <&nL>,4,<DWORD>
-endm
-labelQ macro nL
+%endmacro
+%macro labelQ 1
 ?lb1 <&nL>,8,<QWORD>
-endm
-labelT macro nL
+%endmacro
+%macro labelT 1
 ?lb1 <&nL>,10,<TBYTE>
-endm
-labelNP macro nL
+%endmacro
+%macro labelNP 1
 ?lb1 <&nL>,2,<NEAR>
-endm
-labelFP macro nL
+%endmacro
+%macro labelFP 1
 ?lb1 <&nL>,4,<FAR>
-endm
-if sizeC
-labelP macro nL
+%endmacro
+%if sizeC
+%macro labelP 1
 ?lb1 <&nL>,4,<FAR>
-endm
-else
-labelP macro nL
+%endmacro
+%else
+%macro labelP 1
 ?lb1 <&nL>,2,<NEAR>
-endm
-endif
-if sizeC
-labelCP macro nL
+%endmacro
+%endif
+%if sizeC
+%macro labelCP 1
 ?lb1 <&nL>,4,<DWORD>
-endm
-else
-labelCP macro nL
+%endmacro
+%else
+%macro labelCP 1
 ?lb1 <&nL>,2,<WORD>
-endm
-endif
-if sizeD
-labelDP macro nL
+%endmacro
+%endif
+%if sizeD
+%macro labelDP 1
 ?lb1 <&nL>,4,<DWORD>
-endm
-else
-labelDP macro nL
+%endmacro
+%else
+%macro labelDP 1
 ?lb1 <&nL>,2,<WORD>
-endm
-endif
-?lb1 macro nL,s,d
+%endmacro
+%endif
+%macro ?lb1 3
 ?lblpu = 0
-irp x,<nL>
-ifidn <x>,<PUBLIC>
+; irp x,<nL>
+%ifidn <x>,<PUBLIC>
 ?lblpu = 1
-else
- .xcref
- .xcref ?T&&x
- .cref
+%else
+ ; .xcref
+ ; .xcref ?T&&x
+ ; .cref
 ?T&&x = s
-ife ?PLM
-if ?lblpu
-public _&&x
-endif
+%if (?PLM) == 0
+%if ?lblpu
+global _&&x
+%endif
 _&&x label &d
 x equ _&&x
-else
-if ?lblpu
-public x
-endif
+%else
+%if ?lblpu
+global x
+%endif
 x label &d
-endif
-endif
-endm
-endm
-defB macro nL
+%endif
+%endif
+%endmacro
+%endmacro
+%macro defB 1
 ?aD <&nL>,1
-endm
-defW macro nL
+%endmacro
+%macro defW 1
 ?aD <&nL>,2
-endm
-defD macro nL
+%endmacro
+%macro defD 1
 ?aD <&nL>,4
-endm
-defQ macro nL
+%endmacro
+%macro defQ 1
 ?aD <&nL>,8
-endm
-defT macro nL
+%endmacro
+%macro defT 1
 ?aD <&nL>,10
-endm
-if sizeC
-defCP macro nL
+%endmacro
+%if sizeC
+%macro defCP 1
 defD <nL>
-endm
-else
-defCP macro nL
+%endmacro
+%else
+%macro defCP 1
 defW <nL>
-endm
-endif
-if sizeD
-defDP macro nL
+%endmacro
+%endif
+%if sizeD
+%macro defDP 1
 defD <nL>
-endm
-else
-defDP macro nL
+%endmacro
+%else
+%macro defDP 1
 defW <nL>
-endm
-endif
-?aD macro nL,s
-irp x,<nL>
- .xcref
- .xcref ?T&&x
- .cref
+%endmacro
+%endif
+%macro ?aD 2
+; irp x,<nL>
+ ; .xcref
+ ; .xcref ?T&&x
+ ; .cref
 ?T&&x = s
-endm
-endm
-regPtr macro n,S,O
- .xcref
- .xcref ?T&n,?SR&n,?OR&n
- .cref
+%endmacro
+%endmacro
+%macro regPtr 3
+ ; .xcref
+ ; .xcref ?T&n,?SR&n,?OR&n
+ ; .cref
 ?T&n = 0FFFFH
 ?SR&n = 0
 ?RI ?SR&n,<&S>
 ?OR&n = 0
 ?RI ?OR&n,<&O>
-endm
-arg macro aL
-irp x,<aL>
+%endmacro
+%macro arg 1
+; irp x,<aL>
 ?argc = ?argc + 1
 ?Atal <x>,%?argc
-endm
-endm
-?Atal macro n,i
- .xcref
- .xcref ?ALI&i
- .cref
+%endmacro
+%endmacro
+%macro ?Atal 2
+ ; .xcref
+ ; .xcref ?ALI&i
+ ; .cref
 ?ALI&i &macro
 ?AP n
 &endm
-endm
-?AP macro n
+%endmacro
+%macro ?AP 1
 ?argl = ?argl + 2
 ifdef ?T&n
-ife ?T&n-1
-push word ptr (n)
+%if (?T&n-1) == 0
+push word (n)
 exitm
-endif
-ife ?T&n-2
+%endif
+%if (?T&n-2) == 0
 push n
 exitm
-endif
-ife ?T&n-4
-push word ptr (n)+2
-push word ptr (n)
+%endif
+%if (?T&n-4) == 0
+push word (n)+2
+push word (n)
 ?argl = ?argl + 2
 exitm
-endif
-ife ?T&n-8
-push word ptr (n)+6
-push word ptr (n)+4
-push word ptr (n)+2
-push word ptr (n)
+%endif
+%if (?T&n-8) == 0
+push word (n)+6
+push word (n)+4
+push word (n)+2
+push word (n)
 ?argl = ?argl + 6
 exitm
-endif
-ife ?T&n-0FFFFH
+%endif
+%if (?T&n-0FFFFH) == 0
 mpush %(?SR&n),1
 mpush %(?OR&n),1
 ?argl = ?argl + 2
 exitm
-endif
-ife ?T&n
-push word ptr (n)
+%endif
+%if (?T&n) == 0
+push word (n)
 exitm
-endif
-endif
+%endif
+%endif
 push n
-endm
-ife ?PLM
-ccall macro n,a,sleaze
-ifnb <a>
+%endmacro
+%if (?PLM) == 0
+%macro ccall 3
+%if 1  ; IFNB <a>
 Arg <a>
-endif
+%endif
 ifdef ?SM&n
 ?RSL = ?RSL AND ?SM&n
-endif
+%endif
 mpush %?RSL
 ?argl = 0
 ?ACB = ?argc
-rept ?argc
+%rep ?argc
 uconcat <?ALI>,%?ACB
 uconcat <purge>,,<?ALI>,%?ACB
 ?ACB = ?ACB - 1
-endm
-ife ?PLM
-ifb <sleaze>
+%endmacro
+%if (?PLM) == 0
+%if 0  ; IFB <sleaze>
 call _&n
-else
+%else
 call n
-endif
-else
+%endif
+%else
 call n
-endif
-if ?argl
+%endif
+%if ?argl
 add sp,?argl
-endif
+%endif
 mpop %?RSL
 ?RSL = 0
 ?argc = 0
 ?argl = 0
-endm
-else
-ccall macro n,a
-ifnb <a>
+%endmacro
+%else
+%macro ccall 2
+%if 1  ; IFNB <a>
 Arg <a>
-endif
+%endif
 ifdef ?SM&n
 ?RSL = ?RSL AND ?SM&n
-endif
+%endif
 mpush %?RSL
 ?argl = 0
 ?ACB = 1
-rept ?argc
+%rep ?argc
 uconcat <?ALI>,%?ACB
 uconcat <purge>,,<?ALI>,%?ACB
 ?ACB = ?ACB + 1
-endm
-ife ?PLM
+%endmacro
+%if (?PLM) == 0
 call _&n
-else
+%else
 call n
-endif
+%endif
 mpop %?RSL
 ?RSL = 0
 ?argc = 0
 ?argl = 0
-endm
-endif
-cProc macro n,cl,s
+%endmacro
+%endif
+%macro cProc 3
 ?pd n,<cl>,<s>,4
-endm
-?pd macro n,c,a,i
-if ?CPD
+%endmacro
+%macro ?pd 4
+%if ?CPD
 ?UTPE
-endif
+%endif
 ?CPD = 1
 ??? = 0
 ?argc = 0
@@ -684,61 +684,61 @@ endif
 ?IA = 0
 ?adj = i
 ?PAS = 0
-ifnb <a>
+%if 1  ; IFNB <a>
 ?RI ?PAS,<a>
-endif
+%endif
 ?PC = sizeC
-irp x,<c>
-ifidn <x>,<FAR>
+; irp x,<c>
+%ifidn <x>,<FAR>
 ?PC = 1
-endif
-ifidn <x>,<NEAR>
+%endif
+%ifidn <x>,<NEAR>
 ?PC = 0
-endif
-ifidn <x>,<PUBLIC>
+%endif
+%ifidn <x>,<PUBLIC>
 ?PU = 1
-endif
-endm
-if ?PC
-if ?WIN
+%endif
+%endmacro
+%if ?PC
+%if ?WIN
 ?IA = 2
-endif
+%endif
 ?adj = ?adj + 2
-endif
-ife ?PLM
-ife ?PC
-n label near
-else
-n label far
-endif
+%endif
+%if (?PLM) == 0
+%if (?PC) == 0
+n:
+%else
+n:
+%endif
 ?pg <_&n>,%?PU,%?PC,%?PAS
-else
+%else
 ?pg <n>,%?PU,%?PC,%?PAS
-endif
-endm
-?pg macro n,p,c,a
-    .xcref
+%endif
+%endmacro
+%macro ?pg 4
+    ; .xcref
     cBegin &macro g
-	.xcref
+	; .xcref
 	?pg1 <n>,c,a,%?PO
 	?CPD = 0
 	?argc = 0
 	?BA = 1
 	??? = (???+1) AND 0FFFEH
-	if p
-	    PUBLIC n
-	endif
-	ife c
-	    n proc NEAR
-	else
-	    n proc FAR
-	endif
-	ifidn <g>,<nogen>
-	    if ???+?PO+a
-		%out <cBegin - possible invalid use of nogen>
-	    endif
-	else
-	    if ?IA
+	%if p
+	    global n
+	%endif
+	%if (c) == 0
+	    n:
+	%else
+	    n:
+	%endif
+	%ifidn <g>,<nogen>
+	    %if ???+?PO+a
+		%warning <cBegin - possible invalid use of nogen>
+	    %endif
+	%else
+	    %if ?IA
 		mov ax,ds
 		nop
 		inc bp
@@ -746,187 +746,187 @@ endm
 		mov bp,sp
 		push ds
 		mov ds,ax
-	    else
+	    %else
 		push bp
 		mov bp,sp
-	    endif
-	    if ???
+	    %endif
+	    %if ???
 		sub sp,???
-	    endif
+	    %endif
 	    mPush a,1
-	endif
-	.cref
-	purge cBegin
+	%endif
+	; .cref
+	; purge cBegin
     &endm
     ?UTPE &macro
-	%out Unterminated Procedure Definition: "&n"
+	%warning Unterminated Procedure Definition: "&n"
     &endm
-endm
+%endmacro
 
-?pg1 macro n,c,a,o
-    .xcref
+%macro ?pg1 4
+    ; .xcref
     cEnd &macro g
-	.xcref
+	; .xcref
 	?BA = 0
-	ifidn <g>,<nogen>
-	    if o+a
-		%out <cEnd - possible invalid use of nogen>
-	    endif
-	else
+	%ifidn <g>,<nogen>
+	    %if o+a
+		%warning <cEnd - possible invalid use of nogen>
+	    %endif
+	%else
 	    mPop a,1
-	    if ?IA
+	    %if ?IA
 		sub bp,2
 		mov sp,bp
 		pop ds
 		pop bp
 		dec bp
-	    else
+	    %else
 		mov sp,bp
 		pop bp
-	    endif
-	    ife ?PLM
+	    %endif
+	    %if (?PLM) == 0
 		ret
-	    else
+	    %else
 		ret o
-	    endif
-	endif
-	n endp
-	.cref
-	purge cEnd
+	    %endif
+	%endif
+	; ENDP n
+	; .cref
+	; purge cEnd
     &endm
-    .cref
-endm
+    ; .cref
+%endmacro
 
-assumes macro s,g
-local assumed
+%macro assumes 2
+; LOCAL assumed
 assumed = 0
-ifidn <code>,<g>
+%ifidn <code>,<g>
 ?cas <s>
 assumed = 1
-endif
-ifidn <CODE>,<g>
+%endif
+%ifidn <CODE>,<g>
 ?cas <s>
 assumed = 1
-endif
-ifidn <data>,<g>
-assume s&:dgroup
+%endif
+%ifidn <data>,<g>
+; assume s&:dgroup
 assumed = 1
-endif
-ifidn <DATA>,<g>
-assume s&:dgroup
+%endif
+%ifidn <DATA>,<g>
+; assume s&:dgroup
 assumed = 1
-endif
-ife assumed
-assume s&:&g
-endif
-endm
-if sizeC
-?cas macro s
-assume s&:_TEXT
-endm
-else
-?cas macro s
-assume s&:IGROUP
-endm
-endif
-createSeg macro n,ln,a,co,cl,grp
-ifnb <grp>
-ifidn <grp>,<IGROUP>
-ife sizeC
+%endif
+%if (assumed) == 0
+; assume s&:&g
+%endif
+%endmacro
+%if sizeC
+%macro ?cas 1
+; assume s&:_TEXT
+%endmacro
+%else
+%macro ?cas 1
+; assume s&:IGROUP
+%endmacro
+%endif
+%macro createSeg 6
+%if 1  ; IFNB <grp>
+%ifidn <grp>,<IGROUP>
+%if (sizeC) == 0
 addSeg IGROUP,n
-endif
-else
+%endif
+%else
 addSeg grp,n
-endif
-endif
-ifnb <cl>
-n segment a co '&cl'
-else
-n segment a co
-endif
-n ends
+%endif
+%endif
+%if 1  ; IFNB <cl>
+SECTION .n
+%else
+SECTION .n
+%endif
+; END SECTION .n
 ?cs1 <n>,<ln>
-endm
-if1
+%endmacro
+%if 1  ; IF1 - pass-specific
 ASMpass=1
-else
+%else
 ASMpass=2
-endif
-addSeg macro grp,seg
-ifndef def_&grp
+%endif
+%macro addSeg 2
+%ifndef def_
 def_&grp= 0
-endif
-if def_&grp ne ASMpass
+%endif
+%if def_&grp ne ASMpass
 add_&grp &macro s
 in_&grp <seg>,s
 &endm
 in_&grp &macro sl,s
-ifb <s>
-grp group sl
-else
+%if 0  ; IFB <s>
+; grp group sl
+%else
 add_&grp &macro ns
 in_&grp <sl,s>,ns
 &endm
-endif
+%endif
 &endm
 def_&grp=ASMpass
-else
+%else
 add_&grp seg
-endif
-endm
-defGrp macro nam
+%endif
+%endmacro
+%macro defGrp 1
 addSeg nam
-endm
-?cs1 macro n,ln
+%endmacro
+%macro ?cs1 2
 begin&ln &macro
 ?cs2 <n>
-n segment
+SECTION .n
 &endm
-endm
+%endmacro
 
-?cs2 macro n
+%macro ?cs2 1
     sEnd &macro
-	n ends
+	; END SECTION .n
     &endm
-endm
+%endmacro
 
-sBegin macro ln
+%macro sBegin 1
     begin&ln
-endm
+%endmacro
 
-ife ?DF
+%if (?DF) == 0
     createSeg _TEXT,code,byte,public,CODE,IGROUP
     createSeg _DATA,data,word,public,DATA,DGROUP
-    if ?WIN
-	ife sizeC
+    %if ?WIN
+	%if (sizeC) == 0
 	    createSeg _INITTEXT,initcode,byte,public,CODE,IGROUP
 	    createSeg _INITDATA,initdata,word,public,DATA,DGROUP
-	endif
-    endif
-    ife sizeC
+	%endif
+    %endif
+    %if (sizeC) == 0
 	defGrp IGROUP
-    endif
+    %endif
     defGrp DGROUP
-    if sizeC
-	codeOFFSET equ OFFSET _TEXT:
-    else
-	codeOFFSET equ OFFSET IGROUP:
-    endif
-    dataOFFSET equ OFFSET DGROUP:
-endif
+    %if sizeC
+	codeOFFSET equ 
+    %else
+	codeOFFSET equ 
+    %endif
+    dataOFFSET equ 
+%endif
 
-errnz macro x
-    if2
-	if x
+%macro errnz 1
+    %if 1  ; IF2 - pass-specific
+	%if x
 	    errnz1 <x>,%(x)
-	endif
-    endif
-endm
+	%endif
+    %endif
+%endmacro
 
-errnz1 macro x1,x2
+%macro errnz1 2
     = *ERRNZ* x1 = x2
-endm
+%endmacro
 
-errn$ macro l,x
-    errnz <OFFSET $ - OFFSET l x>
-endm
+%macro errn$ 2
+    errnz <$ - l x>
+%endmacro

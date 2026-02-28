@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	MapLinear - map linear address according to page tables
+	; title	MapLinear - map linear address according to page tables
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -38,26 +38,26 @@ page	58,132
 ;
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	MapLinear
-	public	UnMapLinear
+	global MapLinear
+	global UnMapLinear
 ;
 
-	page
+	; page
 ;******************************************************************************
 ;			I N C L U D E	F I L E S
 ;******************************************************************************
 
-	include vdmseg.inc
-	include vdmsel.inc
-	include instr386.inc
-	include oemdep.inc
+	%include "vdmseg.inc"
+	%include "vdmsel.inc"
+	%include "instr386.inc"
+	%include "oemdep.inc"
 
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
@@ -66,9 +66,9 @@ page	58,132
 ;******************************************************************************
 ;			C O D E   S E G M E N T
 ;******************************************************************************
-_TEXT	 segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP
-	page
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP
+	; page
 ;******************************************************************************
 ;	MapLinear - maps a linear address to it's "true" linear address.
 ;
@@ -88,10 +88,10 @@ _TEXT	 segment
 ;	00000000h - 000FFFFFh	00000000h - 000FFFFFh
 ;	00100000h - 0010FFFFh	00000000h - 0000FFFFh  (64k wraparound)
 ;	00110000h - 010FFFFFh	00100000h - 00FFFFFFh  (top 15Meg of phys)
-ifndef	NOHIMEM
+%ifndef NOHIMEM
 ;	01010000h - 0101FFFFh	xxxx0000h - xxxxFFFFh  ("high" memory)
 ;				xxxx is mapped by Map_Lin_OEM in OEMPROC module
-endif
+%endif
 ;
 ;	True Linear is same as linear in our new mapping scheme.  So except
 ;	for the "high" memory we have the true linear returned being the same
@@ -105,7 +105,7 @@ endif
 ;				xxxx is mapped by Map_Lin_OEM in OEMPROC module
 ;
 ;******************************************************************************
-MapLinear	proc	near
+MapLinear:
 ;
 	call	Map_Lin_OEM	;Q: Special mapping done by OEM routines?
 	jc	ML_Exit 	;   Y: AX = mapped address
@@ -118,7 +118,7 @@ MapLinear	proc	near
 ML_exit:
 	ret
 ;
-MapLinear	endp
+; ENDP MapLinear
 
 
 ;******************************************************************************
@@ -137,10 +137,10 @@ MapLinear	endp
 ;	00000000h - 000FFFFFh	00000000h - 000FFFFFh
 ;	00100000h - 0010FFFFh	00000000h - 0000FFFFh  (64k wraparound)
 ;	00110000h - 010FFFFFh	00100000h - 00FFFFFFh  (top 15Meg of phys)
-ifndef	NOHIMEM
+%ifndef NOHIMEM
 ;	01010000h - 0101FFFFh	xxxx0000h - xxxxFFFFh  (high memory)
 ;				xxxx is mapped by UMap_Lin_OEM in OEMPROC module
-endif
+%endif
 ;
 ;	Our new mapping scheme is:
 ;
@@ -152,7 +152,7 @@ endif
 ;				xxxx is mapped by Map_Lin_OEM in OEMPROC module
 ;
 ;******************************************************************************
-UnMapLinear	proc	near
+UnMapLinear:
 ;
 	cmp	eax,01000000	;
 	jb	UML_mask	;  N: chk for < 1 meg
@@ -163,10 +163,10 @@ UML_mask:
 UML_exit:
 	ret
 ;
-UnMapLinear	endp
+; ENDP UnMapLinear
 
 
-_TEXT	 ends
+; END SECTION ._TEXT
 
-	end
+	; end
 

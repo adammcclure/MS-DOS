@@ -1,7 +1,7 @@
 ;	SCCSID = @(#)disk3.asm	1.3 85/07/26
 ;	SCCSID = @(#)disk3.asm	1.3 85/07/26
-TITLE	DISK3 - Disk utility routines
-NAME	Disk3
+; TITLE	DISK3 - Disk utility routines
+; NAME	Disk3
 ; Low level Read and write routines for local SFT I/O on files and devs
 ;
 ;   DISKWRITE
@@ -15,18 +15,18 @@ NAME	Disk3
 ;
 ; get the appropriate segment definitions
 ;
-.xlist
-include dosseg.asm
+; .xlist
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-include version.inc
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+%include "version.inc"
+; .cref
+; .list
 
 Installed = TRUE
 
@@ -65,14 +65,14 @@ Installed = TRUE
 	I_need	DOS34_FLAG,WORD 		   ; DOS 4.00   ;AN000;
 	I_need	FIRST_BUFF_ADDR,WORD		   ; DOS 4.00   ;AN000;
 
-IF	BUFFERFLAG
-	EXTRN	SAVE_MAP:NEAR
-	EXTRN	RESTORE_MAP:NEAR
-	EXTRN	SAVE_USER_MAP:NEAR
-	EXTRN	RESTORE_USER_MAP:NEAR
+%if BUFFERFLAG
+	extern SAVE_MAP
+	extern RESTORE_MAP
+	extern SAVE_USER_MAP
+	extern RESTORE_USER_MAP
 	i_need	BUF_EMS_SAFE_FLAG,BYTE
 	i_need	BUF_EMS_MODE,BYTE
-ENDIF
+%endif
 
 	
 
@@ -94,7 +94,7 @@ Break	<DISKWRITE -- PERFORM USER DISK WRITE>
 
 	procedure   DISKWRITE,NEAR
 	DOSAssume   CS,<DS>,"DiskWrite"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	Assert	ISSFT,<ES,DI>,"DiskWrite"
 	PUSH	ES:[DI.sf_firclus]	  ; set up 1st cluster # for FastSeek
@@ -116,8 +116,8 @@ WRITE_OK:
 	MOV	[FSeek_drive],AL       ; 11/5/86 DOS 4.00
 
 	invoke	BREAKDOWN
-	MOV	AX,WORD PTR [BYTPOS]
-	MOV	DX,WORD PTR [BYTPOS+2]
+	MOV	AX,word [BYTPOS]
+	MOV	DX,word [BYTPOS+2]
 	JCXZ	WRTEOFJ 		;Make the file length = sf_position
 	ADD	AX,CX
 	ADC	DX,0			; AX:DX=byte after last byte accessed
@@ -145,8 +145,8 @@ CALCLUS:
 	PUSH	ES
 	LES	DI,[THISSFT]
 	Assert	ISSFT,<ES,DI>,"DiskWrite/CalClus"
-	MOV	AX,WORD PTR ES:[DI.sf_size]
-	MOV	DX,WORD PTR ES:[DI.sf_size+2]
+	MOV	AX,word ES:[DI.sf_size]
+	MOV	DX,word ES:[DI.sf_size+2]
 	POP	ES
 
 
@@ -166,11 +166,11 @@ CALCLUS:
 	ADC	[HIGH_SECTOR_TEMP],0	;F.C. >32mb				;AN000;
 NORNDUP:
 	PUSH	[HIGH_SECTOR_TEMP]	;F.C. >32mb				;AN000;
-	POP	WORD PTR [VALSEC+2]	;F.C. >32mb				;AN000;
-	MOV	WORD PTR [VALSEC],AX  ;Number of sectors that have been written
+	POP	word [VALSEC+2]	;F.C. >32mb				;AN000;
+	MOV	word [VALSEC],AX  ;Number of sectors that have been written
 	XOR	AX,AX
-	MOV	WORD PTR [GROWCNT],AX
-	MOV	WORD PTR [GROWCNT+2],AX
+	MOV	word [GROWCNT],AX
+	MOV	word [GROWCNT+2],AX
 	POP	AX
 
 	MOV	DI,[HIGH_SECTOR]	;F.C. >32mb				;AN000;
@@ -217,7 +217,7 @@ HAVSTART:
 
 	entry	WRTERR
 	DOSAssume   CS,<DS>,"DiskWrite/WrtErr"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	MOV	AH,0FH				;MS. write/data/fail/abort	;AN000;
  entry WRTERR22
@@ -240,8 +240,8 @@ TESTTAIL:
 	JBE	NOGROW
 	XOR	DX,DX
 SETGRW:
-	MOV	WORD PTR [GROWCNT],AX
-	MOV	WORD PTR [GROWCNT+2],DX
+	MOV	word [GROWCNT],AX
+	MOV	word [GROWCNT+2],DX
 NOGROW:
 	POP	AX
 	MOV	CX,[CLUSNUM]	; First cluster accessed
@@ -293,13 +293,13 @@ WRTMID:
 	JNZ	havemid
 	JMP	WRTLAST
 havemid:
-	ADD	WORD PTR [SECPOS],AX
-	ADC	WORD PTR [SECPOS+2],0	 ;F.C. >32mb				;AN000;
+	ADD	word [SECPOS],AX
+	ADC	word [SECPOS+2],0	 ;F.C. >32mb				;AN000;
 	invoke	NEXTSEC
 	JNC	gotok
 	JMP	ACC_ERRWJ
 gotok:
-	MOV	BYTE PTR [TRANS],1	 ; A transfer is taking place
+	MOV	byte [TRANS],1	 ; A transfer is taking place
 	MOV	DL,[SECCLUSPOS]
 	MOV	BX,[CLUSNUM]
 	MOV	CX,[SECCNT]
@@ -319,7 +319,7 @@ wokok:
 	PUSH	[HIGH_SECTOR]		  ;LB.					;AN000;
 SCANNEXT:				  ;LB.					;AN000;
 	invoke	GETCURHEAD		  ;LB.					;AN000;
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 NEXTBUFF:			; Search for buffers
 	CMP	[SC_CACHE_COUNT],0	    ;LB. SC support ?			;AN000;
 	JZ	nosc			    ;LB. no				;AN000;
@@ -340,7 +340,7 @@ inrange2:
 	JZ	not_dirty		    ;LB.				;AN000;
 	invoke	DEC_DIRTY_COUNT 	    ;LB. then decrement dirty count	;AN000;
 not_dirty:
-	MOV	WORD PTR [DI.buf_ID],(buf_visit SHL 8) OR 0FFH	  ; Free the buffer, it is being over written
+	MOV	word [DI.buf_ID],(buf_visit SHL 8) OR 0FFH	  ; Free the buffer, it is being over written
 	invoke	SCANPLACE
 DONEXTBUFF:
 	CMP	DI,[FIRST_BUFF_ADDR]	  ;LB. end of chain			;AN000;
@@ -353,10 +353,10 @@ DONEXTBUFF:
 
 	POP	BX
 	POP	DX
-	MOV	DS,WORD PTR [DMAADD+2]
+	MOV	DS,word [DMAADD+2]
 	MOV	[ALLOWED],allowed_RETRY + allowed_FAIL + allowed_IGNORE
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 	pushf
 	cmp	[BUF_EMS_MODE], -1
 	je	safe_write	
@@ -364,11 +364,11 @@ IF	BUFFERFLAG
 	call	restore_user_map
 safe_write:
 	popf
-ENDIF	
+%endif
 
 	invoke	DWRITE
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 	pushf
 	cmp	[BUF_EMS_MODE], -1
 	je	safe_map	
@@ -376,7 +376,7 @@ IF	BUFFERFLAG
 	call	restore_map
 safe_map:
 	popf
-ENDIF
+%endif
 
 	POP	CX
 	POP	BX
@@ -400,23 +400,23 @@ WRTLAST:
 FINWRT:
 	LES	DI,[THISSFT]
 	Assert	ISSFT,<ES,DI>,"DiskWrite/FinWrt"
-	MOV	AX,WORD PTR [GROWCNT]
-	MOV	CX,WORD PTR [GROWCNT+2]
+	MOV	AX,word [GROWCNT]
+	MOV	CX,word [GROWCNT+2]
 	OR	AX,AX
 	JNZ	UPDATE_size
 	JCXZ	SAMSIZ
 Update_size:
-	ADD	WORD PTR ES:[DI.sf_size],AX
-	ADC	WORD PTR ES:[DI.sf_size+2],CX
+	ADD	word ES:[DI.sf_size],AX
+	ADC	word ES:[DI.sf_size+2],CX
 ;
 ; Make sure that all other SFT's see this growth also.
 ;
 	MOV	AX,1
-if installed
+%if installed
 	call	JShare + 14 * 4
-else
+%else
 	Call	ShSU
-endif
+%endif
 SAMSIZ:
 	transfer SETCLUS		  ; ES:DI already points to SFT
 
@@ -452,19 +452,19 @@ SET_ACC_ERRWJ2:
 UPDATE:
 	LES	DI,[THISSFT]
 	Assert	ISSFT,<ES,DI>,"DiskWrite/update"
-	MOV	AX,WORD PTR [BYTPOS]
-	MOV	WORD PTR ES:[DI.sf_size],AX
-	MOV	AX,WORD PTR [BYTPOS+2]
-	MOV	WORD PTR ES:[DI.sf_size+2],AX
+	MOV	AX,word [BYTPOS]
+	MOV	word ES:[DI.sf_size],AX
+	MOV	AX,word [BYTPOS+2]
+	MOV	word ES:[DI.sf_size+2],AX
 ;
 ; Make sure that all other SFT's see this growth also.
 ;
 	MOV	AX,2
-if installed
+%if installed
 	Call	JShare + 14 * 4
-else
+%else
 	Call	ShSU
-endif
+%endif
 	XOR	CX,CX
 	transfer ADDREC
 
@@ -528,7 +528,7 @@ Break	<DIV32 -- PERFORM 32 BIT DIVIDE>
 ;	[HIGH_SECTOR]:AX = quotiend , DX= remainder
 
 	procedure   DIV32,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 
 
 	PUSH	AX			;F.C. >32mb				;AN000;
@@ -554,7 +554,7 @@ Break	<SHR32 -- PERFORM 32 BIT SHIFT RIGHT>
 ;	AX= cluster number
 
 	procedure   SHR32,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 
 
 	MOV	CL,ES:[BP.dpb_cluster_shift]
@@ -582,7 +582,7 @@ EndProc SHR32
 ;	  carry set, fail from I24
 
 procedure File_Handle_Fail_Error,NEAR						;AN000;
-	ASSUME	ES:NOTHING,DS:NOTHING						;AN000;
+	; ASSUME	ES:NOTHING,DS:NOTHING;AN000;
 										;AN000;
 	CMP	[DISK_FULL],0	 ;MS. disk full or EOF				;AN000;
 	JZ	Fexit		 ;MS. no					;AN000;
@@ -604,8 +604,8 @@ errset:
 	MOV	[EXTERR_CLASS],errCLASS_OutRes	;MS. set class			;AN000;
 	MOV	[EXTERR_ACTION],errACT_Abort	;MS. set action 		;AN000;
 	MOV	[EXTERR_LOCUS],errLOC_Unk	;MS. set locus			;AN000;
-	MOV	word ptr [EXITHOLD + 2],ES	;MS. save es:bp in exithold	;AN000;
-	MOV	word ptr [EXITHOLD],BP		;MS.				;AN000;
+	MOV	word [EXITHOLD + 2],ES	;MS. save es:bp in exithold	;AN000;
+	MOV	word [EXITHOLD],BP		;MS.				;AN000;
 	TEST	ES:[DI.sf_flags],devid_device	  ;MS. device  ?		;AN000;
 	JNZ	chardev2			  ;MS. yes			;AN000;
 	LDS	SI,ES:[DI.sf_DEVPTR]		  ;MS. get dpb			;AN000;
@@ -641,12 +641,12 @@ Break	<BUFF_RANGE_CHECK- buffer range checkink>
 ;	      set  = not in the range
 
 	procedure   BUFF_RANGE_CHECK,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 
-	CMP	WORD PTR [DI.buf_sector],DX					;AN000;
+	CMP	word [DI.buf_sector],DX					;AN000;
 	JNZ	DONEXTBUFF2	; not this sector	   ;F.C. >32mb		;AN000;
 	MOV	SI,[HIGH_SECTOR]			   ;F.C. >32mb		;AN000;
-	CMP	WORD PTR [DI.buf_sector+2],SI		   ;F.C. >32mb		;AN000;
+	CMP	word [DI.buf_sector+2],SI		   ;F.C. >32mb		;AN000;
 	JNZ	DONEXTBUFF2	; Not for this drive
 	CMP	AL,[DI.buf_ID]
 	JZ	secfound	; Buffer has the sector 			;AN000;
@@ -657,6 +657,6 @@ secfound:
 
 EndProc BUFF_RANGE_CHECK
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END
 

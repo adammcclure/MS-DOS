@@ -1,5 +1,5 @@
-	PAGE	60,132 ;
-	TITLE	DEBCOM1.ASM - PART1 DEBUGGER COMMANDS	PC DOS
+	; PAGE	60,132;
+	; TITLE	DEBCOM1.ASM - PART1 DEBUGGER COMMANDS	PC DOS
 ;======================= START OF SPECIFICATIONS =========================
 ;
 ; MODULE NAME: DECOM1.SAL
@@ -46,52 +46,52 @@
 
 ; Routines to perform debugger commands except ASSEMble and UASSEMble
 
-	IF1
-	    %OUT COMPONENT=DEBUG, MODULE=DEBCOM1
-	ENDIF
-.XLIST
-.XCREF
-	INCLUDE DOSSYM.INC
-	INCLUDE DEBEQU.ASM
-.CREF
-.LIST
+	%if 1  ; IF1 - pass-specific
+	    %warning COMPONENT=DEBUG, MODULE=DEBCOM1
+	%endif
+; .XLIST
+; .XCREF
+	%include "DOSSYM.INC"
+	%include "DEBEQU.ASM"
+; .CREF
+; .LIST
 
-CODE	SEGMENT PUBLIC BYTE
-CODE	ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST	SEGMENT PUBLIC BYTE
-	EXTRN	SYNERR_PTR:BYTE
-	EXTRN	DISPB:WORD,DSIZ:BYTE,DSSAVE:WORD
-	IF	SYSVER
-	    EXTRN   CIN:DWORD,PFLAG:BYTE
-	ENDIF
-CONST	ENDS
+SECTION .CONST
+	extern SYNERR_PTR
+	extern DISPB,DSIZ,DSSAVE
+	%if SYSVER
+	    extern CIN,PFLAG
+	%endif
+; END SECTION .CONST
 
-CSTACK	SEGMENT STACK
-CSTACK	ENDS
+SECTION .CSTACK
+; END SECTION .CSTACK
 
-DATA	SEGMENT PUBLIC BYTE
-	EXTRN	DEFLEN:WORD,BYTEBUF:BYTE,DEFDUMP:BYTE
-	EXTRN	ARG_BUF:BYTE,ARG_BUF_PTR:BYTE
-	EXTRN	ONE_CHAR_BUF:BYTE,ONE_CHAR_BUF_PTR:WORD
-DATA	ENDS
+SECTION .DATA
+	extern DEFLEN,BYTEBUF,DEFDUMP
+	extern ARG_BUF,ARG_BUF_PTR
+	extern ONE_CHAR_BUF,ONE_CHAR_BUF_PTR
+; END SECTION .DATA
 
-DG	GROUP	CODE,CONST,CSTACK,DATA
+; DG	GROUP	CODE,CONST,CSTACK,DATA
 
-CODE	SEGMENT PUBLIC BYTE
-ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
-	PUBLIC	HEXCHK,GETHEX1,PRINT,DSRANGE,ADDRESS,HEXIN,PERROR
-	PUBLIC	GETHEX,GET_ADDRESS,GETEOL,GETHX,PERR
-	PUBLIC	PERR,MOVE,DUMP,ENTERDATA,FILL,SEARCH,DEFAULT
-	IF	SYSVER
-	    PUBLIC  IN
-	    EXTRN   DISPREG:NEAR,DEVIOCALL:NEAR
-	ENDIF
-	EXTRN	CRLF:NEAR,OUTDI:NEAR,OUTSI:NEAR,SCANP:NEAR
-	EXTRN	SCANB:NEAR,BLANK:NEAR,TAB:NEAR,COMMAND:NEAR
-	EXTRN	HEX:NEAR,BACKUP:NEAR
-	EXTRN	PRINTF_CRLF:NEAR,HEX_ADDRESS_ONLY:NEAR,HEX_ADDRESS_STR:NEAR
-	EXTRN	STD_PRINTF:NEAR
+SECTION .CODE
+; ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
+	global HEXCHK,GETHEX1,PRINT,DSRANGE,ADDRESS,HEXIN,PERROR
+	global GETHEX,GET_ADDRESS,GETEOL,GETHX,PERR
+	global PERR,MOVE,DUMP,ENTERDATA,FILL,SEARCH,DEFAULT
+	%if SYSVER
+	    global IN
+	    extern DISPREG,DEVIOCALL
+	%endif
+	extern CRLF,OUTDI,OUTSI,SCANP
+	extern SCANB,BLANK,TAB,COMMAND
+	extern HEX,BACKUP
+	extern PRINTF_CRLF,HEX_ADDRESS_ONLY,HEX_ADDRESS_STR
+	extern STD_PRINTF
 DEBCOM1:
 ; RANGE - Looks for parameters defining an address range.
 ; The first parameter is the starting address. The second parameter
@@ -186,11 +186,11 @@ USEDEF:
 DUMP:
 	MOV	BP,[DSSAVE]
 	MOV	CX,DISPB
-	MOV	DI,OFFSET DG:DEFDUMP
+	MOV	DI,DEFDUMP
 	CALL	DEFAULT 		; Get range if specified
 
 	MOV	DS,AX			; Set segment
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 
 	MOV	SI,DX			; SI has displacement in segment
 	PUSH	SI			; save SI away
@@ -198,7 +198,7 @@ DUMP:
 	XOR	AH,AH
 	XOR	AX,-1
 	AND	SI,AX			; convert to para number
-	MOV	DI,OFFSET DG:ARG_BUF	; Build the output str in arg_buf
+	MOV	DI,ARG_BUF	; Build the output str in arg_buf
 	CALL	OUTSI			; display location
 
 	POP	SI			; get SI back
@@ -242,7 +242,7 @@ BYTE1:
 ENDROW:
 	CALL	ASCII			; Show it in ASCII
 
-	MOV	DI,OFFSET DG:ARG_BUF	; Build the output str in arg_buf
+	MOV	DI,ARG_BUF	; Build the output str in arg_buf
 	CALL	OUTSI			; Get the address at start of line
 
 	JMP	INROW			; Loop until count is zero
@@ -299,21 +299,21 @@ PRIN:
 	PUSH	DS
 	PUSH	CS
 	POP	DS
-	ASSUME	DS:DG
+	; ASSUME	DS:DG
 
 	CALL	HEX_ADDRESS_STR
 
 	CALL	CRLF
 
 	POP	DS
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 
 	POP	CX			; Restore overall dump len
-	MOV	WORD PTR [DEFDUMP],SI
-	MOV	WORD PTR [DEFDUMP+WORD],DS ; Save last address as def
+	MOV	word [DEFDUMP],SI
+	MOV	word [DEFDUMP+WORD],DS ; Save last address as def
 	RET
 
-	ASSUME	DS:DG
+	; ASSUME	DS:DG
 ; Block move one area of memory to another Overlapping moves are performed
 ; correctly, i.e., so that a source byte is not overwritten until after it has
 ; been moved.
@@ -366,7 +366,7 @@ FILL:
 	POP	ES			; Segment
 	POP	CX			; Length
 	CMP	BX,CX			; BX is length of fill list
-	MOV	SI,OFFSET DG:BYTEBUF	; List is in byte buffer
+	MOV	SI,BYTEBUF	; List is in byte buffer
 	JCXZ	BIGRNG
 
 	JAE	COPYLIST		; If list is big, copy part of
@@ -405,7 +405,7 @@ SEARCH:
 	POP	CX			; Length to be searched
 	SUB	CX,BX			;  minus length of list
 SCAN:
-	MOV	SI,OFFSET DG:BYTEBUF	; List kept in byte buffer
+	MOV	SI,BYTEBUF	; List kept in byte buffer
 	LODSB				; Bring first byte into AL
 DOSCAN:
 	SCASB				; Search for first byte
@@ -566,13 +566,13 @@ STOSTRG:
 ; of 2-digit hex values or character strings in either single
 ; (') or double (") quotes.
 LIST:
-	MOV	BX,OFFSET DG:BYTEBUF	; Put byte list in the byte buffer
+	MOV	BX,BYTEBUF	; Put byte list in the byte buffer
 LISTLP:
 	CALL	LISTITEM		; Process a parameter
 
 	JNC	LISTLP			; If OK, try for more
 
-	SUB	BX,OFFSET DG:BYTEBUF	; BX now has no. of bytes in list
+	SUB	BX,BYTEBUF	; BX now has no. of bytes in list
 	JZ	PERROR			; List must not be empty
 
 ; Make sure there is nothing more on the line except for
@@ -593,13 +593,13 @@ PERR:
 ; error.  By subtracting from start of buffer, we will know how far to tab
 ; over to appear directly below it on the terminal.  Then print "^ Error".
 PERROR:
-	SUB	SI,OFFSET DG:(BYTEBUF-1) ; How many char processed so far?
+	SUB	SI,(BYTEBUF-1) ; How many char processed so far?
 	MOV	CX,SI			; Parameter for TAB in CX
-	MOV	DI,OFFSET DG:ARG_BUF	;
+	MOV	DI,ARG_BUF	;
 	CALL	TAB			; Directly below bad char
 
-	MOV	BYTE PTR [DI],0 	; nul terminate the tab
-	MOV	DX,OFFSET DG:SYNERR_PTR ; Error message
+	MOV	byte [DI],0 	; nul terminate the tab
+	MOV	DX,SYNERR_PTR ; Error message
 ; Print error message and abort to command level
 PRINT:
 	CALL	PRINTF_CRLF
@@ -631,7 +631,7 @@ GET_ADDRESS:
 	JC	ADRERR
 
 	MOV	AX,BP			; Get default segment
-	CMP	BYTE PTR [SI],CHAR_COLON
+	CMP	byte [SI],CHAR_COLON
 	JNZ	GETRET
 
 	PUSH	DX
@@ -649,7 +649,7 @@ GETRET:
 
 SEGREG:
 	MOV	AL,[SI]
-	MOV	DI,OFFSET DG:SEGLET	; SEGLET  DB  "CSED"
+	MOV	DI,SEGLET	; SEGLET  DB  "CSED"
 	MOV	CX,4
 	REPNE	SCASB
 	JNZ	ADRERR
@@ -658,7 +658,7 @@ SEGREG:
 	INC	SI
 	SHL	CX,1
 	MOV	BX,CX
-	CMP	BYTE PTR [SI],CHAR_COLON
+	CMP	byte [SI],CHAR_COLON
 	JNZ	ADRERR
 
 	PUSH	[BX+DSSAVE]
@@ -674,7 +674,7 @@ GETLIST:
 
 	POP	DI			; Displacement within segment
 	POP	ES			; Segment to enter into
-	MOV	SI,OFFSET DG:BYTEBUF	; List of bytes is in byte buffer
+	MOV	SI,BYTEBUF	; List of bytes is in byte buffer
 	MOV	CX,BX			; Count of bytes
 	REP	MOVSB			; Enter that byte list
 	RET
@@ -710,7 +710,7 @@ GETROW:
 	PUSH	ES
 	PUSH	DS
 	POP	ES
-	MOV	DI,OFFSET DG:ARG_BUF
+	MOV	DI,ARG_BUF
 	CALL	BLANK
 
 	XOR	AL,AL
@@ -725,14 +725,14 @@ GETBYTE:
 	PUSH	ES
 	PUSH	DS
 	POP	ES
-	MOV	DI,OFFSET DG:ARG_BUF
+	MOV	DI,ARG_BUF
 	CALL	HEX			; And display it
 
 	MOV	AL,CHAR_PERIOD
 	STOSB
 	XOR	AL,AL
 	STOSB
-	MOV	DX,OFFSET DG:ARG_BUF_PTR
+	MOV	DX,ARG_BUF_PTR
 	CALL	STD_PRINTF
 
 	POP	ES
@@ -824,7 +824,7 @@ NEXT:
 	INC	CX			; Leave a space plus two for
 	INC	CX			;  each digit not entered
 	PUSH	DI
-	MOV	DI,OFFSET DG:ARG_BUF
+	MOV	DI,ARG_BUF
 	PUSH	ES
 	PUSH	DS
 	POP	ES
@@ -832,7 +832,7 @@ NEXT:
 
 	XOR	AL,AL
 	STOSB
-	MOV	DX,OFFSET DG:ARG_BUF_PTR
+	MOV	DX,ARG_BUF_PTR
 	CALL	STD_PRINTF
 
 	POP	ES
@@ -862,7 +862,7 @@ EOL:
 	JMP	CRLF			; CR/LF and terminate
 
 ; Console input of single character
-	IF	SYSVER
+	%if SYSVER
 INPT:					  ;*** change for build - label to inpt
 	    PUSH    DS
 	    PUSH    SI
@@ -893,25 +893,25 @@ PRINTON:
 	    NOT     [PFLAG]
 	    JMP     SHORT IN
 
-	ELSE
+	%else
 INPT:				; Change label for build
 	    MOV     AH,Std_Con_Input ;OPTION=1, STANDARD CONSOLE INPUT
 	    INT     21H
 
 	    RET
 
-	ENDIF
+	%endif
 OUT_CHAR:
 	PUSH	DI
 	PUSH	DX
 	PUSH	ES
 	PUSH	DS
 	POP	ES
-	MOV	DI,OFFSET DG:ONE_CHAR_BUF
+	MOV	DI,ONE_CHAR_BUF
 	STOSB
 	MOV	AL,0
 	STOSB
-	MOV	DX,OFFSET DG:ONE_CHAR_BUF_PTR
+	MOV	DX,ONE_CHAR_BUF_PTR
 	CALL	STD_PRINTF
 
 	POP	ES
@@ -932,7 +932,7 @@ OUT_CHAR:
 ;	Date	  : 6/16/87
 ;=========================================================================
 
-ADDRESS_32_BIT	proc	near			;an000;perform 32 bit address
+ADDRESS_32_BIT:;an000;perform 32 bit address
 						;      creation
 	push	cx				;an000;save affected regs.
 	mov	cx,04h				;an000;initialize to
@@ -960,10 +960,10 @@ $$EN1:
 
 	ret					;an000;return to caller
 
-ADDRESS_32_BIT	endp				;an000;end proc
+; ENDP ADDRESS_32_BIT;an000;end proc
 
 
 
-CODE	ENDS
-	END	DEBCOM1
+; END SECTION .CODE
+	; END	DEBCOM1
 

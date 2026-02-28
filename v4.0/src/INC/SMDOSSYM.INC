@@ -1,20 +1,20 @@
 ;	SCCSID = @(#)dossym.asm 1.1 85/04/10
 ;	SCCSID = @(#)dossym.asm 1.1 85/04/10
-	PAGE 80,132
+	; PAGE 80,132
 TRUE	    EQU 0FFFFh
 FALSE	    EQU 0
 
 Installed   = TRUE
-IFNDEF	DEBUG
+%ifndef DEBUG
     DEBUG	= FALSE
-ENDIF
+%endif
 
-include dosmac.INC
-INCLUDE VERSIONA.INC		;DEFINE THE MAJOR AND MINOR VERSION NUMBERS
+%include "dosmac.INC"
+%include "VERSIONA.INC";DEFINE THE MAJOR AND MINOR VERSION NUMBERS
 
-IF2
-    %OUT    DOSSYM in Pass 2
-ENDIF
+%if 1  ; IF2 - pass-specific
+    %warning DOSSYM in Pass 2
+%endif
 
 BREAK <Control character definitions>
 
@@ -46,31 +46,31 @@ BREAK <Read This and Weep>
 ;									   ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 
-include bpb.INC
+%include "bpb.INC"
 
-include buffer.INC
+%include "buffer.INC"
 
 BREAK <User stack inside of system call and SysVars>
 ; Location of user registers relative user stack pointer
 
-user_environ	STRUC
-user_AX     DW	    ?
-user_BX     DW	    ?
-user_CX     DW	    ?
-user_DX     DW	    ?
-user_SI     DW	    ?
-user_DI     DW	    ?
-user_BP     DW	    ?
-user_DS     DW	    ?
-user_ES     DW	    ?
-user_IP     DW	    ?
-user_CS     DW	    ?
-user_F	    DW	    ?
-user_environ	ENDS
+struc user_environ
+user_AX: dw 0
+user_BX: dw 0
+user_CX: dw 0
+user_DX: dw 0
+user_SI: dw 0
+user_DI: dw 0
+user_BP: dw 0
+user_DS: dw 0
+user_ES: dw 0
+user_IP: dw 0
+user_CS: dw 0
+user_F: dw 0
+endstruc
 
-include sysvar.INC
+%include "sysvar.INC"
 
-include vector.INC
+%include "vector.INC"
 
 ;include mult.INC
 
@@ -96,7 +96,7 @@ BREAK <Disk map>
 ; All partition boundaries are sector boundaries.  The size of the FAT is
 ; adjusted to maximize the file space addressable.
 
-include dirent.INC
+%include "dirent.INC"
 
 BREAK <File allocation Table information>
 ;
@@ -120,25 +120,25 @@ BREAK <File allocation Table information>
 ; number is selected so that disk checking programs know what to do (ie.  a
 ; cluster with entry FF7H which is not in a chain is not an error).
 
-include dpb.INC
+%include "dpb.INC"
 
-include curdir.INC
+%include "curdir.INC"
 
 ;include cpmfcb.INC
 
 ;include find.INC
 
-include pdb.INC
+%include "pdb.INC"
 
-include exe.INC
+%include "exe.INC"
 
-include sf.INC
+%include "sf.INC"
 
-include arena.INC
+%include "arena.INC"
 
-include intnat.INC
+%include "intnat.INC"
 
-include mi.INC
+%include "mi.INC"
 
 fChk	equ 1
 fDelim	equ 2
@@ -149,9 +149,9 @@ fFCB	equ 8
 
 ;include error.INC
 
-include syscall.INC
+%include "syscall.INC"
 
-include doscntry.inc		;J.K. 5/26/86
+%include "doscntry.inc";J.K. 5/26/86
 
-SUBTTL
+; SUBTTL
 

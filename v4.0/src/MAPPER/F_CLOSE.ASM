@@ -1,20 +1,20 @@
-page 80,132
+; page 80,132
 
-title CP/DOS  DosFindClose  mapper
+; title CP/DOS  DosFindClose  mapper
 
-        include find.inc
+        %include "find.inc"
 
 
-FindSegment     segment word public 'find'
+SECTION .FindSegment
 
 ; We will use the offset into the segment 'FindSegment' as the handle that we
 ;  return and use in subsequent FindNext and FindClose calls.  The data that is
 ;  in the word is the offset into the 'FindSegment' to the DTA that we should
 ;  use.
-                extrn   FindDTAs:word
-                extrn   FindHandles:word
+                extern FindDTAs
+                extern FindHandles
 
-FindSegment     ends
+; END SECTION .FindSegment
 
 
 ; ************************************************************************* *
@@ -45,28 +45,28 @@ FindSegment     ends
 ; *
 ; *************************************************************************
 
-        public  DosFindClose
-        .sall
-        .xlist
-        include macros.inc
-        .list
+        global DosFindClose
+        ; .sall
+        ; .xlist
+        %include "macros.inc"
+        ; .list
 
-str     struc
-old_bp    dw      ?
-return    dd      ?
-DirHandle dw      ?           ; dirctory search handle
-str     ends
+struc str
+old_bp: dw 0
+return: dd 0
+DirHandle: dw 0; dirctory search handle
+endstruc
 
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
-DosFindClose  proc   far
+DosFindClose:
         Enter   DosFindClose               ; push registers
 
         mov     ax,seg FindSegment         ; get address to our data
         mov     ds,ax
-        assume  ds:FindSegment
+        ; assume  ds:FindSegment
 
 ; Close the handle
 
@@ -80,7 +80,7 @@ DosFindClose  proc   far
         cmp     si,1                       ; handle = 1??
         jne     CheckForClose              ; branch if not
 
-        mov     si,offset FindSegment:FindHandles
+        mov     si,FindHandles
 
 CheckForClose:
         test    ds:[si],OpenedHandle       ; handle is open ??
@@ -95,10 +95,10 @@ OkToClose:
 
 ErrorExit:
         mexit                              ; pop registers
-        ret     size str - 6               ; return
+        ret     str_size - 6               ; return
 
-DosFindClose endp
+; ENDP DosFindClose
 
-dosxxx  ends
+; END SECTION .dosxxx
 
-        end
+        ; end

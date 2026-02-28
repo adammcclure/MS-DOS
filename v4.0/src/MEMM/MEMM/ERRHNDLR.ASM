@@ -1,8 +1,8 @@
 
 
-	page	58,132
+	; page	58,132
 ;******************************************************************************
-	TITLE	ErrHndlr - Error Handler 
+	; TITLE	ErrHndlr - Error Handler
 ;******************************************************************************
 ;   (C) Copyright MICROSOFT Corp. 1986
 ;
@@ -29,7 +29,7 @@
 ;  07/06/86   0.04	Changed assume to DGROUP
 ;
 ;******************************************************************************
-	page
+	; page
 ;******************************************************************************
 ;
 ;  Functional description:
@@ -38,46 +38,46 @@
 ;	asks the user to continue or reboot.
 ;
 ;******************************************************************************
-	page
-.386P
+	; page
+CPU 386
 ;
- 	include	vdmseg.inc
-	include	vdmsel.inc
-	include	vm386.inc
-	include	kbd.inc
+ 	%include "vdmseg.inc"
+	%include "vdmsel.inc"
+	%include "vm386.inc"
+	%include "kbd.inc"
 ;******************************************************************************
 ;  	Public Declarations
 ;******************************************************************************
 ;
-	public	ErrHndlr		; Display message and continue or reboot
-	public	Error_Flag
+	global ErrHndlr; Display message and continue or reboot
+	global Error_Flag
 ;******************************************************************************
 ;  	Externs
 ;******************************************************************************
-_TEXT	segment
-	extrn	RetReal:near		; return to real mode
-	extrn	egetc:near		; get keyboard character
-	extrn	WaitKBD:near		; wait for keyboard ready
-_TEXT	ends
+SECTION ._TEXT
+	extern RetReal; return to real mode
+	extern egetc; get keyboard character
+	extern WaitKBD; wait for keyboard ready
+; END SECTION ._TEXT
 
-_DATA	segment
-	extrn	powr10:word		; power of 10's table
-	extrn	POE_Mess:byte		; privileged operation error
-	extrn	POE_Num:byte 		; where to put error code
-	extrn	POE_Len:abs		; length of message
-	extrn	EXCPE_Mess:byte		; exception error message
-	extrn	EXCPE_Num:byte		; where to put error code
-	extrn	EXCPE_CS:byte		; where to put CS
-	extrn	EXCPE_EIP:byte		; where to put EIP
-	extrn	EXCPE_ERR:byte		; where to put ERR
-	extrn	EXCPE_Len:abs		; length of message
-_DATA	ends
+SECTION ._DATA
+	extern powr10; power of 10's table
+	extern POE_Mess; privileged operation error
+	extern POE_Num; where to put error code
+	extern POE_Len; length of message
+	extern EXCPE_Mess; exception error message
+	extern EXCPE_Num; where to put error code
+	extern EXCPE_CS; where to put CS
+	extern EXCPE_EIP; where to put EIP
+	extern EXCPE_ERR; where to put ERR
+	extern EXCPE_Len; length of message
+; END SECTION ._DATA
 ;
-romdata	segment	use16 at 40h
+SECTION .romdata
 	org	71h
-fBreak	db	?
-fReset	dw	?
-romdata	ends
+fBreak: db 0
+fReset: dw 0
+; END SECTION .romdata
 ;
 ;******************************************************************************
 ;  	Equates
@@ -100,7 +100,7 @@ CPOSN		=	5*256+0		; cursor position to write
 ;******************************************************************************
 ;		LOCAL DATA     
 ;******************************************************************************
-_DATA	segment
+SECTION ._DATA
 Error_Flag	dw	0		; flags for Instruction Prefixes
 masterp		db	0		; save master port value
 slavep		db	0		; save slave port value
@@ -112,7 +112,7 @@ GPsavERR	dw	0		; GP fault Error Code save
 GPsavEIP	dd	0		; GP fault EIP save
 GPsavCS		dw	0		; GP fault CS save
 
-_DATA	ends
+; END SECTION ._DATA
 ;	
 ;******************************************************************************
 ;
@@ -132,9 +132,9 @@ _DATA	ends
 ;	stack: 
 ;
 ;******************************************************************************
-_TEXT	segment
-	ASSUME	CS:_TEXT, DS:DGROUP, ES:DGROUP
-ErrHndlr	proc	near
+SECTION ._TEXT
+	; ASSUME	CS:_TEXT, DS:DGROUP, ES:DGROUP
+ErrHndlr:
 ;
 ; save fault infos
 ;
@@ -142,11 +142,11 @@ ErrHndlr	proc	near
 	push	ds
 	push	VDMD_GSEL
 	pop	ds
-	mov	eax, dword ptr [bp.VTFO]		; error code
+	mov	eax, dword [bp.VTFO]		; error code
 	mov	[GPsavERR], ax
-	mov	eax, dword ptr [bp.VTFOE+VMTF_EIP]	; EIP
+	mov	eax, dword [bp.VTFOE+VMTF_EIP]	; EIP
 	mov	[GPsavEIP], eax
-	mov	ax, word ptr [bp.VTFOE+VMTF_CS]		; CS
+	mov	ax, word [bp.VTFOE+VMTF_CS]		; CS
 	mov	[GPsavCS], ax
 	pop	ds
 	pop	eax
@@ -177,30 +177,30 @@ kbdbusy:
 	pop	ax			; get entry condition
 	or	ax,ax			; q: privileged error?
 	jnz	excep			; n: exception error
-	mov	bp,offset DGROUP:POE_Mess ; y: privileged error
+	mov	bp,POE_Mess ; y: privileged error
 	mov	cx,POE_Len
-	mov	di,offset DGROUP:POE_Num; error number location
+	mov	di,POE_Num; error number location
 	mov	ax,bx			; error number in ax
 	call	b2asc10			; convert to ascii
 	mov	[boot],B		; key to boot
 	mov	[continue],C		; key to continue
 	jmp	skip_exc		; skip exception stuff
 excep:
-	mov	bp,offset DGROUP:EXCPE_Mess	; n: load up exception error
+	mov	bp,EXCPE_Mess	; n: load up exception error
 	mov	cx,EXCPE_Len		; length of msg
-	mov	di,offset DGROUP:EXCPE_Num	; error number location
+	mov	di,EXCPE_Num	; error number location
 	mov	ax,bx			; error number in ax
 	call	b2asc10			; convert to ascii
-	mov	di,offset DGROUP:EXCPE_CS
+	mov	di,EXCPE_CS
 	mov	ax,[GPsavCS]
 	call	b2asc16
-	mov	di,offset DGROUP:EXCPE_EIP
+	mov	di,EXCPE_EIP
 	mov	eax,[GPsavEIP]
 	ror	eax,16
 	call	b2asc16
 	ror	eax,16
 	call	b2asc16
-	mov	di,offset DGROUP:EXCPE_ERR
+	mov	di,EXCPE_ERR
 	mov	ax,[GPsavERR]
 	call	b2asc16
 	mov	[boot],ENTER		; key to reboot
@@ -228,7 +228,7 @@ key_loop:
 ;		Reboot system
 ;
 ;******************************************************************************
-	assume	ds:romdata
+	; assume	ds:romdata
 	mov	ax,romdata
 	mov	ds,ax			; ds = romdata segment
 	mov	[freset],0		; cold restart
@@ -241,7 +241,7 @@ key_loop:
 	mov	al,0feh			; feh = pulse output bit 0 (reset)
 	out	KbStatus,al		; reset processor
 	hlt
-	assume	ds:DGROUP
+	; assume	ds:DGROUP
 ;
 err_cont:
 	xor	ah,ah			; ah = 0 to set video mode
@@ -265,9 +265,9 @@ err_cont:
 	pop	bx
 	pop	ax
 	ret
-ErrHndlr	endp
+; ENDP ErrHndlr
 
-page
+; page
 ;******************************************************************************
 ;
 ;	b2asc10 - converts binary to ascii decimal and store at _TEXT:DI
@@ -286,7 +286,7 @@ page
 ;
 ;******************************************************************************
 ;
-b2asc10 proc    near
+b2asc10:
 ;
 	push	ax
 	push	bx
@@ -333,7 +333,7 @@ b2_make_strg:
 	pop	ax
 	ret				; *** return ***
 ;
-b2asc10 endp
+; ENDP b2asc10
 ;
 ;******************************************************************************
 ;
@@ -353,7 +353,7 @@ b2asc10 endp
 ;
 ;******************************************************************************
 ;
-b2asc16 proc    near
+b2asc16:
 
 	push	ax
 	push	bx
@@ -378,8 +378,8 @@ b2asc16_skip:
 	pop	ax
 	ret
 
-b2asc16 endp
+; ENDP b2asc16
 
-_TEXT	ENDS
-	END
+; END SECTION ._TEXT
+	; END
 

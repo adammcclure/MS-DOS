@@ -1,7 +1,7 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tprintf.asm	4.3 85/07/02
 ;	SCCSID = @(#)tprintf.asm	4.3 85/07/02
-TITLE	COMMAND Transient Printf routine
+; TITLE	COMMAND Transient Printf routine
 
 ;****************************************************************
 ;*
@@ -30,35 +30,35 @@ TITLE	COMMAND Transient Printf routine
 ;*
 ;****************************************************************
 
-.xlist
-.xcref
-	INCLUDE comsw.asm		;AC000;
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm		;AN000;
-	INCLUDE SYSMSG.INC		;AN000;
-.list
-.cref
+; .xlist
+; .xcref
+	%include "comsw.asm";AC000;
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm";AN000;
+	%include "SYSMSG.INC";AN000;
+; .list
+; .cref
 
-datares segment public
-	extrn	pipeflag:byte
-datares ends
+SECTION .datares
+	extern pipeflag
+; END SECTION .datares
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	extend_buf_off:word	;AN000;
-	EXTRN	Extend_Buf_ptr:word	;AN000;
-	EXTRN	Extend_Buf_seg:word	;AN000;
-	EXTRN	Msg_Cont_Flag:byte	;AN000;
-	EXTRN	Msg_disp_Class:byte	;AN000;
-	EXTRN	pipeemes_ptr:word
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern extend_buf_off;AN000;
+	extern Extend_Buf_ptr;AN000;
+	extern Extend_Buf_seg;AN000;
+	extern Msg_Cont_Flag;AN000;
+	extern Msg_disp_Class;AN000;
+	extern pipeemes_ptr
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	msg_flag:byte		;AN022;
-	EXTRN	print_err_flag:word	;AN000;
-	EXTRN	RESSEG:WORD
-	EXTRN	String_ptr_2:word	;AC000;
-	EXTRN	Subst_buffer:byte	;AN061;
+SECTION .TRANSPACE;AC000;
+	extern msg_flag;AN022;
+	extern print_err_flag;AN000;
+	extern RESSEG
+	extern String_ptr_2;AC000;
+	extern Subst_buffer;AN061;
 ;AD061; EXTRN	String_ptr_2_sb:word	;AN000;
 
 	; include data area for message services
@@ -67,42 +67,42 @@ TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
 
 	MSG_SERVICES <MSGDATA>		;AN000;
 
-PRINTF_HANDLE	DW  ?			;AC000;
+PRINTF_HANDLE: dw 0;AC000;
 
-TRANSPACE	ENDS			;AC000;
+; END SECTION .TRANSPACE;AC000;
 
-TRANCODE	SEGMENT PUBLIC BYTE	;AC000;
+SECTION .TRANCODE;AC000;
 
-	EXTRN	cerror:near
-	EXTRN	crlf2:near
-	EXTRN	tcommand:near		;AN026;
+	extern cerror
+	extern crlf2
+	extern tcommand;AN026;
 
-ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:NOTHING,SS:NOTHING ;AC000;
+; ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:NOTHING,SS:NOTHING;AC000;
 
-	PUBLIC	SETSTDINOFF		;AN026;
-	PUBLIC	SETSTDINON		;AN026;
-	PUBLIC	SETSTDOUTOFF		;AN026;
-	PUBLIC	SETSTDOUTON		;AN026;
-	PUBLIC	TSYSGETMSG		;AN000;
-	PUBLIC	TSYSLOADMSG		;AN000;
+	global SETSTDINOFF;AN026;
+	global SETSTDINON;AN026;
+	global SETSTDOUTOFF;AN026;
+	global SETSTDOUTON;AN026;
+	global TSYSGETMSG;AN000;
+	global TSYSLOADMSG;AN000;
 
-PUBLIC Printf_Init
-printf_init proc far
+global Printf_Init
+printf_init:
 	call	std_printf
 	ret
-printf_init endp
+; ENDP printf_init
 
-Public	Printf_Crlf
+global Printf_Crlf
 PRINTF_CRLF:
 	CALL	STD_PRINTF
 	CALL	CRLF2
 	RET
 
-PUBLIC	Std_EPrintf
+global Std_EPrintf
 STD_EPRINTF:
 	mov	Printf_Handle,2 		;AC000;Print to STDERR
 	jmp	short NEW_PRINTF		;AC000;
-PUBLIC	Std_Printf
+global Std_Printf
 STD_PRINTF:
 	mov	Printf_Handle,1 		;AC000;Print to STDOUT
 
@@ -116,7 +116,7 @@ NEW_PRINTF:
 	push	di				;AN000;
 	push	si				;AN000;
 	push	dx				;AN000;
-	assume	es:trangroup			;AN000;
+	; assume	es:trangroup;AN000;
 ;AD061; mov	string_ptr_2_sb,0		;AN000;initialize
 	mov	print_err_flag,0		;AN000;
 
@@ -155,7 +155,7 @@ UTILITY_SETUP:
 ;AD061;  mov	 parm_off_pos [si],dx		 ;AN000;put proper address in table
 ;AD061;  mov	 string_ptr_2_sb,si		 ;AN000;save block changed
 
-	mov	di,offset trangroup:subst_buffer;AN061; Get address of message subst buffer
+	mov	di,subst_buffer;AN061; Get address of message subst buffer
 	push	di				;AN061; save it
 	push	cx				;AN061; save number of subst
 
@@ -164,10 +164,10 @@ MOVE_SUBST:
 	mov	bx,si				;AN061;save start of sublist
 	mov	cx,parm_block_size		;AN061;get size of sublist
 	rep	movsb				;AN061;move sublist
-	test	byte ptr [bx.$M_S_FLAG],date_type ;AN061;are we doing date/time?
+	test	byte [bx.$M_S_FLAG],date_type ;AN061;are we doing date/time?
 	jz	move_subst_cont 		;AN061;no - no need to reset
-	mov	word ptr [bx.$M_S_VALUE],0	;AN061;reset original date or time to 0
-	mov	word ptr [bx.$M_S_VALUE+2],0	;AN061;
+	mov	word [bx.$M_S_VALUE],0	;AN061;reset original date or time to 0
+	mov	word [bx.$M_S_VALUE+2],0	;AN061;
 
 MOVE_SUBST_CONT:				;AN061;
 	pop	cx				;AN061;get number of subst back
@@ -178,7 +178,7 @@ MOVE_SUBST_CONT:				;AN061;
 	cmp	Msg_Disp_Class,Util_Msg_Class	;AN061;Is this a utility message
 	jz	CHECK_FIX			;AN061;YES - go see if substitutions
 	mov	msg_flag,ext_msg_class		;AN061;set message flag
-	mov	di,offset trangroup:extend_buf_ptr ;AN061; Get address of extended message block
+	mov	di,extend_buf_ptr ;AN061; Get address of extended message block
 	xor	ax,ax				;AN061;clear ax register
 	stosw					;AN061;clear out message number
 	stosb					;AN061;clear out subst count
@@ -191,11 +191,11 @@ CHECK_FIX:					;AN061;
 	push	cx				;AN061;save number of subst
 
 SET_SUBST:					;AN061;store the segment of the subst
-	cmp	word ptr [bx.$M_S_VALUE+2],0	;AN061;was it set already?
+	cmp	word [bx.$M_S_VALUE+2],0	;AN061;was it set already?
 	jnz	subst_seg_set			;AN061;if not 0, don't replace it
-	test	byte ptr [bx.$M_S_FLAG],date_type ;AN061;don't replace if date or time
+	test	byte [bx.$M_S_FLAG],date_type ;AN061;don't replace if date or time
 	jnz	subst_seg_set			;AN061;yes - skip it
-	mov	word ptr [bx.$M_S_VALUE+2],cs	;AN061;set segment value
+	mov	word [bx.$M_S_VALUE+2],cs	;AN061;set segment value
 
 SUBST_SEG_SET:					;AN061;
 	add	bx,parm_block_size		;AN061;go to next sublist
@@ -203,10 +203,10 @@ SUBST_SEG_SET:					;AN061;
 	pop	cx				;AN061;get number of subst back
 
 	mov	bx,si				;AN061;get start of sublist to BX
-	cmp	word ptr [bx.$M_S_VALUE],offset trangroup:string_ptr_2 ;AN061;are we using double indirection?
+	cmp	word [bx.$M_S_VALUE],string_ptr_2 ;AN061;are we using double indirection?
 	jnz	ready_to_print			;AN061;no - we already have address
 	mov	dx,string_ptr_2 		;AN061;get address in string_ptr_2
-	mov	word ptr [bx.$M_S_VALUE],dx	;AN061;put it into the subst block
+	mov	word [bx.$M_S_VALUE],dx	;AN061;put it into the subst block
 
 READY_TO_PRINT:
 	mov	bx,Printf_Handle		;AN000;get print handle
@@ -288,16 +288,16 @@ print_err:
 not_stderr:
 	mov	ax,print_err_flag		;AN026;get extended error number back
 	mov	es,[resseg]			; No, set up for error, load the
-assume	es:resgroup				;  right error msg, and jmp to cerror.
+; assume	es:resgroup;  right error msg, and jmp to cerror.
 	test	PipeFlag,-1
 	jz	go_to_error
 	invoke	PipeOff
-	mov	dx,offset trangroup:pipeemes_ptr
+	mov	dx,pipeemes_ptr
 	jmp	print_err_exit			;AC000;
 
 go_to_error:
 	mov	msg_disp_class,ext_msg_class	;AN000; set up extended error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr ;AC000; get extended message pointer
+	mov	dx,Extend_Buf_ptr ;AC000; get extended message pointer
 	mov	Extend_Buf_ptr,ax		;AN000; get message number in control block
 
 PRINT_ERR_EXIT: 				;AC000;
@@ -320,14 +320,14 @@ PRINT_ERR_EXIT: 				;AC000;
 ;****************************************************************
 
 
-TSYSLOADMSG	PROC	NEAR			;AN000;
+TSYSLOADMSG:;AN000;
 
 	push	bx				;AN000;
 	call sysloadmsg 			;AN000; call routine
 	pop	bx				;AN000;
 	ret					;AN000; exit
 
-TSYSLOADMSG	ENDP				;AN000;
+; ENDP TSYSLOADMSG;AN000;
 
 ;****************************************************************
 ;*
@@ -344,22 +344,22 @@ TSYSLOADMSG	ENDP				;AN000;
 ;****************************************************************
 
 
-TSYSGETMSG	PROC	NEAR			;AN000;
+TSYSGETMSG:;AN000;
 
 	push	cx				;AN000;
 	call sysgetmsg				;AN000; call routine
 	pop	cx				;AN000;
 	ret					;AN000; exit
 
-TSYSGETMSG	ENDP				;AN000;
+; ENDP TSYSGETMSG;AN000;
 
 MSG_SERVICES <COMT,NOVERCHECKmsg,NEARmsg,LOADmsg,NOCHECKSTDIN,NOCHECKSTDOUT,GETmsg> ;AC026; The message services
 MSG_SERVICES <COMT,NEARmsg,SETSTDIO,DISPLAYmsg,CHARmsg,NUMmsg,TIMEmsg,DATEmsg>	    ;AC026; The message services
 
-PRINTF_LAST LABEL   WORD
+PRINTF_LAST:
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
 
-TRANCODE    ENDS
-	    END
+; END SECTION .TRANCODE
+	    ; END

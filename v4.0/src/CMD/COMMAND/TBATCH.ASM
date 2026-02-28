@@ -1,76 +1,76 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tbatch.asm 4.5 85/10/01
 ;	SCCSID = @(#)tbatch.asm 4.5 85/10/01
-TITLE	Batch processing routines
+; TITLE	Batch processing routines
 
 
-.xlist
-.xcref
-	INCLUDE comsw.asm
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-	include doscntry.inc		;AN000;
-	include version.inc
-.list
-.cref
+; .xlist
+; .xcref
+	%include "comsw.asm"
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm"
+	%include "doscntry.inc";AN000;
+	%include "version.inc"
+; .list
+; .cref
 
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BATCH:WORD
-	EXTRN	Batch_Abort:byte
-	EXTRN	call_batch_flag:byte
-	EXTRN	ECHOFLAG:BYTE
-	EXTRN	forflag:byte
-	EXTRN	forptr:word
-	EXTRN	IFFlag:BYTE
-	EXTRN	In_Batch:byte
-	EXTRN	LTPA:WORD
-	EXTRN	Nest:word
-	EXTRN	next_batch:word
-	EXTRN	nullflag:byte
-	EXTRN	PIPEFLAG:BYTE
-	EXTRN	RES_TPA:WORD
-	EXTRN	SINGLECOM:WORD
-	EXTRN	SUPPRESS:BYTE		;AC000;
-DATARES ENDS
+SECTION .DATARES;AC000;
+	extern BATCH
+	extern Batch_Abort
+	extern call_batch_flag
+	extern ECHOFLAG
+	extern forflag
+	extern forptr
+	extern IFFlag
+	extern In_Batch
+	extern LTPA
+	extern Nest
+	extern next_batch
+	extern nullflag
+	extern PIPEFLAG
+	extern RES_TPA
+	extern SINGLECOM
+	extern SUPPRESS;AC000;
+; END SECTION .DATARES
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BADBAT_PTR:WORD
-	EXTRN	Extend_buf_ptr:word	;AC000;
-	EXTRN	Extend_buf_sub:byte	;AN022;
-	EXTRN	msg_disp_class:byte	;AC000;
-	EXTRN	NEEDBAT_PTR:WORD
-	EXTRN	pausemes_ptr:word	;AC000;
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern BADBAT_PTR
+	extern Extend_buf_ptr;AC000;
+	extern Extend_buf_sub;AN022;
+	extern msg_disp_class;AC000;
+	extern NEEDBAT_PTR
+	extern pausemes_ptr;AC000;
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BatBufPos:WORD
-	EXTRN	BATHAND:WORD
-	EXTRN	bwdbuf:byte		;AN022;
-	EXTRN	BYTCNT:WORD
-	EXTRN	COMBUF:BYTE
-	EXTRN	EXECPATH:BYTE
-	EXTRN	ID:BYTE
-	EXTRN	RCH_ADDR:DWORD
-	EXTRN	RESSEG:WORD
-	EXTRN	string_ptr_2:word	;AC000;
-	EXTRN	TPA:WORD
-	EXTRN	TRAN_TPA:WORD
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern BatBufPos
+	extern BATHAND
+	extern bwdbuf;AN022;
+	extern BYTCNT
+	extern COMBUF
+	extern EXECPATH
+	extern ID
+	extern RCH_ADDR
+	extern RESSEG
+	extern string_ptr_2;AC000;
+	extern TPA
+	extern TRAN_TPA
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	EXTRN	cerror:near
-	EXTRN	tcommand:near
+	extern cerror
+	extern tcommand
 
 ;---------------
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-    extrn   arg:byte			; the arg structure!
-transpace   ends
+SECTION .TRANSPACE;AC000;
+    extern arg; the arg structure!
+; END SECTION .transpace
 ;---------------
 
 Break	<PromptBat - Open or wait for batch file>
@@ -82,7 +82,7 @@ Break	<PromptBat - Open or wait for batch file>
 ;
 
 Procedure   PromptBat,NEAR
-	ASSUME	DS:ResGroup,ES:NOTHING
+	; ASSUME	DS:ResGroup,ES:NOTHING
 	invoke	BATOPEN 			; attempt to open batch file
 	retnc
 	cmp	dx,error_file_not_found 	;AN022; Ask for diskette if file not found
@@ -101,13 +101,13 @@ Bat_Remcheck:					;AN022; Go see if media is removable
 	invoke	ForOff
 	invoke	PipeOff
 	MOV	IfFlag,AL			; No If in progress.
-	MOV	DX,OFFSET TRANGROUP:BADBAT_ptr
+	MOV	DX,BADBAT_ptr
 
 BatDie:
 	call	BatchOff
 	PUSH	CS
 	POP	DS
-	ASSUME	DS:TranGroup
+	; ASSUME	DS:TranGroup
 	invoke	std_eprintf			;AC022; display message
 
 ;
@@ -119,18 +119,18 @@ BatDie:
 ; Ask the user to reinsert the batch file
 ;
 ASKFORBAT:
-	ASSUME	DS:ResGroup
+	; ASSUME	DS:ResGroup
 	PUSH	DS
 	PUSH	CS
 	POP	DS
-	ASSUME	DS:TranGroup
-	MOV	DX,OFFSET TRANGROUP:NEEDBAT_ptr  ;AN022;
+	; ASSUME	DS:TranGroup
+	MOV	DX,NEEDBAT_ptr  ;AN022;
 	invoke	std_eprintf			 ;Prompt for batch file on stderr
-	mov	dx,offset trangroup:pausemes_ptr ;AN000; get second part of message
+	mov	dx,pausemes_ptr ;AN000; get second part of message
 	invoke	std_eprintf			 ;AN000; print it to stderr
 	CALL	GetKeystroke
 	POP	DS
-	ASSUME	DS:ResGroup
+	; ASSUME	DS:ResGroup
 	jmp	PromptBat
 EndProc PromptBat
 
@@ -146,31 +146,31 @@ EndProc PromptBat
 ;*
 ;****************************************************************
 
-public	output_batch_name			;AN022;
+global output_batch_name;AN022;
 
-Output_batch_name    proc near			;AN022;
+Output_batch_name:;AN022;
 
 	push	ds				;AN022; save resident segment
 	mov	ds,[batch]			;AN022; get batch file segment
-assume	DS:nothing				;AN022;
+; assume	DS:nothing;AN022;
 	mov	SI,BatFile			;AN022; get offset of batch file
 	invoke	dstrlen 			;AN022; get length of string
-	mov	di,offset Trangroup:bwdbuf	;AN022; target for batch name
+	mov	di,bwdbuf	;AN022; target for batch name
 	rep	movsb				;AN022; move the name
 
 	push	cs				;AN022; get local segment
 	pop	ds				;AN022;
-assume	DS:trangroup				;AN022;
+; assume	DS:trangroup;AN022;
 	mov	extend_buf_ptr,dx		;AN022; put message number in block
 	mov	msg_disp_class,ext_msg_class	;AN022; set up extended error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr   ;AN022; get extended message pointer
-	mov	string_ptr_2,offset trangroup:bwdbuf ;AN022; point to substitution
+	mov	dx,Extend_Buf_ptr   ;AN022; get extended message pointer
+	mov	string_ptr_2,bwdbuf ;AN022; point to substitution
 	mov	extend_buf_sub,one_subst	;AN022; set up for one subst
 	pop	ds				;AN022; restore data segment
 
 	ret					;AN022; return
 
-Output_batch_name    endp			;AN022;
+; ENDP Output_batch_name;AN022;
 
 Break	<GetKeystroke - get a keystroke and flush queue>
 
@@ -213,15 +213,15 @@ Break	<ReadBat - read 1 line from batch file>
 ;
 
 Procedure   ReadBat,NEAR
-	ASSUME	DS:ResGroup,ES:TranGroup
+	; ASSUME	DS:ResGroup,ES:TranGroup
 	mov	suppress,yes_echo		;g initialize line suppress status
-	test	byte ptr [Batch_Abort],-1
+	test	byte [Batch_Abort],-1
 	jnz	Trying_To_Abort
-	mov	byte ptr [In_Batch],1		; set flag to indicate batch job
+	mov	byte [In_Batch],1		; set flag to indicate batch job
 	CALL	PromptBat
 
 Trying_To_Abort:
-	MOV	DI,OFFSET TRANGROUP:COMBUF+2
+	MOV	DI,COMBUF+2
 
 ;
 ; Save position and try to scan for first non delimiter.
@@ -230,11 +230,11 @@ Trying_To_Abort:
 TESTNOP:
 	MOV	AX,DS
 	MOV	DS,Batch
-	ASSUME	DS:NOTHING
-	PUSH	WORD PTR DS:[BatSeek]
-	PUSH	WORD PTR DS:[BatSeek+2] 	; save current location.
+	; ASSUME	DS:NOTHING
+	PUSH	word DS:[BatSeek]
+	PUSH	word DS:[BatSeek+2] 	; save current location.
 	MOV	DS,AX
-	ASSUME	DS:ResGroup
+	; ASSUME	DS:ResGroup
 	invoke	SkipDelim			; skip to first non-delim
 ;
 ; If the first non-delimiter is not a :  (label), we reseek back to the
@@ -255,11 +255,11 @@ TESTNOP:
 SET_BAT_POS:					;g
 	PUSH	DS
 	MOV	DS,Batch
-	ASSUME	DS:NOTHING
-	MOV	WORD PTR DS:[BatSeek],DX	; reseek back to beginning
-	MOV	WORD PTR DS:[BatSeek+2],CX
+	; ASSUME	DS:NOTHING
+	MOV	word DS:[BatSeek],DX	; reseek back to beginning
+	MOV	word DS:[BatSeek+2],CX
 	POP	DS
-	ASSUME	DS:ResGroup
+	; ASSUME	DS:ResGroup
 	MOV	AX,(LSEEK SHL 8) + 0		; seek back
 	INT	int_command
 	MOV	BatBufPos,-1			; nuke batch buffer position
@@ -309,7 +309,7 @@ SAVBATBYT:
 ;
 
 Found_EOL:
-	SUB	DI,OFFSET TRANGROUP:COMBUF+3
+	SUB	DI,COMBUF+3
 	MOV	AX,DI				; remember that we've not counted the CR
 	MOV	ES:[COMBUF+1],AL		; Set length of line
 	invoke	GetBatByt			; Eat linefeed
@@ -338,8 +338,8 @@ no_crlf_print:
 	PUSH	CS				;G change data segment
 	POP	DS				;G
 
-ASSUME DS:TRANGROUP
-	mov	dx,OFFSET TRANGROUP:COMBUF+2	; get command line for echoing
+; ASSUME DS:TRANGROUP
+	mov	dx,COMBUF+2	; get command line for echoing
 	invoke	CRPRINT
 	invoke	CRLF2
 	return
@@ -347,7 +347,7 @@ ASSUME DS:TRANGROUP
 ; The line was too long.  Eat remainder of input text up until the CR
 ;
 TooLong:
-	ASSUME	DS:ResGroup
+	; ASSUME	DS:ResGroup
 	cmp	al,0dh				; Has the end of the line been reached?
 	jz	Ltlcont 			; Yes, continue
 	CALL	SkipToEOL			; Eat remainder of line
@@ -412,7 +412,7 @@ PAROK:
 Yes_there_is:
 	PUSH	DS
 	MOV	DS,Batch
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	dec	cx				; Don't count '%' in line length
 
 CopyParm:
@@ -433,7 +433,7 @@ CopyParm:
 LineTooL:
 	XOR	AL,AL
 	POP	DS
-	ASSUME	DS:RESGROUP
+	; ASSUME	DS:RESGROUP
 	JMP	TooLong
 ;
 ; We have copied in an entire parameter.  Go back for more
@@ -450,7 +450,7 @@ EndParam:
 
 NEEDENV:
 	SaveReg <DS,DI>
-	MOV	DI,OFFSET TRANGROUP:ID		; temp spot for name
+	MOV	DI,ID		; temp spot for name
 	ADD	AL,'0'                          ; reconvert character
 	STOSB					; store it in appropriate place
 ;
@@ -465,19 +465,19 @@ GETENV1:
 ;
 ; The user entered a string with a % but no trailing %.  We copy the string.
 ;
-	mov	byte ptr es:[di-1],0		; nul terminate the string
-	mov	si,offset TranGroup:ID		; point to buffer
+	mov	byte es:[di-1],0		; nul terminate the string
+	mov	si,ID		; point to buffer
 	pop	di				; point to line buffer
 	push	cs
 	pop	ds
 	call	StrCpy
-IF  IBMCOPYRIGHT
+%if IBMCOPYRIGHT
 	dec	di
 	pop	ds
-ELSE
+%else
 	pop	ds
 	jc	LineTooL
-ENDIF
+%endif
 	jmp	SavBatByt
 
 getenv15:
@@ -491,51 +491,51 @@ getenv15:
 ; environment.
 ;
 GETENV2:
-	MOV	SI,OFFSET TRANGROUP:ID
+	MOV	SI,ID
 	PUSH	CS
 	POP	DS				; DS:SI POINTS TO NAME
-	ASSUME DS:TRANGROUP
+	; ASSUME DS:TRANGROUP
 	PUSH	CX
 	INVOKE	FIND_NAME_IN_environment
-	ASSUME ES:RESGROUP
+	; ASSUME ES:RESGROUP
 	POP	CX
 	PUSH	ES
 	POP	DS
-	assume ds:resgroup
+	; assume ds:resgroup
 	PUSH	CS
 	POP	ES
-	ASSUME ES:TRANGROUP
+	; ASSUME ES:TRANGROUP
 	MOV	SI,DI
 	POP	DI				; get back pointer to command line
 ;
 ; If the parameter was not found,  there is no need to perform any replacement.
 ; We merely pretend that we've copied the parameter.
 ;
-IF  IBMCOPYRIGHT
+%if IBMCOPYRIGHT
 	JC	GETENV6
-ELSE
+%else
 	jnc	GETENV4
 	pop	ds
 	jmp	rdbat
-ENDIF
+%endif
 ;
 ; ES:DI points to command line being built
 ; DS:SI points either to nul-terminated environment object AFTER =
 ;
 
 GETENV4:
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 	call	StrCpy
 
-IF  IBMCOPYRIGHT
+%if IBMCOPYRIGHT
 	dec	di
 
 GETENV6:
 	POP	DS				; restore pointer to resgroup
-ELSE
+%else
 	pop	ds
 	jc	LineTooL
-ENDIF
+%endif
 	JMP	RDBAT				; no, go back to batch file
 
 EndProc ReadBat
@@ -546,7 +546,7 @@ EndProc ReadBat
 
 Procedure   SkipToEOL,NEAR
 
-	ASSUME	DS:ResGroup,ES:NOTHING
+	; ASSUME	DS:ResGroup,ES:NOTHING
 
 	TEST	Batch,-1
 	retz					; no batch file in effect
@@ -565,7 +565,7 @@ Break	<Allocate and deallocate the transient portion>
 
 Procedure   Free_TPA,NEAR
 
-ASSUME	DS:TRANGROUP,ES:RESGROUP
+; ASSUME	DS:TRANGROUP,ES:RESGROUP
 
 	PUSH	ES
 	MOV	ES,[RESSEG]
@@ -584,7 +584,7 @@ EndProc Free_TPA
 
 Procedure   Alloc_TPA,NEAR
 
-ASSUME DS:TRANGROUP,ES:RESGROUP
+; ASSUME DS:TRANGROUP,ES:RESGROUP
 
 	PUSH	ES
 	MOV	ES,[RESSEG]
@@ -679,14 +679,14 @@ Break	<BatCom - enter a batch file>
 ;
 Procedure   BatCom,NEAR
 
-ASSUME	DS:TRANGROUP, ES:NOTHING
+; ASSUME	DS:TRANGROUP, ES:NOTHING
 
 ;
 ; Batch parameters are read with ES set to segment of resident part
 ;
 
 	MOV	ES,[RESSEG]
-ASSUME	ES:RESGROUP
+; ASSUME	ES:RESGROUP
 	cmp	es:[call_batch_flag],call_in_progress ;AN043; If in CALL,
 	jz	skip_ioset			;AN043;   redirection was already set up
 	invoke	IOSET				; Set up any redirection
@@ -735,9 +735,9 @@ leavebat:					;G
 ;
 
 startbat:					;G
-	ASSUME	ES:RESGROUP
+	; ASSUME	ES:RESGROUP
 	MOV	es:[CALL_BATCH_FLAG], 0 	;G  reset call flag
-	mov	SI, OFFSET TRANGROUP:EXECPATH
+	mov	SI, EXECPATH
 
 	mov	ax,AppendTruename		;AN042; Get the real path where the batch file
 	int	2fh				;AN042;    was found with APPEND
@@ -764,7 +764,7 @@ startbat:					;G
 ;
 
 	MOV	BX,CX				; length of file name.
-	ADD	BX,0Fh + (SIZE BatchSegment) + COMBUFLEN + 0Fh
+	ADD	BX,0Fh + (BatchSegment_size) + COMBUFLEN + 0Fh
 						; structure + max len + round up
 	SaveReg <CX>
 	MOV	CL,4
@@ -807,12 +807,12 @@ enough_mem:
 	inc	es:nest 			;G increment # batch files in progress
 	PUSH	ES
 	MOV	ES,[BATCH]
-ASSUME	ES:NOTHING
+; ASSUME	ES:NOTHING
 	MOV	ES:[BatType],BatchType		; signal batch file type
 	MOV	ES:[batlast],ax 		;G save segment of last batch file
 	push	DS				;G
 	mov	DS,[resseg]			;G set to resident data
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	xor	ax,ax				;G
 	mov	bl,forflag			;G get the current FOR state
 	mov	ES:[batforflag],bl		;G save it in the batch segment
@@ -828,9 +828,9 @@ for_not_on:
 	mov	bl,echoflag			;G
 	pop	DS				;G
 
-	mov	byte ptr es:[Batechoflag],bl	;G save echo state of parent
-	MOV	WORD PTR ES:[BatSeek],AX	; point to beginning of file
-	MOV	WORD PTR ES:[BatSeek+2],AX
+	mov	byte es:[Batechoflag],bl	;G save echo state of parent
+	MOV	word ES:[BatSeek],AX	; point to beginning of file
+	MOV	word ES:[BatSeek+2],AX
 ;
 ; Initialize pointers
 ;
@@ -854,7 +854,7 @@ for_not_on:
 ;
 ;   <arg0>CR<arg1>CR...<arg6>CR CR CR ... CR 0
 ;
-	MOV	SI,OFFSET TRANGROUP:COMBUF+2
+	MOV	SI,COMBUF+2
 	MOV	CX,10				; at most 10 arguments
 ;
 ; Look for beginning of next argument
@@ -915,10 +915,10 @@ HAVPARM:
 	INT	int_command
 
 	POP	ES
-ASSUME	ES:RESGROUP
+; ASSUME	ES:RESGROUP
 	PUSH	ES
 	POP	DS				; Simply batch FCB setup
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	CMP	[SINGLECOM],-1
 	JNZ	NOBATSING
 	MOV	[SINGLECOM],0FFF0H		; Flag single command BATCH job
@@ -936,13 +936,13 @@ NOBATSING:
 ;
 
 NO_MEMORY:
-	assume ds:trangroup,es:resgroup
+	; assume ds:trangroup,es:resgroup
 	pop	dx				;g even up our stack
 	pop	ax				;g
 	pop	ax				;g
 	call	Alloc_tpa			;g reallocate memory
 	mov	msg_disp_class,ext_msg_class	;AN000; set up extended error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr     ;AC000; get extended message pointer
+	mov	dx,Extend_Buf_ptr     ;AC000; get extended message pointer
 	mov	Extend_Buf_ptr,error_not_enough_memory ;AN000; get message number in control block
 	jmp	cerror				;g print error message and go...
 
@@ -950,14 +950,14 @@ EndProc BatCom
 
 Procedure   BatchOff
 
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 
 	SaveReg <AX,ES>
 	PUSH	DS				;G
 	PUSH	BX				;G
 	MOV	ES,ResSeg
 	MOV	DS,ResSeg			;G
-	ASSUME	ES:ResGroup,DS:Resgroup 	;G
+	; ASSUME	ES:ResGroup,DS:Resgroup;G
 	MOV	AX,Batch			; Free the batch segment
 	OR	AX,AX
 	JZ	nofree
@@ -995,7 +995,7 @@ NoFree:
 EndProc BatchOff
 
 
-IF  IBMCOPYRIGHT
+%if IBMCOPYRIGHT
 
 Procedure StrCpy,near
 
@@ -1011,7 +1011,7 @@ cycle:
 
 EndProc StrCpy
 
-ELSE
+%else
 ; StrCpy - copy string, checking count in CX against COMBUFLEN
 ;	Entry : DS:SI ==> source string
 ;		ES:DI ==> destination string
@@ -1038,8 +1038,8 @@ ccend:
 	return				; return carry clear
 EndProc StrCpy
 
-ENDIF
+%endif
 
-TRANCODE    ENDS
-	    END
+; END SECTION .TRANCODE
+	    ; END
 

@@ -18,11 +18,11 @@ DOS_PAGE1               EQU     0FEH
 DOS_PAGE2               EQU     0FFH
 DOS_PAGE_SZ             EQU     16
 
-GET_PAGE_FRAME_STRUC    STRUC
-  START_PAGE    DB      ?
-  NUM_PAGE      DB      ?
-  FRAME_SEGMENT DW      ?
-GET_PAGE_FRAME_STRUC    ENDS
+struc GET_PAGE_FRAME_STRUC
+  START_PAGE: db 0
+  NUM_PAGE: db 0
+  FRAME_SEGMENT: dw 0
+endstruc
 BUFFER_ENTRY_SIZE       EQU     TYPE GET_PAGE_FRAME_STRUC
 
 

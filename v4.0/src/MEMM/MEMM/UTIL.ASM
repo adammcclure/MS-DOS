@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	UTIL - general MEMM utilities
+	; title	UTIL - general MEMM utilities
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -39,21 +39,21 @@ page	58,132
 ;
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 
-	public	GoVirtual
-	public	FarGoVirtual
-	public	SelToSeg
+	global GoVirtual
+	global FarGoVirtual
+	global SelToSeg
 
 ;******************************************************************************
 ;	D E F I N E S
 ;******************************************************************************
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include instr386.inc
-	include oemdep.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "instr386.inc"
+	%include "oemdep.inc"
 
 FALSE		equ	0
 TRUE		equ	not FALSE
@@ -61,40 +61,40 @@ TRUE		equ	not FALSE
 ;******************************************************************************
 ;	E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
-_DATA	SEGMENT
+SECTION ._DATA
 
-extrn	TEXT_Seg:word		; segment for _TEXT
-extrn	GDT_Seg:word		; segment for GDT
-extrn	TSS_Seg:word		; segment address of TSS
-extrn	Page_Dir:word		; 32-bit address of Page Directory Table
+extern TEXT_Seg; segment for _TEXT
+extern GDT_Seg; segment for GDT
+extern TSS_Seg; segment address of TSS
+extern Page_Dir; 32-bit address of Page Directory Table
 
-extrn	Active_Status:byte
+extern Active_Status
 
-_DATA	ENDS
+; END SECTION ._DATA
 
-_TEXT SEGMENT
+SECTION ._TEXT
 
-extrn	InitDMA:near		; (elimtrap.asm)
-extrn	EnableA20:near		; (modesw.asm)
-extrn	A20_Trap_Init:near	; (a20trap.asm)
-extrn	RR_Trap_Init:near	; (RRTrap.asm)
-extrn	OEM_Trap_Init:near	; (OEMTrap.asm)
+extern InitDMA; (elimtrap.asm)
+extern EnableA20; (modesw.asm)
+extern A20_Trap_Init; (a20trap.asm)
+extern RR_Trap_Init; (RRTrap.asm)
+extern OEM_Trap_Init; (OEMTrap.asm)
 
-_TEXT	ENDS
+; END SECTION ._TEXT
 
-STACK	segment
-	extrn	kstack_top:byte
-STACK	ends
+SECTION .STACK
+	extern kstack_top
+; END SECTION .STACK
 
-ifndef	NOHIMEM
+%ifndef NOHIMEM
 
-R_CODE	segment
-extrn	InitLock:far
-R_CODE	ends
+SECTION .R_CODE
+extern InitLock
+; END SECTION .R_CODE
 
-endif
+%endif
 
-	page
+	; page
 ;******************************************************************************
 ;		S E G M E N T	D E F I N I T I O N S
 ;******************************************************************************
@@ -103,8 +103,8 @@ endif
 ;		_TEXT segment
 ;******************************************************************************
 
-_TEXT SEGMENT
-	assume cs:_TEXT, ds:DGROUP, es:DGROUP
+SECTION ._TEXT
+	; assume cs:_TEXT, ds:DGROUP, es:DGROUP
 
 ;******************************************************************************
 ;	FarGoVirtual - far link for GoVirtual
@@ -120,10 +120,10 @@ _TEXT SEGMENT
 ;    USED:	none
 ;
 ;******************************************************************************
-FarGoVirtual	proc	far
+FarGoVirtual:
 	call	GoVirtual
 	ret
-FarGoVirtual	endp
+; ENDP FarGoVirtual
 
 ;******************************************************************************
 ;	GoVirtual - go to virtual mode
@@ -137,7 +137,7 @@ FarGoVirtual	endp
 ;    USED:	none
 ;
 ;******************************************************************************
-GoVirtual	proc	near
+GoVirtual:
 ;
 	PUSH_EAX
 	push	bx
@@ -163,9 +163,9 @@ GoVirtual	proc	near
 
 	call	InitDMA 		; init DMA watcher
 
-ifndef	NOHIMEM
-	call	FAR PTR InitLOCK	; init status of TABLE lock
-endif
+%ifndef NOHIMEM
+	call	far InitLOCK	; init status of TABLE lock
+%endif
 
 ;
 ;	mask off master 8259 to prevent all interrupts during setup
@@ -193,8 +193,8 @@ endif
 ;
 	mov	ax,[GDT_Seg]
 	mov	ds, ax			; DS:0 = ptr to gdt
-	lgdt	qword ptr ds:[GDTD_GSEL]
-	lidt	qword ptr ds:[IDTD_GSEL]
+	lgdt	qword ds:[GDTD_GSEL]
+	lidt	qword ds:[IDTD_GSEL]
 ;
 ;   go protected and enable paging - turn on bits in CR0
 ;
@@ -209,7 +209,7 @@ endif
 ;	far jump to flush prefetch, and reload CS
 
 	db	0eah			; far jmp opcode
-	dw	offset _TEXT:pm1	; offset
+	dw	pm1	; offset
 	dw	VDMC_GSEL		; selector
 pm1:
 ;
@@ -230,15 +230,15 @@ pm1:
 ;
 	mov	ax, VDMS_GSEL
 	mov	ss, ax
-	mov	sp, offset STACK:kstack_top
+	mov	sp, kstack_top
 ;
 ;	now reload DS and ES to be data selectors for protected mode
 ;
 	mov	ax, VDMD_GSEL
 	mov	ds, ax
-	assume	ds:DGROUP
+	; assume	ds:DGROUP
 	mov	es, ax
-	assume	es:DGROUP
+	; assume	es:DGROUP
 
 ;
 ; reset NT bit so IRET won't attempt a task switch
@@ -273,7 +273,7 @@ pm1:
 	mov	ax, [TEXT_Seg]
 	push	ax			; CS
 	push	0
-	mov	ax, offset _TEXT:VM_return
+	mov	ax, VM_return
 	push	ax			; IP
 
 	OP32				; 32 bit operand size override
@@ -295,7 +295,7 @@ VM_return:
 	pop	bx
 	POP_EAX
 	ret
-GoVirtual	endp
+; ENDP GoVirtual
 
 
 ;**	SelToSeg - convert selector to a segment number
@@ -310,7 +310,7 @@ GoVirtual	endp
 ;	WARNING This code only works on a 286.	It can be
 ;		called only in protected mode.
 
-SelToSeg proc near
+SelToSeg:
 	push	ds
 	mov	ax,LDTD_GSEL
 	test	bx,TAB_LDT		; is the selector in the LDT?
@@ -320,7 +320,7 @@ sts_addr:
 	mov	ds,ax
 	and	bl,0F8h
 
-	mov	ax,word ptr ds:[bx + 2] ; low 16 bits of base address
+	mov	ax,word ds:[bx + 2] ; low 16 bits of base address
 	mov	bh,ds:[bx + 4]		; high 8 bits of base address
 	shr	ax,4
 	shl	bh,4
@@ -328,8 +328,8 @@ sts_addr:
 	add	ax,bx			; AX = segment number for selector
 	pop	ds
 	ret
-SelToSeg endp
+; ENDP SelToSeg
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-	end
+	; end

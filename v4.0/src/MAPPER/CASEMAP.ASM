@@ -1,11 +1,11 @@
 
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosCaseMap
+; title CP/DOS DosCaseMap
 ;
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -23,19 +23,19 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-        public  doscasemap
-        .sall
-        include macros.inc
+        global doscasemap
+        ; .sall
+        %include "macros.inc"
 
-str     struc
-old_bp  dw      ?
-return  dd      ?
-StringPtr       dd      ?       ; binary string pointer
-CountryCodePtr  dd      ?       ; country code pointer
-StringLength    dw      ?       ; lenght of the string
-str     ends
+struc str
+old_bp: dw 0
+return: dd 0
+StringPtr: dd 0; binary string pointer
+CountryCodePtr: dd 0; country code pointer
+StringLength: dw 0; lenght of the string
+endstruc
 
-DosCaseMap      proc    far
+DosCaseMap:
 
         Enter  DosCaseMap               ; save registers
 
@@ -64,10 +64,10 @@ ThisCharDone:
         loop    MapLoop                 ; loop until string is complete
 
         MExit                           ; pop registers
-        ret     size str - 6            ; return
+        ret     str_size - 6            ; return
 ;
-DosCaseMap      endp
+; ENDP DosCaseMap
 
-dosxxx  ends
+; END SECTION .dosxxx
 
-        end
+        ; end

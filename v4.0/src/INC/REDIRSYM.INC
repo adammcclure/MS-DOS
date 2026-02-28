@@ -2,66 +2,66 @@
 ;  Redirector MACROS
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-EDW	MACRO	name
-	extrn	name:near
-	DW	OFFSET	RG:name
-ENDM
+%macro EDW 1
+	extern name
+	DW	name
+%endmacro
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-CHECK_DIALECT	  MACRO   name
+%macro CHECK_DIALECT 1
 
-    IF2 					;AN000; If not defined yet,
-       IFNDEF CHECKDIALECT			;AN000;  THEN Extrn
-	  Extrn CHECKDIALECT&name:NEAR		;AN000;
-       ENDIF					;AN000;
-    ENDIF					;AN000;
+    %if 1  ; IF2 - pass-specific;AN000; If not defined yet,
+       %ifndef CHECKDIALECT;AN000;  THEN Extrn
+	  extern CHECKDIALECT&name;AN000;
+       %endif;AN000;
+    %endif;AN000;
 	CALL	CHECKDIALECT&name		;AN000; Call the appropriate routine
 
-ENDM
+%endmacro
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-CallREDIRSub MACRO   name,fn,save,restore	;AN000;
-    IF2 					;AN000; If not defined yet,
-       IFNDEF REDIRSub&fn			;AN000;  THEN Extrn
-	  Extrn REDIRSub&fn:NEAR		;AN000;
-       ENDIF					;AN000;
-    ENDIF					;AN000;
-    IFNB    <save>				;AN000; If not blank
+%macro CallREDIRSub 4;AN000;
+    %if 1  ; IF2 - pass-specific;AN000; If not defined yet,
+       %ifndef REDIRSub;AN000;  THEN Extrn
+	  extern REDIRSub&fn;AN000;
+       %endif;AN000;
+    %endif;AN000;
+    %if 1  ; IFNB <save>;AN000; If not blank
 	SaveReg <save>				;AN000;    Save the regs
-    ENDIF					;AN000;
+    %endif;AN000;
 	CALL	REDIRSub&fn			;AN000; Call the appropriate routine
-    IFNB    <restore>				;AN000; If not blank
+    %if 1  ; IFNB <restore>;AN000; If not blank
 	RestoreReg  <restore>			;AN000;    Save the regs
-    ENDIF					;AN000;
-ENDM						;AN000;
+    %endif;AN000;
+%endmacro;AN000;
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ;  Redirector structures
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-	INCLUDE IFSSYM.INC		 ;AN000;
-	INCLUDE ERROR.INC		 ;AN000;
-	INCLUDE FILEMODE.INC		 ;AN000;
+	%include "IFSSYM.INC";AN000;
+	%include "ERROR.INC";AN000;
+	%include "FILEMODE.INC";AN000;
 
 ;; CD_FSDA STRUCTURE
 
-   CD_FSDA_OFF	   EQU WORD PTR CD_FSDA        ;AN000;
-   CD_FSDA_SEG	   EQU WORD PTR CD_FSDA+2      ;AN000;
-   CD_FSDA_FLAGS   EQU WORD PTR CD_FSDA+4      ;AN000;
+   CD_FSDA_OFF	   EQU word CD_FSDA        ;AN000;
+   CD_FSDA_SEG	   EQU word CD_FSDA+2      ;AN000;
+   CD_FSDA_FLAGS   EQU word CD_FSDA+4      ;AN000;
 
 ;; DFL_FSDA STRUCTURE
 
-   DF_FSDA_OFF	   EQU WORD PTR DFL_FSDA        ;AN000;
-   DF_FSDA_SEG	   EQU WORD PTR DFL_FSDA+2      ;AN000;
-   DF_FSDA_FLAGS   EQU WORD PTR DFL_FSDA+4      ;AN000;
+   DF_FSDA_OFF	   EQU word DFL_FSDA        ;AN000;
+   DF_FSDA_SEG	   EQU word DFL_FSDA+2      ;AN000;
+   DF_FSDA_FLAGS   EQU word DFL_FSDA+4      ;AN000;
 
 ;; SFF_FSDA STRUCTURE
 
-   SFF_FSDA_OFF    EQU WORD PTR SFF_FSDA       ;AN000;
-   SFF_FSDA_SEG    EQU WORD PTR SFF_FSDA+2     ;AN000;
-   SFF_FSDA_FLAGS  EQU WORD PTR SFF_FSDA+4     ;AN000;
+   SFF_FSDA_OFF    EQU word SFF_FSDA       ;AN000;
+   SFF_FSDA_SEG    EQU word SFF_FSDA+2     ;AN000;
+   SFF_FSDA_FLAGS  EQU word SFF_FSDA+4     ;AN000;
 
 ;; IFS Structure fixes
 
@@ -86,10 +86,10 @@ Set_Interrupt_Vector EQU     25H      ;AN000;
 Deallocate_memory    EQU     49H      ;AN000;
 
 GET_SYS_CONFIG	     EQU     0C000H   ;AN000; INT 15H to get configuration
-CONFIG_STRUC	STRUC		      ;AN001;
-   LENGTH	DW   ?		      ;AN001;
-   MODEL_BYTE	DB   ?		      ;AN001;
-CONFIG_STRUC	ENDS		      ;AN001;
+struc CONFIG_STRUC;AN001;
+   LENGTH: dw 0;AN001;
+   MODEL_BYTE: db 0;AN001;
+endstruc;AN001;
 
 LOWEST_386_MODEL     EQU     0F8H     ;AN001;
 
@@ -155,20 +155,20 @@ DATE_TIME	=	0
 LOCK_ALL_OPERS	   =	   0
 POS_LEN_PTR_SIZE   =	   8		  ;AN001; 8 bytes for position/length
 
-FIND_BUF    STRUC
+struc FIND_BUF
 
-find_buf_drive	    DB	?		; drive of search
-find_buf_name	    DB	11 DUP (?)	; formatted name
-find_buf_sattr	    DB	?		; attribute of search
-find_buf_LastEnt    DW	?		; LastEnt
-find_buf_DirStart   DW	?		; DirStart
-find_buf_NetID	    DB	4 DUP (?)	; Reserved for NET
-find_buf_attr	    DB	?		; attribute found
-find_buf_time	    DW	?		; time
-find_buf_date	    DW	?		; date
-find_buf_size_l     DW	?		; low(size)
-find_buf_size_h     DW	?		; high(size)
-find_buf_pname	    DB	13 DUP (?)	; packed name
+find_buf_drive: db 0; drive of search
+find_buf_name: times 11 db 0; formatted name
+find_buf_sattr: db 0; attribute of search
+find_buf_LastEnt: dw 0; LastEnt
+find_buf_DirStart: dw 0; DirStart
+find_buf_NetID: times 4 db 0; Reserved for NET
+find_buf_attr: db 0; attribute found
+find_buf_time: dw 0; time
+find_buf_date: dw 0; date
+find_buf_size_l: dw 0; low(size)
+find_buf_size_h: dw 0; high(size)
+find_buf_pname: times 13 db 0; packed name
 
-FIND_BUF    ENDS
+endstruc
 

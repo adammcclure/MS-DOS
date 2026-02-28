@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)misc.asm	1.1 85/04/10
-TITLE MISC - Miscellanious routines for MS-DOS
-NAME  MISC
+; TITLE MISC - Miscellanious routines for MS-DOS
+; NAME  MISC
 ;
 ; Miscellaneous system calls most of which are CAVEAT
 ;
@@ -25,20 +25,20 @@ NAME  MISC
 ;	A000   version 4.00   Jan. 1988
 ;	A001   D490 -- Change IOCTL subfunctions from 63h, 43h to 66h , 46h
 
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+; .cref
+; .list
 
 ENTRYPOINTSEG	EQU	0CH
 MAXDIF		EQU	0FFFH
@@ -57,11 +57,11 @@ SAVEXIT 	EQU	10
 	i_need	BUF_HASH_COUNT,WORD		 ;AN000; number of Hash Entries
 	i_need	HIGH_SECTOR,WORD		 ;AN000; high word of sector #
 	i_need	DOS34_FLAG,WORD 		 ;AN000;
-if debug
+%if debug
 	I_need	BugLev,WORD
 	I_need	BugTyp,WORD
-include bugtyp.asm
-endif
+%include "bugtyp.asm"
+%endif
 
 BREAK <SleazeFunc -- get a pointer to media byte>
 
@@ -82,7 +82,7 @@ BREAK <SleazeFunc -- get a pointer to media byte>
 ;	   = -1 if bad drive specified
 
 	procedure   $SLEAZEFUNC,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 	MOV	DL,0
 
@@ -101,10 +101,10 @@ SET_AL_RET:
 ; NOTE THAT A FIXED MEMORY CELL IS USED --> THIS CALL IS NOT
 ; RE-ENTRANT. USERS BETTER GET THE ID BYTE BEFORE THEY MAKE THE
 ; CALL AGAIN
-	MOV	DI,OFFSET DOSGROUP:FATBYTE
+	MOV	DI,FATBYTE
 	XOR	AH,AH			; AL has sectors/cluster
 	invoke	get_user_stack
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	[SI.user_CX],CX
 	MOV	[SI.user_DX],BX
 	MOV	[SI.user_BX],DI
@@ -129,10 +129,10 @@ BREAK <$Get_INDOS_Flag -- Return location of DOS critical-section flag>
 ;	Flag location in ES:BX
 
 	procedure   $GET_INDOS_FLAG,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 	invoke	get_user_stack
-	MOV	[SI.user_BX],OFFSET DOSGROUP:INDOS
+	MOV	[SI.user_BX],INDOS
 	MOV	[SI.user_ES],SS
 	return
 EndProc $GET_INDOS_FLAG
@@ -149,7 +149,7 @@ BREAK <$Get_IN_VARS -- Return a pointer to DOS variables>
 ; Use at risk.
 	procedure   $GET_IN_VARS,NEAR
 	invoke	get_user_stack
-	MOV	[SI.user_BX],OFFSET DOSGROUP:SYSINITVAR
+	MOV	[SI.user_BX],SYSINITVAR
 	MOV	[SI.user_ES],SS
 	return
 EndProc $GET_IN_VARS
@@ -171,7 +171,7 @@ BREAK <$Get_Default_DPB,$Get_DPB -- Return pointer to DPB>
 ;	AL = 0 If OK, = -1 if bad drive (call 50 only)
 
 	procedure   $GET_DEFAULT_DPB,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 	MOV	DL,0
 
@@ -191,7 +191,7 @@ ASSUME	DS:NOTHING,ES:NOTHING
 	JC	ISNODRV 		; User FAILed to I 24, only error we
 					;   have.
 	invoke	get_user_stack
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	[SI.user_BX],BP
 	MOV	[SI.user_DS],ES
 	XOR	AL,AL
@@ -209,7 +209,7 @@ EndProc $GET_Default_dpb
 BREAK <$Disk_Reset -- Flush out all dirty buffers>
 
 	procedure   $DISK_RESET,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	None
@@ -233,8 +233,8 @@ ASSUME	DS:NOTHING,ES:NOTHING
 ; Invalidate 'last-buffer' used
 ;
 	MOV	BX,-1
-	MOV	WORD PTR [LASTBUFFER+2],BX
-	MOV	WORD PTR [LASTBUFFER],BX
+	MOV	word [LASTBUFFER+2],BX
+	MOV	word [LASTBUFFER],BX
 ;
 ;	TEST	[DOS34_FLAG],IFS_DRIVE_RESET	 ;AN000;;IFS. from ifs call back ?
 ;	JZ	FreeDone			 ;AN000;;IFS. no
@@ -253,7 +253,7 @@ BREAK <$SetDPB - Create a valid DPB from a user-specified BPB>
 ;	     C	A  V  E  A  T	  P  R	O  G  R  A  M  M  E  R		   ;
 ;									   ;
 	procedure   $SETDPB,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	ES:BP Points to DPB
@@ -267,9 +267,9 @@ ASSUME	DS:NOTHING,ES:NOTHING
 	ADD	DI,2			; Skip over dpb_drive and dpb_UNIT
 	LODSW
 	STOSW				; dpb_sector_size
-	CMP	BYTE PTR [SI.BPFTCNT-2],0     ; FAT file system drive		;AN000;
+	CMP	byte [SI.BPFTCNT-2],0     ; FAT file system drive		;AN000;
 	JNZ	yesfat			      ; yes				;AN000;
-	MOV	BYTE PTR ES:[DI.dpb_FAT_count-4],0
+	MOV	byte ES:[DI.dpb_FAT_count-4],0
 	JMP	setend			      ; NO				;AN000;
 yesfat:
 	MOV	DX,AX
@@ -320,11 +320,11 @@ SAVLOG:
 	MOV	ES:[BP.dpb_first_sector],AX
 
 	MOV	CL,BL		       ;F.C. >32mb				;AN000;
-	CMP	WORD PTR ES:[BP.DSKSIZ],0	;F.C. >32mb			;AN000;
+	CMP	word ES:[BP.DSKSIZ],0	;F.C. >32mb			;AN000;
 	JNZ	normal_dpb	       ;F.C. >32mb				;AN000;
 	XOR	CH,CH		       ;F.C. >32mb				;AN000;
-	MOV	BX,WORD PTR [SI+BPB_BigTotalSectors-BPB_SectorsPerTrack]	;AN000;
-	MOV	DX,WORD PTR [SI+BPB_BigTotalSectors-BPB_SectorsPerTrack+2]	;AN000;
+	MOV	BX,word [SI+BPB_BigTotalSectors-BPB_SectorsPerTrack]	;AN000;
+	MOV	DX,word [SI+BPB_BigTotalSectors-BPB_SectorsPerTrack+2]	;AN000;
 	SUB	BX,AX		       ;AN000;;F.C. >32mb
 	SBB	DX,0		       ;AN000;;F.C. >32mb
 	OR	CX,CX		       ;AN000;;F.C. >32mb
@@ -363,7 +363,7 @@ BREAK <$Create_Process_Data_Block,SetMem -- Set up process data block>
 ;	    SI is end of new allocation block
 ;
 	procedure   $Dup_PDB,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	MOV	CreatePDB,0FFH		; indicate a new process
 	MOV	DS,CurrentPDB
 	PUSH	SI
@@ -371,7 +371,7 @@ ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 EndProc $Dup_PDB
 
 	procedure   $CREATE_PROCESS_DATA_BLOCK,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ; Inputs:
 ;	DX = Segment number of new base
@@ -422,7 +422,7 @@ Create_dup_jfn:
 ;
 ; We do not inherit network file handles.
 ;
-	MOV	AH,BYTE PTR ES:[DI].sf_mode
+	MOV	AH,byte ES:[DI].sf_mode
 	AND	AH,sharing_mask
 	CMP	AH,sharing_net_fcb
 	jz	CreateStash
@@ -430,8 +430,8 @@ Create_dup_jfn:
 ; The handle we have found is duplicatable (and inheritable).  Perform
 ; duplication operation.
 ;
-	MOV	WORD PTR [THISSFT],DI
-	MOV	WORD PTR [THISSFT+2],ES
+	MOV	word [THISSFT],DI
+	MOV	word [THISSFT+2],ES
 	invoke	DOS_DUP 		; signal duplication
 ;
 ; get the old sfn for copy
@@ -450,17 +450,17 @@ CreateStash:
 	MOV	BX,CurrentPDB		; get current process
 	MOV	ES:[PDB_Parent_PID],BX	; stash in child
 	MOV	[CurrentPDB],ES
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	MOV	DS,BX
 ;
 ; end of new process create
 ;
 Create_PDB_cont:
-	MOV	BYTE PTR [CreatePDB],0h ; reset flag
+	MOV	byte [CreatePDB],0h ; reset flag
 	POP	AX
 
 	entry	SETMEM
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ; Inputs:
 ;	AX = Size of memory in paragraphs
@@ -499,15 +499,15 @@ HAVDIF:
 	MOV	CL,4
 	SHL	AX,CL
 	MOV	DS,DX
-	MOV	WORD PTR DS:[PDB_CPM_Call+1],AX
-	MOV	WORD PTR DS:[PDB_CPM_Call+3],BX
+	MOV	word DS:[PDB_CPM_Call+1],AX
+	MOV	word DS:[PDB_CPM_Call+3],BX
 	MOV	DS:[PDB_Exit_Call],(int_abort SHL 8) + mi_INT
-	MOV	BYTE PTR DS:[PDB_CPM_Call],mi_Long_CALL
-	MOV	WORD PTR DS:[PDB_Call_System],(int_command SHL 8) + mi_INT
-	MOV	BYTE PTR DS:[PDB_Call_System+2],mi_Long_RET
-	MOV	WORD PTR DS:[PDB_JFN_Pointer],PDB_JFN_Table
-	MOV	WORD PTR DS:[PDB_JFN_Pointer+2],DS
-	MOV	WORD PTR DS:[PDB_JFN_Length],FilPerProc
+	MOV	byte DS:[PDB_CPM_Call],mi_Long_CALL
+	MOV	word DS:[PDB_Call_System],(int_command SHL 8) + mi_INT
+	MOV	byte DS:[PDB_Call_System+2],mi_Long_RET
+	MOV	word DS:[PDB_JFN_Pointer],PDB_JFN_Table
+	MOV	word DS:[PDB_JFN_Pointer+2],DS
+	MOV	word DS:[PDB_JFN_Length],FilPerProc
 ;
 ; The server runs several PDB's without creating them VIA EXEC.  We need to
 ; enumerate all PDB's at CPS time in order to find all references to a
@@ -515,8 +515,8 @@ HAVDIF:
 ; for us all sub-PDB's that he creates.  The requirement for us, now, is to
 ; initialize this pointer.
 ;
-	MOV	word ptr DS:[PDB_Next_PDB],-1
-	MOV	word ptr DS:[PDB_Next_PDB+2],-1
+	MOV	word DS:[PDB_Next_PDB],-1
+	MOV	word DS:[PDB_Next_PDB+2],-1
 	return
 
 EndProc $CREATE_PROCESS_DATA_BLOCK
@@ -525,7 +525,7 @@ EndProc $CREATE_PROCESS_DATA_BLOCK
 ;	     C	A  V  E  A  T	  P  R	O  G  R  A  M  M  E  R		   ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 	procedure   FETCHI_CHECK,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSHF
 	CMP	CS:[FETCHI_TAG],22642
 	JZ	TAG_OK
@@ -552,7 +552,7 @@ BREAK <$GSetMediaID -- get set media ID>
 ;	carry set, error
 
 	procedure   $GSetMediaID,NEAR ;AN000;
-ASSUME	DS:NOTHING,ES:NOTHING	      ;AN000;
+; ASSUME	DS:NOTHING,ES:NOTHING;AN000;
 
 	MOV	CX,0866H	      ;AN000;MS.; assume get  for IOCTL
 	CMP	AL,0		      ;AN001;MS.; get ?
@@ -568,5 +568,5 @@ errorfunc:			      ;AN000;
 	error	error_invalid_function;AN000;MS.	; invalid function
 EndProc $GSetMediaID		      ;AN000;
 
-CODE	ENDS
-END
+; END SECTION .CODE
+; END

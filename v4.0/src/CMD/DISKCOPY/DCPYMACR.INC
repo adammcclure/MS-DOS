@@ -1,37 +1,37 @@
-	IF1				;AN000;
-	    %OUT    COMPONENT=DISKCOPY, INCLUDING DCPYMACR.INC...;AN000;
-	ENDIF				;AN000;
+	%if 1  ; IF1 - pass-specific;AN000;
+	    %warning COMPONENT=DISKCOPY, INCLUDING DCPYMACR.INC...;AN000;
+	%endif;AN000;
 ;***************************************************************************;
 ;			     MACRO DEFINITION				    ;
 ;***************************************************************************;
 
-HEADER	MACRO	TEXT			;AN000;
-.XLIST					;AN000;
-	SUBTTL	&TEXT			;AN000;
-.LIST					;AN000;
-	PAGE				;AN000;
-	ENDM				;AN000;
+%macro HEADER 1;AN000;
+; .XLIST;AN000;
+	; SUBTTL	&TEXT;AN000;
+; .LIST;AN000;
+	; PAGE;AN000;
+	%endmacro;AN000;
 ;  =  =  =  =  =  =  =	=  =
 ;				   $SALUT (0,36,40,44)
-DOSCALL 			   MACRO FUNC,SUBFUNC ;;AN000;
-				   IFNB <FUNC> ;;AN000;IS THERE ANY PARMS AT ALL?
-				   IFNB <SUBFUNC> ;;AN000;
+%macro DOSCALL 2;;AN000;
+				   %if 1  ; IFNB <FUNC>;;AN000;IS THERE ANY PARMS AT ALL?
+				   %if 1  ; IFNB <SUBFUNC>;;AN000;
 				   MOV AX,(FUNC SHL 8)+SUBFUNC ;;AN000;FUNC TO AH,SUBFUNC TO AL
-				   ELSE    ;;AN000;SINCE THERE IS NO SUBFUNC
+				   %else;;AN000;SINCE THERE IS NO SUBFUNC
 				   MOV AH,FUNC ;;AN000;
-				   ENDIF   ;;AN000;
-				   ENDIF   ;;AN000;
+				   %endif;;AN000;
+				   %endif;;AN000;
 				   INT 21H ;;AN000;
-				   ENDM    ;;AN000;
+				   %endmacro;;AN000;
 ;  =  =  =  =  =  =  =	=  =
-PRINT				   MACRO MESSAGE;;AN000;
-				   MOV DI,OFFSET MESSAGE  ;;AC000;
+%macro PRINT 1;;AN000;
+				   MOV DI,MESSAGE  ;;AC000;
 				   CALL SENDMSG 	  ;;AC000;
-				   ENDM 		  ;;AN000;
+				   %endmacro;;AN000;
 ;  =  =  =  =  =  =  =	=  =
 ;	       $SALUT (0,16,22,36)
-MY_TRACKLAYOUT MACRO		   ;AN000;
-	       LOCAL CSECT_F							;AN000;
+%macro MY_TRACKLAYOUT 0;AN000;
+	       ; LOCAL CSECT_F;AN000;
 CSECT_F        DW    0		   ;;AN000;# OF SECTORS IN A TRACK. Currently 18 is max.
 				   ;;  THE REST IS FOR FUTURE MEDIA
 	       DW    1		   ;;AN000;1 ST SECTOR
@@ -160,5 +160,5 @@ CSECT_F        DW    0		   ;;AN000;# OF SECTORS IN A TRACK. Currently 18 is max.
 	       DW    512	   ;;AN000;
 	       DW    63 	   ;;AN000;
 	       DW    512	   ;;AN000;
-	       ENDM								;AN000;
+	       %endmacro;AN000;
 

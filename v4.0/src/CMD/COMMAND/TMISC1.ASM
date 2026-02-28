@@ -1,98 +1,98 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tmisc1.asm 4.1 85/09/22
 ;	SCCSID = @(#)tmisc1.asm 4.1 85/09/22
-TITLE	Part7 COMMAND Transient Routines
+; TITLE	Part7 COMMAND Transient Routines
 
 ;	More misc routines
 
-.xlist
-.xcref
-	INCLUDE comsw.asm
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-.list
-.cref
+; .xlist
+; .xcref
+	%include "comsw.asm"
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
 
-CODERES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	RSTACK:BYTE
-CodeRes 	ENDS
+SECTION .CODERES;AC000;
+	extern RSTACK
+; END SECTION .CodeRes
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	CALL_FLAG:BYTE
-	EXTRN	EchoFlag:BYTE
-	EXTRN	EXEC_BLOCK:BYTE
-	EXTRN	EXTCOM:BYTE
-	EXTRN	PIPEFLAG:BYTE
-	EXTRN	PIPEPTR:WORD
-	EXTRN	PIPESTR:BYTE
-	EXTRN	RESTDIR:BYTE
-	EXTRN	RE_OUT_APP:BYTE
-	EXTRN	RE_OUTSTR:BYTE
-DATARES ENDS
+SECTION .DATARES;AC000;
+	extern CALL_FLAG
+	extern EchoFlag
+	extern EXEC_BLOCK
+	extern EXTCOM
+	extern PIPEFLAG
+	extern PIPEPTR
+	extern PIPESTR
+	extern RESTDIR
+	extern RE_OUT_APP
+	extern RE_OUTSTR
+; END SECTION .DATARES
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BADDRV_PTR:WORD
-	EXTRN	BADNAM_PTR:WORD
-	EXTRN	COMTAB:BYTE		;AC000;
-	EXTRN	extend_buf_ptr:word	;AN000;
-	EXTRN	msg_disp_class:byte	;AN000;
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern BADDRV_PTR
+	extern BADNAM_PTR
+	extern COMTAB;AC000;
+	extern extend_buf_ptr;AN000;
+	extern msg_disp_class;AN000;
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg:byte		; the arg structure!
-	EXTRN	APPEND_EXEC:BYTE	;AN041;
-	EXTRN	CHKDRV:BYTE
-	EXTRN	COMBUF:BYTE
-	EXTRN	EXECPATH:BYTE
-	EXTRN	EXEC_ADDR:DWORD
-	EXTRN	FILTYP:BYTE
-	EXTRN	IDLEN:BYTE
-	EXTRN	KPARSE:BYTE		;AC000;
-	EXTRN	PARM1:BYTE
-	EXTRN	PARM2:BYTE
-	EXTRN	PathPos:word
-	EXTRN	RESSEG:WORD
-	EXTRN	RE_INSTR:BYTE
-	EXTRN	SPECDRV:BYTE
-	EXTRN	SWITCHAR:BYTE
-	EXTRN	switch_list:byte
-	EXTRN	TRAN_TPA:WORD
+SECTION .TRANSPACE;AC000;
+	extern arg; the arg structure!
+	extern APPEND_EXEC;AN041;
+	extern CHKDRV
+	extern COMBUF
+	extern EXECPATH
+	extern EXEC_ADDR
+	extern FILTYP
+	extern IDLEN
+	extern KPARSE;AC000;
+	extern PARM1
+	extern PARM2
+	extern PathPos
+	extern RESSEG
+	extern RE_INSTR
+	extern SPECDRV
+	extern SWITCHAR
+	extern switch_list
+	extern TRAN_TPA
 
-	IF  IBM
-	EXTRN	ROM_CALL:BYTE
-	EXTRN	ROM_CS:WORD
-	EXTRN	ROM_IP:WORD
-	ENDIF
+	%if IBM
+	extern ROM_CALL
+	extern ROM_CS
+	extern ROM_IP
+	%endif
 
-TRANSPACE	ENDS
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC byte
+SECTION .TRANCODE
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	EXTRN	APPEND_PARSE:NEAR	;AN010;
-	EXTRN	BATCOM:NEAR
-	EXTRN	DOCOM1:NEAR
-	EXTRN	PIPEERRSYN:NEAR
-	EXTRN	TCOMMAND:NEAR
+	extern APPEND_PARSE;AN010;
+	extern BATCOM
+	extern DOCOM1
+	extern PIPEERRSYN
+	extern TCOMMAND
 
-	IF	IBM
-	EXTRN	ROM_EXEC:NEAR
-	EXTRN	ROM_SCAN:NEAR
-	ENDIF
+	%if IBM
+	extern ROM_EXEC
+	extern ROM_SCAN
+	%endif
 
-	PUBLIC	CERROR
-	PUBLIC	DRVBAD
-	PUBLIC	EXTERNAL
-	PUBLIC	FNDCOM
-	PUBLIC	PRESCAN
-	PUBLIC	SWITCH
+	global CERROR
+	global DRVBAD
+	global EXTERNAL
+	global FNDCOM
+	global PRESCAN
+	global SWITCH
 
 
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 
 ;---------------------------
 ; We can get rid of this switch processing code if we can take
@@ -118,7 +118,7 @@ SWLOOP:
 	INC	SI
 ; Convert lower case input to upper case
 	INVOKE	UPCONV
-	MOV	DI,OFFSET TRANGROUP:switch_list
+	MOV	DI,switch_list
 	MOV	CX,SWCOUNT
 	REPNE	SCASB				; Look for matching switch
 	JNZ	BADSW
@@ -133,7 +133,7 @@ BADSW:
 SWCOUNT EQU	5				; Length of switch_list
 
 DRVBAD:
-	MOV	DX,OFFSET TRANGROUP:BADDRV_ptr
+	MOV	DX,BADDRV_ptr
 	JMP	CERROR
 
 externalj:
@@ -145,37 +145,37 @@ fndcom: 					; search the internal command table
 						;  to be external.
 ; barryf code starts here
 
-	IF	IBM
+	%if IBM
 	call	test_append			; see if APPEND installed
 	je	contcom 			; not loaded
 
 append_internal:
-	mov	cl,TRANGROUP:IDLEN
+	mov	cl,IDLEN
 	mov	ch,0
 	mov	pathpos,cx
 	inc	append_exec			;AN041; set APPEND to ON
 
 	invoke	ioset				; re-direct the o'l io
 
-	mov	SI, offset TRANGROUP:IDLEN	; address command name, DS already set
+	mov	SI, IDLEN	; address command name, DS already set
 	mov	DX,-1				; set invoke function
-	mov	di,offset TRANGROUP:APPEND_PARSE;AN010; Get the entry point for PARSE for APPEND
+	mov	di,APPEND_PARSE;AN010; Get the entry point for PARSE for APPEND
 	mov	AX,0AE01H
 	int	2FH				; execute command
-	cmp	TRANGROUP:IDLEN,0		; execute requested
+	cmp	IDLEN,0		; execute requested
 	jne	contcom
 	jmp	Cmd_done
 
 contcom:					; continue with internal scan
-	ENDIF
+	%endif
 
 ; barryf code ends here
 
-    mov     DI, OFFSET TRANGROUP:COMTAB
+    mov     DI, COMTAB
     XOR     CX,CX
 
 findcom:
-    mov     SI, offset TRANGROUP:IDLEN+1	; pointer to command argument
+    mov     SI, IDLEN+1	; pointer to command argument
     mov     CL, [DI]				; load length of internal command
     inc     di					; advance past length
     jcxz    externalj				; if it's zero, we're out of internals
@@ -187,10 +187,10 @@ findcom:
 abcd:
     lahf					; save the good ol' flags
     add     DI, CX				; skip over remaining internal, if any
-    mov     AL, BYTE PTR [DI]			; load drive-check indicator byte (DCIB)
+    mov     AL, byte [DI]			; load drive-check indicator byte (DCIB)
     mov     [CHKDRV], AL			; save command flag byte in chkdrv
     inc     DI					; increment DI (OK, OK, I'll stop)
-    mov     BX, WORD PTR [DI]			; load internal command address
+    mov     BX, word [DI]			; load internal command address
     inc     DI					; skip over the puppy
     inc     DI
     sahf					; remember those flags?
@@ -229,7 +229,7 @@ switcheck:
     call    noswit				; No, check to see if any switches
     jnz     realwork				; None, process the command
     mov     msg_disp_class,parse_msg_class	;AN000; set up parse error msg class
-    MOV     DX,OFFSET TranGroup:Extend_Buf_ptr	;AC000; get extended message pointer
+    MOV     DX,Extend_Buf_ptr	;AC000; get extended message pointer
     mov     Extend_Buf_ptr,BadSwt_ptr		;AN000; get "Invalid switch" message number
     jmp     CERROR				; Print error and chill out...
 realwork:
@@ -243,7 +243,7 @@ Cmd_done:
     pop     ds					; g
     push    ds					; g  save data segment
     mov     ds,[resseg] 			; g  get segment containing call flag
-    ASSUME  ds:resgroup
+    ; ASSUME  ds:resgroup
     cmp     call_flag, call_in_progress 	; G  Is a call in progress?
     mov     call_flag, 0			; G  Either way, reset flag
     pop     ds					; g  get data segment back
@@ -268,39 +268,39 @@ noswit:
 
 EXTERNAL:
 
-IF IBM
+%if IBM
 	call	test_append			; check to see if append installed
 	je	not_barryf			; no - truly external command
 	jmp	append_internal 		; yes - go to Barryf code
 
 not_barryf:
 
-ENDIF
+%endif
 
 	MOV	[FILTYP],0
 	MOV	DL,[SPECDRV]
 	MOV	[IDLEN],DL
-IF IBM
+%if IBM
 	MOV	[ROM_CALL],0
 	PUSH	DX
-	MOV	DX,OFFSET TRANGROUP:IDLEN
+	MOV	DX,IDLEN
 	CALL	ROM_SCAN
 	POP	DX
 	JNC	DO_SCAN
 	INC	[ROM_CALL]
 	JMP	PostSave
 DO_SCAN:
-ENDIF
-IF IBM
+%endif
+%if IBM
 PostSave:
-ENDIF
-	MOV	DI,OFFSET TRANGROUP:EXECPATH
-	MOV	BYTE PTR [DI],0 		; Initialize to current directory
-IF IBM
+%endif
+	MOV	DI,EXECPATH
+	MOV	byte [DI],0 		; Initialize to current directory
+%if IBM
 	CMP	[ROM_CALL],0
 	JZ	Research
 	JMP	NeoExecute
-ENDIF
+%endif
 RESEARCH:
 	invoke	path_search			; find the mother (result in execpath)
 	or	AX, AX				; did we find anything?
@@ -313,7 +313,7 @@ rsrch_br1:					; DISPLACEMENT!!
 BADCOMJ45:
 	JMP	BADCOM
 
-ASSUME	DS:TRANGROUP,ES:TRANGROUP
+; ASSUME	DS:TRANGROUP,ES:TRANGROUP
 
 EXECUTE:
 NeoExecute:
@@ -324,7 +324,7 @@ NeoExecute:
 	MOV	AH,DEALLOC
 	INT	int_command			; Now running in "free" space
 	MOV	ES,[RESSEG]
-ASSUME	ES:RESGROUP
+; ASSUME	ES:RESGROUP
 	INC	[EXTCOM]			; Indicate external command
 	MOV	[RESTDIR],0			; Since USERDIR1 is in transient, insure
 						;  this flag value for re-entry to COMMAND
@@ -332,15 +332,15 @@ ASSUME	ES:RESGROUP
 	MOV	SI,DI
 	MOV	CX,052H 			; moving (100h-5Ch)/2 = 80h-2Eh
 	REP	MOVSW				; Transfer parameters to resident header
-	MOV	DX,OFFSET TRANGROUP:EXECPATH
-	MOV	BX,OFFSET RESGROUP:EXEC_BLOCK
+	MOV	DX,EXECPATH
+	MOV	BX,EXEC_BLOCK
 	MOV	AX,EXEC SHL 8
-IF IBM
+%if IBM
 	TEST	[ROM_CALL],-1
 	JZ	OK_EXEC
 	JMP	ROM_EXEC
 OK_EXEC:
-ENDIF
+%endif
 ;
 ; we are now running in free space.  anything we do from here on may get
 ; trashed.  Move the stack (also in free space) to allocated space because
@@ -348,13 +348,13 @@ ENDIF
 ;
 	MOV	CX,ES
 	MOV	SS,CX
-	MOV	SP,OFFSET RESGROUP:RSTACK
+	MOV	SP,RSTACK
 	JMP	[EXEC_ADDR]			; Jmp to the EXEC in the resident
 
 BADCOM:
 	PUSH	CS
 	POP	DS
-	MOV	DX,OFFSET TRANGROUP:BADNAM_ptr
+	MOV	DX,BADNAM_ptr
 
 CERROR:
 	INVOKE	std_eprintf
@@ -366,12 +366,12 @@ CERROR:
 ;
 PRESCAN:					; Cook the input buffer
 
-ASSUME	DS:TRANGROUP,ES:TRANGROUP
+; ASSUME	DS:TRANGROUP,ES:TRANGROUP
 
 	XOR	CX,CX
 	MOV	ES,[RESSEG]
-ASSUME	ES:RESGROUP
-	MOV	SI,OFFSET TRANGROUP:COMBUF+2
+; ASSUME	ES:RESGROUP
+	MOV	SI,COMBUF+2
 	MOV	DI,SI
 
 CountQuotes:
@@ -460,7 +460,7 @@ TRYGREATER:
 ; We have found a ">" char.  We need to see if there is another ">"
 ; following it.
 ;
-	CMP	BYTE PTR [SI],al
+	CMP	byte [SI],al
 	JNZ	NOAPPND
 	LODSB
 	INC	[RE_OUT_APP]			; Flag >>
@@ -478,13 +478,13 @@ NOAPPND:
 ; There was no file present.  Set us up at end-of-line.
 ;
 REOUT_ERRSET:					;AN040; set up for an error
-	mov	byte ptr [di], 0dh		; Clobber first ">"
-	MOV	WORD PTR [RE_OUTSTR],09H	; Cause an error later
+	mov	byte [di], 0dh		; Clobber first ">"
+	MOV	word [RE_OUTSTR],09H	; Cause an error later
 	JMP	PRESCANEND
 
 GOTREOFIL:
 	PUSH	DI
-	MOV	DI,OFFSET RESGROUP:RE_OUTSTR
+	MOV	DI,RE_OUTSTR
 	MOV	BX,DI
 	PUSH	ES
 
@@ -523,13 +523,13 @@ NOOUT:
 	JNZ	GOTREIFIL
 
 REIN_ERRSET:					;AN040; set up for error
-	mov	byte ptr [di],0dh		; Clobber "<"
-	MOV	WORD PTR [RE_INSTR],09H 	; Cause an error later
+	mov	byte [di],0dh		; Clobber "<"
+	MOV	word [RE_INSTR],09H 	; Cause an error later
 	JMP	SHORT PRESCANEND
 
 GOTREIFIL:
 	PUSH	DI
-	MOV	DI,OFFSET TranGROUP:RE_INSTR
+	MOV	DI,RE_INSTR
 	MOV	BX,DI
 	PUSH	ES
 	PUSH	CS
@@ -575,7 +575,7 @@ GOTRESTR:
 	SUB	BX,DI				; compute negatinve of number of chars
 	CMP	BX,-1				; is there just a :?
 	JZ	NotTrailCol			; yep, don't change
-	CMP	BYTE PTR ES:[DI-1],al		; Trailing ':' OK on devices
+	CMP	byte ES:[DI-1],al		; Trailing ':' OK on devices
 	JNZ	NOTTRAILCOL
 	DEC	DI				; Back up over trailing ':'
 
@@ -596,9 +596,9 @@ CONTPRESCAN:
 PRESCANEND:
 	CMP	[PIPEFLAG],0
 	JZ	ISNOPIPE
-	MOV	DI,OFFSET RESGROUP:PIPESTR
+	MOV	DI,PIPESTR
 	MOV	[PIPEPTR],DI
-	MOV	SI,OFFSET TRANGROUP:COMBUF+2
+	MOV	SI,COMBUF+2
 	INVOKE	SCANOFF
 
 PIPESETLP:					; Transfer the pipe into the resident
@@ -614,9 +614,9 @@ ISNOPIPE:
 	POP	ES
 	return
 
-cmd_copy  proc near
+cmd_copy:
 
-	MOV	SI,OFFSET TRANGROUP:COMBUF+2
+	MOV	SI,COMBUF+2
 	INVOKE	Scanoff 			; advance past separators...
 	add	si,PathPos
 	mov	di,81h
@@ -631,16 +631,16 @@ CmdCopy:
 	jmp	CmdCopy
 
 CopyDone:
-	 mov	 byte ptr ds:[80h],cl		; Store count
+	 mov	 byte ds:[80h],cl		; Store count
 
 	 ret
-cmd_copy  endp
+; ENDP cmd_copy
 
 
-test_append	proc near
+test_append:
 
-	mov	BX,offset TRANGROUP:COMBUF	;   barry can address
-	mov	SI, offset TRANGROUP:IDLEN	; address command name, DS already set
+	mov	BX,COMBUF	;   barry can address
+	mov	SI, IDLEN	; address command name, DS already set
 	mov	DX,-1				; set install check function
 	mov	AX,0AE00H
 	int	2FH				; see if loaded
@@ -648,8 +648,8 @@ test_append	proc near
 
 	ret
 
-test_append	endp
+; ENDP test_append
 
-TRANCODE    ENDS
-	    END
+; END SECTION .TRANCODE
+	    ; END
 

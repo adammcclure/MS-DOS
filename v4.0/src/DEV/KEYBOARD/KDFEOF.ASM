@@ -1,8 +1,8 @@
 
 
 
-	PAGE	,132
-	TITLE	DOS Keyboard Definition File
+	; PAGE	,132
+	; TITLE	DOS Keyboard Definition File
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - Keyboard Definition File
@@ -17,16 +17,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
 				       ;;
-CODE	SEGMENT PUBLIC 'CODE'          ;;
-	ASSUME CS:CODE,DS:CODE	       ;;
+SECTION .CODE;;
+	; ASSUME CS:CODE,DS:CODE;;
 				       ;;
 				       ;;
 				       ;;
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
-include copyrigh.inc
+%include "copyrigh.inc"
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	DB  1AH 		       ;; EOF
 				       ;;
-CODE	ENDS			       ;;
-	END			       ;;
+; END SECTION .CODE;;
+	; END;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

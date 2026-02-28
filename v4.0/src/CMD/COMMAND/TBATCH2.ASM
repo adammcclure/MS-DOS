@@ -1,62 +1,62 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tbatch2.asm	4.2 85/07/22
 ;	SCCSID = @(#)tbatch2.asm	4.2 85/07/22
-TITLE	Batch processing routines part II
+; TITLE	Batch processing routines part II
 
-	INCLUDE comsw.asm
+	%include "comsw.asm"
 
-.xlist
-.xcref
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-.list
-.cref
+; .xlist
+; .xcref
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BATCH:WORD
-	EXTRN	Batch_Abort:byte
-	EXTRN	call_batch_flag:byte
-	EXTRN	call_flag:byte
-	EXTRN	IFFlag:BYTE
-	EXTRN	In_Batch:byte
-	EXTRN	Nest:word
-	EXTRN	PIPEFILES:BYTE
-	EXTRN	RETCODE:WORD
-	EXTRN	SINGLECOM:WORD
-DATARES ENDS
+SECTION .DATARES;AC000;
+	extern BATCH
+	extern Batch_Abort
+	extern call_batch_flag
+	extern call_flag
+	extern IFFlag
+	extern In_Batch
+	extern Nest
+	extern PIPEFILES
+	extern RETCODE
+	extern SINGLECOM
+; END SECTION .DATARES
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BADLAB_PTR:WORD
-	EXTRN	BatBufLen:WORD
-	EXTRN	IFTAB:BYTE
-	EXTRN	SYNTMES_PTR:WORD
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern BADLAB_PTR
+	extern BatBufLen
+	extern IFTAB
+	extern SYNTMES_PTR
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg:byte		; the arg structure!
-	EXTRN	BatBuf:BYTE
-	EXTRN	BatBufEnd:WORD
-	EXTRN	BatBufPos:WORD
-	EXTRN	BATHAND:WORD
-	EXTRN	COMBUF:BYTE
-	EXTRN	DIRBUF:BYTE
-	EXTRN	GOTOLEN:WORD
-	EXTRN	if_not_count:word
-	EXTRN	IFNOTFLAG:BYTE
-	EXTRN	RESSEG:WORD
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern arg; the arg structure!
+	extern BatBuf
+	extern BatBufEnd
+	extern BatBufPos
+	extern BATHAND
+	extern COMBUF
+	extern DIRBUF
+	extern GOTOLEN
+	extern if_not_count
+	extern IFNOTFLAG
+	extern RESSEG
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	EXTRN	cerror:near
-	EXTRN	docom1:near
-	EXTRN	tcommand:near
+	extern cerror
+	extern docom1
+	extern tcommand
 
-	public	$if,iferlev,goto,shift,ifexists,ifnot,forerror,$call
+	global $if,iferlev,goto,shift,ifexists,ifnot,forerror,$call
 
 
 Break	<GetBatByt - retrieve a byte from the batch file>
@@ -67,32 +67,32 @@ Break	<GetBatByt - retrieve a byte from the batch file>
 
 Procedure   GETBATBYT,NEAR
 
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 
 	SaveReg <BX,CX,DS>
-	test	byte ptr [Batch_Abort],-1
+	test	byte [Batch_Abort],-1
 	jnz	BatEOF
 	TEST	Batch,-1
 	JZ	BatEOF
 	PUSH	ES
 	MOV	ES,Batch
-	ASSUME	ES:NOTHING
-	ADD	WORD PTR ES:[BatSeek],1
-	ADC	WORD PTR ES:[BatSeek+2],0
+	; ASSUME	ES:NOTHING
+	ADD	word ES:[BatSeek],1
+	ADC	word ES:[BatSeek+2],0
 	POP	ES
 ;
 ; See if we have bytes buffered...
 ;
 	MOV	AX,CS
 	MOV	DS,AX
-	ASSUME	DS:TranGroup
+	; ASSUME	DS:TranGroup
 	MOV	BX,BatBufPos
 	CMP	BX,-1
 	JNZ	UnBuf
 ;
 ; There are no bytes in the buffer.  Let's try to fill it up.
 ;
-	MOV	DX,OFFSET TranGROUP:BatBuf
+	MOV	DX,BatBuf
 	MOV	CX,BatBufLen			; max to read.
 	MOV	BX,BatHand
 	MOV	AH,READ
@@ -101,14 +101,14 @@ ASSUME	DS:RESGROUP
 	invoke	get_ext_error_number		;AN022; get the error
 	push	ds				;AN022; save local segment
 	mov	ds,[resseg]			;AN022; get resident segment
-assume	ds:resgroup				;AN022;
+; assume	ds:resgroup;AN022;
 	mov	dx,ax				;AN022; put error in DX
 	invoke	output_batch_name		;AN022; set up to print the error
 	pop	ds				;AN022;
-assume	ds:trangroup				;AN022;
+; assume	ds:trangroup;AN022;
 	invoke	std_eprintf			;AN022; print out the error
-	mov	byte ptr combuf+2,end_of_line_in;AN022; terminate the batch line for parsing
-	mov	byte ptr combuf+3,end_of_line_out ;AN022; terminate the batch line for output
+	mov	byte combuf+2,end_of_line_in;AN022; terminate the batch line for parsing
+	mov	byte combuf+3,end_of_line_out ;AN022; terminate the batch line for output
 	jmp	bateof				;AN022; terminate the batch file
 
 bat_read_ok:					;AN022;
@@ -133,18 +133,18 @@ SetBufPos:
 	jnz	GetByteDone
 
 BatEOFDS:
-	ASSUME	DS:TranGroup
+	; ASSUME	DS:TranGroup
 	MOV	DS,ResSeg
-	ASSUME	DS:ResGroup
+	; ASSUME	DS:ResGroup
 
 BATEOF:
 	invoke	BatchOff
 	CALL	BATCLOSE
 	MOV	AL,0DH				; If end-of-file, then end of line
-	test	byte ptr [Batch_Abort],-1
-	mov	byte ptr [Batch_Abort],0
+	test	byte [Batch_Abort],-1
+	mov	byte [Batch_Abort],0
 	jz	Cont_Get_Byt
-	mov	di,offset TRANGROUP:COMBUF+2	; reset pointer to beginning of buffer
+	mov	di,COMBUF+2	; reset pointer to beginning of buffer
 	xor	cx,cx				; zero line length
 	jmp	short GetByteDone
 
@@ -163,13 +163,13 @@ GetByteDone:
 EndProc GetBatByt
 
 	break	<$If - conditional execution>
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 IFERRORP:
 	POP	AX
 IFERROR:
 FORERROR:
-	MOV	DX,OFFSET TRANGROUP:SYNTMES_ptr
+	MOV	DX,SYNTMES_ptr
 	JMP	CERROR
 
 $IF:
@@ -178,14 +178,14 @@ $IF:
 ;
 	push	ds				;AN004; save local DS
 	mov	ds,[resseg]			;AN004; get resident segment
-	assume	ds:resgroup			;AN004;
+	; assume	ds:resgroup;AN004;
 	cmp	[PIPEFILES],0			;AN004; Only turn off if present.
 	jz	IFNoPipe			;AN004; no pipe - continue
 	invoke	PipeDel 			;AN004; turn off piping
 
 IFNoPipe:					;AN004;
 	pop	ds				;AN004; get local DS back
-	assume	ds:trangroup			;AN004;
+	; assume	ds:trangroup;AN004;
 	MOV	[IFNOTFLAG],0
 	mov	[if_not_count], 0
 	MOV	SI,81H
@@ -195,7 +195,7 @@ IFREENT:
 	CMP	AL,0DH
 	JZ	IFERROR
 	MOV	BP,SI
-	MOV	DI,OFFSET TRANGROUP:IFTAB	; Prepare to search if table
+	MOV	DI,IFTAB	; Prepare to search if table
 	MOV	CH,0
 
 IFINDCOM:
@@ -305,7 +305,7 @@ EQUAL_CHECK2:
 ;
 ; If it is EOL, then syntax error
 ;
-	CMP	BYTE PTR [SI],0DH
+	CMP	byte [SI],0DH
 	JZ	IFERRORJ
 ;
 ; Advance pointer over remainder of unmatched text to next delimiter
@@ -348,11 +348,11 @@ moredelim:
 	lodsb					; move command line pointer over
 	invoke	delim				; pathname -- have to do it ourselves
 	jnz	moredelim			; 'cause parse_file_descriptor is dumb
-	mov	DX, OFFSET TRANGROUP:dirbuf
+	mov	DX, dirbuf
 	trap	set_dma
 	mov	BX, 2				; if(0) [|not](|1) exist[1|2] file(2|3)
 	add	BX, [if_not_count]
-	mov	AX, OFFSET TRANGROUP:arg.argv
+	mov	AX, arg.argv
 	invoke	argv_calc			; convert arg index to pointer
 	mov	DX, [BX].argpointer		; get pointer to supposed filename
 	mov	CX, ifexist_attr		; filetypes to search for
@@ -381,7 +381,7 @@ IFTRUE:
 	SUB	DS:[80H],CL
 	MOV	CL,DS:[80H]
 	MOV	[COMBUF+1],CL
-	MOV	DI,OFFSET TRANGROUP:COMBUF+2
+	MOV	DI,COMBUF+2
 	CLD
 	REP	MOVSB
 	MOV	AL,0DH
@@ -392,10 +392,10 @@ IFTRUE:
 ;
 	PUSH	DS
 	MOV	DS,ResSeg
-	ASSUME	DS:RESGROUP
+	; ASSUME	DS:RESGROUP
 	MOV	IFFlag,-1
 	POP	DS
-	ASSUME	DS:TRANGROUP
+	; ASSUME	DS:TRANGROUP
 ;
 ; Go do the command
 ;
@@ -424,10 +424,10 @@ GETNUMLP:
 GOTNUM:
 	PUSH	DS
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
-	MOV	AH,BYTE PTR [RETCODE]
+; ASSUME	DS:RESGROUP
+	MOV	AH,byte [RETCODE]
 	POP	DS
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 	XOR	AL,AL
 	CMP	AH,BL
 	JAE	IFRET
@@ -436,7 +436,7 @@ ASSUME	DS:TRANGROUP
 
 
 	break	<Shift - advance arguments>
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 ;
 ; Shift the parameters in the batch structure by 1 and set up the new argument.
@@ -446,14 +446,14 @@ assume	ds:trangroup,es:trangroup
 Procedure   Shift,NEAR
 
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	MOV	AX,[BATCH]			; get batch pointer
 	OR	AX,AX				; in batch mode?
 	retz					; no, done.
 	MOV	ES,AX				; operate in batch segment
 	MOV	DS,AX
 
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ;
 ; Now move the batch args down by 1 word
@@ -466,14 +466,14 @@ ASSUME	DS:NOTHING,ES:NOTHING
 ; If the last parameter (the one not moved) is empty (= -1) then we are done.
 ; We have copied it into the previous position
 ;
-	CMP	WORD PTR [DI],-1		; if last one was not in use then
+	CMP	word [DI],-1		; if last one was not in use then
 	retz					; No new parm
 ;
 ; This last pointer is NOT nul.  Get it and scan to find the next argument.
 ; Assume, first, that there is no next argument
 ;
 	MOV	SI,[DI]
-	MOV	WORD PTR [DI],-1		; Assume no parm
+	MOV	word [DI],-1		; Assume no parm
 ;
 ; The parameters are CR separated.  Scan for end of this parm
 ;
@@ -486,7 +486,7 @@ SKIPCRLP:
 ; are finished.  There ARE no more parms and the pointer has been previously
 ; initialized to indicate it.
 ;
-	CMP	BYTE PTR [SI],0
+	CMP	byte [SI],0
 	retz					; End of parms
 	MOV	[DI],SI 			; Pointer to next parm as %9
 
@@ -501,7 +501,7 @@ EndProc Shift
 
 Procedure   SkipDelim,NEAR
 
-	ASSUME	DS:ResGroup,ES:NOTHING
+	; ASSUME	DS:ResGroup,ES:NOTHING
 	TEST	Batch,-1
 	JZ	SkipErr 			; batch file empty.  OOPS!
 	CALL	GetBatByt			; get a char
@@ -528,15 +528,15 @@ $CALL:
 
 ;  strip off CALL from command line
 
-	ASSUME DS:trangroup,ES:trangroup
+	; ASSUME DS:trangroup,ES:trangroup
 	push	si
 	push	di
 	push	ax
 	push	cx
-	mov	si,offset trangroup:combuf+2
+	mov	si,combuf+2
 	invoke	scanoff 			;get to first non-delimeter
 	add	si,length_call			;point to char past CALL
-	mov	di,offset trangroup:combuf+2
+	mov	di,combuf+2
 	mov	cx,combuflen-length_call	;get length of buffer
 	rep	movsb				;move it
 	pop	cx
@@ -549,7 +549,7 @@ $CALL:
 
 	push	ds
 	mov	ds,[resseg]
-	ASSUME DS:resgroup,ES:resgroup
+	; ASSUME DS:resgroup,ES:resgroup
 	mov	call_flag, call_in_progress
 	mov	call_batch_flag, call_in_progress
 ;
@@ -567,16 +567,16 @@ NoPipe:
 
 GOTO:
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	TEST	[BATCH],-1
 	retz					; If not in batch mode, a nop
 	XOR	DX,DX
 	PUSH	DS
 	MOV	DS,Batch
-	MOV	WORD PTR DS:[BatSeek],DX	; Back to start
-	MOV	WORD PTR DS:[BatSeek+2],DX	; Back to start
+	MOV	word DS:[BatSeek],DX	; Back to start
+	MOV	word DS:[BatSeek+2],DX	; Back to start
 	POP	DS
 
 GotoOpen:
@@ -620,7 +620,7 @@ BadGoto:
 	CALL	BATCLOSE
 	PUSH	CS
 	POP	DS
-	MOV	DX,OFFSET TRANGROUP:BADLAB_ptr
+	MOV	DX,BADLAB_ptr
 	JMP	CERROR
 
 ;
@@ -699,7 +699,7 @@ Procedure   BatClose,NEAR
 	INT	int_command
 
 CloseReturn:
-	mov	byte ptr [In_Batch],0		; reset flag
+	mov	byte [In_Batch],0		; reset flag
 	return
 
 EndProc BatClose
@@ -711,20 +711,20 @@ EndProc BatClose
 
 Procedure   BatOpen,NEAR
 
-ASSUME	DS:RESGROUP,ES:TRANGROUP
+; ASSUME	DS:RESGROUP,ES:TRANGROUP
 
 	PUSH	DS
 	MOV	DS,[BATCH]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 
 	MOV	DX,BatFile
 	MOV	AX,OPEN SHL 8
 	INT	int_command			; Open the batch file
 	JC	SETERRDL
-	MOV	DX,WORD PTR DS:[BatSeek]
-	MOV	CX,WORD PTR DS:[BatSeek+2]
+	MOV	DX,word DS:[BatSeek]
+	MOV	CX,word DS:[BatSeek+2]
 	POP	DS
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 
 	MOV	[BATHAND],AX
 	MOV	BX,AX
@@ -748,6 +748,6 @@ SETERRDL:
 EndProc BatOpen
 
 
-TRANCODE    ENDS
-	    END
+; END SECTION .TRANCODE
+	    ; END
 

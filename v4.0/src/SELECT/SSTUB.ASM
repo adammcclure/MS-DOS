@@ -1,21 +1,21 @@
 
 
-TITLE	 SELECT Stub			;AN000;
-SUBTTL	 SELSTUB.ASM			;AN000;
+; TITLE	 SELECT Stub;AN000;
+; SUBTTL	 SELSTUB.ASM;AN000;
 
-PAGE	 60,132 			;AN000;
+; PAGE	 60,132;AN000;
 
-	INCLUDE SYSMSG.INC			;AN000;
+	%include "SYSMSG.INC";AN000;
 	MSG_UTILNAME <SELECT>			;AN000;
 
-CODE	 SEGMENT PARA  PUBLIC 'CODE'            ;AN000;
-	 ASSUME  CS:code			;AN000;
-	 ASSUME  DS:code			;AN000;
-	 ASSUME  ES:NOTHING			;AN000;
-	 ASSUME  SS:NOTHING			;AN000;
+SECTION .CODE;AN000;
+	 ; ASSUME  CS:code;AN000;
+	 ; ASSUME  DS:code;AN000;
+	 ; ASSUME  ES:NOTHING;AN000;
+	 ; ASSUME  SS:NOTHING;AN000;
 
 	 ORG	 100H				;AN000;
-MAIN	 PROC	 FAR				;AN000;
+MAIN:;AN000;
 BEGIN:	 JMP	 A0				;AN000;
 
 prognm	 DB	 "SELECT.EXE",0      ;AN000; EXEC this program
@@ -31,12 +31,12 @@ seg2	 DW	 (?)		 ;AN000; .
 enter	 equ	 13		 ;AN000;ENTER key
 escape	 equ	 27		 ;AN000;ESC key
 
-	 EVEN			 ;AN000;
-stck	 DB	 255 DUP(0)	 ;AN000;stack
+	 align 2;AN000;
+stck: times 255 db 0;AN000;stack
 stck_beg DB	 0		 ;AN000;
 
 A0:				 ;AN000;
-	 MOV	SP,OFFSET stck_beg ;AN000;setup local stack
+	 MOV	SP,stck_beg ;AN000;setup local stack
 
 	 CALL	LOAD_MSG	   ;AN000;
 	 MOV	AX,10		 ;AN000;insert SELECT diskette in drive A:
@@ -84,8 +84,8 @@ DSKTOK: 			 ;AN000;
 	 MOV	 comseg,AX	 ;AN000; put in parameter blocks
 	 MOV	 seg1,AX	 ;AN000; .
 	 MOV	 seg2,AX	 ;AN000; .
-	 MOV	 DX,OFFSET prognm ;AN000; get a pointer to the program name
-	 MOV	 BX,OFFSET execparm ;AN000; get a pointer to the program parms
+	 MOV	 DX,prognm ;AN000; get a pointer to the program name
+	 MOV	 BX,execparm ;AN000; get a pointer to the program parms
 	 MOV	 AX,4BH*256	 ;AN000; get function code - load & execute
 	 INT	 21H		 ;AN000; exec SELECT
 EXIT:				 ;AN000;
@@ -93,7 +93,7 @@ EXIT:				 ;AN000;
 	 INT	 21H		 ;AN000;
 	 RET			 ;AN000;
 
-endofcode DB	?		 ;AN000;
+endofcode: db 0;AN000;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	Message Retriever code inserted at this point....
@@ -117,7 +117,7 @@ MSG_SERVICES <SELECT.CL1,SELECT.CL2>;AN000;
 ;   OPERATION:
 ;
 ;****************************************************************************
-DISPLAY_MSG PROC NEAR		 ;AN000;
+DISPLAY_MSG:;AN000;
     MOV  BX, -1 		       ;AN000; HANDLE -1 ==> USE ONLY DOS FUNCTION 1-12
     MOV  SI, 0			       ;AN000; SUBSTITUTION LIST
     MOV  CX, 0			       ;AN000; SUBSTITUTION COUNT
@@ -126,7 +126,7 @@ DISPLAY_MSG PROC NEAR		 ;AN000;
     MOV  DH,  -1		       ;AN000; MESSAGE CALL -1==> UTILITY MESSAGE
     CALL SYSDISPMSG		       ;AN000;
     RET 			       ;AN000;
-DISPLAY_MSG ENDP		       ;AN000;
+; ENDP DISPLAY_MSG;AN000;
 
 ;****************************************************************************
 ;
@@ -139,10 +139,10 @@ DISPLAY_MSG ENDP		       ;AN000;
 ;	None
 ;
 ;****************************************************************************
-LOAD_MSG PROC  NEAR		       ;AN000;
+LOAD_MSG:;AN000;
     CALL SYSLOADMSG		       ;AN000;
     RET 			       ;AN000;
-LOAD_MSG ENDP			       ;AN000;
+; ENDP LOAD_MSG;AN000;
 
 ;****************************************************************************
 ;
@@ -155,7 +155,7 @@ LOAD_MSG ENDP			       ;AN000;
 ;	None
 ;
 ;****************************************************************************
-CLEAR_SCREEN PROC NEAR		       ;AN000;
+CLEAR_SCREEN:;AN000;
 
 	 MOV	 CX,0000H	 ;AN000;0,0 upper left of scroll
 	 MOV	 DX,184FH	 ;AC032;SEH  24,79 lower right of screen
@@ -170,7 +170,7 @@ CLEAR_SCREEN PROC NEAR		       ;AN000;
 
 	 RET			 ;AN000;
 
-CLEAR_SCREEN ENDP		 ;AN000;
+; ENDP CLEAR_SCREEN;AN000;
 
 ;****************************************************************************
 ;
@@ -184,26 +184,26 @@ CLEAR_SCREEN ENDP		 ;AN000;
 ;	CY = 1	incorrect diskette in drive
 ;
 ;****************************************************************************
-CHECK_DISKETTE PROC NEAR	 ;AN000;
+CHECK_DISKETTE:;AN000;
 	 PUSH	 DS		 ;AN000;
 	 PUSH	 CS		 ;AN000;
 	 POP	 DS		 ;AN000;
-	 MOV	 DX,OFFSET dta	 ;AN000;set new dta
+	 MOV	 DX,dta	 ;AN000;set new dta
 	 MOV	 AH,1AH 	 ;AN000;
 	 INT	 21H		 ;AN000;
-	 MOV	 DX,OFFSET prognm ;AN000;search for this file
+	 MOV	 DX,prognm ;AN000;search for this file
 	 XOR	 CX,CX		 ;AN000;search attribute
 	 MOV	 AH,4EH 	 ;AN000;find first matching file
 	 INT	 21H		 ;AN000;
 	 POP	 DS		 ;AN000;
 	 RET			 ;AN000;
-CHECK_DISKETTE ENDP		 ;AN000;
+; ENDP CHECK_DISKETTE;AN000;
 
-DTA	 DB	 ?		 ;AN000;start of dummy DTA for find first
+DTA: db 0;AN000;start of dummy DTA for find first
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-MAIN	 ENDP			 ;AN000;
-CODE	 ENDS			 ;AN000;
-	 END	 BEGIN		 ;AN000;
+; ENDP MAIN;AN000;
+; END SECTION .CODE;AN000;
+	 ; END	 BEGIN;AN000;
 

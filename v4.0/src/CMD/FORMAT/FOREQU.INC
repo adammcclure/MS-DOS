@@ -66,36 +66,36 @@ ExitNo  equ     5
 ; These are the data structures which we will need
 
 
-Media_ID struc
+struc Media_ID
 Media_ID_Info_Level dw 0
 Media_ID_Serial_Number dd 0
-Media_ID_Volume_Label db 11 dup(" ")
-Media_ID_File_System db 8  dup(" ")
-Media_ID ends
+Media_ID_Volume_Label: times 11 db " "
+Media_ID_File_System: times 8 db " "
+endstruc
 
 
-Relative_Sector_Buffer  struc                   ;                               ;AN000;
+struc Relative_Sector_Buffer;                               ;AN000;
 
-Start_Sector_Low        dw      ?               ;Low word of RBA sector         ;AN000;
-Start_Sector_High       dw      ?               ;High word of RBA sector        ;AN000;
-Number_Sectors          dw      ?               ;Number of sectors              ;AN000;
-Buffer_Offset           dw      ?               ;Address of data buffer         ;AN000;
-Buffer_Segment          dw      ?               ;                               ;AN000;
+Start_Sector_Low: dw 0;Low word of RBA sector         ;AN000;
+Start_Sector_High: dw 0;High word of RBA sector        ;AN000;
+Number_Sectors: dw 0;Number of sectors              ;AN000;
+Buffer_Offset: dw 0;Address of data buffer         ;AN000;
+Buffer_Segment: dw 0;                               ;AN000;
 
-Relative_Sector_Buffer ends                     ;                               ;AN000;
+endstruc;                               ;AN000;
 
 
 ;Per system file data structure
 
-a_FileStructure struc
-fileHandle DW   ?
-fileSizeInParagraphs DW ?
-fileSizeInBytes DD ?
-fileOffset DD   ?
-fileStartSegment DW ?
-fileDate DW     ?
-fileTime DW     ?
-a_FileStructure ends
+struc a_FileStructure
+fileHandle: dw 0
+fileSizeInParagraphs: dw 0
+fileSizeInBytes: dd 0
+fileOffset: dd 0
+fileStartSegment: dw 0
+fileDate: dw 0
+fileTime: dw 0
+endstruc
 
 ;-------------------------------------------------------------------------------
 

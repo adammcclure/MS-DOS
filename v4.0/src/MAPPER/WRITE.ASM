@@ -1,9 +1,9 @@
-page 80,132
+; page 80,132
 
-title CP/DOS DosWrite mapper
+; title CP/DOS DosWrite mapper
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -23,22 +23,22 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   doswrite
-            .sall
-            .xlist
-            include  macros.inc
-            .list
+            global doswrite
+            ; .sall
+            ; .xlist
+            %include "macros.inc"
+            ; .list
 
-str         struc
-old_bp      dw       ?
-return      dd       ?
-Written     dd       ?       ; number of bytes actually written
-Bufflng     dw       ?       ; number of bytes to be written
-Buffer      dd       ?       ; write buffer address
-Handle      dw       ?       ; file handle
-str         ends
+struc str
+old_bp: dw 0
+return: dd 0
+Written: dd 0; number of bytes actually written
+Bufflng: dw 0; number of bytes to be written
+Buffer: dd 0; write buffer address
+Handle: dw 0; file handle
+endstruc
 
-doswrite    proc     far
+doswrite:
 
             Enter    doswrite            ; push registers
 
@@ -51,14 +51,14 @@ doswrite    proc     far
             jc       exit                ; jump if error
 
             lds      si,[bp].written     ; pointer to return data
-            mov      word ptr [si],ax    ; save actual number of bytes written
+            mov      word [si],ax    ; save actual number of bytes written
             sub      ax,ax               ; set good return code
 
 exit:       mexit                        ; pop registers
-            ret      size str - 6        ; return
+            ret      str_size - 6        ; return
 
-doswrite    endp
+; ENDP doswrite
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

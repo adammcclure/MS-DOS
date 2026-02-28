@@ -65,12 +65,12 @@
 ;	     the "MAIN.ASM" module of the MODE component of the DOS utility.
 
 ;****************** END OF SPECIFICATIONS *****************************
-	IF1
-	    %OUT INCLUDE MODECPRO.INC ;MODULE PROLOGUE
-	ENDIF
+	%if 1  ; IF1 - pass-specific
+	    %warning INCLUDE MODECPRO.INC;MODULE PROLOGUE
+	%endif
 
-;ษออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 ;  AX001 - P3976: Need to have all pieces of messages in MODE.SKL so have to
 ;		  implement the SYSGETMSG method of getting addressability to
@@ -83,6 +83,6 @@
 ;		  because device type was wrong on IOCTL call because ES was
 ;		  zero when using CMPSB in SET_DEV_TYPE and no match was made.
 
-;บ											  บ
-;ศออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 

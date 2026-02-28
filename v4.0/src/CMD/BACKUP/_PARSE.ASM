@@ -1,6 +1,6 @@
-page	60,132
-name	_parse
-title	C	to PARSER interface
+; page	60,132
+; name	_parse
+; title	C	to PARSER interface
 ;-------------------------------------------------------------------
 ;
 ;	MODULE: 	_parse
@@ -17,9 +17,9 @@ title	C	to PARSER interface
 
 ;	extrn	sysparse:far
 
-	public	_parse
+	global _parse
 
-	include version.inc
+	%include "version.inc"
 
 ;-------------------------------------------------------------------
 FarSW	equ	0			; make sysparse be a NEAR proc
@@ -32,36 +32,36 @@ KeySW	equ	0			; Support keywords
 SwSW	equ	1			; Support switches
 Val1SW	equ	0			; Support value definition 1
 Val2SW	equ	0			; Support value definition 2
-if ibmcopyright
+%if ibmcopyright
 Val3SW	equ	0			; Support value definition 3
-else
+%else
 Val3SW	equ	1			; Support value definition 3
-endif
+%endif
 DrvSW	equ	1			; Support drive only format
 QusSW	equ	0			; Support quoted string format
 IncSW	equ	0			; Dont include PSDATA, I just did it
 BaseSW	equ	1			; DS points to data
 ;-------------------------------------------------------------------
 
-DGROUP	GROUP	_DATA
-PGROUP	GROUP	_TEXT
+; DGROUP	GROUP	_DATA
+; PGROUP	GROUP	_TEXT
 
-_DATA	segment byte public 'DATA'
-include psdata.inc
-_DATA	ends
+SECTION ._DATA
+%include "psdata.inc"
+; END SECTION ._DATA
 
-_TEXT	segment byte public 'CODE'
+SECTION ._TEXT
 
-	ASSUME	CS: PGROUP
-	ASSUME	DS: DGROUP
+	; ASSUME	CS: PGROUP
+	; ASSUME	DS: DGROUP
 
 ;-------------------------------------------------------------------
-.xlist
-include parse.asm			; include the parser
-.list
+; .xlist
+%include "parse.asm"; include the parser
+; .list
 ;-------------------------------------------------------------------
 
-_parse	proc	near
+_parse:
 
 	push	bp			; save user's base pointer
 	mov	bp,sp			; set bp to current sp
@@ -113,9 +113,9 @@ _parse	proc	near
 	pop	bp			; restore user's bp
 	ret
 
-_parse	endp
+; ENDP _parse
 
-_TEXT	ends				; end code segment
-	end
+; END SECTION ._TEXT; end code segment
+	; end
 
 

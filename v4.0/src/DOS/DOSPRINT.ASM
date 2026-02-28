@@ -1,7 +1,7 @@
 ;	SCCSID = @(#)dosprint.asm	1.1 85/04/10
 ;	SCCSID = @(#)dosprint.asm	1.1 85/04/10
-TITLE	DOSPRINT - PRINTF at DOS level
-NAME	DOSPRINT
+; TITLE	DOSPRINT - PRINTF at DOS level
+; NAME	DOSPRINT
 ;
 ;
 ;   Modification history:
@@ -9,28 +9,28 @@ NAME	DOSPRINT
 ;	Created: MZ 16 June 1984
 ;
 
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGroup,CS:DOSGroup
+SECTION .CODE
+	; ASSUME	SS:DOSGroup,CS:DOSGroup
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-.cref
-.list
-.sall
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+; .cref
+; .list
+; .sall
 
 	I_Need	Proc_ID,WORD
 	I_Need	User_ID,WORD
 
 BREAK	<debugging output>
 
-include print.asm
+%include "print.asm"
 
-CODE ENDS
-END
+; END SECTION .CODE
+; END

@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	TABDEF.ASM - 386 Protected Mode CPU Tables
+	; title	TABDEF.ASM - 386 Protected Mode CPU Tables
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -35,57 +35,57 @@ page	58,132
 ;   Functional Description:
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 
-NAME	tabdef
+; NAME	tabdef
 ;
 
-.xlist
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include page.inc
-.list
+; .xlist
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "page.inc"
+; .list
 
 
-_TEXT SEGMENT
-	extrn	vm_trap00:far
-	extrn	vm_trap01:far
-	extrn	vm_trap02:far
-	extrn	vm_trap03:far
-	extrn	vm_trap04:far
-	extrn	vm_trap05:far
-	extrn	vm_trap06:far
-	extrn	vm_trap07:far
-	extrn	vm_trap08:far
-	extrn	vm_trap09:far
-	extrn	vm_trap0a:far
-	extrn	vm_trap0b:far
-	extrn	vm_trap0c:far
-	extrn	vm_trap0d:far
-	extrn	vm_trap0e:far
-	extrn	vm_trap0f:far
-	extrn	vm_trap50:far
-	extrn	vm_trap51:far
-	extrn	vm_trap52:far
-	extrn	vm_trap53:far
-	extrn	vm_trap54:far
-	extrn	vm_trap55:far
-	extrn	vm_trap56:far
-	extrn	vm_trap57:far
-	extrn	vm_trap70:far
-	extrn	vm_trap71:far
-	extrn	vm_trap72:far
-	extrn	vm_trap73:far
-	extrn	vm_trap74:far
-	extrn	vm_trap75:far
-	extrn	vm_trap76:far
-	extrn	vm_trap77:far
+SECTION ._TEXT
+	extern vm_trap00
+	extern vm_trap01
+	extern vm_trap02
+	extern vm_trap03
+	extern vm_trap04
+	extern vm_trap05
+	extern vm_trap06
+	extern vm_trap07
+	extern vm_trap08
+	extern vm_trap09
+	extern vm_trap0a
+	extern vm_trap0b
+	extern vm_trap0c
+	extern vm_trap0d
+	extern vm_trap0e
+	extern vm_trap0f
+	extern vm_trap50
+	extern vm_trap51
+	extern vm_trap52
+	extern vm_trap53
+	extern vm_trap54
+	extern vm_trap55
+	extern vm_trap56
+	extern vm_trap57
+	extern vm_trap70
+	extern vm_trap71
+	extern vm_trap72
+	extern vm_trap73
+	extern vm_trap74
+	extern vm_trap75
+	extern vm_trap76
+	extern vm_trap77
 
-	extrn	EMM_pEntry:far
+	extern EMM_pEntry
 
-_TEXT ENDS
+; END SECTION ._TEXT
 
 
 ;***	GDT - Global Descriptor Table
@@ -100,9 +100,9 @@ _TEXT ENDS
 ;	routines which initialise the gdt.
 ;
 
-GDT SEGMENT
+SECTION .GDT
 
-gdtstart	label byte	; label for everyone to refer to the GDT
+gdtstart:; label for everyone to refer to the GDT
 
 GDT_ENTRY	0, 0, 1, 0			; null selector
 GDT_ENTRY	0, 0, 0, D_DATA0		; GDT alias
@@ -144,10 +144,10 @@ GDT_ENTRY	0, 0, 0, D_DATA0		; OEM2 entry
 GDT_ENTRY	0, 0, 0, D_DATA0		; OEM3 entry
 GDT_ENTRY	0, 0, 0, D_DATA0		; USER1 entry
 
-	public	GDTLEN
+	global GDTLEN
 GDTLEN		equ	$ - gdtstart
 
-GDT ENDS
+; END SECTION .GDT
 
 
 ;***	TSS for protected Mode
@@ -158,21 +158,21 @@ GDT ENDS
 ;
 ;
 
-TSS	segment
+SECTION .TSS
 ;
 	TssArea 	TSS386STRUC	<>
 ;
 ;   I/O Bit Map for Virtual Mode I/O trapping
 ;
-	public	IOBitMap
-IOBitMap	label	byte
+	global IOBitMap
+IOBitMap:
 	db	2000h dup (0)		; initialize all ports to NO trapping
 	db	0FFh			; last byte is all 1's
 
-	public	TSSLEN
+	global TSSLEN
 TSSLEN		equ	$ - tss
 
-TSS	ends
+; END SECTION .TSS
 
 ;***	IDT for protected mode
 ;
@@ -187,27 +187,27 @@ TSS	ends
 ;   the 8259s base vector for some reason - don't know of any DOS apps
 ;   that do this.
 ;
-IDT SEGMENT
+SECTION .IDT
 
-idtstart	label byte
+idtstart:
 
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap00>,D_386INT0 ; 00 Divide Error
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap01>,D_386INT0 ; 01 Debug
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap02>,D_386INT0 ; 02 NMI/287 Error
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap03>,D_386INT0 ; 03 Breakpoint
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap04>,D_386INT0 ; 04 INTO
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap05>,D_386INT0 ; 05 BOUND/Print Screen
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap06>,D_386INT0 ; 06 Invalid Opcode
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap07>,D_386INT0 ; 07 287 Not Available
+IDT_ENTRY	VDMC_GSEL,<vm_trap00>,D_386INT0 ; 00 Divide Error
+IDT_ENTRY	VDMC_GSEL,<vm_trap01>,D_386INT0 ; 01 Debug
+IDT_ENTRY	VDMC_GSEL,<vm_trap02>,D_386INT0 ; 02 NMI/287 Error
+IDT_ENTRY	VDMC_GSEL,<vm_trap03>,D_386INT0 ; 03 Breakpoint
+IDT_ENTRY	VDMC_GSEL,<vm_trap04>,D_386INT0 ; 04 INTO
+IDT_ENTRY	VDMC_GSEL,<vm_trap05>,D_386INT0 ; 05 BOUND/Print Screen
+IDT_ENTRY	VDMC_GSEL,<vm_trap06>,D_386INT0 ; 06 Invalid Opcode
+IDT_ENTRY	VDMC_GSEL,<vm_trap07>,D_386INT0 ; 07 287 Not Available
 
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap08>,D_386INT0 ; 08 Double Exception/Timer
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap09>,D_386INT0 ; 09 (not on 386)/Keyboard
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap0a>,D_386INT0 ; 0A Invalid TSS/Cascade
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap0b>,D_386INT0 ; 0B Segment Not Present/COM2
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap0c>,D_386INT0 ; 0C Stack Fault/COM1
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap0d>,D_386INT0 ; 0D General Protection/LPT2
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap0e>,D_386INT0 ; 0E Page Fault/Diskette
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap0F>,D_386INT0 ; 0F Intel Reserved/LPT1
+IDT_ENTRY	VDMC_GSEL,<vm_trap08>,D_386INT0 ; 08 Double Exception/Timer
+IDT_ENTRY	VDMC_GSEL,<vm_trap09>,D_386INT0 ; 09 (not on 386)/Keyboard
+IDT_ENTRY	VDMC_GSEL,<vm_trap0a>,D_386INT0 ; 0A Invalid TSS/Cascade
+IDT_ENTRY	VDMC_GSEL,<vm_trap0b>,D_386INT0 ; 0B Segment Not Present/COM2
+IDT_ENTRY	VDMC_GSEL,<vm_trap0c>,D_386INT0 ; 0C Stack Fault/COM1
+IDT_ENTRY	VDMC_GSEL,<vm_trap0d>,D_386INT0 ; 0D General Protection/LPT2
+IDT_ENTRY	VDMC_GSEL,<vm_trap0e>,D_386INT0 ; 0E Page Fault/Diskette
+IDT_ENTRY	VDMC_GSEL,<vm_trap0F>,D_386INT0 ; 0F Intel Reserved/LPT1
 
 IDT_ENTRY	0, 0, 0 		; 10 [287 Error]/Video INT (This exception
 					;    cannot occur on AT architecture)
@@ -286,14 +286,14 @@ IDT_ENTRY	0, 0, 0 		; 4F Reserved
 ;  The following table entries assume the master 8259 base vector has been
 ;  set up to 50h.
 ;
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap50>,D_386INT0 ; 50 Timer Interrupt
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap51>,D_386INT0 ; 51 Keyboard Interrupt
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap52>,D_386INT0 ; 52 Misc peripheral Interrupt
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap53>,D_386INT0 ; 53 COM2
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap54>,D_386INT0 ; 54 COM1
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap55>,D_386INT0 ; 55 2nd Parallel
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap56>,D_386INT0 ; 56 Diskette Interrupt
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap57>,D_386INT0 ; 57 1st Parallel
+IDT_ENTRY	VDMC_GSEL,<vm_trap50>,D_386INT0 ; 50 Timer Interrupt
+IDT_ENTRY	VDMC_GSEL,<vm_trap51>,D_386INT0 ; 51 Keyboard Interrupt
+IDT_ENTRY	VDMC_GSEL,<vm_trap52>,D_386INT0 ; 52 Misc peripheral Interrupt
+IDT_ENTRY	VDMC_GSEL,<vm_trap53>,D_386INT0 ; 53 COM2
+IDT_ENTRY	VDMC_GSEL,<vm_trap54>,D_386INT0 ; 54 COM1
+IDT_ENTRY	VDMC_GSEL,<vm_trap55>,D_386INT0 ; 55 2nd Parallel
+IDT_ENTRY	VDMC_GSEL,<vm_trap56>,D_386INT0 ; 56 Diskette Interrupt
+IDT_ENTRY	VDMC_GSEL,<vm_trap57>,D_386INT0 ; 57 1st Parallel
 
 IDT_ENTRY	0, 0, 0 		; 58 Reserved
 IDT_ENTRY	0, 0, 0 		; 59 Reserved
@@ -312,7 +312,7 @@ IDT_ENTRY	0, 0, 0 		; 64 User Programs
 IDT_ENTRY	0, 0, 0 		; 65 User Programs
 IDT_ENTRY	0, 0, 0 		; 66 User Programs
 ;;;IDT_ENTRY	0, 0, 0 		; 67 User Programs
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:EMM_pEntry>,D_386INT3 ; 67 ELIM
+IDT_ENTRY	VDMC_GSEL,<EMM_pEntry>,D_386INT3 ; 67 ELIM
 
 IDT_ENTRY	0, 0, 0 		; 68 Not Used
 IDT_ENTRY	0, 0, 0 		; 69 Not Used
@@ -323,35 +323,35 @@ IDT_ENTRY	0, 0, 0 		; 6D Not Used
 IDT_ENTRY	0, 0, 0 		; 6E Not Used
 IDT_ENTRY	0, 0, 0 		; 6F Not Used
 
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap70>,D_386INT0 ; 70 IRQ8 - Real Time Clock
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap71>,D_386INT0 ; 71 IRQ9
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap72>,D_386INT0 ; 72 IRQ10
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap73>,D_386INT0 ; 73 IRQ11
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap74>,D_386INT0 ; 74 IRQ12
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap75>,D_386INT0 ; 75 IRQ13 - 287 error
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap76>,D_386INT0 ; 76 IRQ14 - Fixed disk
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:vm_trap77>,D_386INT0 ; 77 IRQ15
+IDT_ENTRY	VDMC_GSEL,<vm_trap70>,D_386INT0 ; 70 IRQ8 - Real Time Clock
+IDT_ENTRY	VDMC_GSEL,<vm_trap71>,D_386INT0 ; 71 IRQ9
+IDT_ENTRY	VDMC_GSEL,<vm_trap72>,D_386INT0 ; 72 IRQ10
+IDT_ENTRY	VDMC_GSEL,<vm_trap73>,D_386INT0 ; 73 IRQ11
+IDT_ENTRY	VDMC_GSEL,<vm_trap74>,D_386INT0 ; 74 IRQ12
+IDT_ENTRY	VDMC_GSEL,<vm_trap75>,D_386INT0 ; 75 IRQ13 - 287 error
+IDT_ENTRY	VDMC_GSEL,<vm_trap76>,D_386INT0 ; 76 IRQ14 - Fixed disk
+IDT_ENTRY	VDMC_GSEL,<vm_trap77>,D_386INT0 ; 77 IRQ15
 
-	public	IDTLEN
+	global IDTLEN
 idtlen		equ	this byte - idtstart
 
-IDT ends
+; END SECTION .IDT
 
-PAGESEG 	SEGMENT
+SECTION .PAGESEG
 ;***	Page Tables Area
 ;
 ;	This area is used for the page directory and page tables
 ;
 
-	public	P_TABLE_CNT
+	global P_TABLE_CNT
 P_TABLE_CNT	equ	5	; # of page tables
 
-	public	Page_Area
-Page_Area	label	byte
+	global Page_Area
+Page_Area:
 	db	(2+P_TABLE_CNT) * P_SIZE dup	(0)	; enough for page dir &
 							; tables after page
 							; alignment.
-PAGESEG ENDS
+; END SECTION .PAGESEG
 
-	END
+	; END
 

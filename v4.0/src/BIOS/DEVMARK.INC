@@ -1,12 +1,12 @@
 ;Structure, Equtes for DEVMARK for MEM command.
 
-DEVMARK struc
+struc DEVMARK
 DEVMARK_ID	  db	  0
 DEVMARK_SEG	  dw	  0
 DEVMARK_SIZE	  dw	  0
-DEVMARK_DUM	  db	  3 dup (?)
-DEVMARK_FILENAME  db	  8 dup (' ')
-DEVMARK ends
+DEVMARK_DUM: times 3 db 0
+DEVMARK_FILENAME: times 8 db ' '
+endstruc
 
 DEVMARK_STK	equ	'S'
 DEVMARK_DEVICE	equ	'D'

@@ -1,6 +1,6 @@
 ;       SCCSID = @(#)rom.asm    1.1 85/04/10
-TITLE   ROM - Miscellaneous routines
-NAME    ROM
+; TITLE   ROM - Miscellaneous routines
+; NAME    ROM
 ; Misc Low level routines for doing simple FCB computations, Cache
 ;       reads and writes, I/O optimization, and FAT allocation/deallocation
 ;
@@ -26,21 +26,21 @@ NAME    ROM
 ;
 ; get the appropriate segment definitions
 ;
-.xlist
-include dosseg.asm
-include fastseek.inc			       ; DOS 4.00
-include fastxxxx.inc			       ; DOS 4.00
-include version.inc
+; .xlist
+%include "dosseg.asm"
+%include "fastseek.inc"; DOS 4.00
+%include "fastxxxx.inc"; DOS 4.00
+%include "version.inc"
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-        ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+        ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-include EA.inc
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+%include "EA.inc"
+; .cref
+; .list
 
         i_need  CLUSNUM,WORD
         i_need  NEXTADD,WORD
@@ -83,7 +83,7 @@ Break   <FNDCLUS -- Skip over allocation units>
 
         procedure   FNDCLUS,NEAR
         DOSAssume   CS,<DS>,"FndClus"
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         Assert      ISDPB,<ES,BP>,"FndCLus"
 ;; 10/31/86 FastSeek
@@ -211,7 +211,7 @@ Break  <BUFSEC -- BUFFER A SECTOR AND SET UP A TRANSFER>
 
         procedure   BUFSEC,NEAR
         DOSAssume   CS,<DS>,"BufSec"
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         Assert      ISDPB,<ES,BP>,"BufSec"
         MOV     DX,[CLUSNUM]
@@ -220,7 +220,7 @@ Break  <BUFSEC -- BUFFER A SECTOR AND SET UP A TRANSFER>
         CALL    FIGREC
         invoke  GETBUFFR
         retc
-        MOV     BYTE PTR [TRANS],1      ; A transfer is taking place
+        MOV     byte [TRANS],1      ; A transfer is taking place
         MOV     SI,[NEXTADD]
         MOV     DI,SI
         MOV     CX,[BYTCNT1]
@@ -243,7 +243,7 @@ Break   <BUFRD, BUFWRT -- PERFORM BUFFERED READ AND WRITE>
 
         procedure   BUFRD,NEAR
         DOSAssume   CS,<DS>,"BufRd"
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         Assert      ISDPB,<ES,BP>,"BufRd"
         PUSH    ES
@@ -258,7 +258,7 @@ BUF_OK:
         MOV     BX,ES
         MOV     ES,[DMAADD+2]
         MOV     DS,BX
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         XCHG    DI,SI
         SHR     CX,1
         JNC     EVENRD
@@ -290,20 +290,20 @@ EndProc BUFRD
 
         procedure   BUFWRT,NEAR
         DOSAssume   CS,<DS>,"BufWrt"
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         Assert      ISDPB,<ES,BP>,"BufWrt"
-        MOV     AX,WORD PTR [SECPOS]
+        MOV     AX,word [SECPOS]
         ADD     AX,1            ; Set for next sector
-        MOV     WORD PTR [SECPOS],AX      ;F.C. >32mb                           ;AN000;
-        ADC     WORD PTR [SECPOS+2],0     ;F.C. >32mb                           ;AN000;
-        MOV     AX,WORD PTR [SECPOS+2]    ;F.C. >32mb                           ;AN000;
-        CMP     AX,WORD PTR [VALSEC+2]    ;F.C. >32mb                           ;AN000;
+        MOV     word [SECPOS],AX      ;F.C. >32mb                           ;AN000;
+        ADC     word [SECPOS+2],0     ;F.C. >32mb                           ;AN000;
+        MOV     AX,word [SECPOS+2]    ;F.C. >32mb                           ;AN000;
+        CMP     AX,word [VALSEC+2]    ;F.C. >32mb                           ;AN000;
         MOV     AL,1                      ;F.C. >32mb                           ;AN000;
         JA      NOREAD                    ;F.C. >32mb                           ;AN000;
         JB      doread                    ;F.C. >32mb                           ;AN000;
-        MOV     AX,WORD PTR [SECPOS]      ;F.C. >32mb                           ;AN000;
-        CMP     AX,WORD PTR [VALSEC]     ; Has sector been written before?
+        MOV     AX,word [SECPOS]      ;F.C. >32mb                           ;AN000;
+        CMP     AX,word [VALSEC]     ; Has sector been written before?
         MOV     AL,1
         JA      NOREAD          ; Skip preread if SECPOS>VALSEC
 doread:
@@ -313,7 +313,7 @@ NOREAD:
         CALL    BUFSEC
         JC      BUF_IO_FAIL
         MOV     DS,[DMAADD+2]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         SHR     CX,1
         JNC     EVENWRT
         MOVSB
@@ -352,10 +352,10 @@ Break   <NEXTSEC -- Compute next sector to read or write>
 
         procedure   NEXTSEC,NEAR
         DOSAssume   CS,<DS>,"NextSec"
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         Assert      ISDPB,<ES,BP>,"NextSec"
-        TEST    BYTE PTR [TRANS],-1
+        TEST    byte [TRANS],-1
         JZ      CLRET
         MOV     AL,[SECCLUSPOS]
         INC     AL
@@ -430,7 +430,7 @@ Break   <OPTIMIZE -- DO A USER DISK REQUEST WELL>
 
         procedure   OPTIMIZE,NEAR
         DOSAssume   CS,<DS>,"Optimize"
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         Assert      ISDPB,<ES,BP>,"Optimize"
         PUSH    DX
@@ -537,7 +537,7 @@ Break   <FIGREC -- Figure sector in allocation unit>
 ; No other registers affected.
 
         procedure   FIGREC,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
         Assert      ISDPB,<ES,BP>,"FigRec"
         PUSH    CX
@@ -645,7 +645,7 @@ Break   <ALLOCATE -- Assign disk space>
         PROCEDURE   ALLOCATE,NEAR
 
         DOSAssume   CS,<DS>,"Allocate"
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         Assert      ISDPB,<ES,BP>,"Allocate"
         PUSH    BX                      ; save (bx)
@@ -780,15 +780,15 @@ do_norm5:
 ;   of the disk...
 
 ads7:   cmp     es:[bp.dpb_next_free],2
-if not debug
+%if not debug
         jz      tmplab2         ;
         jmp     ads1            ; start scan from front of disk
 tmplab2:
-else
+%else
         jz      tmplab
         jmp     ads1
 tmplab:
-endif
+%endif
 
 ;   Sorry, we've gone over the whole disk, with insufficient luck.  Lets give
 ;   the space back to the free list and tell the caller how much he could have
@@ -822,7 +822,7 @@ EndProc ALLOCATE
 
         procedure   RESTFATBYT,NEAR
         DOSAssume   CS,<DS>,"RestFATByt"
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         PUSH    BX
         PUSH    DX
@@ -848,7 +848,7 @@ Break   <RELEASE -- DEASSIGN DISK SPACE>
 
         procedure   RELEASE,NEAR
         DOSAssume   CS,<DS>,"Release"
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         XOR     DX,DX
 entry   RELBLKS
@@ -893,7 +893,7 @@ Break   <GETEOF -- Find the end of a file>
 
         procedure   GETEOF,NEAR
         DOSAssume   CS,<DS>,"GetEOF"
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         Assert      ISDPB,<ES,BP>,"GetEof"
         invoke  UNPACK
@@ -918,7 +918,7 @@ Break   <FS_TRUNC_EOF - truncate EOF for Fastseek>
 ;       carry clear: EOF and do truncate
 
         procedure   FS_TRUNC_EOF,NEAR
-        ASSUME  ES:NOTHING,DS:NOTHING
+        ; ASSUME  ES:NOTHING,DS:NOTHING
 
         MOV     BX,DI                             ; get beginning physical#     ;AN000;
         invoke  IsEOF                             ; is EOF                      ;AN000;
@@ -933,6 +933,6 @@ noteof2:                                                                        
         return                                                                  ;AN000;
 EndProc FS_TRUNC_EOF                                                            ;AN000;
 
-CODE    ENDS
-    END
+; END SECTION .CODE
+    ; END
 

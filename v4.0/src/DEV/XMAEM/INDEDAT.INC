@@ -1,4 +1,4 @@
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                             *
 * MODULE NAME     : INDEDAT                                                   *
@@ -49,7 +49,7 @@ COMMENT #
 ; stack.  BP is set to point to the beginning of the register save area.  This
 ; is the mapping of the resulting stack.
 
-BPSTACK STRUC
+struc BPSTACK
 
 BP_ES   DW      0             ; Interrptee's ES
 BP_DI   DW      0             ; Interruptee's EDI (32 bit DI)
@@ -95,19 +95,19 @@ BP_VMGS DW      0             ; Virtual mode GS
         DW      0
 BP_STK  DW      0             ; The rest of the stack
 
-BPSTACK ENDS
+endstruc
 
 BP_START EQU    0             ; Offset from BP of the start of the stack info
 
-SUBTTL   80386 TSS - Task State Segment
-PAGE
+; SUBTTL   80386 TSS - Task State Segment
+; PAGE
 ;*************************************************
 ;                                                *
 ;         Start of Debugger's 386 TSS            *
 ;                                                *
 ;*************************************************
 
-TSS386          STRUC
+struc TSS386
                 DW      0     ; Intel reserved
 ETSS_BACK_LINK  DW      0     ; Back link to previous TSS
 ETSS_SP0        DW      0     ; ESP for privilege level 0
@@ -151,17 +151,17 @@ ETSS_LDT        DW      0     ; Selector for task's LDT
 ETSS_TRAP       DW      0     ; Trap bit - bit 0 (IBM bit 15)
 ETSS_BM_OFFSET  DW      0     ; I/O bit map base
 ETSS_AVL        DD      0
-TSS386          ENDS
+endstruc
 TSS_386_LEN     EQU     68H   ; Length of the TSS
 TSS_BM_LEN      EQU     0FFFH-TSS_386_LEN  ; Length of the I/O bit map
                               ; The bit map is in the same segment as the TSS
                               ;   therefore the descriptor fot the TSS segment
                               ;   must have enough room to include the bit map.
 
-SUBTTL  GDT - Global Descriptor Table
-PAGE
+; SUBTTL  GDT - Global Descriptor Table
+; PAGE
 
-SUBTTL  GDT - GLOBAL DESCRIPTOR TABLE
+; SUBTTL  GDT - GLOBAL DESCRIPTOR TABLE
 
 ;       THE GLOBAL DESCRIPTOR TABLE DEFINITION
 ;       === ====== ========== ===== ==========
@@ -169,7 +169,7 @@ SUBTTL  GDT - GLOBAL DESCRIPTOR TABLE
 
 GDT_LEN         EQU     512 * 8       ; 512 entries total
 
-GDT_DEF         STRUC
+struc GDT_DEF
 
 UNUSED_ENTRY    DQ      0             ; Seg reg = 0 illegal - this entry is
                                       ; not accessible
@@ -216,18 +216,18 @@ MON_TR_OI       DQ      0             ;  "      "       "    "  control-break
 
 KBD_OWNER_SDA   DQ      0             ; Fast path to keyboard owner's SDA
 
-VTIMER_VECTOR   DB     16 DUP (8 DUP(0))      ; 16 VM timer-related descriptors
+VTIMER_VECTOR: times 16 db 8 DUP(0; 16 VM timer-related descriptors
 
 ;       Below are the 32 system exception service routine descriptors.
 
-SEX_TSS         DB      32 DUP (8 DUP(0))
+SEX_TSS: times 32 db 8 DUP(0
 
 ;       Below are the 16 hardware interrupt service routine TSS descriptor
 ;       pairs.  The first is suitable for TR loading (i.e. target selector
 ;       in the corresponding task gate) and the other is a TSS-as-data
 ;       descriptor.
 
-HWI_TSS         DB      16 DUP (16 DUP(0))
+HWI_TSS: times 16 db 16 DUP(0
 
 ;       This is the descriptor pair for the dispatcher (same format as HWI).
 
@@ -252,7 +252,7 @@ RSVD_GDT        DQ      0
                                       ; The above leaves space for the
                                       ; descriptors needed for 18 VMs
 
-PM_VM           DB     32 DUP (0)     ; Program Manager's virtual machine
+PM_VM: times 32 db 0; Program Manager's virtual machine
                                       ; entries.  This will function as
                                       ; the highest priority machine.
 USER_CS         DQ      0             ; Debugee's code segment
@@ -264,15 +264,15 @@ USER_TSS_DAT    DQ      0             ; Debugee's TSS as a data segment
 USER_LDT        DQ      0             ; Debugee's LDT definition
 USER_LDT_DAT    DQ      0             ; Debugee's LDT as a data segment
 
-USER_VMS        DB     14 DUP (32 DUP(0))     ; 16 user VMs
+USER_VMS: times 14 db 32 DUP(0; 16 user VMs
 
-SCRUBBER        DB     32 DUP (0)     ; RAM scrubber - dispatched when no other
+SCRUBBER: times 32 db 0; RAM scrubber - dispatched when no other
                                       ; machine has work to do
 last_gdt_byte   db     0              ; marker for last GDT byte + 1
-GDT_DEF         ENDS
+endstruc
 
-SUBTTL  Virtual Machine Entry
-PAGE
+; SUBTTL  Virtual Machine Entry
+; PAGE
 ;       Virtual Machine Entry Definition - consists of 4 descriptors
 ;
 ;               - Pointer to TSS, loadable into the Task Register
@@ -284,17 +284,17 @@ PAGE
 ;       system registers,  TR and LDTR.  The second allows dynamic access
 ;       and modification of descriptors by the system.
 
-VM_GDT_ENTRY    STRUC
+struc VM_GDT_ENTRY
 
 VM_TR           DQ      0             ; TR value for this machine's TSS
 TSS_PTR         DQ      0             ; Data pointer to this machine's TSS
 VM_LDTR         DQ      0             ; LDTR value for this machine's LDT
 LDT_PTR         DQ      0             ; Data pointer to this machine's LDT
 
-VM_GDT_ENTRY    ENDS
+endstruc
 
-SUBTTL  80286 Segment Descriptor
-PAGE
+; SUBTTL  80286 Segment Descriptor
+; PAGE
 ;       DESCRIPTOR TABLE ENTRY STRUCTURES
 ;       ========== ===== ===== ==========
 ;
@@ -304,7 +304,7 @@ PAGE
 ;       segments, local, global, and interrupt descriptor table segments,
 ;       and task state segments.
 
-DATA_DESC       STRUC
+struc DATA_DESC
 
 SEG_LIMIT       DW      0             ; Segment limit (1 - 65535 bytes)
 BASE_LO_WORD    DW      0             ; 24 bit segment physical address
@@ -312,18 +312,18 @@ BASE_HI_BYTE    DB      0             ;   (0 - (16M-1))
 DATA_ACC_RIGHTS DB      0             ; Access rights byte
 DATA_RESERVED   DW      0             ; Intel reserved
 
-DATA_DESC       ENDS
+endstruc
 
 SHADOW_ID       EQU     DATA_RESERVED ; For garbage collection
 
-SUBTTL  80286 Gate Descriptor
-PAGE
+; SUBTTL  80286 Gate Descriptor
+; PAGE
 ;       80286 Gate Descriptor
 
 ;       The following type of descriptor applies to task gates, call gates,
 ;       interrupt gates, and trap gates.
 
-GATE_DESC       STRUC
+struc GATE_DESC
 
 ENTRY_POINT     DW      0             ; Destination routine entry point
                                       ;   within the target segment.
@@ -344,14 +344,14 @@ WORD_COUNT      DB      0             ; For call gates only - number of
 GATE_ACC_RIGHTS DB      0             ; Access rights byte
 GATE_RESERVED   DW      0             ; Intel reserved
 
-GATE_DESC       ENDS
+endstruc
 
 ;       Record for the fields in a selector
 
 SELECTOR        RECORD  INDEX:13,TI:1,RPL:2   ; Standard 286 selector format
 
-SUBTTL  TSS - Task State Segment
-PAGE
+; SUBTTL  TSS - Task State Segment
+; PAGE
 ;       TASK STATE SEGMENT
 ;       ==== ===== =======
 ;
@@ -372,7 +372,7 @@ PAGE
 ;       data.
 
 
-TASK_STATE_286  STRUC
+struc TASK_STATE_286
 
 BACK_LINK       DW      0               ; TSS selector from whence we came
 VM_SP0          DW      0               ; SS:SP for CPL 0
@@ -397,13 +397,13 @@ VM_SS           DW      0               ;          Selectors
 VM_DS           DW      0               ;
 VM_LDT          DW      0               ; Selector for this task's LDT
 
-TASK_STATE_286  ENDS
+endstruc
 
 ;       Note that the actual stacks for CPLs 2, 1, and 0 are part of the
 ;       task state segment.  CPL 3's stack is in its own address space.
 
-SUBTTL  Length Equates
-PAGE
+; SUBTTL  Length Equates
+; PAGE
 ;       Length equates
 
 LA_LEN          EQU     GDT_LEN         ; For new monitor
@@ -443,8 +443,8 @@ NULL_SEG_LEN    EQU     00000H          ; Null segment length = 0
 THIRTY_TWO_K    EQU     08000H          ; Unit of virtual machine size
 
 
-SUBTTL  Location Equates
-PAGE
+; SUBTTL  Location Equates
+; PAGE
 
 
 ;       Location equates
@@ -496,8 +496,8 @@ SS_HI_CACHE     EQU     000H            ;   compatible cache
 
 OTHER_CACHE     EQU     00000H          ; GP zero cache
 
-SUBTTL  Display Equates
-PAGE
+; SUBTTL  Display Equates
+; PAGE
 
 ;       The next equates are system definitions for display buffer addresses.
 
@@ -532,4 +532,4 @@ NSEG@_HI        EQU     00H             ;
 
 VIRTUAL_ENABLE  EQU     0000000000000001B
 
-SUBTTL
+; SUBTTL

@@ -27,54 +27,54 @@
 ;   08/06/86  0.05	Broke out OEMPROC.ASM from OEMDEP.INC
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 
-_TEXT	segment
+SECTION ._TEXT
 
-extrn	MaskIntAll:near 		; Mask interrupts routine
-extrn	RestIntMask:near		; restore interrupt mask routine
+extern MaskIntAll; Mask interrupts routine
+extern RestIntMask; restore interrupt mask routine
 
-extrn	Map_Lin_OEM:near		; MapLinear hook
-extrn	UMap_Lin_OEM:near		; UnMapLinear hook
-extrn	MB_Map_Src:near 		; Move block map source hook
-extrn	MB_Map_Dest:near		; Move block map destination hook
-extrn	MB_Start:near			; Move block start move hook
+extern Map_Lin_OEM; MapLinear hook
+extern UMap_Lin_OEM; UnMapLinear hook
+extern MB_Map_Src; Move block map source hook
+extern MB_Map_Dest; Move block map destination hook
+extern MB_Start; Move block start move hook
 
-_TEXT	ends
+; END SECTION ._TEXT
 
 
-LAST	segment
+SECTION .LAST
 
-extrn	VerifyMachine:near		; Verify machine valid for software
+extern VerifyMachine; Verify machine valid for software
 
-LAST	ends
+; END SECTION .LAST
 
-ifndef	NOHIMEM 			; only for high memory
+%ifndef NOHIMEM; only for high memory
 
 ;Define routines in OEMPROC module
 
-_TEXT	segment
+SECTION ._TEXT
 
-extrn	HwMemLock:near
-extrn	HwMemUnlock:near
+extern HwMemLock
+extern HwMemUnlock
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-LAST	segment
+SECTION .LAST
 
-extrn	hbuf_chk:near
-extrn	HiAlloc:near
-extrn	HiSysAlloc:near
-extrn	HImod:near
-extrn	LockROM:near
-extrn	UnLockROM:near
+extern hbuf_chk
+extern HiAlloc
+extern HiSysAlloc
+extern HImod
+extern LockROM
+extern UnLockROM
 
-LAST	ends
+; END SECTION .LAST
 
-endif
+%endif
 
 ;******************************************************************************
 ;
@@ -83,11 +83,11 @@ endif
 ;	EXIT:	FS points to DIAG segment
 ;		high system RAM writeable
 ;
-HwTabUnlock	MACRO
-ifndef	NOHIMEM 			; only for high memory
+%macro HwTabUnlock 0
+%ifndef NOHIMEM; only for high memory
 	call	HwMemUnlock
-endif
-	ENDM
+%endif
+	%endmacro
 
 ;******************************************************************************
 ;
@@ -101,11 +101,11 @@ endif
 ;		Bit 1 = 0 => write protect ON
 ;		Bit 1 = 1 => write protect OFF
 ;
-HwTabLock	MACRO
-ifndef	NOHIMEM 			; only for high memory
+%macro HwTabLock 0
+%ifndef NOHIMEM; only for high memory
 	call	HwMemLock
-endif
+%endif
 
-	ENDM
+	%endmacro
 
-.list	; end of OEMDEP.INC
+; .list; end of OEMDEP.INC

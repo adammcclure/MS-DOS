@@ -40,16 +40,16 @@
 ;	defined during assembly then the  marco produce no code.
 ;
 
-	IF	iTEST							  ;3.30
-	   IFNDEF MSGOUT						  ;3.30
-		EXTRN	MSGOUT:NEAR,MSGNUM:NEAR 			  ;3.30
-	   ENDIF							  ;3.30
-	   IFNDEF NUMBUF						  ;3.30
-	    EXTRN   NUMBUF:BYTE,DIGITS:BYTE,FTESTBITS:WORD		  ;3.30
-	   ENDIF							  ;3.30
-	   IFNDEF DUMPBYTES						  ;3.30
-		EXTRN	DUMPBYTES:NEAR,OUTCHAR:NEAR,HEX_TO_ASCII:NEAR	  ;3.30
-	   ENDIF							  ;3.30
+	%if iTEST;3.30
+	   %ifndef MSGOUT;3.30
+		extern MSGOUT,MSGNUM;3.30
+	   %endif;3.30
+	   %ifndef NUMBUF;3.30
+	    extern NUMBUF,DIGITS,FTESTBITS;3.30
+	   %endif;3.30
+	   %ifndef DUMPBYTES;3.30
+		extern DUMPBYTES,OUTCHAR,HEX_TO_ASCII;3.30
+	   %endif;3.30
 
 
 
@@ -68,48 +68,48 @@ FtestClock  equ     0000000010000000b	; wathc clock device  5/2/86  ;3.30
 ; message macro -- see above for description
 ;
 
-MESSAGE MACRO	Bits,msg
-	    LOCAL   A,B 						  ;3.30
+%macro MESSAGE 2
+	    ; LOCAL A,B;3.30
 	jmp	SHORT b
 a:	db	msg,0
 b:	push	SI
 	push	AX
 	mov	AX,Bits
-	mov	SI,OFFSET a
+	mov	SI,a
 	call	MSGOUT
 	pop	AX
 	pop	SI
-endm
+%endmacro
 
 
 ;
 ; mnum macro -- see above for description
 ;
 
-MNum	MACRO	Bits,num
+%macro MNum 2
 	push	AX
-ifb <num>
+%if 0  ; IFB <num>
 	mov	AX,Bits
 	call	MSGNUM
-else
+%else
 	push	BX
 	mov	BX,num
 	mov	AX,Bits
 	call	MSGNUM
 	pop	BX
-endif
+%endif
 	pop	AX
-endm
+%endmacro
 
 
 ;
 ; zwait macro -- see above for description
 ;
 
-ZWAIT	MACRO
+%macro ZWAIT 0
 	Message fTestALL,<"? ">
 	CALL	ZWAITrtn
-ENDM
+%endmacro
 
 ZWAITrtn:
 	pushf				; save the flags
@@ -122,7 +122,7 @@ ZWAITrtn:
 
 ;Dump_byte dumps the memory contents in hex. 				  ;3.30
 ;DUMPOFFLABEL should be a label or a variable defined in DUMPSEG.	  ;3.30
-DUMP_BYTE	MACRO	DUMPSEG, DUMPOFFLABEL, BYTELENGTH		  ;3.30
+%macro DUMP_BYTE 3;3.30
 	push	es							  ;3.30
 	PUSH	DS							  ;3.30
 	PUSH	SI							  ;3.30
@@ -130,7 +130,7 @@ DUMP_BYTE	MACRO	DUMPSEG, DUMPOFFLABEL, BYTELENGTH		  ;3.30
 									  ;3.30
 	MOV	CX, DUMPSEG						  ;3.30
 	MOV	DS, CX							  ;3.30
-	MOV	SI, OFFSET DUMPOFFLABEL 				  ;3.30
+	MOV	SI, DUMPOFFLABEL 				  ;3.30
 	MOV	CX, BYTELENGTH						  ;3.30
 	call	dumpbytes						  ;3.30
 									  ;3.30
@@ -138,11 +138,11 @@ DUMP_BYTE	MACRO	DUMPSEG, DUMPOFFLABEL, BYTELENGTH		  ;3.30
 	POP	SI							  ;3.30
 	POP	DS							  ;3.30
 	pop	es							  ;3.30
-	ENDM								  ;3.30
+	%endmacro;3.30
 									  ;3.30
 ;Dump_Byte_Reg dumps the memory contents in hex. -  4/9/86		  ;3.30
 ;DUMPOFFREG should be a register contains the offset value in DUMPSEG.	  ;3.30
-DUMP_BYTE_REG	MACRO	DUMPSEG, DUMPOFFREG, BYTELENGTH 		  ;3.30
+%macro DUMP_BYTE_REG 3;3.30
 	push	es							  ;3.30
 	PUSH	DS							  ;3.30
 	PUSH	SI							  ;3.30
@@ -158,35 +158,35 @@ DUMP_BYTE_REG	MACRO	DUMPSEG, DUMPOFFREG, BYTELENGTH 		  ;3.30
 	POP	SI							  ;3.30
 	POP	DS							  ;3.30
 	pop	es							  ;3.30
-	ENDM								  ;3.30
+	%endmacro;3.30
 
-else
+%else
 		; if test is not defined then make macro into null statements
-Message macro
-ENDM
+%macro Message 0
+%endmacro
 
-MNUM	macro
-ENDM
+%macro MNUM 0
+%endmacro
 
-ZWAIT	macro
-ENDM
+%macro ZWAIT 0
+%endmacro
 
-DUMP_BYTE   MACRO							  ;3.30
-	    ENDM							  ;3.30
-DUMP_BYTE_REG MACRO							  ;3.30
-	    ENDM							  ;3.30
-	ENDIF								  ;3.30
+%macro DUMP_BYTE 0;3.30
+	    %endmacro;3.30
+%macro DUMP_BYTE_REG 0;3.30
+	    %endmacro;3.30
+	%endif;3.30
 									  ;3.30
-PATHSTART MACRO INDEX,ABBR						  ;3.30
-	IFDEF	PATHGEN 						  ;3.30
-	    PUBLIC  ABBR&INDEX&S,ABBR&INDEX&E				  ;3.30
+%macro PATHSTART 2;3.30
+	%ifdef PATHGEN;3.30
+	    global ABBR&INDEX&S,ABBR&INDEX&E;3.30
 	    ABBR&INDEX&S LABEL	 BYTE					  ;3.30
-	ENDIF								  ;3.30
-	ENDM								  ;3.30
+	%endif;3.30
+	%endmacro;3.30
 									  ;3.30
-PATHEND MACRO	INDEX,ABBR						  ;3.30
-	IFDEF	PATHGEN 						  ;3.30
+%macro PATHEND 2;3.30
+	%ifdef PATHGEN;3.30
 	    ABBR&INDEX&E LABEL	 BYTE					  ;3.30
-	ENDIF								  ;3.30
-	ENDM								  ;3.30
+	%endif;3.30
+	%endmacro;3.30
 

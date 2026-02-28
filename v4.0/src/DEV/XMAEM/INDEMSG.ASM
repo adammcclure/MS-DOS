@@ -1,7 +1,7 @@
-PAGE	60,132
-TITLE	INDEMSG - 80386 XMA Emulator - Messages
+; PAGE	60,132
+; TITLE	INDEMSG - 80386 XMA Emulator - Messages
 
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *									      *
 * MODULE NAME	  : INDEMSG						      *
@@ -60,17 +60,17 @@ COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #
 
-SUBTTL	   Messages							;   D0A
-PAGE									;   D0A
+; SUBTTL	   Messages;   D0A
+; PAGE;   D0A
 									;   D0A
-PROG	   SEGMENT PARA PUBLIC	'PROG'                                  ;   D0A
+SECTION .PROG;   D0A
 									;   D0A
-	   ASSUME  CS:PROG						;   D0A
-	   ASSUME  SS:NOTHING						;   D0A
-	   ASSUME  DS:PROG						;   D0A
-	   ASSUME  ES:NOTHING						;   D0A
+	   ; ASSUME  CS:PROG;   D0A
+	   ; ASSUME  SS:NOTHING;   D0A
+	   ; ASSUME  DS:PROG;   D0A
+	   ; ASSUME  ES:NOTHING;   D0A
 									;   D0A
-INDEMSG    LABEL   NEAR 						;   D0A
+INDEMSG:;   D0A
 									;   D0A
 ;---------------------------------------------------------------------------P2A;
 ; Declare messages that the emulator will display on the screen.  These     P2A;
@@ -80,17 +80,17 @@ INDEMSG    LABEL   NEAR 						;   D0A
 ; Note that the messages are declared 80 bytes long to facilitate world trade translation.	       P2A;
 ;---------------------------------------------------------------------------P2A;
 									;   P2A
-	   PUBLIC  WELCOME						;   P2A
-	   PUBLIC  GOODLOAD						;   P2A
-	   PUBLIC  NO_80386						;   P2A
-	   PUBLIC  WAS_INST						;   P2A
-	   Public  Small_Parm							;an000; dms;
-	   Public  No_Mem							;an000; dms;
+	   global WELCOME;   P2A
+	   global GOODLOAD;   P2A
+	   global NO_80386;   P2A
+	   global WAS_INST;   P2A
+	   global Small_Parm;an000; dms;
+	   global No_Mem;an000; dms;
 									;   P2A
 CR	   EQU	   13	     ; ASCII for a carriage return		;  @P2A
 LF	   EQU	   10	     ; ASCII for a line feed			;  @P2A
 									;   P2A
-INCLUDE    xmaem.cl1
+%include "xmaem.cl1"
 
-PROG	   ENDS 							;   D0A
-	   END								;   D0A
+; END SECTION .PROG;   D0A
+	   ; END;   D0A

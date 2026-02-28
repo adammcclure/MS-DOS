@@ -1,5 +1,5 @@
-	PAGE	,132			;
-TITLE	XCPYINIT - XCOPY INITIALIZATION PROGRAM - Ver. 4.00
+	; PAGE	,132;
+; TITLE	XCPYINIT - XCOPY INITIALIZATION PROGRAM - Ver. 4.00
 
 ;****************** START OF SPECIFICATIONS *****************************
 ; MODULE NAME: XCPYINIT
@@ -69,84 +69,84 @@ TITLE	XCPYINIT - XCOPY INITIALIZATION PROGRAM - Ver. 4.00
 ;
 ;****************** END OF SPECIFICATIONS *****************************
 ;EQUATES
-INCLUDE XCOPY.EQU
-INCLUDE DOS.EQU
-include versiona.inc
+%include "XCOPY.EQU"
+%include "DOS.EQU"
+%include "versiona.inc"
 
 ;
-CSEG	SEGMENT PUBLIC			;PLACE HOLDER FOR INIT CODE
-CSEG	ENDS
+SECTION .CSEG;PLACE HOLDER FOR INIT CODE
+; END SECTION .CSEG
 
 ;******************************************************************************
 
-DGROUP	GROUP	DSEG, DSEG_INIT
-DSEG	SEGMENT PARA	PUBLIC
+; DGROUP	GROUP	DSEG, DSEG_INIT
+SECTION .DSEG
 ;--- EXTERNAL VARIABLES ---
-EXTRN	ERRORLEVEL:BYTE
-EXTRN	PSP_SEG:WORD			;PSP segment ** USE OF ES SHOULD BE EXAMINED FURTHER
-EXTRN	SAV_DEFAULT_DRV:BYTE		;1 = A, 2 = B ...
-EXTRN	SAV_DEFAULT_DIR:BYTE
-EXTRN	SAV_S_DRV:BYTE
-EXTRN	SAV_S_CURDIR:BYTE
-EXTRN	SAV_T_DRV:BYTE
-EXTRN	SAV_T_CURDIR:BYTE
-EXTRN	TOP_OF_MEMORY:WORD
-EXTRN	S_DRV_NUMBER:BYTE		;source drive number, 1 = A, 2 = B ...
-EXTRN	T_DRV_NUMBER:BYTE		;target drive number
-EXTRN	SO_DRIVE:BYTE			;AN000;S DRIVE LETTER SPECIFIED IN PARSE
-EXTRN	S_DRV:BYTE
-EXTRN	S_DRV_1:BYTE
-EXTRN	S_DRV_PATH:BYTE 		;formal source drv, path
-EXTRN	S_PATH:BYTE
-EXTRN	T_DRV_PATH:BYTE 		;formal target drv, path
-EXTRN	T_PATH:BYTE
-EXTRN	TAR_DRIVE:BYTE			;AN000;T DRIVE LETTER SPECIFIED IN PARSE
-EXTRN	PARMS:DWORD			;AN000;PARSER PARAMETER CONTROL BLOCK
-EXTRN	CURRENT_PARM:WORD		;AN004;POINTER TO NEXT CMD LINE OPERAND
-EXTRN	T_DRV:BYTE			;target drv letter
-EXTRN	T_DRV_1:BYTE			;target drv letter
-EXTRN	T_DRV_2:BYTE
-EXTRN	S_FILE:BYTE			;source filename
-EXTRN	T_FILENAME:BYTE
-EXTRN	T_TEMPLATE:BYTE
-EXTRN	DISP_S_PATH:BYTE		;input mirror image source path
-EXTRN	DISP_T_PATH:BYTE		;input mirror image target path
-EXTRN	BUFFER_PTR:WORD
-EXTRN	BUFFER_BASE:WORD
-EXTRN	BUFFER_LEFT:WORD
-EXTRN	MAX_BUFFER_SIZE:WORD
-EXTRN	MAX_CX:WORD
-EXTRN	S_ARC_DRV:BYTE			;source drv, path for archieve bit handling
-EXTRN	S_ARC_PATH:BYTE
-EXTRN	T_MKDIR_LVL:BYTE		;# of target starting directories created.
-EXTRN	MSG_NUM:WORD			;AN000;MESSAGE NUMBER
-EXTRN	MSG_CLASS:BYTE			;AN000;MESSAGE CLASS
-EXTRN	INPUT_FLAG:BYTE 		;AN000;TYPE INT21 USED FOR KBD INPUT
-EXTRN	SUBST_COUNT:WORD		;AN000;MESSAGE SUBSTITUTION COUNT
-EXTRN	SUBLIST1:DWORD			;AN000;MSG SUBLIST USED BY INIT & MAIN
+extern ERRORLEVEL
+extern PSP_SEG;PSP segment ** USE OF ES SHOULD BE EXAMINED FURTHER
+extern SAV_DEFAULT_DRV;1 = A, 2 = B ...
+extern SAV_DEFAULT_DIR
+extern SAV_S_DRV
+extern SAV_S_CURDIR
+extern SAV_T_DRV
+extern SAV_T_CURDIR
+extern TOP_OF_MEMORY
+extern S_DRV_NUMBER;source drive number, 1 = A, 2 = B ...
+extern T_DRV_NUMBER;target drive number
+extern SO_DRIVE;AN000;S DRIVE LETTER SPECIFIED IN PARSE
+extern S_DRV
+extern S_DRV_1
+extern S_DRV_PATH;formal source drv, path
+extern S_PATH
+extern T_DRV_PATH;formal target drv, path
+extern T_PATH
+extern TAR_DRIVE;AN000;T DRIVE LETTER SPECIFIED IN PARSE
+extern PARMS;AN000;PARSER PARAMETER CONTROL BLOCK
+extern CURRENT_PARM;AN004;POINTER TO NEXT CMD LINE OPERAND
+extern T_DRV;target drv letter
+extern T_DRV_1;target drv letter
+extern T_DRV_2
+extern S_FILE;source filename
+extern T_FILENAME
+extern T_TEMPLATE
+extern DISP_S_PATH;input mirror image source path
+extern DISP_T_PATH;input mirror image target path
+extern BUFFER_PTR
+extern BUFFER_BASE
+extern BUFFER_LEFT
+extern MAX_BUFFER_SIZE
+extern MAX_CX
+extern S_ARC_DRV;source drv, path for archieve bit handling
+extern S_ARC_PATH
+extern T_MKDIR_LVL;# of target starting directories created.
+extern MSG_NUM;AN000;MESSAGE NUMBER
+extern MSG_CLASS;AN000;MESSAGE CLASS
+extern INPUT_FLAG;AN000;TYPE INT21 USED FOR KBD INPUT
+extern SUBST_COUNT;AN000;MESSAGE SUBSTITUTION COUNT
+extern SUBLIST1;AN000;MSG SUBLIST USED BY INIT & MAIN
 ;
-EXTRN	MY_FLAG:BYTE
-EXTRN	SYS_FLAG:BYTE
-EXTRN	COPY_STATUS:BYTE
-EXTRN	OPTION_FLAG:BYTE
+extern MY_FLAG
+extern SYS_FLAG
+extern COPY_STATUS
+extern OPTION_FLAG
 ;
-EXTRN	INPUT_DATE:WORD
-EXTRN	INPUT_TIME:WORD
+extern INPUT_DATE
+extern INPUT_TIME
 ;
 ;
-DSEG	ENDS
+; END SECTION .DSEG
 ;
-DSEG_INIT SEGMENT PARA PUBLIC		;AN000;
+SECTION .DSEG_INIT;AN000;
 ;--- Local variables for INIT which will be free into memory after init.
 ;----include file(s)------
-INCLUDE XINITMSG.EQU			;AN000;xcopy initialization, prompt msg
+%include "XINITMSG.EQU";AN000;xcopy initialization, prompt msg
 ;----variables------------
-S_INPUT_PARM DB 80 DUP (0)		;source image of input parm
-T_INPUT_PARM DB 80 DUP (0)		;target image of input parm
-T_TRANS_PATH DB 128 DUP (0)		;AN016;TARGET BUFFER FOR NAME TRANSLATE
-S_TRANS_PATH DB 128 DUP (0)		;AN016;SOURCE BUFFER FOR NAME TRANSLATE
+S_INPUT_PARM: times 80 db 0;source image of input parm
+T_INPUT_PARM: times 80 db 0;target image of input parm
+T_TRANS_PATH: times 128 db 0;AN016;TARGET BUFFER FOR NAME TRANSLATE
+S_TRANS_PATH: times 128 db 0;AN016;SOURCE BUFFER FOR NAME TRANSLATE
 
-PUBLIC	PARM_FLAG
+global PARM_FLAG
 PARM_FLAG DB	0
 ;	first_parm_flag equ	01h	;first parm entered in input parm
 ;	second_parm_flag equ	 02h	;second parm entered.
@@ -164,26 +164,26 @@ PARM1_FLAG DB	0
 ;	t_file_flag equ     08h 	;target filename entered
 ;	INV_SW_flag equ     10h 	;AN004;DUPLICATE OR INVALID SW ENTERED
 ;
-TEMP_T_FILENAME DB 15 DUP (0)		;temporary target filename holder
-FILENAME_FOR_PROMPT DB 15 DUP (0)	;upper case lettered TEMP_T_FILENAME for prompts
+TEMP_T_FILENAME: times 15 db 0;temporary target filename holder
+FILENAME_FOR_PROMPT: times 15 db 0;upper case lettered TEMP_T_FILENAME for prompts
 ;** The following definitions are used for "Does ... specify a file name
 ;** or directory name (F:file, D:directory)?.
-ALPHA_FILE DW	?			;AN000;THIS IS THE TRANSLATION OF 'F'
-ALPHA_DIR DW	?			;AN000;THIS IS THE TRANSLATION OF 'D'
-USER_INPUT DW	?			;AC000;KEYBOARD SAVE - MAY BE DBCS -
+ALPHA_FILE: dw 0;AN000;THIS IS THE TRANSLATION OF 'F'
+ALPHA_DIR: dw 0;AN000;THIS IS THE TRANSLATION OF 'D'
+USER_INPUT: dw 0;AC000;KEYBOARD SAVE - MAY BE DBCS -
 
 Maxdays db	31,28,31,30,31,30,31,31,30,31,30,31 ;Max days per month
-Day	db	?			;
-Month	db	?			;
-Year	dw	?			;
-Parmdate dw	?			;date parameter used in file date
+Day: db 0;
+Month: db 0;
+Year: dw 0;
+Parmdate: dw 0;date parameter used in file date
 ;
-COUNTRY_INFO DB 34 DUP (0)
+COUNTRY_INFO: times 34 db 0
 ;-------------------------------
 ;    Structures
 ;-------------------------------
 
-SUB_LIST STRUC				;AN000;MSG RETRIEVER SUBSTITUTION LST
+struc SUB_LIST;AN000;MSG RETRIEVER SUBSTITUTION LST
 	DB	11			;AN000;
 	DB	0			;AN000;
 DATA_OFF DW	0			;AN000; offset of data to be inserted
@@ -194,64 +194,64 @@ MAX_WIDTH DB	0			;AN000; Maximum field width
 MIN_WIDTH DB	0			;AN000; Minimum field width
 PAD_CHAR DB	0			;AN000; character for pad field
 
-SUB_LIST ENDS				;AN000;
+endstruc;AN000;
 
-DSEG_INIT ENDS
+; END SECTION .DSEG_INIT
 ;*******************************************************************************
 
-CSEG	SEGMENT PUBLIC			;ATTACHED TO MAIN PROGRAM
-	ASSUME	CS:CSEG, DS:DGROUP, ES:DGROUP
+SECTION .CSEG;ATTACHED TO MAIN PROGRAM
+	; ASSUME	CS:CSEG, DS:DGROUP, ES:DGROUP
 ;
 ;--- PUBLIC   PROCEDURES ---		;USED BY PARSER
-PUBLIC	GET_PARMS			;AN000;
+global GET_PARMS;AN000;
 ;---------------------------
 
 ;--- EXTERNAL PROCEDURES ---
-EXTRN	SET_BUFFER_PTR:NEAR
-EXTRN	STRING_LENGTH:NEAR
-EXTRN	CONCAT_ASCIIZ:NEAR
-EXTRN	LAST_DIR_OUT:NEAR
-EXTRN	CHK_DBCS:NEAR			;AN010;NEEDED TO PARSE THE PATH STRING
-EXTRN	COMPRESS_FILENAME:NEAR
-EXTRN	CHK_DRV_LETTER:NEAR
-EXTRN	SET_DEFAULT_DRV:NEAR
-EXTRN	PRINT_STDOUT:NEAR
-EXTRN	PRINT_STDERR:NEAR
-EXTRN	MAIN_EXIT:NEAR
-EXTRN	MAIN_EXIT_A:NEAR
-EXTRN	CTRL_BREAK_EXIT:NEAR
-EXTRN	PARSER:NEAR			;AN000;PROCESS THE KBD INPUT STRING
-EXTRN	SYSGETMSG:NEAR			;AN000;TO GET THE 'F'ILE or 'D'IRECTORY
-EXTRN	MY_INT24:WORD
+extern SET_BUFFER_PTR
+extern STRING_LENGTH
+extern CONCAT_ASCIIZ
+extern LAST_DIR_OUT
+extern CHK_DBCS;AN010;NEEDED TO PARSE THE PATH STRING
+extern COMPRESS_FILENAME
+extern CHK_DRV_LETTER
+extern SET_DEFAULT_DRV
+extern PRINT_STDOUT
+extern PRINT_STDERR
+extern MAIN_EXIT
+extern MAIN_EXIT_A
+extern CTRL_BREAK_EXIT
+extern PARSER;AN000;PROCESS THE KBD INPUT STRING
+extern SYSGETMSG;AN000;TO GET THE 'F'ILE or 'D'IRECTORY
+extern MY_INT24
 ;---
-EXTRN	SAV_INT24_OFF:WORD		;int 24, critical error handler addr.
-EXTRN	SAV_INT24_SEG:WORD
+extern SAV_INT24_OFF;int 24, critical error handler addr.
+extern SAV_INT24_SEG
 ;
 ;--- PARSER REFERENCES ---
 ;
-EXTRN	RESULT1:BYTE			;AN000;
-EXTRN	RESULT_PTR1:DWORD		;AN000;
-EXTRN	TYPE1:BYTE			;AN000;
-EXTRN	RESULT2:BYTE			;AN000;
-EXTRN	RESULT_PTR2:DWORD		;AN000;
-EXTRN	TYPE2:BYTE			;AN000;
-EXTRN	RESULTSW1:BYTE			;AN000;
-EXTRN	RESULTSWSYN:WORD		;AN000;
-EXTRN	SW_A:BYTE			;AN000;
-EXTRN	SW_E:BYTE			;AN000;
-EXTRN	SW_M:BYTE			;AN000;
-EXTRN	SW_P:BYTE			;AN000;
-EXTRN	SW_S:BYTE			;AN000;
-EXTRN	SW_V:BYTE			;AN000;
-EXTRN	SW_W:BYTE			;AN000;
-EXTRN	SW_D:BYTE			;AN000;
-EXTRN	DATE_YEAR:WORD			;AN000;
-EXTRN	DATE_MONTH:BYTE 		;AN000;
-EXTRN	DATE_DAY:BYTE			;AN000;
+extern RESULT1;AN000;
+extern RESULT_PTR1;AN000;
+extern TYPE1;AN000;
+extern RESULT2;AN000;
+extern RESULT_PTR2;AN000;
+extern TYPE2;AN000;
+extern RESULTSW1;AN000;
+extern RESULTSWSYN;AN000;
+extern SW_A;AN000;
+extern SW_E;AN000;
+extern SW_M;AN000;
+extern SW_P;AN000;
+extern SW_S;AN000;
+extern SW_V;AN000;
+extern SW_W;AN000;
+extern SW_D;AN000;
+extern DATE_YEAR;AN000;
+extern DATE_MONTH;AN000;
+extern DATE_DAY;AN000;
 ;---
 
-PUBLIC	INIT
-INIT	PROC	NEAR
+global INIT
+INIT:
 	CMP	AX, 0			;check drv validity
 ;	$IF	NE
 	JE $$IF1
@@ -328,10 +328,10 @@ $$IF6:
 ;	$ENDIF
 $$EN6:
 	RET
-INIT	ENDP
+; ENDP INIT
 
 ;
-PARSE_INPUT_PARM PROC NEAR
+PARSE_INPUT_PARM:
 ;
 	CALL	PARSER		    ;AN000;the PARSER interface routine
 ;	$IF	C		    ;AC000;if no non_delimiter chr?
@@ -343,7 +343,7 @@ PARSE_INPUT_PARM PROC NEAR
 		CMP	AX,SYSPRM_EX_MANY ;AN000;TOO MANY OPERANDS (1) ERR?
 ;		$IF	E	    ;AN000;
 		JNE $$IF16
-		    MOV     BYTE PTR [SI],NUL ;AN024;DELIMIT BAD PARM
+		    MOV     byte [SI],NUL ;AN024;DELIMIT BAD PARM
 		    MOV     DX,MSG_INV_NUM_PARM ;AN000;MSG NUM = 21
 ;		$ELSE		    ;AN000;
 		JMP SHORT $$EN16
@@ -351,7 +351,7 @@ $$IF16:
 		    CMP     AX,SYSPRM_DUP_SW ;AN004;DUPLICATE SW REQUESTED
 ;		    $IF     E	    ;AN004;
 		    JNE $$IF18
-			MOV	BYTE PTR [SI],NUL ;AN004;DELIMIT BAD PARM
+			MOV	byte [SI],NUL ;AN004;DELIMIT BAD PARM
 			MOV	DX,MSG_INV_SW ;AN004;MSG NUM = 35
 ;		    $ELSE	    ;AN004;
 		    JMP SHORT $$EN18
@@ -363,7 +363,7 @@ $$IF18:
 ;			$ELSE	    ;AN006;
 			JMP SHORT $$EN20
 $$IF20:
-			    MOV     BYTE PTR [SI],NUL ;AN024;DELIMIT BAD PARM
+			    MOV     byte [SI],NUL ;AN024;DELIMIT BAD PARM
 			    MOV     DX,MSG_INVALID_PARM ;AN000;MSG NUM = 3
 ;			$ENDIF	    ;AN006;
 $$EN20:
@@ -409,10 +409,10 @@ $$EN14:
 	LEA	DI, S_ARC_PATH
 	REP	MOVSB			;s_path => s_arc_path
 	RET
-PARSE_INPUT_PARM ENDP
+; ENDP PARSE_INPUT_PARM
 ;
 
-CHK_SLASH_W PROC NEAR
+CHK_SLASH_W:
 ;if /W option is specified, then
 ;show "Press any key to begin copying file(z)" message and wait for a key stroke.
 
@@ -438,9 +438,9 @@ CHK_SLASH_W PROC NEAR
 $$IF35:
 	RET
 
-CHK_SLASH_W ENDP
+; ENDP CHK_SLASH_W
 ;
-PROMPT_TO_USER PROC NEAR
+PROMPT_TO_USER:
 ;guide the user to enter the input parameters
 ;get user input to S_INPUT_PARM, T_INPUT_PARM for source, target parms.
 ;INPUT: ES - PSP seg
@@ -450,9 +450,9 @@ PROMPT_TO_USER PROC NEAR
 	MOV	dx, msg_inv_num_parm	;AC000;GET THE MESSAGE ID
 	or	parm_flag, init_error_flag
 	RET
-PROMPT_TO_USER ENDP
+; ENDP PROMPT_TO_USER
 ;
-GET_PARMS PROC	NEAR
+GET_PARMS:
 ;Get the first parameter(s), second parameter(s) and option(s).
 ;Not checking correct character entered.
 ;The logic is:
@@ -472,12 +472,12 @@ GET_PARMS PROC	NEAR
 ;      BX - PARSER OPERAND POINTER
 
 	PUSH	DS			;AN000;
-	CMP	BX,OFFSET DGROUP:RESULT1 ;AN000;WAS FIRST FILESPEC SPECIFIED?
+	CMP	BX,RESULT1 ;AN000;WAS FIRST FILESPEC SPECIFIED?
 ;	$IF	E			;AN000;IF FIRST FILESPEC SPECIFIED,
 	JNE $$IF37
 	    LDS     SI,RESULT_PTR1	;AN000;GET WHERE THE STRING IS
-	    ASSUME  DS:NOTHING		;AN000;
-	    CMP     DS:BYTE PTR [SI]+BYTE,COLON ;AN000;DOES FILESPEC START WITH
+	    ; ASSUME  DS:NOTHING;AN000;
+	    CMP     DS:byte [SI]+BYTE,COLON ;AN000;DOES FILESPEC START WITH
 					;DRIVE?
 ;	    $IF     E			;AN000;STARTS WITH DRIVE
 	    JNE $$IF38
@@ -491,7 +491,7 @@ $$IF38:
 		LEA	DI,ES:S_INPUT_PARM ;AN000;MOVE PARM TO SOURCE FILESPEC
 ;	    $ENDIF			;AN000;FILESPEC HAVE DRIVE?
 $$EN38:
-	    CMP     DGROUP:TYPE1,5	;AN000;FILESPEC ?
+	    CMP     TYPE1,5	;AN000;FILESPEC ?
 ;	    $IF     E			;AN000;MORE THAN JUST DRIVE
 	    JNE $$IF41
 					;MOVE PARM TO WHERE FIND FIRST/NEXT
@@ -526,12 +526,12 @@ $$IF41:
 ;	$ELSE				;AN000;IF SECOND FILESPEC SPECIFIED,
 	JMP SHORT $$EN37
 $$IF37:
-	    CMP     BX,OFFSET DGROUP:RESULT2 ;AN000;WAS 2nd FILESPEC SPECIFIED?
+	    CMP     BX,RESULT2 ;AN000;WAS 2nd FILESPEC SPECIFIED?
 ;	    $IF     E			;AN000;IF SECOND FILESPEC SPECIFIED
 	    JNE $$IF50
 		LDS	SI,RESULT_PTR2	;AN000;GET WHERE THE STRING IS
-		ASSUME	DS:NOTHING	;AN000;
-		CMP	DS:BYTE PTR [SI]+BYTE,COLON ;AN000;DOES FILESPEC START
+		; ASSUME	DS:NOTHING;AN000;
+		CMP	DS:byte [SI]+BYTE,COLON ;AN000;DOES FILESPEC START
 					;WITH DRIVE?
 ;		$IF	E		;AN000;STARTS WITH DRIVE
 		JNE $$IF51
@@ -545,7 +545,7 @@ $$IF51:
 		    LEA     DI,ES:T_INPUT_PARM ;AN000;MOVE PARM TO TARGET FILESPEC
 ;		$ENDIF			;AN000;FILESPEC HAVE DRIVE?
 $$EN51:
-		CMP	DGROUP:TYPE2,5	;AN000;FILESPEC ?
+		CMP	TYPE2,5	;AN000;FILESPEC ?
 ;		$IF	E		;AN000;MORE THAN JUST DRIVE
 		JNE $$IF54
 					;AN000;MOVE PARM TO WHERE FIND FIRST/NEXT
@@ -586,11 +586,11 @@ $$EN50:
 ;	$ENDIF				;AN000;FILESPEC?
 $$EN37:
 	POP	DS			;AN000;
-	ASSUME	DS:DGROUP		;AN000;
+	; ASSUME	DS:DGROUP;AN000;
 	RET
-GET_PARMS ENDP
+; ENDP GET_PARMS
 ;
-SAVE_FOR_DISPLAY PROC NEAR
+SAVE_FOR_DISPLAY:
 ;save first parm, second parm into DISP_S_PATH, DISP_T_PATH.
 ;at this time, this is not gauranteed to be a path. They may
 ;contains filename in it.
@@ -626,9 +626,9 @@ $$IF65:
 $$IF67:
 	POP	ES
 	RET
-SAVE_FOR_DISPLAY ENDP
+; ENDP SAVE_FOR_DISPLAY
 ;
-MOV_STRING PROC NEAR			;AN000;
+MOV_STRING:;AN000;
 ; move string from DS:SI to ES:DI
 ; CX should indicate string length
 	cld
@@ -644,9 +644,9 @@ $$DO69:
 	JMP SHORT $$DO69
 $$EN69:
 	RET
-MOV_STRING ENDP 			;AN000;
+; ENDP MOV_STRING;AN000;
 ;
-MODIFY_FOR_DISPLAY PROC NEAR
+MODIFY_FOR_DISPLAY:
 ;finally trims DISP_S_PATH, DISP_T_PATH into good shape.
 ;input: DS, ES = data seg. S_FILE_FLAG, T_FILE_FLAG
 
@@ -659,11 +659,11 @@ MODIFY_FOR_DISPLAY PROC NEAR
 MFD_NO_FILE1:				;no source filename
 	CALL	CHK_DRV_LETTER		;using [si]
 	JC	MFD_CHK_TAIL1
-	CMP	BYTE PTR [SI], 0	;D:,0 case
+	CMP	byte [SI], 0	;D:,0 case
 	JE	MFD_TARGET		;OK
-	CMP	BYTE PTR [SI], '\'
+	CMP	byte [SI], '\'
 	JNE	MFD_CHK_TAIL1		;D:dir... case
-	CMP	BYTE PTR [SI+1], 0	;D:\,0 case
+	CMP	byte [SI+1], 0	;D:\,0 case
 	JE	MFD_TARGET		;OK
 MFD_CHK_TAIL1:				;else check tail
 	CALL	CHK_TAIL_CHR		;chk tail and put \ at the end. using di
@@ -677,19 +677,19 @@ MFD_TARGET:
 MFD_NO_FILE2:
 	CALL	CHK_DRV_LETTER
 	JC	MFD_CHK_TAIL2
-	CMP	BYTE PTR [SI], 0
+	CMP	byte [SI], 0
 	JE	MFD_EXIT
-	CMP	BYTE PTR [SI], '\'
+	CMP	byte [SI], '\'
 	JNE	MFD_CHK_TAIL2
-	CMP	BYTE PTR [SI+1], 0
+	CMP	byte [SI+1], 0
 	JE	MFD_EXIT
 MFD_CHK_TAIL2:
 	CALL	CHK_TAIL_CHR
 MFD_EXIT:
 	RET
-MODIFY_FOR_DISPLAY ENDP
+; ENDP MODIFY_FOR_DISPLAY
 ;
-CHK_TAIL_CHR PROC NEAR
+CHK_TAIL_CHR:
 ;check the last chr of ASCIIZ string pointed by DI.
 ;if it is \,0 then OK, else put \ there.
 ;DS, ES = data seg
@@ -703,15 +703,15 @@ CHK_TAIL_CHR PROC NEAR
 	DEC	CX
 	DEC	CX
 	MOV	BX, CX
-	CMP	BYTE PTR [DI][BX], '\'	;last chr before 0
+	CMP	byte [DI][BX], '\'	;last chr before 0
 	JE	CTC_EXIT		;\,0 case
-	MOV	BYTE PTR [DI][BX+1], '\' ;change 0 to '\'
-	MOV	BYTE PTR [DI][BX+2], 0	;make it asciiz again.
+	MOV	byte [DI][BX+1], '\' ;change 0 to '\'
+	MOV	byte [DI][BX+2], 0	;make it asciiz again.
 CTC_EXIT:
 	RET
-CHK_TAIL_CHR ENDP
+; ENDP CHK_TAIL_CHR
 ;
-MASSAGE_DISP_PATH PROC NEAR
+MASSAGE_DISP_PATH:
 ;INPUT: DS, ES = data seg
 ;	DI = points to source. Used for LAST_DIR_OUT
 ;	SI = points to source. Used for CHK_DRV_LETTER routine
@@ -723,11 +723,11 @@ MASSAGE_DISP_PATH PROC NEAR
 	    CALL    CHK_DRV_LETTER	;drive letter?
 ;	    $IF     NC			;yes. "D:filename",0 case
 	    JC $$IF73
-		MOV	BYTE PTR DS:[SI], 0 ;make it "D:",0 since SI now points to the next chr
+		MOV	byte DS:[SI], 0 ;make it "D:",0 since SI now points to the next chr
 ;	    $ELSE			;no. "filename",0 case
 	    JMP SHORT $$EN73
 $$IF73:
-		MOV	BYTE PTR [DI], 0 ;set DISP_S_PATH to 0
+		MOV	byte [DI], 0 ;set DISP_S_PATH to 0
 ;	    $ENDIF
 $$EN73:
 ;	$ELSE				;found '\' and last '\' became 0
@@ -735,14 +735,14 @@ $$EN73:
 $$IF72:
 	    MOV     DI, AX		;we want to restore '\' and put 0 just after that.
 	    DEC     DI			;for ex, "D:\filename"=>"D:"=>"D:\"
-	    MOV     BYTE PTR [DI], '\'	;	 "D:dir1\dir2"=>"D:dir1"=>"D:dir1\"
-	    MOV     BYTE PTR [DI+1], 0
+	    MOV     byte [DI], '\'	;	 "D:dir1\dir2"=>"D:dir1"=>"D:dir1\"
+	    MOV     byte [DI+1], 0
 ;	$ENDIF
 $$EN72:
 	RET
-MASSAGE_DISP_PATH ENDP
+; ENDP MASSAGE_DISP_PATH
 ;
-CHK_MAX_LENGTH PROC NEAR
+CHK_MAX_LENGTH:
 ;Check the length of the source or target input string although this does not
 ;gaurantee the validity of the length of path.	This will just check/reduce
 ;the possibilities of long path.
@@ -759,7 +759,7 @@ CHK_MAX_LENGTH PROC NEAR
 	PUSH	DI
 	PUSH	SI
 					;AC001;DELETED CODE FOR PTM0011
-	CMP	BYTE PTR [SI], '\'	;SI points to '\'?
+	CMP	byte [SI], '\'	;SI points to '\'?
 	JNE	CML_LENGTH		;no, now compare the length
 	DEC	BX			;AC000;decrease length by 1 for '\'
 CML_LENGTH:
@@ -775,29 +775,29 @@ CML_EXIT:
 	POP	BX			;AN000;
 	RET
 
-CHK_MAX_LENGTH ENDP
+; ENDP CHK_MAX_LENGTH
 ;
 ;
-GET_OPTIONS PROC NEAR
+GET_OPTIONS:
 ;get options from the PARSER and
 ;set OPTION_FLAG.
 ;INPUT:
 ;      BX - PARSER OPERAND POINTER
 ;
-	CMP	BX,OFFSET DGROUP:RESULTSW1 ;AN000;WAS SW 1 THROUGH 7 SPECIFIED?
+	CMP	BX,RESULTSW1 ;AN000;WAS SW 1 THROUGH 7 SPECIFIED?
 	MOV	DI,RESULTSWSYN		;AN000;GET THE SYNONYM POINTER [ES]
 
 ;	$IF	E,LONG			;AN000;IF SWITCH SPECIFIED
 	JE $$XL1
 	JMP $$IF78
 $$XL1:
-	    CMP     BYTE PTR ES:[DI+BYTE],ALPHA_S ;AC000;"S"
+	    CMP     byte ES:[DI+BYTE],ALPHA_S ;AC000;"S"
 	    JNE     GO_A
 	    OR	    OPTION_FLAG, SLASH_S ;set the walk the tree bit on.
 	    MOV     SW_S,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    JMP     GO_EXIT		;AC000;
 GO_A:
-	    CMP     BYTE PTR ES:[DI+BYTE],ALPHA_A ;AN000;"A"
+	    CMP     byte ES:[DI+BYTE],ALPHA_A ;AN000;"A"
 	    JNE     GO_M
 	    MOV     SW_A,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    TEST    OPTION_FLAG, SLASH_M ;hard archieve already on?
@@ -807,7 +807,7 @@ GO_A1:
 	    OR	    OPTION_FLAG, SLASH_A ;set soft archieve
 	    JMP     GO_EXIT		;AC000;
 GO_M:
-	    CMP     BYTE PTR ES:[DI+BYTE],ALPHA_M ;AN000;"M"
+	    CMP     byte ES:[DI+BYTE],ALPHA_M ;AN000;"M"
 	    JNE     GO_P
 	    MOV     SW_M,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    TEST    OPTION_FLAG, SLASH_A ;soft archieve already on?
@@ -817,20 +817,20 @@ GO_M1:
 	    OR	    OPTION_FLAG, SLASH_M ;turn on the hard archieve bit.
 	    JMP     GO_EXIT		;AC000;
 GO_P:
-	    CMP     BYTE PTR ES:[DI+BYTE],ALPHA_P ;AN000;"P"
+	    CMP     byte ES:[DI+BYTE],ALPHA_P ;AN000;"P"
 	    JNE     GO_E
 	    MOV     SW_P,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    OR	    OPTION_FLAG, SLASH_P
 	    OR	    MY_FLAG, SINGLE_COPY_FLAG ;if user want prompt, then should be single copy (not a multi copy).
 	    JMP     SHORT  GO_EXIT	;AC000;
 GO_E:
-	    CMP     BYTE PTR ES:[DI+BYTE],ALPHA_E ;AN000;"E"
+	    CMP     byte ES:[DI+BYTE],ALPHA_E ;AN000;"E"
 	    JNE     GO_V
 	    MOV     SW_E,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    OR	    OPTION_FLAG, SLASH_E ;turn on "creating empty dir" bit.
 	    JMP     SHORT  GO_EXIT	;AC000;
 GO_V:
-	    CMP     BYTE PTR ES:[DI+BYTE],ALPHA_V ;AN000;"V"
+	    CMP     byte ES:[DI+BYTE],ALPHA_V ;AN000;"V"
 	    JNE     GO_W
 	    MOV     SW_V,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    MOV     AH, 54h		;get verify setting
@@ -856,9 +856,9 @@ $$IF78:
 $$EN78:
 GO_EXIT:
 	RET
-GET_OPTIONS ENDP
+; ENDP GET_OPTIONS
 
-GET_INPUT_DATE PROC NEAR
+GET_INPUT_DATE:
 ;get the input date from the parser and save it to  INPUT_DATE form which
 ;it can be used for comparison with FILE_DATE_DTA.
 ;INPUT:
@@ -894,9 +894,9 @@ $$IF81:
 ;	$ENDIF				;AN006;
 $$EN81:
 	RET
-GET_INPUT_DATE ENDP
+; ENDP GET_INPUT_DATE
 ;
-VALIDATE_INPUT_DATE PROC NEAR
+VALIDATE_INPUT_DATE:
 ;CHECK FOR VALID DATE.
 ;
 ;OUTPUT: INVALID DATE = CARRY SET
@@ -924,9 +924,9 @@ VALIDATE_INPUT_DATE PROC NEAR
 ERR_DATE:				;AN006;
 	RET				;AN006;
 ;
-VALIDATE_INPUT_DATE ENDP
+; ENDP VALIDATE_INPUT_DATE
 ;
-CHK_SET_PARMS PROC NEAR
+CHK_SET_PARMS:
 ;This does a semantic checking on the given S_INPUT_PARM, T_INPUT_PARM and
 ;sets each of the starting drv path into S_PATH, T_PATH.
 ;The basic logic is:
@@ -1110,9 +1110,9 @@ $$IF110:
 $$IF109:
 
 	RET
-CHK_SET_PARMS ENDP
+; ENDP CHK_SET_PARMS
 ;
-PARSE_SECOND_PARM PROC NEAR
+PARSE_SECOND_PARM:
 ;called after the initial chdir to T_INPUT_PARM failed.  Remember the second parm should
 ;exist when you call this routine.
 ;INPUT: DS, ES - data seg
@@ -1130,9 +1130,9 @@ PARSE_SECOND_PARM PROC NEAR
 					;and chdir to it.
 PSP_EXIT:
 	RET
-PARSE_SECOND_PARM ENDP
+; ENDP PARSE_SECOND_PARM
 ;
-NEXT_PATH_DELIM PROC NEAR
+NEXT_PATH_DELIM:
 ;starting from SI, check every chr until it is '\' or 0 or ':'.
 ;if the starting chr is '\' or 0 or ':', then SI won't change.
 ;the caller should be sure that it is an ASCIIZ string.
@@ -1149,7 +1149,7 @@ NPD_LOOP:
 ;	$DO				;AN010;
 $$DO113:
 	    CLC 			;AN010;INITIALIZE TO NOT DBCS
-	    MOV     AL,BYTE PTR [DI]	;AN010;GET THE 1st CHAR TO TEST
+	    MOV     AL,byte [DI]	;AN010;GET THE 1st CHAR TO TEST
 	    CALL    CHK_DBCS		;AN010;SEE IF WE ARE IN DBCS
 ;	$LEAVE	NC			;AN010;THIS IS NOT DBCS
 	JNC $$EN113
@@ -1176,10 +1176,10 @@ NPD_FOUND:
 	POP	SI			;now SI points to the chr
 	POP	DI			;restore DI
 	RET
-NEXT_PATH_DELIM ENDP
+; ENDP NEXT_PATH_DELIM
 ;
 
-CHK_HEAD_PARM PROC NEAR
+CHK_HEAD_PARM:
 ;check the starting header part of parameter pointed by SI to eliminate
 ;error such as A:\\..., A:\.., \\, \.. etc.
 ;This routine will change the current target directory to the root
@@ -1191,25 +1191,25 @@ CHK_HEAD_PARM PROC NEAR
 ;	DX WILL POINTS TO THE ERROR MESSAGE
 
 	CALL	CHK_DRV_LETTER		;si points to the next chr after drv letter, if found.
-	CMP	BYTE PTR [SI], 0	;"A:0" case
+	CMP	byte [SI], 0	;"A:0" case
 ;	$IF	E
 	JNE $$IF116
-	    MOV     BYTE PTR [SI], '.'
+	    MOV     byte [SI], '.'
 	    INC     SI
-	    MOV     BYTE PTR [SI], 0	;make it "A:.0"
+	    MOV     byte [SI], 0	;make it "A:.0"
 ;	$ELSE
 	JMP SHORT $$EN116
 $$IF116:
-	    CMP     BYTE PTR [SI], '\'
+	    CMP     byte [SI], '\'
 ;	    $IF     E			;A:\--- or \--- cases
 	    JNE $$IF118
 		INC	SI
 		CLC			;AN010;INITIALIZE TO NOT DBCS
-		MOV	AL,DS:BYTE PTR [SI] ;AN010;GET THE 1st CHAR TO TEST
+		MOV	AL,DS:byte [SI] ;AN010;GET THE 1st CHAR TO TEST
 		CALL	CHK_DBCS	;AN010;SEE IF WE ARE IN DBCS
 ;		$IF	NC		;AN010;THIS IS NOT DBCS
 		JC $$IF119
-		    CMP     BYTE PTR [SI], '\'
+		    CMP     byte [SI], '\'
 ;		    $IF     E		;A:\\--- or \\--- cases ; ERROR
 		    JNE $$IF120
 			MOV	DX, MSG_INVALID_PATH ;AC000;GET THE MESSAGE ID
@@ -1217,20 +1217,20 @@ $$IF116:
 ;		    $ELSE
 		    JMP SHORT $$EN120
 $$IF120:
-			CMP	BYTE PTR [SI], '.'
+			CMP	byte [SI], '.'
 ;			$IF	E	;A:\.--- or \.--- cases
 			JNE $$IF122
 			    INC     SI
-			    MOV     AL,DS:BYTE PTR [SI] ;AN010;GET 1st CHAR
+			    MOV     AL,DS:byte [SI] ;AN010;GET 1st CHAR
 					;      TO TEST
 			    CALL    CHK_DBCS ;AN010;SEE IF WE ARE IN
 					;      DBCS
 ;			    $IF     NC	;AN010;THIS IS NOT DBCS
 			    JC $$IF123
-				CMP	BYTE PTR [SI], '.'
+				CMP	byte [SI], '.'
 ;				$IF	E,OR
 				JE $$LL124
-				CMP	BYTE PTR [SI], '\'
+				CMP	byte [SI], '\'
 ;				$IF	NE ;if not A:\.\--- or \.\--- cases
 				JE $$IF124
 $$LL124:
@@ -1256,9 +1256,9 @@ $$IF118:
 ;	$ENDIF
 $$EN116:
 	RET
-CHK_HEAD_PARM ENDP
+; ENDP CHK_HEAD_PARM
 ;
-PARSING_T_PATH PROC NEAR
+PARSING_T_PATH:
 ;chdir to every path element from the first. If fails, create the directory and
 ;try to chdir again.  T_MKDIR_LVL will increase when new starting directory is created
 ;INPUT: DX - OFFSET OF T_INPUT_PARM
@@ -1274,20 +1274,20 @@ PARSING_T_PATH PROC NEAR
 	CALL	SET_DEFAULT_DRV 	;set target drive as a default
 	POP	DX			;restore DX
 PTP_NEXT:
-	CMP	BYTE PTR [SI], 0	;end of string? the last path element?
+	CMP	byte [SI], 0	;end of string? the last path element?
 	JE	PTP_LAST
-	CMP	BYTE PTR [SI], ':'	;filename terminator not checked before?
+	CMP	byte [SI], ':'	;filename terminator not checked before?
 	JNE	PTP_CHDIR		;else it is '\'.
-	MOV	BYTE PTR [SI], 0	;change ':' to 0 for termination.
+	MOV	byte [SI], 0	;change ':' to 0 for termination.
 PTP_LAST:
 	CALL	LAST_T_PATH
 	JMP	PTP_EXIT
 PTP_CHDIR:
-	MOV	BYTE PTR [SI], 0	;replace '\' with 0
+	MOV	byte [SI], 0	;replace '\' with 0
 	MOV	AH, Chdir		;=38h
 	INT	21h
 	JC	PTP_MKDIR
-	MOV	BYTE PTR [SI], '\'	;restore '\'
+	MOV	byte [SI], '\'	;restore '\'
 	INC	SI			;SI points to next to old '\'
 	MOV	DX, SI			;DX points to next path entry
 	CALL	NEXT_PATH_DELIM
@@ -1304,9 +1304,9 @@ PTP_ERROR:
 PTP_EXIT:
 	RET
 
-PARSING_T_PATH ENDP
+; ENDP PARSING_T_PATH
 ;
-LAST_T_PATH PROC NEAR
+LAST_T_PATH:
 ;called when the second parm reached last. *** this routine is the same as the old routine ***
 ;and the initial try to chdir to the given T_INPUT_PARM has been failed.
 ;INPUT: ES, DS - data seg
@@ -1379,10 +1379,10 @@ $$IF133:
 ;	$ENDIF				;CHDIR FAIL
 $$IF132:
 	RET
-LAST_T_PATH ENDP
+; ENDP LAST_T_PATH
 ;
 ;
-CHK_S_RESERVED_NAME PROC NEAR
+CHK_S_RESERVED_NAME:
 ;check the source filename entered, and if it does not have any global chr,
 ;then check it whether it is reserved filename or not.
 ;input: es,ds - data seg
@@ -1412,9 +1412,9 @@ csrn_close:
 	int	21h
 csrn_exit:
 	ret
-CHK_S_RESERVED_NAME ENDP
+; ENDP CHK_S_RESERVED_NAME
 ;
-PROMPT_CREATE_DIR PROC NEAR
+PROMPT_CREATE_DIR:
 ;DS, ES - data seg
 	PUSH	AX			;AN000;
 	mov	cx, 13
@@ -1425,7 +1425,7 @@ PROMPT_CREATE_DIR PROC NEAR
 ;CALL GET MESSAGE TO DETERMINE WHAT THIS COUNTRY INPUT FOR 'F' OR 'D' IS.
 
 	PUSH	DS			;AN000;
-	ASSUME	DS:NOTHING		;AN000;TELL THE ASSEMBLER
+	; ASSUME	DS:NOTHING;AN000;TELL THE ASSEMBLER
 	MOV	AX,MSG_F_D		;AN000;MESSAGE NUMBER = 29 = 'F D '
 	MOV	DH,UTILITY_MSG_CLASS	;AN000;MESSAGE DEFINED FOR XCPYINIT
 	CALL	SYSGETMSG		;AN000;GET THE MESSAGE
@@ -1446,7 +1446,7 @@ $$IF145:
 $$IF147:
 	MOV	ES:ALPHA_DIR,AX 	;AN000;TRANSLATED CHAR FOR 'D' TO BUFF
 	POP	DS			;AN000;RESTORE AFTER CALL TO MSG HANDLR
-	ASSUME	DS:DGROUP		;AN000;TELL THE ASSEMBLER
+	; ASSUME	DS:DGROUP;AN000;TELL THE ASSEMBLER
 					;remember this may be DBCS
 PCD_AGAIN:
 ; Set message substitution list
@@ -1488,9 +1488,9 @@ PCD_EXIT:
 
 	POP	AX			;AN000;
 	RET
-PROMPT_CREATE_DIR ENDP
+; ENDP PROMPT_CREATE_DIR
 ;
-TAKE_PATH_TAIL PROC NEAR
+TAKE_PATH_TAIL:
 ;check the tail of the source input parm.
 ;Call LAST_DIR_OUT
 ;If carry set
@@ -1519,7 +1519,7 @@ TAKE_PATH_TAIL PROC NEAR
 	    MOV     SI, DI		;set si = di
 	    CALL    CHK_DRV_LETTER	;if drv letter:, then SI will
 					;point to next chr. Otherwise no change
-	    cmp     byte ptr [si], 0	;only drv letter has entered. No filename
+	    cmp     byte [si], 0	;only drv letter has entered. No filename
 ;	    $IF     NE			;filename entered
 	    JE $$IF150
 		push	si		;save si
@@ -1529,8 +1529,8 @@ TAKE_PATH_TAIL PROC NEAR
 		pop	si		;restore si
 ;	    $ENDIF
 $$IF150:
-	    mov     byte ptr [si], A_dot ;to be used for Chdir fun call
-	    mov     byte ptr [si+1], 0	;make it ASCIIZ
+	    mov     byte [si], A_dot ;to be used for Chdir fun call
+	    mov     byte [si+1], 0	;make it ASCIIZ
 ;	$ELSE				;at least found a "\"
 	JMP SHORT $$EN149
 $$IF149:
@@ -1540,20 +1540,20 @@ $$IF149:
 	    rep     movsb
 	    mov     si, BX		;return to the Revised input
 	    CALL    CHK_DRV_LETTER	;it starts with drv letter?
-	    cmp     byte ptr [si], 0	;si points to the end of string?
+	    cmp     byte [si], 0	;si points to the end of string?
 ;	    $IF     E
 	    JNE $$IF153
-		MOV	byte ptr [SI], '\' ;then add '\' in the Revised S_INPUT_PARM
-		MOV	byte ptr [SI+1], 0
+		MOV	byte [SI], '\' ;then add '\' in the Revised S_INPUT_PARM
+		MOV	byte [SI+1], 0
 ;	    $ENDIF
 $$IF153:
 ;	$ENDIF
 $$EN149:
 	RET
 
-TAKE_PATH_TAIL ENDP
+; ENDP TAKE_PATH_TAIL
 ;
-CHK_CYCLIC_COPY PROC NEAR
+CHK_CYCLIC_COPY:
 ;With the one_disk_copy case, if the starting source path is a member of
 ;parent directory of the startind target path, then infinite copy cycle
 ;can occur.  This routine prevents that situation.
@@ -1566,17 +1566,17 @@ CHK_CYCLIC_COPY PROC NEAR
 	TEST	SYS_FLAG, ONE_DISK_COPY_FLAG ;source, target drv let same
 ;	$IF	NZ			;if they are, then check below facts
 	JZ $$IF156
-	    MOV     DI, OFFSET DGROUP:T_TRANS_PATH ;AC025;
+	    MOV     DI, T_TRANS_PATH ;AC025;
 	    MOV     AL, 0
 	    CALL    STRING_LENGTH
 	    MOV     DX, CX		;save the length of S_PATH
-	    MOV     DI, OFFSET DGROUP:S_TRANS_PATH ;AC025;
+	    MOV     DI, S_TRANS_PATH ;AC025;
 	    CALL    STRING_LENGTH
 	    CMP     DX,CX		;compare the length
 ;	    $IF     AE			;if target length >= source length
 	    JNAE $$IF157
-		MOV	SI, OFFSET DGROUP:S_TRANS_PATH ;AC025;
-		MOV	DI, OFFSET DGROUP:T_TRANS_PATH ;AC025;
+		MOV	SI, S_TRANS_PATH ;AC025;
+		MOV	DI, T_TRANS_PATH ;AC025;
 		DEC	CX		;get the actual length of chr's
 		DEC	DX
 		CLD
@@ -1613,10 +1613,10 @@ $$IF160:
 ;			$IF	NZ
 			JZ $$IF165
 $$LL165:
-			    CMP     BYTE PTR [DI], '\' ;source = d:\abc, target = d:\abc\def case
+			    CMP     byte [DI], '\' ;source = d:\abc, target = d:\abc\def case
 ;			    $IF     E,OR
 			    JE $$LL166
-			    CMP     BYTE PTR [DI-1], '\' ;source = d:\, target=d:\abc case
+			    CMP     byte [DI-1], '\' ;source = d:\, target=d:\abc case
 ;			    $IF     E
 			    JNE $$IF166
 $$LL166:
@@ -1648,9 +1648,9 @@ $$IF157:
 $$IF156:
 	RET
 
-CHK_CYCLIC_COPY ENDP
+; ENDP CHK_CYCLIC_COPY
 ;
-TRANS_NAMES PROC NEAR
+TRANS_NAMES:
 ;TRANSLATE THE INPUT TARGET AND SOURCE PATH TO DETERMINE
 ;IF ASSIGN, JOIN OR SUBSD WAS USET TO MODIFY HIDE THE TRUE
 ;PATH. THIS INFO. WILL BE USED TO DETERMINE CYCLIC COPY.
@@ -1659,20 +1659,20 @@ TRANS_NAMES PROC NEAR
 	PUSH	SI			;AN016;SI WILL BE DESTROYED
 	PUSH	DI			;AN016;DI WILL BE DESTROYED
 
-	MOV	SI,OFFSET DGROUP:T_DRV_PATH    ;AN016;DO NAME TRANSLATE OF TAR
-	MOV	DI,OFFSET DGROUP:T_TRANS_PATH  ;AN025;SAVE FOR COMPARE
+	MOV	SI,T_DRV_PATH    ;AN016;DO NAME TRANSLATE OF TAR
+	MOV	DI,T_TRANS_PATH  ;AN025;SAVE FOR COMPARE
 	MOV	AH,60h			;AN016;NAMETRANSLATE
 	INT	21h			;AN016;EXECUTE
 
-	MOV	SI,OFFSET DGROUP:S_DRV_PATH    ;AN016;DO NAME TRANSLATE OF SRC
-	MOV	DI,OFFSET DGROUP:S_TRANS_PATH  ;AN025;SAVE FOR COMPARE
+	MOV	SI,S_DRV_PATH    ;AN016;DO NAME TRANSLATE OF SRC
+	MOV	DI,S_TRANS_PATH  ;AN025;SAVE FOR COMPARE
 	MOV	AH,60h			;AN016;NAMETRANSLATE
 	INT	21h			;AN016;EXECUTE
 
 ;NOW COMPARE THE TRANSLATED NAMES
 
-	MOV	SI,OFFSET DGROUP:T_TRANS_PATH  ;AN025;GET THE TAR FOR COMPARE
-	MOV	DI,OFFSET DGROUP:S_TRANS_PATH  ;AN025;GET THE SRC FOR COMPARE
+	MOV	SI,T_TRANS_PATH  ;AN025;GET THE TAR FOR COMPARE
+	MOV	DI,S_TRANS_PATH  ;AN025;GET THE SRC FOR COMPARE
 	CALL	STR_COMP		;AN016;DO THE COMPARE
 ;	$IF	Z			;AN016;STRING DID COMPARE
 	JNZ $$IF176
@@ -1683,9 +1683,9 @@ $$IF176:
 	POP	DI			;AN016;restore DI
 	POP	SI			;AN016;restore SI
 	RET
-TRANS_NAMES ENDP
+; ENDP TRANS_NAMES
 ;
-STR_COMP PROC NEAR
+STR_COMP:
 ;COMPARE ASCIIZ DS:SI WITH ES:DI
 ;DI,SI ARE DESTROYED
 
@@ -1696,16 +1696,16 @@ STRCOMP:
 	    RET 			;AN016;NZ = DIFFERENCE
 ;	$ENDIF				;AN016;
 $$IF178:
-	CMP	BYTE PTR [SI-1],NUL	;AN016;CHK FOR END OF THE STRING
+	CMP	byte [SI-1],NUL	;AN016;CHK FOR END OF THE STRING
 ;	$IF Z				;ANO16;IT IS E O S
 	JNZ $$IF180
 	    RET 			;AN016;IT COMPARED
 ;	$ENDIF				;AN016;
 $$IF180:
 	JMP	SHORT STRCOMP		;AN016;GO AGAIN
-STR_COMP ENDP
+; ENDP STR_COMP
 
-MAKE_TEMPLATE PROC NEAR
+MAKE_TEMPLATE:
 ;copy the formatted filename into the T_TEMPLATE which will be
 ;used to name a new filename.
 ;INPUT: PSP FCB 6ch for filename which have global chr.
@@ -1722,9 +1722,9 @@ MAKE_TEMPLATE PROC NEAR
 
 	POP	DS			;restore DS
 	RET
-MAKE_TEMPLATE ENDP
+; ENDP MAKE_TEMPLATE
 
-GET_DRIVES PROC NEAR
+GET_DRIVES:
 ;get source and target phisical drive letter from parser area.
 ;set ONE_DISK_COPY_FLAG, if the user XCOPY using the same drive letter.
 
@@ -1772,10 +1772,10 @@ $$IF188:
 	MOV	T_DRV_2, AL
 	MOV	SAV_T_DRV, AL
 	RET
-GET_DRIVES ENDP
+; ENDP GET_DRIVES
 ;
 ;
-GET_CUR_DRV PROC NEAR
+GET_CUR_DRV:
 ;get the current default drive number (0 = A, 1 = B ..),
 ;change it to BIOS drive number and save it.
 	MOV	AH, Current_Disk	; = 19h
@@ -1783,9 +1783,9 @@ GET_CUR_DRV PROC NEAR
 	INC	AL			;(1 = A, 2 = B ..)
 	MOV	SAV_DEFAULT_DRV, AL	;save it
 	RET
-GET_CUR_DRV ENDP
+; ENDP GET_CUR_DRV
 ;
-GET_CUR_DIR PROC NEAR
+GET_CUR_DIR:
 ;get current directory and save it
 ;input: DL - drive # (0 = default, 1 = A etc)
 ;	DS:SI - pointer to 64 byte user memory
@@ -1793,9 +1793,9 @@ GET_CUR_DIR PROC NEAR
 	MOV	AH, Get_Current_Directory
 	INT	21H
 	RET
-GET_CUR_DIR ENDP
+; ENDP GET_CUR_DIR
 ;
-TOP_OF_MEM PROC NEAR
+TOP_OF_MEM:
 ;set Top_of_memory
 
 	PUSH	ES
@@ -1806,13 +1806,13 @@ TOP_OF_MEM PROC NEAR
 	MOV	TOP_OF_MEMORY, AX	;save it for buffer top
 	POP	ES
 	RET
-TOP_OF_MEM ENDP
+; ENDP TOP_OF_MEM
 
-INIT_BUFFER PROC NEAR
+INIT_BUFFER:
 ;initialize buffer information
 ;set buffer_base, max_buffer_size
 ;	call	set_block		;SET BLOCK FOR BUFFR (for new 3.2 linker)
-	MOV	AX, OFFSET INIT
+	MOV	AX, INIT
 	PUSH	CS			;cs segment is the highest segment in this program
 	POP	DX
 	MOV	BUFFER_PTR, DX
@@ -1850,21 +1850,21 @@ $$IF190:
 $$EN190:
 					; which has been decided by BIG_FILE )
 	RET
-INIT_BUFFER ENDP
+; ENDP INIT_BUFFER
 ;
-HOOK_CTRL_BREAK PROC NEAR
+HOOK_CTRL_BREAK:
 ;
 	PUSH	DS			;save DS
 	PUSH	CS
 	POP	DS			;ds = cs
 	MOV	AX, 2523h
-	MOV	DX, OFFSET CTRL_BREAK_EXIT
+	MOV	DX, CTRL_BREAK_EXIT
 	INT	21H
 	POP	DS			;restore ds
 	RET
-HOOK_CTRL_BREAK ENDP
+; ENDP HOOK_CTRL_BREAK
 ;
-SAV_HOOK_INT24 PROC NEAR
+SAV_HOOK_INT24:
 ;sav the int_24 addr, and hooks it to my_int24
 	PUSH	ES
 	MOV	AH, 35h
@@ -1878,13 +1878,13 @@ SAV_HOOK_INT24 PROC NEAR
 	POP	DS			;ds = cs
 	MOV	AH, 25h
 	MOV	AL, 24h
-	MOV	DX, OFFSET MY_INT24	;now DS:DX contains the addr.
+	MOV	DX, MY_INT24	;now DS:DX contains the addr.
 	INT	21h			;hook it to my_int24 routine
 	POP	DS			;restore ds
 	RET
-SAV_HOOK_INT24 ENDP
+; ENDP SAV_HOOK_INT24
 ;
-CSEG	ENDS
-	END
+; END SECTION .CSEG
+	; END
 
 

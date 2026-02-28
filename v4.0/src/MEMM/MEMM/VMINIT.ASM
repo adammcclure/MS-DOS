@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	VMINIT.ASM - Initialization routines for VM-DOS
+	; title	VMINIT.ASM - Initialization routines for VM-DOS
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -39,63 +39,63 @@ page	58,132
 ;   This module contains various initialization routines for Virtual DOS
 ;
 ;******************************************************************************
-.386p
-.lfcond 				; list false conditionals
-	page
+CPU 386
+; .lfcond; list false conditionals
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	vminit			; module label
-	public	InitBitMap		; init I/O Bit Map
-	public	PortTrap		; set bit(s) in I/O Bit Map
-ifdef	oldstuff
-	public	PortClear		; clear bit(s) in I/O Bit Map
-endif
-	public	BitOFF			; bit offset calculation
-	page
+	global vminit; module label
+	global InitBitMap; init I/O Bit Map
+	global PortTrap; set bit(s) in I/O Bit Map
+%ifdef oldstuff
+	global PortClear; clear bit(s) in I/O Bit Map
+%endif
+	global BitOFF; bit offset calculation
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include elim.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "elim.inc"
 FALSE	equ	0
 TRUE	equ	not FALSE
 
-	page
+	; page
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 ;
-ABS0	segment at 0000h
-ABS0	ends
+SECTION .ABS0
+; END SECTION .ABS0
 
-TSS	segment
+SECTION .TSS
 
-	extrn	IOBitMap:byte		; Bit Map in Tss
+	extern IOBitMap; Bit Map in Tss
 
-TSS	ends
+; END SECTION .TSS
 
 
-_TEXT	segment
+SECTION ._TEXT
 
-	extrn	A20_Trap_Init:near	; (a20trap.asm)
-	extrn	RR_Trap_Init:near	; (RRtrap.asm)
-	extrn	OEM_Trap_Init:near	; (OEMProc.asm)
+	extern A20_Trap_Init; (a20trap.asm)
+	extern RR_Trap_Init; (RRtrap.asm)
+	extern OEM_Trap_Init; (OEMProc.asm)
 
-_TEXT	ends
+; END SECTION ._TEXT
 ;
 ;
 ;******************************************************************************
 ;			L O C A L   D A T A   A R E A
 ;******************************************************************************
 ;
-_DATA	segment
+SECTION ._DATA
 ;
-_DATA	ends
+; END SECTION ._DATA
 
 ;
 ;******************************************************************************
@@ -103,10 +103,10 @@ _DATA	ends
 ;******************************************************************************
 ;
 ;------------------------------------------------------------------------------
-_TEXT	segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
-vminit	label	byte
-	page
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
+vminit:
+	; page
 ;******************************************************************************
 ;   InitBitMap - Initialize 386 Tss I/O bit map for Virtual mode I/O trapping.
 ;
@@ -118,7 +118,7 @@ vminit	label	byte
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-InitBitMap	proc	far
+InitBitMap:
 ;
 	push	ax
 	push	bx
@@ -127,12 +127,12 @@ InitBitMap	proc	far
 ;
 	mov	ax,seg TSS
 	mov	es,ax			; set ES to I/O Bit Map seg
-	ASSUME	ES:TSS
+	; ASSUME	ES:TSS
 	xor	bx,bx			; ES:[BX] = pts to TSS
 ;
 ; initialize BitMapBase in Tss
 ;
-	mov	ax,offset TSS:IOBitMap
+	mov	ax,IOBitMap
 	mov	ES:[bx.BitMapBase],ax		; set Bit Map base in Tss
 ;
 ;  set ports for return to real trap
@@ -149,12 +149,12 @@ InitBitMap	proc	far
 
 IB_exit:
 	pop	es
-	ASSUME	ES:DGROUP
+	; ASSUME	ES:DGROUP
 	pop	si
 	pop	bx
 	pop	ax
 	ret				; *** RETURN ***
-InitBitMap	endp
+; ENDP InitBitMap
 
 ;******************************************************************************
 ;   PortTrap - sets bit(s) in I/O bit map to enable trapping at an I/O address
@@ -175,9 +175,9 @@ InitBitMap	endp
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-PortTrap	proc	near
+PortTrap:
 ;
-	ASSUME	ES:TSS
+	; ASSUME	ES:TSS
 	push	ax
 	push	bx
 	push	cx
@@ -198,12 +198,12 @@ PT_loop:
 	pop	bx
 	pop	ax
 	ret
-	ASSUME	ES:DGROUP
+	; ASSUME	ES:DGROUP
 ;
-PortTrap	endp
+; ENDP PortTrap
 
 
-ifdef	oldstuff
+%ifdef oldstuff
 ;******************************************************************************
 ;   PortClear - clears bit(s) in I/O bit map to disable trapping at an I/O
 ;   address
@@ -229,9 +229,9 @@ ifdef	oldstuff
 ;   enabled port will have to be added.
 ;
 ;------------------------------------------------------------------------------
-PortClear	proc	near
+PortClear:
 ;
-	ASSUME	ES:TSS
+	; ASSUME	ES:TSS
 	push	ax
 	push	bx
 	push	cx
@@ -253,10 +253,10 @@ PC_loop:
 	pop	bx
 	pop	ax
 	ret
-	ASSUME	ES:DGROUP
+	; ASSUME	ES:DGROUP
 ;
-PortClear	endp
-endif		; oldstuff
+; ENDP PortClear
+%endif; oldstuff
 
 
 ;******************************************************************************
@@ -270,7 +270,7 @@ endif		; oldstuff
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-BitOFF	proc	near
+BitOFF:
 ;
 	push	cx
 
@@ -284,9 +284,9 @@ BitOFF	proc	near
 	pop	cx
 	ret
 ;
-BitOFF	endp
+; ENDP BitOFF
 
 ;
-_TEXT	ends				; end of segment
+; END SECTION ._TEXT; end of segment
 ;
-	end				; end of module
+	; end; end of module

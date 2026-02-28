@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)crit.asm	1.1 85/04/10
-TITLE CRIT - Critical Section Routines
-NAME  CRIT
+; TITLE CRIT - Critical Section Routines
+; NAME  CRIT
 ;
 ; Critical Section Routines
 ;
@@ -11,27 +11,27 @@ NAME  CRIT
 ;       Created: ARR 30 March 1983
 ;
 
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME  SS:NOTHING,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME  SS:NOTHING,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+; .cref
+; .list
 
 	I_need  User_In_AX,WORD
 	i_need  CurrentPDB,WORD
-if debug
+%if debug
 	I_need  BugLev,WORD
 	I_need  BugTyp,WORD
-include bugtyp.asm
-endif
+%include "bugtyp.asm"
+%endif
 
 Break   <Critical section handlers>
 
@@ -42,10 +42,10 @@ Break   <Critical section handlers>
 ;   by the sharer to be a PUSH AX to complete the correct routines.
 ;
 Procedure   EcritDisk,NEAR
-	public  EcritMem
-	public  EcritSFT
-ECritMEM    LABEL   NEAR
-ECritSFT    LABEL   NEAR
+	global EcritMem
+	global EcritSFT
+ECritMEM:
+ECritSFT:
 	RET
 ;       PUSH    AX
 	fmt     TypSect,LevReq,<"PDB $x entering $x">,<CurrentPDB,sect>
@@ -56,10 +56,10 @@ ECritSFT    LABEL   NEAR
 EndProc EcritDisk
 
 Procedure   LcritDisk,NEAR
-	public  LcritMem
-	public  LcritSFT
-LCritMEM    LABEL   NEAR
-LCritSFT    LABEL   NEAR
+	global LcritMem
+	global LcritSFT
+LCritMEM:
+LCritSFT:
 	RET
 ;       PUSH    AX
 	fmt     TypSect,LevReq,<"PDB $x entering $x">,<CurrentPDB,sect>
@@ -88,5 +88,5 @@ Procedure   LcritDevice,NEAR
 	return
 EndProc LcritDevice
 
-CODE    ENDS
-    END
+; END SECTION .CODE
+    ; END

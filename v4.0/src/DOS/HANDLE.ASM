@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)handle.asm 1.1 85/04/10
-TITLE	HANDLE - Handle-related system calls
-NAME	HANDLE
+; TITLE	HANDLE - Handle-related system calls
+; NAME	HANDLE
 ;
 ; Handle related system calls for MSDOS 2.X.  Only top-level system calls
 ; are present.	I/O specs are defined in DISPATCH.  The system calls are:
@@ -27,31 +27,31 @@ NAME	HANDLE
 ;	A000  version 4.00  Jan. 1988
 ;
 
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-include EA.inc
-include version.inc
-.cref
-.list
-.sall
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+%include "EA.inc"
+%include "version.inc"
+; .cref
+; .list
+; .sall
 
-	EXTRN	DOS_Read:NEAR, DOS_Write:NEAR
+	extern DOS_Read, DOS_Write
 
-IF	BUFFERFLAG
-	extrn	save_user_map:near
-	extrn	restore_user_map:near
-	extrn	Setup_EMS_Buffers:near
-ENDIF
+%if BUFFERFLAG
+	extern save_user_map
+	extern restore_user_map
+	extern Setup_EMS_Buffers
+%endif
 
 	I_need	ThisSFT,DWORD		; pointer to SFT entry
 	I_need	DMAAdd,DWORD		; old-style DMA address
@@ -72,7 +72,7 @@ ENDIF
 	I_need	SAVE_SI,WORD		;AN000; saved SI
 	I_need	SAVE_CX,WORD		;AN000; saved CX
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 
 	I_need	BUF_EMS_MODE,BYTE
 	I_need	BUF_EMS_LAST_PAGE,DWORD
@@ -83,16 +83,16 @@ IF	BUFFERFLAG
 	I_need	BUF_EMS_PFRAME,WORD
 	I_need	LASTBUFFER,DWORD
 
-ENDIF
+%endif
 
 ;	I_need	XA_ES,WORD		;AN000; extended find
 ;	I_need	XA_BP,WORD		;AN000; extended find
 ;	I_need	XA_from,BYTE		;AN000; for filetimes
-if debug
+%if debug
 	I_need	BugLev,WORD
 	I_need	BugTyp,WORD
-include bugtyp.asm
-endif
+%include "bugtyp.asm"
+%endif
 
 BREAK <$Close - return a handle to the system>
 
@@ -108,7 +108,7 @@ BREAK <$Close - return a handle to the system>
 ;   No registers returned
 
 Procedure   $Close,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	fmt TypSysCall,LevLog,<"$p Close\n">
 	fmt TypSysCall,LevArgs,<"$p  Handle = $x\n">,<BX>
 ;
@@ -118,8 +118,8 @@ Procedure   $Close,NEAR
 	JC	CloseError		; error return
 	fmt TypAccess,LevSFN,<"$p  Close SFT $x:$x\n">,<es,di>
 	context DS			; For DOS_CLOSE
-	MOV	WORD PTR [ThisSFT],DI	; save offset of pointer
-	MOV	WORD PTR [ThisSFT+2],ES ; save segment value
+	MOV	word [ThisSFT],DI	; save offset of pointer
+	MOV	word [ThisSFT+2],ES ; save segment value
 ;
 ; DS:SI point to JFN table entry.
 ; ES:DI point to SFT
@@ -130,7 +130,7 @@ Procedure   $Close,NEAR
 ;
 	CMP	ES:[DI].sf_ref_count,1	; will the SFT become free?
 	JZ	FreeJFN 		; yes, free JFN anyway.
-	MOV	AL,BYTE PTR ES:[DI].sf_mode
+	MOV	AL,byte ES:[DI].sf_mode
 	AND	AL,sharing_mask
 	CMP	AL,sharing_net_fcb
 	JZ	PostFree		; 70-mode and big ref count => free it
@@ -141,7 +141,7 @@ Procedure   $Close,NEAR
 FreeJFN:
 	Invoke	pJFNFromHandle		;   d = pJFN (handle);
 	fmt TypAccess,LevSFN,<"$p  Close jfn pointer $x:$x\n">,<es,di>
-	MOV	BYTE PTR ES:[DI],0FFh	; release the JFN
+	MOV	byte ES:[DI],0FFh	; release the JFN
 PostFree:
 ;
 ; ThisSFT is correctly set, we have DS = DOSGROUP.  Looks OK for a DOS_CLOSE!
@@ -156,7 +156,7 @@ PostFree:
 	MOV	AH,close		; MZ Bogus multiplan fix
 	transfer    Sys_Ret_OK
 CloseError:
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	fmt TypSysCall,LevLog,<"$p: Close error $x\n">,<AX>
 	transfer    Sys_Ret_Err
 EndProc $Close
@@ -175,15 +175,15 @@ BREAK <$Commit - commit the file>
 ;   No registers returned
 
 Procedure   $Commit,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 ;
 ; Grab the SFT pointer from the JFN.
 ;
 	call	CheckOwner		; get system file entry
 	JC	Commiterror		; error return
 	context DS			; For DOS_COMMIT
-	MOV	WORD PTR [ThisSFT],DI	; save offset of pointer
-	MOV	WORD PTR [ThisSFT+2],ES ; save segment value
+	MOV	word [ThisSFT],DI	; save offset of pointer
+	MOV	word [ThisSFT+2],ES ; save segment value
 ;
 ; ES:DI point to SFT
 ;
@@ -197,7 +197,7 @@ Procedure   $Commit,NEAR
 	MOV	AH,Commit		;
 	transfer    Sys_Ret_OK
 Commiterror:
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	transfer    Sys_Ret_Err
 EndProc $Commit
 
@@ -216,7 +216,7 @@ BREAK <$ExtHandle - extend handle count>
 ;   No registers returned
 
 Procedure   $ExtHandle,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 ;
 ;
 ;
@@ -233,11 +233,11 @@ getpdb:
 	JA	larger			; go allocate new table
 
 	MOV	BP,1			; shrink
-	MOV	DS,WORD PTR ES:[PDB_JFN_Pointer+2] ;
+	MOV	DS,word ES:[PDB_JFN_Pointer+2] ;
 	MOV	SI,BX			;
 	SUB	CX,BX			; get difference
 chck_handles:
-	CMP	BYTE PTR DS:[SI],-1	; scan through handles to ensure close
+	CMP	byte DS:[SI],-1	; scan through handles to ensure close
 	JNZ	too_many_files		; status
 	INC	SI
 	LOOP	chck_handles
@@ -284,7 +284,7 @@ enlarge:
 copy_hand:
 	MOV	DX,CX
 	LDS	SI,DS:[PDB_JFN_Pointer]   ; get old table pointer
-ASSUME DS:NOTHING
+; ASSUME DS:NOTHING
 	REP	MOVSB			; copy infomation to new table
 
 	POP	CX			; get new number of handles
@@ -294,12 +294,12 @@ ASSUME DS:NOTHING
 	REP	STOSB
 
 	MOV	DS,[CurrentPDB] 	; get user process data block
-	CMP	WORD PTR DS:[PDB_JFN_Pointer],0  ; check if original table pointer
+	CMP	word DS:[PDB_JFN_Pointer],0  ; check if original table pointer
 	JNZ	update_info		; yes, go update PDB entries
 	PUSH	BP
 	PUSH	DS			; save old table segment
 	PUSH	ES			; save new table segment
-	MOV	ES,WORD PTR DS:[PDB_JFN_Pointer+2] ; get old table segment
+	MOV	ES,word DS:[PDB_JFN_Pointer+2] ; get old table segment
 	invoke	$DEALLOC		; deallocate old table meomory
 	POP	ES			; restore new table segment
 	POP	DS			; restore old table segment
@@ -308,12 +308,12 @@ ASSUME DS:NOTHING
 update_info:
 	TEST	BP,2			; psp?
 	JZ	non_psp 		; no
-	MOV	WORD PTR DS:[PDB_JFN_Pointer],PDB_JFN_Table   ; restore
+	MOV	word DS:[PDB_JFN_Pointer],PDB_JFN_Table   ; restore
 	JMP	final
 non_psp:
-	MOV	WORD PTR DS:[PDB_JFN_Pointer],0  ; new table pointer offset always 0
+	MOV	word DS:[PDB_JFN_Pointer],0  ; new table pointer offset always 0
 final:
-	MOV	WORD PTR DS:[PDB_JFN_Pointer+2],ES  ; update table pointer segment
+	MOV	word DS:[PDB_JFN_Pointer+2],ES  ; update table pointer segment
 	POP	DS:[PDB_JFN_Length]	 ; restore new number of handles
 	transfer   Sys_Ret_Ok
 no_memory:
@@ -341,10 +341,10 @@ BREAK <$READ - Read from a file handle>
 ;   Returns in register AX
 
 procedure   $READ,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	fmt TypSysCall,LevLog,<"Read\n">
 	fmt TypSysCall,LevArgs,<" Handle $x Cnt $x Buf $x:$x\n">,<BX,CX,DS,DX>
-	MOV	SI,OFFSET DOSGROUP:DOS_Read
+	MOV	SI,DOS_Read
 ReadDo:
 	invoke	pJFNFromHandle
 	JC	ReadError
@@ -355,8 +355,8 @@ ReadError:
 	fmt TypSysCall,LevLog,<"Read/Write error $x\n">,<AX>
 	transfer    SYS_RET_ERR 	; go to error traps
 ReadSetup:
-	MOV	WORD PTR [ThisSFT],DI	; save offset of pointer
-	MOV	WORD PTR [ThisSFT+2],ES ; save segment value
+	MOV	word [ThisSFT],DI	; save offset of pointer
+	MOV	word [ThisSFT+2],ES ; save segment value
 ;; Extended Open
 	TEST	ES:[DI.sf_mode],INT_24_ERROR  ;AN000;;EO. need i24
 	JZ	needi24 		      ;AN000;;EO. yes
@@ -364,12 +364,12 @@ ReadSetup:
 needi24:				      ;AN000;
 
 ;; Extended Open
-	SaveReg <<WORD PTR [DMAAdd]>, <WORD PTR [DMAAdd+2]>>
+	SaveReg <<word [DMAAdd]>, <word [DMAAdd+2]>>
 ;;;;;	BAD SPOT FOR 286!!! SEGMENT ARITHMETIC!!!
 	CALL	Align_Buffer		;AN000;MS. align user's buffer
 ;;;;;	END BAD SPOT FOR 286!!! SEGMENT ARITHMETIC!!!
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 
 ;	int	3
 ;	cmp	[BUF_EMS_MODE], -1
@@ -379,12 +379,12 @@ IF	BUFFERFLAG
 ;	call	save_user_map
 
 ;dos_call:
-ENDIF
+%endif
 	context DS			; go for DOS addressability
 	CALL	SI			; indirect call to operation
-	RestoreReg <<WORD PTR [DMAAdd+2]>, <WORD PTR [DMAAdd]>>
+	RestoreReg <<word [DMAAdd+2]>, <word [DMAAdd]>>
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 	pushf
 	push	ax
 	push	bx
@@ -392,12 +392,12 @@ IF	BUFFERFLAG
 	cmp	cs:[BUF_EMS_MODE], -1
 	jz	dos_call_done
 	call	restore_user_map
-	mov	ax, word ptr cs:[BUF_EMS_LAST_PAGE]
+	mov	ax, word cs:[BUF_EMS_LAST_PAGE]
 	cmp	cs:[BUF_EMS_PFRAME], ax
 	je	dos_call_done
-	mov	word ptr cs:[LASTBUFFER], -1
+	mov	word cs:[LASTBUFFER], -1
 	mov	cs:[BUF_EMS_PFRAME], ax
-	mov	ax, word ptr cs:[BUF_EMS_LAST_PAGE+2]
+	mov	ax, word cs:[BUF_EMS_LAST_PAGE+2]
 	mov	cs:[BUF_EMS_PAGE_FRAME], ax
 	mov	cs:[BUF_EMS_SAFE_FLAG], 1
 	call	Setup_EMS_Buffers
@@ -406,15 +406,15 @@ dos_call_done:
 	pop	bx
 	pop	ax
 	popf
-ENDIF
+%endif
 
-IF	NOT	BUFFERFLAG
+%if NOT	BUFFERFLAG
 	JC	ReadError		; if error, say bye bye
-ELSE
+%else
 	jmp	tmp_rerr
 tmp_rerr:
 	jc	ReadError
-ENDIF
+%endif
 
 	MOV	AX,CX			; get correct return in correct reg
 	fmt TypSysCall,LevLog,<"Read/Write cnt done $x\n">,<AX>
@@ -429,7 +429,7 @@ EndProc $READ
 ;
 
 procedure   Align_Buffer,NEAR		;AN000;
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP  ;AN000;
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP;AN000;
 	MOV	BX,DX			; copy offset
 	SaveReg <CX>			; don't stomp on count
 	MOV	CL,4			; bits to shift bytes->para
@@ -439,8 +439,8 @@ procedure   Align_Buffer,NEAR		;AN000;
 	ADD	AX,BX			; get new segment
 	MOV	DS,AX			; in seg register
 	AND	DX,0Fh			; normalize offset
-	MOV	WORD PTR [DMAAdd],DX	; use user DX as offset
-	MOV	WORD PTR [DMAAdd+2],DS	; use user DS as segment for DMA
+	MOV	word [DMAAdd],DX	; use user DX as offset
+	MOV	word [DMAAdd+2],DS	; use user DS as segment for DMA
 	return				;AN000;
 EndProc Align_Buffer			;AN000;
 
@@ -461,10 +461,10 @@ BREAK <$WRITE - write to a file handle>
 ;   Returns in register AX
 
 procedure   $WRITE,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	fmt TypSysCall,LevLog,<"Write\n">
 	fmt TypSysCall,LevArgs,<" Handle $x Cnt $x Buf $x:$x\n">,<BX,CX,DS,DX>
-	MOV	SI,OFFSET DOSGROUP:DOS_Write
+	MOV	SI,DOS_Write
 	JMP	ReadDo
 EndProc $Write
 
@@ -485,15 +485,15 @@ BREAK <$LSEEK - move r/w pointer>
 ;   Returns in registers DX:AX
 
 procedure   $LSEEK,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	call	CheckOwner		; get system file entry
 LSeekError:
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 	JC	TMP_RERR
-ELSE
+%else
 	JC	ReadError		; error return
-ENDIF
+%endif
 	CMP	AL,2			; is the seek value correct?
 	JBE	LSeekDisp		; yes, go dispatch
 	MOV	EXTERR_LOCUS,errLoc_Unk ; Extended Error Locus
@@ -502,14 +502,14 @@ LSeekDisp:
 	CMP	AL,1			; best way to dispatch; check middle
 	JB	LSeekStore		; just store CX:DX
 	JA	LSeekEOF		; seek from end of file
-	ADD	DX,WORD PTR ES:[DI.SF_Position]
-	ADC	CX,WORD PTR ES:[DI.SF_Position+2]
+	ADD	DX,word ES:[DI.SF_Position]
+	ADC	CX,word ES:[DI.SF_Position+2]
 LSeekStore:
 	MOV	AX,CX			; AX:DX
 	XCHG	AX,DX			; DX:AX is the correct value
 LSeekSetpos:
-	MOV	WORD PTR ES:[DI.SF_Position],AX
-	MOV	WORD PTR ES:[DI.SF_Position+2],DX
+	MOV	word ES:[DI.SF_Position],AX
+	MOV	word ES:[DI.SF_Position+2],DX
 	invoke	Get_user_stack
 	MOV	DS:[SI.User_DX],DX	; return DX:AX
 	transfer    SYS_RET_OK		; successful return
@@ -518,8 +518,8 @@ LSeekEOF:
 	TEST	ES:[DI.sf_flags],sf_isnet
 	JNZ	Check_LSeek_Mode	; Is Net
 LOCAL_LSeek:
-	ADD	DX,WORD PTR ES:[DI.SF_Size]
-	ADC	CX,WORD PTR ES:[DI.SF_Size+2]
+	ADD	DX,word ES:[DI.SF_Size]
+	ADC	CX,word ES:[DI.SF_Size+2]
 	JMP	LSeekStore		; go and set the position
 
 Check_LSeek_Mode:
@@ -578,7 +578,7 @@ BREAK <FileTimes - modify write times on a handle>
 ;
 
 procedure   $File_Times,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	CMP	AL,2			; correct subfunction?
 	JAE	gsetxa
 	JMP	filetimes_ok		; Yes, continue
@@ -605,8 +605,8 @@ gshandle:				;AN000;
 	JMP	LSeekError		;AN000;    ;FT. turkey handle
 					;AN000;
 getsetit:				;AN000;
-	MOV	WORD PTR [ThisSFT],DI	;AN000;       ;FT. set ThisSFT
-	MOV	WORD PTR [ThisSFT+2],ES ;AN000;       ;FT. set ThisSFT
+	MOV	word [ThisSFT],DI	;AN000;       ;FT. set ThisSFT
+	MOV	word [ThisSFT+2],ES ;AN000;       ;FT. set ThisSFT
 ;	TEST	ES:[DI.sf_mode],INT_24_ERROR   ;AN000;;FT. mask INT 24
 ;	JZ	nomask			       ;AN000;;FT. no
 ;	OR	[EXTOPEN_ON],EXT_OPEN_I24_OFF  ;AN000;;FT. set bit for I24 handler
@@ -683,11 +683,11 @@ filetimes_set:
 	MOV	ES:[DI.sf_Date],DX	; and date
 	XOR	AX,AX
 do_share:
-if installed
+%if installed
 	Call	JShare + 14 * 4
-else
+%else
 	Call	ShSU
-endif
+%endif
 datetimeflg:
 	AND	ES:[DI.sf_Flags],NOT devid_file_clean
 	OR	ES:[DI.sf_Flags],sf_close_nodate
@@ -707,7 +707,7 @@ BREAK <$DUP - duplicate a jfn>
 ;	    AX = dup_invalid_handle
 ;	       = dup_too_many_open_files
 Procedure   $DUP,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	MOV	AX,BX			; save away old handle in AX
 	invoke	JFNFree 		; free handle? into ES:DI, new in BX
 DupErrorCheck:
@@ -737,7 +737,7 @@ BREAK <$DUP2 - force a dup on a particular jfn>
 ;	    AX = error_invalid_handle
 ;
 Procedure   $Dup2,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	SaveReg <BX,CX> 		; save source
 	MOV	BX,CX			; get one to close
 	invoke	$Close			; close destination handle
@@ -764,7 +764,7 @@ Break	<CheckOwner - verify ownership of handles from server>
 ;
 
 Procedure   CheckOwner,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	invoke	SFFromHandle
 	retc
 	push	ax
@@ -888,6 +888,6 @@ EndProc CheckOwner
 ;EndProc	choose_buf_page	
 ;
 
-CODE	ENDS
-END
+; END SECTION .CODE
+; END
 

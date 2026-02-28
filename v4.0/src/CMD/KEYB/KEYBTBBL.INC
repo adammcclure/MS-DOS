@@ -1,5 +1,5 @@
 
-.XLIST
+; .XLIST
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -23,11 +23,11 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					       ;;
-	EXTRN	 TABLE_BUILD   :NEAR	       ;;
-	EXTRN	 FIND_CP_TABLE :NEAR	       ;;
+	extern TABLE_BUILD   ;;
+	extern FIND_CP_TABLE ;;
 					       ;;
-	EXTRN	 CPN_INVALID   :WORD	       ;;
-	EXTRN	 SD_LENGTH     :WORD	       ;;
+	extern CPN_INVALID   ;;
+	extern SD_LENGTH     ;;
 					       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.LIST
+; .LIST

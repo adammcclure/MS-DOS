@@ -1,10 +1,10 @@
 ;0
-page 80,132
+; page 80,132
 
-title CP/DOS KbdFlushBuffer mapper
+; title CP/DOS KbdFlushBuffer mapper
 
-kbdxxx	segment byte public 'kbd'
-	assume	cs:kbdxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .kbdxxx
+	; assume	cs:kbdxxx,ds:nothing,es:nothing,ss:nothing
 
 ; ************************************************************************* *
 ; *
@@ -12,25 +12,25 @@ kbdxxx	segment byte public 'kbd'
 ; *
 ; *************************************************************************
 ;
-	public kbdflushbuffer
-	.sall
-	.xlist
-	include kbd.inc
-	.list
+	global kbdflushbuffer
+	; .sall
+	; .xlist
+	%include "kbd.inc"
+	; .list
 
-	public savedkbdinput
-savedkbdinput	label	word
+	global savedkbdinput
+savedkbdinput:
 		db	0	; Character goes here
 		db	0	; Not zero means char is here
 
 
-str	struc
-old_bp	dw	?
-return	dd	?
-handle	dw	?	   ; kbd handle
-str	ends
+struc str
+old_bp: dw 0
+return: dd 0
+handle: dw 0; kbd handle
+endstruc
 
-kbdflushbuffer	proc   far
+kbdflushbuffer:
 	Enter	KbdFlushBuffer	  ; push registers
 	mov	ah,0bh		  ; Check for ^C
 	int	021h
@@ -48,10 +48,10 @@ nochar:
 
 done:	sub	ax,ax		  ; set good return code
 	Mexit			  ; pop registers
-	ret	size str - 6	  ; return
+	ret	str_size - 6	  ; return
 
-kbdflushbuffer endp
+; ENDP kbdflushbuffer
 
-kbdxxx	ends
+; END SECTION .kbdxxx
 
-	end
+	; end

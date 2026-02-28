@@ -1,4 +1,4 @@
-        page    80,132
+        ; page    80,132
 ;******************* START OF SPECIFICATIONS ***********************************
 ;
 ; MODULE NAME:          SHARE.EXE     (a true EXE file)

@@ -1,94 +1,94 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)rucode.asm 4.5 85/07/22
 ;	SCCSID = @(#)rucode.asm 4.5 85/07/22
-TITLE	COMMAND Language modifiable Code Resident
+; TITLE	COMMAND Language modifiable Code Resident
 
 
-.xlist
-.xcref
-INCLUDE DOSSYM.INC			;AC000;
-include doscntry.inc			;AC000;
+; .xlist
+; .xcref
+%include "DOSSYM.INC";AC000;
+%include "doscntry.inc";AC000;
 DEBUG = 0				; NEED TO SET IT TO WHAT IT IS IN DOSSYM.INC
 
 
-	INCLUDE DEVSYM.INC
-	INCLUDE comsw.asm
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-	include resmsg.equ		;AN000;
-.list
-.cref
+	%include "DEVSYM.INC"
+	%include "comsw.asm"
+	%include "comseg.asm"
+	%include "comequ.asm"
+	%include "resmsg.equ";AN000;
+; .list
+; .cref
 
 
 Tokenized   =	FALSE
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	abort_char:byte
-	EXTRN	badfat_block:byte	;AC000;
-	EXTRN	badfat_subst:byte	;AC000;
-	EXTRN	Batch_Abort:byte
-	EXTRN	CDEVAT:BYTE
-	EXTRN	COMSPEC:BYTE		;AN060;
-	EXTRN	com_xlat_addr:word
-	EXTRN	crit_err_info:byte
-	EXTRN	crit_msg_off:word	;AC000;
-	EXTRN	crit_msg_seg:word	;AC000;
-	EXTRN	dbcs_vector_addr:dword	;AN000;
-	EXTRN	devemes_block:byte	;AC000;
-	EXTRN	devemes_subst:byte	;AC000;
-	EXTRN	DEVENAM:BYTE
-	EXTRN	deve_op_off:word	;AC000;
-	EXTRN	disp_class:byte 	;AC000;
-	EXTRN	DRVLET:BYTE
-	EXTRN	drvnum_block:byte	;AC000;
-	EXTRN	drvnum_op_off:word	;AC000;
-	EXTRN	drvnum_subst:byte	;AC000;
-	EXTRN	err15mes_block:byte	;AC000;
-	EXTRN	err15mes_subst:byte	;AC000;
-	EXTRN	ERRCD_24:WORD
-	EXTRN	ErrType:BYTE
-	EXTRN	fail_char:byte
-	EXTRN	fFail:BYTE
-	EXTRN	FORFLAG:BYTE
-	EXTRN	ignore_char:byte
-	EXTRN	InitFlag:BYTE
-	EXTRN	In_Batch:byte
-	EXTRN	LOADING:BYTE
+SECTION .DATARES;AC000;
+	extern abort_char
+	extern badfat_block;AC000;
+	extern badfat_subst;AC000;
+	extern Batch_Abort
+	extern CDEVAT
+	extern COMSPEC;AN060;
+	extern com_xlat_addr
+	extern crit_err_info
+	extern crit_msg_off;AC000;
+	extern crit_msg_seg;AC000;
+	extern dbcs_vector_addr;AN000;
+	extern devemes_block;AC000;
+	extern devemes_subst;AC000;
+	extern DEVENAM
+	extern deve_op_off;AC000;
+	extern disp_class;AC000;
+	extern DRVLET
+	extern drvnum_block;AC000;
+	extern drvnum_op_off;AC000;
+	extern drvnum_subst;AC000;
+	extern err15mes_block;AC000;
+	extern err15mes_subst;AC000;
+	extern ERRCD_24
+	extern ErrType
+	extern fail_char
+	extern fFail
+	extern FORFLAG
+	extern ignore_char
+	extern InitFlag
+	extern In_Batch
+	extern LOADING
 ;AD054; EXTRN	MESBAS:BYTE
-	EXTRN	no_char:byte
-	EXTRN	number_subst:byte	;AC000;
-	EXTRN	olderrno:word
-	EXTRN	PARENT:WORD
+	extern no_char
+	extern number_subst;AC000;
+	extern olderrno
+	extern PARENT
 ;AD060; EXTRN	pars_msg_off:word	;AC000;
 ;AD060; EXTRN	pars_msg_seg:word	;AC000;
-	EXTRN	PERMCOM:BYTE
-	EXTRN	RemMsg:DWORD
-	EXTRN	retry_char:byte
-	EXTRN	PIPEFLAG:BYTE
-	EXTRN	SINGLECOM:WORD
-	EXTRN	VolName:BYTE
-	EXTRN	yes_char:byte
+	extern PERMCOM
+	extern RemMsg
+	extern retry_char
+	extern PIPEFLAG
+	extern SINGLECOM
+	extern VolName
+	extern yes_char
 
-	IF	Tokenized
-	EXTRN	IOTYP:BYTE
-	EXTRN	MESADD:BYTE
-	ENDIF
+	%if Tokenized
+	extern IOTYP
+	extern MESADD
+	%endif
 
-DATARES ENDS
+; END SECTION .DATARES
 
 
-CODERES SEGMENT PUBLIC BYTE
+SECTION .CODERES
 
-	EXTRN	GETCOMDSK2:NEAR
+	extern GETCOMDSK2
 
-	PUBLIC	ASKEND
-	PUBLIC	CRLF
-	PUBLIC	DSKERR
-	PUBLIC	ITESTKANJ		;AN000;
-	PUBLIC	RESET_MSG_POINTERS	;AC000;
-	PUBLIC	RPRINT
+	global ASKEND
+	global CRLF
+	global DSKERR
+	global ITESTKANJ;AN000;
+	global RESET_MSG_POINTERS;AC000;
+	global RPRINT
 
-ASSUME	CS:RESGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:RESGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ;
 ; AskEnd - prompt the user to see if he should terminate the batch file.  If
@@ -100,7 +100,7 @@ ASSUME	CS:RESGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 ;		carry clear otherwise.
 ;
 
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 ASKEND:
 	MOV	DX,ENDBATMES			;AC000; get batch terminate question
 	CALL	RPRINT
@@ -115,7 +115,7 @@ ASKEND:
 	return
 
 DSKERR:
-ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	; ******************************************************
 	;	THIS IS THE DEFAULT DISK ERROR HANDLING CODE
 	;	AVAILABLE TO ALL USERS IF THEY DO NOT TRY TO
@@ -134,7 +134,7 @@ ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	MOV	[CDEVAT],AH
 	PUSH	CS
 	POP	ES
-	MOV	DI,OFFSET RESGROUP:DEVENAM
+	MOV	DI,DEVENAM
 	MOV	CX,8
 	ADD	SI,SDEVNAME			; Suck up device name (even on Block)
 	REP	MOVSB
@@ -145,7 +145,7 @@ ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	INVOKE	SAVHAND
 	PUSH	CS
 	POP	DS				; Set up local data segment
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 
 	PUSH	DX
 	CALL	CRLF
@@ -167,12 +167,12 @@ NOHARDE:
 	MOV	SI,MWRITE			;AC000;
 
 SAVMES:
-	IF	Tokenized
+	%if Tokenized
 	LODSW
-	MOV	WORD PTR [IOTYP],AX
+	MOV	word [IOTYP],AX
 	LODSW
-	MOV	WORD PTR [IOTYP+2],AX
-	ENDIF
+	MOV	word [IOTYP+2],AX
+	%endif
 
 	mov	olderrno,di			; keep code in a safe place
 	PUSH	ES				;AN000;
@@ -190,8 +190,8 @@ SAVMES:
 	POP	SI
 	POP	BP
 	POP	DS
-	mov	word ptr cs:[RemMsg],di 	;AC000; save pointer to remote message
-	mov	word ptr cs:[RemMsg+2],es	;AC000;    (only used on code 15)
+	mov	word cs:[RemMsg],di 	;AC000; save pointer to remote message
+	mov	word cs:[RemMsg+2],es	;AC000;    (only used on code 15)
 	pop	ES				;AN000;
 	XOR	AH,AH
 	mov	di,ax				; REAL error code to DI
@@ -264,16 +264,16 @@ GotStyle:
 	xor	al,al				;  the high byte on for rprint
 	repnz	scasb
 
-	IF	Tokenized
-	or	byte ptr [di-2],80h
+	%if Tokenized
+	or	byte [di-2],80h
 	call	rprint				; Print the message
-	and	byte ptr [di-2], NOT 80h	; Restore msg to original condition
-	ELSE
-	mov	byte ptr [di-1],'$'
+	and	byte [di-2], NOT 80h	; Restore msg to original condition
+	%else
+	mov	byte [di-1],'$'
 	MOV	AH,Std_con_string_output	;AC000; Print the message
 	INT	21h				;AN000;
-	mov	byte ptr [di-1],0		; Restore msg to original condition
-	ENDIF
+	mov	byte [di-1],0		; Restore msg to original condition
+	%endif
 
 	pop	ds				; Clean up and continue processing
 	jmp	short CheckErrType
@@ -298,11 +298,11 @@ CheckErrType:
 	jmp	short ASK
 
 ContOld:
-	IF	NOT Tokenized
+	%if NOT Tokenized
 	MOV	AX,SI				;AN000; get reading/writing for message
 	MOV	DH,UTIL_MSG_CLASS		;AN000; this is a utility message
 	CALL	SYSGETMSG			;AN000; get the message
-	ENDIF
+	%endif
 
 	TEST	[CDEVAT],DEVTYP SHR 8
 	JZ	BLKERR
@@ -310,7 +310,7 @@ ContOld:
 	MOV	DEVE_OP_OFF,SI			;AN000; put address of read/write in subst block
 	MOV	AL,DEVEMES_SUBST		;AN000; get number of substitutions
 	MOV	NUMBER_SUBST,AL 		;AN000;
-	MOV	SI,OFFSET RESGROUP:DEVEMES_BLOCK;AN000; get address of subst block
+	MOV	SI,DEVEMES_BLOCK;AN000; get address of subst block
 
 	CALL	RPRINT				;AC000; print the message
 	JMP	SHORT ASK			; Don't ralph on COMMAND
@@ -320,7 +320,7 @@ BLKERR:
 	MOV	DRVNUM_OP_OFF,SI		;AN000; put address of read/write in subst block
 	MOV	AL,DRVNUM_SUBST 		;AN000; get number of substitutions
 	MOV	NUMBER_SUBST,AL 		;AN000;
-	MOV	SI,OFFSET RESGROUP:DRVNUM_BLOCK ;AN000; get address of subst block
+	MOV	SI,DRVNUM_BLOCK ;AN000; get address of subst block
 	CALL	RPRINT
 	CMP	[LOADING],0
 	JZ	ASK
@@ -334,9 +334,9 @@ ASK:
 	push	ds
 	pop	es
 	lds	si,[RemMsg]
-assume	ds:nothing
+; assume	ds:nothing
 	push	di
-	mov	di,offset resgroup:VolName
+	mov	di,VolName
 	mov	cx,16				;AC000; extra message volume name & serial number
 	cld					; just in case!
 	rep	movsb
@@ -344,11 +344,11 @@ assume	ds:nothing
 	push	es
 	pop	ds
 	POP	CX
-assume	ds:resgroup
+; assume	ds:resgroup
 	mov	dx,Err15Mes			;AC000; get message number
 	MOV	AL,ERR15MES_SUBST		;AN000; get number of substitutions
 	MOV	NUMBER_SUBST,AL 		;AN000;
-	MOV	SI,OFFSET RESGROUP:ERR15MES_BLOCK ;AN000; get address of subst block
+	MOV	SI,ERR15MES_BLOCK ;AN000; get address of subst block
 	CALL	RPRINT
 
 ; PRINT OUT ABORT, RETRY, IGNORE, FAIL MESSAGE.  ONLY PRINT OUT OPTIONS
@@ -440,17 +440,17 @@ DeadInTheWater:
 	jmp	DeadInTheWater			; Loop until the user reboots
 
 JustExit:
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	call	reset_msg_pointers		;AN000; reset critical & parse message addresses
 	mov	ax,[PARENT]			; Load real parent PID
-	mov	word ptr ds:[PDB_Parent_PID],ax ; Put it back where it belongs
+	mov	word ds:[PDB_Parent_PID],ax ; Put it back where it belongs
 	mov	ax,(Exit SHL 8) OR 255
 	int	21H
 
 AbortCont:
-	test	byte ptr [In_Batch],-1		; Are we accessing a batch file?
+	test	byte [In_Batch],-1		; Are we accessing a batch file?
 	jz	Not_Batch_Abort
-	mov	byte ptr [Batch_Abort],1	; set flag for abort
+	mov	byte [Batch_Abort],1	; set flag for abort
 
 Not_Batch_Abort:
 	mov	dl,PipeFlag
@@ -489,13 +489,13 @@ FATERR:
 	MOV	DX,BADFAT			;AC000;
 	MOV	AL,BADFAT_SUBST 		;AN000; get number of substitutions
 	MOV	NUMBER_SUBST,AL 		;AN000;
-	MOV	SI,OFFSET RESGROUP:BADFAT_BLOCK ;AN000; get address of subst block
+	MOV	SI,BADFAT_BLOCK ;AN000; get address of subst block
 	CALL	RPRINT
 
-	IF	Tokenized
-	MOV	DX,OFFSET RESGROUP:ERRMES
+	%if Tokenized
+	MOV	DX,ERRMES
 	CALL	RPRINT
-	ENDIF
+	%endif
 
 	MOV	AL,2				; Abort
 	JMP	RESTHD
@@ -503,7 +503,7 @@ FATERR:
 ;*********************************************
 ; Print routines for Tokenized resident messages
 
-ASSUME DS:RESGROUP,SS:RESGROUP
+; ASSUME DS:RESGROUP,SS:RESGROUP
 
 CRLF:
 	MOV	DX,NEWLIN			;AC000;
@@ -527,7 +527,7 @@ RPRINT:
 ; Use CPM io to output it.
 ;
 
-if NOT tokenized
+%if NOT tokenized
 	PUSH	AX
 	PUSH	BX				;AC000; save BX register
 	PUSH	CX				;AC000; save CX register
@@ -547,7 +547,7 @@ if NOT tokenized
 	POP	AX
 
 	return
-endif
+%endif
 
 ;
 ; If we are tokenized, output character-by-character.  If there is a digit in
@@ -555,7 +555,7 @@ endif
 ; bit to determine the end-of-string.
 ;
 
-If Tokenized
+%if Tokenized
 	SaveReg <AX,DX,SI>
 	MOV	SI,DX
 
@@ -571,7 +571,7 @@ RPRINT1:
 	CBW					; DS must be RESGROUP if we get here
 	SHL	AX,1				; clear carry
 	XCHG	SI,AX
-	MOV	DX,[SI + OFFSET RESGroup:MesADD]
+	MOV	DX,[SI + MesADD]
 	CALL	RPrint
 	XCHG	SI,AX
 	JMP	SHORT RPRINT3
@@ -591,7 +591,7 @@ RPRINT3:
 RPRINT5:
 	RestoreReg  <SI,DX,AX>
 	RET
-endif
+%endif
 
 
 ;g
@@ -600,18 +600,18 @@ endif
 ;g   ascii 128, else subtract 20H if between "a" and "z"
 ;g
 
-assume	ds:resgroup
+; assume	ds:resgroup
 
-in_char_xlat	proc	near
+in_char_xlat:
 
 	cmp	al,80h				;g see if char is above ascii 128
 	jb	other_xlat			;g no - upper case math
 	sub	al,80h				;g only upper 128 characters in table
 	push	ds
 	push	bx
-	lds	bx,dword ptr com_xlat_addr+1 ;g get table address
+	lds	bx,dword com_xlat_addr+1 ;g get table address
 	add	bx,2				;g skip over first word, of table
-	xlat	ds:byte ptr [bx]		;g convert to upper case
+	xlat	ds:byte [bx]		;g convert to upper case
 	pop	bx
 	pop	ds
 	jmp	short in_char_xlat_end		;g we finished - exit
@@ -627,7 +627,7 @@ in_char_xlat_end:
 
 	ret
 
-in_char_xlat	endp
+; ENDP in_char_xlat
 ;---------------------- DBCS lead byte check. this is resident code ; 3/3/KK
 
 ITESTKANJ:					;AN000;
@@ -638,14 +638,14 @@ TestKanjR:					;AN000;  3/3/KK
 	lds	si,dbcs_vector_addr		;AN000;  GET DBCS VECTOR
 
 ktlop:						;AN000;  3/3/KK
-	cmp	word ptr ds:[si],0		;AN000;  3/3/KK end of Lead Byte Table
+	cmp	word ds:[si],0		;AN000;  3/3/KK end of Lead Byte Table
 	je	notlead 			;AN000;  3/3/KK
 	pop	ax				;AN000;  3/3/KK
 	push	ax				;AN000;  3/3/KK
-	cmp	al, byte ptr ds:[si]		;AN000;  3/3/KK
+	cmp	al, byte ds:[si]		;AN000;  3/3/KK
 	jb	notlead 			;AN000;  3/3/KK
 	inc	si				;AN000;  3/3/KK
-	cmp	al, byte ptr ds:[si]		;AN000;  3/3/KK
+	cmp	al, byte ds:[si]		;AN000;  3/3/KK
 	jbe	islead				;AN000;  3/3/KK
 	inc	si				;AN000;  3/3/KK
 	jmp	short ktlop			;AN000;  3/3/KK try another range
@@ -679,9 +679,9 @@ ktret:						;AN000;  3/3/KK
 ; *
 ; ****************************************************************
 
-reset_msg_pointers	proc	near
+reset_msg_pointers:
 
-assume	ds:resgroup, es:nothing
+; assume	ds:resgroup, es:nothing
 
 	push	es				;AN000; save used registers
 	push	ax				;AN000;
@@ -709,31 +709,31 @@ assume	ds:resgroup, es:nothing
 	ret
 
 
-reset_msg_pointers	endp
+; ENDP reset_msg_pointers
 
-PUBLIC		MSG_SERV_ST			;AN000;
-MSG_SERV_ST	LABEL	BYTE			;AN000;
+global MSG_SERV_ST;AN000;
+MSG_SERV_ST:;AN000;
 
-PUBLIC	SYSGETMSG,SYSDISPMSG
+global SYSGETMSG,SYSDISPMSG
 
-ASSUME	DS:RESGROUP, ES:RESGROUP
+; ASSUME	DS:RESGROUP, ES:RESGROUP
 
-.xlist
-.xcref
+; .xlist
+; .xcref
 
-INCLUDE SYSMSG.INC				;AN000; include message services
+%include "SYSMSG.INC";AN000; include message services
 
-.list
-.cref
+; .list
+; .cref
 
 MSG_UTILNAME <COMMAND>				;AN000; define utility name
 
 MSG_SERVICES <COMR,NEARmsg,DISK_PROC,GETmsg,DISPLAYmsg,CHARmsg,NUMmsg> ;AC060; include message services macro
 
-PUBLIC		RES_CODE_END			;AN000;
-RES_CODE_END	LABEL	BYTE			;AN000;
+global RES_CODE_END;AN000;
+RES_CODE_END:;AN000;
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-CODERES ENDS
-	END
+; END SECTION .CODERES
+	; END

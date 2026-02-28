@@ -31,14 +31,14 @@
 ;		 selection is made by numeric input.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.ALPHA					;AN000;
-	INCLUDE    STRUC.INC		;AN000;
-	INCLUDE    MACROS.INC		;AN006;JW
-	INCLUDE    PANEL.MAC		;AN000;
-	INCLUDE    PAN-LIST.INC 	;AN000;
-	INCLUDE    SELECT.INC		;AN000;
-	INCLUDE    CASTRUC.INC		;AN000;
-	INCLUDE    DATA.MAC		;AN000;
+; .ALPHA;AN000;
+	%include "STRUC.INC";AN000;
+	%include "MACROS.INC";AN006;JW
+	%include "PANEL.MAC";AN000;
+	%include "PAN-LIST.INC";AN000;
+	%include "SELECT.INC";AN000;
+	%include "CASTRUC.INC";AN000;
+	%include "DATA.MAC";AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Variable(s) for Conditional Assembly
@@ -47,37 +47,37 @@
 ;    file and included during assembly.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	INCLUDE CASVAR.INC	;AN000;
+	%include "CASVAR.INC";AN000;
 				;
-	EXTRN	DISK_PANEL:WORD ;AN000;
-	EXTRN	SEARCH_FILE:WORD;AN000;
-	EXTRN	FK_ENT:BYTE	;AN000;
-	EXTRN	FK_ENT_LEN:ABS	;AN000;
-	EXTRN	E_FILE_ATTR:ABS ;AN000;
-	EXTRN	E_RETURN:ABS	;AN000;
-	EXTRN	ACTIVE:BYTE	;AN000;
-	EXTRN	ALTERNATE:BYTE	;AN000;
-	EXTRN	LCD:ABS 	;AN000;
-	EXTRN	E_RETURN:ABS	;AN000;
-	EXTRN	ERROR_ACTIVE:BYTE;AN000;
-	EXTRN	MEM_SIZE:WORD	;AN024;
+	extern DISK_PANEL;AN000;
+	extern SEARCH_FILE;AN000;
+	extern FK_ENT;AN000;
+	extern FK_ENT_LEN;AN000;
+	extern E_FILE_ATTR;AN000;
+	extern E_RETURN;AN000;
+	extern ACTIVE;AN000;
+	extern ALTERNATE;AN000;
+	extern LCD;AN000;
+	extern E_RETURN;AN000;
+	extern ERROR_ACTIVE;AN000;
+	extern MEM_SIZE;AN024;
 				;;;;;;;;;
-	EXTRN	DISPLAY_MESSAGE_ROUTINE:FAR ;AN024;
-	EXTRN	HOOK_INT_24:FAR 	;AN000;
-	EXTRN	RESTORE_INT_24:FAR	;AN000;
-	EXTRN	FIND_FILE_ROUTINE:FAR	;AN000;
-	EXTRN	GET_FUNCTION_CALL:NEAR	;AN000;
-	EXTRN	HANDLE_CHILDREN:NEAR	;AN000;
-	EXTRN	PREPARE_PANEL_CALL:NEAR ;AN000;
-	EXTRN	ALLOCATE_HELP:FAR	;AN024;
-	EXTRN	DEALLOCATE_HELP:FAR	;AN024;
-	EXTRN	ALLOCATE_LVB:FAR	;AN024;
-	EXTRN	DEALLOCATE_LVB:FAR	;AN024;
+	extern DISPLAY_MESSAGE_ROUTINE;AN024;
+	extern HOOK_INT_24;AN000;
+	extern RESTORE_INT_24;AN000;
+	extern FIND_FILE_ROUTINE;AN000;
+	extern GET_FUNCTION_CALL;AN000;
+	extern HANDLE_CHILDREN;AN000;
+	extern PREPARE_PANEL_CALL;AN000;
+	extern ALLOCATE_HELP;AN024;
+	extern DEALLOCATE_HELP;AN024;
+	extern ALLOCATE_LVB;AN024;
+	extern DEALLOCATE_LVB;AN024;
 
 ;
 ; Table at OFFSET 0 of panel file
 ;
-EXT_FILE STRUC				;AN024;
+struc EXT_FILE;AN024;
  PCBS	 DW	 0			;AN024;offset of PCB vector table
  NPCBS	 DW	 0			;AN024;number of PCBs
  SCBS	 DW	 0			;AN024;offset of SCB vector table
@@ -86,63 +86,63 @@ EXT_FILE STRUC				;AN024;
  NCOLTBL DW	 0			;AN024;number of COLOR attribute sets
  MONTBL  DW	 0			;AN024;offset of MONO attribute table
  NMONTBL DW	 0			;AN024;number of MONO attribute sets
-EXT_FILE ENDS				;AN024;
+endstruc;AN024;
 					;
-DATA	  SEGMENT BYTE PUBLIC 'DATA'    ;AN024;
+SECTION .DATA;AN024;
 CFILE	  DB   'SELECT.DAT',0           ;AN024;compressed panel file
 REPCHAR   EQU  255			;AN024;character used as repeat flag
-DATA	  ENDS				;AN024; 								;AN000;
+; END SECTION .DATA;AN024; 								;AN000;
 					;
-IF CASFAR				;AN000;
-   IFE CASRM				;AN000;
-	       EXTRN   INPUT:FAR	;AN000;
-	       EXTRN   HLPRD:FAR	;AN000;
-	       EXTRN   SLCTP:FAR	;AN000;
-	       EXTRN   PANEL:FAR	;AN000;
-	       EXTRN   DISPQ:FAR	;AN000;
-	       EXTRN   INCHA:FAR	;AN000;
-	       EXTRN   MBEEP:FAR	;AN000;
-	       EXTRN   INSTRN:FAR	;AN000;
-	       EXTRN   GVIDO:FAR	;AN000;
-	       EXTRN   WWRAP:FAR	;AN000;
-   ENDIF				;AN000;
+%if CASFAR;AN000;
+   %if (CASRM) == 0;AN000;
+	       extern INPUT;AN000;
+	       extern HLPRD;AN000;
+	       extern SLCTP;AN000;
+	       extern PANEL;AN000;
+	       extern DISPQ;AN000;
+	       extern INCHA;AN000;
+	       extern MBEEP;AN000;
+	       extern INSTRN;AN000;
+	       extern GVIDO;AN000;
+	       extern WWRAP;AN000;
+   %endif;AN000;
 					;
-SELECT	SEGMENT PARA PUBLIC 'SELECT'    ;AN000;segment for far routine
+SECTION .SELECT;AN000;segment for far routine
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; IF NEAR procedure, then define segment and EXTRN
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ELSE					;AN000;
+%else;AN000;
 					;
-SELECT	SEGMENT PARA PUBLIC 'SELECT'    ;AN000;segment for far routine
-   IFE CASRM				;AN000;
-	EXTRN	INPUT:NEAR		;AN000;
-	EXTRN	HLPRD:NEAR		;AN000;
-	EXTRN	SLCTP:NEAR		;AN000;
-	EXTRN	PANEL:NEAR		;AN000;
-	EXTRN	DISPQ:NEAR		;AN000;
-	EXTRN	INCHA:NEAR		;AN000;
-	EXTRN	MBEEP:NEAR		;AN000;
-	EXTRN	INSTRN:NEAR		;AN000;
-	EXTRN	GVIDO:NEAR		;AN000;
-	EXTRN	WWRAP:NEAR		;AN000;
-   ENDIF				;AN000;
-ENDIF					;AN000;
-	ASSUME	CS:SELECT,DS:DATA,ES:DATA ;AN000;
+SECTION .SELECT;AN000;segment for far routine
+   %if (CASRM) == 0;AN000;
+	extern INPUT;AN000;
+	extern HLPRD;AN000;
+	extern SLCTP;AN000;
+	extern PANEL;AN000;
+	extern DISPQ;AN000;
+	extern INCHA;AN000;
+	extern MBEEP;AN000;
+	extern INSTRN;AN000;
+	extern GVIDO;AN000;
+	extern WWRAP;AN000;
+   %endif;AN000;
+%endif;AN000;
+	; ASSUME	CS:SELECT,DS:DATA,ES:DATA;AN000;
 
-	PUBLIC	CURSOROFF,PCGVIDO_CALL,INITIALIZE;AN000;
-	PUBLIC	GET_KEY,PCDISPQ_CALL,PCPANEL_CALL;AN000;
-	PUBLIC	GET_SCROLL_CALL,PCINPUT_CALL,CURSORON;AN000;
-	PUBLIC	GET_SCB,GET_PCB,GET_ICB,PCMBEEP_CALL,PCSLCTP_CALL;AN000;
-	EXTRN	GET_HELP_ID:NEAR	;AN000;
-	EXTRN	ADJUST_DOWN:NEAR	;AN000;
-	EXTRN	ADJUST_UP:NEAR		;AN000;
-	EXTRN	INIT_SCROLL_CALL:NEAR	;AN000;
-	EXTRN	INIT_PQUEUE_CALL:NEAR	;AN000;
-	EXTRN	DISPLAY_PANEL_CALL:NEAR ;AN000;
-	EXTRN	HANDLE_ERROR_CALL:FAR	;AN006;JW
-	EXTRN	EXIT_SELECT:NEAR	;AN006;JW
+	global CURSOROFF,PCGVIDO_CALL,INITIALIZE;AN000;
+	global GET_KEY,PCDISPQ_CALL,PCPANEL_CALL;AN000;
+	global GET_SCROLL_CALL,PCINPUT_CALL,CURSORON;AN000;
+	global GET_SCB,GET_PCB,GET_ICB,PCMBEEP_CALL,PCSLCTP_CALL;AN000;
+	extern GET_HELP_ID;AN000;
+	extern ADJUST_DOWN;AN000;
+	extern ADJUST_UP;AN000;
+	extern INIT_SCROLL_CALL;AN000;
+	extern INIT_PQUEUE_CALL;AN000;
+	extern DISPLAY_PANEL_CALL;AN000;
+	extern HANDLE_ERROR_CALL;AN006;JW
+	extern EXIT_SELECT;AN006;JW
 					;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -167,26 +167,26 @@ ENDIF					;AN000;
 ;	  BX	       = Current element
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PUSHH	MACRO	REG_LIST	;;AN000;
-	IRP	REG,<REG_LIST>	;;AN000;
+%macro PUSHH 1;;AN000;
+	; IRP	REG,<REG_LIST>;;AN000;
 	PUSH	REG		;;AN000; save registers
-	ENDM			;;AN000;
-		ENDM		;;AN000;
+	%endmacro;;AN000;
+		%endmacro;;AN000;
 				;;
-POPP	MACRO	REG_LIST	;;AN000;
-	IRP	REG,<REG_LIST>	;;AN000;
+%macro POPP 1;;AN000;
+	; IRP	REG,<REG_LIST>;;AN000;
 	POP	REG		;;AN000; return registers to initial state
-	ENDM			;;AN000;
-		ENDM		;;AN000;
+	%endmacro;;AN000;
+		%endmacro;;AN000;
 				;;
-DOSCALL   MACRO 		;;AN000;
+%macro DOSCALL 0;;AN000;
 	  INT	  21H		;;AN000; call to DOS
-	  ENDM			;;AN000;
+	  %endmacro;;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-GET_SCROLL_CALL PROC NEAR		;AN000;
+GET_SCROLL_CALL:;AN000;
 	       PUSH CX			;AN000;
 	       PUSH DX			;AN000;
 	       PUSH SI			;AN000;
@@ -290,8 +290,8 @@ GS20:	       MOV  BX,ES:[DI]+SCB_CURELE    ;AN000;return current element
 	       POP  CX			     ;AN000;
 
 	       RET			     ;AN000;
-GET_SCROLL_CALL ENDP			     ;AN000;
-PAGE					     ;AN000;
+; ENDP GET_SCROLL_CALL;AN000;
+; PAGE;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; GET_INPUT_CALL
@@ -310,8 +310,8 @@ PAGE					     ;AN000;
 ; Exit:   AX	       = Contains keystroke
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	PUBLIC GET_INPUT_CALL		     ;AN000;GHG
-GET_INPUT_CALL PROC NEAR		     ;AN000;GHG
+	global GET_INPUT_CALL;AN000;GHG
+GET_INPUT_CALL:;AN000;GHG
 	       PUSH CX			     ;AN000;GHG
 	       PUSH DX			     ;AN000;GHG
 	       PUSH SI			     ;AN000;GHG
@@ -390,8 +390,8 @@ GI20:	       POP  ES			     ;AN000;GHG
 	       POP  CX			     ;AN000;GHG
 					     ;GHG
 	       RET			     ;AN000;GHG
-GET_INPUT_CALL ENDP			     ;AN000;GHG
-PAGE					     ;AN000;GHG
+; ENDP GET_INPUT_CALL;AN000;GHG
+; PAGE;AN000;GHG
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GHG
 ;
 ; GET_INPUT
@@ -410,9 +410,9 @@ PAGE					     ;AN000;GHG
 ; Exit:   AX	   = Contains Keystroke
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-GET_INPUT      PROC NEAR		 ;AN000;
+GET_INPUT:;AN000;
 	       RET			 ;AN000;
-GET_INPUT      ENDP			 ;AN000;
+; ENDP GET_INPUT;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; GET_KEY
@@ -433,7 +433,7 @@ GET_INPUT      ENDP			 ;AN000;
 ; Exit:    AX = Contains unused keystroke returned from call
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-GET_KEY        PROC NEAR		;AN000;
+GET_KEY:;AN000;
 
 	       PUSH CX			;AN000;save registers
 ;
@@ -479,8 +479,8 @@ CGK30:	       CALL CHK_RETKEYS 	;AN000;check keystroke
 					;
 CGKEXIT:       POP  CX			;AN000;restore registers
 	       RET			;AN000;
-GET_KEY        ENDP			;AN000;
-PAGE					;AN000;
+; ENDP GET_KEY;AN000;
+; PAGE;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; SET_RETKEYS
@@ -498,7 +498,7 @@ PAGE					;AN000;
 ;	  WR_CRETLEN = Length of complete return key string to use
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SET_RETKEYS    PROC NEAR		;AN000;
+SET_RETKEYS:;AN000;
 	       PUSH CX			;AN000;
 	       PUSH DX			;AN000;
 	       PUSH DI			;AN000;
@@ -565,7 +565,7 @@ SRK30:	       POP  DS			;AN000;restore registers
 	       POP  DX			;AN000;
 	       POP  CX			;AN000;
 	       RET			;AN000;
-SET_RETKEYS    ENDP			;AN000;
+; ENDP SET_RETKEYS;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; SET_NUMKEYS
@@ -582,7 +582,7 @@ SET_RETKEYS    ENDP			;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 NUMKEYS        DB	'123456789'     ;AN000;
 					;
-SET_NUMKEYS    PROC NEAR		;AN000;
+SET_NUMKEYS:;AN000;
 	       PUSH AX			;AN000;save registers
 	       PUSH BX			;AN000;
 	       PUSH CX			;AN000;
@@ -642,7 +642,7 @@ SNK_30:        POP  DS			;AN000;restore registers
 	       POP  BX			;AN000;
 	       POP  AX			;AN000;
 	       RET			;AN000;
-SET_NUMKEYS    ENDP			;AN000;
+; ENDP SET_NUMKEYS;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; CHK_RETKEYS
@@ -660,7 +660,7 @@ SET_NUMKEYS    ENDP			;AN000;
 ;		 1= keystroke used
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CHK_RETKEYS    PROC NEAR		;AN000;
+CHK_RETKEYS:;AN000;
 	       PUSHF			     ;AN000;save registers and variables
 	       PUSH AX			     ;AN000;
 	       PUSH BX			     ;AN000;
@@ -708,7 +708,7 @@ CHKEXIT:       POP  MB_FREQUENCY	     ;AN004;GHG   for PTM 1064
 	       POP  AX			     ;AN000;
 	       POPF			     ;AN000;
 	       RET			     ;AN000;
-CHK_RETKEYS    ENDP			     ;AN000;
+; ENDP CHK_RETKEYS;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; CHK_NUMKEYS
@@ -721,7 +721,7 @@ CHK_RETKEYS    ENDP			     ;AN000;
 ;	      WR_CRETSEG:WR_CRETOFF
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CHK_NUMKEYS    PROC NEAR			;AN000;
+CHK_NUMKEYS:;AN000;
 	       PUSH ES				;AN000;
 	       PUSH DI				;AN000;
 	       PUSH BX				;AN000;
@@ -757,7 +757,7 @@ CNK_20:        POP  BX				;AN000;
 	       POP  DI				;AN000;
 	       POP  ES				;AN000;
 	       RET				;AN000;
-CHK_NUMKEYS    ENDP				;AN000;
+; ENDP CHK_NUMKEYS;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; MANAGE_HELP
@@ -795,7 +795,7 @@ CHK_NUMKEYS    ENDP				;AN000;
 ;		      1   = Keystroke used
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-MANAGE_HELP    PROC NEAR			;AN000;
+MANAGE_HELP:;AN000;
 ;
 ; Check if help is displayed
 ;
@@ -965,9 +965,9 @@ MH90:	       CALL PCPANEL_CALL	     ;AN000;make original panel the active
 MHEXIT: 				     ;AN000;exit
 ;
 	       RET			     ;AN000;
-MANAGE_HELP    ENDP			     ;AN000;
+; ENDP MANAGE_HELP;AN000;
 
-PAGE					     ;AN000;
+; PAGE;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; READ_HELP
@@ -1000,7 +1000,7 @@ PAGE					     ;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-READ_HELP      PROC NEAR		     ;AN000;
+READ_HELP:;AN000;
 	       PUSH BX			     ;AN000;save registers
 	       PUSH DX			     ;AN000;
 	       PUSH DI			     ;AN000;
@@ -1235,7 +1235,7 @@ RHEXIT:        POP  QM_ACTIVEPAN	     ;AN000;restore current active panel
 	       POP  DX			     ;AN000;
 	       POP  BX			     ;AN000;
 	       RET			     ;AN000;
-READ_HELP      ENDP			     ;AN000;
+; ENDP READ_HELP;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PROCESS_HELP
@@ -1252,7 +1252,7 @@ READ_HELP      ENDP			     ;AN000;
 ; Exit:   AX = Exit keystroke pressed
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PROCESS_HELP   PROC NEAR		;AN000;
+PROCESS_HELP:;AN000;
 	       PUSH BX			;AN000;save registers
 	       PUSH DI			;AN000;
 	       PUSH ES			;AN000;
@@ -1335,14 +1335,14 @@ PHEXIT:        POP  QM_ACTIVEPAN	;AN000;restore current active panel
 	       POP  DI			;AN000;
 	       POP  BX			;AN000;
 	       RET			;AN000;
-PROCESS_HELP   ENDP			;AN000;
+; ENDP PROCESS_HELP;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ; INITIALIZE_HELP_TITLE
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INIT_HELP_TITLE PROC	NEAR		;AN000;
+INIT_HELP_TITLE:;AN000;
 	PUSHH  <AX,BX,ES,DI,WR_SCBID>	;AN000;
 					;
 	MOV	BX,WR_PCBHPAN		;AN000;get help panel ID
@@ -1371,7 +1371,7 @@ INIT_HELP_TITLE PROC	NEAR		;AN000;
 					;
 	POPP   <WR_SCBID,DI,ES,BX,AX>	;AN000;
 	RET				;AN000;
-INIT_HELP_TITLE ENDP			;AN000;
+; ENDP INIT_HELP_TITLE;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; REMOVE_HELP
@@ -1388,7 +1388,7 @@ INIT_HELP_TITLE ENDP			;AN000;
 ; Exit:   WR_HLPDIS  = Help status off
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-REMOVE_HELP    PROC NEAR		;AN000;
+REMOVE_HELP:;AN000;
 	       PUSH BX			     ;AN000;save registers
 	       PUSH DI			     ;AN000;
 ;
@@ -1413,7 +1413,7 @@ RM20:	       MOV  WR_HLPDIS,0 	     ;AN000;help panels not on
 RMEXIT:        POP  DI			     ;AN000;restore registers and exit
 	       POP  BX			     ;AN000;
 	       RET			     ;AN000;
-REMOVE_HELP    ENDP			     ;AN000;
+; ENDP REMOVE_HELP;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; GET_PCB
@@ -1427,7 +1427,7 @@ REMOVE_HELP    ENDP			     ;AN000;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-GET_PCB        PROC NEAR		     ;AN000;
+GET_PCB:;AN000;
 	       PUSH AX			     ;AN000;
 	       PUSH BX			     ;AN000;
 	       PUSH CX			     ;AN000;
@@ -1457,7 +1457,7 @@ GET_PCB        PROC NEAR		     ;AN000;
 	       POP  AX			     ;AN000;
 
 	       RET			     ;AN000;
-GET_PCB        ENDP			     ;AN000;
+; ENDP GET_PCB;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; GET_SCB
@@ -1470,7 +1470,7 @@ GET_PCB        ENDP			     ;AN000;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
-GET_SCB        PROC NEAR		     ;AN000;
+GET_SCB:;AN000;
 ;
 	       PUSH AX			     ;AN000;
 	       PUSH BX			     ;AN000;
@@ -1501,7 +1501,7 @@ GET_SCB        PROC NEAR		     ;AN000;
 	       POP  AX			     ;AN000;
 ;
 	       RET			     ;AN000;
-GET_SCB        ENDP			     ;AN000;
+; ENDP GET_SCB;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; GET_ICB
@@ -1513,7 +1513,7 @@ GET_SCB        ENDP			     ;AN000;
 ; Exit:   ES:DI = Address of ICB
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-GET_ICB        PROC NEAR		     ;AN000;
+GET_ICB:;AN000;
 	       PUSH AX			     ;AN000;
 	       PUSH BX			     ;AN000;
 	       PUSH CX			     ;AN000;
@@ -1542,7 +1542,7 @@ GET_ICB        PROC NEAR		     ;AN000;
 	       POP  BX			;AN000;
 	       POP  AX			;AN000;
 	       RET			;AN000;
-GET_ICB        ENDP			;AN000;
+; ENDP GET_ICB;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; REFRESH_FLDS
@@ -1567,7 +1567,7 @@ GET_ICB        ENDP			;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-REFRESH_FLDS   PROC NEAR		;AN000;
+REFRESH_FLDS:;AN000;
 	       PUSH AX			     ;AN000;save registers
 	       PUSH BX			     ;AN000;
 	       PUSH CX			     ;AN000;
@@ -1636,7 +1636,7 @@ RFEXIT:        POP  DI			     ;AN000;restore registers
 	       POP  AX			     ;AN000;
 
 	       RET			     ;AN000;
-REFRESH_FLDS   ENDP			     ;AN000;
+; ENDP REFRESH_FLDS;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; REFRESH_SCB
@@ -1648,7 +1648,7 @@ REFRESH_FLDS   ENDP			     ;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-REFRESH_SCB    PROC NEAR		     ;AN000;
+REFRESH_SCB:;AN000;
 	       PUSH ES			     ;AN000;save registers
 	       PUSH DI			     ;AN000;
 
@@ -1676,7 +1676,7 @@ RSEXIT:        POP  DI			     ;AN000;restore registers
 	       POP  ES			     ;AN000;
 
 	       RET			     ;AN000;
-REFRESH_SCB    ENDP			     ;AN000;
+; ENDP REFRESH_SCB;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; REFRESH_ICB
@@ -1688,7 +1688,7 @@ REFRESH_SCB    ENDP			     ;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-REFRESH_ICB    PROC NEAR		;AN000;
+REFRESH_ICB:;AN000;
 	PUSH	AX			;AN000;
 	PUSH	ES			;AN000;save registers
 	PUSH	DI			;AN000;
@@ -1726,7 +1726,7 @@ REFRESH_ICB    PROC NEAR		;AN000;
 	POP	ES			;AN000;
 	POP	AX			;AN000;
 	RET				;AN000;
-REFRESH_ICB	ENDP			;AN000;
+; ENDP REFRESH_ICB;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; CURSOROFF
@@ -1738,7 +1738,7 @@ REFRESH_ICB	ENDP			;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
-CURSOROFF  PROC NEAR	;AN000;
+CURSOROFF:;AN000;
 	PUSH	AX	;AN000;save registers
 	PUSH	BX	;AN000;
 	PUSH	CX	;AN000;
@@ -1754,7 +1754,7 @@ CURSOROFF  PROC NEAR	;AN000;
 	POP	BX	;AN000;
 	POP	AX	;AN000;
 	RET		;AN000;
-CURSOROFF	  ENDP	;AN000;
+; ENDP CURSOROFF;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; CURSORON
@@ -1766,7 +1766,7 @@ CURSOROFF	  ENDP	;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CURSORON       PROC NEAR	;AN000;
+CURSORON:;AN000;
 	PUSH	AX		;AN000;save registers
 	PUSH	BX		;AN000;
 	PUSH	CX		;AN000;
@@ -1783,7 +1783,7 @@ CURSORON       PROC NEAR	;AN000;
 	POP	AX		;AN000;
 				;
 	RET			;AN000;
-CURSORON	  ENDP		;AN000;
+; ENDP CURSORON;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PCINCHA_CALL
@@ -1795,7 +1795,7 @@ CURSORON	  ENDP		;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PCINCHA_CALL	PROC NEAR	;AN000;
+PCINCHA_CALL:;AN000;
 				;
 	CALL	CLEAR_INBUFF	;AN088;SEH this call was moved and now replaced to exist both before and after call
 				;
@@ -1805,18 +1805,18 @@ PCINCHA_CALL	PROC NEAR	;AN000;
 	PUSH	DI		;AN000;save registers
 	LEA	DI,INC_OPT	;AN000;set DI to proper parameter block
 				; for call
-IF CASRM			;AN000;
+%if CASRM;AN000;
 	MOV	AH,00H		;AN000;make call to CAS-RM
 	MOV	BX,INC_RN	;AN000;set CAS routine number
 	INT	CASINT		;AN000;call routine
-ELSE				;AN000;
+%else;AN000;
 	CALL	INCHA		;AN000;
 	CALL	CLEAR_INBUFF	;AC083;SEH call moved to after call to INCHA in order to flush buffer ;AN059;
-ENDIF				;AN000;
+%endif;AN000;
 	POP	DI		;AN000;restore registers
 	POP	DS		;AN000;
 	RET			;AN000;
-PCINCHA_CALL   ENDP		;AN000;
+; ENDP PCINCHA_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PCDISPQ_CALL
@@ -1828,23 +1828,23 @@ PCINCHA_CALL   ENDP		;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PCDISPQ_CALL   PROC NEAR		;AN000;
+PCDISPQ_CALL:;AN000;
 	       PUSH DS			;AN000;set segment
 	       POP  ES			;AN000;
 	       PUSH DS			;AN000;
 	       PUSH DI			;AN000;save registers
 	       LEA  DI,QM_OPT1		;AN000;set DI to proper parameter block
-IF CASRM				;AN000;
+%if CASRM;AN000;
 	       MOV  AH,00H		;AN000;make call to CAS-RM
 	       MOV  BX,QM_RN		;AN000;set CAS routine number
 	       INT  CASINT		;AN000;call routine
-ELSE					;AN000;
+%else;AN000;
 	       CALL DISPQ		;AN000;
-ENDIF					;AN000;
+%endif;AN000;
 	       POP  DI			;AN000;restore registers
 	       POP  DS			;AN000;
 	       RET			;AN000;
-PCDISPQ_CALL   ENDP			;AN000;
+; ENDP PCDISPQ_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PCPANEL_CALL
@@ -1857,7 +1857,7 @@ PCDISPQ_CALL   ENDP			;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PCPANEL_CALL   PROC NEAR		;AN000;
+PCPANEL_CALL:;AN000;
 	       PUSH QM_PANQUENUM	;AN000;
 	       POP  PM_PANQUENUM	;AN000;number of panels in parent queue
 					;
@@ -1894,13 +1894,13 @@ PP20:	       PUSH DS			;AN000;set segment
 	       PUSH DS			;AN000;
 	       PUSH DI			;AN000;save registers
 	       LEA  DI,PM_OPT1		;AN000;set DI to proper parameter block
-IF CASRM				;AN000;
+%if CASRM;AN000;
 	       MOV  AH,00H		;AN000;make call to CAS-RM
 	       MOV  BX,PM_RN		;AN000;set CAS routine number
 	       INT  CASINT		;AN000;call routine
-ELSE					;AN000;
+%else;AN000;
 	       CALL PANEL		;AN000;
-ENDIF					;AN000;
+%endif;AN000;
 	       POP  DI			;AN000;restore registers
 	       POP  DS			;AN000;
 					;
@@ -1916,7 +1916,7 @@ ENDIF					;AN000;
 	       CALL REFRESH_FLDS	;AN000;refresh fields in break panel
 	       JMP  PP10		;AN000;continue to process panels
 PPEXIT:        RET			;AN000;
-PCPANEL_CALL   ENDP			;AN000;
+; ENDP PCPANEL_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PCMBEEP_CALL
@@ -1928,23 +1928,23 @@ PCPANEL_CALL   ENDP			;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PCMBEEP_CALL   PROC NEAR		;AN000;
+PCMBEEP_CALL:;AN000;
 	       PUSH DS			;AN000;set segment
 	       POP  ES			;AN000;
 	       PUSH DS			;AN000;
 	       PUSH DI			;AN000;save registers
 	       LEA  DI,MB_FREQUENCY	;AN000;set DI to proper parameter block
-IF CASRM				;AN000;
+%if CASRM;AN000;
 	       MOV  AH,00H		;AN000;make call to CAS-RM
 	       MOV  BX,MB_RN		;AN000;set CAS routine number
 	       INT  CASINT		;AN000;call routine
-ELSE					;AN000;
+%else;AN000;
 	       CALL MBEEP		;AN000;
-ENDIF					;AN000;
+%endif;AN000;
 	       POP  DI			;AN000;restore registers
 	       POP  DS			;AN000;
 	       RET			;AN000;
-PCMBEEP_CALL   ENDP			;AN000;
+; ENDP PCMBEEP_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PCSLCTP_CALL
@@ -1959,7 +1959,7 @@ PCMBEEP_CALL   ENDP			;AN000;
 ; Initialize color index vector
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PCSLCTP_CALL   PROC NEAR		 ;AN000;
+PCSLCTP_CALL:;AN000;
 					 ;
 	       CALL CLEAR_INBUFF	 ;AN059;
 					 ;
@@ -1977,19 +1977,19 @@ PCSLCTP_CALL   PROC NEAR		 ;AN000;
 	       PUSH ES:[DI]+SCB_OPT3	 ;AN000;
 	       PUSH ES:[DI]+SCB_NUMLINE  ;AN000;
 	       AND  ES:[DI]+SCB_OPT3,NOT SCB_NUMS;AN000;
-IF CASRM				 ;AN000;
+%if CASRM;AN000;
 	       MOV  AH,00H		     ;AN000;make call to CAS-RM
 	       MOV  BX,SCB_RN		     ;AN000;set CAS routine number
 	       INT  CASINT		     ;AN000;call slctopt
-ELSE					     ;AN000;
+%else;AN000;
 	       CALL SLCTP		     ;AN000;
-ENDIF					     ;AN000;
+%endif;AN000;
 	       POP  ES:[DI]+SCB_NUMLINE      ;AN000;
 	       POP  ES:[DI]+SCB_OPT3	     ;AN000;
 	       POP  ES:[DI]+SCB_OPT2	     ;AN000;
 	       POP  ES:[DI]+SCB_OPT1	     ;AN000;
 	       RET			     ;AN000;
-PCSLCTP_CALL   ENDP			     ;AN000;
+; ENDP PCSLCTP_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PCHLPRD_CALL
@@ -2001,30 +2001,30 @@ PCSLCTP_CALL   ENDP			     ;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PCHLPRD_CALL   PROC NEAR		 ;AN000;
+PCHLPRD_CALL:;AN000;
 	       PUSH DS			 ;AN000;set segment
 	       POP  ES			 ;AN000;
 	       PUSH DS			 ;AN000;
 	       PUSH DI			 ;AN000;save registers
 	       LEA  DI,HRD_OPT1 	 ;;AN000;set DI to proper parameter block
-IF CASRM				 ;AN000;
+%if CASRM;AN000;
 	       MOV  AH,00H		 ;AN000;make call to CAS-RM
 	       MOV  BX,HRD_RN		 ;AN000;set CAS routine number
 	       INT  CASINT		 ;AN000;call routine
-ELSE					 ;AN000;
+%else;AN000;
 	       CALL HLPRD		 ;AN000;
-ENDIF					 ;AN000;
-	       .IF < HRD_ERROR eq 0 > and;AN005;GHG
-	       .IF < HRD_DOSERROR eq 0 > ;AN005;GHG
+%endif;AN000;
+	       ; .IF < HRD_ERROR eq 0 > and;AN005;GHG
+	       ; .IF < HRD_DOSERROR eq 0 >;AN005;GHG
 		  CLC			 ;AN005;GHG
-	       .ELSE			 ;AN005;GHG
+	       ; .ELSE;AN005;GHG
 		  STC			 ;AN005;GHG
-	       .ENDIF			 ;AN005;GHG
+	       ; .ENDIF;AN005;GHG
 					 ;
 	       POP  DI			 ;AN000;restore registers
 	       POP  DS			 ;AN000;
 	       RET			 ;AN000;
-PCHLPRD_CALL   ENDP			 ;AN000;
+; ENDP PCHLPRD_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PCINSTR_CALL
@@ -2036,23 +2036,23 @@ PCHLPRD_CALL   ENDP			 ;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PCINSTR_CALL   PROC NEAR		 ;AN000;
+PCINSTR_CALL:;AN000;
 	       PUSH DS			 ;AN000;set segment
 	       POP  ES			 ;AN000;
 	       PUSH DS			 ;AN000;
 	       PUSH DI			 ;AN000;save registers
 	       LEA  DI,INS_OPT		 ;;AN000;set DI to proper parameter block
-IF CASRM				 ;AN000;
+%if CASRM;AN000;
 	       MOV  AH,00H		 ;AN000;make call to CAS-RM
 	       MOV  BX,INS_RN		 ;AN000;set CAS routine number
 	       INT  CASINT		 ;AN000;call routine
-ELSE					 ;AN000;
+%else;AN000;
 	       CALL INSTRN		 ;AN000;
-ENDIF					 ;AN000;
+%endif;AN000;
 	       POP  DI			 ;AN000;restore registers
 	       POP  DS			 ;AN000;
 	       RET			 ;AN000;
-PCINSTR_CALL   ENDP			 ;AN000;
+; ENDP PCINSTR_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PCINPUT_CALL
@@ -2064,7 +2064,7 @@ PCINSTR_CALL   ENDP			 ;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PCINPUT_CALL   PROC NEAR		 ;AN000;
+PCINPUT_CALL:;AN000;
 					 ;
 	       CALL CLEAR_INBUFF	 ;AN059;
 					 ;
@@ -2073,17 +2073,17 @@ PCINPUT_CALL   PROC NEAR		 ;AN000;
 	       PUSH DS			 ;AN000;
 	       PUSH DI			 ;AN000;save registers
 	       LEA  DI,IN_OPT		 ;AN000;set DI to proper parameter block
-IF CASRM				 ;AN000;
+%if CASRM;AN000;
 	       MOV  AH,00H		 ;AN000;make call to CAS-RM
 	       MOV  BX,IN_RN		 ;AN000;set CAS routine number
 	       INT  CASINT		 ;AN000;call slctopt
-ELSE					 ;AN000;
+%else;AN000;
 	       CALL INPUT		 ;AN000;
-ENDIF					 ;AN000;
+%endif;AN000;
 	       POP  DI			 ;AN000;restore registers
 	       POP  DS			 ;AN000;
 	       RET			 ;AN000;
-PCINPUT_CALL   ENDP			 ;AN000;
+; ENDP PCINPUT_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PCGVIDO_CALL
@@ -2095,23 +2095,23 @@ PCINPUT_CALL   ENDP			 ;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PCGVIDO_CALL   PROC NEAR	;AN000;
+PCGVIDO_CALL:;AN000;
 	PUSH DS 		;AN000;set segment
 	POP  ES 		;AN000;
 	PUSH DS 		;AN000;
 	PUSH DI 		;AN000;save registers
 	LEA  DI,GV_STAT1	;AN000;set DI to proper parameter block
-IF CASRM			;AN000;
+%if CASRM;AN000;
 	MOV  AH,00H		;AN000;make call to CAS-RM
 	MOV  BX,GV_RN		;AN000;set CAS routine number
 	INT  CASINT		;AN000;call routine
-ELSE				;AN000;
+%else;AN000;
 	CALL GVIDO		;AN000;
-ENDIF				;AN000;
+%endif;AN000;
 	POP  DI 		;AN000;restore registers
 	POP  DS 		;AN000;
 	RET			;AN000;
-PCGVIDO_CALL   ENDP		;AN000;
+; ENDP PCGVIDO_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; PCWWRAP_CALL
@@ -2123,23 +2123,23 @@ PCGVIDO_CALL   ENDP		;AN000;
 ; Exit:   None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PCWWRAP_CALL   PROC NEAR	;AN000;
+PCWWRAP_CALL:;AN000;
 	PUSH DS 		;AN000;set segment
 	POP  ES 		;AN000;
 	PUSH DS 		;AN000;
 	PUSH DI 		;AN000;save registers
 	LEA  DI,WWP_OPT1	;AN000;set DI to proper parameter block
-IF CASRM			;AN000;
+%if CASRM;AN000;
 	MOV  AH,00H		;AN000;make call to CAS-RM
 	MOV  BX,PM_RN		;AN000;set CAS routine number
 	INT  CASINT		;AN000;call slctopt
-ELSE				;AN000;
+%else;AN000;
 	CALL WWRAP		;AN000;
-ENDIF				;AN000;
+%endif;AN000;
 	POP  DI 		;AN000;restore registers
 	POP  DS 		;AN000;
 	RET			;AN000;
-PCWWRAP_CALL   ENDP		;AN000;
+; ENDP PCWWRAP_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
@@ -2163,7 +2163,7 @@ PCWWRAP_CALL   ENDP		;AN000;
 ; CY support added
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INITIALIZE     PROC NEAR		;AN000;
+INITIALIZE:;AN000;
 					;AN000;
 	PUSH ES 			;AN000;
 	PUSH DI 			;AN000;
@@ -2178,7 +2178,7 @@ INITIALIZE     PROC NEAR		;AN000;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;
-	MOV  DX,OFFSET CFILE		;AN024;filename to read , SELECT.DAT
+	MOV  DX,CFILE		;AN024;filename to read , SELECT.DAT
 	XOR  AL,AL			;AN024;
 	MOV  AH,3DH			;AN024;
 	INT  21H			;AN024;open file
@@ -2339,15 +2339,15 @@ DONE1:					;AN024;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;
-	.IF < GV_VIDMODE eq 7 > or	;AN000;
-	.IF < ACTIVE eq LCD >		;AN000;
+	; .IF < GV_VIDMODE eq 7 > or;AN000;
+	; .IF < ACTIVE eq LCD >;AN000;
 	.THEN				;AN000;
 	      MOV  AX,ES:[DI].MONTBL	;AN000;
 	      MOV  BX,ES:[DI].NMONTBL	;AN000;
-	.ELSE				;AN000;
+	; .ELSE;AN000;
 	      MOV  AX,ES:[DI].COLTBL	;AN000;
 	      MOV  BX,ES:[DI].NCOLTBL	;AN000;
-	.ENDIF				;AN000;
+	; .ENDIF;AN000;
 					;AN000;
 	MOV  PM_CCBVECNUM,BX		;AN000;
 	MOV  PM_CCBVECOFF,AX		;AN000;set color index offset to PCPANEL
@@ -2574,7 +2574,7 @@ IEXIT:					;AN000;exit
 	POP  DI 			;AN000;
 	POP  ES 			;AN000;
 	RET				;AN000;
-INITIALIZE     ENDP			;AN000;
+; ENDP INITIALIZE;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;   INSERT_DISK_ROUTINE: Prompts user for insertion of disk into A: drive
@@ -2587,10 +2587,10 @@ INITIALIZE     ENDP			;AN000;
 ;   OPERATION:	Panel macros are called to display the panel and search
 ;		for the file.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PUBLIC INSERT_DISK_ROUTINE		;AN000;
-INSERT_DISK_ROUTINE PROC NEAR		;AN000;
+global INSERT_DISK_ROUTINE;AN000;
+INSERT_DISK_ROUTINE:;AN000;
 					;
-	.REPEAT 			;AN000;
+	; .REPEAT;AN000;
 	   MOV	   AX,PAN_INST_PROMPT	;AN000;
 	   CALL    INIT_PQUEUE_CALL	;AN000;
 	   MOV	   AX,DISK_PANEL	;AN000;
@@ -2616,16 +2616,16 @@ INSERT_DISK_ROUTINE PROC NEAR		;AN000;
 	   CLEAR_SCREEN2		;AN000;
 	   JMP	   EXIT_SELECT		;AN000;
 CONTINUE:				;AN000;
-	.UNTIL				;AN000;
+	; .UNTIL;AN000;
 					;
 	RET				;AN000;
-INSERT_DISK_ROUTINE	ENDP		;AN000;
+; ENDP INSERT_DISK_ROUTINE;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Clear the input buffer
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CLEAR_INBUFF   PROC NEAR		;AN059;
+CLEAR_INBUFF:;AN059;
 ;					;
 CI_1:	       MOV  AH,0BH		;AN059;
 	       INT  21H 		;AN059;
@@ -2636,9 +2636,9 @@ CI_1:	       MOV  AH,0BH		;AN059;
 	       JMP  CI_1		;AN059;
 					;
 CI_2:	       RET			;AN059;
-CLEAR_INBUFF   ENDP			;AN059;
+; ENDP CLEAR_INBUFF;AN059;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
-SELECT	ENDS			;AN000;
-	END			;AN000;
+; END SECTION .SELECT;AN000;
+	; END;AN000;

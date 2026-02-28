@@ -6,7 +6,7 @@
 ;              = 1 if 80286
 ;              = 2 if 80386
 ;
-Get_CPU_Type	macro
+%macro Get_CPU_Type 0
 	pushf
 	push	bx			; preserve bx
 	xor	bx, bx			; init bx to zero
@@ -36,4 +36,4 @@ cpu_8086:				; don't inc at all if 086
 	mov	ax, bx			; put CPU type value in ax
 	pop	bx			; restore original bx
 	popf
-	endm
+	%endmacro

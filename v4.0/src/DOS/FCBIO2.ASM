@@ -1,7 +1,7 @@
 ;	SCCSID = @(#)fcbio2.asm 1.2 85/07/23
 ;	SCCSID = @(#)fcbio2.asm 1.2 85/07/23
-TITLE	FCBIO2 - FCB system calls
-NAME	FCBIO2
+; TITLE	FCBIO2 - FCB system calls
+; NAME	FCBIO2
 
 ;
 ; Ancient 1.0 1.1 FCB system calls
@@ -34,24 +34,24 @@ NAME	FCBIO2
 ;
 ;	A000	version 4.00  Jan. 1988
 ;
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-include version.inc
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+%include "version.inc"
+; .cref
+; .list
 
-	EXTRN	DOS_Read:NEAR, DOS_Write:NEAR
-	EXTRN	DOS_Open:NEAR, DOS_Create:NEAR
+	extern DOS_Read, DOS_Write
+	extern DOS_Open, DOS_Create
 
 	I_need	DMAAdd,DWORD		; current user's DMA address
 	I_need	OpenBuf,128		; buffer for translating paths
@@ -59,13 +59,13 @@ include version.inc
 	I_need	sftFCB,DWORD		; pointer to SFTs for FCB cache
 	I_need	FCBLRU,WORD		; least recently used count
 	I_need	DISK_FULL,BYTE		; flag for disk full
-if debug
+%if debug
 	I_need	BugLev,WORD
 	I_need	BugTyp,WORD
-	include bugtyp.asm
-endif
+	%include "bugtyp.asm"
+%endif
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 
 	I_need	BUF_EMS_MODE,BYTE
 	I_need	BUF_EMS_LAST_PAGE,DWORD
@@ -76,10 +76,10 @@ IF	BUFFERFLAG
 	I_need	BUF_EMS_PFRAME,WORD
 	I_need	LASTBUFFER,DWORD
 
-	extrn	restore_user_map:near
-	extrn	Setup_EMS_Buffers:near
+	extern restore_user_map
+	extern Setup_EMS_Buffers
 
-ENDIF
+%endif
 
 
 ; Defintions for FCBOp flags
@@ -100,9 +100,9 @@ Break <GetRR - return the random record field in DX:AX>
 ;   Registers modified: none
 
 Procedure   GetRR,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
-	MOV	AX,WORD PTR [SI.FCB_RR] ; get low order part
-	MOV	DX,WORD PTR [SI.FCB_RR+2]   ; get high order part
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	MOV	AX,word [SI.FCB_RR] ; get low order part
+	MOV	DX,word [SI.FCB_RR+2]   ; get high order part
 	CMP	BX,64			; ignore MSB of RR if recsiz > 64
 	JB	GetRRBye
 	XOR	DH,DH
@@ -121,7 +121,7 @@ Break <GetExtent - retrieve next location for sequential IO>
 ;   Registers modified: none
 
 Procedure   GetExtent,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	MOV	AL,[SI.fcb_NR]		; get low order piece
 	MOV	DX,[SI.fcb_EXTENT]	; get high order piece
 	SHL	AL,1
@@ -145,7 +145,7 @@ Break <SetExtent - update the extent/NR field>
 ;   Registers modified: CX
 
 Procedure SetExtent,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
 	SaveReg <AX,DX>
 	MOV	CX,AX
 	AND	AL,7FH			; next rec field
@@ -171,9 +171,9 @@ Break <GetExtended - find FCB in potential extended fcb>
 ;   Registers modified: SI
 
 Procedure   GetExtended,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	MOV	SI,DX			; point to Something
-	CMP	BYTE PTR DS:[SI],-1	; look for extention
+	CMP	byte DS:[SI],-1	; look for extention
 	JNZ	GetBye			; not there
 	ADD	SI,7			; point to FCB
 GetBye:
@@ -191,7 +191,7 @@ Break <GetRecSize - return in BX the FCB record size>
 ;   Registers modified: None
 
 Procedure   GetRecSize,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
 	MOV	BX,[SI.fcb_RECSIZ]	; get his record size
 	OR	BX,BX			; is it nul?
 	retnz
@@ -212,8 +212,8 @@ BREAK <FCBIO - do internal FCB I/O>
 ;   Registers modified: all
 
 Procedure   FCBIO,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
-PUBLIC FCBIO001S,FCBIO001E
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+global FCBIO001S,FCBIO001E
 FCBIO001S:
 	LocalVar    FCBErr,BYTE
 	LocalVar    cRec,WORD
@@ -258,11 +258,11 @@ GetRec:
 	MOV	AX,cRec 		;   cByte = cRec * RecSize;
 	MUL	BX
 	MOV	cByte,AX
-	ADD	AX,WORD PTR DMAAdd	;   if (cByte+DMA > 64K) {
+	ADD	AX,word DMAAdd	;   if (cByte+DMA > 64K) {
 	ADC	DX,0
 	JZ	DoOper
 	MOV	FCBErr,FTRIM		;	FCBErr = FTRIM;
-	MOV	AX,WORD PTR DMAAdd	;	cRec = (64K-DMA)/RecSize;
+	MOV	AX,word DMAAdd	;	cRec = (64K-DMA)/RecSize;
 	NEG	AX
 	JNZ	DoDiv
 	DEC	AX
@@ -278,14 +278,14 @@ DoOper:
 	CMP	cByte,BX		;   if (cByte <> 0 ||
 	JNZ	DoGetExt
 	TEST	FCBErr,FTRIM		;	(FCBErr&FTRIM) == 0) {
-IF debug
+%if debug
 	JZ	DoGetExt
 	JMP	SkipOp
-ELSE
+%else
 	JZ	SKP_SkipOp
 	JMP	SkipOp
 SKP_SkipOp:
-ENDIF
+%endif
 DoGetExt:
 	invoke	SFTFromFCB		;	if (!SFTFromFCB (SFT,FCB))
 	JNC	ContinueOp
@@ -296,32 +296,32 @@ FCBDeath:
 	JMP	FCBSave 		; bam!
 ContinueOp:
 	Assert	ISSFT,<ES,DI>,"ContinueOP"
-	MOV	AX,WORD PTR [SI].fcb_filsiz
-	MOV	WORD PTR ES:[DI].sf_size,AX
-	MOV	AX,WORD PTR [SI].fcb_filsiz+2
-	MOV	WORD PTR ES:[DI].sf_size+2,AX
+	MOV	AX,word [SI].fcb_filsiz
+	MOV	word ES:[DI].sf_size,AX
+	MOV	AX,word [SI].fcb_filsiz+2
+	MOV	word ES:[DI].sf_size+2,AX
 	MOV	AX,bPosL
 	MOV	DX,bPosH
-	MOV	WORD PTR ES:[DI.sf_position],AX
-	XCHG	WORD PTR ES:[DI.sf_position+2],DX
+	MOV	word ES:[DI.sf_position],AX
+	XCHG	word ES:[DI.sf_position+2],DX
 	PUSH	DX			; save away Open age.
 	MOV	CX,cByte		;	cResult =
 
 ;	int	3
 
-	MOV	DI,OFFSET DOSGroup:DOS_Read ;	    *(OP&FCBRead ? DOS_Read
+	MOV	DI,DOS_Read ;	    *(OP&FCBRead ? DOS_Read
 	TEST	FCBOp,FCBRead		;			 : DOS_Write)(cRec);
 	JNZ	DoContext
-	MOV	DI,OFFSET DOSGroup:DOS_Write
+	MOV	DI,DOS_Write
 DoContext:
 	SaveReg <BP,DS,SI>
 	Context DS
 ;; Fix for disk full
 	CALL	DI
 	RestoreReg  <SI,DS,BP>
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 	pushf
 	push	ax
 	push	bx
@@ -329,12 +329,12 @@ IF	BUFFERFLAG
 	cmp	cs:[BUF_EMS_MODE], -1
 	jz	dos_fcb_call_done
 	call	restore_user_map
-	mov	ax, word ptr cs:[BUF_EMS_LAST_PAGE]
+	mov	ax, word cs:[BUF_EMS_LAST_PAGE]
 	cmp	cs:[BUF_EMS_PFRAME], ax
 	je	dos_fcb_call_done
-	mov	word ptr cs:[LASTBUFFER], -1
+	mov	word cs:[LASTBUFFER], -1
 	mov	cs:[BUF_EMS_PFRAME], ax
-	mov	ax, word ptr cs:[BUF_EMS_LAST_PAGE+2]
+	mov	ax, word cs:[BUF_EMS_LAST_PAGE+2]
 	mov	cs:[BUF_EMS_PAGE_FRAME], ax
 	mov	cs:[BUF_EMS_SAFE_FLAG], 1
 	call	Setup_EMS_Buffers
@@ -343,25 +343,25 @@ dos_fcb_call_done:
 	pop	bx
 	pop	ax
 	popf
-ENDIF
+%endif
 
 	JC	FCBDeath
 
-	CMP	BYTE PTR [DISK_FULL],0	; treat disk full as error
+	CMP	byte [DISK_FULL],0	; treat disk full as error
 	JZ	NODSKFULL
-	MOV	BYTE PTR [DISK_FULL],0	; clear the flag
+	MOV	byte [DISK_FULL],0	; clear the flag
 	MOV	FCBerr,FEOF		; set disk full flag
 NODSKFULL:
 ;; Fix for disk full
 	MOV	cResult,CX
 	invoke	SaveFCBInfo		;	SaveFCBInfo (FCB);
 	Assert	ISSFT,<ES,DI>,"FCBIO/SaveFCBInfo"
-%out WARNING!!! Make sure sf_position+2 is OpenAGE
-	POP	WORD PTR ES:[DI].sf_Position+2	; restore open age
-	MOV	AX,WORD PTR ES:[DI].sf_size
-	MOV	WORD PTR [SI].fcb_filsiz,AX
-	MOV	AX,WORD PTR ES:[DI].sf_size+2
-	MOV	WORD PTR [SI].fcb_filsiz+2,AX
+%warning WARNING!!! Make sure sf_position+2 is OpenAGE
+	POP	word ES:[DI].sf_Position+2	; restore open age
+	MOV	AX,word ES:[DI].sf_size
+	MOV	word [SI].fcb_filsiz,AX
+	MOV	AX,word ES:[DI].sf_size+2
+	MOV	word [SI].fcb_filsiz+2,AX
 					;	}
 SkipOp:
 	MOV	AX,cResult		;   cRecRes = cResult / RecSize;
@@ -411,8 +411,8 @@ DoSetExt:
 TrySetRR:
 	TEST	FCBOp,BLOCK		;   if ((op&BLOCK) <> 0)
 	JZ	TryReturn
-	MOV	WORD PTR [SI.FCB_RR],AX ;	FCB->RR = RecPos;
-	MOV	BYTE PTR [SI.FCB_RR+2],DL
+	MOV	word [SI.FCB_RR],AX ;	FCB->RR = RecPos;
+	MOV	byte [SI.FCB_RR+2],DL
 	CMP	[SI.fcb_RECSIZ],64
 	JAE	TryReturn
 	MOV	[SI+fcb_RR+2+1],DH	; Set 4th byte only if record size < 64
@@ -448,9 +448,9 @@ Break <$FCB_Open - open an old-style FCB>
 ;		    Time/Date Extent/NR Size
 
 Procedure $FCB_Open,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	MOV	AX,sharing_Compat+Open_For_Both
-	MOV	CX,OFFSET DOSGroup:DOS_Open
+	MOV	CX,DOS_Open
 ;
 ; The following is common code for Creation and openning of FCBs.  AX is
 ; either attributes (for create) or open mode (for open)...  DS:DX points to
@@ -458,7 +458,7 @@ Procedure $FCB_Open,NEAR
 ;
 DoAccess:
 	SaveReg <DS,DX,CX,AX>		; save FCB pointer away
-	MOV	DI,OFFSET DOSGroup:OpenBuf
+	MOV	DI,OpenBuf
 	invoke	TransFCB		; crunch the fcb
 	RestoreReg  <AX,CX,DX,DS>	; get fcb
 	JNC	FindFCB 		; everything seems ok
@@ -471,7 +471,7 @@ FindFCB:
 	invoke	GetExtended		; DS:SI will point to FCB
 	invoke	LRUFCB			; get a sft entry (no error)
 	JC	HardMessage
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 ;	Message 1,"Entering "
 ;	MessageNum  ES
@@ -485,7 +485,7 @@ FindFCB:
 	Context DS			; let DOS_Open see variables
 	CALL	SI			; go open the file
 	RestoreReg  <BX,SI,DS>		; get fcb
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	LES	DI,ThisSFT		; get sf pointer
 	JNC	FCBOK			; operation succeeded
 	Assert	ISSFT,<ES,DI>,"DeadFCB"
@@ -509,7 +509,7 @@ FCBOK:
 	JNZ	FCBOK2			       ;AN007;F.C. >32mb  yes
 	invoke	CheckShare		       ;AN000;F.C. >32mb  share around?
 	JNZ	FCBOK2			       ;AN000;F.C. >32mb  yes
-	CMP	WORD PTR ES:[DI].sf_dirsec+2,0 ;AN000;F.C. >32mb  if dirsec >32mb
+	CMP	word ES:[DI].sf_dirsec+2,0 ;AN000;F.C. >32mb  if dirsec >32mb
 	JZ	FCBOK2			       ;AN000;F.C. >32mb    then error
 	MOV	AX,error_sys_comp_not_loaded   ;AN000;F.C. >32mb
 	JMP	failopen		       ;AN000;F.C. >32mb
@@ -532,9 +532,9 @@ FCBNoDrive:
 	MOV	[SI].FCB_FTime,AX
 	MOV	AX,ES:[DI].SF_Date	; set date
 	MOV	[SI].FCB_FDate,AX
-	MOV	AX,WORD PTR ES:[DI].SF_Size ; set sizes
+	MOV	AX,word ES:[DI].SF_Size ; set sizes
 	MOV	[SI].FCB_FILSIZ,AX
-	MOV	AX,WORD PTR ES:[DI].SF_Size+2
+	MOV	AX,word ES:[DI].SF_Size+2
 	MOV	[SI].FCB_FILSIZ+2,AX
 	XOR	AX,AX			; convenient zero
 	MOV	[SI].FCB_Extent,AX	; point to beginning of file
@@ -543,7 +543,7 @@ FCBNoDrive:
 ; one.	We cheat and use CheckFCB to match the FCBs.
 ;
 	LES	DI,SFTFCB		; get the pointer to head of the list
-	MOV	AH,BYTE PTR ES:[DI].sfCount ; get number of SFTs to scan
+	MOV	AH,byte ES:[DI].sfCount ; get number of SFTs to scan
 OpenScan:
 	CMP	AL,[SI].fcb_sfn 	; don't compare ourselves
 	JZ	SkipCheck
@@ -609,8 +609,8 @@ BREAK	<$FCB_Create - create a new directory entry>
 ;		    Time/Date Extent/NR Size
 
 Procedure $FCB_Create,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
-	MOV	CX,OFFSET DOSGroup:DOS_Create	; routine to call
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+	MOV	CX,DOS_Create	; routine to call
 	XOR	AX,AX			; attributes to create
 	invoke	GetExtended		; get extended FCB
 	JZ	DoAccessJ		; not an extended FCB
@@ -631,7 +631,7 @@ BREAK <$FCB_Random_write_Block - write a block of records to a file >
 ;
 
 Procedure $FCB_Random_Write_Block,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
 	MOV	AL,Random+Block
 	JMP	FCBIO
 EndProc $FCB_Random_Write_Block
@@ -647,7 +647,7 @@ BREAK <$FCB_Random_Read_Block - read a block of records to a file >
 ;
 
 Procedure $FCB_Random_Read_Block,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
 	MOV	AL,Random+FCBRead+Block
 	JMP	FCBIO
 EndProc $FCB_Random_Read_Block
@@ -663,7 +663,7 @@ BREAK <$FCB_Seq_Read - read the next record from a file >
 ;
 
 Procedure $FCB_Seq_Read,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
 	MOV	AL,FCBRead
 	JMP	FCBIO
 EndProc $FCB_Seq_Read
@@ -679,7 +679,7 @@ BREAK <$FCB_Seq_Write - write the next record to a file >
 ;
 
 Procedure $FCB_Seq_Write,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
 	MOV	AL,0
 	jmp	FCBIO
 EndProc $FCB_SEQ_WRITE
@@ -695,7 +695,7 @@ BREAK <$FCB_Random_Read - Read a single record from a file >
 ;
 
 Procedure $FCB_Random_Read,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
 	MOV	AL,Random+FCBRead
 	jmp	FCBIO			; single block
 EndProc $FCB_RANDOM_READ
@@ -711,12 +711,12 @@ BREAK <$FCB_Random_Write - write a single record to a file >
 ;
 
 Procedure $FCB_Random_Write,NEAR
-	ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
+	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
 	MOV	AL,Random
 	jmp	FCBIO
 EndProc $FCB_RANDOM_WRITE
 
-CODE ENDS
-END
+; END SECTION .CODE
+; END
 
 

@@ -1,21 +1,21 @@
-CODE    SEGMENT BYTE PUBLIC 'CODE'
-        ASSUME CS:CODE,DS:CODE
+SECTION .CODE
+        ; ASSUME CS:CODE,DS:CODE
 
-IF1
-        %OUT    EGA.CPI creation file
-        %OUT    .
-        %OUT    CP SRC files:
-        %OUT    .
-        %OUT    .       CODE PAGE:  437
-ENDIF
+%if 1  ; IF1 - pass-specific
+        %warning EGA.CPI creation file
+        %warning .
+        %warning CP SRC files:
+        %warning .
+        %warning .       CODE PAGE:  437
+%endif
 
 EGA437: DW     LEN_437                  ; SIZE OF ENTRY HEADER
         DW     POST_EGA437,0            ; POINTER TO NEXT HEADER
         DW     1                        ; DEVICE TYPE
         DB     "EGA     "               ; DEVICE SUBTYPE ID
         DW     437                      ; CODE PAGE ID
-        DW     3 DUP(0)                 ; RESERVED
-        DW     OFFSET DATA437,0         ; POINTER TO FONTS
+        times 3 dw 0; RESERVED
+        DW     DATA437,0         ; POINTER TO FONTS
 LEN_437 EQU    ($-EGA437)               ;
                                         ;
 DATA437:DW     1                        ; CART/NON-CART
@@ -26,24 +26,24 @@ D437:                                   ;
         DB     0,0                      ; ASPECT RATIO (UNUSED)
         DW     256                      ; NUMBER OF CHARACTERS
                                         ;
-        INCLUDE 437-8X16.ASM            ;
+        %include "437-8X16.ASM";
                                         ;
         DB     14,8                     ; CHARACTER BOX SIZE
         DB     0,0                      ; ASPECT RATIO (UNUSED)
         DW     256                      ; NUMBER OF CHARACTERS
                                         ;
-        INCLUDE 437-8X14.ASM            ;
+        %include "437-8X14.ASM";
                                         ;
         DB     8,8                      ; CHARACTER BOX SIZE
         DB     0,0                      ; ASPECT RATIO (UNUSED)
         DW     256                      ; NUMBER OF CHARACTERS
                                         ;
-        INCLUDE 437-8X8.ASM             ;
+        %include "437-8X8.ASM";
                                         ;
 LEN_D437        EQU ($-D437)            ;
                                         ;
 POST_EGA437     EQU     $               ;
                                         ;
-CODE    ENDS                            ;
-        END                             ;
+; END SECTION .CODE;
+        ; END;
 

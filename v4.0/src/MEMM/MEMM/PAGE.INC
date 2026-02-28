@@ -29,9 +29,9 @@
 ;   Functional Description:
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 P_SIZE		equ	1000h		; page size
 
@@ -44,9 +44,9 @@ P_DIRTY 	equ	20h		; page dirty bit
 
 P_AVAIL 	equ	(P_PRES+P_WRITE+P_USER) ; avail to everyone & present
 
-PAGE_ENTRY	macro	addr,stat
+%macro PAGE_ENTRY 2
 		dd	addr		; access & status in low 12
 					; address in high 20
-endm
+%endmacro
 
-.list		; end of PAGE.INC
+; .list; end of PAGE.INC

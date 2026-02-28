@@ -1,7 +1,7 @@
-PAGE    60,132
-TITLE   INDEXMA - 386 XMA Emulator - XMA Emulation
+; PAGE    60,132
+; TITLE   INDEXMA - 386 XMA Emulator - XMA Emulation
 
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                             *
 * MODULE NAME     : INDEXMA                                                   *
@@ -113,15 +113,15 @@ COMMENT #
 *                   HEXW:NEAR      - Entry in INDEEXC to display word in AX   *
 *                   DMAIN:NEAR     - Entry in INDEDMA to "IN" from DMA port   *
 *                   DMAOUT:NEAR    - Entry in INDEDMA to "OUT" to DMA port    *
-*                   PGTBLOFF:WORD  - Offset of the normal page tables         *
-*                   SGTBLOFF:WORD  - Offset of the page directory             *
+*                   PGTBLOFF:WORD  - of the normal page tables         *
+*                   SGTBLOFF:WORD  - of the page directory             *
 *                   NORMPAGE:WORD  - Entry for the 1st page directory entry   *
 *                                    so that it points to the normal          *
 *                                    page tables                              *
 *                   XMAPAGE:WORD   - Entry for the 1st page directory entry   *
 *                                    that points to the XMA page tables       *
 *                   TTTABLE:WORD   - The translate table                      *
-*                   BUFF_SIZE:WORD - Size of the MOVEBLOCK buffer             *
+*                   BUFF_SIZE:WORD - of_size the MOVEBLOCK buffer             *
 *                   MAXMEM:WORD    - Number of kilobytes on this machine      *
 *                                                                             *
 * SUB-ROUTINES    : TTARCHANGED - Put the block number at the translate table *
@@ -150,16 +150,16 @@ COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #
 
-        .286P                 ; Enable recognition of 286 privileged instructs.
+        CPU 286; Enable recognition of 286 privileged instructs.
 
-        .XLIST                ; Turn off the listing
-        INCLUDE INDEDAT.INC   ; Include system data structures
+        ; .XLIST; Turn off the listing
+        %include "INDEDAT.INC"; Include system data structures
 
-        IF1                   ; Only include macros on the first pass
-        INCLUDE INDEOVP.MAC
-        INCLUDE INDEINS.MAC
-        ENDIF
-        .LIST                 ; Turn on the listing
+        %if 1  ; IF1 - pass-specific; Only include macros on the first pass
+        %include "INDEOVP.MAC"
+        %include "INDEINS.MAC"
+        %endif
+        ; .LIST; Turn on the listing
 
 CRT_SELECTOR    EQU     00030H          ; Selector for mono display buffer
 SEX_ATTR        EQU     04B00H          ; Attribute for turquoise on red
@@ -172,56 +172,56 @@ HIMEM           EQU     120H            ; Adjustment for XMA pages >= 640K. @D1C
                                         ;   to address 12000:0.
                                         ;                                   @D1D
 
-PROG    SEGMENT PARA PUBLIC 'PROG'
+SECTION .PROG
 
-        ASSUME  CS:PROG
-        ASSUME  DS:PROG
-        ASSUME  ES:NOTHING
-        ASSUME  SS:NOTHING
+        ; ASSUME  CS:PROG
+        ; ASSUME  DS:PROG
+        ; ASSUME  ES:NOTHING
+        ; ASSUME  SS:NOTHING
 
-INDEXMA LABEL   NEAR
+INDEXMA:
 
 ; The following entry points are in other modules
 
-        EXTRN   POPIO:NEAR              ; Return to V86 task - in INDEEMU
-        EXTRN   HEXW:NEAR               ; Display word in AX - in INDEEXC
-        EXTRN   DMAIN:NEAR              ; "IN" from DMA port - in INDEDMA
-        EXTRN   DMAOUT:NEAR             ; "OUT" to DMA port  - in INDEDMA
+        extern POPIO; Return to V86 task - in INDEEMU
+        extern HEXW; Display word in AX - in INDEEXC
+        extern DMAIN; "IN" from DMA port - in INDEDMA
+        extern DMAOUT; "OUT" to DMA port  - in INDEDMA
 
 ; The following data are in INDEI15.ASM
 
-        EXTRN   PGTBLOFF:WORD           ; Offset of the normal page tables
-        EXTRN   SGTBLOFF:WORD           ; Offset of the page directory
-        EXTRN   NORMPAGE:WORD           ; Entry for the 1st page directory entry
+        extern PGTBLOFF; Offset of the normal page tables
+        extern SGTBLOFF; Offset of the page directory
+        extern NORMPAGE; Entry for the 1st page directory entry
                                         ;   so that it points to the normal
                                         ;   page tables
-        EXTRN   XMAPAGE:WORD            ; Entry for the 1st page directory entry
+        extern XMAPAGE; Entry for the 1st page directory entry
                                         ;  that points to the XMA page tables
-        EXTRN   TTTABLE:WORD            ; The translate table
-        EXTRN   BUFF_SIZE:WORD          ; Size of the MOVEBLOCK buffer
-        EXTRN   MAXMEM:WORD             ; Number of kilobytes on this machine
+        extern TTTABLE; The translate table
+        extern BUFF_SIZE; Size of the MOVEBLOCK buffer
+        extern MAXMEM; Number of kilobytes on this machine
 
 ; Let the following entries be known to other modules
 
-        PUBLIC  INDEXMA
-        PUBLIC  INW
-        PUBLIC  INWIMMED
-        PUBLIC  INIMMED
-        PUBLIC  XMAIN
-        PUBLIC  OUTW
-        PUBLIC  OUTWIMMED
-        PUBLIC  XMAOUTIMMED
-        PUBLIC  XMAOUT
-        PUBLIC  NOTXMAOUT
+        global INDEXMA
+        global INW
+        global INWIMMED
+        global INIMMED
+        global XMAIN
+        global OUTW
+        global OUTWIMMED
+        global XMAOUTIMMED
+        global XMAOUT
+        global NOTXMAOUT
 
 ; Let the following data be known to other modules
 
-        PUBLIC  WORD_FLAG
-        PUBLIC  XMATTAR
-        PUBLIC  XMATTIO
-        PUBLIC  XMATTII
-        PUBLIC  XMATID
-        PUBLIC  XMACTL
+        global WORD_FLAG
+        global XMATTAR
+        global XMATTIO
+        global XMATTII
+        global XMATID
+        global XMACTL
 
 ; The following XMA labels represent the XMA ports starting at 31A0H.
 ; THEY MUST BE KEPT IN THE FOLLOWING ORDER.
@@ -238,7 +238,7 @@ XMACTL  DB      02H           ; Port 31A7H - Control flags.  Virtual        @D1C
 WORD_FLAG DB    0             ; If set to 1 then I/O is for a word.
                               ;   Else, it's for a byte
 
-PAGE
+; PAGE
 
 ; Control comes here for an "IN" for a word with the port value in DX
 
@@ -259,7 +259,7 @@ INWIMMED:
 
 INIMMED:
 
-        ADD     WORD PTR SS:[BP+BP_IP],1 ; Step IP past the "IN" instruction
+        ADD     word SS:[BP+BP_IP],1 ; Step IP past the "IN" instruction
 
 ; Get the port address from the instruction.  The port address is in the byte
 ; immediately following the "IN" op-code.  We will load the port address into
@@ -269,8 +269,8 @@ INIMMED:
         MOV     AX,HUGE_PTR             ; Load DS with a selector that accesses
         MOV     DS,AX                   ;   all of memory as data
 
-        MOV     SS:WORD PTR [BP+BP_IP2],0 ; Clear the high words of the V86
-        MOV     SS:WORD PTR [BP+BP_CS2],0 ;   task's CS and IP
+        MOV     SS:word [BP+BP_IP2],0 ; Clear the high words of the V86
+        MOV     SS:word [BP+BP_CS2],0 ;   task's CS and IP
 
         DATAOV                          ; Load ESI (32 bit SI) with the V86
         MOV     SI,SS:[BP+BP_IP]        ;   task's IP
@@ -292,7 +292,7 @@ INIMMED:
 
 ; Control comes here for an "IN" for a byte with the port value in DX
 
-XMAIN   PROC    NEAR
+XMAIN:
 
         MOV     AX,SYS_PATCH_DS         ; Load DS with the selector for our
         MOV     DS,AX                   ;    data segment
@@ -317,7 +317,7 @@ XMAIN   PROC    NEAR
         JNE     GETWORD                 ; Yes.  Then go get a word.
 
         LODSB                           ; Else get a byte from the "port"
-        MOV     BYTE PTR SS:[BP+BP_AX],AL ; Put it in the V86 task's AL register
+        MOV     byte SS:[BP+BP_AX],AL ; Put it in the V86 task's AL register
         JMP     INEXIT                  ; Th-th-that's all folks!
 
 ; For non-XMA ports we just pass the "IN" on to INDEDMA
@@ -329,7 +329,7 @@ NOTXMAIN:
 
 GETWORD:
         LODSW                           ; Get a word from the "port"
-        MOV     WORD PTR SS:[BP+BP_AX],AX ; Put it in the V86 task's AX register
+        MOV     word SS:[BP+BP_AX],AX ; Put it in the V86 task's AX register
 
         MOV     WORD_FLAG,0             ; Reset the word flag
 
@@ -342,11 +342,11 @@ GETWORD:
         CALL    TTARCHANGED             ;   table index and call TTARCHANGED
                                         ;   to update the status of the "card"
 INEXIT:
-        ADD     WORD PTR SS:[BP+BP_IP],1 ; Step IP past the instruction (past
+        ADD     word SS:[BP+BP_IP],1 ; Step IP past the instruction (past
                                         ;   the port value for immediate insts.)
         JMP     POPIO                   ; Go return to the V86 task
 
-PAGE
+; PAGE
 
 ; Control comes here for an "OUT" for a word with the port value in DX
 
@@ -367,7 +367,7 @@ OUTWIMMED:
 
 XMAOUTIMMED:
 
-        ADD     WORD PTR SS:[BP+BP_IP],1 ; Step IP past the "OUT" instruction
+        ADD     word SS:[BP+BP_IP],1 ; Step IP past the "OUT" instruction
 
 ; Get the port address from the instruction.  The port address is in the byte
 ; immediately following the "OUT" op-code.  We will load the port address into
@@ -377,8 +377,8 @@ XMAOUTIMMED:
         MOV     AX,HUGE_PTR             ; Load DS with a selector that accesses
         MOV     DS,AX                   ;   all of memory as data
 
-        MOV     SS:WORD PTR [BP+BP_IP2],0 ; Clear the high words of the V86
-        MOV     SS:WORD PTR [BP+BP_CS2],0 ;   task's CS and IP
+        MOV     SS:word [BP+BP_IP2],0 ; Clear the high words of the V86
+        MOV     SS:word [BP+BP_CS2],0 ;   task's CS and IP
 
         DATAOV                          ; Load ESI (32 bit SI) with the V86
         MOV     SI,SS:[BP+BP_IP]        ;   task's IP
@@ -418,7 +418,7 @@ XMAOUT:
         CMP     WORD_FLAG,0             ; Is this a word operation?
         JNE     PUTWORD                 ; Yes.  Then go put a word.
 
-        MOV     AL,BYTE PTR SS:[BP+BP_AX] ; Put the value in the V86 task's AL
+        MOV     AL,byte SS:[BP+BP_AX] ; Put the value in the V86 task's AL
         STOSB                           ;   register into the "port"
 
         CMP     DX,31A6H                ; Is this "OUT" to the bank ID port?
@@ -436,7 +436,7 @@ XMAOUT:
 ; The "OUT" is for a word
 
 PUTWORD:
-        MOV     AX,WORD PTR SS:[BP+BP_AX] ; Put the value in the V86 task's AX
+        MOV     AX,word SS:[BP+BP_AX] ; Put the value in the V86 task's AX
         STOSW                           ;   register into the "port"
 
         MOV     WORD_FLAG,0             ; Reset the word flag
@@ -532,16 +532,16 @@ OUTEXIT:
         NOP                             ; 386 errata B0-110
 
 OUTEXITDMA:
-        ADD     WORD PTR SS:[BP+BP_IP],1 ; Step IP past the "OUT" instruction
+        ADD     word SS:[BP+BP_IP],1 ; Step IP past the "OUT" instruction
         JMP     POPIO                   ; Return to the V86 task
 
-PAGE
+; PAGE
 
 ; TTARCHANGED updates all the fields that depend on the translate table index
 ; in port 31A0H.  This is mainly getting the translate table entries for the
 ; specified index and putting them in the block number ports 31A2H and 31A4H.
 
-TTARCHANGED     PROC
+TTARCHANGED:
 
         MOV     AX,XMATTAR              ; Get the new translate table index
         AND     AX,0FFFH                ; The high nibble is not used
@@ -556,9 +556,9 @@ TTARCHANGED     PROC
 
         RET
 
-TTARCHANGED     ENDP
+; ENDP TTARCHANGED
 
-PAGE
+; PAGE
 
 ; UPDATETT will update the "translate table" and the corresponding page
 ; tables when an XMA block number is written to either port 31A2H or the
@@ -596,7 +596,7 @@ PAGE
 ; For disabled pages in the range 0K to 640K the page table entry is set to  D1C
 ; point to non-existent memory.                                              D1C
 
-UPDATETT        PROC
+UPDATETT:
 
         MOV     AX,XMATTAR              ; Get the index of the TT entry that
                                         ;   is to be changed
@@ -697,7 +697,7 @@ NOADJUST:
 
 DISABLEPAGE:
                                         ; XMA 1 emulation code deleted     2@D1D
-        CMP     BYTE PTR XMATTAR,640/4  ; Is the address at 640K or above?
+        CMP     byte XMATTAR,640/4  ; Is the address at 640K or above?
         JNB     SPECIAL                 ; Aye.  Go point back to real memory.
 
 ; The address is between 256K and 640K.  Let's set the page table entry to
@@ -772,10 +772,10 @@ ENABLED:
 
         RET                             ; And return
 
-UPDATETT        ENDP
+; ENDP UPDATETT
 
-XMAIN   ENDP
+; ENDP XMAIN
 
-PROG    ENDS
+; END SECTION .PROG
 
-        END
+        ; END

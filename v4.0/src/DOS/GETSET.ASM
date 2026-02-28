@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)getset.asm 1.2 85/07/23
-TITLE  GETSET - GETting and SETting MS-DOS system calls
-NAME   GETSET
+; TITLE  GETSET - GETting and SETting MS-DOS system calls
+; NAME   GETSET
 ;
 ; System Calls which get and set various things
 ;
@@ -29,25 +29,25 @@ NAME   GETSET
 ;	A006   D503-- fake version for IBMCACHE
 ;	A008   P4070- faske version for MS WINDOWS
 
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-IFNDEF	ALTVECT
+%ifndef ALTVECT
 ALTVECT EQU	0			; FALSE
-ENDIF
+%endif
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-include dossym.inc
-include devsym.inc
-include doscntry.inc
-.cref
-.list
+; .xcref
+%include "dossym.inc"
+%include "devsym.inc"
+%include "doscntry.inc"
+; .cref
+; .list
 
 	i_need	USERNUM,WORD
 	i_need	MSVERS,WORD
@@ -79,7 +79,7 @@ include doscntry.inc
 
 BREAK <$Get_Version -- Return DOS version number>
 	procedure   $GET_VERSION,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	None
@@ -96,7 +96,7 @@ ASSUME	DS:NOTHING,ES:NOTHING
 	MOV	CX,[USERNUM]
 	MOV	AX,[MSVERS]
 	invoke	get_user_stack
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	[SI.user_BX],BX
 	MOV	[SI.user_CX],CX
 	CMP	CS:[Fake_Count],0FFH		   ;AN008;
@@ -115,7 +115,7 @@ EndProc $GET_VERSION
 
 BREAK <$Get_Verify_on_Write - return verify-after-write flag>
 	procedure   $GET_VERIFY_ON_WRITE,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	none.
@@ -130,7 +130,7 @@ EndProc $GET_VERIFY_ON_WRITE
 
 BREAK <$Set_Verify_on_Write - Toggle verify-after-write flag>
 	procedure   $SET_VERIFY_ON_WRITE,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	AL = desired value of VERIFY flag
@@ -198,7 +198,7 @@ BREAK <$International - return country-dependent information>
 
 
 	procedure   $INTERNATIONAL,NEAR   ; DOS 3.3
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	CMP	AL,0FFH
 	JZ	BX_HAS_CODE		; -1 means country code is in BX
 	MOV	BL,AL			; Put AL country code in BX
@@ -213,7 +213,7 @@ BX_HAS_CODE:
 	JZ	international_set
 	OR	BX,BX
 	JNZ	international_find
-	MOV	SI,OFFSET DOSGROUP:COUNTRY_CDPG
+	MOV	SI,COUNTRY_CDPG
 	JMP	SHORT international_copy
 
 international_find:
@@ -226,7 +226,7 @@ international_find:
 	JMP	SHORT international_ok3
 
 international_get:
-	MOV	SI,OFFSET DOSGROUP:COUNTRY_CDPG
+	MOV	SI,COUNTRY_CDPG
 	CMP	BX,[SI.ccDosCountry]	 ; = current country id
 	retz				 ; return if equal
 	MOV	DX,BX
@@ -252,19 +252,19 @@ interr:
 
 international_copy:
 	MOV	BX,[SI.ccDosCountry]	 ; = current country id
-	MOV	SI,OFFSET DOSGROUP:COUNTRY_CDPG.ccDFormat
+	MOV	SI,COUNTRY_CDPG.ccDFormat
 	MOV	CX,OLD_COUNTRY_SIZE
 	REP	MOVSB			 ;copy country info
 international_ok3:
 	invoke	get_user_stack
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	[SI.user_BX],BX
 international_ok:
 	MOV	AX,BX		     ; Return country code in AX too.
 	transfer SYS_RET_OK
 
 international_set:
-ASSUME	DS:DOSGROUP
+; ASSUME	DS:DOSGROUP
 	MOV	BP,1		     ; flag it for SetCodePage only
 	CALL	international_get
 	JNC	international_ok
@@ -314,36 +314,36 @@ BREAK <$GetExtCntry - return extended country-dependent information>
 
 
 	procedure   $GetExtCntry,NEAR	; DOS 3.3
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	CMP	AL,CAP_ONE_CHAR 	;AN000;MS. < 20H ?
 	JAE	capcap			;AN000;MS.
 	JMP	notcap			;AN000;MS. yes
 capcap: 				;AN000;
 	TEST	AL,UPPER_TABLE		;AN000;MS. which upper case table
 	JNZ	fileupper		;AN000;MS. file upper case
-	MOV	BX,OFFSET DOSGROUP:UCASE_TAB+2 ;AN000;MS. get normal upper case
+	MOV	BX,UCASE_TAB+2 ;AN000;MS. get normal upper case
 	JMP	SHORT capit			   ;AN000;MS.
 fileupper:					   ;AN000;
-	MOV	BX,OFFSET DOSGROUP:FILE_UCASE_TAB+2;AN000;MS. get file upper case
+	MOV	BX,FILE_UCASE_TAB+2;AN000;MS. get file upper case
 capit:					;AN000;
 	CMP	AL,CAP_ONE_CHAR 	;AN000;;MS.cap one char ?
 	JNZ	chkyes			;AN000;;MS. no
 	MOV	AL,DL			;AN000;;MS. set up AL
 	invoke	GETLET3 		;AN000;;MS. upper case it
 	invoke	get_user_stack		;AN000;;MS. get user stack
-	MOV	byte ptr [SI.user_DX],AL;AN000;;MS. user's DL=AL
+	MOV	byte [SI.user_DX],AL;AN000;;MS. user's DL=AL
 	JMP	SHORT nono		;AN000;;MS. done
 chkyes: 				;AN000;
 	CMP	AL,CHECK_YES_NO 	;AN000;;MS. check YES or NO ?
 	JNZ	capstring		;AN000;;MS. no
 	XOR	AX,AX			;AN000;;MS. presume NO
-IF  DBCS				;AN000;
+%if DBCS;AN000;
 	PUSH	AX			;AN000;;MS.
 	MOV	AL,DL			;AN000;;MS.
 	invoke	TESTKANJ		;AN000;;MS. DBCS ?
 	POP	AX			;AN000;;MS.
 	JNZ	dbcs_char		;AN000;;MS. yes, return error
-ENDIF					;AN000;
+%endif;AN000;
 					;AN000;
 	CMP	DL,NLS_YES		;AN000;;MS. is 'Y' ?
 	JZ	yesyes			;AN000;;MS. yes
@@ -367,7 +367,7 @@ capstring:				;AN000;
 	JZ	nono			;AN000;;MS. yes finished
 concap: 				;AN000;
 	LODSB				;AN000;;MS. get char
- IF  DBCS				;AN000;;MS.
+ %if DBCS;AN000;;MS.
 	invoke	TESTKANJ		;AN000;;MS. DBCS ?
 	JZ	notdbcs 		;AN000;;MS. no
 	INC	SI			;AN000;;MS. skip 2 chars
@@ -375,10 +375,10 @@ concap: 				;AN000;
 	JZ	nono			;AN000;;MS. yes
 	JMP	SHORT next99		;AN000;;MS.
 notdbcs:				;AN000;
- ENDIF					;AN000;
+ %endif;AN000;
 
 	invoke	GETLET3 		;AN000;;MS. upper case it
-	MOV	byte ptr [SI-1],AL	;AN000;;MS. store back
+	MOV	byte [SI-1],AL	;AN000;;MS. store back
 next99: 				;AN000;
 	LOOP	concap			;AN000;;MS. continue
 	JMP	nono			;AN000;;MS. done
@@ -389,17 +389,17 @@ concap2:				;AN000;
 	LODSB				;AN000;;MS. get char
 	CMP	AL,0			;AN000;;MS. end of string ?
 	JZ	nono			;AN000;;MS. yes
- IF  DBCS				;AN000;;MS.
+ %if DBCS;AN000;;MS.
 	invoke	TESTKANJ		;AN000;;MS. DBCS ?
 	JZ	notdbcs2		;AN000;;MS. no
-	CMP	BYTE PTR [SI],0 	;AN000;;MS. bad input, one DBCS char at end
+	CMP	byte [SI],0 	;AN000;;MS. bad input, one DBCS char at end
 	JZ	nono			;AN000;;MS. yes
 	INC	SI			;AN000;;MS. skip 2 chars
 	JMP	concap2 		;AN000;;MS.
 notdbcs2:				;AN000;
- ENDIF					;AN000;
+ %endif;AN000;
 	invoke	GETLET3 		;AN000;;MS. upper case it
-	MOV	byte ptr [SI-1],AL	;AN000;;MS. store back
+	MOV	byte [SI-1],AL	;AN000;;MS. store back
 	JMP	concap2 		;AN000;;MS. continue
 
 
@@ -407,7 +407,7 @@ notcap:
 	CMP	CX,5			; minimum size is 5
 	JB	sizeerror
 	context DS
-	MOV	SI,OFFSET DOSGROUP:COUNTRY_CDPG
+	MOV	SI,COUNTRY_CDPG
 	CMP	DX,-1			; active country ?
 	JNZ	GETCDPG 		; no
 	MOV	DX,[SI.ccDosCountry]	; get active country id
@@ -428,7 +428,7 @@ CHKTYPE:
 SELONE:
 	PUSH	CX			; save cx
 	MOV	CX,[SI.ccNumber_of_entries]
-	MOV	SI,OFFSET DOSGROUP:COUNTRY_CDPG.ccSetUcase
+	MOV	SI,COUNTRY_CDPG.ccSetUcase
 NXTENTRY:
 	CMP	AL,[SI] 		; compare info type
 	JZ	FOUNDIT
@@ -454,9 +454,9 @@ GETDONE:
 	transfer SYS_RET_OK
 setsize:
 	SUB	CX,3			; size after length field
-	CMP	WORD PTR [SI],CX	; less than table size
+	CMP	word [SI],CX	; less than table size
 	JAE	setsize2		; no
-	MOV	CX,WORD PTR [SI]	; truncate to table size
+	MOV	CX,word [SI]	; truncate to table size
 setsize2:
 	MOV	ES:[DI],CX		; copy actual length to user's
 	ADD	DI,2			; update index
@@ -502,20 +502,20 @@ BREAK <$GetSetCdPg - get or set global code page>
 
 
 	procedure   $GetSetCdPg,NEAR   ; DOS 3.3
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	context DS
-	MOV	SI,OFFSET DOSGROUP:COUNTRY_CDPG
+	MOV	SI,COUNTRY_CDPG
 	CMP	AL,1		       ; get global code page
 	JNZ	setglpg 	       ; set global cod epage
 	MOV	BX,[SI.ccDosCodePage]  ; get active code page id
 	MOV	DX,[SI.ccSysCodePage]  ; get sys code page id
 	invoke	get_user_stack
-ASSUME DS:NOTHING
+; ASSUME DS:NOTHING
 	MOV	[SI.user_BX],BX        ; update returned bx
 	MOV	[SI.user_DX],DX        ; update returned dx
 OK_RETURN:
 	transfer SYS_RET_OK
-ASSUME DS:DOSGROUP
+; ASSUME DS:DOSGROUP
 setglpg:
 	CMP	AL,2
 	JNZ	nomem
@@ -549,7 +549,7 @@ EndProc $GetSetCdPg
 
 BREAK <$Get_Drive_Freespace -- Return bytes of free disk space on a drive>
 	procedure   $GET_DRIVE_FREESPACE,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	DL = Drive number
@@ -575,7 +575,7 @@ SET_AX_RET:
 	XOR	AH,AH			; Chuck Fat ID byte
 DoSt:
 	invoke	get_user_stack
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	[SI.user_DX],DX
 	MOV	[SI.user_CX],CX
 	MOV	[SI.user_BX],BX
@@ -590,7 +590,7 @@ EndProc $GET_DRIVE_FREESPACE
 
 BREAK <$Get_DMA, $Set_DMA -- Get/Set current DMA address>
 	procedure   $GET_DMA,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	None
@@ -599,8 +599,8 @@ ASSUME	DS:NOTHING,ES:NOTHING
 ; Returns:
 ;	ES:BX is current transfer address
 
-	MOV	BX,WORD PTR [DMAADD]
-	MOV	CX,WORD PTR [DMAADD+2]
+	MOV	BX,word [DMAADD]
+	MOV	CX,word [DMAADD+2]
 	invoke	get_user_stack
 	MOV	[SI.user_BX],BX
 	MOV	[SI.user_ES],CX
@@ -608,7 +608,7 @@ ASSUME	DS:NOTHING,ES:NOTHING
 EndProc $GET_DMA
 
 	procedure   $SET_DMA,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	DS:DX is desired new disk transfer address
@@ -617,14 +617,14 @@ ASSUME	DS:NOTHING,ES:NOTHING
 ; Returns:
 ;	None
 
-	MOV	WORD PTR [DMAADD],DX
-	MOV	WORD PTR [DMAADD+2],DS
+	MOV	word [DMAADD],DX
+	MOV	word [DMAADD+2],DS
 	return
 EndProc $SET_DMA
 
 BREAK <$Get_Default_Drive, $Set_Default_Drive -- Set/Get default drive>
 	procedure   $GET_DEFAULT_DRIVE,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	None
@@ -638,7 +638,7 @@ ASSUME	DS:NOTHING,ES:NOTHING
 EndProc $GET_DEFAULT_DRIVE
 
 	procedure   $SET_DEFAULT_DRIVE,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	DL = Drive number for new default drive
@@ -662,7 +662,7 @@ EndProc $SET_DEFAULT_DRIVE
 
 BREAK <$Get_Interrupt_Vector - Get/Set interrupt vectors>
 	procedure   $GET_INTERRUPT_VECTOR,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	AL = interrupt number
@@ -672,7 +672,7 @@ ASSUME	DS:NOTHING,ES:NOTHING
 ;	ES:BX is current interrupt vector
 
 	CALL	RECSET
-	LES	BX,DWORD PTR ES:[BX]
+	LES	BX,dword ES:[BX]
 	invoke	get_user_stack
 	MOV	[SI.user_BX],BX
 	MOV	[SI.user_ES],ES
@@ -680,7 +680,7 @@ ASSUME	DS:NOTHING,ES:NOTHING
 EndProc $GET_INTERRUPT_VECTOR
 
 	procedure   $SET_INTERRUPT_VECTOR,NEAR
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;	AL = interrupt number
@@ -698,17 +698,17 @@ ASSUME	DS:NOTHING,ES:NOTHING
 	return
 EndProc $SET_INTERRUPT_VECTOR
 
-	IF	ALTVECT
-TABLE	SEGMENT
+	%if ALTVECT
+SECTION .TABLE
 VECIN:
 ; INPUT VECTORS
-Public GSET001S,GSET001E
-GSET001S  label byte
+global GSET001S,GSET001E
+GSET001S:
 	DB	22H			; Terminate
 	DB	23H			; ^C
 	DB	24H			; Hard error
 	DB	28H			; Spooler
-LSTVEC	DB	?			; ALL OTHER
+LSTVEC: db 0; ALL OTHER
 
 VECOUT:
 ; GET MAPPED VECTOR
@@ -716,24 +716,24 @@ VECOUT:
 	DB	int_ctrl_c
 	DB	int_fatal_abort
 	DB	int_spooler
-LSTVEC2 DB	?			; Map to itself
+LSTVEC2: db 0; Map to itself
 
 NUMVEC	=	VECOUT-VECIN
-GSET001E label byte
-TABLE	ENDS
-	ENDIF
+GSET001E:
+; END SECTION .TABLE
+	%endif
 
 procedure   RECSET,NEAR
 
-	IF	ALTVECT
+	%if ALTVECT
 	context ES
 	MOV	[LSTVEC],AL		; Terminate list with real vector
 	MOV	[LSTVEC2],AL		; Terminate list with real vector
 	MOV	CX,NUMVEC		; Number of possible translations
-	MOV	DI,OFFSET DOSGROUP:VECIN    ; Point to vectors
+	MOV	DI,VECIN    ; Point to vectors
 	REPNE	SCASB
 	MOV	AL,ES:[DI+NUMVEC-1]	; Get translation
-	ENDIF
+	%endif
 
 	XOR	BX,BX
 	MOV	ES,BX
@@ -755,7 +755,7 @@ BREAK <$Char_Oper - hack on paths, switches so that xenix can look like PCDOS>
 ; output:   (get) DL - character/flag
 ;
 	procedure   $CHAR_OPER,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 	context DS
 	CMP	AL,1
 	JB	CharGetSw
@@ -775,7 +775,7 @@ CharGetDev:
 	MOV	DL,-1
 CharSet:
 	Invoke	Get_User_Stack
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	MOV	[SI.User_DX],DX
 CharSetDev:
 	return
@@ -791,14 +791,14 @@ BREAK <$GetExtendedError - Return Extended DOS error code>
 ;	    ES:DI = may be pointer
 ;
 	procedure   $GetExtendedError,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 	Context DS
 	MOV	AX,[EXTERR]
 	LES	DI,[EXTERRPT]
-	MOV	BX,WORD PTR [EXTERR_ACTION]	; BL = Action, BH = Class
+	MOV	BX,word [EXTERR_ACTION]	; BL = Action, BH = Class
 	MOV	CH,[EXTERR_LOCUS]
 	invoke	get_user_stack
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	MOV	[SI.user_DI],DI
 	MOV	[SI.user_ES],ES
 	MOV	[SI.user_BX],BX
@@ -812,9 +812,9 @@ BREAK <$Get_Global_CdPg  - Return Global Code Page>
 ; output:   AX = Global Code Page
 ;
 	procedure   Get_Global_CdPg,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 	PUSH	SI
-	MOV	SI,OFFSET DOSGROUP:COUNTRY_CDPG
+	MOV	SI,COUNTRY_CDPG
 	MOV	AX,CS:[SI.ccDosCodePage]
 	POP	SI
 	return
@@ -823,7 +823,7 @@ EndProc Get_Global_CdPg
 ;-------------------------------Start of DBCS 2/13/KK
 BREAK	<ECS_call - Extended Code System support function>
 
-ASSUME	DS:NOTHING, ES:NOTHING
+; ASSUME	DS:NOTHING, ES:NOTHING
 
 	procedure   $ECS_call,NEAR
 
@@ -844,7 +844,7 @@ ASSUME	DS:NOTHING, ES:NOTHING
 ;  NOTE: THIS CALL DOES GUARANTEE THAT REGISTER OTHER THAN
 ;	 SS:SP WILL BE PRESERVED!
 
- IF  DBCS									;AN000;
+ %if DBCS;AN000;
 										;AN000;
 	or	al, al			; AL = 0 (get table)?			;AN000;
 	je	get_lbt 							;AN000;
@@ -859,12 +859,12 @@ get_lbt:				; get lead byte table			;AN000;
 	push	bx								;AN000;
 	push	ds								;AN000;
 	context DS								;AN000;
-	MOV	BX,offset DOSGROUP:COUNTRY_CDPG.ccSetDBCS			;AN000;
+	MOV	BX,COUNTRY_CDPG.ccSetDBCS			;AN000;
 	MOV	AX,[BX+1]		; set EV address to DS:SI		;AN000;
 	MOV	BX,[BX+3]							;AN000;
 	ADD	AX,2			; Skip Lemgth				;AN000;
 	invoke	get_user_stack							;AN000;
- assume ds:nothing								;AN000;
+ ; assume ds:nothing;AN000;
 	MOV	[SI.user_SI], AX						;AN000;
 	MOV	[SI.user_DS], BX						;AN000;
 	pop	ds								;AN000;
@@ -878,7 +878,7 @@ set_interim:				; Set interim console flag		;AN000;
 	mov	[InterCon], dl							;AN000;
 	push	ds								;AN000;
 	mov	ds, [CurrentPDB]						;AN000;
-	mov	byte ptr ds:[PDB_InterCon], dl	; update value in pdb		;AN000;
+	mov	byte ds:[PDB_InterCon], dl	; update value in pdb		;AN000;
 	pop	ds								;AN000;
 	pop	dx								;AN000;
 	transfer SYS_RET_OK							;AN000;
@@ -888,25 +888,25 @@ get_interim:									;AN000;
 	push	ds								;AN000;
 	mov	dl,[InterCon]							;AN000;
 	invoke	get_user_stack		; get interim console flag		;AN000;
- assume ds:nothing								;AN000;
+ ; assume ds:nothing;AN000;
 	mov	[SI.user_DX],DX 						;AN000;
 	pop	ds								;AN000;
 	pop	dx								;AN000;
 	transfer SYS_RET_OK							;AN000;
- ELSE										;AN000;
+ %else;AN000;
 	or	al, al			; AL = 0 (get table)?  ;AN000;
 	jnz	okok					       ;AN000;
 get_lbt:						       ;AN000;
 	invoke	get_user_stack				       ;AN000;
- assume ds:nothing					       ;AN000;
-	MOV	[SI.user_SI], Offset Dosgroup:DBCS_TAB+2       ;AN000;
+ ; assume ds:nothing;AN000;
+	MOV	[SI.user_SI], DBCS_TAB+2       ;AN000;
 	MOV	[SI.user_DS], CS			       ;AN000;
 okok:							       ;AN000;
 	transfer SYS_RET_OK		;		       ;AN000;
 
- ENDIF							       ;AN000;
+ %endif;AN000;
 
-$ECS_call endp						       ;AN000;
+; ENDP $ECS_call;AN000;
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END

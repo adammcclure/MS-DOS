@@ -3,16 +3,16 @@
 ;*************************************
 ; COMMAND EQUs which are switch dependant
 
-IF1
-    IF IBM
-        %OUT DBCS Enabled IBM  version
-    ELSE
-        %OUT Normal version
-    ENDIF
+%if 1  ; IF1 - pass-specific
+    %if IBM
+        %warning DBCS Enabled IBM  version
+    %else
+        %warning Normal version
+    %endif
 
 ;;  IF   KANJI                  3/3/KK
 ;;      %OUT Kanji version      3/3/KK
 ;;  ENDIF                       3/3/KK
 
-ENDIF
+%endif
 

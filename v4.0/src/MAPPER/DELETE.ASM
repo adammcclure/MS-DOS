@@ -1,10 +1,10 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS  DosDelete  mapper
+; title CP/DOS  DosDelete  mapper
 ;
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -35,23 +35,23 @@ dosxxx	segment byte public 'dos'
 ; *
 ; *************************************************************************
 
-	public	DosDelete
-	.sall
-	.xlist
-	include macros.inc
-	.list
+	global DosDelete
+	; .sall
+	; .xlist
+	%include "macros.inc"
+	; .list
 
-str	struc
-old_bp	dw	?
-return	dd	?
-dtrm12	dd	?	; reserved, always 0
-asc012	dd	?	; file name path pointer
-str	ends
+struc str
+old_bp: dw 0
+return: dd 0
+dtrm12: dd 0; reserved, always 0
+asc012: dd 0; file name path pointer
+endstruc
 
-DosDelete  proc   far
+DosDelete:
 	Enter	DosDelete		    ; push registers
 
-	lds	dx,dword ptr [bp].asc012    ; file path name
+	lds	dx,dword [bp].asc012    ; file path name
 
 	mov	ah,041h
 	int	21h			    ; delete the file
@@ -61,10 +61,10 @@ DosDelete  proc   far
 
 err012:
 	mexit				    ; pop registers
-	ret	size str - 6		    ; return
+	ret	str_size - 6		    ; return
 
-DosDelete  endp
+; ENDP DosDelete
 
-dosxxx	ends
+; END SECTION .dosxxx
 
-	end
+	; end

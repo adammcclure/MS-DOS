@@ -1,10 +1,10 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS DosExit mapper
+; title CP/DOS DosExit mapper
 ;
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -22,18 +22,18 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dosexit
-            .sall
-            include  macros.inc
+            global dosexit
+            ; .sall
+            %include "macros.inc"
 
-str         struc
-old_bp      dw       ?
-return      dd       ?
-Result      dw       ?       ; result code
-Action      dw       ?       ; action code
-str         ends
+struc str
+old_bp: dw 0
+return: dd 0
+Result: dw 0; result code
+Action: dw 0; action code
+endstruc
 
-dosexit     proc     far
+dosexit:
 
             Enter    DosExit             ; push registers
 
@@ -49,10 +49,10 @@ dosexit     proc     far
             xor      ax,ax               ; set good return code
 
 exit:       mexit                        ; pop registers
-            ret      size str - 6        ; return
+            ret      str_size - 6        ; return
 
-dosexit     endp
+; ENDP dosexit
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

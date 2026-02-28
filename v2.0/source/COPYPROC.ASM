@@ -1,52 +1,52 @@
-TITLE   COPYRPOC             ;Procedures called by COPY
+; TITLE   COPYRPOC;Procedures called by COPY
 
-        INCLUDE COMSW.ASM
+        %include "COMSW.ASM"
 
-.xlist
-.xcref
-        INCLUDE DOSSYM.ASM
-        INCLUDE DEVSYM.ASM
-        INCLUDE COMSEG.ASM
-.list
-.cref
+; .xlist
+; .xcref
+        %include "DOSSYM.ASM"
+        %include "DEVSYM.ASM"
+        %include "COMSEG.ASM"
+; .list
+; .cref
 
-        INCLUDE COMEQU.ASM
+        %include "COMEQU.ASM"
 
-DATARES SEGMENT PUBLIC
-DATARES ENDS
+SECTION .DATARES
+; END SECTION .DATARES
 
-TRANDATA        SEGMENT PUBLIC
+SECTION .TRANDATA
 
-        EXTRN   OVERWR:BYTE,FULDIR:BYTE,LOSTERR:BYTE
-        EXTRN   DEVWMES:BYTE,INBDEV:BYTE,NOSPACE:BYTE
+        extern OVERWR,FULDIR,LOSTERR
+        extern DEVWMES,INBDEV,NOSPACE
 
-TRANDATA        ENDS
+; END SECTION .TRANDATA
 
-TRANSPACE       SEGMENT PUBLIC
+SECTION .TRANSPACE
 
-        EXTRN   CFLAG:BYTE,NXTADD:WORD,DESTCLOSED:BYTE
-        EXTRN   PLUS:BYTE,BINARY:BYTE,ASCII:BYTE,FILECNT:WORD
-        EXTRN   WRITTEN:BYTE,CONCAT:BYTE,DESTBUF:BYTE,SRCBUF:BYTE
-        EXTRN   SDIRBUF:BYTE,DIRBUF:BYTE,DESTFCB:BYTE,MELCOPY:BYTE
-        EXTRN   FIRSTDEST:BYTE,DESTISDIR:BYTE,DESTSWITCH:WORD
-        EXTRN   DESTTAIL:WORD,DESTINFO:BYTE,INEXACT:BYTE
-        EXTRN   DESTVARS:BYTE,SRCINFO:BYTE,RDEOF:BYTE
-        EXTRN   USERDIR1:BYTE,NOWRITE:BYTE
-        EXTRN   SRCHAND:WORD,CPDATE:WORD,CPTIME:WORD
-        EXTRN   SRCISDEV:BYTE,BYTCNT:WORD,TPA:WORD,TERMREAD:BYTE
-        EXTRN   DESTHAND:WORD,DESTISDEV:BYTE,DIRCHAR:BYTE
+        extern CFLAG,NXTADD,DESTCLOSED
+        extern PLUS,BINARY,ASCII,FILECNT
+        extern WRITTEN,CONCAT,DESTBUF,SRCBUF
+        extern SDIRBUF,DIRBUF,DESTFCB,MELCOPY
+        extern FIRSTDEST,DESTISDIR,DESTSWITCH
+        extern DESTTAIL,DESTINFO,INEXACT
+        extern DESTVARS,SRCINFO,RDEOF
+        extern USERDIR1,NOWRITE
+        extern SRCHAND,CPDATE,CPTIME
+        extern SRCISDEV,BYTCNT,TPA,TERMREAD
+        extern DESTHAND,DESTISDEV,DIRCHAR
 
-TRANSPACE       ENDS
+; END SECTION .TRANSPACE
 
-TRANCODE        SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-        PUBLIC  SEARCH,SEARCHNEXT,DOCOPY,CLOSEDEST,FLSHFIL,SETASC
-        PUBLIC  BUILDNAME,COPERR
+        global SEARCH,SEARCHNEXT,DOCOPY,CLOSEDEST,FLSHFIL,SETASC
+        global BUILDNAME,COPERR
 
-        EXTRN   PRINT:NEAR,BUILDPATH:NEAR,RESTUDIR1:NEAR
-        EXTRN   COMPNAME:NEAR,ENDCOPY:NEAR
+        extern PRINT,BUILDPATH,RESTUDIR1
+        extern COMPNAME,ENDCOPY
 
-ASSUME  CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
+; ASSUME  CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
 
 
 SEARCHNEXT:
@@ -58,7 +58,7 @@ SEARCHNEXT:
 SEARCH:
         PUSH    AX
         MOV     AH,SET_DMA
-        MOV     DX,OFFSET TRANGROUP:DIRBUF
+        MOV     DX,DIRBUF
         INT     int_command             ; Put result of search in DIRBUF
         POP     AX                      ; Restore search first/next command
         MOV     DX,FCB
@@ -68,7 +68,7 @@ SEARCH:
 
 DOCOPY:
         mov     [RDEOF],0               ; No EOF yet
-        mov     dx,offset trangroup:SRCBUF
+        mov     dx,SRCBUF
         mov     ax,OPEN SHL 8
         INT     int_command
         retc                            ; If open fails, ignore
@@ -85,7 +85,7 @@ DOCOPY:
         jz      COPYLP                  ; Source not a device
         cmp     [BINARY],0
         jz      COPYLP                  ; ASCII device OK
-        mov     dx,offset trangroup:INBDEV  ; Cannot do binary input
+        mov     dx,INBDEV  ; Cannot do binary input
         jmp     COPERR
 
 COPYLP:
@@ -101,11 +101,11 @@ COPYLP:
 GOTROOM:
         push    ds
         mov     ds,[TPA]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         mov     ah,READ
         INT     int_command
         pop     ds
-ASSUME  DS:TRANGROUP
+; ASSUME  DS:TRANGROUP
         jc      CLOSESRC                ; Give up if error
         mov     cx,ax                   ; Get count
         jcxz    CLOSESRC                ; No more to read
@@ -151,7 +151,7 @@ CLOSESRC:
 CLOSEDEST:
         cmp     [DESTCLOSED],0
         retnz                           ; Don't double close
-        MOV     AL,BYTE PTR [DESTSWITCH]
+        MOV     AL,byte [DESTSWITCH]
         CALL    SETASC                  ; Check for B or A switch on destination
         JZ      BINCLOS
         MOV     BX,[NXTADD]
@@ -167,7 +167,7 @@ NOCONC:
 PUTZ:
         PUSH    DS
         MOV     DS,[TPA]
-        MOV     WORD PTR [BX],1AH       ; Add End-of-file mark (Ctrl-Z)
+        MOV     word [BX],1AH       ; Add End-of-file mark (Ctrl-Z)
         POP     DS
         INC     [NXTADD]
         MOV     [NOWRITE],0             ; Make sure our ^Z gets written
@@ -225,7 +225,7 @@ RET50:
 FORGETIT:
         MOV     BX,[DESTHAND]
         CALL    DODCLOSE                ; Close the dest
-        MOV     DX,OFFSET TRANGROUP:DESTBUF
+        MOV     DX,DESTBUF
         MOV     AH,UNLINK
         INT     int_command             ; And delete it
         MOV     [FILECNT],0             ; No files transferred
@@ -258,7 +258,7 @@ NOTEXISTS:
         CMP     [SRCISDEV],0
         JNZ     PROCDEST                ; Same name on device OK
         CMP     [CONCAT],0              ; Concatenation?
-        MOV     DX,OFFSET TRANGROUP:OVERWR
+        MOV     DX,OVERWR
         JZ      COPERRJ                 ; If not, overwrite error
         MOV     [NOWRITE],1             ; Flag not writting (just seeking)
 PROCDEST:
@@ -268,9 +268,9 @@ PROCDEST:
         mov     ah,CREAT
         xor     cx,cx
 DODESTOPEN:
-        mov     dx,offset trangroup:DESTBUF
+        mov     dx,DESTBUF
         INT     int_command
-        MOV     DX,OFFSET TRANGROUP:FULDIR
+        MOV     DX,FULDIR
         JC      COPERRJ
         mov     [DESTHAND],ax           ; Save handle
         mov     [CFLAG],1               ; Destination now exists
@@ -280,7 +280,7 @@ DODESTOPEN:
         mov     [DESTISDEV],dl          ; Set dest info
         test    dl,devid_ISDEV
         jz      EXISTS                  ; Dest not a device
-        mov     al,BYTE PTR [DESTSWITCH]
+        mov     al,byte [DESTSWITCH]
         AND     AL,ASWITCH+BSWITCH
         JNZ     TESTBOTH
         MOV     AL,[ASCII]              ; Neither set, use current setting
@@ -315,7 +315,7 @@ EXISTS:
 ; destination create otherwise), and user trying to specify destination which
 ; has been scribbled already (if dest had been named first, NOWRITE would
 ; be set).
-        MOV     DX,OFFSET TRANGROUP:LOSTERR ; Tell him he's not going to get it
+        MOV     DX,LOSTERR ; Tell him he's not going to get it
         CALL    PRINT
         MOV     [NXTADD],0              ; Set return
         INC     [TERMREAD]              ; Tell Read to give up
@@ -333,12 +333,12 @@ NOCHECKING:
         XOR     DX,DX
         PUSH    DS
         MOV     DS,[TPA]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     AH,WRITE
         INT     int_command
         POP     DS
-ASSUME  DS:TRANGROUP
-        MOV     DX,OFFSET TRANGROUP:NOSPACE
+; ASSUME  DS:TRANGROUP
+        MOV     DX,NOSPACE
         JC      COPERR                  ; Failure
         sub     cx,ax
         retz                            ; Wrote all supposed to
@@ -351,7 +351,7 @@ ASSUME  DS:TRANGROUP
         dec     cx
         retz                            ; Wrote one byte less (the ^Z)
 DEVWRTERR:
-        MOV     DX,OFFSET TRANGROUP:DEVWMES
+        MOV     DX,DEVWMES
 COPERR:
         CALL    PRINT
         inc     [DESTCLOSED]
@@ -360,7 +360,7 @@ COPERR:
         MOV     bx,[DESTHAND]
         MOV     AH,CLOSE                ; Close the file
         INT     int_command
-        MOV     DX,OFFSET TRANGROUP:DESTBUF
+        MOV     DX,DESTBUF
         MOV     AH,UNLINK
         INT     int_command             ; And delete it
         MOV     [CFLAG],0
@@ -405,8 +405,8 @@ LOADSW:
 BUILDDEST:
         cmp     [DESTISDIR],-1
         jnz     KNOWABOUTDEST           ; Already done the figuring
-        MOV     DI,OFFSET TRANGROUP:USERDIR1
-        mov     bp,offset trangroup:DESTVARS
+        MOV     DI,USERDIR1
+        mov     bp,DESTVARS
         call    BUILDPATH
         call    RESTUDIR1
 
@@ -420,10 +420,10 @@ KNOWABOUTDEST:
         jmp     NOTFIRSTDEST
 FIRSTDST:
         mov     si,[DESTTAIL]           ; Create an FCB of the original DEST
-        mov     di,offset trangroup:DESTFCB
+        mov     di,DESTFCB
         mov     ax,PARSE_FILE_DESCRIPTOR SHL 8
         INT     int_command
-        mov     ax,word ptr [DESTBUF]   ; Get drive
+        mov     ax,word [DESTBUF]   ; Get drive
         cmp     ah,':'
         jz      DRVSPEC4
         mov     al,'@'
@@ -477,12 +477,12 @@ SETCONC:
         DEC     DI                      ; Point at ^Z
         MOV     [NXTADD],DI             ; New buffer
 NOTFIRSTDEST:
-        mov     bx,offset trangroup:DIRBUF+1    ; Source of replacement chars
+        mov     bx,DIRBUF+1    ; Source of replacement chars
         cmp     [CONCAT],0
         jz      GOTCHRSRC               ; Not a concat
-        mov     bx,offset trangroup:SDIRBUF+1   ; Source of replacement chars
+        mov     bx,SDIRBUF+1   ; Source of replacement chars
 GOTCHRSRC:
-        mov     si,offset trangroup:DESTFCB+1   ; Original dest name
+        mov     si,DESTFCB+1   ; Original dest name
         mov     di,[DESTTAIL]           ; Where to put result
 
 BUILDNAME:
@@ -491,7 +491,7 @@ BUILDMAIN:
         lodsb
         cmp     al,"?"
         jnz     NOTAMBIG
-        mov     al,byte ptr [BX]
+        mov     al,byte [BX]
 NOTAMBIG:
         cmp     al,' '
         jz      NOSTORE
@@ -500,7 +500,7 @@ NOSTORE:
         inc     bx
         loop    BUILDMAIN
         mov     cl,3
-        cmp     byte ptr [SI],' '
+        cmp     byte [SI],' '
         jz      ENDDEST                 ; No extension
         mov     al,'.'
         stosb
@@ -508,7 +508,7 @@ BUILDEXT:
         lodsb
         cmp     al,"?"
         jnz     NOTAMBIGE
-        mov     al,byte ptr [BX]
+        mov     al,byte [BX]
 NOTAMBIGE:
         cmp     al,' '
         jz      NOSTOREE
@@ -521,6 +521,6 @@ ENDDEST:
         stosb                           ; NUL terminate
         return
 
-TRANCODE    ENDS
-            END
+; END SECTION .TRANCODE
+            ; END
                                         

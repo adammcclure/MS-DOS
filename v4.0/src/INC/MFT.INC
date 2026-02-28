@@ -81,17 +81,17 @@ BREAK   <MFT Definitions>
 ;*              possibility.  If you add or remove flag values you must check
 ;*              all references to mft_flag.
 
-MFT_entry       STRUC
+struc MFT_entry
 
-mft_flag        DB      ?               ; flag/len field
-mft_len         DW      ?
-mft_sum         DB      ?               ; string sum word
-mft_lptr        DW      ?               ; LCK pointer
-mft_sptr        DD      ?               ; sft pointer
-mft_serl        DW      ?               ; serial number
-mft_name        DB      ?               ; offset to start of name
+mft_flag: db 0; flag/len field
+mft_len: dw 0
+mft_sum: db 0; string sum word
+mft_lptr: dw 0; LCK pointer
+mft_sptr: dd 0; sft pointer
+mft_serl: dw 0; serial number
+mft_name: db 0; offset to start of name
 
-MFT_entry       ENDS
+endstruc
 
 MFLG_NAM        EQU     1               ; min value for name record
 MFLG_FRE        EQU     0               ; free record
@@ -110,17 +110,17 @@ MFLG_END        EQU     -1              ; end record
 ;                       LBA    = offset of last byte of locked region
 ;                       SPTR   = pointer to SFT lock was issued on
 
-RLR_entry       STRUC
+struc RLR_entry
 
-rlr_next        DW      ?               ; chain to next RLR, 0 if end
-rlr_fba         DW      ?               ; first byte addr (offset) of reigion
-                DW      ?
-rlr_lba         DW      ?               ; last byte addr of region
-                DW      ?
-rlr_sptr        DD      ?               ; SFT pointer
-rlr_pid         dw      ?               ; process id of issuer
-rlr_type        dw      ?               ; lock type
-RLR_entry       ENDS
+rlr_next: dw 0; chain to next RLR, 0 if end
+rlr_fba: dw 0; first byte addr (offset) of reigion
+                dw 0
+rlr_lba: dw 0; last byte addr of region
+                dw 0
+rlr_sptr: dd 0; SFT pointer
+rlr_pid: dw 0; process id of issuer
+rlr_type: dw 0; lock type
+endstruc
 
 rlr_lall        equ     00h            ; lock all ops
 rlr_lwr         equ     01h            ; lock write ops

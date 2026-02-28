@@ -1,8 +1,8 @@
-extrn	PrintString:near
-extrn	PrintHex:near
+extern PrintString
+extern PrintHex
 
-display	macro string
-	local	dbs,disp_exit
+%macro display 1
+	; LOCAL dbs,disp_exit
 	pushf
 	push	ds
 	push	es
@@ -13,7 +13,7 @@ display	macro string
 	pop	es
 
 	push	si
-	mov	si,offset cs:dbs
+	mov	si,dbs
 	call	PrintString
 	pop	si
 	pop	es
@@ -24,9 +24,9 @@ display	macro string
 dbs	db	&string,0
 
 disp_exit:
-	endm
+	%endmacro
 
-content	macro reg
+%macro content 1
 	pushf
 	push	ds
 	push	es
@@ -45,6 +45,6 @@ content	macro reg
 	pop	es
 	pop	ds
 	popf
-	endm
+	%endmacro
 
 

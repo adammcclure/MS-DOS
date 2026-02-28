@@ -1,17 +1,17 @@
 
 
 
-.xlist									  ;AN000;
-include    dosseg.asm							  ;AN000;
+; .xlist;AN000;
+%include "dosseg.asm";AN000;
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'                                       ;AN000;
-	ASSUME	CS:DOSGROUP,  SS:DOSGROUP				  ;AN000;
-.xcref									  ;AN000;
-include    dossym.inc							  ;AN000;
-include    devsym.inc							  ;AN000;
-include    doscntry.inc 						  ;AN000;
-.cref									  ;AN000;
-.list
+SECTION .CODE;AN000;
+	; ASSUME	CS:DOSGROUP,  SS:DOSGROUP;AN000;
+; .xcref;AN000;
+%include "dossym.inc";AN000;
+%include "devsym.inc";AN000;
+%include "doscntry.inc";AN000;
+; .cref;AN000;
+; .list
 StackSize   =	180h			; gross but effective
 
 	i_need	VERFLG		       ; verify status flag		  ;AN000;
@@ -42,7 +42,7 @@ StackSize   =	180h			; gross but effective
 	i_need	IOStack,BYTE						  ;AN000;
 	i_need	Callback_flag,BYTE					  ;AN000;
 
-DOSINFO     STRUC							  ;AN000;
+struc DOSINFO;AN000;
 bsize	  dw	0							  ;AN000;
 files	  dw	0							  ;AN000;
 fcbs1	  dw	0							  ;AN000;
@@ -51,15 +51,15 @@ buffers   dw	0							  ;AN000;
 	  dw	0							  ;AN000;
 lastdrv   dw	0							  ;AN000;
 secsize   dw	0							  ;AN000;
-DosInfo       ENDS							  ;AN000;
+endstruc;AN000;
 
 
 
-	extrn	ABSDRD:NEAR		 ;AN000;
-	extrn	ABSDWRT:NEAR		 ;AN000;
-	extrn	READTIME:NEAR		 ;AN000;
-	extrn	CHECKFLUSH:NEAR 	 ;AN000;
-	extrn	GETCURHEAD:NEAR 	 ;AN000;
+	extern ABSDRD;AN000;
+	extern ABSDWRT;AN000;
+	extern READTIME;AN000;
+	extern CHECKFLUSH;AN000;
+	extern GETCURHEAD;AN000;
 
 
 ;******************************************************************************
@@ -107,7 +107,7 @@ DosInfo       ENDS							  ;AN000;
 
 
 PROCEDURE   IFS_DOSCALL,FAR						  ;AN000;
- assume DS:NOTHING,ES:NOTHING						  ;AN000;
+ ; assume DS:NOTHING,ES:NOTHING;AN000;
 
 	 CLI			;					  ;AN000;
 	 CMP	 AH,39		;					  ;AN000;
@@ -124,7 +124,7 @@ others2:
 	 JNZ	 not_stack	;					  ;AN000;
 	 PUSH	 CS		;					  ;AN000;
 	 POP	 DS		;					  ;AN000;
-	 MOV	 SI,OFFSET DOSGROUP:IOSTACK				  ;AN000;
+	 MOV	 SI,IOSTACK				  ;AN000;
 	 MOV	 CX,stacksize						  ;AN000;
 	 JMP	 Dosend 	;					  ;AN000;
 				;					  ;AN000;
@@ -132,7 +132,7 @@ not_stack:			;					  ;AN000;
 	 MOV	 CS:[Temp_Var],DS; save ds for strcmp strcpy		  ;AN000;
 	 PUSH	 CS		;					  ;AN000;
 	 POP	 DS		;					  ;AN000;
- assume DS:DOSGROUP							  ;AN000;
+ ; assume DS:DOSGROUP;AN000;
 	 INC	 [INDOS]	; in DOS				  ;AN000;
 	 PUSH	 CX		; save cx				  ;AN000;
 	 PUSH	 DX		; save cx				  ;AN000;
@@ -147,12 +147,12 @@ not_stack:			;					  ;AN000;
 	 MOV	 [SaveBX],BX	;					  ;AN000;
 	 MOV	 BX,CS		; prepare system stack			  ;AN000;
 	 MOV	 SS,BX		;					  ;AN000;
-	 MOV	 SP,OFFSET DOSGROUP:DSKSTACK				  ;AN000;
+	 MOV	 SP,DSKSTACK				  ;AN000;
 	 MOV	 BX,[SaveBX]	;					  ;AN000;
 	 MOV	 [Callback_flag],1  ;set flag				  ;AN000;
 withSS_SP:			;					  ;AN000;
 	 STI								  ;AN000;
- ASSUME DS:NOTHING							  ;AN000;
+ ; ASSUME DS:NOTHING;AN000;
 ;	 OR	 [DOS34_FLAG],Force_I24_Fail				  ;AN000;
 ;									  ;AN000;
 ;	 cmp	 ah,0		 ; call Strategy routine ??		  ;AN000;
@@ -358,7 +358,7 @@ PROCEDURE  GET_DOS_INFO,NEAR						   ;AN000;
 
 	MOV	CX,[YEAR]						   ;AN000;
 	ADD	CX,1980 						   ;AN000;
-	MOV	DX,WORD PTR [DAY]	; fetch both day and month	   ;AN000;
+	MOV	DX,word [DAY]	; fetch both day and month	   ;AN000;
 
 	pop	bx			; bh = seconds	bl = hundredths    ;AN000;
 	pop	ax			; ah = hour  al = minutes	   ;AN000;
@@ -401,7 +401,7 @@ chk_al5:
 	cmp    al,5		      ; Config.sys info ??		   ;AN000;
 	jne    chk_al6							   ;AN000;
 
-	mov	si,OFFSET DOSGROUP:SYSINITVAR	 ; DS:SI-->SysInitVar	   ;AN000;
+	mov	si,SYSINITVAR	 ; DS:SI-->SysInitVar	   ;AN000;
 	push	ds							   ;AN000;
 	push	si							   ;AN000;
 	lds	si,[si].Sysi_SFT      ; get SFT address 		   ;AN000;
@@ -429,7 +429,7 @@ chk_al6:								  ;AN000;
 	cmp    al,6			; get machine name ??		  ;AN000;
 	jne    chk_al7			; no, check next function	  ;AN000;
 	context  DS							  ;AN000;
-	mov	si,offset DOSGroup:MyName   ; DS:SI-->name string	  ;AN000;
+	mov	si,MyName   ; DS:SI-->name string	  ;AN000;
 					; ES:DI-->return buffer 	  ;AN000;
 	add	di,2			; skip max return size		  ;AN000;
 	mov	cx,15			; name size			  ;AN000;
@@ -517,7 +517,7 @@ ENDPROC  $IFS_IOCTL							   ;AN000;
 
 
 
-CODE	ENDS								   ;AN000;
-    END 								   ;AN000;
+; END SECTION .CODE;AN000;
+    ; END;AN000;
 
 

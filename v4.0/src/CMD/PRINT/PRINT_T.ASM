@@ -1,19 +1,19 @@
-	page	80,132
-	TITLE	4.00 PRINT  TRANSIENT
+	; page	80,132
+	; TITLE	4.00 PRINT  TRANSIENT
 ;			$SALUT (4,25,30,41)
-			INCLUDE pridefs.inc
+			%include "pridefs.inc"
 
-SaveReg 		MACRO reglist	;; push those registers
-IRP			reg,<reglist>
+%macro SaveReg 1;; push those registers
+; IRP			reg,<reglist>
 			PUSH reg
-ENDM
-ENDM
+%endmacro
+%endmacro
 
-RestoreReg		MACRO reglist	;; pop those registers
-IRP			reg,<reglist>
+%macro RestoreReg 1;; pop those registers
+; IRP			reg,<reglist>
 			POP  reg
-ENDM
-ENDM
+%endmacro
+%endmacro
 
 BREAK			<Transient Portion>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -201,16 +201,16 @@ BREAK			<Transient Portion>
 ;
 ;==================== END - PSEUDOCODE =========================================
 
-CodeR			Segment public para
+SECTION .CodeR
 
-			extrn SliceCnt:BYTE, BusyTick:BYTE, MaxTick:BYTE, TimeSlice:BYTE
-			extrn EndRes:WORD, BlkSiz:WORD, QueueLen:BYTE, PChar:BYTE
-			extrn ListName:BYTE, FileQueue:BYTE, EndQueue:WORD, Buffer:WORD
-			extrn EndPtr:WORD, NxtChr:WORD, MoveTrans:FAR, TO_DOS:FAR
+			extern SliceCnt, BusyTick, MaxTick, TimeSlice
+			extern EndRes, BlkSiz, QueueLen, PChar
+			extern ListName, FileQueue, EndQueue, Buffer
+			extern EndPtr, NxtChr, MoveTrans, TO_DOS
 
-			extrn MESBAS:WORD, R_MES_BUFF:WORD
+			extern MESBAS, R_MES_BUFF
 
-CodeR			EndS
+; END SECTION .CodeR
 
 
 			BREAK <Transient Data>
@@ -219,37 +219,37 @@ CodeR			EndS
 ; Transient data
 ;----------------------------------------
 
-DATA			SEGMENT public BYTE
+SECTION .DATA
 
 
 
-			public namebuf
+			global namebuf
 
 			ORG  0
 
-SWITCHAR		DB   ?
+SWITCHAR: db 0
 PathChar		db   "\"
 
 SubPack 		db   0		; Level
-			dd   ?		; pointer to filename
+			dd 0; pointer to filename
 
 ;--- Ints used by print. These ints are loaded here before the
 ; resident is installed, just in case an error before print
 ; is installed cases it to be never installed and the ints
 ; have to be restored.
 
-i28vec			dd   ?		; SOFTINT
-i2fvec			dd   ?		; COMINT
-i05vec			dd   ?
-i13vec			dd   ?
-i14vec			dd   ?
-i15vec			dd   ?
-i17vec			dd   ?
-i1cvec			dd   ?		; INTLOC
+i28vec: dd 0; SOFTINT
+i2fvec: dd 0; COMINT
+i05vec: dd 0
+i13vec: dd 0
+i14vec: dd 0
+i15vec: dd 0
+i17vec: dd 0
+i1cvec: dd 0; INTLOC
 
 ;--- Temp stack for use durint int 23 and 24 processing
 			db   278 + 80H dup (?) ; 278 == IBM's ROM requirements
-intStk			dw   ?
+intStk: dw 0
 
 
 ;--- Print installed flag:
@@ -262,16 +262,16 @@ intStk			dw   ?
 ;	configuration parameters as errors
 PInst			db   0		; defaults to not installed
 CanFlag 		db   0		; cancel mode flag (0= no cancel)
-Ambig			db   ?		; =1 if a filename is ambigous
+Ambig: db 0; =1 if a filename is ambigous
 DevSpec 		db   0		; =1 a device was specified with the
 					;  /d option, do not prompt
 QFullMes		db   0		; =1 queue full message issued already
-HARDCH			DD   ?		;Pointer to real INT 24 handler
+HARDCH: dd 0;Pointer to real INT 24 handler
 
 TokBuf			DB   (MaxFileLen+16) dup(?) ; token buffer for input
 
-NulPtr			dw   ?		; pointer to the nul in NameBuf
-FNamPtr 		dw   ?		; pointer to name portion of file name
+NulPtr: dw 0; pointer to the nul in NameBuf
+FNamPtr: dw 0; pointer to name portion of file name
 NameBuf 		db   (MaxFileLen+16) dup(?) ; full name buffer for file
 					;  plus room for ambigous expansion
 
@@ -311,26 +311,26 @@ MSG_PTR 		DW   81h	; Last Parse location Pointer
 					;  STRUCTURE TO DEFINE ADDITIONAL
 					;	COMMAND LINE PARAMETERS
 					;--------------------------------------
-PARMS			LABEL WORD
-			DW   OFFSET DG:PARMSX ; POINTER TO PARMS STRUCTURE
+PARMS:
+			DW   PARMSX ; POINTER TO PARMS STRUCTURE
 			DB   0		; NO DELIMITER LIST FOLLOWS
 
 					;--------------------------------------
 					;  STRUCTURE TO DEFINE SYNTAX
 					;--------------------------------------
-PARMSX			LABEL BYTE
+PARMSX:
 			DB   0,1	; A POSITIONAL PARAMETER IS VALID
-			DW   OFFSET DG:POS1 ; POINTER TO POSITIONAL DEFINITION
+			DW   POS1 ; POINTER TO POSITIONAL DEFINITION
 			DB   9		; THERE ARE 9 TYPES OF SWITCHES
-			DW   OFFSET DG:SW1 ; POINTER TO THE /D:device SWITCH DEFINITION AREA
-			DW   OFFSET DG:SW2 ; POINTER TO THE /B:buffsiz SWITCH DEFINITION AREA
-			DW   OFFSET DG:SW3 ; POINTER TO THE /Q:quesiz SWITCH DEFINITION AREA
-			DW   OFFSET DG:SW4 ; POINTER TO THE /S:timeslice SWITCH DEFINITION AREA
-			DW   OFFSET DG:SW5 ; POINTER TO THE /U:busytick SWITCH DEFINITION AREA
-			DW   OFFSET DG:SW6 ; POINTER TO THE /M:maxval SWITCH DEFINITION AREA
-			DW   OFFSET DG:SW7 ; POINTER TO THE /T	TERMINATE SWITCH DEFINITION AREA
-			DW   OFFSET DG:SW8 ; POINTER TO THE /C CANCEL SWITCH DEFINITION AREA
-			DW   OFFSET DG:SW9 ; POINTER TO THE /P PRINT SWITCH DEFINITION AREA
+			DW   SW1 ; POINTER TO THE /D:device SWITCH DEFINITION AREA
+			DW   SW2 ; POINTER TO THE /B:buffsiz SWITCH DEFINITION AREA
+			DW   SW3 ; POINTER TO THE /Q:quesiz SWITCH DEFINITION AREA
+			DW   SW4 ; POINTER TO THE /S:timeslice SWITCH DEFINITION AREA
+			DW   SW5 ; POINTER TO THE /U:busytick SWITCH DEFINITION AREA
+			DW   SW6 ; POINTER TO THE /M:maxval SWITCH DEFINITION AREA
+			DW   SW7 ; POINTER TO THE /T	TERMINATE SWITCH DEFINITION AREA
+			DW   SW8 ; POINTER TO THE /C CANCEL SWITCH DEFINITION AREA
+			DW   SW9 ; POINTER TO THE /P PRINT SWITCH DEFINITION AREA
 			DW   0		; THERE ARE NO KEYWORDS IN PRINT SYNTAX
 
 					;--------------------------------------
@@ -360,22 +360,22 @@ PARMSX			LABEL BYTE
 					;  STRUCTURE TO DEFINE THE POSITIONAL
 					;	    PARAMETER (File Name)
 					;--------------------------------------
-POS1			LABEL WORD
+POS1:
 			DW   0203H	; OPTIONAL, REPEATABLE FILE SPEC
 			DW   0001H	; CAPS BY FILE TABLE
-			DW   OFFSET DG:PARSE_BUFF ; PLACE RESULT IN BUFFER
-			DW   OFFSET DG:NOVALS ; NO VALUES LIST REQUIRED
+			DW   PARSE_BUFF ; PLACE RESULT IN BUFFER
+			DW   NOVALS ; NO VALUES LIST REQUIRED
 			DB   0		; NO KEYWORDS
 
 					;--------------------------------------
 					; STRUCTURE TO DEFINE /D:device SWITCH
 					;--------------------------------------
-SW1			LABEL WORD
+SW1:
 			DW   2001H	; MUST BE PRINT OUTPUT DEVICE
 					; (optional simple string)
 			DW   1h 	; Caps by file table
-			DW   OFFSET DG:PARSE_BUFF ; PLACE RESULT IN BUFFER
-			DW   OFFSET DG:NOVALS ; VALUE LIST NOT NECESSARY
+			DW   PARSE_BUFF ; PLACE RESULT IN BUFFER
+			DW   NOVALS ; VALUE LIST NOT NECESSARY
 			DB   1		; ONE SWITCH IN FOLLOWING LIST
 SW_PTR			DB   "/D",0	; /D: INDICATES DEVICE SPECIFIED
 
@@ -383,104 +383,104 @@ SW_SIZE 		equ  $ - SW1
 					;--------------------------------------
 					; STRUCTURE TO DEFINE /B:buffsiz SWITCH
 					;--------------------------------------
-SW2			LABEL WORD
+SW2:
 			DW   8001H	; MUST BE NUMERIC (optional)
 			DW   0		; NO FUNCTION FLAGS
-			DW   OFFSET DG:PARSE_BUFF ; PLACE RESULT IN BUFFER
-			DW   OFFSET DG:VALUE_BUF ; NEED VALUE LIST FOR buffsiz
+			DW   PARSE_BUFF ; PLACE RESULT IN BUFFER
+			DW   VALUE_BUF ; NEED VALUE LIST FOR buffsiz
 			DB   1		; ONE SWITCH IN FOLLOWING LIST
 B_SWITCH		DB   "/B",0	; /B: INDICATES buffsiz REQUESTED
 
 					;--------------------------------------
 					; STRUCTURE TO DEFINE /Q:quesiz SWITCH
 					;--------------------------------------
-SW3			LABEL WORD
+SW3:
 			DW   8001H	; MUST BE NUMERIC (optional)
 			DW   0		; NO FUNCTION FLAGS
-			DW   OFFSET DG:PARSE_BUFF ; PLACE RESULT IN BUFFER
-			DW   OFFSET DG:VALUE_QUE ; NEED VALUE LIST FOR quesiz
+			DW   PARSE_BUFF ; PLACE RESULT IN BUFFER
+			DW   VALUE_QUE ; NEED VALUE LIST FOR quesiz
 			DB   1		; ONE SWITCH IN FOLLOWING LIST
 Q_SWITCH		DB   "/Q",0	; /Q: INDICATES quesiz REQUESTED
 
 					;--------------------------------------
 					; STRUCTURE TO DEFINE /S:timeslice SWITCH
 					;--------------------------------------
-SW4			LABEL WORD
+SW4:
 			DW   8001H	; MUST BE NUMERIC (optional)
 			DW   0		; NO FUNCTION FLAGS
-			DW   OFFSET DG:PARSE_BUFF ; PLACE RESULT IN BUFFER
-			DW   OFFSET DG:VALUE_TIME ; NEED VALUE LIST FOR timeslice
+			DW   PARSE_BUFF ; PLACE RESULT IN BUFFER
+			DW   VALUE_TIME ; NEED VALUE LIST FOR timeslice
 			DB   1		; ONE SWITCH IN FOLLOWING LIST
 S_SWITCH		DB   "/S",0	; /S: INDICATES timeslice REQUESTED
 
 					;--------------------------------------
 					; STRUCTURE TO DEFINE /U:busytick SWITCH
 					;--------------------------------------
-SW5			LABEL WORD
+SW5:
 			DW   8001H	; MUST BE NUMERIC (optional)
 			DW   0		; NO FUNCTION FLAGS
-			DW   OFFSET DG:PARSE_BUFF ; PLACE RESULT IN BUFFER
-			DW   OFFSET DG:VALUE_BUSY ; NEED VALUE LIST FOR busytick
+			DW   PARSE_BUFF ; PLACE RESULT IN BUFFER
+			DW   VALUE_BUSY ; NEED VALUE LIST FOR busytick
 			DB   1		; ONE SWITCH IN FOLLOWING LIST
 U_SWITCH		DB   "/U",0	; /U: INDICATES busytick REQUESTED
 
 					;--------------------------------------
 					; STRUCTURE TO DEFINE /M:maxtick SWITCH
 					;--------------------------------------
-SW6			LABEL WORD
+SW6:
 			DW   8001H	; MUST BE NUMERIC (optional)
 			DW   0		; NO FUNCTION FLAGS
-			DW   OFFSET DG:PARSE_BUFF ; PLACE RESULT IN BUFFER
-			DW   OFFSET DG:VALUE_MAXT ; NEED VALUE LIST FOR maxtick
+			DW   PARSE_BUFF ; PLACE RESULT IN BUFFER
+			DW   VALUE_MAXT ; NEED VALUE LIST FOR maxtick
 			DB   1		; ONE SWITCH IN FOLLOWING LIST
 M_SWITCH		DB   "/M",0	; /M: INDICATES maxtick REQUESTED
 
 					;--------------------------------------
 					;  STRUCTURE TO DEFINE /T Terminate SWITCH
 					;--------------------------------------
-SW7			LABEL WORD
+SW7:
 			DW   8001H	; SWITCH ONLY
 					; (optional simple string)
 			DW   0		; NO FUNCTION FLAGS
-			DW   OFFSET DG:PARSE_BUFF ; PLACE RESULT IN BUFFER
-			DW   OFFSET DG:NOVALS ; VALUE LIST NOT NECESSARY
+			DW   PARSE_BUFF ; PLACE RESULT IN BUFFER
+			DW   NOVALS ; VALUE LIST NOT NECESSARY
 			DB   1		; ONE SWITCH IN FOLLOWING LIST
 			DB   "/T",0	; /T: INDICATES Terminate REQUESTED
 
 					;--------------------------------------
 					;  STRUCTURE TO DEFINE /C Cancel SWITCH
 					;--------------------------------------
-SW8			LABEL WORD
+SW8:
 			DW   8003H	; SWITCH ONLY
 					; (optional, repeatable simple string)
 			DW   0		; NO FUNCTION FLAGS
-			DW   OFFSET DG:PARSE_BUFF ; PLACE RESULT IN BUFFER
-			DW   OFFSET DG:NOVALS ; VALUE LIST NOT NECESSARY
+			DW   PARSE_BUFF ; PLACE RESULT IN BUFFER
+			DW   NOVALS ; VALUE LIST NOT NECESSARY
 			DB   1		; ONE SWITCH IN FOLLOWING LIST
 C_SW_ptr		DB   "/C",0	; /C: INDICATES Cancel REQUESTED
 
 					;--------------------------------------
 					;  STRUCTURE TO DEFINE /P Print SWITCH
 					;--------------------------------------
-SW9			LABEL WORD
+SW9:
 			DW   8003H	; SWITCH ONLY
 					; (optional, repeatable simple string)
 			DW   0		; NO FUNCTION FLAGS
-			DW   OFFSET DG:PARSE_BUFF ; PLACE RESULT IN BUFFER
-			DW   OFFSET DG:NOVALS ; VALUE LIST NOT NECESSARY
+			DW   PARSE_BUFF ; PLACE RESULT IN BUFFER
+			DW   NOVALS ; VALUE LIST NOT NECESSARY
 			DB   1		; ONE SWITCH IN FOLLOWING LIST
 P_SW_ptr		DB   "/P",0	; /P: INDICATES Print REQUESTED
 
 					;--------------------------------------
 					;  VALUE LIST FOR FILE NAMES
 					;--------------------------------------
-NOVALS			LABEL WORD
+NOVALS:
 			DB   0		; NO VALUES
 
 					;--------------------------------------
 					;  VALUE LIST DEFINITION FOR buffsiz
 					;--------------------------------------
-VALUE_BUF		LABEL BYTE
+VALUE_BUF:
 			DB   1		; ONE VALUE ALLOWED
 			DB   1		; ONLY ONE RANGE
 			DB   BUFFSIZ	; IDENTIFY IT AS buffsiz
@@ -490,7 +490,7 @@ VALUE_BUF		LABEL BYTE
 					;--------------------------------------
 					;  VALUE LIST DEFINITION FOR quesiz
 					;--------------------------------------
-VALUE_QUE		LABEL BYTE
+VALUE_QUE:
 			DB   1		; ONE VALUE ALLOWED
 			DB   1		; ONLY ONE RANGE
 			DB   QUESIZ	; IDENTIFY IT AS quesiz
@@ -500,7 +500,7 @@ VALUE_QUE		LABEL BYTE
 					;--------------------------------------
 					;  VALUE LIST DEFINITION FOR timeslice
 					;--------------------------------------
-VALUE_TIME		LABEL BYTE
+VALUE_TIME:
 			DB   1		; ONE VALUE ALLOWED
 			DB   1		; ONLY ONE RANGE
 			DB   TIME	; IDENTIFY IT AS timeslice
@@ -510,7 +510,7 @@ VALUE_TIME		LABEL BYTE
 					;--------------------------------------
 					;  VALUE LIST DEFINITION FOR busytick
 					;--------------------------------------
-VALUE_BUSY		LABEL BYTE
+VALUE_BUSY:
 			DB   1		; ONE VALUE ALLOWED
 			DB   1		; ONLY ONE RANGE
 			DB   BUSYT	; IDENTIFY IT AS busytick
@@ -520,7 +520,7 @@ VALUE_BUSY		LABEL BYTE
 					;--------------------------------------
 					;  VALUE LIST DEFINITION FOR maxtick
 					;--------------------------------------
-VALUE_MAXT		LABEL BYTE
+VALUE_MAXT:
 			DB   1		; ONE VALUE ALLOWED
 			DB   1		; ONLY ONE RANGE
 			DB   MAXT	; IDENTIFY IT AS maxtick
@@ -530,18 +530,18 @@ VALUE_MAXT		LABEL BYTE
 					;--------------------------------------
 					;  RETURN BUFFER FOR PARSE INFORMATION
 					;--------------------------------------
-PARSE_BUFF		LABEL BYTE
-P_TYPE			DB   ?		; TYPE RETURNED
-P_ITEM_TAG		DB   ?		; SPACE FOR ITEM TAG
-P_SYN			DW   ?		; POINTER TO LIST ENTRY
-P_PTR_L 		DW   ?		; SPACE FOR POINTER / VALUE - LOW
-P_PTR_H 		DW   ?		; SPACE FOR POINTER / VALUE - HIGH
+PARSE_BUFF:
+P_TYPE: db 0; TYPE RETURNED
+P_ITEM_TAG: db 0; SPACE FOR ITEM TAG
+P_SYN: dw 0; POINTER TO LIST ENTRY
+P_PTR_L: dw 0; SPACE FOR POINTER / VALUE - LOW
+P_PTR_H: dw 0; SPACE FOR POINTER / VALUE - HIGH
 
 					;----------------------------------------
 					; SUBLIST for Message call
 					;----------------------------------------
 
-SUBLIST 		LABEL WORD
+SUBLIST:
 
 			DB   sub_size	; size of sublist
 			DB   0		; reserved
@@ -556,26 +556,26 @@ insert_num		DB   0		; number of insert
 sub_size		equ  $ - SUBLIST ; size of sublist
 
 
-OPEN_FILE		label dword
+OPEN_FILE:
 
-			dw   offset DG:NameBuf ; name pointer offset
-open_seg		dw   ?		; name pointer segment
+			dw   NameBuf ; name pointer offset
+open_seg: dw 0; name pointer segment
 
-DATA			ENDS
+; END SECTION .DATA
 
 			BREAK <Transient Code>
 
-Code			Segment public para
-Code			EndS
+SECTION .Code
+; END SECTION .Code
 
-Code			Segment public para
+SECTION .Code
 
-			public TransRet,TransSize,GoDispMsg
+			global TransRet,TransSize,GoDispMsg
 
-			extrn SYSLOADMSG:NEAR, SYSGETMSG:NEAR, SYSDISPMSG:NEAR
-			extrn SYSPARSE:NEAR
+			extern SYSLOADMSG, SYSGETMSG, SYSDISPMSG
+			extern SYSPARSE
 
-			ASSUME CS:DG,DS:nothing,ES:nothing,SS:Stack
+			; ASSUME CS:DG,DS:nothing,ES:nothing,SS:Stack
 
 ;  $SALUT (4,4,9,41)
 
@@ -616,7 +616,7 @@ $$IF3:
        mov  ds,ax
        mov  es,ax
 
-       ASSUME DS:DG,ES:DG
+       ; ASSUME DS:DG,ES:DG
 					; NOTE: es must ALWAYS point to DG
 
        mov  ax,0100h			; Ask if already installed
@@ -741,7 +741,7 @@ $$IF22:
 	   push cs			;   set up for CASE		       ;AC000;
 	   pop	ds			;				       ;AC000;
 	   mov	ax,[p_syn]		;				       ;AC000;
-	   sub	ax,OFFSET DG:SW_PTR	;				       ;AC000;
+	   sub	ax,SW_PTR	;				       ;AC000;
 	   mov	dl,SW_SIZE		;				       ;AC000;
 	   div	dl			;				       ;AC000;
 	   cmp	ah,noerror		;				       ;AC000;
@@ -801,7 +801,7 @@ $$IF31:
        mov  ax,0104h			; get status
        call IntWhileBusy		; on return DS:SI points to queue
 
-       ASSUME DS:nothing
+       ; ASSUME DS:nothing
 					;------------------------------------
 					;    check for off-line
 					;------------------------------------
@@ -838,7 +838,7 @@ $$IF33:
 
        mov  ax,[whichmsg]		;				       ;AN000;
        mov  [whichmsg],(CLASS_C shl 8) + SecMes ; set up in queue msg	       ;AC000;
-       cmp  byte ptr ds:[si],0		; is the queue empty?
+       cmp  byte ds:[si],0		; is the queue empty?
 
 ;      $if  ne				; if queue not empty		       ;AC000;
        JE $$IF35
@@ -859,7 +859,7 @@ $$DO36:
 ;		mov  ax,(xNameTrans SHL 8) ; check for name translation 	;AN009;
 ;		int  21h		 ; get real path and name		;AN009;
 	       mov  ax,[whichmsg]	;				       ;AC009;
-	       cmp  byte ptr ds:[si],0	; end of queue?
+	       cmp  byte ds:[si],0	; end of queue?
 
 ;	   $enddo e			;				       ;AC000;
 	   JNE $$DO36
@@ -888,7 +888,7 @@ $$EN35:
 	   mov	ax,CodeR		; close Std Devices
 	   mov	ds,ax
 
-	   ASSUME DS:CodeR
+	   ; ASSUME DS:CodeR
 
 	   xor	bx,bx
 	   mov	cx,5			; StdIN,StdOUT,StdERR,StdAUX,StdPRN
@@ -934,9 +934,9 @@ $$EN30:
    xor	ax,ax
    push ax
 
-   foo	proc	far
+   foo:
    ret					; Must use this method, version may be < 2.00
-   foo	endp
+   ; ENDP foo
 
    BREAK <Process_A_Switch>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -975,13 +975,13 @@ $$EN30:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   Process_A_Switch PROC NEAR
+   Process_A_Switch:
 
    shl	di,1				;				       ;AC000;
 
    jmp	cs:JMPTABLE[di] 		;				       ;AC000;
 
-JMPTABLE LABEL WORD			;				       ;AC000;
+JMPTABLE:;				       ;AC000;
 
    DW	CASE_D				;				       ;AN000;
    DW	CASE_B				;				       ;AN000;
@@ -993,7 +993,7 @@ JMPTABLE LABEL WORD			;				       ;AC000;
    DW	CASE_C				;				       ;AN000;
    DW	CASE_P				;				       ;AN000;
 
-   ASSUME ds:DG,es:DG
+   ; ASSUME ds:DG,es:DG
 
 CASE_D: 				; Bgncase_/D			       ;AN000;
 
@@ -1008,16 +1008,16 @@ CASE_D: 				; Bgncase_/D			       ;AN000;
    mov	ax,[P_PTR_H]			;				       ;AC000;
    mov	es,ax				;
 
-   ASSUME es:nothing
+   ; ASSUME es:nothing
 
    xor	al,al				; find the length of input name        ;AN000;
    mov	cx,9				; it can not be longer than 8 + :      ;AN000;
 
-   ASSUME es:DG 			; this is a bogus assume to keep the
+   ; ASSUME es:DG; this is a bogus assume to keep the
 					;      assembler happy
    repne scas NameBuf			; (use NameBuf to tell assembler its   ;AN000;
 					; a byte search)
-   ASSUME es:nothing			; this puts it back right
+   ; ASSUME es:nothing; this puts it back right
 
    dec	di				; back up to first null 	       ;AN000;
    mov	ax,di				; pointer to end		       ;AN000;
@@ -1034,13 +1034,13 @@ CASE_D: 				; Bgncase_/D			       ;AN000;
        mov  ax,CodeR			;
        mov  es,ax			;
 
-       ASSUME DS:nothing,ES:CodeR
+       ; ASSUME DS:nothing,ES:CodeR
 
-       mov  WORD PTR [LISTNAME],2020h	; Nul out default
+       mov  word [LISTNAME],2020h	; Nul out default
        mov  [LISTNAME+2]," "		;
-       mov  di,OFFSET CodeR:LISTNAME	;
+       mov  di,LISTNAME	;
        dec  si				; back up to last character	       ;AN004;
-       cmp  BYTE PTR [si],':'		; is there a ':' at the end of the name?
+       cmp  byte [si],':'		; is there a ':' at the end of the name?
 
 ;      $if  e				; if it is			       ;AC000;
        JNE $$IF48
@@ -1083,7 +1083,7 @@ $$EN47:
 
 CASE_B: 				; Bgncase_/B			       ;AN000;
 
-   ASSUME ds:DG,es:DG
+   ; ASSUME ds:DG,es:DG
 
    cmp	[PInst],0			;
 
@@ -1095,12 +1095,12 @@ CASE_B: 				; Bgncase_/B			       ;AN000;
        mov  dx,CodeR			;
        mov  ds,dx			;
 
-       ASSUME DS:CodeR
+       ; ASSUME DS:CodeR
 
        mov  [BLKSIZ],ax 		;
        pop  ds				;
 
-       ASSUME DS:DG
+       ; ASSUME DS:DG
 
        clc				;   reset carry 		       ;AC000;
 
@@ -1130,12 +1130,12 @@ CASE_Q: 				; Bgncase_/Q			       ;AN000;
        mov  dx,CodeR			;
        mov  ds,dx			;
 
-       ASSUME DS:CodeR
+       ; ASSUME DS:CodeR
 
        mov  [QueueLen],al		;
        pop  ds				;
 
-       ASSUME DS:DG
+       ; ASSUME DS:DG
 
        clc				;   reset carry 		       ;AC000;
 
@@ -1165,13 +1165,13 @@ CASE_S: 				; Bgncase_/S			       ;AN000;
        mov  dx,CodeR			;
        mov  ds,dx			;
 
-       ASSUME ds:CodeR
+       ; ASSUME ds:CodeR
 
        mov  [TIMESLICE],al		;
        mov  [SLICECNT],al		;
        pop  ds				;
 
-       ASSUME ds:DG
+       ; ASSUME ds:DG
 
        clc				;   reset carry 		       ;AC000;
 
@@ -1201,12 +1201,12 @@ CASE_U: 				; Bgncase_/U			       ;AN000;
        mov  dx,CodeR			;
        mov  ds,dx			;
 
-       ASSUME ds:CodeR
+       ; ASSUME ds:CodeR
 
        mov  [BUSYTICK],al		;
        pop  ds				;
 
-       ASSUME ds:DG
+       ; ASSUME ds:DG
 
        clc				;   reset carry 		       ;AC000;
 
@@ -1236,12 +1236,12 @@ CASE_M: 				; Bgncase_/M			       ;AN000;
        mov  dx,CodeR			;
        mov  ds,dx			;
 
-       ASSUME ds:CodeR
+       ; ASSUME ds:CodeR
 
        mov  [MAXTICK],al		;
        pop  ds				;
 
-       ASSUME ds:DG
+       ; ASSUME ds:DG
 
        clc				;   reset carry 		       ;AC000;
 
@@ -1349,7 +1349,7 @@ $$IF77:
 
    ret
 
-   Process_A_Switch ENDP
+   ; ENDP Process_A_Switch
 
    BREAK <Submit_File>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -1449,9 +1449,9 @@ $$IF77:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   Submit_File PROC NEAR
+   Submit_File:
 
-   ASSUME ds:DG,es:DG
+   ; ASSUME ds:DG,es:DG
 
    nop					; for production - uncomment this line and comment the next
 ;  int 3
@@ -1478,10 +1478,10 @@ $$IF81:
    mov	ax,P_PTR_H			;				       ;AC000;
    mov	ds,ax
 
-   ASSUME ds:nothing
+   ; ASSUME ds:nothing
 
-   mov	di,offset dg:NameBuf		; buffer for full file name
-   cmp	byte ptr [si+1],":"		; check if there is a drive designator
+   mov	di,NameBuf		; buffer for full file name
+   cmp	byte [si+1],":"		; check if there is a drive designator
 
 ;  $if	ne				; if no :			       ;AC000;
    JE $$IF83
@@ -1500,7 +1500,7 @@ $$IF81:
    JMP SHORT $$EN83
 $$IF83:
 
-       mov  al,byte ptr [si]		; get drive letter
+       mov  al,byte [si]		; get drive letter
        sub  al,"@"			; conver to proper code...
 
 ;      $if  a				; if a valid drive		       ;AC000;
@@ -1535,7 +1535,7 @@ $$EN83:
 					;    Check for full path
 					;------------------------------------
        mov  al,[PathChar]
-       cmp  byte ptr [si],al		; does it start from the root?
+       cmp  byte [si],al		; does it start from the root?
 
 ;      $if  ne				; if not get the current path	       ;AC000;
        JE $$IF90
@@ -1631,7 +1631,7 @@ $$IF89:
        mov  cx,MaxFileLen		; lets not overflow file name buffer
        mov  ax,di			; CX := MaxFileLen -
 					;	long(&NameBuf - &PtrLastchar)
-       sub  ax,offset dg:NameBuf	; size of the filename so far
+       sub  ax,NameBuf	; size of the filename so far
        sub  cx,ax			; size left for the filename
 
 ;      $if  c				; if too long			       ;AC000;
@@ -1692,7 +1692,7 @@ $$IF103:
    push cs				; restore ds to DG
    pop	ds
 
-   ASSUME ds:DG
+   ; ASSUME ds:DG
 
 					;------------------------------------
 					; could have CF & message #
@@ -1716,7 +1716,7 @@ $$XL2:
        JNE $$IF115
 
 
-	   cmp	[P_SYN],offset DG:C_SW_ptr ;  is it the cancel switch /C       ;AC000;
+	   cmp	[P_SYN],C_SW_ptr ;  is it the cancel switch /C       ;AC000;
 
 ;	   $if	e			; if it is			       ;AC000;
 	   JNE $$IF116
@@ -1727,7 +1727,7 @@ $$XL2:
 	   JMP SHORT $$EN116
 $$IF116:
 
-	       cmp  [P_SYN],offset DG:P_SW_ptr ;  is it the print switch /P    ;AC000;
+	       cmp  [P_SYN],P_SW_ptr ;  is it the print switch /P    ;AC000;
 
 ;	       $if  e			; if it is			       ;AC000;
 	       JNE $$IF118
@@ -1767,7 +1767,7 @@ $$IF115:
 					; NOTE: ds:dx MUST point to NameFuf !!!
 
 					; set up cancel
-	   mov	dx,offset dg:NameBuf	; filename
+	   mov	dx,NameBuf	; filename
 	   mov	ax,0102H
 	   call IntWhileBusy
 
@@ -1889,10 +1889,10 @@ $$IF135:
 		       clc		; clear error flag		       ;AC000;
 
 					; submit packet
-		       mov  dx,offset dg:NameBuf ;
-		       mov  word ptr [SubPack+1],dx ; store pointer to name in
-		       mov  word ptr [SubPack+3],ds ;  submit packet
-		       mov  dx,offset dg:SubPack ; DS:DX address of packet
+		       mov  dx,NameBuf ;
+		       mov  word [SubPack+1],dx ; store pointer to name in
+		       mov  word [SubPack+3],ds ;  submit packet
+		       mov  dx,SubPack ; DS:DX address of packet
 		       mov  ax,0101H	; submit a file to resident
 		       call IntWhileBusy
 
@@ -1995,7 +1995,7 @@ $$IF156:
 
    ret					; finished submission		       ;AC000;
 
-   Submit_File ENDP
+   ; ENDP Submit_File
 
    BREAK <Set_Buffer>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2037,15 +2037,15 @@ $$IF156:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   Set_Buffer PROC NEAR
+   Set_Buffer:
 
    push cs
    pop	ds
-   assume ds:DG
+   ; assume ds:DG
    mov	dl,[PathChar]			; transfer PathChar (in PRINT_T)
    mov	ax,CodeR
    mov	es,ax
-   assume es:CodeR
+   ; assume es:CodeR
    mov	[PChar],dl			; to PChar (in PRINT_R)
 
 
@@ -2066,7 +2066,7 @@ $$IF156:
    mov	ax,ds				;				       ;AC000;
    mov	es,ax				;				       ;AC000;
 
-   assume es:DG 			;				       ;AC000;
+   ; assume es:DG;				       ;AC000;
 
    mov	ax,(CLASS_D shl 8) + prompt	; DispMsg treats 'prompt' as :	       ;AC000;
 					;	a special case	     :
@@ -2078,7 +2078,7 @@ $$IF156:
 
    pop	es				;				       ;AC000;
 
-   assume es:CodeR
+   ; assume es:CodeR
 
    mov	cl,[TokBuf+1]			; check how many read in     :
    or	cl,cl				;			     :
@@ -2087,16 +2087,16 @@ $$IF156:
    JZ $$IF158
 
        xor  ch,ch
-       mov  si,offset dg:TokBuf+2
-       mov  di,offset CodeR:ListName
+       mov  si,TokBuf+2
+       mov  di,ListName
        push si
        mov  dx,si			; get ready to capitalize	       ;AN007;
        add  si,cx
-       mov  byte ptr [si],0		; turn it into an ascii z string       ;AN007;
+       mov  byte [si],0		; turn it into an ascii z string       ;AN007;
        mov  ax,(GetExtCntry SHL 8) + Cap_ASCIIZ ; let DOS capitalize the string ;AN007;
        INT  21h 			; call DOS to do it		      ;AN007;
        dec  si
-       cmp  byte ptr [si],':'
+       cmp  byte [si],':'
 
 ;      $if  e				; if a :			       ;AC000;
        JNE $$IF159
@@ -2126,11 +2126,11 @@ $$IF158:
    push es
    pop	ds
 
-   ASSUME ds:CodeR
+   ; ASSUME ds:CodeR
 
    mov	ax,MaxFileLen			; maximum length of a file name
    mul	[QueueLen]			; AX = result
-   add	ax,offset CodeR:FileQueue
+   add	ax,FileQueue
    mov	[EndQueue],ax			; save pointer to last nul
    inc	ax
    mov	[buffer],ax			; beggining of buffer
@@ -2160,10 +2160,10 @@ TransRet:				; after moving the transient we come
    pop	ax				;  not the ASSEMBLED DG - its bogus -
    mov	ds,ax				;  after the move! Only PUSH/POP will
    mov	es,ax				;  work.
-   mov	WORD PTR [insert_ptr_seg],ax	; fix up segment in SUBLIST for msgs!  ;AC002;
-   mov	WORD PTR [P_PTR_H],ax		; fix up segment for PARSE	       ;AC002;
+   mov	word [insert_ptr_seg],ax	; fix up segment in SUBLIST for msgs!  ;AC002;
+   mov	word [P_PTR_H],ax		; fix up segment for PARSE	       ;AC002;
 
-   ASSUME ds:DG,es:DG
+   ; ASSUME ds:DG,es:DG
 
 
    call SYSLOADMSG			; RE-Initialize the Message Services   ;AN016;
@@ -2179,17 +2179,17 @@ TransRet:				; after moving the transient we come
 					;------------------------------------
 
    mov	ax,(SET_INTERRUPT_VECTOR shl 8) or 23h
-   mov	dx,OFFSET DG:INT_23
+   mov	dx,INT_23
    int	21h
    mov	ax,(SET_INTERRUPT_VECTOR shl 8) or 24h
-   mov	dx,OFFSET DG:INT_24
+   mov	dx,INT_24
    int	21h
 
    mov	[PInst],1			; remember we just installed resident part
 
    ret					; finished			       ;AC000;
 
-   Set_Buffer ENDP
+   ; ENDP Set_Buffer
 
    BREAK <copy_to_arg_buf>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2223,12 +2223,12 @@ TransRet:				; after moving the transient we come
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   copy_to_arg_buf PROC NEAR
+   copy_to_arg_buf:
 
    push di
    push si
    push ax				; must preserve AX (could be message #);AN000;
-   mov	di,offset dg:NameBuf
+   mov	di,NameBuf
 
 ;  $do					;				       ;AC000;
 $$DO164:
@@ -2252,7 +2252,7 @@ $$EN164:
 
    ret
 
-   copy_to_arg_buf ENDP
+   ; ENDP copy_to_arg_buf
 
    BREAK <IntWhileBusy>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2285,7 +2285,7 @@ $$EN164:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   IntWhileBusy PROC NEAR
+   IntWhileBusy:
 
 ;  $search complex			;				       ;AC000;
    JMP SHORT $$SS167
@@ -2325,7 +2325,7 @@ $$SR167:
 
    ret
 
-   IntWhileBusy ENDP
+   ; ENDP IntWhileBusy
 
    BREAK <GetAbsN>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2358,17 +2358,17 @@ $$SR167:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   GetAbsN PROC NEAR
+   GetAbsN:
 
-   ASSUME ds:DG,es:DG
+   ; ASSUME ds:DG,es:DG
 
    mov	ah,Set_DMA			; buffer for ffirst / fnext
-   mov	dx,offset dg:SearchBuf
+   mov	dx,SearchBuf
    int	21h
 					;------------------------------------
 					;    look for a match
 					;------------------------------------
-   mov	dx,offset dg:NameBuf
+   mov	dx,NameBuf
    mov	cx,0				; no attributes
    mov	ah,Find_First
    int	21h
@@ -2403,7 +2403,7 @@ $$IF174:
 
    ret
 
-   GetAbsN ENDP
+   ; ENDP GetAbsN
 
    BREAK <GetAbsN2>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2435,10 +2435,10 @@ $$IF174:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   GetAbsN2 PROC NEAR
+   GetAbsN2:
 
    mov	ah,Set_DMA			; buffer for ffirst / fnext
-   mov	dx,offset dg:SearchBuf
+   mov	dx,SearchBuf
    int	21h
    mov	ah,Find_Next
    int	21h
@@ -2456,7 +2456,7 @@ $$IF178:
 
    ret					; return
 
-   GetAbsN2 ENDP
+   ; ENDP GetAbsN2
 
    BREAK <CopyName>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2488,10 +2488,10 @@ $$IF178:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   CopyName PROC NEAR
+   CopyName:
 
    mov	di,[FNamPtr]
-   mov	si,offset dg:SearchBuf.find_buf_pname
+   mov	si,SearchBuf.find_buf_pname
    cld
 
 ;  $do					; until null is found		       ;AC000;
@@ -2506,7 +2506,7 @@ $$DO180:
 
    ret
 
-   CopyName ENDP
+   ; ENDP CopyName
 
    BREAK <Save_Vectors>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2538,57 +2538,57 @@ $$DO180:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   Save_Vectors PROC NEAR
+   Save_Vectors:
 
    mov	ax,(get_interrupt_vector shl 8) or SOFTINT ; (SOFTINT)
    int	21h
 
-   ASSUME es:nothing
+   ; ASSUME es:nothing
 
-   mov	word ptr [i28vec+2],es
-   mov	word ptr [i28vec],bx
+   mov	word [i28vec+2],es
+   mov	word [i28vec],bx
 
    mov	ax,(get_interrupt_vector shl 8) or COMINT ; (COMINT)
    int	21h
-   mov	word ptr [i2fvec+2],es
-   mov	word ptr [i2fvec],bx
+   mov	word [i2fvec+2],es
+   mov	word [i2fvec],bx
 
    mov	ax,(get_interrupt_vector shl 8) or 13h
    int	21h
-   mov	word ptr [i13vec+2],es
-   mov	word ptr [i13vec],bx
+   mov	word [i13vec+2],es
+   mov	word [i13vec],bx
 
    mov	ax,(get_interrupt_vector shl 8) or 15h
    int	21h
-   mov	word ptr [i15vec+2],es
-   mov	word ptr [i15vec],bx
+   mov	word [i15vec+2],es
+   mov	word [i15vec],bx
 
    mov	ax,(get_interrupt_vector shl 8) or 17h
    int	21h
-   mov	word ptr [i17vec+2],es
-   mov	word ptr [i17vec],bx
+   mov	word [i17vec+2],es
+   mov	word [i17vec],bx
 
    mov	ax,(get_interrupt_vector shl 8) or 14h
    int	21h
-   mov	word ptr [i14vec+2],es
-   mov	word ptr [i14vec],bx
+   mov	word [i14vec+2],es
+   mov	word [i14vec],bx
 
    mov	ax,(get_interrupt_vector shl 8) or 05h
    int	21h
-   mov	word ptr [i05vec+2],es
-   mov	word ptr [i05vec],bx
+   mov	word [i05vec+2],es
+   mov	word [i05vec],bx
 
    mov	ax,(get_interrupt_vector shl 8) or INTLOC ; (INTLOC)
    int	21h
-   mov	word ptr [i1cvec+2],es
-   mov	word ptr [i1cvec],bx
+   mov	word [i1cvec+2],es
+   mov	word [i1cvec],bx
 
    push cs
    pop	es
 
-   ASSUME es:DG
+   ; ASSUME es:DG
 
-   Save_Vectors ENDP
+   ; ENDP Save_Vectors
 
    BREAK <GetHInt>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2620,25 +2620,25 @@ $$DO180:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   GetHInt PROC NEAR
+   GetHInt:
 
-   ASSUME ds:DG,es:DG
+   ; ASSUME ds:DG,es:DG
 
    push es
    mov	ax,(GET_INTERRUPT_VECTOR shl 8) OR 24h
    int	21h
 
-   ASSUME es:nothing
+   ; ASSUME es:nothing
 
-   mov	WORD PTR [HARDCH],bx
-   mov	WORD PTR [HARDCH+2],es
+   mov	word [HARDCH],bx
+   mov	word [HARDCH+2],es
    pop	es
 
-   ASSUME es:DG
+   ; ASSUME es:DG
 
    ret
 
-   GetHInt ENDP
+   ; ENDP GetHInt
 
    BREAK <SetInts>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2679,21 +2679,21 @@ $$DO180:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   SetInts PROC NEAR
+   SetInts:
 
-   ASSUME ds:DG,es:DG
+   ; ASSUME ds:DG,es:DG
 
    mov	AX,(SET_INTERRUPT_VECTOR shl 8) OR 23h
-   mov	DX,OFFSET DG:INT_23
+   mov	DX,INT_23
    int	21h
 
    mov	ax,(SET_INTERRUPT_VECTOR shl 8) OR 24h
-   mov	dx,OFFSET DG:INT_24
+   mov	dx,INT_24
    int	21h
 
    ret
 
-   SetInts ENDP
+   ; ENDP SetInts
 
    BREAK <Int_24>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2734,24 +2734,24 @@ $$DO180:
 ;******************** END   - PSEUDOCODE ***************************************
 
 
-INT_24_RETADDR DW OFFSET DG:INT_24_BACK
+INT_24_RETADDR DW INT_24_BACK
 
 in_int_23 db 0				; reentrancy flag
 
 
-   INT_24 PROC FAR
+   INT_24:
 
-   ASSUME ds:nothing,es:nothing,ss:nothing
+   ; ASSUME ds:nothing,es:nothing,ss:nothing
 
    pushf
    push cs
    push [INT_24_RETADDR]
-   push WORD PTR [HARDCH+2]
-   push WORD PTR [HARDCH]
+   push word [HARDCH+2]
+   push word [HARDCH]
 
    ret
 
-   INT_24 ENDP
+   ; ENDP INT_24
 
    BREAK <INT_24_BACK>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -2802,14 +2802,14 @@ INT_24_BACK:
        push cs
        pop  ds
 
-       ASSUME ds:DG
+       ; ASSUME ds:DG
 
        push cs
        pop  ss
 
-       ASSUME ss:DG
+       ; ASSUME ss:DG
 
-       mov  sp, offset dg:intStk	; setup local int stack
+       mov  sp, intStk	; setup local int stack
        cmp  [PInst],2
 
 ;      $if  ne				; if not installed		       ;AC000;
@@ -2869,7 +2869,7 @@ $$IF182:
 
 INT_23:
 
-   ASSUME ds:nothing,es:nothing,ss:nothing
+   ; ASSUME ds:nothing,es:nothing,ss:nothing
 
    cmp	[in_int_23],0			; check for a re-entrant call
 
@@ -2880,14 +2880,14 @@ INT_23:
        push cs
        pop  ds
 
-       ASSUME ds:DG
+       ; ASSUME ds:DG
 
        push cs
        pop  ss
 
-       ASSUME ss:DG
+       ; ASSUME ss:DG
 
-       mov  sp, offset dg:intStk	; setup local int stack
+       mov  sp, intStk	; setup local int stack
        cmp  [PInst],2
 
 ;      $if  ne				; if not installed - undo	       ;AC000;
@@ -2953,9 +2953,9 @@ $$IF186:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   Restore_ints PROC NEAR
+   Restore_ints:
 
-   ASSUME ds:DG,es:nothing,ss:DG
+   ; ASSUME ds:DG,es:nothing,ss:DG
 
    cli
    mov	ax,(set_interrupt_vector shl 8) or SOFTINT ; (SOFTINT)
@@ -3009,7 +3009,7 @@ $$IF186:
 
    ret
 
-   Restore_ints ENDP
+   ; ENDP Restore_ints
 
 
    BREAK <Parse_Input>
@@ -3071,7 +3071,7 @@ $$IF186:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   Parse_Input PROC NEAR
+   Parse_Input:
 
 Syntax_Error equ 9			; Parse syntax error
 Parse_EOL equ 0FFh			; Parse End Of Line
@@ -3079,7 +3079,7 @@ Parse_EOL equ 0FFh			; Parse End Of Line
 					;  Load appropriate registers
 					;     from the Parse_Control_Block
 					;--------------------------------------
-   ASSUME ds:DG,es:DG,ss:nothing
+   ; ASSUME ds:DG,es:DG,ss:nothing
 
    mov	cx,[ORDINAL]			; CURRENT ORDINAL VALUE 	       ;AN000;
    mov	si,[SCAN_PTR]			; CURRENT SCAN POINT		       ;AN000;
@@ -3092,7 +3092,7 @@ Parse_EOL equ 0FFh			; Parse End Of Line
    mov	ds,ax				; DS:SI  = command string in PSP       ;AN000;
 
 					;--------------------------------------
-   ASSUME ds:nothing			;  Call the Parse service routines
+   ; ASSUME ds:nothing;  Call the Parse service routines
 					;--------------------------------------
 
 					; CX	- Ordinal value
@@ -3104,7 +3104,7 @@ Parse_EOL equ 0FFh			; Parse End Of Line
 
    pop	ds				;				       ;AN000;
 
-   ASSUME ds:DG
+   ; ASSUME ds:DG
 
    cmp	ax,NOERROR			; no errors?			       ;AN000;
 
@@ -3145,7 +3145,7 @@ $$EN191:
 
    ret					; NORMAL RETURN TO CALLER	       ;AN000;
 
-Parse_Ret_Code label byte
+Parse_Ret_Code:
 
    db	0				; Ret Code 0 -			       ;AC003;
    db	9				; Ret Code 1 - Too many parameters     ;AC003;
@@ -3158,7 +3158,7 @@ Parse_Ret_Code label byte
    db	9				; Ret Code 8 - Parm format not correct ;AC003;
    db	9				; Ret Code 9 - Invalid Parameter       ;AC003;
 
-   Parse_Input ENDP
+   ; ENDP Parse_Input
 
 
 
@@ -3227,16 +3227,16 @@ Parse_Ret_Code label byte
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   DispMsg PROC NEAR
+   DispMsg:
 
-   ASSUME CS:DG,DS:nothing,ES:nothing,SS:nothing
+   ; ASSUME CS:DG,DS:nothing,ES:nothing,SS:nothing
 
    push ds				;				       ;AN000;
    push si				;				       ;AN000;
    push cs				; called before and after relocation   ;AC002;
    pop	ds				;  - don't use DG                      ;AC002;
 
-   ASSUME CS:DG,DS:DG,ES:nothing,SS:nothing
+   ; ASSUME CS:DG,DS:DG,ES:nothing,SS:nothing
 
    lea	si,SUBLIST			; point to sublist		       ;AN000;
    xor	dx,dx				; reset response  (DL)		       ;AN000;
@@ -3255,7 +3255,7 @@ Parse_Ret_Code label byte
    JNE $$IF198
 $$LL198:
 
-       mov  cx,offset DG:NameBuf	; set up insert pointer to NameBuf     ;AN005;
+       mov  cx,NameBuf	; set up insert pointer to NameBuf     ;AN005;
        mov  insert_ptr_off,cx		;				       ;AN005;
        push cs				;				       ;AN005;
        pop  [insert_ptr_seg]		;				       ;AN005;
@@ -3311,7 +3311,7 @@ $$IF205:
        push ds				;				       ;AN005;
        mov  si,[SCAN_PTR]		; point to end of bad parm	       ;AN005;
        mov  ds,cx			;				       ;AN005;
-       mov  BYTE PTR ds:[si],0		; terminate the parameter	       ;AN005;
+       mov  byte ds:[si],0		; terminate the parameter	       ;AN005;
        pop  ds				;   restore current pointer	       ;AN005;
        pop  si				;				       ;AN005;
        mov  [insert_num],0		;				       ;AN005;
@@ -3338,15 +3338,15 @@ $$IF209:
 
    ret					;				       ;AN000;
 
-   DispMsg ENDP
+   ; ENDP DispMsg
 
-   GoDispMsg PROC FAR
+   GoDispMsg:
 
    call DispMsg 			; This allows long calls form CODER    ;AN000;
 
    ret					;				       ;AN000;
 
-   GoDispMsg ENDP
+   ; ENDP GoDispMsg
 
    BREAK <Load_R_Msg>
 ;******************* START OF SPECIFICATIONS ***********************************
@@ -3391,7 +3391,7 @@ $$IF209:
 ;
 ;******************** END   - PSEUDOCODE ***************************************
 
-   Load_R_Msg PROC NEAR
+   Load_R_Msg:
 
 					;--------------------------------------
 					; Load the Resident Messages
@@ -3399,10 +3399,10 @@ $$IF209:
    mov	ax,CodeR			;				       ;AN000;
    mov	es,ax				;				       ;AN000;
 
-   ASSUME DS:nothing,ES:CodeR
+   ; ASSUME DS:nothing,ES:CodeR
 
    lea	di,R_MES_BUFF			; set destination to resident buffer   ;AN000;
-   mov	bx,OFFSET CodeR:MESBAS		; use BX as an index to MESBAS (CodeR) ;AN000;
+   mov	bx,MESBAS		; use BX as an index to MESBAS (CodeR) ;AN000;
 
 					;--------------------------------------
 					; Move messages ERR0 thru ERR12
@@ -3417,7 +3417,7 @@ $$DO211:
        call MoveMes			; LOAD the message		       ;AN000;
 ;  $leave c				; leave loop if ERROR		       ;AN000;
    JC $$EN211
-       mov  byte ptr es:[di],DOLLAR	; append a delimiter
+       mov  byte es:[di],DOLLAR	; append a delimiter
        inc  di				; move to next message		       ;AN000;
        inc  al				; advance message #		       ;AN000;
        cmp  al,ERR12			; are we past ERR12 ?		       ;AN000;
@@ -3457,16 +3457,16 @@ $$IF214:
    push cs				;				       ;AN000;
    pop	ds				;				       ;AN000;
 
-   ASSUME DS:DG,ES:DG
+   ; ASSUME DS:DG,ES:DG
 
    ret					;				       ;AN000;
 
-   Load_R_Msg ENDP
+   ; ENDP Load_R_Msg
 					;--------------------------------------
 					; Move the Messages into their
 					;	final resting place
 					;--------------------------------------
-MoveMes PROC NEAR
+MoveMes:
 
    mov	es:[bx],di			; save the pointer to this message     ;AN000;
    call SYSGETMSG			; line up the pointer on the message   ;AN000;
@@ -3486,19 +3486,19 @@ $$IF219:
 
    ret					;				       ;AN000;
 
-   MoveMes ENDP
+   ; ENDP MoveMes
 
 
-CODE ENDS
+; END SECTION .CODE
 
 
-STACK SEGMENT STACK
+SECTION .STACK
 
-   dw	100 dup(0)
+   times 100 dw 0
 
-TransSize LABEL BYTE			; end of transient
+TransSize:; end of transient
 					;  only because code is para algned
-STACK ENDS
+; END SECTION .STACK
 
-   END	Transient
+   ; END	Transient
 

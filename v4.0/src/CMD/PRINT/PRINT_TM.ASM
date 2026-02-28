@@ -1,7 +1,7 @@
-	page	60,132
+	; page	60,132
 ;			$SALUT (4,25,30,41)
 
-			INCLUDE pridefs.inc
+			%include "pridefs.inc"
 
 BREAK			<Transient Messages>
 
@@ -17,41 +17,41 @@ BREAK			<Transient Messages>
 ;
 
 
-addr			macro sym,name
-			public name
-			ifidn <name>,<>
+%macro addr 2
+			global name
+			%ifidn <name>,<>
 
-			    dw	 offset dg:sym
-			else
+			    dw	 sym
+			%else
 
-name			    dw	 offset dg:sym
-			endif
-			endm
+; name			    dw	 offset dg:sym
+			%endif
+			%endmacro
 
 
-			Code Segment public para
+			SECTION .Code
 
-			PUBLIC SYSGETMSG, SYSLOADMSG, SYSDISPMSG
+			global SYSGETMSG, SYSLOADMSG, SYSDISPMSG
 
-			ASSUME CS:DG,DS:nothing,ES:nothing,SS:Stack
+			; ASSUME CS:DG,DS:nothing,ES:nothing,SS:Stack
 
 ; include msgserv.asm
 
-			.xlist
-			.xcref
+			; .xlist
+			; .xcref
 			MSG_SERVICES <MSGDATA>
 			MSG_SERVICES <NEARmsg,LOADmsg,GETmsg,DISPLAYmsg,INPUTmsg,CHARmsg>
-			.cref
-			.list
+			; .cref
+			; .list
 
 ; include message class 1, 2, A, B, C, and D
 
-			.xlist
-			.xcref
+			; .xlist
+			; .xcref
 			MSG_SERVICES <NEARmsg,PRINT.CL1,PRINT.CL2>
 			MSG_SERVICES <NEARmsg,PRINT.CLA,PRINT.CLB,PRINT.CLC,PRINT.CLD>
-			.cref
-			.list
+			; .cref
+			; .list
 ;  $SALUT (4,4,9,41)
 
 
@@ -68,17 +68,17 @@ Val3SW			equ  false
 
 ;  $SALUT (4,4,9,41)
 
-   PUBLIC SYSPARSE
+   global SYSPARSE
 
 					; include parse.asm
 
 					;xlist
 					;xcref
-   include parse.asm
+   %include "parse.asm"
 					;cref
 					;list
 
-   CODE ENDS
+   ; END SECTION .CODE
 
-   end
+   ; end
 

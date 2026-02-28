@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	InitDeb - initialize debugger
+	; title	InitDeb - initialize debugger
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -35,19 +35,19 @@ page	58,132
 ;    InitDeb calls the debugger initialization routine.
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 ;******************************************************************************
 ;	P U B L I C S
 ;******************************************************************************
 
-	public	InitDeb
+	global InitDeb
 
 ;******************************************************************************
 ;	D E F I N E S
 ;******************************************************************************
-	include VDMseg.inc
-	include VDMsel.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
 
 FALSE		equ	0
 TRUE		equ	not FALSE
@@ -60,52 +60,52 @@ MASTER_IMR	equ	21h		; mask port for master 8259
 ; Definition of the packet used in debug initialization. A pointer to
 ; this structure is passed to Debug_Entry.
 ;
-DebugInit	struc
-	CSseg		dw	?		;Real mode code segment
-	DSseg		dw	?		;Real mode data segment
-	CSsel		dw	?		;Prot mode code selector
-	DSsel		dw	?		;Prot mode data selector
-	SpareSel1	dw	?		;Prot mode alias selector 1
-	SpareSel2	dw	?		;Prot mode alias selector 2
-	GDTalias	dw	?		;Prot mode GDT r/w alias
-	ProtIDTaddr	dq	?		;Prot mode IDT base & limit
-	RealIDTaddr	dq	?		;Real mode IDT base & limit
-	BrkFlag 	db	?		;TRUE if break to debugger
-	ComFlag 	db	?		;TRUE if com1, FALSE if com2
-DebugInit	ends
+struc DebugInit
+	CSseg: dw 0;Real mode code segment
+	DSseg: dw 0;Real mode data segment
+	CSsel: dw 0;Prot mode code selector
+	DSsel: dw 0;Prot mode data selector
+	SpareSel1: dw 0;Prot mode alias selector 1
+	SpareSel2: dw 0;Prot mode alias selector 2
+	GDTalias: dw 0;Prot mode GDT r/w alias
+	ProtIDTaddr: dq 0;Prot mode IDT base & limit
+	RealIDTaddr: dq 0;Real mode IDT base & limit
+	BrkFlag: db 0;TRUE if break to debugger
+	ComFlag: db 0;TRUE if com1, FALSE if com2
+endstruc
 
 
 ;******************************************************************************
 ;	E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
-ifndef	NoBugMode
-dcode	segment
-extrn	_Debug_Entry:far	; (debinit.asm)
-dcode	ends
-endif
+%ifndef NoBugMode
+SECTION .dcode
+extern _Debug_Entry; (debinit.asm)
+; END SECTION .dcode
+%endif
 
-_DATA	SEGMENT
+SECTION ._DATA
 
-extrn	GDT_Seg:word
+extern GDT_Seg
 
-_DATA ENDS
+; END SECTION ._DATA
 
 ;******************************************************************************
 ;	S E G M E N T	D E F I N I T I O N S
 ;******************************************************************************
 
-_DATA	SEGMENT
+SECTION ._DATA
 
 InitData	DebugInit	<>
 
-_DATA ENDS
+; END SECTION ._DATA
 
 ;
 ;   code
 ;
-LAST SEGMENT
+SECTION .LAST
 
-	assume cs:LAST, ds:DGROUP, es:DGROUP
+	; assume cs:LAST, ds:DGROUP, es:DGROUP
 
 ;******************************************************************************
 ;	InitDeb - initialize kernel debugger
@@ -122,9 +122,9 @@ LAST SEGMENT
 ;    USED:	none
 ;
 ;******************************************************************************
-InitDeb proc	near
+InitDeb:
 ;
-ifndef	NoBugMode
+%ifndef NoBugMode
 	pusha
 	push	ds
 	push	es
@@ -132,7 +132,7 @@ ifndef	NoBugMode
 	push	ds
 	pop	es		; ES = data
 ;
-	mov	di, offset DGROUP:InitData
+	mov	di, InitData
 
 	mov	bx, dcode
 	mov	[di].CSseg, bx
@@ -153,7 +153,7 @@ ifndef	NoBugMode
 	mov	ax, [GDT_Seg]
 	mov	ds, ax
 
-	lgdt	qword ptr ds:[GDTD_GSEL]
+	lgdt	qword ds:[GDTD_GSEL]
 
 	mov	si, IDTD_GSEL
 	mov	cx, 6
@@ -170,11 +170,11 @@ ifndef	NoBugMode
 	pop	es
 	pop	ds
 	popa
-endif
+%endif
 	ret
-InitDeb endp
+; ENDP InitDeb
 
 
-LAST	ends
+; END SECTION .LAST
 
-	END
+	; END

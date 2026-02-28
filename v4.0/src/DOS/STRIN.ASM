@@ -9,7 +9,7 @@ Break
 ;       None
 
         procedure   $STD_CON_STRING_INPUT,NEAR   ;System call 10
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
         MOV     AX,SS
         MOV     ES,AX
@@ -29,7 +29,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
  ;
         CMP     AL,BL
         JBE     NOEDIT          ;If length of buffer inconsistent with contents
-        CMP     BYTE PTR [BX+SI],c_CR
+        CMP     byte [BX+SI],c_CR
         JZ      EDITON          ;If CR correctly placed EDIT is OK
 ;
 ; The number of chars in the template is >= the number of chars in buffer or
@@ -48,7 +48,7 @@ NEWLIN:
         MOV     AL,[CARPOS]
         MOV     [STARTPOS],AL   ;Remember position in raw buffer
         PUSH    SI
-        MOV     DI,OFFSET DOSGROUP:INBUF        ;Build the new line here
+        MOV     DI,INBUF        ;Build the new line here
         MOV     [INSMODE],CH    ;Insert mode off
         MOV     BH,CH           ;No chars from template yet
         MOV     DH,CH           ;No chars to new line yet
@@ -125,7 +125,7 @@ SAVCH:
         STOSB
         INC     DH                      ; increment count in buffer.
         invoke  BUFOUT                  ;Print control chars nicely
-        CMP     BYTE PTR [INSMODE],0
+        CMP     byte [INSMODE],0
         JNZ     GETCH                   ; insertmode => don't advance template
         CMP     BH,BL
         JAE     GETCH                   ; no more characters in template
@@ -152,7 +152,7 @@ ENDLIN:
 COPYNEW:
         SaveReg <DS,ES>
         RestoreReg <DS,ES>              ; XCHG ES,DS
-        MOV     SI,OFFSET DOSGROUP:INBUF
+        MOV     SI,INBUF
         MOV     CL,DH                   ; set up count
         REP     MOVSB                   ; Copy final line to user buffer
         return
@@ -232,7 +232,7 @@ BackSpace:
 ;; 9/27/86 fix for ctrl-U backspace
         CALL    BACKMES         ;Was a control char, zap the '^'
 OLDBAK:
-        CMP     BYTE PTR [INSMODE],0
+        CMP     byte [INSMODE],0
         retnz                   ;In insert mode, done
         OR      BH,BH
         retz                    ;Not advanced in template, stay where we are
@@ -252,7 +252,7 @@ BAKTAB:
 FNDPOS:
         SCASB                   ;Look back
         JNA     CHKCNT
-        CMP     BYTE PTR ES:[DI+1],9
+        CMP     byte ES:[DI+1],9
         JZ      HAVTAB          ;Found a tab
         DEC     BL              ;Back one char if non tab control char
 CHKCNT:
@@ -303,7 +303,7 @@ BACKMES:
         MOV     CL,1
 ;Copy CX chars from template to line
 COPYEACH:
-        MOV     BYTE PTR [INSMODE],0    ;All copies turn off insert mode
+        MOV     byte [INSMODE],0    ;All copies turn off insert mode
         CMP     DH,DL
         JZ      GETCH2                  ;At end of line, can't do anything
         CMP     BH,BL
@@ -384,7 +384,7 @@ entry   REEDIT
 
         entry   EXITINS
         entry   ENTERINS
-        NOT     BYTE PTR [INSMODE]
+        NOT     byte [INSMODE]
         JMP     GETCH
 
 ;Put a real live ^Z in the buffer (embedded)

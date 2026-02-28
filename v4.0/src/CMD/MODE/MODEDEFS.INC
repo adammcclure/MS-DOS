@@ -1,6 +1,6 @@
 
-;ษออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออป				   ;AN000;
-;บ											  บ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
 															   ;AN000;
 ;  AC000 - P3200: Was displaying a message that Sam Nunn had deleted from the
 ;		  USA.MSG file because it looked like a common message.  Now
@@ -14,8 +14,8 @@
 ;		  being issued.
 
 
-;บ											  บ				   ;AN000;
-;ศออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออผ				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ				   ;AN000;
 															   ;AN000;
 Stdin			equ	0
 StdOut			equ	1
@@ -39,25 +39,25 @@ clear_buffer		EQU   0C0H
 ;*****************************************************************************
 ;
 
-Define_Msg macro Message_Name			;				;AN000;
+%macro Define_Msg 1;				;AN000;
 						;
 Create_Msg Message_Name,Message_Number,Handle,Sublist,Count,Class,Function,Input;AN000;
 						;
-	endm					;				;AN000;
+	%endmacro;				;AN000;
 
 ;-----------------------------------------------------------------------------
 
-Create_Msg macro Parm1,Parm2,Parm3,Parm4,Parm5,Parm6,Parm7,Parm8		;AN000;
+%macro Create_Msg 8;AN000;
 
-Parm1	label	word				;				;AN000;
+Parm1:;				;AN000;
 	dw	Parm2				;				;AN000;
 	dw	Parm3				;				;AN000;
-	dw	OFFSET Parm4			       ;			       ;AN000;
+	dw	Parm4			       ;			       ;AN000;
 	dw	Parm5				;				;AN000;
 	db	Parm6				;				;AN000;
 	db	Parm7				;				;AN000;
 	dw	Parm8				;				;AN000;
-	endm					;				;AN000;
+	%endmacro;				;AN000;
 
 
 ;

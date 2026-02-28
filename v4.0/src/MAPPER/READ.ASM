@@ -1,9 +1,9 @@
-page 80,132
+; page 80,132
 
-title CP/DOS DosRead mapper   * * *
+; title CP/DOS DosRead mapper   * * *
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -23,22 +23,22 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dosread
-            .sall
-            .xlist
-            include  macros.inc
-            .list
+            global dosread
+            ; .sall
+            ; .xlist
+            %include "macros.inc"
+            ; .list
 
-str         struc
-old_bp      dw       ?
-return      dd       ?
-Written     dd       ?       ; number of bytes actually read
-Bufflng     dw       ?       ; number of bytes to be read
-Buffer      dd       ?       ; read buffer
-Handle      dw       ?       ; handle
-str         ends
+struc str
+old_bp: dw 0
+return: dd 0
+Written: dd 0; number of bytes actually read
+Bufflng: dw 0; number of bytes to be read
+Buffer: dd 0; read buffer
+Handle: dw 0; handle
+endstruc
 
-dosread     proc     far
+dosread:
             Enter    Dosread           ; save registers
 
             mov      bx,[bp].handle    ; fill registers for
@@ -50,14 +50,14 @@ dosread     proc     far
             jc       exit              ; jump if error
 
             lds      si,[bp].written   ; else, set return data area
-            mov      word ptr [si],ax  ; save number of bytes read
+            mov      word [si],ax  ; save number of bytes read
             sub      ax,ax             ; set good return code
 
 exit:       mexit                      ; pop registers
-            ret      size str - 6      ; rturn
+            ret      str_size - 6      ; rturn
 
-dosread     endp
+; ENDP dosread
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

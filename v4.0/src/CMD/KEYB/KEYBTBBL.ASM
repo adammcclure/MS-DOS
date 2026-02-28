@@ -1,6 +1,6 @@
 
-        PAGE    ,132
-        TITLE   DOS KEYB Command  -  Transient Command Processing
+        ; PAGE    ,132
+        ; TITLE   DOS KEYB Command  -  Transient Command Processing
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -42,22 +42,22 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-        PUBLIC TABLE_BUILD             ;;
-        PUBLIC FIND_CP_TABLE           ;;
-        PUBLIC CPN_INVALID             ;;
-        PUBLIC SD_LENGTH               ;;
+        global TABLE_BUILD;;
+        global FIND_CP_TABLE;;
+        global CPN_INVALID;;
+        global SD_LENGTH;;
                                        ;;
-CODE    SEGMENT PUBLIC 'CODE'          ;;
+SECTION .CODE;;
                                        ;;
-        INCLUDE KEYBEQU.INC            ;;
-        INCLUDE KEYBSHAR.INC           ;;
-        INCLUDE KEYBSYS.INC            ;;
-        INCLUDE KEYBCMD.INC            ;;
-        INCLUDE KEYBDCL.INC            ;;
-        INCLUDE COMMSUBS.INC           ;;
-        INCLUDE KEYBCPSD.INC           ;;
+        %include "KEYBEQU.INC";;
+        %include "KEYBSHAR.INC";;
+        %include "KEYBSYS.INC";;
+        %include "KEYBCMD.INC";;
+        %include "KEYBDCL.INC";;
+        %include "COMMSUBS.INC";;
+        %include "KEYBCPSD.INC";;
                                        ;;
-        ASSUME  CS:CODE,DS:CODE        ;;
+        ; ASSUME  CS:CODE,DS:CODE;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -153,13 +153,13 @@ KB_MASK              EQU   02H                 ;;
 FIRST_XLAT_TAB       DW    0                   ;;
 NEXT_SECT_PTR        DW    -1                  ;;
                                                ;;
-MAX_COM_SIZE         DW    ?                   ;;
-MAX_SPEC_SIZE        DW    ?                   ;;
-MAX_LOGIC_SIZE       DW    ?                   ;;
+MAX_COM_SIZE: dw 0;;
+MAX_SPEC_SIZE: dw 0;;
+MAX_LOGIC_SIZE: dw 0;;
                                                ;;
 RESIDENT_END_ACC     DW    0                   ;;
-SA_HEADER_SIZE       DW    SIZE SHARED_DATA_STR;;
-PARM_LIST_OFFSET     DW    ?                   ;;
+SA_HEADER_SIZE       DW    SHARED_DATA_STR_size;;
+PARM_LIST_OFFSET: dw 0;;
 ;********************CNS*************************
 TB_ID_PARM           DW    0
 ;********************CNS*************************
@@ -176,10 +176,10 @@ SD_LENGTH            DW    2000                ;;
 ;;  Program Code
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                           ;;
-TABLE_BUILD          PROC NEAR            ;;
+TABLE_BUILD:;;
                                           ;;
-        MOV   AX,OFFSET SD_SOURCE_PTR     ;;    Setup the difference
-        SUB   AX,OFFSET SD_DEST_PTR       ;;     value used to calculate
+        MOV   AX,SD_SOURCE_PTR     ;;    Setup the difference
+        SUB   AX,SD_DEST_PTR       ;;     value used to calculate
         MOV   SD_AREA_DIFFERENCE,AX       ;;      new ptr values for
                                           ;;        SHARED_DATA_AREA
         MOV   AX,[BP].ID_PARM             ;; WGR Get id parameter              ;AN000
@@ -195,13 +195,13 @@ TABLE_BUILD          PROC NEAR            ;;
         JMP   TB_ERROR6                   ;;               for language THEN
                                           ;;
 TB_CHECK_CONTINUE1:                       ;;;;;;;;
-        MOV   BP,OFFSET SD_SOURCE_PTR           ;;    Put language parm and    ;AN000
+        MOV   BP,SD_SOURCE_PTR           ;;    Put language parm and    ;AN000
         MOV   AX,TB_ID_PARM                     ;; WGR id parm and..           ;AN000
         MOV   ES:[BP].INVOKED_KBD_ID,AX         ;; WGR
         MOV   BX,TB_CODE_PAGE_PARM              ;;
         MOV   ES:[BP].INVOKED_CP_TABLE,BX       ;;;;;; code page parm into the
         MOV   AX,TB_LANGUAGE_PARM                   ;;  SHARED_DATA_AREA
-        MOV   WORD PTR ES:[BP].ACTIVE_LANGUAGE,AX   ;;
+        MOV   word ES:[BP].ACTIVE_LANGUAGE,AX   ;;
                                                     ;;
         MOV   BX,KEYBSYS_FILE_HANDLE   ;;;;;;;;;;;;;;; Get handle
         XOR   DX,DX                    ;; LSEEK file pointer
@@ -215,7 +215,7 @@ TB_CHECK_CONTINUE1:                       ;;;;;;;;
 TB_START:                              ;; Else
         XOR   DI,DI                    ;; Set number
         LEA   CX,[DI].KH_MAX_LOGIC_SZ+2;;        bytes to read header
-        MOV   DX,OFFSET FILE_BUFFER    ;; Move contents into file buffer
+        MOV   DX,FILE_BUFFER    ;; Move contents into file buffer
         MOV   AH,3FH                   ;;     READ
         PUSH  CS                       ;;
         POP   DS                       ;;
@@ -245,8 +245,8 @@ TB_ERROR_CHECK1:                       ;;
                                                ;;
 TB_STATE_BEGIN:                                ;;
         MOV   BX,KEYBSYS_FILE_HANDLE           ;; Get handle
-        MOV   CX,WORD PTR STATE_LOGIC_OFFSET+2 ;;
-        MOV   DX,WORD PTR STATE_LOGIC_OFFSET   ;; Get LSEEK file pointer
+        MOV   CX,word STATE_LOGIC_OFFSET+2 ;;
+        MOV   DX,word STATE_LOGIC_OFFSET   ;; Get LSEEK file pointer
                                                ;;
         CMP   DX,-1                    ;;;;;;;;;; If no language table then
         JNE   TB_STATE_CONTINUE1       ;;           jump to code page begin
@@ -261,8 +261,8 @@ TB_STATE_CONTINUE1:                    ;; Else
                                        ;;;;;;;;;;
 TB_STATE_CONTINUE2:                            ;;
         MOV   DX,AX                            ;;
-        MOV   WORD PTR SB_STATE_OFFSET+2,CX    ;;  Save the offset of the
-        MOV   WORD PTR SB_STATE_OFFSET,DX      ;;     states in Keyb Def file
+        MOV   word SB_STATE_OFFSET+2,CX    ;;  Save the offset of the
+        MOV   word SB_STATE_OFFSET,DX      ;;     states in Keyb Def file
                                                ;;
         SUB   DI,SD_AREA_DIFFERENCE            ;;  Adjust for relocation
         MOV   ES:[BP].LOGIC_PTR,DI     ;;;;;;;;;;  Set because this is state
@@ -270,7 +270,7 @@ TB_STATE_CONTINUE2:                            ;;
                                        ;;
         MOV   CX,4                     ;; Set number bytes to read length and
                                        ;;    special features
-        MOV   DX,OFFSET FILE_BUFFER    ;; Set the buffer address
+        MOV   DX,FILE_BUFFER    ;; Set the buffer address
         MOV   AH,3FH                   ;; Read from the Keyb Def file
         INT   21H                      ;;
         JNC   TB_STATE_CONTINUE3       ;;
@@ -344,7 +344,7 @@ TB_ERROR_CHECK3:                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
 SB_COMM_BEGIN:                         ;;
-        MOV   CX,SIZE KEYBSYS_XLAT_SECT-1 ;; Set number bytes to read header
+        MOV   CX,KEYBSYS_XLAT_SECT_size-1 ;; Set number bytes to read header
         MOV   DX,DI                    ;; Set the SHARED_DATA_AREA address
         PUSH  ES                       ;;
         POP   DS                       ;;
@@ -362,9 +362,9 @@ TB_STATE_CONTINUE6:                    ;;
         JMP   TB_CP_BEGIN              ;;
                                        ;;;;;;;
 TB_STATE_CONTINUE7:                         ;;
-        MOV   CX,WORD PTR SB_STATE_OFFSET   ;;  Save the offset of the
+        MOV   CX,word SB_STATE_OFFSET   ;;  Save the offset of the
         ADD   CX,FB.KT_LOGIC_LEN            ;;
-        MOV   WORD PTR SB_STATE_OFFSET,CX   ;;  Save the offset of the
+        MOV   word SB_STATE_OFFSET,CX   ;;  Save the offset of the
         SUB   DI,SD_AREA_DIFFERENCE         ;;  Adjust for relocation
         MOV   ES:[BP].COMMON_XLAT_PTR,DI    ;;
         ADD   DI,SD_AREA_DIFFERENCE         ;;  Adjust for relocation
@@ -383,11 +383,11 @@ TB_STATE_CONTINUE7:                         ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                                        ;;
 TB_CP_BEGIN:                                           ;; Get the offset to
-        MOV   CX,OFFSET DESIG_CP_BUFFER.DESIG_CP_ENTRY ;; the beginning of the
+        MOV   CX,DESIG_CP_BUFFER.DESIG_CP_ENTRY ;; the beginning of the
         MOV   DESIG_CP_OFFSET,CX                       ;; table of designated
                                                    ;;;;;; code pages
 TB_CPN_BEGIN:                                      ;;
-        MOV   AX,WORD PTR ES:[BP].ACTIVE_LANGUAGE  ;; Get the active language
+        MOV   AX,word ES:[BP].ACTIVE_LANGUAGE  ;; Get the active language
         MOV   CX,NUM_DESIG_CP          ;;;;;;;;;;;;;; Get the number of CPs
         CMP   CX,0                     ;; IF we have done all requested CPs
         JNE   TB_CPN_VALID1            ;;
@@ -412,8 +412,8 @@ TB_CPN_CONTINUE1:                      ;; ELSE
                                        ;;
 TB_CPN_VALID:                          ;;;;;;
         MOV   BX,KEYBSYS_FILE_HANDLE       ;; Get handle
-        MOV   CX,WORD PTR CP_TAB_OFFSET+2  ;; Get offset of the code page
-        MOV   DX,WORD PTR CP_TAB_OFFSET    ;;    in the Keyb Def file
+        MOV   CX,word CP_TAB_OFFSET+2  ;; Get offset of the code page
+        MOV   DX,word CP_TAB_OFFSET    ;;    in the Keyb Def file
                                            ;;
         CMP   DX,-1                    ;;;;;; Test if code page is blank
         JNE   TB_CPN_CONTINUE2         ;;
@@ -428,8 +428,8 @@ TB_CPN_CONTINUE2:                      ;;
                                        ;;;;;;;;;;
 TB_CPN_CONTINUE3:                              ;;
         MOV   DX,AX                            ;;
-        MOV   WORD PTR SB_STATE_OFFSET+2,CX    ;;  Save the offset of the
-        MOV   WORD PTR SB_STATE_OFFSET,DX      ;;      states in Keyb Def file
+        MOV   word SB_STATE_OFFSET+2,CX    ;;  Save the offset of the
+        MOV   word SB_STATE_OFFSET,DX      ;;      states in Keyb Def file
                                                ;;
         MOV   CX,TB_CODE_PAGE_PARM          ;;;;;  If this code page is the
         MOV   SI,[DESIG_CP_OFFSET]          ;;        invoked code page
@@ -474,8 +474,8 @@ TB_DONE:                               ;;
         MOV   CX,RESIDENT_END_ACC      ;;  Set final calculated value
         ADD   CX,BP                    ;;;;;;;;;;;
         SUB   CX,SD_AREA_DIFFERENCE             ;;  Adjust for relocation
-        MOV   ES,WORD PTR SHARED_AREA_PTR       ;;    Set segment
-        MOV   BP,WORD PTR SHARED_AREA_PTR+2     ;;
+        MOV   ES,word SHARED_AREA_PTR       ;;    Set segment
+        MOV   BP,word SHARED_AREA_PTR+2     ;;
         CMP   CX,ES:[BP].RESIDENT_END           ;;
         JNA   TB_DONE_CONTINUE1        ;;;;;;;;;;;
         JMP   TB_ERROR5                ;;
@@ -485,17 +485,17 @@ TB_DONE_CONTINUE1:                     ;;
         JNE   DONT_REPLACE             ;;
         PUSH  CS                       ;;
         POP   ES                       ;;
-        MOV   BP,OFFSET SD_SOURCE_PTR  ;;
+        MOV   BP,SD_SOURCE_PTR  ;;
         MOV   ES:[BP].RESIDENT_END,CX  ;;  Save resident end
         JMP   CONTINUE_2_END           ;;
                                        ;;
 DONT_REPLACE:                          ;;
         PUSH  CS                       ;;
         POP   ES                       ;;
-        MOV   BP,OFFSET SD_SOURCE_PTR  ;;
+        MOV   BP,SD_SOURCE_PTR  ;;
                                        ;;
 CONTINUE_2_END:                        ;;
-        SUB   CX,OFFSET SD_DEST_PTR    ;;  Calculate # of bytes to copy
+        SUB   CX,SD_DEST_PTR    ;;  Calculate # of bytes to copy
         MOV   SD_LENGTH,CX             ;;
                                        ;;
         XOR   CX,CX                    ;;  Set valid completion return code
@@ -537,7 +537,7 @@ TB_ERROR6:                             ;;
         MOV   TB_RETURN_CODE,CX        ;;  Set error 6 return code
         RET                            ;;
                                        ;;
-TABLE_BUILD          ENDP              ;;
+; ENDP TABLE_BUILD;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -569,13 +569,13 @@ SB_FIRST_STATE       DW    0                   ;;
 SB_STATE_LENGTH      DW    0                   ;;
 SB_STATE_OFFSET      DD    0                   ;;
 STATE_LENGTH         DW    0                   ;;
-RESTORE_BP           DW    ?                   ;;
+RESTORE_BP: dw 0;;
                                                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Program Code
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-STATE_BUILD          PROC NEAR         ;;
+STATE_BUILD:;;
                                        ;;
         MOV   SI,DI                    ;;  Get the tally pointer
         MOV   END_OF_AREA_PTR,DI       ;;  Save pointer
@@ -583,8 +583,8 @@ STATE_BUILD          PROC NEAR         ;;
         MOV   RESTORE_BP,BP            ;;  Save the base pointer
                                        ;;;;;;;;;
         MOV   BX,KEYBSYS_FILE_HANDLE          ;; Get handle
-        MOV   DX,WORD PTR SB_STATE_OFFSET     ;; LSEEK file pointer
-        MOV   CX,WORD PTR SB_STATE_OFFSET+2   ;;    back to top of XLAT table
+        MOV   DX,word SB_STATE_OFFSET     ;; LSEEK file pointer
+        MOV   CX,word SB_STATE_OFFSET+2   ;;    back to top of XLAT table
         MOV   AH,42H                          ;;
         MOV   AL,0                     ;;;;;;;;; If no problem with
         INT   21H                      ;;     Keyboard Def file THEN
@@ -663,7 +663,7 @@ SB_CONTINUE1A:                         ;;
         JMP   SB_NEXT_STATE            ;;
                                        ;;
 SB_CONTINUE2:                          ;;     Yes, then
-        MOV   AX,SIZE STATE_STR-1      ;;
+        MOV   AX,STATE_STR_size-1      ;;
         ADD   DI,AX                    ;;  Set PTR and end of header
                                        ;;
 SB_XLAT_TAB_BEGIN:                     ;;  Begin getting xlat tables
@@ -717,7 +717,7 @@ SB_ERROR4:                             ;;
         RET                            ;;
                                        ;;
                                        ;;
-STATE_BUILD          ENDP              ;;
+; ENDP STATE_BUILD;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -761,20 +761,20 @@ STATE_BUILD          ENDP              ;;
 ;;    RET
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                                ;;
-FIND_CP_PARM          DW    ?                  ;;
+FIND_CP_PARM: dw 0;;
                                                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  Program Code
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-FIND_CP_TABLE          PROC  NEAR      ;;
+FIND_CP_TABLE:;;
                                        ;;
                                        ;;
         MOV   FIND_CP_PARM,BX          ;; Save Code page
                                        ;;;;;;;;;;;;;;
         MOV   BX,KEYBSYS_FILE_HANDLE               ;; Get handle
-        MOV   DX,WORD PTR KEYBCMD_LANG_ENTRY_PTR   ;; LSEEK file pointer
-        MOV   CX,WORD PTR KEYBCMD_LANG_ENTRY_PTR+2 ;;  to top of language entry
+        MOV   DX,word KEYBCMD_LANG_ENTRY_PTR   ;; LSEEK file pointer
+        MOV   CX,word KEYBCMD_LANG_ENTRY_PTR+2 ;;  to top of language entry
         MOV   AH,42H                               ;;
         MOV   AL,0                     ;;;;;;;;;;;;;; If no problem with
         INT   21H                      ;;     Keyb Def file Then
@@ -783,9 +783,9 @@ FIND_CP_TABLE          PROC  NEAR      ;;
                                        ;;;;;;;;;
 FIND_BEGIN:                                   ;;
         MOV   DI,AX                           ;;
-        MOV   CX,SIZE KEYBSYS_LANG_ENTRY-1    ;; Set number
+        MOV   CX,KEYBSYS_LANG_ENTRY_size-1    ;; Set number
                                               ;;        bytes to read header
-        MOV   DX,OFFSET FILE_BUFFER    ;;;;;;;;;
+        MOV   DX,FILE_BUFFER    ;;;;;;;;;
         MOV   AH,3FH                   ;; Read language entry in
         INT   21H                      ;;        KEYBOARD.SYS file
         JNC   FIND_VALID4              ;; If no error in opening file then
@@ -798,7 +798,7 @@ FIND_VALID4:                           ;;
 ;****************************** CNS *******************************************
         MOV   NUM_CP,AX                ;; Save the number of code pages
         MUL   CP_PTR_SIZE              ;; Determine # of bytes to read
-        MOV   DX,OFFSET FILE_BUFFER    ;; Establish beginning of buffer
+        MOV   DX,FILE_BUFFER    ;; Establish beginning of buffer
         MOV   CX,AX                    ;;
         CMP   CX,FILE_BUFFER_SIZE      ;; Make sure buffer is not to small
         JBE   FIND_VALID5              ;;
@@ -812,7 +812,7 @@ FIND_VALID5:                           ;;
                                        ;;
 FIND_VALID6:                           ;;
         MOV   CX,NUM_CP                ;;    Number of valid codes
-        MOV   DI,OFFSET FILE_BUFFER    ;;    Point to correct word in table
+        MOV   DI,FILE_BUFFER    ;;    Point to correct word in table
                                        ;;
 F_SCAN_CP_TABLE:                       ;; FOR code page parm
         MOV   AX,FIND_CP_PARM          ;;    Get parameter
@@ -824,10 +824,10 @@ F_SCAN_CP_TABLE:                       ;; FOR code page parm
         JMP   FIND_CP_ERROR2           ;;    Display error message
                                        ;;;;;;;;;;
 F_CODE_PAGE_FOUND:                             ;;
-        MOV   AX,WORD PTR [DI].KC_ENTRY_PTR    ;;
-        MOV   WORD PTR CP_TAB_OFFSET,AX        ;;
-        MOV   AX,WORD PTR [DI].KC_ENTRY_PTR+2  ;;
-        MOV   WORD PTR CP_TAB_OFFSET+2,AX      ;;
+        MOV   AX,word [DI].KC_ENTRY_PTR    ;;
+        MOV   word CP_TAB_OFFSET,AX        ;;
+        MOV   AX,word [DI].KC_ENTRY_PTR+2  ;;
+        MOV   word CP_TAB_OFFSET+2,AX      ;;
                                                ;;
         XOR   CX,CX                    ;;;;;;;;;;
         RET                            ;;
@@ -848,8 +848,8 @@ FIND_CP_ERROR4:                        ;;
         MOV   CX,4                     ;;
         RET                            ;;
                                        ;;
-FIND_CP_TABLE         ENDP             ;;
+; ENDP FIND_CP_TABLE;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CODE   ENDS
-       END    TABLE_BUILD
+; END SECTION .CODE
+       ; END    TABLE_BUILD
 

@@ -1,74 +1,74 @@
-;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;³ Include File: PS2_5060.INC					      ³
-;³								      ³
-;³ Purpose: Initialization code for the Personal Systems/2	      ³
-;³	     models 50 and 60.				 	      ³
-;³								      ³
-;³ Returns: INIT_ERR						      ³
-;³	      Flag indicating if an error was detected. 	      ³
-;³	      DX = ptr to error message string if error.	      ³
-;³								      ³
-;³    This procedure is called to initialize the XMO and/or XMA/A     ³
-;³  card(s) on a PS/2 mod 50 or 60.  Any mix of multiple XMA and      ³
-;³  XMO cards are supported.  The XMA cards will be used in	      ³
-;³  'real' mode, meaning the virtual mode ports providing bank        ³
-;³  swapping are not used (since this only works on 1 XMA card).      ³
-;³  This procedure is not called if WSP's XMA/A device driver         ³
-;³  (INDXMAA.SYS) is installed.  In this case only the single XMA     ³
-;³  card is used for EMS, and it is spoken to in 'virtual' mode.      ³
-;³    The procedure searches each adapter slot for the presence of    ³
-;³  an XMA or a XMO card by checking the card ID.  It checks	      ³
-;³  the configuration registers on the cards to determine the amount  ³
-;³  of memory they contain.					      ³
-;³    The procedure will then calculate for the /E parameter.  This   ³
-;³  states how much of the extended memory the user wants for EMS.    ³
-;³  Extended memory will come from the top of the address range,      ³
-;³  and EMS will come off the bottom (i.e. starting at 1M+384K).      ³
-;³  Memory kept as extended has to be marked unusable in the Page     ³
-;³  Allocation List.  Translate table entries in extended memory      ³
-;³  are disabled for memory used for EMS.			      ³
-;³    Note that the /E parameter is only valid within this	      ³
-;³  procedure, i.e. for PS/2 mod 50 and 60's.  On family 1 machines,  ³
-;³  only the XMA 1 card is supported, and it doesn't come up as       ³
-;³  extended memory.  On mod 50 or 60 with the XMA/A driver, the      ³
-;³  driver takes all of the (uppermost) XMA card and resets CMOS.     ³
-;³  On the mod 80 with the XMA emulator, this XMA/extended split      ³
-;³  must be specified on the Emulator's parm line.                    ³
-;³								      ³
-;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;Â³ Include File: PS2_5060.INC					      Â³
+;Â³								      Â³
+;Â³ Purpose: Initialization code for the Personal Systems/2	      Â³
+;Â³	     models 50 and 60.				 	      Â³
+;Â³								      Â³
+;Â³ Returns: INIT_ERR						      Â³
+;Â³	      Flag indicating if an error was detected. 	      Â³
+;Â³	      DX = ptr to error message string if error.	      Â³
+;Â³								      Â³
+;Â³    This procedure is called to initialize the XMO and/or XMA/A     Â³
+;Â³  card(s) on a PS/2 mod 50 or 60.  Any mix of multiple XMA and      Â³
+;Â³  XMO cards are supported.  The XMA cards will be used in	      Â³
+;Â³  'real' mode, meaning the virtual mode ports providing bank        Â³
+;Â³  swapping are not used (since this only works on 1 XMA card).      Â³
+;Â³  This procedure is not called if WSP's XMA/A device driver         Â³
+;Â³  (INDXMAA.SYS) is installed.  In this case only the single XMA     Â³
+;Â³  card is used for EMS, and it is spoken to in 'virtual' mode.      Â³
+;Â³    The procedure searches each adapter slot for the presence of    Â³
+;Â³  an XMA or a XMO card by checking the card ID.  It checks	      Â³
+;Â³  the configuration registers on the cards to determine the amount  Â³
+;Â³  of memory they contain.					      Â³
+;Â³    The procedure will then calculate for the /E parameter.  This   Â³
+;Â³  states how much of the extended memory the user wants for EMS.    Â³
+;Â³  Extended memory will come from the top of the address range,      Â³
+;Â³  and EMS will come off the bottom (i.e. starting at 1M+384K).      Â³
+;Â³  Memory kept as extended has to be marked unusable in the Page     Â³
+;Â³  Allocation List.  Translate table entries in extended memory      Â³
+;Â³  are disabled for memory used for EMS.			      Â³
+;Â³    Note that the /E parameter is only valid within this	      Â³
+;Â³  procedure, i.e. for PS/2 mod 50 and 60's.  On family 1 machines,  Â³
+;Â³  only the XMA 1 card is supported, and it doesn't come up as       Â³
+;Â³  extended memory.  On mod 50 or 60 with the XMA/A driver, the      Â³
+;Â³  driver takes all of the (uppermost) XMA card and resets CMOS.     Â³
+;Â³  On the mod 80 with the XMA emulator, this XMA/extended split      Â³
+;Â³  must be specified on the Emulator's parm line.                    Â³
+;Â³								      Â³
+;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 
-include SYSVAR.INC			;system variables structure		;an007; dms;
+%include "SYSVAR.INC";system variables structure		;an007; dms;
 
 
-			     ;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-			     ;³   XMA/A declares			       ³
-			     ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			     ;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+			     ;Â³   XMA/A declares			       Â³
+			     ;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 HI6BIT_MASK	EQU  00000011b		;Mask for 2 bit bank descriptor
 LO2BIT_FLIP	EQU  00000011b		;Reverses bottom 2 bits in bank des
 					; gives # of 1/2M in that bank
 NUM_CONFR_BANKS EQU 3			;Number of memory banks described
 					; by the XMA/A config register
 					; Bank 4 is on the control reg.
-X_CONF_REG_VAL	   DB	?		;temporary holder for XMAA's
+X_CONF_REG_VAL: db 0;temporary holder for XMAA's
 					; config (memory size) register
-X_CTRL_REG_VAL	   DB	?		;temporary holder for XMAA's
+X_CTRL_REG_VAL: db 0;temporary holder for XMAA's
 					; control (mem size bank 4) reg.
 X_BLKS_PER_HALFM   DB  128		;4K blocks per half meg of memory
-XMAA_NUM_BLOCKS DW	?		;temp for # of 4K blocks on xmaa   @RH2
-			     ;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-			     ;³   Expanded Memory Option (XMO) declares	       ³
-			     ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+XMAA_NUM_BLOCKS: dw 0;temp for # of 4K blocks on xmaa   @RH2
+			     ;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+			     ;Â³   Expanded Memory Option (XMO) declares	       Â³
+			     ;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 NUM_CINFO_BANKS EQU 3			;# of complete memory banks (4-2)
 					; described by the XMO card info reg
 					; Bank 1 - hi 1/2 bit - info, lo CC/P
-H_CARD_INFO_VAL    DB	?		;temporary holder for XMO card's
+H_CARD_INFO_VAL: db 0;temporary holder for XMO card's
 					; info (memory size) register
 H_BLKS_PER_HALFM   DB	32		;16K XMO card blocks per 1/2M of mem
-HLST_NUM_BLOCKS DW	?		;temp for # of 16K blocks on hlstr @RH3
-			     ;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-			     ;³   /E option declares			       ³
-			     ;³    (used to set extended memory)	       ³
-			     ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+HLST_NUM_BLOCKS: dw 0;temp for # of 16K blocks on hlstr @RH3
+			     ;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+			     ;Â³   /E option declares			       Â³
+			     ;Â³    (used to set extended memory)	       Â³
+			     ;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ems_pgs_parm   dw    0			;temp value for /E parameter
 e_parm_def     equ   0FFFFh		;default...take all for ems
 MIN_EXTMEM_H   EQU   (1024+384)/16	;Translate table pointer for the lowest
@@ -77,12 +77,12 @@ BASE_MEM       EQU   1024		;Base planer memory			;an007; dms;
 					; a PS/2 (16K XMO and 4K XMA)
 PREV_EXT_PGS   DW    0			;Extended memory claimed by previous
 					; drivers
-NEEDED_EMS_PGS DW    ?			;Pages that will go for EMS use
-CARDS_PGS      DW    ?			;Number of pages on card being checked
-CARD_EXT_S16K  DW    ?			; and where its extended memory starts
+NEEDED_EMS_PGS: dw 0;Pages that will go for EMS use
+CARDS_PGS: dw 0;Number of pages on card being checked
+CARD_EXT_S16K: dw 0; and where its extended memory starts
 					; expressed in 16K blocks
 
-INIT_MOD_50_60	PROC
+INIT_MOD_50_60:
 
 	PUSH	AX
 	PUSH	BX
@@ -95,9 +95,9 @@ INIT_MOD_50_60	PROC
 	MOV	NUM_MEM_CARDS,0 	; system & # of memory cards found @RH2
 	XOR	DI,DI			;Clear offset into mem card table  @RH2
 
-			;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-			;³ Search for XMO cards			  	       ³
-			;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+			;Â³ Search for XMO cards			  	       Â³
+			;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	XOR	CX,CX			;Check all system slots starting   @RH2
 					; at slot 0			    RH2
 H_SLOT_SCAN:
@@ -119,9 +119,9 @@ HLST_CHECK:
 
 	MOV	BX,HLST_NUM_BLOCKS	;1 XMO card block = an EMS page
 
-				       ;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-				       ;³ Save info in the memory card table   ³
-				       ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+				       ;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+				       ;Â³ Save info in the memory card table   Â³
+				       ;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	MOV	MEM_CARD_TABLE.CARD_ID[DI],AX	   ;Save the card ID and   @RH5
 	MOV	MEM_CARD_TABLE.CARD_SLOT[DI],CL    ; slot # of this card   @RH5
 	MOV	AX,TOTAL_SYS_PAGES		   ;Set # of the 1st EMS   @RH5
@@ -141,9 +141,9 @@ H_NEXT_SLOT:
 	JB	H_SLOT_SCAN			 ;Yes..check next slot		;ac000; dms;
 						 ;No fall through loop	    RH2
 
-			;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-			;³ Search for XMA/A cards			       ³
-			;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+			;Â³ Search for XMA/A cards			       Â³
+			;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	XOR	CX,CX			;Check all slots starting at 0	   @RH2
 X_SLOT_SCAN:
 	MOV	AL,CL			;Enable the specific slot by ORing @RH2
@@ -166,9 +166,9 @@ XMAA_CHECK:
 	SHR	BX,1			; by 4 to get number or 16K EMS    @RH2
 	SHR	BX,1			; pages on this card		   @RH2
 
-				       ;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-				       ;³ Save info in the memory card table   ³
-				       ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+				       ;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+				       ;Â³ Save info in the memory card table   Â³
+				       ;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	MOV	MEM_CARD_TABLE.CARD_ID[DI],AX	   ;Save the card ID and   @RH5
 	MOV	MEM_CARD_TABLE.CARD_SLOT[DI],CL    ; slot # of this card   @RH5
 	MOV	AX,TOTAL_SYS_PAGES		   ;Set # of the 1st EMS   @RH5
@@ -191,27 +191,27 @@ X_NEXT_SLOT:
 	CMP	TOTAL_SYS_PAGES,0	;If one or more cards are found    @RH4
 	JA	CALC_EXTENDED		; then everythang's cool so far    @RH4
 	    MOV     INIT_ERR,ERROR		 ;Else no card...set	   @RH4
-	    MOV     DX,OFFSET NOT_FOUND_MSG	 ; 1st part of error msg   @RH4
+	    MOV     DX,NOT_FOUND_MSG	 ; 1st part of error msg   @RH4
 	    JMP     INIT_50_60_RET		 ; for no card found	   @RH4
 
-			;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-			;³ Calculate /E parameter - amount of memory for EMS   ³
-			;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-					;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-					;³ Find ext mem addr of bottom card   ³
-					;³ in case card memory ever starts at ³
-					;³ something other than 1M + 384K     ³
-					;³ (i.e. if more planar memory is     ³
-					;³  added or a new unsupported card   ³
-					;³  comes in below XMO card)	      ³
-					;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+			;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+			;Â³ Calculate /E parameter - amount of memory for EMS   Â³
+			;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+					;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+					;Â³ Find ext mem addr of bottom card   Â³
+					;Â³ in case card memory ever starts at Â³
+					;Â³ something other than 1M + 384K     Â³
+					;Â³ (i.e. if more planar memory is     Â³
+					;Â³  added or a new unsupported card   Â³
+					;Â³  comes in below XMO card)	      Â³
+					;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 CALC_EXTENDED:
 	push	es			;this call kills these regs		;an007; dms;
 	push	bx			;					;an007; dms;
 
 	mov	ah,52h			;get the sysvars ptr			;an007; dms;
 	int	21h			; to get total ext. memory at boot	;an007; dms;
-	mov	ax,word ptr es:[bx].SYSI_Ext_Mem	;			;an007; dms;
+	mov	ax,word es:[bx].SYSI_Ext_Mem	;			;an007; dms;
 
 	pop	bx			;restore regs				;an007; dms;
 	pop	es			;					;an007; dms;
@@ -249,9 +249,9 @@ FIND_H_1ST_LOOP:			; search for start of ext mem	   @RH4
 	JMP	FIND_H_1ST_LOOP 	; if ext mem starts at next 16K    @RH4
 FIRST_EXT_FOUND:
 	MOV	CARD_EXT_S16K,AX	;Save the start of ext mem ptr	   @RH4
-					;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-					;³ Calc pages for extended memory     ³
-					;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+					;Â³ Calc pages for extended memory     Â³
+					;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 	MOV	AH,88H			;Go to BIOS and find amount of	   @RH4
 	INT	15H			; extended memory (assume previous @RH4
 	MOV	CL,4			; drivers have hooked INT 15h)	   @RH4
@@ -289,9 +289,9 @@ CHECK_E_PARM:				;Else test user specified # EMS pgs@RH4
 	    LEA     DX,REQ_EMS_ERR_MSG	; Set first part of error message  @RH4
 	    JMP     INIT_50_60_RET	;				   @RH4
 
-					;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-					;³ Mark PAL for extended memory pages ³
-					;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+					;Â³ Mark PAL for extended memory pages Â³
+					;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 MARK_EXT_IN_PAL:
 	xor	di,di			;start at bottom of PAL to init EXT	;an002; dms;
 MARK_NEW_IN_PAL:
@@ -319,11 +319,11 @@ MARK_PREV_LP:				;				   @RH4
 	MOV	PAGE_ALLOC_LIST[DI],PREV_EXT	 ;Place a 'PE' in the PAL  @RH4
 	ADD	DI,TYPE PAGE_ALLOC_LIST 	 ; (Previous Extended) for @RH4
 	LOOP	MARK_PREV_LP			 ; these entries	   @RH4
-					;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-					;³ Disable translate table entries    ³
-					;³ in extended memory for memory      ³
-					;³ used as EMS			      ³
-					;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+					;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+					;Â³ Disable translate table entries    Â³
+					;Â³ in extended memory for memory      Â³
+					;Â³ used as EMS			      Â³
+					;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 
 DIS_EMS_TT:
 
@@ -422,33 +422,33 @@ INIT_50_60_RET:
 	POP	BX
 	POP	AX
 	RET
-INIT_MOD_50_60	ENDP
+; ENDP INIT_MOD_50_60
 
-;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;³ HLST_MEM_ADD subprocedure					      ³
-;³   Calculates the amount of memory on the XMO card		      ³
-;³     on entry: (CL) = card slot #				      ³
-;³		 card is in setup mode				      ³
-;³								      ³
-;³  The following describes how to read memory size, where the 2 bit  ³
-;³   pattern indicates SIP size.  There are 2 SIPs per bank.	      ³
-;³								      ³
-;³   Reg:   Card Info			      Channel Check, Presence ³
-;³   Port:   102h			       105h		      ³
-;³   SIPS:   bank 4  bank 3  bank 2  bank 1    bank 1		      ³
-;³   Bit:     7  6    5  4    3  2    1 	   0		      ³
-;³   -----------------------------------------------------------------³
-;³	      1  1    1  1    1  1    1 	   1  No memory,error ³
-;³	      1  0    1  0    1  0    1 	   0  256K	      ³
-;³	      0  1    0  1    0  1    0 	   1  512K	      ³
-;³	      0  0    0  0    0  0    0 	   0  1M	      ³
-;³								      ³
-;³ Note that for bank 0, 102's bit 1 forms the upper bit and          ³
-;³  105's bit 0 forms the lower of the 2 bit presence pattern.        ³
-;³  Therefore, if the pattern is '10'B, then the bank has 256K.       ³
-;³								      ³
-;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-HLST_MEM_ADD  PROC
+;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;Â³ HLST_MEM_ADD subprocedure					      Â³
+;Â³   Calculates the amount of memory on the XMO card		      Â³
+;Â³     on entry: (CL) = card slot #				      Â³
+;Â³		 card is in setup mode				      Â³
+;Â³								      Â³
+;Â³  The following describes how to read memory size, where the 2 bit  Â³
+;Â³   pattern indicates SIP size.  There are 2 SIPs per bank.	      Â³
+;Â³								      Â³
+;Â³   Reg:   Card Info			      Channel Check, Presence Â³
+;Â³   Port:   102h			       105h		      Â³
+;Â³   SIPS:   bank 4  bank 3  bank 2  bank 1    bank 1		      Â³
+;Â³   Bit:     7  6    5  4    3  2    1 	   0		      Â³
+;Â³   -----------------------------------------------------------------Â³
+;Â³	      1  1    1  1    1  1    1 	   1  No memory,error Â³
+;Â³	      1  0    1  0    1  0    1 	   0  256K	      Â³
+;Â³	      0  1    0  1    0  1    0 	   1  512K	      Â³
+;Â³	      0  0    0  0    0  0    0 	   0  1M	      Â³
+;Â³								      Â³
+;Â³ Note that for bank 0, 102's bit 1 forms the upper bit and          Â³
+;Â³  105's bit 0 forms the lower of the 2 bit presence pattern.        Â³
+;Â³  Therefore, if the pattern is '10'B, then the bank has 256K.       Â³
+;Â³								      Â³
+;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+HLST_MEM_ADD:
 	PUSH	DX			;				   @RH3
 	PUSH	CX			;				   @RH3
 	PUSH	AX			;				   @RH3
@@ -501,29 +501,29 @@ H_B42_HMEG_OK:
 	POP	DX			;				   @RH3
 
 	RET
-HLST_MEM_ADD  ENDP
+; ENDP HLST_MEM_ADD
 
-;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;³ XMAA_MEM_ADD subprocedure					      ³
-;³   Calculates the amount of memory on the XMAA card		      ³
-;³     on entry: (CL) = card slot #				      ³
-;³		 card is in setup mode				      ³
-;³								      ³
-;³  The following describes how to read memory size, where the 2 bit  ³
-;³   pattern indicates SIP size.  There are 2 SIPs per bank.	      ³
-;³								      ³
-;³   Reg:   Control Reg    Config, Channel Check reg		      ³
-;³   Port:   102h	    105h				      ³
-;³   SIPS:   bank 4	    bank 3  bank 2  bank 1		      ³
-;³   Bit:     7  6	     5	4    3	2    1	0		      ³
-;³   -------------------------------------------------		      ³
-;³	      1  1	     1	1    1	1    1	1  No memory or error ³
-;³	      1  0	     1	0    1	0    1	0  256K 	      ³
-;³	      0  1	     0	1    0	1    0	1  512K 	      ³
-;³	      0  0	     0	0    0	0    0	0  1M		      ³
-;³								      ³
-;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-XMAA_MEM_ADD  PROC
+;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;Â³ XMAA_MEM_ADD subprocedure					      Â³
+;Â³   Calculates the amount of memory on the XMAA card		      Â³
+;Â³     on entry: (CL) = card slot #				      Â³
+;Â³		 card is in setup mode				      Â³
+;Â³								      Â³
+;Â³  The following describes how to read memory size, where the 2 bit  Â³
+;Â³   pattern indicates SIP size.  There are 2 SIPs per bank.	      Â³
+;Â³								      Â³
+;Â³   Reg:   Control Reg    Config, Channel Check reg		      Â³
+;Â³   Port:   102h	    105h				      Â³
+;Â³   SIPS:   bank 4	    bank 3  bank 2  bank 1		      Â³
+;Â³   Bit:     7  6	     5	4    3	2    1	0		      Â³
+;Â³   -------------------------------------------------		      Â³
+;Â³	      1  1	     1	1    1	1    1	1  No memory or error Â³
+;Â³	      1  0	     1	0    1	0    1	0  256K 	      Â³
+;Â³	      0  1	     0	1    0	1    0	1  512K 	      Â³
+;Â³	      0  0	     0	0    0	0    0	0  1M		      Â³
+;Â³								      Â³
+;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+XMAA_MEM_ADD:
 	PUSH	DX			;				   @RH2
 	PUSH	CX			;				   @RH2
 	PUSH	AX			;				   @RH2
@@ -584,16 +584,16 @@ CONF_HMEG_OK:
 	POP	DX			;				   @RH2
 
 	RET
-XMAA_MEM_ADD  ENDP
+; ENDP XMAA_MEM_ADD
 
-;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;³ H_READ_TT subprocedure					      ³
-;³   Reads the contents of a translate table entry on a XMO card      ³
-;³     on entry: (AX) = Translate table pointer 		      ³
-;³     on exit:  (BL) = Data (byte) at that entry		      ³
-;³								      ³
-;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-H_READ_TT	PROC
+;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;Â³ H_READ_TT subprocedure					      Â³
+;Â³   Reads the contents of a translate table entry on a XMO card      Â³
+;Â³     on entry: (AX) = Translate table pointer 		      Â³
+;Â³     on exit:  (BL) = Data (byte) at that entry		      Â³
+;Â³								      Â³
+;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+H_READ_TT:
 	PUSH	AX			;Save the TT pointer		   @RH4
 	MOV	DX,H_TTPTR_LO		;Set the low and high bytes of	   @RH4
 	OUT	DX,AL			; the XMO translate table	   @RH4
@@ -605,16 +605,16 @@ H_READ_TT	PROC
 	MOV	BL,AL			; and store it in BL		   @RH4
 	POP	AX			;Restore TT pointer		   @RH4
 	RET				;				   @RH4
-H_READ_TT	ENDP
+; ENDP H_READ_TT
 
-;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;³ X_READ_TT subprocedure					      ³
-;³   Reads the contents of a translate table entry on an XMA/A card   ³
-;³     on entry: (AX) = Translate table pointer 		      ³
-;³     on exit:  (BX) = Data (12 bits) at that entry		      ³
-;³								      ³
-;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-X_READ_TT	PROC
+;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;Â³ X_READ_TT subprocedure					      Â³
+;Â³   Reads the contents of a translate table entry on an XMA/A card   Â³
+;Â³     on entry: (AX) = Translate table pointer 		      Â³
+;Â³     on exit:  (BX) = Data (12 bits) at that entry		      Â³
+;Â³								      Â³
+;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+X_READ_TT:
 	PUSH	AX			;Save the TT pointer		   @RH4
 	MOV	DX,RM_TTPTR_LO		;Set the low and high bytes of	   @RH4
 	OUT	DX,AL			; the XMA/A translate table	   @RH4
@@ -631,16 +631,16 @@ X_READ_TT	PROC
 	AND	BX,XMA_TT_MASK		;Turn off useless upper 4 bits	   @RH4
 	POP	AX			;Restore TT pointer		   @RH4
 	RET				;				   @RH4
-X_READ_TT	ENDP
+; ENDP X_READ_TT
 
-;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;³ H_INH_FOR_EMS subprocedure					      ³
-;³   Inhibits a single translate table entry of extended memory       ³
-;³   on a XMO card.  This entry (16K) is for use by EMS.	      ³
-;³     on entry: (AX) = XMO Translate table pointer (# of K / 16)     ³
-;³								      ³
-;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-H_INH_FOR_EMS	PROC
+;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;Â³ H_INH_FOR_EMS subprocedure					      Â³
+;Â³   Inhibits a single translate table entry of extended memory       Â³
+;Â³   on a XMO card.  This entry (16K) is for use by EMS.	      Â³
+;Â³     on entry: (AX) = XMO Translate table pointer (# of K / 16)     Â³
+;Â³								      Â³
+;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+H_INH_FOR_EMS:
 	PUSH	AX			;Save the TT pointer		   @RH4
 	MOV	DX,H_TTPTR_LO		;Set the low and high bytes of	   @RH4
 	OUT	DX,AL			; the XMO translate table	   @RH4
@@ -653,16 +653,16 @@ H_INH_FOR_EMS	PROC
 	OUT	DX,AL			; it is no longer extended memory  @RH4
 	POP	AX			;Restore TT pointer		   @RH4
 	RET				;				   @RH4
-H_INH_FOR_EMS	ENDP
+; ENDP H_INH_FOR_EMS
 
-;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;³ X_INH_FOR_EMS subprocedure					      ³
-;³   Inhibits a single translate table entry of extended memory       ³
-;³   on a XMA/A card.  This entry (4K) is for use by EMS.	      ³
-;³     on entry: (AX) = XMA/A Translate table pointer (# of K / 4)    ³
-;³								      ³
-;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-X_INH_FOR_EMS	PROC
+;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;Â³ X_INH_FOR_EMS subprocedure					      Â³
+;Â³   Inhibits a single translate table entry of extended memory       Â³
+;Â³   on a XMA/A card.  This entry (4K) is for use by EMS.	      Â³
+;Â³     on entry: (AX) = XMA/A Translate table pointer (# of K / 4)    Â³
+;Â³								      Â³
+;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+X_INH_FOR_EMS:
 	PUSH	AX			;Save the TT pointer		   @RH4
 	MOV	DX,RM_TTPTR_LO		;Set the low and high bytes of	   @RH4
 	OUT	DX,AL			; the XMA/A translate table	   @RH4
@@ -678,20 +678,20 @@ X_INH_FOR_EMS	PROC
 	OUT	DX,AL			;				   @RH4
 	POP	AX			;Restore TT pointer		   @RH4
 	RET				;				   @RH4
-X_INH_FOR_EMS	ENDP
+; ENDP X_INH_FOR_EMS
 
-;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;³ ADJUST_CMOS subprocedure					      ³
-;³   Reset the CMOS value for amount of extended memory.  The	      ³
-;³   memory off the 'top' (upper addresses) is used by EMS.           ³
-;³     on entry:						      ³
-;³	CARD_EXT_S16K = First 16K translate table pointer past the    ³
-;³			top of the last card.  Example - One 2M card  ³
-;³			that started at 1M+384K, AX = 58h + 80H = D8h ³
-;³								      ³
-;³								      ³
-;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-ADJUST_CMOS	PROC
+;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;Â³ ADJUST_CMOS subprocedure					      Â³
+;Â³   Reset the CMOS value for amount of extended memory.  The	      Â³
+;Â³   memory off the 'top' (upper addresses) is used by EMS.           Â³
+;Â³     on entry:						      Â³
+;Â³	CARD_EXT_S16K = First 16K translate table pointer past the    Â³
+;Â³			top of the last card.  Example - One 2M card  Â³
+;Â³			that started at 1M+384K, AX = 58h + 80H = D8h Â³
+;Â³								      Â³
+;Â³								      Â³
+;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+ADJUST_CMOS:
 CMOS_LO EQU  70h			;Port addrs of CMOS controller
 CMOS_HI EQU  71h
 
@@ -730,6 +730,6 @@ CMOS_HI EQU  71h
 	POPF				;Restore interrupt state
 CMOS_RET:
 	RET				;				   @RH4
-ADJUST_CMOS	ENDP
+; ENDP ADJUST_CMOS
 
 

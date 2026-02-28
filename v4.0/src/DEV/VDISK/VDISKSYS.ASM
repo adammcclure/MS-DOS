@@ -1,5 +1,5 @@
-	PAGE	,132
-	TITLE	VDISK - Virtual Disk Device Driver, Version 4.00
+	; PAGE	,132
+	; TITLE	VDISK - Virtual Disk Device Driver, Version 4.00
 
 ;VDISK simulates a disk drive, using Random Access Memory as the storage medium.
 
@@ -89,26 +89,26 @@
 ;=========================================================================
 
 ;Message text for VDISK is in module VDISKMSG.
-.xlist
-	INCLUDE VDISKSYS.INC
-	INCLUDE SYSMSG.INC
+; .xlist
+	%include "VDISKSYS.INC"
+	%include "SYSMSG.INC"
 	MSG_UTILNAME<VDISK>
-.list
-	SUBTTL	Structure Definitions
-	PAGE
+; .list
+	; SUBTTL	Structure Definitions
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	Request Header (Common portion) 				;
 ;-----------------------------------------------------------------------;
 RH	EQU	DS:[BX] 		;addressability to Request Header structure
 
-RHC	STRUC				;fields common to all request types
-	DB	?			;length of Request Header (including data)
-	DB	?			;unit code (subunit)
-RHC_CMD DB	?			;command code
-RHC_STA DW	?			;status
-	DQ	?			;reserved for DOS
+struc RHC;fields common to all request types
+	db 0;length of Request Header (including data)
+	db 0;unit code (subunit)
+RHC_CMD: db 0;command code
+RHC_STA: dw 0;status
+	dq 0;reserved for DOS
 ;;;;;	DW	?			;reserved for BIOS message flag 	;an006; dms;
-RHC	ENDS				;end of common portion
+endstruc;end of common portion
 
 CMD_INPUT EQU	4			;RHC_CMD is INPUT request
 
@@ -122,68 +122,68 @@ STAT_BUSY EQU	0200H			;busy bit (9) for Removable Media call
 ;-----------------------------------------------------------------------;
 ;	Request Header for INIT command 				;
 ;-----------------------------------------------------------------------;
-RH0	STRUC
+struc RH0
 	DB	(TYPE RHC) DUP (?)	;common portion
-RH0_NUN DB	?			;number of units
+RH0_NUN: db 0;number of units
 					;set to 1 if installation succeeds,
 					;set to 0 to cause installation failure
-RH0_ENDO DW	?			;offset  of ending address
-RH0_ENDS DW	?			;segment of ending address
-RH0_BPBO DW	?			;offset  of BPB array address
-RH0_BPBS DW	?			;segment of BPB array address
-RH0_DRIV DB	?			;drive code (DOS 3 only)
+RH0_ENDO: dw 0;offset  of ending address
+RH0_ENDS: dw 0;segment of ending address
+RH0_BPBO: dw 0;offset  of BPB array address
+RH0_BPBS: dw 0;segment of BPB array address
+RH0_DRIV: db 0;drive code (DOS 3 only)
 RH0_FLAG DW	0			;initialized to no error		;an000; dms;
-RH0	ENDS
+endstruc
 
-RH0_BPBA EQU	DWORD PTR RH0_BPBO	;offset/segment of BPB array address
+RH0_BPBA EQU	dword RH0_BPBO	;offset/segment of BPB array address
 ;Note: RH0_BPBA at entry to INIT points to all after DEVICE= on CONFIG.SYS stmt
 
 ;-----------------------------------------------------------------------;
 ;	Request Header for MEDIA CHECK Command				;
 ;-----------------------------------------------------------------------;
-RH1	STRUC
+struc RH1
 	DB	(TYPE RHC) DUP (?)	;common portion
-	DB	?			;media descriptor
-RH1_RET DB	?			;return information
-RH1	ENDS
+	db 0;media descriptor
+RH1_RET: db 0;return information
+endstruc
 ;-----------------------------------------------------------------------;
 ;	Request Header for BUILD BPB Command				;
 ;-----------------------------------------------------------------------;
-RH2	STRUC
+struc RH2
 	DB	(TYPE RHC) DUP(?)	;common portion
-	DB	?			;media descriptor
-	DW	?			;offset  of transfer address
-	DW	?			;segment of transfer address
-RH2_BPBO DW	?			;offset  of BPB table address
-RH2_BPBS DW	?			;segment of BPB table address
-RH2	ENDS
+	db 0;media descriptor
+	dw 0;offset  of transfer address
+	dw 0;segment of transfer address
+RH2_BPBO: dw 0;offset  of BPB table address
+RH2_BPBS: dw 0;segment of BPB table address
+endstruc
 ;-----------------------------------------------------------------------;
 ;	Request Header for INPUT, OUTPUT, and OUTPUT with verify	;
 ;-----------------------------------------------------------------------;
-RH4	STRUC
+struc RH4
 	DB	(TYPE RHC) DUP (?)	;common portion
-	DB	?			;media descriptor
-RH4_DTAO DW	?			;offset  of transfer address
-RH4_DTAS DW	?			;segment of transfer address
-RH4_CNT DW	?			;sector count
-RH4_SSN DW	?			;starting sector number
-RH4	ENDS
+	db 0;media descriptor
+RH4_DTAO: dw 0;offset  of transfer address
+RH4_DTAS: dw 0;segment of transfer address
+RH4_CNT: dw 0;sector count
+RH4_SSN: dw 0;starting sector number
+endstruc
 
-RH4_DTAA EQU	DWORD PTR RH4_DTAO	;offset/segment of transfer address
+RH4_DTAA EQU	dword RH4_DTAO	;offset/segment of transfer address
 
 ;-----------------------------------------------------------------------;
 ;	Segment Descriptor (part of Global Descriptor Table)		;
 ;-----------------------------------------------------------------------;
-DESC	STRUC				;data segment descriptor
+struc DESC;data segment descriptor
 DESC_LMT DW	0			;segment limit (length)
 DESC_BASEL DW	0			;bits 15-0 of physical address
 DESC_BASEH DB	0			;bits 23-16 of physical address
 	DB	0			;access rights byte
 	DW	0			;reserved
-DESC	ENDS
+endstruc
 
-	SUBTTL	Equates and Macro Definitions
-	PAGE
+	; SUBTTL	Equates and Macro Definitions
+	; PAGE
 
 MEM_SIZE EQU	12H			;BIOS memory size determination INT
 					;returns system size in KB in AX
@@ -217,23 +217,23 @@ MAX_DIRN EQU	512			;maximum number of directory entries
 
 STACK_SIZE EQU	512			;length of stack during initialization
 
-	SUBTTL	Resident Data Area
-	PAGE
+	; SUBTTL	Resident Data Area
+	; PAGE
 
 ;-----------------------------------------------------------------------;
 ;	Map INT 15H vector in low storage				;
 ;-----------------------------------------------------------------------;
-INT_VEC SEGMENT AT 00H
+SECTION .INT_VEC
 	ORG	4*EM_INT
-EM_VEC	LABEL	DWORD
-EM_VECO DW	?			;offset
-EM_VECS DW	?			;segment
-INT_VEC ENDS
+EM_VEC:
+EM_VECO: dw 0;offset
+EM_VECS: dw 0;segment
+; END SECTION .INT_VEC
 
 
 
-CSEG	SEGMENT PARA PUBLIC 'CODE'
-	ASSUME	CS:CSEG
+SECTION .CSEG
+	; ASSUME	CS:CSEG
 ;-----------------------------------------------------------------------;
 ;	Resident data area.						;
 ;									;
@@ -247,10 +247,10 @@ START	EQU	$			;begin resident VDISK data & code
 	DD	-1			;becomes pointer to next device header
 	DW	0800H			;attribute (IBM format block device)
 					;supports OPEN/CLOSE/RM calls
-	DW	OFFSET STRATEGY 	;pointer to device "strategy" routine
-	DW	OFFSET IRPT		;pointer to device "interrupt handler"
+	DW	STRATEGY 	;pointer to device "strategy" routine
+	DW	IRPT		;pointer to device "interrupt handler"
 	DB	1			;number of block devices
-	DB	7 DUP (?)		;7 byte filler (remainder of 8-byte name)
+	times 7 db 0;7 byte filler (remainder of 8-byte name)
 ;END OF DEVICE HEADER
 
 ;This volume label is placed into the directory of the new VDISK
@@ -272,86 +272,86 @@ VOL_LABEL_LEN EQU $-VOL_LABEL		;length of volume label
 AVAIL_LO DW	0			;address of first free byte of
 AVAIL_HI DB	10H			;extended memory
 
-INTV15	LABEL	DWORD
-INTV15O DW	?			;offset
-INTV15S DW	?			;segment
+INTV15:
+INTV15O: dw 0;offset
+INTV15S: dw 0;segment
 
 
-PARAS_PER_SECTOR DW ?			;number of 16-byte paragraphs in one sector
+PARAS_PER_SECTOR: dw 0;number of 16-byte paragraphs in one sector
 
-START_BUFFER_PARA DW ?			;segment address of start of VDISK buffer
+START_BUFFER_PARA: dw 0;segment address of start of VDISK buffer
 
-EM_New_Size dw	?			;an001; dms;new size for EM
-EM_KSize dw	?			;an001; dms;size of EM currently.
+EM_New_Size: dw 0;an001; dms;new size for EM
+EM_KSize: dw 0;an001; dms;size of EM currently.
 
 EM_SW	DB	0			;NON-ZERO IF EXTENDED MEMORY
 
 EM_STAT DW	0			;AX from last unsuccessful extended memory I/O
 
-START_EM_LO DW	?			;24-bit address of start of VDISK buffer
-START_EM_HI DB	?			;(extended memory only)
+START_EM_LO: dw 0;24-bit address of start of VDISK buffer
+START_EM_HI: db 0;(extended memory only)
 
 WPARA_SIZE DW	PARA_SIZE		;number of bytes in one paragraph
 
-MAX_CNT DW	?			;(0FFFFH/BPB_SSZ) truncated, the maximum
+MAX_CNT: dw 0;(0FFFFH/BPB_SSZ) truncated, the maximum
 					;number of sectors that can be transferred
 					;without worrying about 64KB wrap
 
-SECT_LEFT DW	?			;sectors left to transfer
+SECT_LEFT: dw 0;sectors left to transfer
 
-IO_SRCA LABEL	DWORD			;offset/segment of source
-IO_SRCO DW	?			;offset
-IO_SRCS DW	?			;segment
+IO_SRCA:;offset/segment of source
+IO_SRCO: dw 0;offset
+IO_SRCS: dw 0;segment
 
-IO_TGTA LABEL	DWORD			;offset/segment of target
-IO_TGTO DW	?			;offset
-IO_TGTS DW	?			;segment
+IO_TGTA:;offset/segment of target
+IO_TGTO: dw 0;offset
+IO_TGTS: dw 0;segment
 
 ;-----------------------------------------------------------------------;
 ;	EMS Support							;
 ;-----------------------------------------------------------------------;
 
 EM_SW2	DB	not EMS_Installed_Flag	;ac006;Default if EMS not installed
-EMS_HANDLE DW	?			;AN000; EMS handle for reference
-EMS_FRAME_ADDR DW ?			;AN000; EMS handle for reference
-EMS_CURR_SECT DW ?			;an000; Current EMS sector being addressed
-CURR_EMS_PAGE DW ?			;ac002; Current EMS page number
-SECT_LEFT_IN_FRAME DW ? 		;AN000; Sectors left to transfer in this frame
-SECT_PER_PAGE DW ?			;AN000; Sectors per page
-DOS_Page	dw	?		;an006; EMS physical page for VDISK
+EMS_HANDLE: dw 0;AN000; EMS handle for reference
+EMS_FRAME_ADDR: dw 0;AN000; EMS handle for reference
+EMS_CURR_SECT: dw 0;an000; Current EMS sector being addressed
+CURR_EMS_PAGE: dw 0;ac002; Current EMS page number
+SECT_LEFT_IN_FRAME: dw 0;AN000; Sectors left to transfer in this frame
+SECT_PER_PAGE: dw 0;AN000; Sectors per page
+DOS_Page: dw 0;an006; EMS physical page for VDISK
 
 EMS_SAVE_ARRAY DB 80h	  dup(0)	;an000; save current state of ems
-EMS_SEG_ARRAY DD ?			;an000; save segment array
+EMS_SEG_ARRAY: dd 0;an000; save segment array
 
-CURR_DTA_OFF DW ?			;AN000; DMS;CURRENT OFFSET OF DTA
+CURR_DTA_OFF: dw 0;AN000; DMS;CURRENT OFFSET OF DTA
 
 PC_386	DB	false			;AN000; DMS;386 machine flag
 
-SUBLIST STRUC				;AN000;SUBLIST STRUCTURE
+struc SUBLIST;AN000;SUBLIST STRUCTURE
 
-SL_SIZE DB	?			;AN000;SUBLIST SIZE
-SL_RES	DB	?			;AN000;RESERVED
-SL_OFFSET DW	?			;AN000;PARM OFFSET
-SL_SEGMENT DW	?			;AN000;PARM SEGMENT
-SL_ID	DB	?			;AN000;NUMBER OF PARM
-SL_FLAG DB	?			;AN000;DISPLAY TYPE
-SL_MAXW DB	?			;AN000;MAXIMUM FIELD WIDTH
-SL_MINW DB	?			;AN000;MINIMUM FIELD WIDTH
-SL_PAD	DB	?			;AN000;PAD CHARACTER
+SL_SIZE: db 0;AN000;SUBLIST SIZE
+SL_RES: db 0;AN000;RESERVED
+SL_OFFSET: dw 0;AN000;PARM OFFSET
+SL_SEGMENT: dw 0;AN000;PARM SEGMENT
+SL_ID: db 0;AN000;NUMBER OF PARM
+SL_FLAG: db 0;AN000;DISPLAY TYPE
+SL_MAXW: db 0;AN000;MAXIMUM FIELD WIDTH
+SL_MINW: db 0;AN000;MINIMUM FIELD WIDTH
+SL_PAD: db 0;AN000;PAD CHARACTER
 
-SUBLIST ENDS				;AN000;END SUBLIST STRUCTURE
+endstruc;AN000;END SUBLIST STRUCTURE
 
 
-BIOS_SYSTEM_DESCRIPTOR struc		;AN000;SYSTEM TYPE STRUC
+struc BIOS_SYSTEM_DESCRIPTOR;AN000;SYSTEM TYPE STRUC
 
-bios_SD_leng dw ?			;AN000;VECTOR LENGTH
-bios_SD_modelbyte db ?			;AN000;SYSTEM MODEL TYPE
-bios_SD_scnd_modelbyte db ?		;AN000;
-	db	?			;AN000;
-bios_SD_featurebyte1 db ?		;AN000;
-	db	4 dup (?)		;AN000;
+bios_SD_leng: dw 0;AN000;VECTOR LENGTH
+bios_SD_modelbyte: db 0;AN000;SYSTEM MODEL TYPE
+bios_SD_scnd_modelbyte: db 0;AN000;
+	db 0;AN000;
+bios_SD_featurebyte1: db 0;AN000;
+	times 4 db 0;AN000;
 
-BIOS_SYSTEM_DESCRIPTOR ends		;AN000;END OF STRUC
+endstruc;AN000;END OF STRUC
 
 ;-----------------------------------------------------------------------;
 ;	BIOS Parameter Block (BPB)					;
@@ -361,7 +361,7 @@ BIOS_SYSTEM_DESCRIPTOR ends		;AN000;END OF STRUC
 ;DEBUG can be used to read sector zero of the virtual disk to examine the
 ;boot record copy of this block.
 
-BPB	LABEL	BYTE			;BIOS Parameter Block (BPB)
+BPB:;BIOS Parameter Block (BPB)
 BPB_SSZ DW	0			;number of bytes per disk sector
 BPB_AUSZ DB	1			;sectors per allocation unit
 BPB_RES DW	1			;number of reserved sectors (for boot record)
@@ -380,9 +380,9 @@ BPB_PTR DW	BPB			;BIOS Parameter Block pointer array (1 entry)
 ;-----------------------------------------------------------------------;
 ;	Request Header (RH) address, saved here by "strategy" routine	;
 ;-----------------------------------------------------------------------;
-RH_PTRA LABEL	DWORD
-RH_PTRO DW	?			;offset
-RH_PTRS DW	?			;segment
+RH_PTRA:
+RH_PTRO: dw 0;offset
+RH_PTRS: dw 0;segment
 ;-----------------------------------------------------------------------;
 ;	Global Descriptor Table (GDT), used for extended memory moves	;
 ;-----------------------------------------------------------------------;
@@ -393,7 +393,7 @@ RH_PTRS DW	?			;segment
 ;	W=1	(data segment may be written into)
 ;	DPL=0	(privilege level 0)
 
-GDT	LABEL	BYTE			;begin global descriptor table
+GDT:;begin global descriptor table
 	DESC	<>			;dummy descriptor
 	DESC	<>			;descriptor for GDT itself
 SRC	DESC	<,,,93H,>		;source descriptor
@@ -401,8 +401,8 @@ TGT	DESC	<,,,93H,>		;target descriptor
 	DESC	<>			;BIOS CS descriptor
 	DESC	<>			;stack segment descriptor
 
-	SUBTTL	INT 15H (size) interrupt handler
-	PAGE
+	; SUBTTL	INT 15H (size) interrupt handler
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	INT 15H Interrupt Handler routine				;
 ;-----------------------------------------------------------------------;
@@ -418,7 +418,7 @@ TGT	DESC	<,,,93H,>		;target descriptor
 ;			Returns  : AX - Kbyte size of EM
 ;
 ;=========================================================================
-VDISK_INT15 PROC			;an001; dms;
+VDISK_INT15:;an001; dms;
 
 	cmp	ah,EM_Size_Get		;an001; dms;function 88h
 ;	$if	e			;an001; dms;get size
@@ -434,49 +434,49 @@ $$EN1:
 
 	iret				;an001; dms;
 
-VDISK_INT15 ENDP			;an001; dms;
+; ENDP VDISK_INT15;an001; dms;
 
 
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 
-	SUBTTL	Device Strategy & interrupt entry points
-	PAGE
+	; SUBTTL	Device Strategy & interrupt entry points
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	Device "strategy" entry point					;
 ;									;
 ;	Retain the Request Header address for use by Interrupt routine	;
 ;-----------------------------------------------------------------------;
-STRATEGY PROC	FAR
+STRATEGY:
 	MOV	CS:RH_PTRO,BX		;offset
 	MOV	CS:RH_PTRS,ES		;segment
 	RET
-STRATEGY ENDP
+; ENDP STRATEGY
 ;-----------------------------------------------------------------------;
 ;	Table of command processing routine entry points		;
 ;-----------------------------------------------------------------------;
-CMD_TABLE LABEL WORD
-	DW	OFFSET INIT_P1		; 0 - Initialization
-	DW	OFFSET MEDIA_CHECK	; 1 - Media check
-	DW	OFFSET BLD_BPB		; 2 - Build BPB
-	DW	OFFSET INPUT_IOCTL	; 3 - IOCTL input
-	DW	OFFSET INPUT		; 4 - Input
-	DW	OFFSET INPUT_NOWAIT	; 5 - Non destructive input no wait
-	DW	OFFSET INPUT_STATUS	; 6 - Input status
-	DW	OFFSET INPUT_FLUSH	; 7 - Input flush
-	DW	OFFSET OUTPUT		; 8 - Output
-	DW	OFFSET OUTPUT_VERIFY	; 9 - Output with verify
-	DW	OFFSET OUTPUT_STATUS	;10 - Output status
-	DW	OFFSET OUTPUT_FLUSH	;11 - Output flush
-	DW	OFFSET OUTPUT_IOCTL	;12 - IOCTL output
-	DW	OFFSET DEVICE_OPEN	;13 - Device OPEN
-	DW	OFFSET DEVICE_CLOSE	;14 - Device CLOSE
+CMD_TABLE:
+	DW	INIT_P1		; 0 - Initialization
+	DW	MEDIA_CHECK	; 1 - Media check
+	DW	BLD_BPB		; 2 - Build BPB
+	DW	INPUT_IOCTL	; 3 - IOCTL input
+	DW	INPUT		; 4 - Input
+	DW	INPUT_NOWAIT	; 5 - Non destructive input no wait
+	DW	INPUT_STATUS	; 6 - Input status
+	DW	INPUT_FLUSH	; 7 - Input flush
+	DW	OUTPUT		; 8 - Output
+	DW	OUTPUT_VERIFY	; 9 - Output with verify
+	DW	OUTPUT_STATUS	;10 - Output status
+	DW	OUTPUT_FLUSH	;11 - Output flush
+	DW	OUTPUT_IOCTL	;12 - IOCTL output
+	DW	DEVICE_OPEN	;13 - Device OPEN
+	DW	DEVICE_CLOSE	;14 - Device CLOSE
 MAX_CMD EQU	($-CMD_TABLE)/2 	;highest valid command follows
-	DW	OFFSET REMOVABLE_MEDIA	;15 - Removable media
+	DW	REMOVABLE_MEDIA	;15 - Removable media
 
 ;-----------------------------------------------------------------------;
 ;	Device "interrupt" entry point					;
 ;-----------------------------------------------------------------------;
-IRPT	PROC	FAR			;device interrupt entry point
+IRPT:;device interrupt entry point
 	PUSH	DS			;save all registers modified
 	PUSH	ES
 	PUSH	AX
@@ -497,7 +497,7 @@ IRPT	PROC	FAR			;device interrupt entry point
 	CMP	AL,MAX_CMD		;if command code is too high
 	JA	IRPT_CMD_HIGH		;jump to error routine
 
-	MOV	DI,OFFSET IRPT_CMD_EXIT ;return addr from command processor
+	MOV	DI,IRPT_CMD_EXIT ;return addr from command processor
 	PUSH	DI			;push return address onto stack
 					;command routine issues "RET"
 
@@ -547,47 +547,47 @@ IRPT_CMD_EXIT:				;return from command routine
 	POP	ES
 	POP	DS
 	RET
-IRPT	ENDP
+; ENDP IRPT
 
-	SUBTTL	Command Processing routines
-	PAGE
+	; SUBTTL	Command Processing routines
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	Command Code 1 - Media Check					;
 ;	At entry, DS:BX point to request header, AX = 0 		;
 ;-----------------------------------------------------------------------;
-MEDIA_CHECK PROC
+MEDIA_CHECK:
 	MOV	RH.RH1_RET,1		;indicate media not changed
 	RET				;AX = zero, no error
-MEDIA_CHECK ENDP
+; ENDP MEDIA_CHECK
 ;-----------------------------------------------------------------------;
 ;	Command Code 2 - Build BPB					;
 ;	At entry, DS:BX point to request header, AX = 0 		;
 ;-----------------------------------------------------------------------;
-BLD_BPB PROC
-	MOV	RH.RH2_BPBO,OFFSET BPB	;return pointer to our BPB
+BLD_BPB:
+	MOV	RH.RH2_BPBO,BPB	;return pointer to our BPB
 	MOV	RH.RH2_BPBS,CS
 	RET				;AX = zero, no error
-BLD_BPB ENDP
+; ENDP BLD_BPB
 ;-----------------------------------------------------------------------;
 ;	Command Code 13 - Device Open					;
 ;	Command Code 14 - Device Close					;
 ;	Command Code 15 - Removable media				;
 ;	At entry, DS:BX point to request header, AX = 0 		;
 ;-----------------------------------------------------------------------;
-REMOVABLE_MEDIA PROC
+REMOVABLE_MEDIA:
 	MOV	AX,STAT_BUSY		;set status bit 9 (busy)
 					;indicating non-removable media
 DEVICE_OPEN:				;NOP for device open
 DEVICE_CLOSE:				;NOP for device close
 	RET
-REMOVABLE_MEDIA ENDP			;fall thru to return
+; ENDP REMOVABLE_MEDIA;fall thru to return
 ;-----------------------------------------------------------------------;
 ;	Command Code 4 - Input						;
 ;	Command Code 8 - Output 					;
 ;	Command Code 9 - Output with verify				;
 ;	At entry, DS:BX point to request header, AX = 0 		;
 ;-----------------------------------------------------------------------;
-INOUT	PROC
+INOUT:
 INPUT:
 OUTPUT:
 OUTPUT_VERIFY:
@@ -692,8 +692,8 @@ INOUT_E:				;do while SECT_LEFT <> zero
 	JNZ	INOUT_C 		;go back to transfer some sectors
 	RET				;AX = zero, all sectors transferred
 
-	SUBTTL	Extended Memory I/O routine
-	PAGE
+	; SUBTTL	Extended Memory I/O routine
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	Extended Memory I/O routine					;
 ;-----------------------------------------------------------------------;
@@ -704,7 +704,7 @@ INOUT_EM:				;Extended memory I/O routine
 	CLI				;disable interrupts
 	MOV	AX,CS
 	MOV	SS,AX			;set SS = CS
-	MOV	SP,OFFSET EM_STACK	;point to new stack
+	MOV	SP,EM_STACK	;point to new stack
 	STI				;enable interrupts
 	PUSH	SI			;save old SS at top of new stack
 	PUSH	DX			;save old SP on new stack
@@ -783,7 +783,7 @@ INOUT_EM_D:
 
 	PUSH	CS
 	POP	ES			;set ES = CS
-	MOV	SI,OFFSET GDT		;ES:SI point to GDT
+	MOV	SI,GDT		;ES:SI point to GDT
 
 	MOV	AH,EM_BLKMOVE		;function is block move
 	INT	EM_INT			;move an even number of words
@@ -831,11 +831,11 @@ INOUT_EMS:				;AN000;
 	mov	ds,ax			;an000; dms;
 	mov	es,ax			;an000; dms;
 
-	mov	di,offset cs:EMS_SAVE_ARRAY ;an000; point to save area
-	mov	si,offset cs:EMS_SEG_ARRAY ;an000; point to segment area
-	mov	word ptr cs:EMS_SEG_ARRAY,0001h ;an000; 1 segment to save
+	mov	di,EMS_SAVE_ARRAY ;an000; point to save area
+	mov	si,EMS_SEG_ARRAY ;an000; point to segment area
+	mov	word cs:EMS_SEG_ARRAY,0001h ;an000; 1 segment to save
 	mov	ax,cs:EMS_Frame_Addr	;an000; get segment
-	mov	word ptr cs:EMS_SEG_ARRAY+2,ax ;an000; segment
+	mov	word cs:EMS_SEG_ARRAY+2,ax ;an000; segment
 	MOV	AX,EMS_SAVE_STATE	;AN000; Function code to save active handle state
 	INT	EMS_INT 		;AN000;
 
@@ -891,7 +891,7 @@ $$EN4:
 	mov	ax,cs			;an000; dms;get cs
 	mov	ds,ax			;an000; dms;put in ds
 	MOV	AX,EMS_RESTORE_STATE	;AN000;   Function code to restore active handle state
-	MOV	SI,OFFSET CS:EMS_SAVE_ARRAY ;AN000; POINT TO SAVE ARRAY
+	MOV	SI,EMS_SAVE_ARRAY ;AN000; POINT TO SAVE ARRAY
 	INT	EMS_INT 		;AN000;
 
 	pop	ds			;an000; dms;restore
@@ -916,7 +916,7 @@ INOUT_EM_XE:				;some error with INT 15H
 	MOV	RH.RH4_CNT,0		;indicate no sectors transferred
 	MOV	AX,STAT_CRC		;indicate CRC error
 	JMP	INOUT_EM_X2		;fix stack and exit
-INOUT	ENDP
+; ENDP INOUT
 
 
 ;=========================================================================
@@ -933,7 +933,7 @@ INOUT	ENDP
 ;			CX:SI - Segment:Offset of logical sector
 ;=========================================================================
 
-ems_page_off_calc proc near		;an000; dms;calc page/offset
+ems_page_off_calc:;an000; dms;calc page/offset
 
 	xor	dx,dx			;an002; dms;clear high word
 	div	cs:sect_per_page	;an000; dms;determine page
@@ -945,7 +945,7 @@ ems_page_off_calc proc near		;an000; dms;calc page/offset
 
 	ret				;an000; dms;
 
-ems_page_off_calc endp			;an000; dms;
+; ENDP ems_page_off_calc;an000; dms;
 
 
 ;=========================================================================
@@ -959,7 +959,7 @@ ems_page_off_calc endp			;an000; dms;
 ;	Outputs:	AX:DX - Segment:Offset of DTA buffer
 ;=========================================================================
 
-ems_dta_calc proc near			;an000; dms;calc DTA buffer
+ems_dta_calc:;an000; dms;calc DTA buffer
 
 	xor	dx,dx			;an002; dms;clear high word
 	mov	ax,para_size		;an000; dms;get para size
@@ -970,7 +970,7 @@ ems_dta_calc proc near			;an000; dms;calc DTA buffer
 
 	ret				;an000; dms;
 
-ems_dta_calc endp			;an000; dms;
+; ENDP ems_dta_calc;an000; dms;
 
 
 ;=========================================================================
@@ -985,7 +985,7 @@ ems_dta_calc endp			;an000; dms;
 ;			DX - Adjusted offset value into DTA
 ;=========================================================================
 
-ems_dta_adj proc near			;an000; dms;adjust DTA
+ems_dta_adj:;an000; dms;adjust DTA
 
 	call	ems_dta_calc		;an000; dms;
 	push	ax			;an000; dms;save reg
@@ -996,7 +996,7 @@ ems_dta_adj proc near			;an000; dms;adjust DTA
 	pop	ax			;an000; dms;restore reg
 	ret				;an000; dms;
 
-ems_dta_adj endp			;an000; dms;
+; ENDP ems_dta_adj;an000; dms;
 
 ;=========================================================================
 ; EMS_SRC_TGT		: Determine the source and target segments for
@@ -1012,7 +1012,7 @@ ems_dta_adj endp			;an000; dms;
 ;			IO_TGTO - Offset of target for trf
 ;=========================================================================
 
-ems_src_tgt proc near			;an000; dms;src/tgt calc
+ems_src_tgt:;an000; dms;src/tgt calc
 
 	cmp	rh.rhc_cmd,cmd_input	;an000; dms;input/output?
 ;	$if	ne			;an000; dms;
@@ -1028,7 +1028,7 @@ $$IF7:
 	mov	cs:io_tgto,dx		;an000; dms;save tgt off
 	ret				;an000; dms;
 
-ems_src_tgt endp			;an000; dms;
+; ENDP ems_src_tgt;an000; dms;
 
 
 ;=========================================================================
@@ -1042,7 +1042,7 @@ ems_src_tgt endp			;an000; dms;
 ;			EMS_CURR_SECT - Incremented 1
 ;=========================================================================
 
-ems_trf proc	near			;an000; dms;transfer data
+ems_trf:;an000; dms;transfer data
 
 	mov	ax,cs:bpb_ssz		;an000; dms;set to sector size
 	shr	ax,1			;an000; dms;make words
@@ -1068,11 +1068,11 @@ $$IF9:
 
 	ret				;an000; dms;
 
-ems_trf endp				;an000; dms;
+; ENDP ems_trf;an000; dms;
 
 
 
-MAP_FRAME PROC	NEAR			;AN000;
+MAP_FRAME:;AN000;
 
 	PUSH	BX			;AN000; DMS;
 	mov	ax,cs:DOS_Page		;an000; get physical page
@@ -1083,10 +1083,10 @@ MAP_FRAME PROC	NEAR			;AN000;
 	POP	BX			;AN000; DMS;
 	RET				;AN000;
 
-MAP_FRAME ENDP				;AN000;
+; ENDP MAP_FRAME;AN000;
 
 
-INOUT_D_LOW_MEM PROC NEAR		;AN000; LOW MEMORY TRANSFER
+INOUT_D_LOW_MEM:;AN000; LOW MEMORY TRANSFER
 
 	SUB	CS:SECT_LEFT,AX 	;reduce number of sectors left to move
 
@@ -1121,23 +1121,23 @@ $$IF11:
 
 	RET
 
-INOUT_D_LOW_MEM ENDP
+; ENDP INOUT_D_LOW_MEM
 
 
 
-	DW	40 DUP (?)		;stack for extended memory I/O
-EM_STACK LABEL	WORD
+	times 40 dw 0;stack for extended memory I/O
+EM_STACK:
 
-	SUBTTL	Boot Record
-	PAGE
+	; SUBTTL	Boot Record
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	Adjust the assembly-time instruction counter to a paragraph	;
 ;	boundary							;
 ;-----------------------------------------------------------------------;
 
-	IF	($-START) MOD 16
+	%if ($-START) MOD 16
 	    ORG     ($-START) + 16 - (($-START) MOD 16)
-	ENDIF
+	%endif
 
 VDISK	EQU	$			;start of virtual disk buffer
 VDISKP	EQU	($-START) / PARA_SIZE	;length of program in paragraphs
@@ -1151,19 +1151,19 @@ VDISKP	EQU	($-START) / PARA_SIZE	;length of program in paragraphs
 ;	plus the length of the VDISK buffer.				;
 ;-----------------------------------------------------------------------;
 
-BOOT_RECORD LABEL BYTE			;Format of Boot Record documented in
+BOOT_RECORD:;Format of Boot Record documented in
 					;DOS Technical Reference Manual
 	DB	0,0,0			;3-byte jump to boot code (not bootable)
 	DB	'VDISKx.x'		;8-byte vendor identification
-BOOT_BPB LABEL	BYTE			;boot record copy of BIOS parameter block
-	DW	?			;number of bytes per disk sector
-	DB	?			;sectors per allocation unit
-	DW	?			;number of reserved sectors (for boot record)
-	DB	?			;number of File Allocation Table (FAT) copies
-	DW	?			;number of root directory entries
-	DW	?			;total number of sectors
-	DB	?			;media descriptor byte
-	DW	?			;number of sectors occupied by a single FAT
+BOOT_BPB:;boot record copy of BIOS parameter block
+	dw 0;number of bytes per disk sector
+	db 0;sectors per allocation unit
+	dw 0;number of reserved sectors (for boot record)
+	db 0;number of File Allocation Table (FAT) copies
+	dw 0;number of root directory entries
+	dw 0;total number of sectors
+	db 0;media descriptor byte
+	dw 0;number of sectors occupied by a single FAT
 ;end of boot record BIOS Parameter block
 
 ;The following three words mean nothing to VDISK, they are placed here
@@ -1219,8 +1219,8 @@ BOOT_BPB LABEL	BYTE			;boot record copy of BIOS parameter block
 ;	ES:DI = VDISK buffer address of first FAT sector
 ;	CS = DS = VDISK code segment
 
-INIT_P2 PROC				;second part of initialization
-	ASSUME	DS:CSEG 		;DS set in INIT_P1
+INIT_P2:;second part of initialization
+	; ASSUME	DS:CSEG;DS set in INIT_P1
 
 ;Initialize File Allocation Table(s) (FATs)
 
@@ -1253,9 +1253,9 @@ INIT_P2_FAT:				;set up one FAT, sector number in AX
 	XOR	AX,AX
 	REP	STOSB			;clear directory to nulls
 	RET				;return with AX=0
-INIT_P2 ENDP
+; ENDP INIT_P2
 
-PATCH_AREA DB	5 DUP ('PATCH AREA ')
+PATCH_AREA: times 5 db 'PATCH AREA '
 TEST_LENGTH EQU 128-($-VDISK)		;if negative, boot record has too much
 					;data area, move some fields below VDISK
 ;-----------------------------------------------------------------------;
@@ -1277,7 +1277,7 @@ MIN_MEMORY_LEFT DW 100			;minimum amount of system memory (kilobytes)
 PARA_PER_KB DW	1024/PARA_SIZE		;paragraphs in one kilobyte
 C1024	DW	1024			;bytes in one kilobyte
 DIRE_SIZE DW	DIR_ENTRY_SIZE		;bytes in one directory entry
-DIR_SECTORS DW	?			;number of sectors of directory
+DIR_SECTORS: dw 0;number of sectors of directory
 
 ERR_FLAG DB	0			;error indicators to condition messages
 ERR_BSIZE EQU	80H			;buffer size adjusted
@@ -1323,17 +1323,17 @@ SMALLEST_MIN EQU 1			;AN000; MIN field - 1 character long
 PAD_BLANK EQU	20H			;AN000; PAD character is a blank
 
 
-DRIVE_CODE DB	?			;AN000;
+DRIVE_CODE: db 0;AN000;
 	DB	":",NULL		;AN000; ASCIIZ string for drive code
 
 ; For the message: "VDISK Version 4.00 virtual disk %1",CR,LF
 
-TITLE_SUBLIST LABEL BYTE
+TITLE_SUBLIST:
 
 TT_SIZE DB	11			;AN000; SUBLIST size  (PTR to next SUBLIST)
 TT_RESV DB	0			;AN000; RESERVED
 TT_VALUEO DW	DRIVE_CODE		;AN000; Offset to ASCIIZ string
-TT_VALUES DW	?			;AN000; SEGMENT TO ASCIIZ STRING
+TT_VALUES: dw 0;AN000; SEGMENT TO ASCIIZ STRING
 TT_ID	DB	1			;AN000; n of %n
 TT_FLAG DB	Left_Align+Char_Field_ASCIIZ
 TT_MAXW DB	UNLIMITED_MAX		;AN000; Maximum field width
@@ -1342,12 +1342,12 @@ TT_PAD	DB	PAD_BLANK		;AN000; Character for Pad field
 
 ; For the message: "Buffer size: %1 KB",CR,LF
 
-BUF_SZ_SUBLIST LABEL BYTE
+BUF_SZ_SUBLIST:
 
 B_SIZE	DB	11			;AN000; SUBLIST size  (PTR to next SUBLIST)
 B_RESV	DB	0			;AN000; RESERVED
 B_VALUEO DW	BUFF_SIZE		;AN000; Offset to binary number
-B_VALUES DW	?			;AN000; SEGMENT TO BINARY NUMBER
+B_VALUES: dw 0;AN000; SEGMENT TO BINARY NUMBER
 B_ID	DB	1			;AN000; n of %n
 B_FLAG	DB	Left_Align+Unsgn_Bin_Word
 B_MAXW	DB	UNLIMITED_MAX		;AN000; Maximum field width
@@ -1356,12 +1356,12 @@ B_PAD	DB	PAD_BLANK		;AN000; Character for Pad field
 
 ; For the message: "Sector size: %1",CR,LF
 
-SEC_SZ_SUBLIST LABEL BYTE
+SEC_SZ_SUBLIST:
 
 S_SIZE	DB	11			;AN000; SUBLIST size  (PTR to next SUBLIST)
 S_RESV	DB	0			;AN000; RESERVED
 S_VALUEO DW	BPB_SSZ 		;AN000; Offset to binary number
-S_VALUES DW	?			;AN000; SEGMENT TO BINARY NUMBER
+S_VALUES: dw 0;AN000; SEGMENT TO BINARY NUMBER
 S_ID	DB	1			;AN000; n of %n
 S_FLAG	DB	Left_Align+Unsgn_Bin_Word
 S_MAXW	DB	UNLIMITED_MAX		;AN000; Maximum field width
@@ -1370,12 +1370,12 @@ S_PAD	DB	PAD_BLANK		;AN000; Character for Pad field
 
 ; For the message: "Directory entries: %1",CR,LF
 
-DIR_ENT_SUBLIST LABEL BYTE
+DIR_ENT_SUBLIST:
 
 D_SIZE	DB	11			;AN000; SUBLIST size  (PTR to next SUBLIST)
 D_RESV	DB	0			;AN000; RESERVED
 D_VALUEO DW	BPB_DIRN		;AN000; Offset to binary number
-D_VALUES DW	?			;AN000; SEGMENT TO BINARY NUMBER
+D_VALUES: dw 0;AN000; SEGMENT TO BINARY NUMBER
 D_ID	DB	1			;AN000; n of %n
 D_FLAG	DB	Left_Align+Unsgn_Bin_Word
 D_MAXW	DB	UNLIMITED_MAX		;AN000; Maximum field width
@@ -1384,12 +1384,12 @@ D_PAD	DB	PAD_BLANK		;AN000; Character for Pad field
 
 ; For the message: "Transfer size: %1",CR,LF
 
-TRANS_SZ_SUBLIST LABEL BYTE
+TRANS_SZ_SUBLIST:
 
 T_SIZE	DB	11			;AN000; SUBLIST size  (PTR to next SUBLIST)
 T_RESV	DB	0			;AN000; RESERVED
 T_VALUEO DW	MAXSEC_TRF		;AN000; Offset to binary number
-T_VALUES DW	?			;AN000; SEGMENT TO BINARY NUMBER
+T_VALUES: dw 0;AN000; SEGMENT TO BINARY NUMBER
 T_ID	DB	1			;AN000; n of %n
 T_FLAG	DB	Left_Align+Unsgn_Bin_Word
 T_MAXW	DB	UNLIMITED_MAX		;AN000; Maximum field width
@@ -1400,14 +1400,14 @@ T_PAD	DB	PAD_BLANK		;AN000; Character for Pad field
 ;	EMS Support							;
 ;-----------------------------------------------------------------------;
 
-FRAME_BUFFER DB 10 DUP(0)		;AN000;
+FRAME_BUFFER: times 10 db 0;AN000;
 VDISK_Name db	"VDISK   "		;an000; dms;
 
 four	DB	4
 
 
-	SUBTTL	Initialization, Part one
-	PAGE
+	; SUBTTL	Initialization, Part one
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	Command Code 0 - Initialization 				;
 ;	At entry, DS:BX point to request header, AX = 0 		;
@@ -1415,7 +1415,7 @@ four	DB	4
 ;Initialization is divided into two parts.
 ;This part, executed first, is later overlaid by the VDISK buffer.
 
-INIT_P1 PROC				;first part of initialization
+INIT_P1:;first part of initialization
 
 ;;;;;	PUSH	DS			;ICE
 ;;;;;	push	bx			;ICE
@@ -1436,7 +1436,7 @@ INIT_P1 PROC				;first part of initialization
 	CLI				;inhibit interrupts while changing SS:SP
 	MOV	AX,CS			;move CS to SS through AX
 	MOV	SS,AX
-	MOV	SP,OFFSET MSGEND	;end of VDISKMSG
+	MOV	SP,MSGEND	;end of VDISKMSG
 	ADD	SP,STACK_SIZE		;+ length of our stack
 
 	STI				;allow interrupts
@@ -1454,7 +1454,7 @@ INIT_P1 PROC				;first part of initialization
 	PUSH	CS			;AN000;
 	POP	ES			;AN000;
 
-	ASSUME	DS:CSEG,ES:CSEG 	;AN000;
+	; ASSUME	DS:CSEG,ES:CSEG;AN000;
 
 	CALL	SYSLOADMSG		;AN000; LOAD messages and do DOS version check
 	JNC	VDISK_CONTINUE_1	;AN000; Did we load OK?
@@ -1478,7 +1478,7 @@ VDISK_CONTINUE_1:			;AN000;
 
 	POP	ES			;AN000;RESTORE REGS
 	POP	DS			;AN000;
-	ASSUME	DS:NOTHING,ES:NOTHING	;AN000;
+	; ASSUME	DS:NOTHING,ES:NOTHING;AN000;
 
 	CALL	PC_386_CHK		;AN000;SEE IF WE HAVE A 386 PC
 					; Yes, continue
@@ -1486,7 +1486,7 @@ VDISK_CONTINUE_1:			;AN000;
 
 	PUSH	CS
 	POP	DS			;set DS = CS
-	ASSUME	DS:CSEG,ES:CSEG
+	; ASSUME	DS:CSEG,ES:CSEG
 
 	CALL	APPLY_DEFAULTS		;supply any values not specified
 	CALL	DETERMINE_START 	;compute start address of VDISK buffer
@@ -1552,15 +1552,15 @@ INIT_P1_A:
 	SUB	AX,3			;-3 (FEFFFF stored by code)
 	MOV	DX,AX
 
-	MOV	SI,OFFSET VOL_LABEL	;point to VOL label directory entry
+	MOV	SI,VOL_LABEL	;point to VOL label directory entry
 	JMP	INIT_P2 		;jump to second part of initialization
 					;this is redundant if the VDISK is in
 					;extended memory, but is executed anyway
 
 
 
-	SUBTTL	PC_386_CHK
-	PAGE
+	; SUBTTL	PC_386_CHK
+	; PAGE
 ;=========================================================================
 ; PC_386_CHK		: QUERIES THE BIOS TO DETERMINE WHAT TYPE OF
 ;			  MACHINE WE ARE ON.  WE ARE LOOKING FOR A 386.
@@ -1572,7 +1572,7 @@ INIT_P1_A:
 ;	OUTPUTS 	: PC_386 - FLAG SIGNALS IF WE ARE ON A 386 MACHINE.
 ;=========================================================================
 
-PC_386_CHK PROC NEAR			;AN000;DETERMINE MACHINE TYPE
+PC_386_CHK:;AN000;DETERMINE MACHINE TYPE
 
 	PUSH	AX			;AN000;SAVE AFFECTED REGS
 	PUSH	BX			;AN000;
@@ -1606,11 +1606,11 @@ $$IF13:
 
 	RET				;AN000;
 
-PC_386_CHK ENDP 			;AN000;
+; ENDP PC_386_CHK;AN000;
 
 
-	SUBTTL	GET_PARMS Parameter Line Scan
-	PAGE
+	; SUBTTL	GET_PARMS Parameter Line Scan
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;GET_PARMS gets the parameters from the CONFIG.SYS statement		;
 ;									;
@@ -1619,8 +1619,8 @@ PC_386_CHK ENDP 			;AN000;
 ;	AL contains character from parameter string			;
 ;	CX value from GET_NUMBER					;
 ;-----------------------------------------------------------------------;
-	ASSUME	DS:NOTHING		;DS:BX point to Request Header
-GET_PARMS PROC				;get parameters from CONFIG.SYS line
+	; ASSUME	DS:NOTHING;DS:BX point to Request Header
+GET_PARMS:;get parameters from CONFIG.SYS line
 	PUSH	DS			;save DS
 	LDS	SI,RH.RH0_BPBA		;DS:SI point to all after DEVICE=
 					;in CONFIG.SYS line
@@ -1738,7 +1738,7 @@ $$IF19:
 	RET
 
 
-GET_MAXSIZE PROC			;get maximum sector size
+GET_MAXSIZE:;get maximum sector size
 
 	CALL	GET_PCHAR		;get next character
 	CALL	CHECK_NUM		;is it a number ?
@@ -1749,11 +1749,11 @@ GET_NEXTNUM:				;get next number
 	CALL	GET_NUMBER		;extract digits and convert to binary
 	MOV	CS:MAXSEC_TRF,CX	;save maximum sector size to transfer
 	RET
-GET_MAXSIZE ENDP
+; ENDP GET_MAXSIZE
 
 
 
-GET_PCHAR PROC				;internal proc to get next character into AL
+GET_PCHAR:;internal proc to get next character into AL
 	CMP	AL,CR			;carriage return already encountered?
 	JE	GET_PCHAR_X		;don't read past end of line
 	CMP	AL,LF			;line feed already encountered?
@@ -1764,10 +1764,10 @@ GET_PCHAR PROC				;internal proc to get next character into AL
 	CMP	AL,LF			;no, is it a line feed?
 GET_PCHAR_X:				;attempted read past end of line
 	RET
-GET_PCHAR ENDP				;returns char in AL
+; ENDP GET_PCHAR;returns char in AL
 
 
-CHECK_NUM PROC				;check AL for ASCII digit
+CHECK_NUM:;check AL for ASCII digit
 	CMP	AL,'0'			;< '0'?
 	JB	CHECK_NUM_X		;exit if it is
 
@@ -1777,10 +1777,10 @@ CHECK_NUM PROC				;check AL for ASCII digit
 	CMP	AL,AL			;set Z flag to indicate numeric
 CHECK_NUM_X:
 	RET				;Z set if numeric, NZ if not numeric
-CHECK_NUM ENDP
+; ENDP CHECK_NUM
 
 
-SKIP_TO_DIGIT PROC			;skip to first numeric character
+SKIP_TO_DIGIT:;skip to first numeric character
 	CALL	CHECK_NUM		;is current char a digit?
 	JZ	SKIP_TO_DIGIT_X 	;if so, skip is complete
 
@@ -1791,12 +1791,12 @@ SKIP_TO_DIGIT PROC			;skip to first numeric character
 SKIP_TO_DIGIT_X:
 	CMP	AL,0			;digit found, force NZ
 	RET
-SKIP_TO_DIGIT ENDP
+; ENDP SKIP_TO_DIGIT
 
 C10	DW	10
-GN_ERR	DB	?			;zero if no overflow in accumulation
+GN_ERR: db 0;zero if no overflow in accumulation
 
-GET_NUMBER PROC 			;convert string of digits to binary value
+GET_NUMBER:;convert string of digits to binary value
 	XOR	CX,CX			;accumulate number in CX
 	MOV	CS:GN_ERR,CL		;no overflow yet
 GET_NUMBER_A:				;accumulate next digit
@@ -1819,18 +1819,18 @@ GET_NUMBER_A:				;accumulate next digit
 	XOR	CX,CX			;return zero (always invalid) if overflow
 GET_NUMBER_B:
 	RET				;number in CX, next char in AL
-GET_NUMBER ENDP
+; ENDP GET_NUMBER
 
-GET_PARMS ENDP
+; ENDP GET_PARMS
 
-	SUBTTL	APPLY_DEFAULTS
-	PAGE
+	; SUBTTL	APPLY_DEFAULTS
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	APPLY_DEFAULTS supplies any parameter values that the user	;
 ;	failed to specify						;
 ;-----------------------------------------------------------------------;
-	ASSUME	DS:CSEG
-APPLY_DEFAULTS PROC
+	; ASSUME	DS:CSEG
+APPLY_DEFAULTS:
 	XOR	AX,AX
 	CMP	BUFF_SIZE,AX		;is buffer size zero?
 	JNE	APPLY_DEFAULTS_A	;no, user specified something
@@ -1863,16 +1863,16 @@ APPLY_DEFAULTS_C:			;
 	OR	ERR_FLAG,ERR_ESIZE	;indicate transfer size adjusted
 APPLY_DEFAULTS_D:
 	RET
-APPLY_DEFAULTS ENDP
+; ENDP APPLY_DEFAULTS
 
-	SUBTTL	DETERMINE_START address of VDISK buffer
-	PAGE
+	; SUBTTL	DETERMINE_START address of VDISK buffer
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	DETERMINE_START figures out the starting address of the VDISK	;
 ;	buffer								;
 ;-----------------------------------------------------------------------;
-	ASSUME	DS:CSEG
-DETERMINE_START PROC
+	; ASSUME	DS:CSEG
+DETERMINE_START:
 
 ;If extended memory is NOT being used, the VDISK buffer immediately
 ;follows the resident code.
@@ -1924,21 +1924,21 @@ DETERMINE_START PROC
 DETERMINE_START_X:
 
 	RET
-DETERMINE_START ENDP
+; ENDP DETERMINE_START
 
-	SUBTTL	VALIDATE parameters
-	PAGE
+	; SUBTTL	VALIDATE parameters
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	VALIDATE adjusts parameters as necessary			;
 ;-----------------------------------------------------------------------;
-VAL_SSZ_TBL LABEL WORD			;table of valid sector sizes
+VAL_SSZ_TBL:;table of valid sector sizes
 VAL_SSZ_S DW	128			;smallest valid sector size
 	DW	256
 VAL_SSZ_L DW	512			;largest valid sector size
 VAL_SSZ_N EQU	($-VAL_SSZ_TBL)/2	;number of table entries
 
-	ASSUME	DS:CSEG
-VALIDATE PROC				;validate parameters
+	; ASSUME	DS:CSEG
+VALIDATE:;validate parameters
 ;;ice	PUSH	DS			;ICE
 ;;ice	push	bx			;ICE
 ;;ice	push	ax			;ICE
@@ -2024,12 +2024,12 @@ VALIDATE_C:				;not enough space for any VDISK
 VALIDATE_X:
 	RET
 
-	SUBTTL	VAL_BSIZE Validate buffer size
-	PAGE
+	; SUBTTL	VAL_BSIZE Validate buffer size
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	VAL_BSIZE adjusts the buffer size as necessary			;
 ;-----------------------------------------------------------------------;
-VAL_BSIZE PROC
+VAL_BSIZE:
 	CALL	GET_MSIZE		;determine memory available to VDISK
 					;returns available KB in AX
 	OR	AX,AX			;is any memory available at all?
@@ -2060,7 +2060,7 @@ VAL_BSIZE_C:
 	RET
 
 
-GET_MSIZE PROC				;determine memory available to VDISK
+GET_MSIZE:;determine memory available to VDISK
 					;returns KB available in AX
 	CMP	EM_SW,0 		;EXTENDED MEMORY?
 	JE	GET_MSIZE_2		;use non-extended memory routine
@@ -2110,13 +2110,13 @@ GET_MSIZE_Z:
 	XOR	AX,AX			;indicate no memory available
 GET_MSIZE_X:				;exit from memory size determination
 	RET
-GET_MSIZE ENDP
+; ENDP GET_MSIZE
 
-VAL_BSIZE ENDP
+; ENDP VAL_BSIZE
 
 
 
-EMS_CHECK PROC	NEAR			;AN000;
+EMS_CHECK:;AN000;
 
 	CALL	EMS_CHECK1		;AN000; SEE IF EMS INSTALLED
 	JNC	EMS_INSTALLED		;AN000; No,
@@ -2169,7 +2169,7 @@ EMS_Check_Exit:
 
 	RET				;AN000;    Return
 
-EMS_CHECK ENDP				;AN000;
+; ENDP EMS_CHECK;AN000;
 
 
 
@@ -2184,12 +2184,12 @@ EMS_CHECK ENDP				;AN000;
 ;			  NC	- EMS AVAILABLE
 ;=========================================================================
 
-EMS_CHECK1 PROC NEAR			;AN000;EMS INSTALL CHECK
+EMS_CHECK1:;AN000;EMS INSTALL CHECK
 
 	push	ds			;an000;save ds - we stomp it
 	mov	ax,00h			;an000;set ax to 0
 	mov	ds,ax			;an000;set ds to 0
-	cmp	ds:word ptr[067h*4+0],0 ;an000;see if int 67h is there
+	cmp	ds:word[067h*4+0],0 ;an000;see if int 67h is there
 	pop	ds			;an000;restore ds
 ;	$IF	NE			;AN000;EMS VECTOR CONTAINS DATA
 	JE $$IF27
@@ -2227,10 +2227,10 @@ $$EN27:
 
 	RET				;AN000;RETURN TO CALLER
 
-EMS_CHECK1 ENDP 			;AN000;
+; ENDP EMS_CHECK1;AN000;
 
 
-EMS_GET_PAGES PROC NEAR 		;AN000;
+EMS_GET_PAGES:;AN000;
 
 	MOV	AH,EMS_GET_NUM_PAGES	;AN000; Query EMS for page count
 	INT	EMS_INT 		;AN000;
@@ -2243,14 +2243,14 @@ EMS_GET_ERROR:				;AN000;
 	STC				;AN000;
 	RET				;AN000;
 
-EMS_GET_PAGES ENDP
+; ENDP EMS_GET_PAGES
 
-	SUBTTL	VAL_SSZ Validate Sector Size
-	PAGE
+	; SUBTTL	VAL_SSZ Validate Sector Size
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	VAL_SSZ validates sector size, adjusting if necessary		;
 ;-----------------------------------------------------------------------;
-VAL_SSZ PROC				;validate sector size
+VAL_SSZ:;validate sector size
 	CMP	CS:EM_SW,0		;EXTENDED MEMORY?
 	JE	VAL_SSZ_ST		;no,go check sector size
 	MOV	BX,MAXSEC_TRF		;move number of sectors to transfer
@@ -2270,7 +2270,7 @@ VAL_SSZ_ST:				;validate sector size
 					;to transfer for extended memory case
 	MOV	BX,BPB_SSZ		;requested sector size
 	MOV	CX,VAL_SSZ_N		;number of table entries
-	MOV	SI,OFFSET VAL_SSZ_TBL	;DS:SI point to table start
+	MOV	SI,VAL_SSZ_TBL	;DS:SI point to table start
 VAL_SSZ_A:
 	LODSW				;get table entry, step table pointer
 	CMP	AX,BX			;is value in table?
@@ -2293,10 +2293,10 @@ VAL_SSZ_X:
 	MOV	MAX_CNT,AX		;max sectors in one move
 SIZE_DONE:
 	RET
-VAL_SSZ ENDP
+; ENDP VAL_SSZ
 
-	SUBTTL	VAL_DIRN Validate number of directory entries
-	PAGE
+	; SUBTTL	VAL_DIRN Validate number of directory entries
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	VAL_DIRN validates and adjusts the number of directory entries. ;
 ;									;
@@ -2306,7 +2306,7 @@ VAL_SSZ ENDP
 ;	The number of directory entries is rounded upward to fill	;
 ;	a sector							;
 ;-----------------------------------------------------------------------;
-VAL_DIRN PROC
+VAL_DIRN:
 	MOV	AX,BPB_DIRN		;requested directory entries
 	CMP	AX,MIN_DIRN		;if less than minimum
 	JB	VAL_DIRN_A		;use default instead
@@ -2340,10 +2340,10 @@ VAL_DIRN_D:
 	DIV	DIRE_SIZE		;dir bytes / entry size = entries
 	MOV	BPB_DIRN,AX		;store adjusted directory entries
 	RET
-VAL_DIRN ENDP
+; ENDP VAL_DIRN
 
-	SUBTTL	VAL_FAT Validate File Allocation Table (FAT)
-	PAGE
+	; SUBTTL	VAL_FAT Validate File Allocation Table (FAT)
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;VAL_FAT computes:							;
 ;BPB_FATSZ, the number of sectors required per FAT copy 		;
@@ -2360,7 +2360,7 @@ VAL_DIRN ENDP
 ;This computation is slightly conservative in that the FAT entries	;
 ;necessary to describe the FAT sectors are included in the computation. ;
 ;-----------------------------------------------------------------------;
-VAL_FAT PROC
+VAL_FAT:
 	MOV	AX,BPB_SECN		;total number of sectors
 	SUB	AX,BPB_RES		;don't count boot sector(s)
 	SUB	AX,DIR_SECTORS		;don't count directory sectors
@@ -2409,31 +2409,31 @@ VAL_FAT_C:				;FAT size =  1.5 * number of clusters
 	MOV	BPB_FATSZ,AX		;number of sectors for 1 FAT copy
 VAL_FAT_X:
 	RET
-VAL_FAT ENDP
+; ENDP VAL_FAT
 
 
-VALIDATE ENDP
+; ENDP VALIDATE
 
-	SUBTTL	COPY_BPB Copy BPB to Boot Record
-	PAGE
+	; SUBTTL	COPY_BPB Copy BPB to Boot Record
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	COPY_BPB copies the BIOS Parameter Block (BPB)			;
 ;	to the VDISK Boot Record					;
 ;-----------------------------------------------------------------------;
-	ASSUME	DS:CSEG
-COPY_BPB PROC				;Copy BBP to Boot Record
+	; ASSUME	DS:CSEG
+COPY_BPB:;Copy BBP to Boot Record
 	PUSH	DS
 	POP	ES			;set ES = DS
 
 	MOV	CX,BPB_LEN		;length of BPB
-	MOV	SI,OFFSET BPB		;source offset
-	MOV	DI,OFFSET BOOT_BPB	;target offset
+	MOV	SI,BPB		;source offset
+	MOV	DI,BOOT_BPB	;target offset
 	REP	MOVSB			;copy BPB to boot record
 	RET
-COPY_BPB ENDP
+; ENDP COPY_BPB
 
-	SUBTTL	VERIFY_EXTENDER
-	PAGE
+	; SUBTTL	VERIFY_EXTENDER
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	VERIFY_EXTENDER makes sure that if an Expansion Unit is 	;
 ;	installed, the memory size switches on the Extender Card	;
@@ -2441,12 +2441,12 @@ COPY_BPB ENDP
 ;-----------------------------------------------------------------------;
 
 
-	ASSUME	DS:CSEG
+	; ASSUME	DS:CSEG
 EXT_P210 EQU	0210H			;write to latch expansion bus data
 					;read to verify expansion bus data
 EXT_P213 EQU	0213H			;Expansion Unit status
 
-VERIFY_EXTENDER PROC
+VERIFY_EXTENDER:
 
 	NOP
 
@@ -2502,10 +2502,10 @@ VERIFY_EXTENDER PROC
 
 VERIFY_EXTENDER_X:
 	RET
-VERIFY_EXTENDER ENDP
+; ENDP VERIFY_EXTENDER
 
-	SUBTTL	UPDATE_AVAIL
-	PAGE
+	; SUBTTL	UPDATE_AVAIL
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	UPDATE_AVAIL updates the address of the first byte in extended	;
 ;	memory not used by any VDISK buffer				;
@@ -2515,7 +2515,7 @@ VERIFY_EXTENDER ENDP
 ;really mean nothing to us.						;
 ;-----------------------------------------------------------------------;
 
-UPDATE_AVAIL PROC
+UPDATE_AVAIL:
 	MOV	AX,BUFF_SIZE		;number of KB of VDISK buffer
 
 	CMP	EM_SW2,EMS_INSTALLED_FLAG ;AN000; Is EMS installed?
@@ -2548,7 +2548,7 @@ USE_INT15_LOGIC:			;AN000;
 	call	Modify_CMOS_EM		;an001; dms;adjust EM for new size
 
 	RET
-UPDATE_AVAIL ENDP
+; ENDP UPDATE_AVAIL
 
 
 ;=========================================================================
@@ -2563,18 +2563,18 @@ UPDATE_AVAIL ENDP
 ;						 port 71h.
 ;=========================================================================
 
-Modify_CMOS_EM Proc Near		;an001; dms;
+Modify_CMOS_EM:;an001; dms;
 
 	push	ax			;an001; dms;save ax
 	call	Steal_Int15		;an001; dms;get INT 15h vector
 
-	mov	ax,word ptr cs:EM_New_Size ;an001; dms;transfer new size
-	mov	word ptr cs:EM_KSize,ax ;an001; dms;set EM size to new size
+	mov	ax,word cs:EM_New_Size ;an001; dms;transfer new size
+	mov	word cs:EM_KSize,ax ;an001; dms;set EM size to new size
 	pop	ax			;an001; dms;restore ax
 
 	ret				;an001; dms;
 
-Modify_CMOS_EM endp			;an001; dms;
+; ENDP Modify_CMOS_EM;an001; dms;
 
 ;=========================================================================
 ; EMS_Build_Handle_Name 	- This routine will build an EMS handle's
@@ -2586,7 +2586,7 @@ Modify_CMOS_EM endp			;an001; dms;
 ;	Outputs : Handle name
 ;=========================================================================
 
-EMS_Build_Handle_Name proc near 	;an000; dms;
+EMS_Build_Handle_Name:;an000; dms;
 
 	push	si			;an000; dms;save si
 	push	cx			;an000; dms;save cx
@@ -2599,9 +2599,9 @@ EMS_Build_Handle_Name proc near 	;an000; dms;
 	pop	bx			;an000; dms;restore bx
 	pop	ds			;an000; dms;restore ds
 
-	mov	si,offset    VDISK_Name ;an000; dms;point to "VDISK " literal
-	mov	byte ptr [si+6],ch	;an000; dms;put drive letter in string
-	mov	byte ptr [si+7],":"	;an000; dms;colon terminate it
+	mov	si,VDISK_Name ;an000; dms;point to "VDISK " literal
+	mov	byte [si+6],ch	;an000; dms;put drive letter in string
+	mov	byte [si+7],":"	;an000; dms;colon terminate it
 
 	mov	ax,EMS_Set_Handle_Name	;an000; dms;set the handle's name
 	int	EMS_INT 		;an000; dms;
@@ -2611,10 +2611,10 @@ EMS_Build_Handle_Name proc near 	;an000; dms;
 
 	ret				;an000; dms;
 
-EMS_Build_Handle_Name endp		;an000; dms;
+; ENDP EMS_Build_Handle_Name;an000; dms;
 
-	SUBTTL	FORMAT_VDISK
-	PAGE
+	; SUBTTL	FORMAT_VDISK
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	This Request Header is used by MOVE_VDISK to move the		;
 ;	first few sectors of the virtual disk (boot, FAT, and		;
@@ -2625,11 +2625,11 @@ MOVE_RH DB	MOVE_RH_L		;length of request header
 	DB	0			;sub unit
 	DB	8			;output operation
 	DW	0			;status
-	DQ	?			;reserved for DOS
-	DB	?			;media descriptor byte
-MOVE_RHO DW	?			;offset of data transfer address
-MOVE_RHS DW	?			;segment of data transfer address
-MOVE_RHCNT DW	?			;count of sectors to transfer
+	dq 0;reserved for DOS
+	db 0;media descriptor byte
+MOVE_RHO: dw 0;offset of data transfer address
+MOVE_RHS: dw 0;segment of data transfer address
+MOVE_RHCNT: dw 0;count of sectors to transfer
 	DW	0			;starting sector number
 MOVE_RH_L EQU	$-MOVE_RH		;length of request header
 
@@ -2638,11 +2638,11 @@ MOVE_RH_L EQU	$-MOVE_RH		;length of request header
 ;	extended memory VDISK in storage immediately following		;
 ;	VDISK code, in preparation for moving to extended memory.	;
 ;-----------------------------------------------------------------------;
-FORMAT_VDISK PROC			;format boot record, FATs and directory
+FORMAT_VDISK:;format boot record, FATs and directory
 
 	MOV	AX,CS			;compute 20-bit address
 	MUL	WPARA_SIZE		;16 * segment
-	ADD	AX,OFFSET MSGEND	;+ offset
+	ADD	AX,MSGEND	;+ offset
 	ADC	DL,0			;pick up carry
 	ADD	AX,STACK_SIZE		;plus stack size
 	ADC	DL,0			;pick up carry
@@ -2656,7 +2656,7 @@ FORMAT_VDISK PROC			;format boot record, FATs and directory
 
 ;copy the boot record
 
-	MOV	SI,OFFSET BOOT_RECORD	;point to source field
+	MOV	SI,BOOT_RECORD	;point to source field
 	MOV	AX,BPB_RES		;number of reserved sectors
 	MUL	BPB_SSZ 		;* sector size = length of boot records
 	MOV	CX,AX			;length to CX for move
@@ -2683,7 +2683,7 @@ FORMAT_VDISK_A: 			;set up one FAT
 
 ;Format the directory
 
-	MOV	SI,OFFSET VOL_LABEL	;point to volume label
+	MOV	SI,VOL_LABEL	;point to volume label
 	MOV	CX,VOL_LABEL_LEN	;length of volume directory entry
 	REP	MOVSB			;move volume id to directory
 	MOV	AX,DIR_ENTRY_SIZE	;length of 1 directory entry
@@ -2693,41 +2693,41 @@ FORMAT_VDISK_A: 			;set up one FAT
 	XOR	AX,AX
 	REP	STOSB			;clear directory to nulls
 	RET
-FORMAT_VDISK ENDP
+; ENDP FORMAT_VDISK
 
-	SUBTTL	STEAL_INT15
-	PAGE
+	; SUBTTL	STEAL_INT15
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	STEAL_INT15 changes the INT 15H vector to point to this VDISK	;
 ;	so that subsequent calls to INT15H may determine the actual	;
 ;	size of EM after VDISK's allocation of it.                      ;
 ;-----------------------------------------------------------------------;
-STEAL_INT15 PROC
+STEAL_INT15:
 	PUSH	DS
 	XOR	AX,AX
 	MOV	DS,AX			;set DS = 0
-	ASSUME	DS:INT_VEC
+	; ASSUME	DS:INT_VEC
 	CLI				;disable interrupts
 	LES	DI,DS:EM_VEC		;get original vector's content
 	MOV	CS:INTV15O,DI		;save original vector
 	MOV	CS:INTV15S,ES
-	MOV	DS:EM_VECO,OFFSET VDISK_INT15 ;offset of new INT routine
+	MOV	DS:EM_VECO,VDISK_INT15 ;offset of new INT routine
 	MOV	DS:EM_VECS,CS		;segment of new INT routine
 	STI				;enable interrupts again
 	POP	DS			;restore DS
 	RET
-STEAL_INT15 ENDP
+; ENDP STEAL_INT15
 
 
 
-	SUBTTL	MOVE_VDISK
-	PAGE
+	; SUBTTL	MOVE_VDISK
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	MOVE_VDISK moves the formatted boot sector, FAT, and directory	;
 ;	into extended memory.						;
 ;-----------------------------------------------------------------------;
 
-MOVE_VDISK PROC
+MOVE_VDISK:
 	MOV	AL,cs:BPB_FATN		;number of FAT copies
 	CBW				;clear AH
 	MUL	cs:BPB_FATSZ		;number of FAT sectors
@@ -2735,20 +2735,20 @@ MOVE_VDISK PROC
 	ADD	AX,cs:DIR_SECTORS	;+ directory sectors
 	MOV	cs:MOVE_RHCNT,AX	;store as I/O length
 
-	MOV	BX,OFFSET MOVE_RH	;DS:BX point to request header
+	MOV	BX,MOVE_RH	;DS:BX point to request header
 	PUSH	DS			;make sure DS gets preserved
 	CALL	INOUT			;move to extended memory
 	POP	DS
 	RET
-MOVE_VDISK ENDP
+; ENDP MOVE_VDISK
 
-	SUBTTL	FILL_RH Fill in Request Header
-	PAGE
+	; SUBTTL	FILL_RH Fill in Request Header
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	FILL_RH fills in the Request Header returned to DOS		;
 ;-----------------------------------------------------------------------;
-	ASSUME	DS:CSEG
-FILL_RH PROC				;fill in INIT Request Header fields
+	; ASSUME	DS:CSEG
+FILL_RH:;fill in INIT Request Header fields
 	MOV	CX,START_BUFFER_PARA	;segment end of VDISK resident code
 	MOV	AX,PARAS_PER_SECTOR	;paragraphs per sector
 	MUL	BPB_SECN		;* number of sectors
@@ -2778,21 +2778,21 @@ FILL_RH_B:
 	MOV	RH.RH0_NUN,AL		;store number of units (0 or 1)
 	MOV	RH.RH0_ENDO,0		;end offset is always zero
 	MOV	RH.RH0_ENDS,DX		;end of VDISK or end of buffer
-	MOV	RH.RH0_BPBO,OFFSET BPB_PTR
+	MOV	RH.RH0_BPBO,BPB_PTR
 	MOV	RH.RH0_BPBS,CS		;BPB array address
 	POP	DS			;restore DS
 	RET
-FILL_RH ENDP
+; ENDP FILL_RH
 
-	SUBTTL	WRITE_MESSAGES and associated routines
-	PAGE
+	; SUBTTL	WRITE_MESSAGES and associated routines
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	WRITE_MESSAGE writes a series of messages to the standard	;
 ;	output device showing the VDISK parameter values actually used. ;
 ;-----------------------------------------------------------------------;
 
-	ASSUME	DS:CSEG
-WRITE_MESSAGES PROC			;display all messages
+	; ASSUME	DS:CSEG
+WRITE_MESSAGES:;display all messages
 
 
 	test	cs:err_flag2,err_baddos ;AN000;
@@ -2943,21 +2943,21 @@ SYSDISP_ERROR:
 	PUSH	CX			;AN000;TRANSFER CS
 	POP	ES			;AN000;  TO ES
 
-	ASSUME	DS:CSEG,ES:CSEG 	;AN000;
+	; ASSUME	DS:CSEG,ES:CSEG;AN000;
 	CALL	GET_PARM_SEGMENT	;AN000;OBTAIN PARM SEGMENT
 
 	CALL	SYSDISPMSG		;AN000;
 
 	POP	ES			;AN000;RESTORE REG
 	POP	DS			;AN000;RESTORE REG
-	ASSUME	DS:NOTHING,ES:NOTHING	;AN000;
+	; ASSUME	DS:NOTHING,ES:NOTHING;AN000;
 
 	RET				;AN000;
 
-WRITE_MESSAGES ENDP
+; ENDP WRITE_MESSAGES
 
 
-DISPLAY_MESSAGE PROC NEAR
+DISPLAY_MESSAGE:
 					;AN000; Set default values
 	MOV	BX,NO_HANDLE		;AN000; Output handle is NO_HANDLE
 	MOV	DH,UTILITY_MSG_CLASS	;AN000; Utility class message
@@ -2970,20 +2970,20 @@ DISPLAY_MESSAGE PROC NEAR
 	PUSH	CS			;AN000;TRANSFER CS
 	POP	ES			;AN000;  TO ES
 
-	ASSUME	DS:CSEG,ES:CSEG 	;AN000;
+	; ASSUME	DS:CSEG,ES:CSEG;AN000;
 	CALL	GET_PARM_SEGMENT	;AN000;OBTAIN PARM SEGMENT
 
 	CALL	SYSDISPMSG		;AN000;
 
 	POP	ES			;AN000;RESTORE REG
 	POP	DS			;AN000;RESTORE REG
-	ASSUME	DS:NOTHING,ES:NOTHING	;AN000;
+	; ASSUME	DS:NOTHING,ES:NOTHING;AN000;
 
 	RET				;AN000;
 
-DISPLAY_MESSAGE ENDP
+; ENDP DISPLAY_MESSAGE
 
-GET_PARM_SEGMENT PROC			;AN000;OBTAIN PARM SEGMENT
+GET_PARM_SEGMENT:;AN000;OBTAIN PARM SEGMENT
 
 	PUSH	CX			;AN000;SAVE CX - WE STOMP IT
 	PUSH	SI			;AN000;SAVE SI - WE STOMP IT
@@ -3005,20 +3005,20 @@ GET_PARM_SEGMENT PROC			;AN000;OBTAIN PARM SEGMENT
 
 	RET				;AN000;RETURN TO CALLER
 
-GET_PARM_SEGMENT ENDP			;AN000;
+; ENDP GET_PARM_SEGMENT;AN000;
 
 
 
 
-INIT_P1 ENDP				;end of INIT part one
-.xlist
+; ENDP INIT_P1;end of INIT part one
+; .xlist
 MSG_SERVICES <MSGDATA>			;AN000:
 MSG_SERVICES <LOADmsg>			;AN000;
 MSG_SERVICES <DISPLAYmsg,CHARmsg,NUMmsg> ;AN000;
 MSG_SERVICES <VDISK.CL1,VDISK.CL2,VDISK.CLA> ;AN000;
-.list
-MSGEND	LABEL	BYTE			;AN000;
+; .list
+MSGEND:;AN000;
 
-CSEG	ENDS
-	END
+; END SECTION .CSEG
+	; END
 

@@ -1,11 +1,11 @@
 
 ;
-page 80,132
+; page 80,132
 ;0
-title CP/DOS KbdCharIn mapper
+; title CP/DOS KbdCharIn mapper
 ;
-kbdxxx	segment byte public 'kbd'
-	assume	cs:kbdxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .kbdxxx
+	; assume	cs:kbdxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -27,27 +27,27 @@ kbdxxx	segment byte public 'kbd'
 ; *
 ; *************************************************************************
 
-	public kbdcharin
-	.sall
-	.xlist
-	include kbd.inc
-	.list
-	extrn	savedkbdinput:word
+	global kbdcharin
+	; .sall
+	; .xlist
+	%include "kbd.inc"
+	; .list
+	extern savedkbdinput
 
 
 
 error_kbd_parameter equ 0002h
 
-str	struc
-old_bp	dw	?
-return	dd	?
-handle	dw	?	 ; keyboard handle
-iowait	dw	?	 ; indicate if wait for io
-data	dd	?	 ; data buffer pointer
-str	ends
+struc str
+old_bp: dw 0
+return: dd 0
+handle: dw 0; keyboard handle
+iowait: dw 0; indicate if wait for io
+data: dd 0; data buffer pointer
+endstruc
 
 
-kbdcharin proc	 far
+kbdcharin:
 
 	Enter	KbdCharIn		; save registers
 	lds	si,[bp].data		; set up return data area
@@ -94,19 +94,19 @@ shift:	mov	ah,02h			; Start of shift check block
 	mov	ah,2ch			; start time stamping
 	int	21h				; |  get current time of day
 
-	mov	byte ptr ds:[si].Time+0,ch	; |  put hours into structure
-	mov	byte ptr ds:[si].Time+1,cl	; |  put minutes into structure
-	mov	byte ptr ds:[si].Time+2,dh	; |  put seconds into structure
-	mov	byte ptr cs:[si].Time+3,dl	; |  put hundreds into structure
+	mov	byte ds:[si].Time+0,ch	; |  put hours into structure
+	mov	byte ds:[si].Time+1,cl	; |  put minutes into structure
+	mov	byte ds:[si].Time+2,dh	; |  put seconds into structure
+	mov	byte cs:[si].Time+3,dl	; |  put hundreds into structure
 
 
 	sub	ax,ax			; set good return code
 	Mexit				; pop registers
 
-	ret	size str - 6		; return
+	ret	str_size - 6		; return
 
-kbdcharin endp
+; ENDP kbdcharin
 
-kbdxxx	ends
+; END SECTION .kbdxxx
 
-	end
+	; end

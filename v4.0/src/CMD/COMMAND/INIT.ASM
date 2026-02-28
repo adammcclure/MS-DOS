@@ -1,19 +1,19 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)init.asm	4.13 85/11/03
 ;	SCCSID = @(#)init.asm	4.13 85/11/03
-TITLE	COMMAND Initialization
+; TITLE	COMMAND Initialization
 
-	INCLUDE comsw.asm
+	%include "comsw.asm"
 
-.xlist
-.xcref
-	INCLUDE DOSSYM.INC
-	include doscntry.inc		;AC000;
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-	include resmsg.equ		;AN000;
-.list
-.cref
+; .xlist
+; .xcref
+	%include "DOSSYM.INC"
+	%include "doscntry.inc";AC000;
+	%include "comseg.asm"
+	%include "comequ.asm"
+	%include "resmsg.equ";AN000;
+; .list
+; .cref
 
 
 ENVIRONSIZ		EQU	0A0H	;Must agree with values in EVIRONMENT segment
@@ -23,185 +23,185 @@ ENVBIG			EQU	32768
 ENVSML			EQU	160
 KOREA_COUNTRY_CODE	EQU	82
 
-CODERES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	CONTC:NEAR
-	EXTRN	DskErr:NEAR
-	EXTRN	endinit:near
-	EXTRN	INT_2E:NEAR
-	EXTRN	LODCOM:NEAR
-	EXTRN	RSTACK:WORD
-CODERES ENDS
+SECTION .CODERES;AC000;
+	extern CONTC
+	extern DskErr
+	extern endinit
+	extern INT_2E
+	extern LODCOM
+	extern RSTACK
+; END SECTION .CODERES
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	abort_char:byte 	;AN000;
-	EXTRN	append_state:word	;AN042;
-	EXTRN	BADFAT_OP_SEG:WORD	;AN000;
-	EXTRN	BATCH:WORD
-	EXTRN	COM_FCB1:DWORD
-	EXTRN	COM_FCB2:DWORD
-	EXTRN	COM_PTR:DWORD
-	EXTRN	com_xlat_addr:word
-	EXTRN	COMDRV:BYTE
-	EXTRN	COMPRMT1_SEG:WORD	;AN000;
-	EXTRN	COMPRMT1_SEG2:WORD	;AN000;
-	EXTRN	COMSPEC:BYTE
-	EXTRN	comspec_print:word
-	EXTRN	comspec_end:word
-	EXTRN	cpdrv:byte
-	EXTRN	crit_msg_off:word	;AN000;
-	EXTRN	crit_msg_seg:word	;AN000;
-	EXTRN	critical_msg_start:byte ;AN000;
-	EXTRN	DATARESEND:BYTE 	;AC000;
-	EXTRN	dbcs_vector_addr:word	;AN000;
-	EXTRN	DEVE_OP_SEG:WORD	;AN000;
-	EXTRN	DEVE_OP_SEG2:WORD	;AN000;
-	EXTRN	disp_class:byte 	;AN000;
-	EXTRN	DRVNUM_OP_SEG:WORD	;AN000;
-	EXTRN	DRVNUM_OP_SEG2:WORD	;AN000;
-	EXTRN	EchoFlag:BYTE
-	EXTRN	ENVIRSEG:WORD
-	EXTRN	ERR15_OP_SEG:WORD	;AN000;
-	EXTRN	ERR15_OP_SEG2:WORD	;AN000;
-	EXTRN	ERR15_OP_SEG3:WORD	;AN000;
-	EXTRN	extended_msg_start:byte ;AN000;
-	EXTRN	extmsgend:byte		;AN000;
-	EXTRN	fFail:BYTE
-	EXTRN	fucase_addr:word	;AN000;
-	EXTRN	InitFlag:BYTE
-	EXTRN	IO_SAVE:WORD
-	EXTRN	LTPA:WORD		;AC000;
-	EXTRN	MEMSIZ:WORD
-	EXTRN	MYSEG:WORD		;AC000;
-	EXTRN	MYSEG1:WORD
-	EXTRN	MYSEG2:WORD
-	EXTRN	nest:word
-	EXTRN	number_subst:byte	;AN000;
-	EXTRN	OldTerm:DWORD
-	EXTRN	PARENT:WORD
+SECTION .DATARES;AC000;
+	extern abort_char;AN000;
+	extern append_state;AN042;
+	extern BADFAT_OP_SEG;AN000;
+	extern BATCH
+	extern COM_FCB1
+	extern COM_FCB2
+	extern COM_PTR
+	extern com_xlat_addr
+	extern COMDRV
+	extern COMPRMT1_SEG;AN000;
+	extern COMPRMT1_SEG2;AN000;
+	extern COMSPEC
+	extern comspec_print
+	extern comspec_end
+	extern cpdrv
+	extern crit_msg_off;AN000;
+	extern crit_msg_seg;AN000;
+	extern critical_msg_start;AN000;
+	extern DATARESEND;AC000;
+	extern dbcs_vector_addr;AN000;
+	extern DEVE_OP_SEG;AN000;
+	extern DEVE_OP_SEG2;AN000;
+	extern disp_class;AN000;
+	extern DRVNUM_OP_SEG;AN000;
+	extern DRVNUM_OP_SEG2;AN000;
+	extern EchoFlag
+	extern ENVIRSEG
+	extern ERR15_OP_SEG;AN000;
+	extern ERR15_OP_SEG2;AN000;
+	extern ERR15_OP_SEG3;AN000;
+	extern extended_msg_start;AN000;
+	extern extmsgend;AN000;
+	extern fFail
+	extern fucase_addr;AN000;
+	extern InitFlag
+	extern IO_SAVE
+	extern LTPA;AC000;
+	extern MEMSIZ
+	extern MYSEG;AC000;
+	extern MYSEG1
+	extern MYSEG2
+	extern nest
+	extern number_subst;AN000;
+	extern OldTerm
+	extern PARENT
 ;AD060; EXTRN	pars_msg_off:word	;AN000;
 ;AD060; EXTRN	pars_msg_seg:word	;AN000;
-	EXTRN	parse_msg_start:byte	;AN000;
-	EXTRN	parsemes_ptr:word	;AN000;
-	EXTRN	PERMCOM:BYTE
-	EXTRN	RES_TPA:WORD
-	EXTRN	resmsgend:word		;AN000;
-	EXTRN	RSWITCHAR:BYTE
-	EXTRN	SINGLECOM:WORD
-	EXTRN	SUM:WORD
-	EXTRN	TRNSEG:WORD
-	EXTRN	TrnMvFlg:BYTE
-DATARES ENDS
+	extern parse_msg_start;AN000;
+	extern parsemes_ptr;AN000;
+	extern PERMCOM
+	extern RES_TPA
+	extern resmsgend;AN000;
+	extern RSWITCHAR
+	extern SINGLECOM
+	extern SUM
+	extern TRNSEG
+	extern TrnMvFlg
+; END SECTION .DATARES
 
-BATARENA	SEGMENT PUBLIC PARA	;AC000;
-BATARENA ENDS
+SECTION .BATARENA;AC000;
+; END SECTION .BATARENA
 
-BATSEG		SEGMENT PUBLIC PARA	;AC000;
-BATSEG	 ENDS
+SECTION .BATSEG;AC000;
+; END SECTION .BATSEG
 
-ENVARENA	SEGMENT PUBLIC PARA	;AC000;
-ENVARENA  ENDS
+SECTION .ENVARENA;AC000;
+; END SECTION .ENVARENA
 
-ENVIRONMENT SEGMENT PUBLIC PARA 	; Default COMMAND environment
-	EXTRN	ECOMSPEC:BYTE
-	EXTRN	ENVIREND:BYTE
-	EXTRN	PATHSTRING:BYTE
-ENVIRONMENT ENDS
+SECTION .ENVIRONMENT; Default COMMAND environment
+	extern ECOMSPEC
+	extern ENVIREND
+	extern PATHSTRING
+; END SECTION .ENVIRONMENT
 
-TAIL	SEGMENT PUBLIC PARA
-	EXTRN	TRANSTART:WORD
-TAIL	ENDS
+SECTION .TAIL
+	extern TRANSTART
+; END SECTION .TAIL
 
-TRANCODE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	DATINIT:FAR
-	EXTRN	printf_init:far
-TRANCODE	ENDS
+SECTION .TRANCODE;AC000;
+	extern DATINIT
+	extern printf_init
+; END SECTION .TRANCODE
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	TRANSPACEEND:BYTE
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern TRANSPACEEND
+; END SECTION .TRANSPACE
 
 ; This is the area used for the autoexec.bat file.  BATARENA is a pad for the
 ; the address mark placed by DOS.
 
-BATARENA  SEGMENT PUBLIC PARA
+SECTION .BATARENA
 
 	ORG 0
 	DB  10h  DUP (?)		;Pad for memory allocation addr mark
 
-BATARENA  ENDS
+; END SECTION .BATARENA
 
-BATSEG	  SEGMENT PUBLIC PARA		;Autoexec.bat segment
+SECTION .BATSEG;Autoexec.bat segment
 
 	ORG	0
 	initbat 	batchsegment <> ;batch segment
-	DB  31	 DUP (0)		;reserve area for batch file name & pad
+	times 31 db 0;reserve area for batch file name & pad
 
-BATSEG	  ENDS
+; END SECTION .BATSEG
 
 ; *******************************************************************
 ; START OF INIT PORTION
 ; This code is overlayed the first time the TPA is used.
 
-INIT	SEGMENT PUBLIC PARA
+SECTION .INIT
 
-	EXTRN	AUTOBAT:byte
-	EXTRN	BADCSPFL:byte
-	EXTRN	bslash:byte
-	EXTRN	CHUCKENV:byte
-	EXTRN	command_c_syn:byte	;AN000;
-	EXTRN	command_d_syn:byte	;AN000;
-	EXTRN	command_e_syn:byte	;AN000;
-	EXTRN	command_f_syn:byte	;AN000;
-	EXTRN	command_m_syn:byte	;AN000;
-	EXTRN	command_p_syn:byte	;AN000;
-	EXTRN	comnd1_syn:word 	;AN000;
-	EXTRN	comnd1_addr:dword	;AN000;
-	EXTRN	COMSPECT:byte
-	EXTRN	comspstring:byte
-	EXTRN	dswitch:byte		;AN018;
-	EXTRN	ECOMLOC:word
-	EXTRN	EnvMax:WORD
-	EXTRN	EnvSiz:WORD
-	EXTRN	equalsign:byte
-	EXTRN	eswitch:byte		;AN018;
-	EXTRN	ext_msg:byte		;AN000;
-	EXTRN	fslash:byte
-	EXTRN	INITADD:dword
-	EXTRN	initend:word
-	EXTRN	init_parse:dword	;AN054;
-	EXTRN	INTERNAT_INFO:BYTE	;AN000; 3/3/KK
-	EXTRN	KAUTOBAT:byte		;AN000; 3/3/KK
-	EXTRN	lcasea:byte
-	EXTRN	lcasez:byte
-	EXTRN	num_positionals:word	;AN000;
-	EXTRN	oldenv:word
-	EXTRN	old_parse_ptr:word	;AN057;
-	EXTRN	parse_command:byte	;AN000;
-	EXTRN	pars_msg_off:word	;AN060;
-	EXTRN	pars_msg_seg:word	;AN060;
-	EXTRN	PRDATTM:byte
-	EXTRN	resetenv:word		;AC000;
-	EXTRN	scswitch:byte
-	EXTRN	space:byte
-	EXTRN	triage_add:dword	;AC000;
-	EXTRN	trnsize:word
-	EXTRN	ucasea:byte
-	EXTRN	usedenv:word
+	extern AUTOBAT
+	extern BADCSPFL
+	extern bslash
+	extern CHUCKENV
+	extern command_c_syn;AN000;
+	extern command_d_syn;AN000;
+	extern command_e_syn;AN000;
+	extern command_f_syn;AN000;
+	extern command_m_syn;AN000;
+	extern command_p_syn;AN000;
+	extern comnd1_syn;AN000;
+	extern comnd1_addr;AN000;
+	extern COMSPECT
+	extern comspstring
+	extern dswitch;AN018;
+	extern ECOMLOC
+	extern EnvMax
+	extern EnvSiz
+	extern equalsign
+	extern eswitch;AN018;
+	extern ext_msg;AN000;
+	extern fslash
+	extern INITADD
+	extern initend
+	extern init_parse;AN054;
+	extern INTERNAT_INFO;AN000; 3/3/KK
+	extern KAUTOBAT;AN000; 3/3/KK
+	extern lcasea
+	extern lcasez
+	extern num_positionals;AN000;
+	extern oldenv
+	extern old_parse_ptr;AN057;
+	extern parse_command;AN000;
+	extern pars_msg_off;AN060;
+	extern pars_msg_seg;AN060;
+	extern PRDATTM
+	extern resetenv;AC000;
+	extern scswitch
+	extern space
+	extern triage_add;AC000;
+	extern trnsize
+	extern ucasea
+	extern usedenv
 
 
 ;AD054; EXTRN	SYSPARSE:NEAR
 
-	PUBLIC	CONPROC
-	PUBLIC	init_contc_specialcase
+	global CONPROC
+	global init_contc_specialcase
 
-ASSUME	CS:RESGROUP,DS:RESGROUP,ES:RESGROUP,SS:RESGROUP
+; ASSUME	CS:RESGROUP,DS:RESGROUP,ES:RESGROUP,SS:RESGROUP
 
 	ORG	0
 ZERO	=	$
 
 
 CONPROC:
-	MOV	SP,OFFSET RESGROUP:RSTACK	; MUST be first instruction
+	MOV	SP,RSTACK	; MUST be first instruction
 
 	CALL	SYSLOADMSG			;AN000; check dos version
 	JNC	OKDOS				;AN000; if no problem - continue
@@ -264,7 +264,7 @@ set_msg_addr:
 ;AD060; mov	ah,multdos			;AN000; set up to call DOS through int 2fh
 ;AD060; mov	al,message_2f			;AN000; call for message retriever
 ;AD060; mov	dl,set_parse_msg		;AN000; set up parse message address
-	mov	di,offset resgroup:parse_msg_start ;AN000; start address
+	mov	di,parse_msg_start ;AN000; start address
 ;AD060; int	2fh				;AN000;
 	call	set_parse_2f			;AN060; set parse error address
 
@@ -273,10 +273,10 @@ set_msg_addr:
 ;AD060; mov	al,message_2f			;AN000; call for message retriever
 	mov	ax,(multdos shl 8 or message_2f);AN060; set up to call DOS through int 2fh
 	mov	dl,set_critical_msg		;AN000; set up critical error message address
-	mov	di,offset resgroup:critical_msg_start ;AN000; start address
+	mov	di,critical_msg_start ;AN000; start address
 	int	2fh				;AN000;
 
-	mov	di,offset resgroup:dataresend+15 ;AN000; get address of resident end
+	mov	di,dataresend+15 ;AN000; get address of resident end
 	mov	[resmsgend],di			;AN000; save it
 	call	sysloadmsg			;AN000; load message addresses
 	call	get_msg_ptr			;AN000; set up pointers to some translated chars
@@ -285,7 +285,7 @@ set_msg_addr:
 	mov	dx,-1				;g
 	mov	bx,-1				;g
 	mov	cx,5				;g number of bytes we want
-	mov	di,offset resgroup:com_xlat_addr ;g buffer to put address in
+	mov	di,com_xlat_addr ;g buffer to put address in
 	int	int_command			;g
 
 	mov	ah,GetExtCntry			;AN000;  get extended country info
@@ -293,10 +293,10 @@ set_msg_addr:
 	mov	dx,-1				;AN000;
 	mov	bx,-1				;AN000;
 	mov	cx,5				;AN000; number of bytes we want
-	mov	di,offset resgroup:fucase_addr	;AN000; buffer for address
+	mov	di,fucase_addr	;AN000; buffer for address
 	int	int_command			;AN000;
 
-	mov	dx,offset resgroup:transtart+15 ;eg  get end of init code
+	mov	dx,transtart+15 ;eg  get end of init code
 	mov	cl,4				;eg change to paragraphs
 	shr	dx,cl				;eg
 	mov	ax,cs				;eg get current segment
@@ -312,14 +312,14 @@ set_msg_addr:
 	mov	dbcs_vector_addr+2,bx		;AN000;     dbcs vector
 
 
-	mov	ax,word ptr ds:[PDB_Parent_PID] ; Init PARENT so we can exit
+	mov	ax,word ds:[PDB_Parent_PID] ; Init PARENT so we can exit
 	mov	[PARENT],ax			;  correctly.
-	MOV	AX,WORD PTR DS:[PDB_Exit]
-	MOV	WORD PTR OldTerm,AX
-	MOV	AX,WORD PTR DS:[PDB_Exit+2]
-	MOV	WORD PTR OldTerm+2,AX
+	MOV	AX,word DS:[PDB_Exit]
+	MOV	word OldTerm,AX
+	MOV	AX,word DS:[PDB_Exit+2]
+	MOV	word OldTerm+2,AX
 
-	MOV	AX,OFFSET RESGROUP:ENVIREND + 15
+	MOV	AX,ENVIREND + 15
 	MOV	CL,4				; ax = size of resident part of
 	SHR	AX,CL				;  command in paragraphs.  Add
 	MOV	CX,CS				;  this to CS and you get the
@@ -332,7 +332,7 @@ set_msg_addr:
 	MOV	AX, [RES_TPA]
 TPASET:
 	MOV	[LTPA],AX			; Good enough for the moment
-	MOV	AX,WORD PTR DS:[PDB_block_len]	; ax = # of paras given to command
+	MOV	AX,word DS:[PDB_block_len]	; ax = # of paras given to command
 
 	MOV	[MYSEG1],DS			; These 3 variables are used as part of
 	MOV	[MYSEG2],DS			;  3 long ptrs that the transient will
@@ -348,7 +348,7 @@ TPASET:
 
 	MOV	EnvSiz, ENVSML / 16
 
-	MOV	DX,OFFSET TRANGROUP:TRANSPACEEND + 15 ; dx = size of transient
+	MOV	DX,TRANSPACEEND + 15 ; dx = size of transient
 	MOV	CL,4				;  in paragraphs.
 	SHR	DX,CL
 	mov	[trnsize],dx			;eg save size of transient in paragraphs
@@ -358,11 +358,11 @@ TPASET:
 	MOV	AX,DS:[PDB_environ]		; ax = environment segment
 	OR	AX,AX				; If there is no environment segment,
 	JZ	BUILDENV			;  go compute one.
-	INC	BYTE PTR [CHUCKENV]		; Flag no new ENVIRONSEG to set up
+	INC	byte [CHUCKENV]		; Flag no new ENVIRONSEG to set up
 	JMP	SHORT ENVIRONPASSED		; Otherwise one was passed to us.
 
 BUILDENV:	; (this label isn't very accurate)
-	MOV	AX,OFFSET RESGROUP:PATHSTRING	; Compute the segment of the
+	MOV	AX,PATHSTRING	; Compute the segment of the
 	MOV	CL,4				;  environment and put it in
 	SHR	AX,CL				;  ax.
 	MOV	DX,DS
@@ -371,7 +371,7 @@ BUILDENV:	; (this label isn't very accurate)
 ENVIRONPASSED:
 	MOV	[ENVIRSEG],AX			; Save the environment's segment and
 	MOV	ES,AX				;  load into es.
-ASSUME	ES:ENVIRONMENT
+; ASSUME	ES:ENVIRONMENT
 
 GOTTHEENVIR:
 	MOV	AX,CHAR_OPER SHL 8		; Get the switch character and store it
@@ -382,7 +382,7 @@ GOTTHEENVIR:
 	JNZ	IUSESLASH			;  path separator, change the forward
 	mov	al,bslash			;  slash in COMSPECT and ECOMSPEC (if
 	MOV	[COMSPECT],al			;  there is a new ENVIRONSEG) to
-	CMP	BYTE PTR [CHUCKENV],0		;  backslash.
+	CMP	byte [CHUCKENV],0		;  backslash.
 	JNZ	IUSESLASH
 	MOV	ES:[ECOMSPEC],al		;eg
 
@@ -395,7 +395,7 @@ IUSESLASH:
 	INC	AL
 	MOV	ComDrv,AL
 
-	MOV	AL,BYTE PTR DS:[FCB]		; al = default drive number for command
+	MOV	AL,byte DS:[FCB]		; al = default drive number for command
 	OR	AL,AL
 	JZ	NoComDrv			; no drive specified
 
@@ -404,23 +404,23 @@ IUSESLASH:
 	ADD	AL,40H				; Convert number to uppercase character
 
 	STD
-	CMP	BYTE PTR [CHUCKENV],0		; If a new environment is being built,
+	CMP	byte [CHUCKENV],0		; If a new environment is being built,
 	JNZ	NOTWIDENV			;  move the default comspec string in it
 	PUSH	DS				;  2 bytes to make room for a drivespec.
 	PUSH	ES				;  The drivespec is in ax and is copied
 	POP	DS				;  on to the front of the string.
-	MOV	DI,OFFSET ENVIRONMENT:ECOMSPEC + ENVIRONSIZ2 - 1 ;eg
-	MOV	SI,OFFSET ENVIRONMENT:ECOMSPEC + ENVIRONSIZ2 - 3 ;eg
+	MOV	DI,ECOMSPEC + ENVIRONSIZ2 - 1 ;eg
+	MOV	SI,ECOMSPEC + ENVIRONSIZ2 - 3 ;eg
 
 	MOV	CX,ENVIRONSIZ2 - 2
 	REP	MOVSB
 	POP	DS
-	MOV	WORD PTR ES:[ECOMSPEC],AX
+	MOV	word ES:[ECOMSPEC],AX
 
 NOTWIDENV:
 	CLD					; Add the drivespec to the string
-	MOV	WORD PTR [AUTOBAT],AX		;  used to reference autoexec.bat
-	MOV	WORD PTR [KAUTOBAT],AX		;AN000;  used to reference kautoexe.bat 3/3/KK
+	MOV	word [AUTOBAT],AX		;  used to reference autoexec.bat
+	MOV	word [KAUTOBAT],AX		;AN000;  used to reference kautoexe.bat 3/3/KK
 
 NOCOMDRV:
 	INVOKE	SETVECT 			; Set interrupt vectors 22h, 23h, & 24h
@@ -434,7 +434,7 @@ NOCOMDRV:
 	pop	ds				;AN000;
 	pop	es				;AN000;
 
-ASSUME	DS:RESGROUP,ES:RESGROUP 		;AN000;
+; ASSUME	DS:RESGROUP,ES:RESGROUP;AN000;
 
 	MOV	SI,80H				;AC000; get command line
 	LODSB					;AC000; get length of line
@@ -444,7 +444,7 @@ ASSUME	DS:RESGROUP,ES:RESGROUP 		;AN000;
 ; Insure that the command line correctly ends with a CR
 ;
 	ADD	DI,AX				;AC000; go to end of command line
-	MOV	BYTE PTR [DI],0Dh		;AC000; insert a carriage return
+	MOV	byte [DI],0Dh		;AC000; insert a carriage return
 	xor	cx,cx				;AC000; clear cx
 	mov	num_positionals,cx		;AC000; initialize positionals
 ;
@@ -452,7 +452,7 @@ ASSUME	DS:RESGROUP,ES:RESGROUP 		;AN000;
 ;
 
 parse_command_line:
-	mov	di,offset resgroup:parse_command;AN000; Get address of parse_command
+	mov	di,parse_command;AN000; Get address of parse_command
 	mov	cx,num_positionals		;AN000; Get number of positionals
 	xor	dx,dx				;AN000; clear dx
 	mov	old_parse_ptr,si		;AN057; save position before calling parser
@@ -509,17 +509,17 @@ parse_cont:
 ; See if a switch was entered
 ;
 
-	cmp	comnd1_syn,offset resgroup:command_f_syn ;AC000; was /F entered?
+	cmp	comnd1_syn,command_f_syn ;AC000; was /F entered?
 	jz	SetFSwitch				 ;AC000; yes go set fail switch
-	cmp	comnd1_syn,offset resgroup:command_p_syn ;AC000; was /P entered?
+	cmp	comnd1_syn,command_p_syn ;AC000; was /P entered?
 	Jz	SetPSwitch				 ;AC000; yes go set up PERMCOM
-	cmp	comnd1_syn,offset resgroup:command_d_syn ;AC000; was /D entered?
+	cmp	comnd1_syn,command_d_syn ;AC000; was /D entered?
 	jz	SetDSwitch				 ;AC000; yes go set date switch
-	cmp	comnd1_syn,offset resgroup:command_c_syn ;AC000; was /C entered?
+	cmp	comnd1_syn,command_c_syn ;AC000; was /C entered?
 	jz	SetSSwitch				 ;AC000; yes go set up SINGLECOM
-	cmp	comnd1_syn,offset resgroup:command_e_syn ;AC000; was /E entered?
+	cmp	comnd1_syn,command_e_syn ;AC000; was /E entered?
 	jz	SetESwitch				 ;AC000; yes go set up environment
-	cmp	comnd1_syn,offset resgroup:command_m_syn ;AN000; was /MSG entered?
+	cmp	comnd1_syn,command_m_syn ;AN000; was /MSG entered?
 	jz	SetMSwitchjmp				 ;AN000; yes go set up message flag
 	jmp	chkotherargs				 ;AC000; Must be something else
 
@@ -551,15 +551,15 @@ SetPSwitch:
 
 permcomok:
 	INC	[PERMCOM]
-	MOV	WORD PTR [oldTerm],OFFSET RESGROUP:LODCOM
-	MOV	WORD PTR [oldTerm+2],DS
+	MOV	word [oldTerm],LODCOM
+	MOV	word [oldTerm+2],DS
 ;
 ; Make sure that we display the date and time.	If the flag was not
 ; initialized, set it to indicate yes, do prompt.
 ;
-	CMP	BYTE PTR [PRDATTM],-1
+	CMP	byte [PRDATTM],-1
 	JNZ	parse_command_line_jmp		;AC018; keep parsing
-	MOV	BYTE PTR [PRDATTM],0		; If not set explicit, set to prompt
+	MOV	byte [PRDATTM],0		; If not set explicit, set to prompt
 
 Parse_command_line_jmp: 			;AN018;
 	JMP	parse_command_line		;AC000; keep parsing
@@ -578,7 +578,7 @@ SetDSwitch:
 
 setdateok:
 	inc	dswitch 			;AN018; indicate /D entered
-	MOV	BYTE PTR [PRDATTM],1		; User explicitly says no date time
+	MOV	byte [PRDATTM],1		; User explicitly says no date time
 	JMP	parse_command_line		;AC000; continue parsing
 
 SetSSwitch:
@@ -587,7 +587,7 @@ SetSSwitch:
 ;
 	MOV	[SINGLECOM],SI			; Point to the rest of the command line
 	MOV	[PERMCOM],0			; A SINGLECOM must not be a PERMCOM
-	MOV	BYTE PTR [PRDATTM],1		; No date or time either, explicit
+	MOV	byte [PRDATTM],1		; No date or time either, explicit
 	JMP	ArgsDone
 ;
 ; Look for environment-size setting switch
@@ -604,8 +604,8 @@ SetESwitch:
 
 eswitchok:
 	inc	eswitch 			;AN018; indicate /E entered
-	mov	di,offset resgroup:comnd1_addr	;AN000; get number returned
-	mov	bx,word ptr [di]		;AN000;     into bx
+	mov	di,comnd1_addr	;AN000; get number returned
+	mov	bx,word [di]		;AN000;     into bx
 
 	ADD	BX, 0FH 			; Round up to next paragraph
 	mov	cl,4				;AC000; convert to pargraphs
@@ -633,7 +633,7 @@ CHKOTHERARGS:
 	push	ds				;AN054;
 	push	si				;AC000; save place in command line
 	lds	si,comnd1_addr			;AN000; get address of filespec
-	assume	ds:nothing			;AN054;
+	; assume	ds:nothing;AN054;
 
 	mov	dx,si				;AN000; put in dx also
 	MOV	AX,(OPEN SHL 8) OR 2		; Read and write
@@ -684,8 +684,8 @@ RCCLLOOP:					; Close 0,1 and 2
 
 CHKSRCHSPEC:					; Not a device, so must be directory spec
 
-	MOV	BYTE PTR [CHUCKENV],0		; If search specified -- no inheritance
-	MOV	AX,OFFSET RESGROUP:PATHSTRING	; Figure environment pointer
+	MOV	byte [CHUCKENV],0		; If search specified -- no inheritance
+	MOV	AX,PATHSTRING	; Figure environment pointer
 	MOV	CL,4
 	SHR	AX,CL
 ;AD054; MOV	DX,DS
@@ -705,7 +705,7 @@ countloop:
 
 	mov	al,space
 	dec	si				;AN000; move back one
-	MOV	BYTE PTR [SI],al		;AN000; put a space at end of line
+	MOV	byte [SI],al		;AN000; put a space at end of line
 	pop	si				;AC000; get location back
 
 	MOV	DI,[ECOMLOC]
@@ -743,10 +743,10 @@ SETCOMSR:
 
 	PUSH	CS				;AN054; Get local segment
 	POP	DS				;AN054;
-	assume	ds:resgroup			;AN054;
+	; assume	ds:resgroup;AN054;
 
 	PUSH	DS
-	MOV	SI,OFFSET RESGROUP:COMSPECT
+	MOV	SI,COMSPECT
 	MOV	CX,14
 
 	MOV	AL,ES:[DI-1]
@@ -780,7 +780,7 @@ SETCOMSRRET:
 	POP	CX
 	POP	SI
 	POP	DS				;AN054;
-	assume	ds:resgroup			;AN054;
+	; assume	ds:resgroup;AN054;
 
 ARGSDONEJ2:
 	PUSH	CS				;AN000; Make sure local ES is
@@ -795,7 +795,7 @@ SETCOMSRBAD:
 	mov	dx,BADCOMACCMES_ptr		;AC000; get error message number
 doprt:
 	call	print_message
-	MOV	SI,OFFSET RESGROUP:COMSPECT
+	MOV	SI,COMSPECT
 	MOV	DI,[ECOMLOC]
 	MOV	CX,14
 	REP	MOVSB				; Get my default back
@@ -808,7 +808,7 @@ doprt:
 
 ARGSDONE:
 	mov	es,[envirseg]			;AC000; get environment back
-	ASSUME	ES:ENVIRONMENT			;AN000;
+	; ASSUME	ES:ENVIRONMENT;AN000;
 ;AD060; cmp	ext_msg,set_extended_msg	;AN000; was /msg specified?
 ;AD060; jnz	check_permcom			;AN000; No, go check permcom
 ;AD060; cmp	[permcom],0			;AN000; Yes - was permcom set?
@@ -845,38 +845,38 @@ ARGSDONE:
 	MOV	ES,BX
 	INT	int_command			; Current process is me
 	MOV	DI,PDB_Exit			; Diddle the addresses in my header
-	MOV	AX,OFFSET RESGROUP:LODCOM
+	MOV	AX,LODCOM
 	STOSW
 	MOV	AX,DS
 	STOSW
-	MOV	AX,OFFSET RESGROUP:CONTC
+	MOV	AX,CONTC
 	STOSW
 	MOV	AX,DS
 	STOSW
-	MOV	AX,OFFSET RESGROUP:DskErr
+	MOV	AX,DskErr
 	STOSW
 	MOV	AX,DS
 	STOSW
-	MOV	WORD PTR DS:[PDB_Parent_PID],DS ; Parent is me forever
+	MOV	word DS:[PDB_Parent_PID],DS ; Parent is me forever
 
-	MOV	DX,OFFSET RESGROUP:INT_2E
+	MOV	DX,INT_2E
 	MOV	AX,(SET_INTERRUPT_VECTOR SHL 8) OR 02EH
 	INT	int_command			;Set magic interrupt
 	POP	ES				;Remember environment
 
 COMRETURNS:
-	MOV	AX,WORD PTR DS:[PDB_Parent_PID]
+	MOV	AX,word DS:[PDB_Parent_PID]
 	MOV	[PARENT],AX			; Save parent
-	MOV	WORD PTR DS:[PDB_Parent_PID],DS ; Parent is me
-	MOV	AX,WORD PTR DS:[PDB_JFN_Table]
+	MOV	word DS:[PDB_Parent_PID],DS ; Parent is me
+	MOV	AX,word DS:[PDB_JFN_Table]
 	MOV	[IO_SAVE],AX			; Get the default stdin and out
-	MOV	WORD PTR [COM_PTR+2],DS 	; Set all these to resident
-	MOV	WORD PTR [COM_FCB1+2],DS
-	MOV	WORD PTR [COM_FCB2+2],DS
-	MOV	DI,OFFSET RESGROUP:COMSPEC
+	MOV	word [COM_PTR+2],DS 	; Set all these to resident
+	MOV	word [COM_FCB1+2],DS
+	MOV	word [COM_FCB2+2],DS
+	MOV	DI,COMSPEC
 
 	MOV	SI,[ECOMLOC]
-	CMP	BYTE PTR [CHUCKENV],0
+	CMP	byte [CHUCKENV],0
 
 	MOV	AX,DS				; XCHG ES,DS
 	PUSH	ES
@@ -888,7 +888,7 @@ COMRETURNS:
 	PUSH	CS
 	POP	DS
 
-	MOV	SI,OFFSET RESGROUP:COMSPSTRING
+	MOV	SI,COMSPSTRING
 	PUSH	ES
 	PUSH	DI
 	CALL	IFINDE
@@ -901,14 +901,14 @@ COMRETURNS:
 
 COMSPECNOFND:
 	MOV	SI,CS:[ECOMLOC] 		;AC062
-	ADD	SI,OFFSET RESGROUP:PATHSTRING
+	ADD	SI,PATHSTRING
 	PUSH	CS
 	POP	DS
 
-assume	es:resgroup
+; assume	es:resgroup
 COPYCOMSP:
 	mov	es:comspec_print,di		; Save ptr to beginning of comspec path
-	cmp	byte ptr [si+1],':'             ; Is there a drive specifier in comspec
+	cmp	byte [si+1],':'             ; Is there a drive specifier in comspec
 	jnz	COPYCOMSPLOOP			; If not, do not skip over first 2 bytes
 	add	es:comspec_print,2
 
@@ -922,7 +922,7 @@ COPYCOMSPLOOP:
 	mov	ah,es:comdrv
 	add	ah,'A'-1
 	mov	es:cpdrv,ah			; Load drive letter in comprmt2
-assume	es:environment
+; assume	es:environment
 
 	call	setup_for_messages		;AN060; set up parse and extended error messages
 	PUSH	CS
@@ -930,7 +930,7 @@ assume	es:environment
 	MOV	BX,[RESMSGEND]			;AC000; get end of resident
 	MOV	CL,4
 	SHR	BX,CL
-Public EnvMaximum
+global EnvMaximum
 EnvMaximum:
 ;
 ; NOTE: The transient has to loaded directly after shrinking to the
@@ -954,10 +954,10 @@ EnvMaximum:
 GOTENVIR:
 	MOV	TrnMvFlg, 1			; Indicate that transient has been moved
 	PUSH	ES
-	MOV	SI,OFFSET RESGroup:TranStart
+	MOV	SI,TranStart
 	MOV	DI,0
 	mov	ES,Trnseg
-	MOV	CX,OFFSET TRANGROUP:TRANSPACEEND
+	MOV	CX,TRANSPACEEND
 ;
 ; We need to ensure that we do not have the potential of overwriting our
 ; existing code in this move
@@ -995,12 +995,12 @@ Trans_Loaded:
 	INVOKE	CHKSUM				; Compute the checksum
 	MOV	[SUM],DX			; Save it
 
-	CMP	BYTE PTR [PRDATTM],0		;eg
+	CMP	byte [PRDATTM],0		;eg
 	JNZ	NOBATCHSEG			;eg Don't do AUTOEXEC or date time
 ;
 ; Allocate batch segment for D:/autoexec.bat + no arguments
 ;
-	MOV	BX,((SIZE BatchSegment) + 15 + 1 + 0Fh)/16 ;eg
+	MOV	BX,((BatchSegment_size) + 15 + 1 + 0Fh)/16 ;eg
 	MOV	AH,ALLOC			;eg
 	INT	int_command			;eg
 	JC	NOBATCHSEG			;eg didn't allocate - pretend no batch
@@ -1029,7 +1029,7 @@ MAXOK:
 	mov	oldenv,bx			;g save it
 	mov	usedenv,0			;g initialize env size counter
 	MOV	DS,bx
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	MOV	[ENVIRSEG],AX
 	MOV	ES,AX
 	XOR	SI,SI
@@ -1044,16 +1044,16 @@ MAXOK:
 	DEC	BX				; Dec by one to leave room for double 0
 	XOR	DX,DX				; Use DX to indicate that there was
 						; no environment size error.
-Public Nxtstr
+global Nxtstr
 Nxtstr:
 	CALL	GetStrLen			; Get the size of the current env string
 	push	ds				;g get addressability to environment
 	push	cs				;g			 counter
 	pop	ds				;g
-	ASSUME	DS:RESGROUP
+	; ASSUME	DS:RESGROUP
 	add	usedenv,cx			;g  add the string length to env size
 	pop	ds				;g
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	CMP	CX,1				; End of environment was encountered.
 	JZ	EnvExit
 	SUB	BX,CX
@@ -1066,7 +1066,7 @@ EnvExit:
 
 	PUSH	CS
 	POP	DS
-	ASSUME	DS:RESGroup
+	; ASSUME	DS:RESGroup
 	OR	DX,DX				; DX will be non-zero if error
 	JZ	EnvNoErr
 	MOV	DX,OUTENVERR_ptr		;AC000; get message number
@@ -1102,13 +1102,13 @@ envsetok:
 	MOV	AH, SETBLOCK
 	INT	int_command
 
-	IF MSVER
+	%if MSVER
 	CMP	[SINGLECOM],0
 	JNZ	NOPHEAD 			; Don't print header if SINGLECOM
 	MOV	DX,HEADER_ptr			;AC000; get message number
 	call	print_message
 NOPHEAD:
-	ENDIF
+	%endif
 
 	CMP	[BATCH],0			;eg did we set up a batch segment?
 	JNZ	dodate				;eg yes - go initialize it
@@ -1144,7 +1144,7 @@ dodate:
 ;
 ; Decide whether we should grab the default drive
 ;
-	CMP	BYTE PTR [AUTOBAT],0
+	CMP	byte [AUTOBAT],0
 
 	JNZ	NOAUTSET
 	MOV	AH,GET_DEFAULT_DRIVE
@@ -1158,12 +1158,12 @@ NOAUTSET:
 ;
 ; Copy in the batch file name (including NUL)
 ;
-	MOV	SI,OFFSET RESGROUP:AUTOBAT
+	MOV	SI,AUTOBAT
 	MOV	CX,8
 	REP	MOVSW
 	MOVSB					;AN027;  move in carraige return to terminate string
 
-	MOV	DX,OFFSET RESGROUP:AUTOBAT
+	MOV	DX,AUTOBAT
 	MOV	AX,OPEN SHL 8
 	INT	int_command			; See if AUTOEXEC.BAT exists
 	JC	NOABAT
@@ -1175,7 +1175,7 @@ NOAUTSET:
 NOABAT:
 	push	ax
 	call	setup_seg
-	mov	word ptr [triage_add+2],ax
+	mov	word [triage_add+2],ax
 	pop	ax
 	call	triage_add
 	cmp	ax, 65
@@ -1188,19 +1188,19 @@ NOABAT:
 ; since we won't need the parse information or country information.
 ; We only care about the country code returned in BX.
 
-	MOV	DX,OFFSET RESGROUP:INTERNAT_INFO ;AN000; Set up internat vars
+	MOV	DX,INTERNAT_INFO ;AN000; Set up internat vars
 	MOV	AX,INTERNATIONAL SHL 8		;AN000;  get country dependent info
 	INT	21H				;AN000;
 	JC	NOKABAT 			;AN000; Error - don't bother with it
 	CMP	BX,KOREA_COUNTRY_CODE		;AN000; Are we speaking Korean?
 	JNZ	OPENERR 			;AN000; No, don't check for KAUTOEXE
 
-	MOV	DI, OFFSET BatFile		;AN000;  3/3/KK
-	MOV	SI,OFFSET RESGROUP:KAUTOBAT	;AN000;  Another trial to do	3/3/KK
+	MOV	DI, BatFile		;AN000;  3/3/KK
+	MOV	SI,KAUTOBAT	;AN000;  Another trial to do	3/3/KK
 	MOV	CX,8				;AN000;  auto execution for the 3/3/KK
 	REP	MOVSW				;AN000;  non-English country	3/3/KK
 	MOVSB					;AN027;  move in carraige return to terminate string
-	MOV	DX,OFFSET RESGROUP:KAUTOBAT	;AN000;  3/3/KK
+	MOV	DX,KAUTOBAT	;AN000;  3/3/KK
 	MOV	AX,OPEN SHL 8			;AN000;  3/3/KK
 	INT	int_command			;AN000;  See if KAUTOEXE.BAT exists    3/3/KK
 	JC	NOKABAT 			;AN000;  3/3/KK
@@ -1227,20 +1227,20 @@ openerr:
 	mov	nest,0				;g indicate no batch in progress
 
 DODTTM:
-	MOV	AX,OFFSET TRANGROUP:DATINIT
-	MOV	WORD PTR[INITADD],AX
+	MOV	AX,DATINIT
+	MOV	word[INITADD],AX
 	MOV	AX,[TRNSEG]
-	MOV	WORD PTR[INITADD+2],AX
-	CALL	DWORD PTR [INITADD]
+	MOV	word[INITADD+2],AX
+	CALL	dword [INITADD]
 
 NODTTM:
 
-	IF IBMVER
+	%if IBMVER
 	CMP	[SINGLECOM],0
 	JNZ	DRV0				; Don't print header if SINGLECOM
 	MOV	DX,HEADER_ptr			;AC000; get message number
 	call	print_message
-	ENDIF
+	%endif
 
 DRV0:						; Reset APPEND state
 	push	ds				;AN042; save data segment
@@ -1276,7 +1276,7 @@ setup_seg:
 	jz	setup_end
 	push	bx
 	mov	bx,cs
-	mov	ax,OFFSET RESGroup:TranStart
+	mov	ax,TranStart
 	shr	ax,1
 	shr	ax,1
 	shr	ax,1
@@ -1380,7 +1380,7 @@ IFIND12:
 	PUSH	CX
 	CALL	ISCASB2 			; SCAN FOR A NUL
 	POP	CX
-	CMP	BYTE PTR ES:[DI],0
+	CMP	byte ES:[DI],0
 	JNZ	IFIND1
 	STC					; INDICATE NOT FOUND
 
@@ -1434,18 +1434,18 @@ ISCASBX:
 ; *
 ; ****************************************************************
 
-assume	ds:resgroup				;AN000;
+; assume	ds:resgroup;AN000;
 
-iupconv proc	near				;AN000;
+iupconv:;AN000;
 
 	cmp	al,80h				;AN000; see if char is > ascii 128
 	jb	other_fucase			;AN000; no - upper case math
 	sub	al,80h				;AN000; only upper 128 chars in table
 	push	ds				;AN000;
 	push	bx				;AN000;
-	lds	bx,dword ptr fucase_addr+1	;AN000;  get table address
+	lds	bx,dword fucase_addr+1	;AN000;  get table address
 	add	bx,2				;AN000;  skip over first word
-	xlat	ds:byte ptr [bx]		;AN000;  convert to upper case
+	xlat	ds:byte [bx]		;AN000;  convert to upper case
 	pop	bx				;AN000;
 	pop	ds				;AN000;
 	jmp	short iupconv_end		;AN000;  we finished - exit
@@ -1460,14 +1460,14 @@ other_fucase:					;AN000;
 iupconv_end:					;AN000;
 	ret
 
-iupconv endp					;AN000;
+; ENDP iupconv;AN000;
 
 init_contc_specialcase:
 						; This routine is called if control-C
 	add	sp,6				;  is type during the date/time prompt
 	push	si				;  at initialization time.  The desired
 	mov	si,dx				;  response is to make it look like the
-	mov	word ptr [si+1],0d00h		;  user typed <CR> by "popping" the
+	mov	word [si+1],0d00h		;  user typed <CR> by "popping" the
 	pop	si				;  INT 21h stuff off the stack, putting
 	iret					;  a <CR> in the user's buffer, and
 						;  returning directly to the user.
@@ -1490,15 +1490,15 @@ init_contc_specialcase:
 CHAR_START	EQU	201			;AN000; first character translate is 1
 CHAR_END	EQU	207			;AN000;        last is 6
 
-GET_MSG_PTR	PROC NEAR			;AN000;
+GET_MSG_PTR:;AN000;
 
 	MOV	AX,CHAR_START			;AN000; get first char translation
-	MOV	BX,OFFSET RESGROUP:ABORT_CHAR	;AN000; get first char offset
+	MOV	BX,ABORT_CHAR	;AN000; get first char offset
 MOVEMES:					;AN000;
 	MOV	DH,-1				;AN000; utility message
 	INVOKE	SYSGETMSG			;AN000; get the offset of the char
-	MOV	CL,BYTE PTR [SI]		;AN000; get the character in CL
-	MOV	BYTE PTR [BX],CL		;AN000; put the character in the table
+	MOV	CL,byte [SI]		;AN000; get the character in CL
+	MOV	byte [BX],CL		;AN000; put the character in the table
 	INC	BX				;AN000; point to next position in table
 	INC	AX				;AN000; increment message number
 	CMP	AX,CHAR_END			;AN000; are we at the end?
@@ -1518,7 +1518,7 @@ MOVEMES:					;AN000;
 
 	RET					;AN000;
 
-GET_MSG_PTR	ENDP				;AN000;
+; ENDP GET_MSG_PTR;AN000;
 
 
 ; ****************************************************************
@@ -1546,7 +1546,7 @@ GET_MSG_PTR	ENDP				;AN000;
 ; ****************************************************************
 
 
-setup_for_messages	proc	near		;AN060;
+setup_for_messages:;AN060;
 
 	push	ds				;AN060; save data segment
 	push	es				;AN060; save environment segment
@@ -1564,16 +1564,16 @@ setup_for_messages	proc	near		;AN060;
 	push	es				;AN060;
 	mov	ax,1				;AN060; Set ES to 1 as a flag to the message
 	mov	es,ax				;AN060;    services that messages are on disk
-	mov	di,offset resgroup:extended_msg_start-100h ;AN060; start address
+	mov	di,extended_msg_start-100h ;AN060; start address
 	call	set_ext_2f			;AN060; set extended error address
-	mov	di,offset resgroup:parse_msg_start-0100h ;AN060; start address
+	mov	di,parse_msg_start-0100h ;AN060; start address
 	call	set_parse_2f			;AN060; set parse error address
 	pop	es				;AN060;
-	IF2					;AN060;;
-	IFNDEF	READ_DISK_INFO			;AN060;;
-		Extrn	READ_DISK_PROC:Far	;AN060;;
-	ENDIF					;AN060;;
-	ENDIF					;AN060;;
+	%if 1  ; IF2 - pass-specific;AN060;;
+	%ifndef READ_DISK_INFO;AN060;;
+		extern READ_DISK_PROC;AN060;;
+	%endif;AN060;;
+	%endif;AN060;;
 	MOV	AX,DOS_GET_EXT_PARSE_ADD	;AN060;; 2FH Interface
 	MOV	DL,DOS_SET_ADDR 		;AN060;; Set the READ_DISK_PROC address
 	LEA	DI,READ_DISK_PROC		;AN060;;
@@ -1581,9 +1581,9 @@ setup_for_messages	proc	near		;AN060;
 	jmp	short permcom_end		;AN060; and exit
 
 permcom_slash_msg:				;AN060; Keep messages in memory
-	mov	di,offset resgroup:extended_msg_start ;AN060; start address
+	mov	di,extended_msg_start ;AN060; start address
 	call	set_ext_2f			;AN060; set the extended message address
-	mov	di,offset resgroup:extmsgend+15 ;AN060; get address of resident end
+	mov	di,extmsgend+15 ;AN060; get address of resident end
 	mov	[resmsgend],di			;AN060; save it
 	jmp	short permcom_end		;AN060; exit
 
@@ -1611,7 +1611,7 @@ permcom_end:
 
 	ret					;AN060;
 
-setup_for_messages	endp			;AN060;
+; ENDP setup_for_messages;AN060;
 
 ; ****************************************************************
 ; *
@@ -1628,7 +1628,7 @@ setup_for_messages	endp			;AN060;
 ; *
 ; ****************************************************************
 
-Set_parse_2f	proc	near			;AN060;
+Set_parse_2f:;AN060;
 
 	mov	ax,(multdos shl 8 or message_2f);AN060; set up to call DOS through int 2fh
 	mov	dl,set_parse_msg		;AN060; set up parse message address
@@ -1636,7 +1636,7 @@ Set_parse_2f	proc	near			;AN060;
 
 	ret					;AN060;
 
-Set_parse_2f	endp				;AN060;
+; ENDP Set_parse_2f;AN060;
 
 ; ****************************************************************
 ; *
@@ -1653,7 +1653,7 @@ Set_parse_2f	endp				;AN060;
 ; *
 ; ****************************************************************
 
-Set_ext_2f	proc	near			;AN060;
+Set_ext_2f:;AN060;
 
 	mov	ax,(multdos shl 8 or message_2f);AN060; set up to call DOS through int 2fh
 	mov	dl,set_extended_msg		;AN060; set up extended error message address
@@ -1661,25 +1661,25 @@ Set_ext_2f	proc	near			;AN060;
 
 	ret					;AN060;
 
-Set_ext_2f	endp				;AN060;
+; ENDP Set_ext_2f;AN060;
 
 
-ASSUME	DS:RESGROUP, ES:RESGROUP
+; ASSUME	DS:RESGROUP, ES:RESGROUP
 
-.xlist
-.xcref
+; .xlist
+; .xcref
 
-INCLUDE SYSMSG.INC				;AN000; include message services
+%include "SYSMSG.INC";AN000; include message services
 
-.list
-.cref
+; .list
+; .cref
 
 MSG_UTILNAME <COMMAND>				;AN000; define utility name
 
 MSG_SERVICES <COMR,NEARmsg,LOADmsg,NOCHECKSTDIN,NOCHECKSTDOUT>	;AC026; include message services macro
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-INIT	ENDS
+; END SECTION .INIT
 
-	END
+	; END

@@ -1,5 +1,5 @@
-	PAGE	,132								;AN000;
-	TITLE	DOS GRAPHICS Command  -	Profile Load Modules #2 
+	; PAGE	,132;AN000;
+	; TITLE	DOS GRAPHICS Command  -	Profile Load Modules #2
 										;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 ;; DOS - GRAPHICS Command
@@ -51,9 +51,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 				       ;;					;AN000;
 				       ;;					;AN000;
-CODE	SEGMENT PUBLIC 'CODE'          ;;                                       ;AN000;
+SECTION .CODE;;                                       ;AN000;
 				       ;;					;AN000;
-	INCLUDE STRUC.INC	       ;;					;AN000;
+	%include "STRUC.INC";;					;AN000;
 				       ;;					;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 ;;										;AN000;
@@ -64,7 +64,7 @@ CODE	SEGMENT PUBLIC 'CODE'          ;;                                       ;AN
 				       ;;					;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 				       ;;					;AN000;
-	ASSUME	CS:CODE,DS:CODE        ;;					;AN000;
+	; ASSUME	CS:CODE,DS:CODE;;					;AN000;
 				       ;;					;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 				       ;;					;AN000;
@@ -80,8 +80,8 @@ KeySW	      EQU     0 							;AN000;
 ;Val1SW        EQU     0							;AN000;
 ;Val2SW        EQU     0							;AN000;
 										;AN000;
-       PUBLIC  SYSPARSE 	       ;;					;AN000;
-       INCLUDE PARSE.ASM	       ;; parser code				;AN000;
+       global SYSPARSE;;					;AN000;
+       %include "PARSE.ASM";; parser code				;AN000;
 				       ;;					;AN000;
 CODE	ENDS			       ;;					;AN000;
-	END									;AN000;
+	; END;AN000;

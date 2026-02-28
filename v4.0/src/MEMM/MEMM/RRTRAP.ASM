@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	RRTRAP.ASM - Return To Real Trap
+	; title	RRTRAP.ASM - Return To Real Trap
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -39,36 +39,36 @@ page	58,132
 ;
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 
 ;******************************************************************************
 ;			I N C L U D E	F I L E S
 ;
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include INSTR386.INC
-	include VM386.INC
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "INSTR386.INC"
+	%include "VM386.INC"
 ;
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;
-	public	RRP_Handler
-	public	RR_Trap_Init
-	public	RRProc
-	public	JumpReal
+	global RRP_Handler
+	global RR_Trap_Init
+	global RRProc
+	global JumpReal
 ;
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;
-_TEXT	segment
-extrn	RetReal:near
-extrn	PortTrap:near
-_TEXT	ends
+SECTION ._TEXT
+extern RetReal
+extern PortTrap
+; END SECTION ._TEXT
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;
@@ -91,23 +91,23 @@ ENABLE_NMI	equ	00h	; cmd to enable NMI
 ;******************************************************************************
 ;		D A T A   S E G M E N T   D E F I N I T I O N S
 ;
-ABS0	segment at 0000h
-ABS0	ends
+SECTION .ABS0
+; END SECTION .ABS0
 ;
-_DATA	segment
+SECTION ._DATA
 RR_Last 	db	0		; last RR port trapped
 RR85save	db	0FFh
 RR84save	db	0FFh
-_DATA	ends
+; END SECTION ._DATA
 
 ;
 ;------------------------------------------------------------------------------
 ;	_TEXT code
 ;------------------------------------------------------------------------------
-_TEXT	segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
 
-	page
+	; page
 ;******************************************************************************
 ;   RRP_Handler - I/O Trap handler for return to real ports 84h and 85h
 ;
@@ -129,7 +129,7 @@ _TEXT	segment
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-RRP_Handler	proc	near
+RRP_Handler:
 	or	dx,dx		;Q: Output ?
 	jz	RRP_Bye 	;  N: then leave
 	cmp	bx,84h*2
@@ -139,7 +139,7 @@ RRP_Handler	proc	near
 RRP_Bye:
 	stc			; don't bother to emulate it
 	ret
-RRP_Handler	endp
+; ENDP RRP_Handler
 
 ;******************************************************************************
 ;   P84_Handler - I/O Trap handler for port 84h
@@ -162,16 +162,16 @@ RRP_Handler	endp
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-P84_Handler	proc	near
+P84_Handler:
 ;
 	mov	[RR84save],al	;  Y: save value written to 84
 	mov	[RR_Last],84h	; save this RR port #
 	stc			; don't bother to emulate it
 	ret
 ;
-P84_Handler	endp
+; ENDP P84_Handler
 
-	page
+	; page
 ;******************************************************************************
 ;   P85_Handler - I/O Trap handler for port 85h
 ;
@@ -198,7 +198,7 @@ P84_Handler	endp
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-P85_Handler	proc	near
+P85_Handler:
 ;
 	mov	[RR85save],al	;  Y: save value for 85h
 	cmp	al,RR85_Value	;    Q: return to real value output to 85 ?
@@ -214,9 +214,9 @@ P85_Exit:
 	stc			; don't bother to emulate it
 	ret
 ;
-P85_Handler	endp
+; ENDP P85_Handler
 
-	page
+	; page
 ;******************************************************************************
 ;	RR_GoReal - return client to real after 84/85 trap
 ;
@@ -252,7 +252,7 @@ RR_GoReal:
 ;
 ;	   on to JumpReal code and continue in Real mode
 ;
-	jmp	FAR PTR JumpReal
+	jmp	far JumpReal
 
 ;******************************************************************************
 ;
@@ -267,7 +267,7 @@ RR_GoReal:
 ;	stack:
 ;
 ;******************************************************************************
-RRProc		proc near
+RRProc:
 	pushf
 	cli				; protect this sequence
 	mov	al,RR84_Value		;
@@ -277,7 +277,7 @@ RRProc		proc near
 	jmp	$+2			; clear prefetch/avoid race cond
 	popf
 	ret
-RRProc		endp
+; ENDP RRProc
 
 ;******************************************************************************
 ;
@@ -298,7 +298,7 @@ RRProc		endp
 ;	stack:
 ;
 ;******************************************************************************
-RR_Trap_Init	 proc	 near
+RR_Trap_Init:
 	mov	[RR_Last],0		    ; reset Return to real trap vars
 	mov	[RR85save],0FFh
 	mov	[RR84save],0FFh
@@ -308,21 +308,21 @@ RR_Trap_Init	 proc	 near
 	mov	ax, 85h 		    ; ports in case client tries to
 	call	PortTrap		    ; return to real
 	ret
-RR_Trap_Init	 endp
+; ENDP RR_Trap_Init
 
-_TEXT	ends				    ; end of segment
+; END SECTION ._TEXT; end of segment
 
 ;------------------------------------------------------------------------------
 ;	R_CODE code
 ;------------------------------------------------------------------------------
-R_CODE	segment
-	assume	cs:R_CODE, ds:DGROUP, es:DGROUP, ss:DGROUP
+SECTION .R_CODE
+	; assume	cs:R_CODE, ds:DGROUP, es:DGROUP, ss:DGROUP
 ;
 ;******************************************************************************
 ;			L O C A L   D A T A   A R E A
 ;******************************************************************************
 ;
-RR_Jump 	label	dword		; ret addr for instr after out 84
+RR_Jump:; ret addr for instr after out 84
 RR_JOff 	dw	0
 RR_JSeg 	dw	0
 
@@ -353,10 +353,10 @@ RR_Flags	dw	0		; low word of flags for return
 ;		frame.
 ;
 ;******************************************************************************
-JumpReal	label	far
+JumpReal:
 	push	cs
 	pop	ds		; set DS= CS = R_CODE
-	ASSUME	DS:R_CODE
+	; ASSUME	DS:R_CODE
 					; set up return address
 	mov	bx,[bp.VTFOE+VMTF_EIP]	; get return IP
 	mov	[RR_JOff],bx		; save it
@@ -431,6 +431,6 @@ RR_CLIexit:
 	mov	sp,CS:[RR_SP]		; restore SP
 	jmp	CS:[RR_Jump]		; far jump for return
 ;
-R_CODE	ends				; end of segment
+; END SECTION .R_CODE; end of segment
 ;
-	end				; end of module
+	; end; end of module

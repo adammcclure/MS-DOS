@@ -1,6 +1,6 @@
 
-        PAGE    ,132
-        TITLE   DOS KEYB Command  -  Interrupt 9 Non-US Support
+        ; PAGE    ,132
+        ; TITLE   DOS KEYB Command  -  Interrupt 9 Non-US Support
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -37,20 +37,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
 ;****
-        INCLUDE KEYBEQU.INC            ;;
-        INCLUDE DSEG.inc               ;; System data segments
-        INCLUDE POSTEQU.inc            ;; System equates
-        INCLUDE KEYBSHAR.INC           ;;
-        INCLUDE KEYBI2F.INC            ;;
-        INCLUDE KEYBI9C.INC            ;;
-        INCLUDE KEYBCPSD.INC           ;;
-        INCLUDE KEYBCMD.INC            ;;
+        %include "KEYBEQU.INC";;
+        %include "DSEG.inc";; System data segments
+        %include "POSTEQU.inc";; System equates
+        %include "KEYBSHAR.INC";;
+        %include "KEYBI2F.INC";;
+        %include "KEYBI9C.INC";;
+        %include "KEYBCPSD.INC";;
+        %include "KEYBCMD.INC";;
                                        ;;
-        PUBLIC KEYB_STATE_PROCESSOR    ;;
+        global KEYB_STATE_PROCESSOR;;
                                        ;;
-CODE    SEGMENT PUBLIC 'CODE'          ;;
+SECTION .CODE;;
                                        ;;
-        ASSUME  CS:CODE,DS:CODE        ;;
+        ; ASSUME  CS:CODE,DS:CODE;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -81,7 +81,7 @@ HOT_KEY_ACTIVE  DB   0                 ;; 1 if hot key is active
                                        ;;
                                        ;;
                                        ;; These are copies of the BIOS FLAGS
-FLAGS_TO_TEST    LABEL BYTE            ;;  KB_FLAG, KB_FLAG_1,2,3
+FLAGS_TO_TEST:;;  KB_FLAG, KB_FLAG_1,2,3
 KB_SHADOW_FLAGS  DB   NUM_BIOS_FLAGS DUP(0) ;;
 EXT_KB_FLAG      DB   0                ;; Extended KB Flag for shift states
 NLS_FLAG_1       DB   0                ;; NLS Flags for dead key etc
@@ -91,10 +91,10 @@ SAVED_NLS_FLAGS  DB   0,0              ;; Saved copy of the NLS flags
                                        ;;
 OPTION_BYTE     DB    0                ;; Set by OPTION command
                                        ;;
-KB_FLAG_PTRS    DW   OFFSET KB_FLAG    ;; These are pointers to the BIOS flags
-                DW   OFFSET KB_FLAG_1  ;;  we must test
-                DW   OFFSET KB_FLAG_2  ;;
-                DW   OFFSET KB_FLAG_3  ;;
+KB_FLAG_PTRS    DW   KB_FLAG    ;; These are pointers to the BIOS flags
+                DW   KB_FLAG_1  ;;  we must test
+                DW   KB_FLAG_2  ;;
+                DW   KB_FLAG_3  ;;
                                        ;;
 XLAT_TAB_PTR    DW   0                 ;; pointer to xlat tables for cur state
                                        ;;
@@ -106,35 +106,35 @@ PROCESS_LEVEL   DB   0                 ;;
 TAKE_ELSE       DB   0                 ;;
 BUSY_FLAG       DB   0                 ;; Flag to prevent re-entry
                                        ;;
-CMD_JUMP_TABLE  LABEL  WORD            ;;
-        DW   OFFSET  IFF_PROC          ;; CODE  0
-        DW   OFFSET  ANDF_PROC         ;;       1
-        DW   OFFSET  ELSEF_PROC        ;;       2
-        DW   OFFSET  ENDIFF_PROC       ;;       3
-        DW   OFFSET  XLATT_PROC        ;;       4
-        DW   OFFSET  OPTION_PROC       ;;       5
-        DW   OFFSET  SET_FLAG_PROC     ;;       6
-        DW   OFFSET  PUT_ERROR_PROC    ;;       7
-        DW   OFFSET  IFKBD_PROC        ;;       8
-        DW   OFFSET  GOTO_PROC         ;;       9
-        DW   OFFSET  BEEP_PROC         ;;       A
-        DW   OFFSET  RESET_NLS_PROC    ;;       B
-        DW   OFFSET  UNKNOWN_COMMAND   ;;       C
-        DW   OFFSET  UNKNOWN_COMMAND   ;;       D
-        DW   OFFSET  UNKNOWN_COMMAND   ;;       E
-        DW   OFFSET  UNKNOWN_COMMAND   ;;       F
+CMD_JUMP_TABLE:;;
+        DW   IFF_PROC          ;; CODE  0
+        DW   ANDF_PROC         ;;       1
+        DW   ELSEF_PROC        ;;       2
+        DW   ENDIFF_PROC       ;;       3
+        DW   XLATT_PROC        ;;       4
+        DW   OPTION_PROC       ;;       5
+        DW   SET_FLAG_PROC     ;;       6
+        DW   PUT_ERROR_PROC    ;;       7
+        DW   IFKBD_PROC        ;;       8
+        DW   GOTO_PROC         ;;       9
+        DW   BEEP_PROC         ;;       A
+        DW   RESET_NLS_PROC    ;;       B
+        DW   UNKNOWN_COMMAND   ;;       C
+        DW   UNKNOWN_COMMAND   ;;       D
+        DW   UNKNOWN_COMMAND   ;;       E
+        DW   UNKNOWN_COMMAND   ;;       F
                                        ;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-KEYB_STATE_PROCESSOR   PROC   NEAR     ;;
+KEYB_STATE_PROCESSOR:;;
                                        ;;
         TEST   CS:SD.TABLE_OK,1        ;;
         JNZ    WE_HAVE_A_TABLE         ;;
         CLC                            ;; BACK TO US INT 9
 	RET			       ;;
 
-	EVEN
+	align 2
 
 WE_HAVE_A_TABLE:                       ;;
 	
@@ -268,7 +268,7 @@ PUT_ERROR_DONE:                        ;;
         INC    SI                      ;;
         JMP    NEXT_COMMAND            ;;
                                        ;;
-PUT_ERROR      PROC                    ;;
+PUT_ERROR:;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Search for a state whose ID matches the ID
 ;; on the PUT_ERROR command
@@ -291,7 +291,7 @@ PE_STATE_MATCH:                        ;;
 PE_EXIT:                               ;;
         RET                            ;;
                                        ;;
-PUT_ERROR   ENDP                       ;;
+; ENDP PUT_ERROR;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
@@ -313,7 +313,7 @@ IFF_PROC:                              ;;
         AND    BL,FLAG_ID_BITS         ;; isolate flag id
         XOR    BH,BH                   ;;
         MOV    AL,FLAGS_TO_TEST[BX]    ;; flag in AL
-        TEST   BYTE PTR[SI],NOT_TEST   ;; Q..is this a NOT test?
+        TEST   byte[SI],NOT_TEST   ;; Q..is this a NOT test?
         JNZ    ITS_A_NOT               ;;
         TEST   AL,[SI]+1               ;; Y..check for bit set
         JNZ    IFF_MATCH               ;;
@@ -396,7 +396,7 @@ XLATT_DONE:                            ;;
         INC    SI                      ;;
         JMP    NEXT_COMMAND            ;;
                                        ;;
-TRANSLATE PROC                         ;;
+TRANSLATE:;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Search for a state whose ID matches the ID
 ;; on the XLATT command
@@ -484,7 +484,7 @@ TWO_BYTE_LOOKUP:                       ;;
         MOV    BL,2                    ;; multiply scan index
         MUL    BL                      ;;  by two
         MOV    BX,AX                   ;; real index in BX
-        MOV    AX,WORD PTR [SI].XLAT_1_BUF_ENTRY[BX] ;; get 2-byte buffer entry
+        MOV    AX,word [SI].XLAT_1_BUF_ENTRY[BX] ;; get 2-byte buffer entry
                                        ;;  AL=ASCII  AH=SCAN
 BUFFER_ENTRY_READY:                    ;;
         TEST   DL,ZERO_SCAN            ;; Q..set scan part to zero?
@@ -495,7 +495,7 @@ NO_ZERO_SCAN:                          ;;
         STC                            ;; indicate translation found
         JMP    TP_DONE                 ;;
                                        ;;
-TRANSLATE ENDP                         ;;
+; ENDP TRANSLATE;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 OPTION_PROC:                           ;;
@@ -503,7 +503,7 @@ OPTION_PROC:                           ;;
         CMP    AL,NEST_LEVEL           ;; Q..nest level = process level?
         JNE    DONE_OPTION             ;; N..done
         MOV    AL,[SI]+1               ;; mask in AL
-        TEST   BYTE PTR[SI],NOT_TEST   ;; Q..is this a NOT?
+        TEST   byte[SI],NOT_TEST   ;; Q..is this a NOT?
         JNZ    AND_MASK                ;;
         OR     OPTION_BYTE,AL          ;; N..OR in the mask bits
         JMP    DONE_OPTION             ;;
@@ -569,7 +569,7 @@ ANDF_PROC:                             ;;
         AND    BL,FLAG_ID_BITS         ;; isolate flag id
         XOR    BH,BH                   ;;
         MOV    AL,FLAGS_TO_TEST[BX]    ;; flag in AL
-        TEST   BYTE PTR[SI],NOT_TEST   ;; Q..is this a NOT test?
+        TEST   byte[SI],NOT_TEST   ;; Q..is this a NOT test?
         JNZ    ANDF_NOT                ;;
         TEST   AL,[SI]+1               ;; Y..check for bit set
         JNZ    ANDF_DONE               ;; if set then remain in IFF
@@ -664,9 +664,9 @@ EXIT:                                  ;;
         POP   DS                       ;;
         RET                            ;;
                                        ;;
-KEYB_STATE_PROCESSOR   ENDP            ;;
+; ENDP KEYB_STATE_PROCESSOR;;
                                        ;;
                                        ;;
 
-CODE   ENDS
-	END
+; END SECTION .CODE
+	; END

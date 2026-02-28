@@ -1,7 +1,7 @@
-PAGE    60,132
-TITLE   INDEIDT - 386 XMA Emulator - Build Interrupt Descriptor Table
+; PAGE    60,132
+; TITLE   INDEIDT - 386 XMA Emulator - Build Interrupt Descriptor Table
 
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                             *
 * MODULE NAME     : INDEIDT                                                   *
@@ -61,36 +61,36 @@ COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #
 
-        .286P                 ; Enable recognition of 286 privileged instructs.
+        CPU 286; Enable recognition of 286 privileged instructs.
 
-        .XLIST                ; Turn off the listing
-        INCLUDE INDEDAT.INC   ; System data structures and equates
+        ; .XLIST; Turn off the listing
+        %include "INDEDAT.INC"; System data structures and equates
 
-        IF1                   ; Only include macros on the first pass
-        INCLUDE INDEOVP.MAC
-        ENDIF
-        .LIST                 ; Turn on the listing
-PAGE
+        %if 1  ; IF1 - pass-specific; Only include macros on the first pass
+        %include "INDEOVP.MAC"
+        %endif
+        ; .LIST; Turn on the listing
+; PAGE
 
-PROG    SEGMENT PARA    PUBLIC  'PROG'
+SECTION .PROG
 
-        ASSUME  CS:PROG
-        ASSUME  SS:NOTHING
-        ASSUME  DS:NOTHING
-        ASSUME  ES:NOTHING
+        ; ASSUME  CS:PROG
+        ; ASSUME  SS:NOTHING
+        ; ASSUME  DS:NOTHING
+        ; ASSUME  ES:NOTHING
 
-INDEIDT LABEL   NEAR
+INDEIDT:
 
 ; Let these entry points be known to other modules.
 
-        PUBLIC  INDEIDT
-        PUBLIC  SIDT_BLD
+        global INDEIDT
+        global SIDT_BLD
 
 ; This is the entry point to INDEEXC.
 
-        EXTRN   VEXCPT13:NEAR
+        extern VEXCPT13
 
-PAGE
+; PAGE
 ; Define the stack structure for our fast path.  For all the interrupts that we
 ; don't want to handle we just pass the interrupt back to the real interrupt
 ; vector.  The entry points for these vectors push the interrupt vector offset
@@ -99,7 +99,7 @@ PAGE
 ; stack.  The following structure is a map of the stack after these registers
 ; are pushed.  This structure allows us to access info on the stack.
 
-SPSTACK STRUC
+struc SPSTACK
 
 SP_SI   DW      0             ; Saved ESI (32 bit SI)
         DW      0
@@ -132,14 +132,14 @@ SP_VMGS DW      0             ; Interruptee's GS
         DW      0
 SP_STK  DW      0             ; The rest of the stack
 
-SPSTACK ENDS
+endstruc
 
 SP_START EQU    0             ; Offset from BP of the start of the save area
                               ; BP is set ot point to the start of the save area
 
-PAGE
+; PAGE
 
-SIDTBLD         PROC    NEAR
+SIDTBLD:
 
 ; Generate the entry points for all (yes, ALL) 256 interrupt vectors.  For
 ; interrupt 0D (general Protection exception) we will check if it was the V86
@@ -162,7 +162,7 @@ SIDTBLD         PROC    NEAR
 
 ; Interrupt 0D
 
-                IRP     V,<0D>
+                ; IRP     V,<0D>
 VEC&V:
                 PUSH    0&V&H           ; Push the interrupt number (0D)
                 PUSH    BP              ; Save BP
@@ -203,7 +203,7 @@ VEC&V:
                                         ;                                   @P2D
                 JG      SKIP&V          ; If there's an error code, go      @P2C
                                         ; handle the exception               P2C
-                MOV     WORD PTR [BP+SP_EX],0&V&H*4 ; If there is no error  @P2A
+                MOV     word [BP+SP_EX],0&V&H*4 ; If there is no error  @P2A
                                         ; code then multiply the vector      P2A
                                         ; number by four for the FASTPATH    P2A
                                         ; code.                              P2A
@@ -221,23 +221,23 @@ SKIP&V:         DATAOV                  ;                                   @P2A
                                         ;   pushed by the 386 on the INT 0D.
                 JMP     VEXCPT13        ; Go to the exception handler.
 
-                ENDM
+                %endmacro
 
-PAGE
+; PAGE
 ; For interrupts 00, 01, 02, 03, 04, 05, 06, 07, 09, 0A, 0B, 0C, 0E and 15
 ; push a dummy error code of 0 and then the interrupt number.  Then go to the
 ; exception handler.
 
-                IRP     V,<00,01,02,03,04,05,06,07,09,0A,0B,0C,0E,15>
+                ; IRP     V,<00,01,02,03,04,05,06,07,09,0A,0B,0C,0E,15>
 VEC&V:
                 PUSH    0               ; Push a dummy error code of 0
                 PUSH    0               ; 32 bits wide
 SKIP&V:
                 PUSH    0&V&H           ; Push the interrupt number
                 JMP     VEXCPT13        ; Go to the exception handler
-                ENDM
+                %endmacro
 
-PAGE
+; PAGE
 ; For the rest of the interrupts push the interrupt vector offset (interrupt
 ; number * 4) and go to the fast path routine.
 ;
@@ -247,86 +247,86 @@ PAGE
 ; INT 10H, BIOS video calls, is given the fastest code path by putting it just
 ; before the FASTPATH routine.
 
-                IRP     V,<08,0F,11,12,13,14,16,17,18,19,1A,1B,1C,1D,1E,1F>
+                ; IRP     V,<08,0F,11,12,13,14,16,17,18,19,1A,1B,1C,1D,1E,1F>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<20,21,22,23,24,25,26,27,28,29,2A,2B,2C,2D,2E,2F>
+                %endmacro
+                ; IRP     V,<20,21,22,23,24,25,26,27,28,29,2A,2B,2C,2D,2E,2F>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<30,31,32,33,34,35,36,37,38,39,3A,3B,3C,3D,3E,3F>
+                %endmacro
+                ; IRP     V,<30,31,32,33,34,35,36,37,38,39,3A,3B,3C,3D,3E,3F>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<40,41,42,43,44,45,46,47,48,49,4A,4B,4C,4D,4E,4F>
+                %endmacro
+                ; IRP     V,<40,41,42,43,44,45,46,47,48,49,4A,4B,4C,4D,4E,4F>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<50,51,52,53,54,55,56,57,58,59,5A,5B,5C,5D,5E,5F>
+                %endmacro
+                ; IRP     V,<50,51,52,53,54,55,56,57,58,59,5A,5B,5C,5D,5E,5F>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<60,61,62,63,64,65,66,67,68,69,6A,6B,6C,6D,6E,6F>
+                %endmacro
+                ; IRP     V,<60,61,62,63,64,65,66,67,68,69,6A,6B,6C,6D,6E,6F>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<70,71,72,73,74,75,76,77,78,79,7A,7B,7C,7D,7E,7F>
+                %endmacro
+                ; IRP     V,<70,71,72,73,74,75,76,77,78,79,7A,7B,7C,7D,7E,7F>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<80,81,82,83,84,85,86,87,88,89,8A,8B,8C,8D,8E,8F>
+                %endmacro
+                ; IRP     V,<80,81,82,83,84,85,86,87,88,89,8A,8B,8C,8D,8E,8F>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<90,91,92,93,94,95,96,97,98,99,9A,9B,9C,9D,9E,9F>
+                %endmacro
+                ; IRP     V,<90,91,92,93,94,95,96,97,98,99,9A,9B,9C,9D,9E,9F>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<A0,A1,A2,A3,A4,A5,A6,A7,A8,A9,AA,AB,AC,AD,AE,AF>
+                %endmacro
+                ; IRP     V,<A0,A1,A2,A3,A4,A5,A6,A7,A8,A9,AA,AB,AC,AD,AE,AF>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<B0,B1,B2,B3,B4,B5,B6,B7,B8,B9,BA,BB,BC,BD,BE,BF>
+                %endmacro
+                ; IRP     V,<B0,B1,B2,B3,B4,B5,B6,B7,B8,B9,BA,BB,BC,BD,BE,BF>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<C0,C1,C2,C3,C4,C5,C6,C7,C8,C9,CA,CB,CC,CD,CE,CF>
+                %endmacro
+                ; IRP     V,<C0,C1,C2,C3,C4,C5,C6,C7,C8,C9,CA,CB,CC,CD,CE,CF>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<D0,D1,D2,D3,D4,D5,D6,D7,D8,D9,DA,DB,DC,DD,DE,DF>
+                %endmacro
+                ; IRP     V,<D0,D1,D2,D3,D4,D5,D6,D7,D8,D9,DA,DB,DC,DD,DE,DF>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,EA,EB,EC,ED,EE,EF>
+                %endmacro
+                ; IRP     V,<E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,EA,EB,EC,ED,EE,EF>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
-                IRP     V,<F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,FA,FB,FC,FD,FE,FF>
+                %endmacro
+                ; IRP     V,<F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,FA,FB,FC,FD,FE,FF>
 VEC&V:
                 PUSH    0&V&H*4         ; Push the interrupt vector offset
                 JMP     FASTPATH        ; Go to the fastpath routine
-                ENDM
+                %endmacro
 
 VEC10:
                 PUSH    010H*4          ; Push the interrupt vector offset
 
-PAGE
+; PAGE
 FASTPATH:
         PUSH    BP                      ; Save BP
         DATAOV
@@ -348,7 +348,7 @@ PASS_ON:                                ;                                  @P2C
         MOV     DI,SS:[BP+SP_SP]        ; Load DI with the interruptee's SP
         SUB     DI,6                    ; Decrement "SP" to simulate the pushing
                                         ;   of the flags, CS and IP on an INT.
-        MOV     SS:WORD PTR [BP+SP_SP],DI ; Replace the user's SP
+        MOV     SS:word [BP+SP_SP],DI ; Replace the user's SP
 
         DATAOV
         SUB     AX,AX                   ; Clear EAX
@@ -380,16 +380,16 @@ PASS_ON:                                ;                                  @P2C
         NOP                             ; Intel bug # A0-119
 
         AND     AX,3CFFH                ; Clean up the flags for our IRET by
-        MOV     WORD PTR SS:[BP+SP_FL],AX  ; setting IOPL to 3
+        MOV     word SS:[BP+SP_FL],AX  ; setting IOPL to 3
 
 ; Replace the interruptee's CS:IP with the CS:IP of the interrupt vector.  When
 ; we IRET back to the V86 task control will go to the interrupt routine.
 
         MOV     SI,SS:[BP+SP_EX]        ; Get the interrupt vector offset
         LODSW                           ; Get the IP of the interrupt vector
-        MOV     WORD PTR SS:[BP+SP_IP],AX ; Replace the user's IP
+        MOV     word SS:[BP+SP_IP],AX ; Replace the user's IP
         LODSW                           ; Get the CS of the interrupt vector
-        MOV     WORD PTR SS:[BP+SP_CS],AX ; Replace the user's CS
+        MOV     word SS:[BP+SP_CS],AX ; Replace the user's CS
 
         DATAOV
         POP     SI                      ; Restore ESI from off our stack
@@ -403,69 +403,69 @@ PASS_ON:                                ;                                  @P2C
         DATAOV
         IRET                            ; Give control back to the interruptee
 
-PAGE
+; PAGE
 
 ; Build a talbe of the offsets of all the interrupt entry points.  This table
 ; is used as input to the procedure that builds the IDT.
 
-SIDT_OFFSETS            LABEL   WORD
+SIDT_OFFSETS:
 
-                IRP     V,<00,01,02,03,04,05,06,07,08,09,0A,0B,0C,0D,0E,0F>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<10,11,12,13,14,15,16,17,18,19,1A,1B,1C,1D,1E,1F>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<20,21,22,23,24,25,26,27,28,29,2A,2B,2C,2D,2E,2F>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<30,31,32,33,34,35,36,37,38,39,3A,3B,3C,3D,3E,3F>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<40,41,42,43,44,45,46,47,48,49,4A,4B,4C,4D,4E,4F>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<50,51,52,53,54,55,56,57,58,59,5A,5B,5C,5D,5E,5F>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<60,61,62,63,64,65,66,67,68,69,6A,6B,6C,6D,6E,6F>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<70,71,72,73,74,75,76,77,78,79,7A,7B,7C,7D,7E,7F>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<80,81,82,83,84,85,86,87,88,89,8A,8B,8C,8D,8E,8F>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<90,91,92,93,94,95,96,97,98,99,9A,9B,9C,9D,9E,9F>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<A0,A1,A2,A3,A4,A5,A6,A7,A8,A9,AA,AB,AC,AD,AE,AF>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<B0,B1,B2,B3,B4,B5,B6,B7,B8,B9,BA,BB,BC,BD,BE,BF>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<C0,C1,C2,C3,C4,C5,C6,C7,C8,C9,CA,CB,CC,CD,CE,CF>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<D0,D1,D2,D3,D4,D5,D6,D7,D8,D9,DA,DB,DC,DD,DE,DF>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,EA,EB,EC,ED,EE,EF>
-                DW      OFFSET VEC&V
-                ENDM
-                IRP     V,<F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,FA,FB,FC,FD,FE,FF>
-                DW      OFFSET VEC&V
-                ENDM
-PAGE
+                ; IRP     V,<00,01,02,03,04,05,06,07,08,09,0A,0B,0C,0D,0E,0F>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<10,11,12,13,14,15,16,17,18,19,1A,1B,1C,1D,1E,1F>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<20,21,22,23,24,25,26,27,28,29,2A,2B,2C,2D,2E,2F>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<30,31,32,33,34,35,36,37,38,39,3A,3B,3C,3D,3E,3F>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<40,41,42,43,44,45,46,47,48,49,4A,4B,4C,4D,4E,4F>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<50,51,52,53,54,55,56,57,58,59,5A,5B,5C,5D,5E,5F>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<60,61,62,63,64,65,66,67,68,69,6A,6B,6C,6D,6E,6F>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<70,71,72,73,74,75,76,77,78,79,7A,7B,7C,7D,7E,7F>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<80,81,82,83,84,85,86,87,88,89,8A,8B,8C,8D,8E,8F>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<90,91,92,93,94,95,96,97,98,99,9A,9B,9C,9D,9E,9F>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<A0,A1,A2,A3,A4,A5,A6,A7,A8,A9,AA,AB,AC,AD,AE,AF>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<B0,B1,B2,B3,B4,B5,B6,B7,B8,B9,BA,BB,BC,BD,BE,BF>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<C0,C1,C2,C3,C4,C5,C6,C7,C8,C9,CA,CB,CC,CD,CE,CF>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<D0,D1,D2,D3,D4,D5,D6,D7,D8,D9,DA,DB,DC,DD,DE,DF>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<E0,E1,E2,E3,E4,E5,E6,E7,E8,E9,EA,EB,EC,ED,EE,EF>
+                DW      VEC&V
+                %endmacro
+                ; IRP     V,<F0,F1,F2,F3,F4,F5,F6,F7,F8,F9,FA,FB,FC,FD,FE,FF>
+                DW      VEC&V
+                %endmacro
+; PAGE
 SIDT_BLD:
 
 ; Build the system IDT.  The system IDT will contain 256 interrupt gates.
 
         MOV     AX,CS                   ; Set DS:SI to point to the table of
         MOV     DS,AX                   ;   interrupt entry points
-        MOV     SI,OFFSET SIDT_OFFSETS
+        MOV     SI,SIDT_OFFSETS
 
         MOV     DI,SIDT_LOC             ; Set ES:DI to point to the beginning
                                         ;   of the IDT
@@ -485,7 +485,7 @@ SIDT_BLD:
 
         RET                             ; Return to INDEINI
 
-PAGE
+; PAGE
 
 ; This loop builds descriptors in the IDT.  DS:SI points to a table of 16 bit
 ; offsets for the interrupt entry points.  ES:DI points to the start of the IDT.
@@ -505,8 +505,8 @@ BLD_IDT:
 
         RET
 
-SIDTBLD ENDP
+; ENDP SIDTBLD
 
-PROG    ENDS
+; END SECTION .PROG
 
-        END
+        ; END

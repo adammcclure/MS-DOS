@@ -19,14 +19,14 @@ NHD     EQU     ES:[DI]                 ;                                      ;
                                         ;
 NAME_LEN EQU    8                       ;                                      ;AN000;
                                         ;
-DHS     STRUC                           ;                                      ;AN000;
-DH_NEXTO DW     ?                       ; offset of pointer to next header     ;AN000;
-DH_NEXTS DW     ?                       ; segment of pointer to next header    ;AN000;
-        DW      ?                       ; attribute                            ;AN000;
-DH_STRAO DW     ?                       ; offset to strategy routine           ;AN000;
-DH_INTRO DW     ?                       ; offset to interrupt routine          ;AN000;
+struc DHS;                                      ;AN000;
+DH_NEXTO: dw 0; offset of pointer to next header     ;AN000;
+DH_NEXTS: dw 0; segment of pointer to next header    ;AN000;
+        dw 0; attribute                            ;AN000;
+DH_STRAO: dw 0; offset to strategy routine           ;AN000;
+DH_INTRO: dw 0; offset to interrupt routine          ;AN000;
 DH_NAME DB      NAME_LEN DUP(0)         ; device name in this header           ;AN000;
-DHS     ENDS                            ; end of common portion                ;AN000;
+endstruc; end of common portion                ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; CON data structure  CS:[BX]
@@ -34,14 +34,14 @@ DHS     ENDS                            ; end of common portion                ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 CONPTR  EQU     CS:[BX]                 ;                                      ;AN000;
                                         ; STATES                               ;AN000;
-BUF_DATA STRUC                          ;                                      ;AN000;
+struc BUF_DATA;                                      ;AN000;
 DEV_HDRO DW     -1                      ; device driver header offset          ;AN000;
 DEV_HDRS DW     -1                      ;                                      ;AN000;
 CON_STRAO DW    -1                      ; dos CON strategy offset              ;AN000;
 CON_STRAS DW    -1                      ;                                      ;AN000;
 CON_INTRO DW    -1                      ; dos CON strategy offset              ;AN000;
 CON_INTRS DW    -1                      ;                                      ;AN000;
-BUF_DATA ENDS                           ;                                      ;AN000;
+endstruc;                                      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;                                      ;AN000;
 ;
 ;  INIT Structures and equates
@@ -104,38 +104,38 @@ MODE19          EQU     19              ;                                      ;
 ;  Request Header Structure (INIT)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INIT_REQ_HDR    STRUC                   ; INIT Request header structure        ;AN000;
-                DB   13 DUP(?)          ; standard request header              ;AN000;
-NUM_UNITS       DB   ?                  ; number of units (N/A)                ;AN000;
-END_ADDRESS_O   DW   ?                  ; ending address of resident code      ;AN000;
-END_ADDRESS_S   DW   ?                  ;                                      ;AN000;
-ARG_PTR         DD   ?                  ; ptr. to remaining arguments          ;AN000;
-DRIVE_NUM       DB   ?                  ; drive number (N/A)                   ;AN000;
+struc INIT_REQ_HDR; INIT Request header structure        ;AN000;
+                times 13 db 0; standard request header              ;AN000;
+NUM_UNITS: db 0; number of units (N/A)                ;AN000;
+END_ADDRESS_O: dw 0; ending address of resident code      ;AN000;
+END_ADDRESS_S: dw 0;                                      ;AN000;
+ARG_PTR: dd 0; ptr. to remaining arguments          ;AN000;
+DRIVE_NUM: db 0; drive number (N/A)                   ;AN000;
 CONFIG_ERRMSG   dw   0                  ;Flag to control "Error in CONFIG.SYS.." msg.;AN002;
-INIT_REQ_HDR    ENDS                    ;                                      ;AN000;
+endstruc;                                      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Information Block Structure
 ;    (for functionality call)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INFO_BLOCK      STRUC                   ; information block for functionality call   ;AN000;
-STATIC_ADDRESS  DD   ?                  ; address of static functionality table      ;AN000;
-                DB   33 DUP(?)          ; don't care                           ;AN000;
-ACTIVE_DISPLAY  DB   ?                  ; active display code                  ;AN000;
-ALT_DISPLAY     DB   ?                  ; alternate display code               ;AN000;
-                DB   3  DUP(?)          ; don't care                           ;AN000;
-CURRENT_SCANS   DB   ?                  ; current number of scan lines         ;AN000;
-                DB   2  DUP(?)          ; don't care                           ;AN000;
-MISC_INFO       DB   ?                  ; miscellaneous state information      ;AN000;
-                DB   18 DUP(?)          ; don't care                           ;AN000;
-INFO_BLOCK      ENDS                    ;                                      ;AN000;
+struc INFO_BLOCK; information block for functionality call   ;AN000;
+STATIC_ADDRESS: dd 0; address of static functionality table      ;AN000;
+                times 33 db 0; don't care                           ;AN000;
+ACTIVE_DISPLAY: db 0; active display code                  ;AN000;
+ALT_DISPLAY: db 0; alternate display code               ;AN000;
+                times 3 db 0; don't care                           ;AN000;
+CURRENT_SCANS: db 0; current number of scan lines         ;AN000;
+                times 2 db 0; don't care                           ;AN000;
+MISC_INFO: db 0; miscellaneous state information      ;AN000;
+                times 18 db 0; don't care                           ;AN000;
+endstruc;                                      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Video table entry structure
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-MODE_TABLE      STRUC                   ;                                      ;AN000;
+struc MODE_TABLE;                                      ;AN000;
 V_MODE          DB    -1                ; video mode                           ;AN000;
 D_MODE          DB    -1                ; display mode                         ;AN000;
 RESERVED_BYTE   DB    0                 ; reserved                             ;AN000;
@@ -144,26 +144,26 @@ SCR_WIDTH       DW    -1                ; screen width (pels)                  ;
 SCR_LENGTH      DW    -1                ; screen length (pels)                 ;AN000;
 SCR_COLS        DW    -1                ; number columns                       ;AN000;
 SCR_ROWS        DW    -1                ; number rows                          ;AN000;
-MODE_TABLE      ENDS                    ;                                      ;AN000;
+endstruc;                                      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Structure of Static Block
 ;  (for functionality call
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-STATIC_BLOCK    STRUC                   ; format of static functionality table ;AN000;
-                DB   7  DUP(?)          ; don't care                           ;AN000;
-SCAN_TEXT       DB   ?                  ; available scan lines in text modes   ;AN000;
-STATIC_BLOCK    ENDS                    ;                                      ;AN000;
+struc STATIC_BLOCK; format of static functionality table ;AN000;
+                times 7 db 0; don't care                           ;AN000;
+SCAN_TEXT: db 0; available scan lines in text modes   ;AN000;
+endstruc;                                      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Structure of System ID call return block
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SYS_ID          STRUC                   ; format of return system config data  ;AN000;
-                DW   ?                  ; don't care                           ;AN000;
-MODEL_BYTE      DB   ?                  ; model byte                           ;AN000;
-SYS_ID          ENDS                    ;                                      ;AN000;
+struc SYS_ID; format of return system config data  ;AN000;
+                dw 0; don't care                           ;AN000;
+MODEL_BYTE: db 0; model byte                           ;AN000;
+endstruc;                                      ;AN000;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -193,11 +193,11 @@ GET_SUBFUNC   EQU    7FH                ; WGR Same structure as GET_IOCTL(ANSI);
 ; with DA_INFO_LEVEL=1, then ANSI sets DA_OPTION_L_STATE based on /L option
 ; status.
 
-DA_INFO_PACKET   struc
+struc DA_INFO_PACKET
 DA_INFO_LEVEL       db      0           ; 0=used for SET_MODE_FLAG 1=for OPTION_L_STATE
 DA_SETMODE_FLAG     db      0           ; 1: DISPLAY.SYS is calling INT 10h call, SET MODE. 0=finished.
 DA_OPTION_L_STATE   db      0           ; 1 = /L active, 0 = /L inactive
-DA_INFO_PACKET   ends
+endstruc
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -253,60 +253,60 @@ UNLIMITED       EQU     0               ; unlimited message size.              ;
 ;  Request Header Structure (Generic IOCTL)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INIT_REQ_HDR    STRUC                   ;                                      ;AN000;
-                DB   13 DUP(?)          ; standard request header              ;AN000;
-MAJ_FUNC        DB   ?                  ; major function                       ;AN000;
-MIN_FUNC        DB   ?                  ; minor function                       ;AN000;
-IOCTL_SI        DW   ?                  ; contents of SI                       ;AN000;
-IOCTL_DI        DW   ?                  ; contents of DI                       ;AN000;
-REQ_PCKT_PTR    DD   ?                  ; pointer to request packet            ;AN000;
-INIT_REQ_HDR    ENDS                    ;                                      ;AN000;
+struc INIT_REQ_HDR;                                      ;AN000;
+                times 13 db 0; standard request header              ;AN000;
+MAJ_FUNC: db 0; major function                       ;AN000;
+MIN_FUNC: db 0; minor function                       ;AN000;
+IOCTL_SI: dw 0; contents of SI                       ;AN000;
+IOCTL_DI: dw 0; contents of DI                       ;AN000;
+REQ_PCKT_PTR: dd 0; pointer to request packet            ;AN000;
+endstruc;                                      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; REQUEST PACKET STRUCTURE (Generic IOCTL)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-REQ_PCKT        STRUC                   ;                                      ;AN000;
-INFO_LEVEL      DB   ?                  ; information level (should be 0)      ;AN000;
-                DB   ?                  ; reserved                             ;AN000;
-DATA_LENGTH     DW   ?                  ; length of remaining data             ;AN000;
-RP_FLAGS        DW   ?                  ; control flags                        ;AN000;
-RP_MODE         DB   ?                  ; display mode                         ;AN000;
-RESERVED2       DB   ?                  ; reserved                             ;AN000;
-RP_COLORS       DW   ?                  ; # of colors                          ;AN000;
-RP_WIDTH        DW   ?                  ; screen width                         ;AN000;
-RP_LENGTH       DW   ?                  ; screen length                        ;AN000;
-RP_COLS         DW   ?                  ; columns                              ;AN000;
-RP_ROWS         DW   ?                  ; rows                                 ;AN000;
-REQ_PCKT        ENDS                    ;                                      ;AN000;
+struc REQ_PCKT;                                      ;AN000;
+INFO_LEVEL: db 0; information level (should be 0)      ;AN000;
+                db 0; reserved                             ;AN000;
+DATA_LENGTH: dw 0; length of remaining data             ;AN000;
+RP_FLAGS: dw 0; control flags                        ;AN000;
+RP_MODE: db 0; display mode                         ;AN000;
+RESERVED2: db 0; reserved                             ;AN000;
+RP_COLORS: dw 0; # of colors                          ;AN000;
+RP_WIDTH: dw 0; screen width                         ;AN000;
+RP_LENGTH: dw 0; screen length                        ;AN000;
+RP_COLS: dw 0; columns                              ;AN000;
+RP_ROWS: dw 0; rows                                 ;AN000;
+endstruc;                                      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Scan Lines available structure
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SCAN_LINE_STR   STRUC                   ;                                      ;AN000;
-NUM_LINES       DW   ?                  ; number of scan lines                 ;AN000;
-REP_1BH         DB   ?                  ; representation in 1Bh call           ;AN000;
-REP_12H         DB   ?                  ; representation in 12h call           ;AN000;
-SCAN_LINE_STR   ENDS                    ;                                      ;AN000;
+struc SCAN_LINE_STR;                                      ;AN000;
+NUM_LINES: dw 0; number of scan lines                 ;AN000;
+REP_1BH: db 0; representation in 1Bh call           ;AN000;
+REP_12H: db 0; representation in 12h call           ;AN000;
+endstruc;                                      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; SUBLIST struc
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SUB_STRUC       STRUC                   ;                                      ;AN000;
-                DB  2 DUP(?)            ;                                      ;AN000;
-SUB_PTR_O       DW  ?                   ;                                      ;AN000;
-SUB_PTR_S       DW  ?                   ;                                      ;AN000;
-SUB_STRUC       ENDS                    ;                                      ;AN000;
+struc SUB_STRUC;                                      ;AN000;
+                times 2 db 0;                                      ;AN000;
+SUB_PTR_O: dw 0;                                      ;AN000;
+SUB_PTR_S: dw 0;                                      ;AN000;
+endstruc;                                      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; RESULT BUFFER struc
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-RESULT_STRUC    STRUC                   ;                                      ;AN000;
-RESULT_TYPE     DB  ?                   ;                                      ;AN000;
-                DB  ?                   ;                                      ;AN000;
-RES_SYN_PTR     DW  ?                   ;                                      ;AN000;
-RES_PTR         DD  ?                   ;                                      ;AN000;
-RESULT_STRUC    ENDS                    ;                                      ;AN000;
+struc RESULT_STRUC;                                      ;AN000;
+RESULT_TYPE: db 0;                                      ;AN000;
+                db 0;                                      ;AN000;
+RES_SYN_PTR: dw 0;                                      ;AN000;
+RES_PTR: dd 0;                                      ;AN000;
+endstruc;                                      ;AN000;
