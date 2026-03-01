@@ -22,11 +22,11 @@
 
 				   MSG_UTILNAME <SHARE>
 
-ShareDataVersion		   =	1
+ShareDataVersion equ 1
 
 AsmVars 			   <IBM, Installed>
 
-Installed			   =	TRUE ; for installed version
+Installed equ TRUE; for installed version
 
 %macro OFF 2
 				   %if installed
@@ -104,7 +104,7 @@ Installed			   =	TRUE ; for installed version
 				   ;---------------------------------------
 
 	; .sall
-	%if NOT	INSTALLED
+	%if ~INSTALLED
 
 	    SECTION .CODE
 
@@ -262,7 +262,7 @@ fnm10$5:
 
 fnm11: cmp [si].mft_flag,MFLG_FRE
 
-   %if NOT  DEBUG
+   %if ~DEBUG
        jl   fnm20			; at END, am out of space
    %else
        jl   fnm20j
@@ -642,7 +642,7 @@ mrg9: pop bx
    pop	ds
 
    mov	ax,es				; easy spot for compare
-   mov	bx,es:[di].sf_mft
+   mov	bx,[es:di].sf_mft
    lea	si,[bx].mft_sptr-sf_chain	; ds:[si].sf_chain point to prev link
 rsc1: or si,si
    jz	rscier
@@ -656,15 +656,15 @@ rsc15: lds si,[si].sf_chain
 					; (es:di) is sft
 					; (ds:si) is prev sft link
 					;---------------------------------------
-rsc2: mov ax,word es:[di].sf_chain
-   mov	word ds:[si].sf_chain,ax
-   mov	ax,word es:[di].sf_chain+2
-   mov	word ds:[si].sf_chain+2,ax
+rsc2: mov ax,word [es:di].sf_chain
+   mov	word [ds:si].sf_chain,ax
+   mov	ax,word [es:di].sf_chain+2
+   mov	word [ds:si].sf_chain+2,ax
 
    push cs
    pop	ds
    xor	bx,bx
-   xchg bx,es:[di].sf_MFT		; (DS:bx) = MFT address
+   xchg bx,[es:di].sf_MFT		; (DS:bx) = MFT address
 					;    and 0 MFT pointer (show free)
    cmp	word [bx].mft_sptr,0	; set z flag if no more sft
 
@@ -746,7 +746,7 @@ sle1: and si,si
    cmp	bp,Proc_id			;dcl
    jnz	sce1$5				;dcl
    les	si,[si].rlr_sptr		; (si) = sft address		;dcl
-   mov	bp,es:[si].sf_UID		;dcl
+   mov	bp,[es:si].sf_UID		;dcl
    cmp	bp,User_ID			;dcl
    jnz	sce1$5				; doesn't belong to user        ;dcl
    mov	bp,es				;dcl
@@ -904,7 +904,7 @@ cps02:
 					; AL is sfn to be closed
 					;---------------------------------------
 cps1:
-   mov	cx,ds:[arena_owner]
+   mov	cx,[ds:arena_owner]
    mov	bx,ds
    inc	bx				; is the owner the same as the current
    cmp	cx,bx				; block?
@@ -922,7 +922,7 @@ cps1:
 					;---------------------------------------
 cps15:
    call CPJ				; free for this PDB
-   lds	cx,DS:[PDB_Next_PDB]		; advance to next
+   lds	cx,[DS:PDB_Next_PDB]		; advance to next
    cmp	cx,-1
    jnz	cps15				; there is another link to process
    pop	ds
@@ -932,10 +932,10 @@ cps15:
 					;  DS:[0] is the allocation block
 					;---------------------------------------
 cps2:
-   cmp	ds:[arena_signature],arena_signature_end
+   cmp	[ds:arena_signature],arena_signature_end
    jz	cps3				; no more blocks to do
    mov	bx,ds				; get current address
-   add	bx,DS:[Arena_size]		; add on size of block
+   add	bx,[DS:Arena_size]		; add on size of block
    inc	bx				; remember size of header
    mov	ds,bx				; link to next
    jmp	cps1
@@ -977,14 +977,14 @@ cps31:
 
    ; assume ds:nothing,es:nothing
 
-   mov	cx,ds:[PDB_JFN_length]
-   les	di,ds:[PDB_JFN_pointer]
+   mov	cx,[ds:PDB_JFN_length]
+   les	di,[ds:PDB_JFN_pointer]
    cld
 cpj1: repne scasb
 
    retnz				; none found
 
-   mov	byte es:[di-1],-1		; free this
+   mov	byte [es:di-1],-1		; free this
    jcxz CPJret				; Found one in last JFN entry
    jmp	cpj1				; keep looking
 CPJret:
@@ -1011,7 +1011,7 @@ CPJret:
 
    ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 
-   mov	bx,cs:[bx].mft_serl
+   mov	bx,[cs:bx].mft_serl
 
    ret
 
@@ -1039,9 +1039,9 @@ CPJret:
 
    ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 
-   CMP	ES:[DI].sf_ref_count,0
+   CMP	[ES:DI].sf_ref_count,0
    JZ	BadSFT
-   MOV	BX,ES:[DI].sf_mft		; Local file or dev with sharing
+   MOV	BX,[ES:DI].sf_mft		; Local file or dev with sharing
 
    call SFM
 
@@ -1078,11 +1078,11 @@ BadSFT: stc
 
    ; ASSUME CS:SHARE,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 
-   MOV	AL,ES:[DI].sf_attr		; move attribute (for reopen)
+   MOV	AL,[ES:DI].sf_attr		; move attribute (for reopen)
    MOV	[SI].FCB_l_attr,AL
-   MOV	AX,ES:[DI].sf_firclus		; get first cluster
+   MOV	AX,[ES:DI].sf_firclus		; get first cluster
    MOV	[SI].FCB_l_firclus,AX
-   MOV	BX,ES:[DI].sf_mft		; get sharing pointer
+   MOV	BX,[ES:DI].sf_mft		; get sharing pointer
 
    call SFM
 
@@ -1145,18 +1145,18 @@ OpenScan:
    CallInstall PointComp,multDOS,20	;	if (!pointcomp (s,d))
 
    JZ	OpenNext
-   CMP	ES:[DI].sf_ref_count,0
+   CMP	[ES:DI].sf_ref_count,0
    JZ	OpenNext
-   MOV	AX,ES:[DI].sf_mode
+   MOV	AX,[ES:DI].sf_mode
    CMP	AX,[SI].sf_mode
    JNZ	OpenNext
-   MOV	AX,ES:[DI].sf_mft
+   MOV	AX,[ES:DI].sf_mft
    CMP	AX,[SI].sf_mft
    JNZ	OpenNext
-   MOV	AX,word ES:[DI].sf_UID
+   MOV	AX,word [ES:DI].sf_UID
    CMP	AX,word [SI].sf_uid
    JNZ	OpenNext
-   MOV	AX,word ES:[DI].sf_pid
+   MOV	AX,word [ES:DI].sf_pid
    CMP	AX,word [SI].sf_pid
    JZ	OpenFound
 OpenNext:
@@ -1185,14 +1185,14 @@ OpenFound:
 
    ; ASSUME DS:NOTHING
 
-   INC	ES:[DI].sf_ref_count		;   d->refcount++;
+   INC	[ES:DI].sf_ref_count		;   d->refcount++;
    XOR	BX,BX				; find jfn with sfn as contents
 JFNScan:
 
    CallInstall pJFNFromHandle,multDOS,32,AX,AX
 
    JC	UseJFN				; ran out of handles?
-   CMP	AL,byte ES:[DI]		; does JFN have SFN?
+   CMP	AL,byte [ES:DI]		; does JFN have SFN?
    jz	JFNfound			; YES, go return JFN
    INC	BX				; no, look at next
    JMP	JFNScan
@@ -1413,7 +1413,7 @@ ifs_flag equ 8000h			;				       ;AN000;
 					;---------------------------------------
 					; Do nothing for device or network
 					;---------------------------------------
-   mov	bx,es:[di].sf_mode
+   mov	bx,[es:di].sf_mode
    and	bx,sf_isnet + devid_device
 
 ;  $if	z,and,long			; if not device and		       ;AC000;
@@ -1421,7 +1421,7 @@ ifs_flag equ 8000h			;				       ;AN000;
    JMP $$IF4
 $$XL1:
 
-   mov	bx,es:[di].sf_MFT
+   mov	bx,[es:di].sf_MFT
    or	bx,bx
 
 ;  $if	nz,,long			; if not network		       ;AC000;
@@ -1436,7 +1436,7 @@ $$XL2:
 					;---------------------------------------
        SaveReg <DS,SI>
 
-       lds  si,cs:[bx].MFT_SPTR
+       lds  si,[cs:bx].MFT_SPTR
        mov  cx,ax
 
 ;      $search				;				       ;AC000;
@@ -1495,9 +1495,9 @@ $$IF5:
 					;
 					; Copy time from ES:DI into DS:SI
 					;---------------------------------------
-	       mov  bx,es:[di].sf_time
+	       mov  bx,[es:di].sf_time
 	       mov  [si].sf_time,bx
-	       mov  bx,es:[di].sf_date
+	       mov  bx,[es:di].sf_date
 	       mov  [si].sf_date,bx
 	       test [si].sf_flags,ifs_flag ;				       ;AN000;
 
@@ -1520,9 +1520,9 @@ $$IF13:
 					;
 					; We always copy size and firclus
 					;---------------------------------------
-	       mov  bx,word es:[di].sf_size
+	       mov  bx,word [es:di].sf_size
 	       mov  word [si].sf_size,bx
-	       mov  bx,word es:[di].sf_size+2
+	       mov  bx,word [es:di].sf_size+2
 	       mov  word [si].sf_size+2,bx
 	       test [si].sf_flags,ifs_flag ;				       ;AN000;
 
@@ -1535,7 +1535,7 @@ $$IF13:
 	       JMP SHORT $$EN17
 $$IF17:
 
-		   mov	bx,es:[di].sf_firclus
+		   mov	bx,[es:di].sf_firclus
 		   mov	[si].sf_firclus,bx
 		   cmp	cx,2		;				       ;AC000;
 
@@ -1636,14 +1636,14 @@ $$IF4:
    Procedure New_Sft,near		;				       ;AN000;
 
    mov	bx,[si].sf_time 		; update time
-   mov	es:[di].sf_time,bx
+   mov	[es:di].sf_time,bx
    mov	bx,[si].sf_date 		; update date
-   mov	es:[di].sf_date,bx
+   mov	[es:di].sf_date,bx
    mov	bx,word [si].sf_size	; update size
-   mov	word es:[di].sf_size,bx
+   mov	word [es:di].sf_size,bx
    mov	bx,word [si].sf_size+2
-   mov	word es:[di].sf_size+2,bx
-   test es:[di].sf_flags,ifs_flag	;				       ;AN000;
+   mov	word [es:di].sf_size+2,bx
+   test [es:di].sf_flags,ifs_flag	;				       ;AN000;
 
 ;  $if	nz				; if non-FAT			       ;AC003;
    JZ $$IF26
@@ -1655,9 +1655,9 @@ $$IF4:
 $$IF26:
 
        mov  bx,[si].sf_firclus		; update first cluster
-       mov  es:[di].sf_firclus,bx
-       mov  es:[di].sf_cluspos,0	; retrace from start
-       mov  es:[di].sf_lstclus,bx	; ditto
+       mov  [es:di].sf_firclus,bx
+       mov  [es:di].sf_cluspos,0	; retrace from start
+       mov  [es:di].sf_lstclus,bx	; ditto
 
 ;  $endif				; endif  FAT			       ;AN000;
 $$EN26:
@@ -1981,7 +1981,7 @@ j&rtn  endp
 ;
 ;******************* END OF SPECIFICATIONS *************************************
 
-PoolSize = 2048
+PoolSize equ 2048
 
    global MFT
 
@@ -2048,7 +2048,7 @@ JTable:
    DD	JShCol				;   12	ShCol
    DD	JShCloseFile			;   13	ShCloseFile
    DD	JShSU				;   14	ShSU
-JTableLen = $ - JTable
+JTableLen equ $ - JTable
 
 ;	$SALUT	(4,9,17,36)
 				   ;---------------------------------------
@@ -2206,7 +2206,7 @@ $$IF50:
 ;  $if	z,and				; if the ",0"  part and 	       ;AC000;
    JNZ $$IF52
 
-   LDS	SI,ES:[BX].SYSI_FCB		; point to the existing cache
+   LDS	SI,[ES:BX].SYSI_FCB		; point to the existing cache
    CMP	[SI].sfCount,4
 
 ;  $if	z				; if the "4,"  part then	       ;AC000;
@@ -2235,18 +2235,18 @@ $$IF50:
 					; Word on stack is current TNR size.
 					; Make dos point to new table
 					;---------------------------------------
-       MOV  word ES:[BX].SYSI_FCB,0
-       MOV  word ES:[BX].SYSI_FCB+2,SS
+       MOV  word [ES:BX].SYSI_FCB,0
+       MOV  word [ES:BX].SYSI_FCB+2,SS
        POP  SI
-       ADD  word ES:[BX].SYSI_FCB+2,SI
+       ADD  word [ES:BX].SYSI_FCB+2,SI
 					;---------------------------------------
 					; Initialize table parts, next link
 					;   and size
 					;---------------------------------------
-       MOV  DS,word ES:[BX].SYSI_FCB+2
-       MOV  word DS:[sfLink],-1
-       MOV  word DS:[sfLink+2],-1
-       MOV  DS:[sfcount],16
+       MOV  DS,word [ES:BX].SYSI_FCB+2
+       MOV  word [DS:sfLink],-1
+       MOV  word [DS:sfLink+2],-1
+       MOV  [DS:sfcount],16
 					;---------------------------------------
 					; Set up succeeding LRU size
 					;---------------------------------------
@@ -2261,19 +2261,19 @@ $$IF52:
 					;---------------------------------------
 					; Clean out the FCB Cache
 					;---------------------------------------
-   LES	DI,ES:[BX].SYSI_FCB
+   LES	DI,[ES:BX].SYSI_FCB
 
    ; ASSUME ES:Nothing
 
-   MOV	CX,ES:[DI].SFCount
+   MOV	CX,[ES:DI].SFCount
    LEA	DI,[DI].SFTable
 
 ;  $do					;				       ;AC000;
 $$DO54:
 
-       MOV  ES:[DI].sf_ref_count,0
-       MOV  word ES:[DI].sf_position,0
-       MOV  word ES:[DI].sf_position+2,0
+       MOV  [ES:DI].sf_ref_count,0
+       MOV  word [ES:DI].sf_position,0
+       MOV  word [ES:DI].sf_position+2,0
        ADD  DI,sf_entry_size
 
 ;  $enddo loop				;				       ;AC000;
@@ -2356,7 +2356,7 @@ $$IF58:
 					;---------------------------------------
 					; Deallocate memory if possible
 					;---------------------------------------
-   mov	ax,ds:[pdb_environ]
+   mov	ax,[ds:pdb_environ]
    or	ax,ax
 
 ;  $if	nz				; if > 0 deallocate memory	       ;AC000;
@@ -2411,7 +2411,7 @@ $$IF64:
    pop	es				; recover PSP segment		       ;AC002;
    push es				;				       ;AC002;
    MOV	BX,CS
-   MOV	AX,ES:[PDB_Block_Len]
+   MOV	AX,[ES:PDB_Block_Len]
    SUB	AX,BX
 					;---------------------------------------
 					; AX has the number of paragraphs
@@ -2608,7 +2608,7 @@ msg_offset		  dw	 SHARE_Name ; insert 'SHARE'
 
 msg_segment:
 
-%if NOT	 INSTALLED
+%if ~INSTALLED
 
 			  dw	 CODE
 
@@ -2657,7 +2657,7 @@ SHARE_Name_Size 	  equ	 $ - Share_Name
        mov  byte min_ins,1		; set minimum size of insert	       ;AN009;
        push ds				; set up segment		       ;AN009;
        pop  [msg_segment]		;				       ;AN009;
-       mov  byte ds:[si],0		; turn it into a ASCIIZ string	       ;AN009;
+       mov  byte [ds:si],0		; turn it into a ASCIIZ string	       ;AN009;
        cmp  si,msg_offset		; is there something there?	       ;AN009;
 ;      $if  a				; if it is...			       ;AN009;
        JNA $$IF73
@@ -2942,7 +2942,7 @@ PARSE_ERROR:				;				       ;AN000;
 $$IF97:
 
    lea	bx,Parse_Ret_Code
-   xlat cs:[bx]
+   xlat [cs:bx]
    mov	ah,PARSE_ERR_CLASS		; set class to parse error	       ;AN000;
 
    CALL ShDispMsg			; display the parse error	       ;AN000;

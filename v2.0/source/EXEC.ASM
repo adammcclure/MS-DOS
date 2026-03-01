@@ -73,7 +73,7 @@
 
 %if IBM
 SECTION .ZEXEC_DATA
-ZERO =   $
+ZERO equ $
 %endif
 
 exec_blk: dd 0
@@ -114,17 +114,17 @@ exec_ctrlc: db 0; state of users ctrlc flag
 Exec_low_seg: dw 0
 CurrentPDB: dw 0
 NUMIO: db 0
-ZEXECDATASIZ    =       $-ZERO
+ZEXECDATASIZ equ $-ZERO
 ZEXECDATAEND:
         global ZEXECDATAEND
 ; END SECTION .ZEXEC_DATA
 SECTION .ZEXEC_CODE
         global $EXEC
-ZERO =   $
+ZERO equ $
         procedure   $EXEC,FAR
         ; ASSUME  CS:EGROUP,SS:RESGROUP,ES:NOTHING,DS:NOTHING
 %endif
-%if NOT IBM
+%if ~IBM
         procedure   $Exec,NEAR
         ; ASSUME  DS:NOTHING, ES:NOTHING
 %endif
@@ -152,8 +152,8 @@ ZERO =   $
 ;
         MOV     ES,BX
         LES     BX,dword [user_sp]
-        MOV     word ES:[PDB_user_stack+2],ES
-        MOV     word ES:[PDB_user_stack],BX
+        MOV     word [ES:PDB_user_stack+2],ES
+        MOV     word [ES:PDB_user_stack],BX
 
         MOV     AH,Get_Default_Drive
         INT     int_command
@@ -174,11 +174,11 @@ ZERO =   $
 
         CALL    get_user_stack
         ; ASSUME  DS:NOTHING
-        MOV     AX,[SI.user_AX]
-        MOV     BX,[SI.user_BX]
-        MOV     DX,[SI.user_DX]
-        MOV     ES,[SI.user_ES]
-        MOV     DS,[SI.user_DS]
+        MOV     AX,[SI+user_AX]
+        MOV     BX,[SI+user_BX]
+        MOV     DX,[SI+user_DX]
+        MOV     ES,[SI+user_ES]
+        MOV     DS,[SI+user_DS]
 %endif
 
         CMP     AL,3                    ; only 0, 1 or 3 are allowed
@@ -202,7 +202,7 @@ exec_check_2:
         MOV     AX,(OPEN SHL 8) + 0
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         XOR     AL,AL                   ; open for reading
         invoke  $OPEN                   ; is the file there?
 %endif
@@ -213,7 +213,7 @@ exec_check_2:
         MOV     AX,(ioctl SHL 8)        ; get device information
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         XOR     AL,AL
         invoke  $IOCTL
 %endif
@@ -232,7 +232,7 @@ exec_check_environ:
         OR      AX,AX
         JNZ     exec_scan_env
         MOV     DS,[CurrentPDB]
-        MOV     AX,DS:[PDB_environ]
+        MOV     AX,[DS:PDB_environ]
         MOV     [exec_environ],AX
         OR      AX,AX
         JZ      exec_read_header
@@ -263,7 +263,7 @@ exec_check:
         MOV     AH,ALLOC
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         invoke  $ALLOC                  ; can we get the space?
 %endif
         POP     DS
@@ -296,7 +296,7 @@ exec_read_header:
         POP     DS                      ; and put it in DS:DX
         ; ASSUME  DS:EGROUP
 %endif
-%if NOT IBM
+%if ~IBM
         PUSH    SS
         POP     DS                      ; and put it in DS:DX
         ; ASSUME  DS:DOSGROUP
@@ -306,7 +306,7 @@ exec_read_header:
 %if IBM
         MOV     DX,exec_signature
 %endif
-%if NOT IBM
+%if ~IBM
         MOV     DX,exec_signature
 %endif
         PUSH    ES
@@ -316,7 +316,7 @@ exec_read_header:
         MOV     AH,READ
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         invoke  $READ
 %endif
         CALL    exec_alloc
@@ -357,14 +357,14 @@ exec_save_start:
 ; get load address from block
 ;
         LES     DI,dword [exec_blk]
-        MOV     AX,ES:[DI].exec3_load_addr
+        MOV     AX,[ES:DI].exec3_load_addr
         MOV     [exec_dma],AX
-        MOV     AX,ES:[DI].exec3_reloc_fac
+        MOV     AX,[ES:DI].exec3_reloc_fac
         MOV     [exec_rel_fac],AX
 %if IBM
         JMP     exec_find_res
 %endif
-%if NOT IBM
+%if ~IBM
         JMP     SHORT exec_find_res
 %endif
 
@@ -384,7 +384,7 @@ exec_bomb:
         MOV     AH,CLOSE
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         invoke  $CLOSE
 %endif
         POP     AX
@@ -394,7 +394,7 @@ exec_allocate:
 %if IBM
         ; ASSUME  DS:EGROUP
 %endif
-%if NOT IBM
+%if ~IBM
         ; ASSUME  DS:DOSGROUP
 %endif
         PUSH    AX
@@ -404,7 +404,7 @@ exec_allocate:
         MOV     AH,ALLOC
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         invoke  $ALLOC                  ; should have carry set and BX has max
 %endif
         POP     DS
@@ -437,7 +437,7 @@ exec_got_block:
         MOV     AH,ALLOC
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         invoke  $ALLOC                  ; get the space
 %endif
         POP     DS
@@ -502,7 +502,7 @@ exec_find_res:
         MOV     AX,(LSEEK SHL 8) + 0
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         XOR     AL,AL
         invoke  $LSEEK                  ; seek to resident
 %endif
@@ -531,7 +531,7 @@ exec_read_ok:
         MOV     AH,READ
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         invoke  $READ                   ; WOMP!
 %endif
         CALL    exec_alloc
@@ -540,7 +540,7 @@ exec_read_ok:
 %if IBM
         ; ASSUME  DS:EGROUP
 %endif
-%if NOT IBM
+%if ~IBM
         ; ASSUME  DS:DOSGROUP
 %endif
         CMP     CX,AX                   ; did we read enough?
@@ -582,7 +582,7 @@ exec_do_reloc:
         MOV     AX,(LSEEK SHL 8) + 0
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         XOR     AX,AX
         invoke  $LSEEK
 %endif
@@ -601,7 +601,7 @@ exec_read_reloc:
 %if IBM
         MOV     DX,exec_signature
 %endif
-%if NOT IBM
+%if ~IBM
         MOV     DX,exec_signature
 %endif
         MOV     CX,((exec_internal_buffer_size)/4)*4
@@ -612,7 +612,7 @@ exec_read_reloc:
         MOV     AH,READ
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         invoke  $READ
 %endif
         CALL    exec_alloc
@@ -623,7 +623,7 @@ exec_read_reloc:
 %if IBM
         MOV     DI,exec_signature   ; Pointer to byte location in header
 %endif
-%if NOT IBM
+%if ~IBM
         MOV     DI,exec_signature   ; Pointer to byte location in header
 %endif
 ;
@@ -637,13 +637,13 @@ exec_reloc_one:
         JMP     Exec_set_PDB
 
 exec_get_addr:
-        LDS     BX,dword ES:[DI]    ; Get ra/sa of entry
+        LDS     BX,dword [ES:DI]    ; Get ra/sa of entry
         MOV     AX,DS                   ; Relocate address of item
         ADD     AX,SI
         MOV     DS,AX
-        MOV     AX,word DS:[BX]     ; Relocate item
+        MOV     AX,word [DS:BX]     ; Relocate item
         ADD     AX,SI
-        MOV     word DS:[BX],AX
+        MOV     word [DS:BX],AX
         ADD     DI,4
         DEC     DX
         LOOP    exec_reloc_one              ; End of internal buffer?
@@ -680,7 +680,7 @@ exec_alloc_com_file:
         MOV     AH,ALLOC
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         invoke  $ALLOC                  ; largest piece available as error
 %endif
         OR      BX,BX
@@ -690,7 +690,7 @@ exec_alloc_com_file:
         MOV     AH,ALLOC
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         PUSH    BX
         invoke  $ALLOC                  ; largest piece available as error
         POP     BX                      ; get size of block...
@@ -732,7 +732,7 @@ exec_read_com:
         MOV     AX,(LSEEK SHL 8) + 0
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         XOR     AX,AX                   ; seek relative to beginning
         invoke  $LSEEK                  ; back to beginning of file
 %endif
@@ -746,7 +746,7 @@ exec_read_com:
         MOV     AH,READ
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         invoke  $READ                   ; read in com file
 %endif
         CALL    exec_alloc
@@ -757,7 +757,7 @@ exec_read_com:
         JMP     exec_no_mem
 exec_skip:
 %endif
-%if NOT IBM
+%if ~IBM
         JZ      exec_no_memj            ; exactly the wrong number... no memory
 %endif
         TEST    byte [exec_func],exec_func_overlay
@@ -772,7 +772,7 @@ exec_skip:
         MOV     [exec_init_SP],SI       ; max value for read is also SP!
         MOV     [exec_init_SS],AX
         MOV     DS,AX
-        MOV     word DS:[SI],0      ; 0 for return
+        MOV     word [DS:SI],0      ; 0 for return
 
 exec_set_PDB:
         MOV     BX,[exec_fh]            ; we are finished with the file.
@@ -781,7 +781,7 @@ exec_set_PDB:
         MOV     AH,CLOSE
         INT     int_command
 %endif
-%if NOT IBM
+%if ~IBM
         invoke  $CLOSE                  ; release the jfn
 %endif
         CALL    exec_alloc
@@ -802,12 +802,12 @@ exec_build_header:
         JZ      NO_OWNER                ; no environment
         DEC     AX                      ; point to header
         MOV     DS,AX
-        MOV     DS:[SI],DX              ; assign ownership
+        MOV     [DS:SI],DX              ; assign ownership
 NO_OWNER:
         MOV     AX,[exec_load_block]    ; get load block pointer
         DEC     AX
         MOV     DS,AX                   ; point to header
-        MOV     DS:[SI],DX              ; assign ownership
+        MOV     [DS:SI],DX              ; assign ownership
 
         PUSH    DX
 %if IBM
@@ -816,27 +816,27 @@ NO_OWNER:
         MOV     ES,DX
         MOV     [CurrentPDB],DX
 %endif
-%if NOT IBM
+%if ~IBM
         MOV     byte [CreatePDB], 0FFH  ; indicate a new process
         invoke  $Dup_PDB                    ; ES is now PDB
 %endif
         POP     DX
         PUSH    [exec_environ]
-        POP     ES:[PDB_environ]
+        POP     [ES:PDB_environ]
         MOV     SI,[exec_size]
         ADD     SI,DX
-        MOV     ES:[PDB_block_len],SI
+        MOV     [ES:PDB_block_len],SI
 ;
 ; set up proper command line stuff
 ;
         LDS     SI,dword [exec_blk]           ; get the block
         PUSH    DS                      ; save its location
         PUSH    SI
-        LDS     SI,DS:[SI.exec0_5C_FCB] ; get the 5c fcb
+        LDS     SI,[DS:SI+exec0_5C_FCB] ; get the 5c fcb
         MOV     CX,12                   ; copy drive, name and ext
         PUSH    CX
         MOV     DI,5Ch
-        MOV     BL,DS:[SI]
+        MOV     BL,[DS:SI]
         REP     MOVSB
         XOR     AX,AX                   ; zero extent, etc for CPM
         STOSW
@@ -846,15 +846,15 @@ NO_OWNER:
         POP     DS
         PUSH    DS                      ; save (again)
         PUSH    SI
-        LDS     SI,DS:[SI.exec0_6C_FCB] ; get 6C FCB
+        LDS     SI,[DS:SI+exec0_6C_FCB] ; get 6C FCB
         MOV     DI,6Ch                  ; do same as above
-        MOV     BH,DS:[SI]
+        MOV     BH,[DS:SI]
         REP     MOVSB
         STOSW
         STOSW
         POP     SI                      ; get block (last time)
         POP     DS
-        LDS     SI,DS:[SI.exec0_com_line]   ; command line
+        LDS     SI,[DS:SI+exec0_com_line]   ; command line
         MOV     CX,80h
         MOV     DI,CX
         REP     MOVSB                   ; Wham!
@@ -878,17 +878,17 @@ exec_BL_good:
         XOR     BL,BL
 exec_set_return:
         invoke  get_user_stack          ; get his return address
-        PUSH    [SI.user_CS]            ; suck out the CS and IP
-        PUSH    [SI.user_IP]
-        PUSH    [SI.user_CS]            ; suck out the CS and IP
-        PUSH    [SI.user_IP]
-        POP     word ES:[PDB_Exit]
-        POP     word ES:[PDB_Exit+2]
+        PUSH    [SI+user_CS]            ; suck out the CS and IP
+        PUSH    [SI+user_IP]
+        PUSH    [SI+user_CS]            ; suck out the CS and IP
+        PUSH    [SI+user_IP]
+        POP     word [ES:PDB_Exit]
+        POP     word [ES:PDB_Exit+2]
         XOR     AX,AX
         MOV     DS,AX
-        POP     DS:[addr_int_terminate] ; save them where we can get them later
-        POP     DS:[addr_int_terminate+2]   ; when the child exits.
-%if NOT IBM
+        POP     [DS:addr_int_terminate] ; save them where we can get them later
+        POP     [DS:addr_int_terminate+2]   ; when the child exits.
+%if ~IBM
         MOV     word [DMAADD],80h
         MOV     DS,[CurrentPDB]
         MOV     word [DMAADD+2],DS
@@ -908,17 +908,17 @@ exec_set_return:
 
         LDS     SI,dword [exec_init_SP] ; get stack
         LES     DI,dword [exec_blk]           ; and block for return
-        MOV     ES:[DI].exec1_SS,DS     ; return SS
+        MOV     [ES:DI].exec1_SS,DS     ; return SS
 
         DEC     SI                      ; 'push' default AX
         DEC     SI
-        MOV     DS:[SI],BX              ; save default AX reg
-        MOV     ES:[DI].exec1_SP,SI     ; return 'SP'
+        MOV     [DS:SI],BX              ; save default AX reg
+        MOV     [ES:DI].exec1_SP,SI     ; return 'SP'
 
         LDS     AX,dword [exec_init_IP]
-        MOV     ES:[DI].exec1_CS,DS     ; initial entry stuff
+        MOV     [ES:DI].exec1_CS,DS     ; initial entry stuff
 
-        MOV     ES:[DI].exec1_IP,AX
+        MOV     [ES:DI].exec1_IP,AX
         transfer    SYS_RET_OK
 
 exec_go:
@@ -927,7 +927,7 @@ exec_go:
 %endif
         LDS     SI,dword [exec_init_IP] ; get entry point
         CLI
-%if NOT IBM
+%if ~IBM
         MOV     byte INDOS,0
 %endif
         MOV     SS,[exec_init_SS]       ; set up user's stack
@@ -970,14 +970,14 @@ exec_go:
         JZ      exec_alloc_try_load
         DEC     AX
         MOV     DS,AX
-        MOV     DS:[arena_owner],BX
+        MOV     [DS:arena_owner],BX
 exec_alloc_try_load:
         MOV     AX,[exec_load_block]
         OR      AX,AX
         JZ      exec_alloc_done
         DEC     AX
         MOV     DS,AX
-        MOV     DS:[arena_owner],BX
+        MOV     [DS:arena_owner],BX
 exec_alloc_done:
         POP     AX
         POP     DS
@@ -987,21 +987,21 @@ exec_alloc_done:
 %if IBM
 SYS_RET_ERR:
         CALL    get_user_stack
-        PUSH    [SI.user_f]
+        PUSH    [SI+user_f]
         XOR     AH,AH
-        MOV     [SI.user_AX],AX
+        MOV     [SI+user_AX],AX
         POPF
         STC
         JMP SYS_RET
 SYS_RET_OK:
         CALL    get_user_stack
-        PUSH    [SI.user_f]
+        PUSH    [SI+user_f]
         POPF
         CLC
 SYS_RET:
         PUSHF
         CALL    restore_ctrlc
-        POP     [SI.user_f]
+        POP     [SI+user_f]
         JMP     exec_long_ret
 
 ;
@@ -1020,7 +1020,7 @@ SYS_RET:
         procedure    restore_ctrlc
         PUSH    AX
         PUSH    DX
-        MOV     DL,CS:[exec_ctrlc]
+        MOV     DL,[CS:exec_ctrlc]
         MOV     AX,(Set_Ctrl_C_Trapping SHL 8) + 1      ; Put it back
         INT     int_command
         POP     DX

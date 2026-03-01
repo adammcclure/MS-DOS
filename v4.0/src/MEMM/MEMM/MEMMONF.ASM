@@ -216,7 +216,7 @@ get_token:
 ; go to first non-blank character
 ;
 gloop1:
-	mov	al,es:[di]	; get a character
+	mov	al,[es:di]	; get a character
 	inc	di		; point to next
 	cmp	al,' '		; Q: space ?
 	je	gloop1		; y: skip it
@@ -224,7 +224,7 @@ gloop1:
 	je	gloop1		; y: skip it
 	dec	di		; N: start parsing and reset di
 gloop2:
-	mov	al,es:[di]	; get next char
+	mov	al,[es:di]	; get next char
 	cmp	al,CR		; q: carriage return?
 	je	token_xit	; y: quit
 	cmp	al,LF		; q: line feed?
@@ -238,7 +238,7 @@ gloop2:
 	cmp	cx,bx		; q: have we stored our limit yet?
 	ja	gloop2		; y: don't store any more
 	or	al,20h		; make it lower case
-	mov	ds:[si],al	; store it
+	mov	[ds:si],al	; store it
 	inc	si		; and point to next
 	jmp	short gloop2	; continue
 token_xit:

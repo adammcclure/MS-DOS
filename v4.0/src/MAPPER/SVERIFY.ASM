@@ -29,9 +29,9 @@ SECTION .dosxxx
 error_code  equ      0002h
 
 struc str
-old_bp: dw 0
-return: dd 0
-verify: dw 0; new verify settings value
+old_bp: resw 1
+return: resd 1
+verify: resw 1; new verify settings value
 endstruc
 
 dossetverify:

@@ -507,35 +507,35 @@ VmFault:
 ;   Build a selector (VM1_GSEL) to client's stack.  VM1_GSEL is already set
 ;   up with limit (0FFFFh) and access (D_DATA0), so just fill in the base.
 ;
-	mov	bx,[bp.VTFOE+VMTF_SS]	; BX = VM SS (segment form)
+	mov	bx,[bp+VTFOE+VMTF_SS]	; BX = VM SS (segment form)
 	shl	bx,4			; BX = low 16 bits of base
-	mov	ds:[VM1_GSEL+2],bx	; place in descriptor
-	mov	bx,[bp.VTFOE+VMTF_SS]	; BX = VM SS (again)
+	mov	[ds:VM1_GSEL+2],bx	; place in descriptor
+	mov	bx,[bp+VTFOE+VMTF_SS]	; BX = VM SS (again)
 	shr	bx,4			; BH = high 8 bits of base
-	mov	ds:[VM1_GSEL+4],bh	; place in descriptor
+	mov	[ds:VM1_GSEL+4],bh	; place in descriptor
 ;
 ;   Build a selector (VM2_GSEL) to client's code segment, as above.
 ;
-	mov	bx,[bp.VTFOE+VMTF_CS]	; BX = VM CS (in segment form)
+	mov	bx,[bp+VTFOE+VMTF_CS]	; BX = VM CS (in segment form)
 	shl	bx,4			; BX = low 16 bits of base
-	mov	ds:[VM2_GSEL+2],bx	; place in descriptor
-	mov	bx,[bp.VTFOE+VMTF_CS]	; BX = VM CS (again)
+	mov	[ds:VM2_GSEL+2],bx	; place in descriptor
+	mov	bx,[bp+VTFOE+VMTF_CS]	; BX = VM CS (again)
 	shr	bx,4			; BH = high 8 bits of base
-	mov	ds:[VM2_GSEL+4],bh	; place in descriptor
+	mov	[ds:VM2_GSEL+4],bh	; place in descriptor
 ;
 ;   Reset prefix flags
 ;
 	mov	bx,VDMD_GSEL
 	mov	es,bx
-	mov	ES:[PrefixFlag],0	; start with no prefixes
+	mov	[ES:PrefixFlag],0	; start with no prefixes
 ;
 ;   Jump to appropriate instruction handler
 ;
 	mov	bx,VM2_GSEL
 	mov	ds,bx			; DS = selector for VM code segment
-	mov	si,[bp.VTFOE+VMTF_EIP]	; DS:SI = VM CS:IP
+	mov	si,[bp+VTFOE+VMTF_EIP]	; DS:SI = VM CS:IP
 VmInsHandle:
-	mov	bl,ds:[si]		; BL = opcode
+	mov	bl,[ds:si]		; BL = opcode
 	mov	bh,0			; BX = opcode
 	shl	bx,1			; BX = BX*2 (word table)
 					; DS:SI = VM CS:IP
@@ -627,23 +627,23 @@ EmINTnn:
 					; Virtual Mode
 			;NOTE: DS -> R_CODE
 	inc	si
-	mov	[bp.VTFOE+VMTF_EIP], si ; point beyond int6 instr
+	mov	[bp+VTFOE+VMTF_EIP], si ; point beyond int6 instr
 	mov	bx,GDTD_GSEL
 	mov	es,bx			; ES pts to GDT
-	mov	bx,[bp.VTFOE+VMTF_ES]	; BX = ES seg addr
+	mov	bx,[bp+VTFOE+VMTF_ES]	; BX = ES seg addr
 	shl	bx,4			; BX = low 16 bits of ES addr
-	mov	es:[VM1_GSEL+2],bx	; set low 16 bits of ES base addr
-	mov	bx,[bp.VTFOE+VMTF_ES]	; BX = ES seg addr again
+	mov	[es:VM1_GSEL+2],bx	; set low 16 bits of ES base addr
+	mov	bx,[bp+VTFOE+VMTF_ES]	; BX = ES seg addr again
 	shr	bx,4			; BH = high 8 bits of ES addr
-	mov	es:[VM1_GSEL+4],bh	; place in descriptor
+	mov	[es:VM1_GSEL+4],bh	; place in descriptor
 
 	mov	bx,VM1_GSEL
 	mov	es,bx			; ES pts to VM ES area
 
 	mov	bx,sp			; SS:BX -> GP Fault stack frame
-	mov	si,SS:[bx.GPF_ESI]	; ES:SI pts to caller's gdt
+	mov	si,[SS:bx+GPF_ESI]	; ES:SI pts to caller's gdt
 	call	move_block		; move block function
-	mov	ds:[MB_Flag],0		;  turn off flag !!
+	mov	[ds:MB_Flag],0		;  turn off flag !!
 
 	; ASSUME	DS:DGROUP; done with R_CODE
 
@@ -653,42 +653,42 @@ EmINTnn:
 ;   Adjust client's SP to make room for building his IRET frame
 ;
 NotInt15:
-	sub	word [bp.VTFOE+VMTF_ESP],6	; adjust client's SP
+	sub	word [bp+VTFOE+VMTF_ESP],6	; adjust client's SP
 	mov	bx,VM1_GSEL
 	mov	ds,bx			; DS = VM stack segment
-	mov	si,[bp.VTFOE+VMTF_ESP]	; DS:SI -> client's IRET stack frame
+	mov	si,[bp+VTFOE+VMTF_ESP]	; DS:SI -> client's IRET stack frame
 ;
 ;   Move low 16 bits of Flags, CS, and EIP from IRET frame to client stack frame
 ;
-	mov	bx,[bp.VTFOE+VMTF_EFLAGS] ; low word of EFLAGS
+	mov	bx,[bp+VTFOE+VMTF_EFLAGS] ; low word of EFLAGS
 ;
 ; *** Clear IF bit on flags for reflect, but leave it unchanged for the
 ;	flags on the IRET stack we build on the client's stack
 ; *** Also clear the Trace Flag -> because all software INTs clear the trace
 ;      flag.
 ;
-	and	[bp.VTFOE+VMTF_EFLAGS],not 300h
+	and	[bp+VTFOE+VMTF_EFLAGS],not 300h
 
-	mov	ds:[si.4],bx		; to client's flags
-	mov	bx,[bp.VTFOE+VMTF_CS]	;
-	mov	ds:[si.2],bx		; to client's CS
-	mov	bx,[bp.VTFOE+VMTF_EIP]	; low word of EIP
+	mov	[ds:si+4],bx		; to client's flags
+	mov	bx,[bp+VTFOE+VMTF_CS]	;
+	mov	[ds:si+2],bx		; to client's CS
+	mov	bx,[bp+VTFOE+VMTF_EIP]	; low word of EIP
 	add	bx,2			; set IP past the instruction we emulate
-	mov	ds:[si.0],bx		; to client's IP
+	mov	[ds:si+0],bx		; to client's IP
 ;
 ;   Replace low 16 bits of IRET frame CS:EIP with vector from real mode IDT
 ;
 	mov	si,VM2_GSEL
 	mov	ds,si			; DS -> Client's code segment
-	mov	bl,ds:[bx-1]		; get INTerrupt number
+	mov	bl,[ds:bx-1]		; get INTerrupt number
 	xor	bh,bh			; BX has INT number
 	shl	bx,2			; BX = BX * 4 (vector table index)
 	mov	si,RM_IDT_GSEL		; get real mode IDT alias
 	mov	ds,si			; DS -> Real Mode IDT
-	mov	si,ds:[bx]		;
-	mov	[bp.VTFOE+VMTF_EIP],si	; move the IP
-	mov	si,ds:[bx+2]		;
-	mov	[bp.VTFOE+VMTF_CS],si	; move the CS
+	mov	si,[ds:bx]		;
+	mov	[bp+VTFOE+VMTF_EIP],si	; move the IP
+	mov	si,[ds:bx+2]		;
+	mov	[bp+VTFOE+VMTF_CS],si	; move the CS
 ;
 ;   32-bit IRET back to client
 ;
@@ -719,10 +719,10 @@ EmSkipLockExit: 			; as the label implies...
 ;   to do:  implement the handler
 ;------------------------------------------------------------------------------
 EmINT3:
-	mov	ES:[RefNum], 03h	    ; Vector to VM int 3 handler
+	mov	[ES:RefNum], 03h	    ; Vector to VM int 3 handler
 RefIntN:
 	inc	si			    ; fault, not a trap
-	mov	[bp.VTFOE+VMTF_EIP], si     ; point beyond int3
+	mov	[bp+VTFOE+VMTF_EIP], si     ; point beyond int3
 	jmp	RefToRom		    ; and let the VM OS handle it
 ; ENDP EmINT3
 
@@ -740,7 +740,7 @@ RefIntN:
 ;   STACK:
 ;------------------------------------------------------------------------------
 EmINTO:
-	mov	ES:[RefNum], 04h	    ; Vector to VM int 3 handler
+	mov	[ES:RefNum], 04h	    ; Vector to VM int 3 handler
 	jmp	short RefIntN
 ; ENDP EmINTO
 
@@ -759,7 +759,7 @@ EmINTO:
 ;------------------------------------------------------------------------------
 EmINB:
 	inc	si
-	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	push	bx
 	xor	bx,bx			; IN instruction
 	call	IO_Trap 		; Q: Emulated ?
@@ -783,7 +783,7 @@ EINB_Exit:
 ;------------------------------------------------------------------------------
 EmINW:
 	inc	si
-	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	push	bx
 	xor	bx,bx			; IN instruction
 	call	IO_Trap 		; Q: Emulated ?
@@ -809,10 +809,10 @@ EINW_Exit:				;
 EmINBimm:
 	push	bx
 	push	dx
-	mov	dl,ds:[si+1]		; get port number
+	mov	dl,[ds:si+1]		; get port number
 	xor	dh,dh			; DX has INT number
 	add	si, 2
-	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	xor	bx,bx			; IN instruction
 	call	IO_Trap 		; Q: Emulated ?
 	jnc	EINBi_Exit		;   Y: exit
@@ -837,10 +837,10 @@ EINBi_exit:
 EmINWimm:
 	push	bx
 	push	dx
-	mov	dl,ds:[si+1]		; get port number
+	mov	dl,[ds:si+1]		; get port number
 	xor	dh,dh			; DX has INT number
 	add	si, 2
-	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	xor	bx,bx			; IN instruction
 	call	IO_Trap 		; Q: Emulated ?
 	cbw				; AX = returned value
@@ -865,7 +865,7 @@ EINWi_Exit:
 ;
 EmOUTB:
 	inc	si
-	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	push	bx
 	push	dx
 	mov	bx,1			; OUT instruction
@@ -892,7 +892,7 @@ EOUTB_Exit:
 ;
 EmOUTW:
 	inc	si
-	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	push	bx
 	mov	bx,1			; OUT instruction
 	call	IO_Trap 		; Q: Emulated ?
@@ -918,10 +918,10 @@ EOUTW_Exit:
 EmOUTBimm:
 	push	bx
 	push	dx
-	mov	dl,ds:[si+1]		; get port number
+	mov	dl,[ds:si+1]		; get port number
 	xor	dh,dh			; DX has INT number
 	add	si, 2
-	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	mov	bx,1			; OUT instruction
 	call	IO_Trap 		; Q: Emulated ?
 	jnc	EOUTBi_Exit		;   Y:exit
@@ -947,10 +947,10 @@ EOUTBi_Exit:
 EmOUTWimm:
 	push	bx
 	push	dx
-	mov	dl,ds:[si+1]		; get port number
+	mov	dl,[ds:si+1]		; get port number
 	xor	dh,dh			; DX has INT number
 	add	si, 2
-	mov	[bp.VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP],si	; set IP past the instruction we emulate
 	mov	bx,1			; OUT instruction
 	call	IO_Trap 		; Q: Emulated ?
 	jnc	EOUTWi_Exit		;   Y: exit
@@ -975,10 +975,10 @@ EOUTWi_Exit:
 ;
 EmHALT:
 						; Q: client's IF bit is 0?
-	test	word [bp.VTFOE+VMTF_EFLAGS], IF_FLAG
+	test	word [bp+VTFOE+VMTF_EFLAGS], IF_FLAG
 	jz     EmDoHlt			       ;   Y: execute HLT if IF=0
 	inc	si				; inc VM CS:IP past command
-	mov	[bp.VTFOE+VMTF_EIP], si 	;  we emulate
+	mov	[bp+VTFOE+VMTF_EIP], si 	;  we emulate
 ; A halt on an INTEL architecture machine is just waiting for an interrupt
 ;	We'll pretend an interrupt occurs after a short wait
 	push	cx
@@ -1007,7 +1007,7 @@ emDoHlt:
 ;
 EmLoadal2:
 
-	test	ES:[PrefixFlag],P0F_FLAG    ; Q:Do we have the right prefix?
+	test	[ES:PrefixFlag],P0F_FLAG    ; Q:Do we have the right prefix?
 	jz	Not_Loadall
 	jmp	EM286ll 		    ;  Y: emulate 286 loadall
 
@@ -1029,7 +1029,7 @@ Not_Loadall:
 ;
 EmLoadal3:
 
-	test	ES:[PrefixFlag],P0F_FLAG
+	test	[ES:PrefixFlag],P0F_FLAG
 	jz	Not_Loadall
 	jmp	EM386ll 		;  Y: emulate 386 loadall
 
@@ -1049,11 +1049,11 @@ EmLoadal3:
 ;------------------------------------------------------------------------------
 EmCLTS:
 
-	test	ES:[PrefixFlag],P0F_FLAG
+	test	[ES:PrefixFlag],P0F_FLAG
 	jz	Not_CLTS
 	clts					; go ahead and CLTS
 	inc	si				; inc VM CS:IP past command
-	mov	[bp.VTFOE+VMTF_EIP], si 	;  we emulate
+	mov	[bp+VTFOE+VMTF_EIP], si 	;  we emulate
 	jmp	EmExit				; and leave
 
 Not_CLTS:
@@ -1083,14 +1083,14 @@ Not_CLTS:
 ;------------------------------------------------------------------------------
 EmProtIns:
 
-	test	ES:[PrefixFlag],P0F_FLAG
+	test	[ES:PrefixFlag],P0F_FLAG
 	jnz	EmPI1
 	jmp	Not_ProtIns1
 EmPI1:
 	push	dx
 	push	ax
 	push	es
-	mov	dx, ES:[PrefixFlag]
+	mov	dx, [ES:PrefixFlag]
 	mov	bx,VDMCA_GSEL		; Load CODE (writeable) alias
 	mov	es, bx
 	; assume	es:_TEXT
@@ -1109,7 +1109,7 @@ LGDTerr:
 	jmp	ExitPIer
 EmLMSW:
 	inc	si			; set SI past the modR/M
-	mov	[bp.VTFOE+VMTF_EIP],si	; VM CS:IP = DS:SI
+	mov	[bp+VTFOE+VMTF_EIP],si	; VM CS:IP = DS:SI
 	mov	bl, bh			; BL = modR/M
 	cmp	bl, 0C0h		; is MSW being loaded from a register?
 	jb	MoveData		; N: do a move from the VM's memory
@@ -1128,9 +1128,9 @@ MoveData:
 ;   in our instruction.
 
 	and	bl, 0C7h		; Force AX to be the MOV destination
-	mov	byte es:[LMSWmod],bl
+	mov	byte [es:LMSWmod],bl
 	mov	ax, 09090h
-	mov	word es:[LMSWoff],ax ; initialize offset to NOPS
+	mov	word [es:LMSWoff],ax ; initialize offset to NOPS
 	cmp	bl, 06h 		; special case for DS:d16
 	je	load16off
 	and	bl, 0C0h
@@ -1140,21 +1140,21 @@ MoveData:
 	jne	BldDesc 		; No data offset, so go build desc
 Load16off:
 	mov	ax,[si] 		; AX = 16 bit offset
-	mov	word es:[LMSWoff],ax
+	mov	word [es:LMSWoff],ax
 	add	si, 2
-	mov	[bp.VTFOE+VMTF_EIP],si	; VM CS:IP = DS:SI
+	mov	[bp+VTFOE+VMTF_EIP],si	; VM CS:IP = DS:SI
 	jmp	short BldDesc
 Load8off:
 	mov	al,[si] 		; AL = 8 bit offset
-	mov	byte es:[LMSWoff],al
+	mov	byte [es:LMSWoff],al
 	inc	si
-	mov	[bp.VTFOE+VMTF_EIP],si	; VM CS:IP = DS:SI
+	mov	[bp+VTFOE+VMTF_EIP],si	; VM CS:IP = DS:SI
 
 BldDesc:
 ;   Build a descriptor to the client's data segment
 
 	mov	bl, bh
-	mov	ax, [bp.VTFOE+VMTF_DS]	; Assume DS is the data segment
+	mov	ax, [bp+VTFOE+VMTF_DS]	; Assume DS is the data segment
 
 ;   Check for segment override
 	and	dx, 00FCh		; strip all but segment overrides
@@ -1168,10 +1168,10 @@ BldDesc:
 	jl	SS_data
 	je	FS_data
 GS_data:
-	mov	ax, [bp.VTFOE+VMTF_GS]	; GS is the data segment
+	mov	ax, [bp+VTFOE+VMTF_GS]	; GS is the data segment
 	jmp	short GetSel
 FS_data:
-	mov	ax, [bp.VTFOE+VMTF_FS]	; FS is the data segment
+	mov	ax, [bp+VTFOE+VMTF_FS]	; FS is the data segment
 	jmp	short GetSel
 SS_data:
 	mov	ax, VM1_GSEL
@@ -1182,7 +1182,7 @@ CS_data:
 	mov	ds, ax
 	jmp	short RestoreRegs
 ES_data:
-	mov	ax, [bp.VTFOE+VMTF_ES]	; ES is the data segment
+	mov	ax, [bp+VTFOE+VMTF_ES]	; ES is the data segment
 	jmp	short GetSel
 
 GetmodBase:
@@ -1207,9 +1207,9 @@ GetSel:
 	mov	es,bx			; DS -> GDT
 	mov	bx, ax			; copy the VM data segment value
 	shl	ax,4			; BX = low 16 bits of base
-	mov	es:[VM2_GSEL+2],ax	; place in descriptor
+	mov	[es:VM2_GSEL+2],ax	; place in descriptor
 	shr	bx,4			; BH = high 8 bits of base
-	mov	es:[VM2_GSEL+4],bh	; place in descriptor
+	mov	[es:VM2_GSEL+4],bh	; place in descriptor
 	mov	ax, VM2_GSEL
 	mov	ds, ax
 	pop	bx
@@ -1225,9 +1225,9 @@ RestoreRegs:
 	mov	bp, sp
 
 ;   Now the Stack had better look like PROT_INS_FRAME. (vm386.inc)
-	mov	si, [bp.PIF_ESI]
-	mov	bx, [bp.PIF_EBX]
-	mov	bp, [bp.PIF_EBP]
+	mov	si, [bp+PIF_ESI]
+	mov	bx, [bp+PIF_EBX]
+	mov	bp, [bp+PIF_EBP]
 
 ;   Move the VM data operand to AX
 	db	3Eh			; ds overide (for bp & di)
@@ -1257,31 +1257,31 @@ MoveReg:
 CkSrcBX:				; otherwise, find it and move it to AX
 	cmp	bh, 3
 	jne	CkSrcBP
-	mov	ax, [bp.PIF_EBX]	; src was BX, get from stack
+	mov	ax, [bp+PIF_EBX]	; src was BX, get from stack
 	jmp	short ExLMSW
 CkSrcBP:
 	cmp	bh, 5
 	jne	CkSrcSI
-	mov	ax, [bp.PIF_EBP]	; src was BP, get from stack
+	mov	ax, [bp+PIF_EBP]	; src was BP, get from stack
 	jmp	short ExLMSW
 CkSrcSI:
 	cmp	bh, 6
 	jne	CkSrcDX
-	mov	ax, [bp.PIF_ESI]	; src was SI, get from stack
+	mov	ax, [bp+PIF_ESI]	; src was SI, get from stack
 	jmp	short ExLMSW
 CkSrcDX:
 	cmp	bh, 2
 	jne	CkSrcSP
-	mov	ax, [bp.PIF_DX] 	; src was DX, get from stack
+	mov	ax, [bp+PIF_DX] 	; src was DX, get from stack
 	jmp	short ExLMSW
 CkSrcSP:
 	cmp	bh, 4
 	jne	GetReg
-	mov	ax, [bp.PIF_VMESP]	; src was SP, get from stack
+	mov	ax, [bp+PIF_VMESP]	; src was SP, get from stack
 	jmp	short ExLMSW
 GetReg:
 	or	bh, 0C0h		; set register to register move bits
-	mov	es:[Lmod], bh		; setup move from client's src register
+	mov	[es:Lmod], bh		; setup move from client's src register
 	jmp	short GetRn		; clear prefetch so that bh gets there
 GetRn:
 ;   Execute MOV AX, Rn
@@ -1350,7 +1350,7 @@ Not_ProtIns1:
 ;------------------------------------------------------------------------------
 EmMovCDTR:
 
-	test	ES:[PrefixFlag],P0F_FLAG
+	test	[ES:PrefixFlag],P0F_FLAG
 	jnz	MovCDTR1
 	jmp	Not_MovCDTR		; Didn't come from a 0F prefix
 MovCDTR1:
@@ -1360,21 +1360,21 @@ MovCDTR1:
 	mov	es, bx
 	; assume	es:_TEXT
 	mov	bl,[si] 		; BL = opcode
-	mov	es:[CDTRopc], bl
+	mov	[es:CDTRopc], bl
 	inc	si			; set SI past the opcode
 	mov	bl,[si] 		; BL = modR/M
 	mov	bh, bl			; Copy modR/M
 	and	bl, 0F8h		; For control, we reroute move thru AX
-	mov	es:[CDTRmod], bl
+	mov	[es:CDTRmod], bl
 	inc	si			; set SI past the modR/M
-	mov	[bp.VTFOE+VMTF_EIP],si	; VM CS:IP = DS:SI
+	mov	[bp+VTFOE+VMTF_EIP],si	; VM CS:IP = DS:SI
 
 	push	bp
 	mov	bp, sp
 
 ;   Now the Stack had better look like MOV_CDTR_FRAME. (vm386.inc)
 
-	mov	bl, es:[CDTRopc]	; load opcode
+	mov	bl, [es:CDTRopc]	; load opcode
 	cmp	bl, 024h		; Check TRn load/store
 	jb	NotTRErr		; N: continue
 	mov	bx, ErrMovTR		; Y: go flag error
@@ -1394,29 +1394,29 @@ ChkSrcBX:
 	cmp	bh, 3
 	jne	ChkSrcBP
 	OP32
-	mov	ax, [bp.MCF_EBX]	; mov EBX from stack
+	mov	ax, [bp+MCF_EBX]	; mov EBX from stack
 	jmp	short ExCDTR
 ChkSrcBP:
 	cmp	bh, 5
 	jne	ChkSrcSI
 	OP32
-	mov	ax, [bp.MCF_EBP]	; mov EBP from stack
+	mov	ax, [bp+MCF_EBP]	; mov EBP from stack
 	jmp	short ExCDTR
 ChkSrcSI:
 	cmp	bh, 6
 	jne	ChkSrcSP
 	OP32
-	mov	ax, [bp.MCF_ESI]	; mov ESI from stack
+	mov	ax, [bp+MCF_ESI]	; mov ESI from stack
 	jmp	short ExCDTR
 ChkSrcSP:
 	cmp	bh, 4
 	jne	GetFmReg
 	OP32
-	mov	ax, [bp.MCF_VMESP]	; mov ESP from stack
+	mov	ax, [bp+MCF_VMESP]	; mov ESP from stack
 	jmp	short ExCDTR
 GetFmReg:
 	or	bh, 0C0h		; set register to register move bits
-	mov	es:[CDTRreg], bh	; setup move from client's src register
+	mov	[es:CDTRreg], bh	; setup move from client's src register
 	jmp	short GetERn		; clear prefetch so that bh gets there
 GetERn:
 ;   Execute MOV EAX, ERn
@@ -1427,17 +1427,17 @@ CDTRreg db	0C0h
 ExCDTR:
 	cmp	bl, 022h		; Check CRn load
 	jne	FltrDRL3		; N: destination not CRn
-	cmp	byte es:[CDTRmod], 0C0h ; Check for CR0 load
+	cmp	byte [es:CDTRmod], 0C0h ; Check for CR0 load
 	je	CR0FltrL		; Y: filter it
 	mov	bx, ErrMovCR
 	jmp	CTRErr			; N: go tell user he did a NoNo
 FltrDRL3:
-	cmp	byte es:[CDTRmod], 0C3h ; Check for DR0-3 load
+	cmp	byte [es:CDTRmod], 0C3h ; Check for DR0-3 load
 	ja	FltrGDbit		; N: continue
 	call	MapLinear		; Y: convert address to our paging
 	jmp	short ExCDTR1		;  linear map, then continue
 FltrGDbit:
-	cmp	byte es:[CDTRmod], 0C7h ; Check for DR7 load
+	cmp	byte [es:CDTRmod], 0C7h ; Check for DR7 load
 	jne	ExCDTR1 		; N: continue
 	and	ax, 0DFFFh		; Y: don't let client set the GD bit
 	jmp	short ExCDTR1		; continue
@@ -1481,14 +1481,14 @@ CDTRmod db	0C0h
 	je	FltrDRS3		; Y: go filter it
 	jmp	short NotDRS3
 FltrDRS3:
-	cmp	byte es:[CDTRmod], 0C3h ; Check for DR0-3 load
+	cmp	byte [es:CDTRmod], 0C3h ; Check for DR0-3 load
 	ja	NotDRS3 		; N: continue
 	call	UnMapLinear		; Y: convert address from our paging
 					;  linear map, then continue
 NotDRS3:
 	cmp	bl, 020h		; Check CRn store
 	jne	ChkDstBX		; N: source not CRn
-	cmp	byte es:[CDTRmod], 0C0h ; Check for CR0 store
+	cmp	byte [es:CDTRmod], 0C0h ; Check for CR0 store
 	je	CR0FltrS		; Y: filter it
 	mov	bx, ErrMovCR
 	jmp	short CTRErr		; N: go tell user he did a NoNo
@@ -1502,36 +1502,36 @@ ChkDstBX:
 	cmp	bh, 3
 	jne	ChkDstBP
 	OP32
-	mov	[bp.MCF_EBX], ax	; mov EBX to stack
+	mov	[bp+MCF_EBX], ax	; mov EBX to stack
 	jmp	short Exit_MovCDTR
 ChkDstBP:
 	cmp	bh, 5
 	jne	ChkDstSI
 	OP32
-	mov	[bp.MCF_EBP], ax	; mov EBP to stack
+	mov	[bp+MCF_EBP], ax	; mov EBP to stack
 	jmp	short Exit_MovCDTR
 ChkDstSI:
 	cmp	bh, 6
 	jne	ChkDstAX
 	OP32
-	mov	[bp.MCF_ESI], ax	; mov ESI to stack
+	mov	[bp+MCF_ESI], ax	; mov ESI to stack
 	jmp	short Exit_MovCDTR
 ChkDstAX:
 	cmp	bh, 0
 	jne	ChkDstSP
 	OP32
-	mov	[bp.MCF_EAX], ax	; mov EAX to stack
+	mov	[bp+MCF_EAX], ax	; mov EAX to stack
 	jmp	short Exit_MovCDTR	;   at exit
 ChkDstSP:
 	cmp	bh, 4
 	jne	PutInReg
 	OP32
-	mov	[bp.MCF_VMESP], ax	  ; mov ESP to stack
+	mov	[bp+MCF_VMESP], ax	  ; mov ESP to stack
 	jmp	short Exit_MovCDTR	;   at exit
 PutInReg:
 ;   Execute MOV ERn, EAX
 	or	bh, 0C0h		; set register to register move bits
-	mov	es:[regCDTR], bh	; setup load to client's dest register
+	mov	[es:regCDTR], bh	; setup load to client's dest register
 	jmp	short PutERn		; clear prefetch so that bh gets there
 PutERn:
 	db	66h
@@ -1548,7 +1548,7 @@ Exit_MovCDTR:
 CTRErr:
 	mov	ax, PrivErr
 	pop	bp
-	sub	[bp.VTFOE+VMTF_EIP],3	; VM CS:IP = faulting instruction
+	sub	[bp+VTFOE+VMTF_EIP],3	; VM CS:IP = faulting instruction
 	pop	es
 	; assume	es:DGROUP
 	call	ErrHndlr		; If we return here, the user wants to
@@ -1580,7 +1580,7 @@ EmLOCK:
 ;;	jmp	VmInsHandle			; and go process offender
 ;   rather than:
 	inc	si				; set IP past the
-	mov	[bp.VTFOE+VMTF_EIP], si 	; instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP], si 	; instruction we emulate
 	jmp	EmExit				; and leave
 
 ; ENDP EmLOCK
@@ -1599,7 +1599,7 @@ EmLOCK:
 ;
 EmREPNE:
 
-	or	ES:[PrefixFlag],REPNE_FLAG	; set appropriate flag
+	or	[ES:PrefixFlag],REPNE_FLAG	; set appropriate flag
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
@@ -1618,7 +1618,7 @@ EmREPNE:
 ;
 EmREP:
 
-	or	ES:[PrefixFlag],REP_FLAG	; set appropriate flag
+	or	[ES:PrefixFlag],REP_FLAG	; set appropriate flag
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
@@ -1698,7 +1698,7 @@ Prefix_0F:
 	mov	bl, cs:P0F_OpTabx[bx]
 	cmp	bl, P0F_Invalid
 	je	Bad_0F
-	or	es:[PrefixFlag],P0F_FLAG    ; set appropriate flag
+	or	[es:PrefixFlag],P0F_FLAG    ; set appropriate flag
 	jmp	cs:OpTable[bx]		    ; enter instr emulation routine
 
 Bad_0F:
@@ -1719,7 +1719,7 @@ Bad_0F:
 ;
 CSOverride:
 
-	or	ES:[PrefixFlag],CS_FLAG 	; set appropriate flag
+	or	[ES:PrefixFlag],CS_FLAG 	; set appropriate flag
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
@@ -1738,7 +1738,7 @@ CSOverride:
 ;
 DSOverride:
 
-	or	ES:[PrefixFlag],DS_FLAG 	; set appropriate flag
+	or	[ES:PrefixFlag],DS_FLAG 	; set appropriate flag
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
@@ -1758,11 +1758,11 @@ DSOverride:
 
 ESOverride:
 
-	test	ES:[PrefixFlag],P0F_FLAG	; only for TR emulation
+	test	[ES:PrefixFlag],P0F_FLAG	; only for TR emulation
 	jz	ESO1				; only for TR emulation
 	jmp	EmMovCDTR			; only for TR emulation
 ESO1:
-	or	ES:[PrefixFlag],ES_FLAG 	; set appropriate flag
+	or	[ES:PrefixFlag],ES_FLAG 	; set appropriate flag
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
 
@@ -1782,7 +1782,7 @@ ESO1:
 
 SSOverride:
 
-	or	ES:[PrefixFlag],SS_FLAG 	; set appropriate flag
+	or	[ES:PrefixFlag],SS_FLAG 	; set appropriate flag
 ;;	inc	[bp.VTFOE+VMTF_EIP]		; inc VM CS:IP past prefix
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
@@ -1803,7 +1803,7 @@ SSOverride:
 
 FSOverride:
 
-	or	ES:[PrefixFlag],FS_FLAG 	; set appropriate flag
+	or	[ES:PrefixFlag],FS_FLAG 	; set appropriate flag
 ;;	inc	[bp.VTFOE+VMTF_EIP]		; inc VM CS:IP past prefix
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
@@ -1824,7 +1824,7 @@ FSOverride:
 
 GSOverride:
 
-	or	ES:[PrefixFlag],GS_FLAG 	; set appropriate flag
+	or	[ES:PrefixFlag],GS_FLAG 	; set appropriate flag
 ;;	inc	[bp.VTFOE+VMTF_EIP]		; inc VM CS:IP past prefix
 	inc	si				; inc VM CS:IP past prefix
 	jmp	VmInsHandle			; handle next part of instr
@@ -1852,7 +1852,7 @@ EmINSB:
 ;
 ;;	inc	[bp.VTFOE+VMTF_EIP]	; set IP past the instruction we emulate
 	inc	si			; set IP past the
-	mov	[bp.VTFOE+VMTF_EIP], si ; instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP], si ; instruction we emulate
 ;
 ;
 ;   Build a selector (VM1_GSEL) to client's ES segment.  VM1_GSEL is already set
@@ -1860,14 +1860,14 @@ EmINSB:
 ;
 	mov	bx,GDTD_GSEL
 	mov	ds,bx			; DS = GDT selector
-	mov	bx,[bp.VTFOE+VMTF_ES]	; BX = VM ES (segment form)
+	mov	bx,[bp+VTFOE+VMTF_ES]	; BX = VM ES (segment form)
 	shl	bx,4			; BX = low 16 bits of base
-	mov	ds:[VM1_GSEL+2],bx	; place in descriptor
-	mov	bx,[bp.VTFOE+VMTF_ES]	; BX = VM ES (again)
+	mov	[ds:VM1_GSEL+2],bx	; place in descriptor
+	mov	bx,[bp+VTFOE+VMTF_ES]	; BX = VM ES (again)
 	shr	bx,4			; BH = high 8 bits of base
-	mov	ds:[VM1_GSEL+4],bh	; place in descriptor
+	mov	[ds:VM1_GSEL+4],bh	; place in descriptor
 	mov	bx,VM1_GSEL
-	test	ES:[PrefixFlag],REP_FLAG	;Q: REP prefix active ?
+	test	[ES:PrefixFlag],REP_FLAG	;Q: REP prefix active ?
 	mov	es,bx				; ES = VM ES
 	jnz	EINSB_loop			;  Y: go do rep instruction
 	insb					;  N: do single instruction
@@ -1875,7 +1875,7 @@ EmINSB:
 EINSB_loop:
 	cld					; assume cld
 	mov	bx,DF_FLAG
-	test	bx,word [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
+	test	bx,word [bp+VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
 	jz	EINSB_rep			;  Y: go ahead
 	std					;  N: set it
 EINSB_rep:
@@ -1908,7 +1908,7 @@ EmINSW:
 ;
 ;;	inc	[bp.VTFOE+VMTF_EIP]	; set IP past the instruction we emulate
 	inc	si			; set IP past the
-	mov	[bp.VTFOE+VMTF_EIP], si ; instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP], si ; instruction we emulate
 ;
 ;
 ;
@@ -1917,14 +1917,14 @@ EmINSW:
 ;
 	mov	bx,GDTD_GSEL
 	mov	ds,bx			; DS = GDT selector
-	mov	bx,[bp.VTFOE+VMTF_ES]	; BX = VM ES (segment form)
+	mov	bx,[bp+VTFOE+VMTF_ES]	; BX = VM ES (segment form)
 	shl	bx,4			; BX = low 16 bits of base
-	mov	ds:[VM1_GSEL+2],bx	; place in descriptor
-	mov	bx,[bp.VTFOE+VMTF_ES]	; BX = VM ES (again)
+	mov	[ds:VM1_GSEL+2],bx	; place in descriptor
+	mov	bx,[bp+VTFOE+VMTF_ES]	; BX = VM ES (again)
 	shr	bx,4			; BH = high 8 bits of base
-	mov	ds:[VM1_GSEL+4],bh	; place in descriptor
+	mov	[ds:VM1_GSEL+4],bh	; place in descriptor
 	mov	bx,VM1_GSEL
-	test	ES:[PrefixFlag],REP_FLAG	;Q: REP prefix active ?
+	test	[ES:PrefixFlag],REP_FLAG	;Q: REP prefix active ?
 	mov	es,bx				; ES = VM ES
 	jnz	EINSW_loop			;  Y: go do rep instruction
 	insw					;  N: do single instruction
@@ -1932,7 +1932,7 @@ EmINSW:
 EINSW_loop:
 	cld					; assume cld
 	mov	bx,DF_FLAG
-	test	bx,word [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
+	test	bx,word [bp+VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
 	jz	EINSW_rep			;  Y: go ahead
 	std					;  N: set it
 EINSW_rep:
@@ -1965,7 +1965,7 @@ EmOUTSB:
 ;
 ;;	inc	[bp.VTFOE+VMTF_EIP]	; set IP past the instruction we emulate
 	inc	si			; set IP past the
-	mov	[bp.VTFOE+VMTF_EIP], si ; instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP], si ; instruction we emulate
 ;
 ;   restore SI
 ;
@@ -1977,23 +1977,23 @@ EmOUTSB:
 ;
 	mov	bx,GDTD_GSEL
 	mov	ds,bx			; DS = GDT selector
-	mov	bx,[bp.VTFOE+VMTF_DS]	; BX = VM DS (segment form)
+	mov	bx,[bp+VTFOE+VMTF_DS]	; BX = VM DS (segment form)
 	shl	bx,4			; BX = low 16 bits of base
-	mov	ds:[VM1_GSEL+2],bx	; place in descriptor
-	mov	bx,[bp.VTFOE+VMTF_DS]	; BX = VM DS (again)
+	mov	[ds:VM1_GSEL+2],bx	; place in descriptor
+	mov	bx,[bp+VTFOE+VMTF_DS]	; BX = VM DS (again)
 	shr	bx,4			; BH = high 8 bits of base
-	mov	ds:[VM1_GSEL+4],bh	; place in descriptor
+	mov	[ds:VM1_GSEL+4],bh	; place in descriptor
 	mov	bx,VM1_GSEL
 	mov	ds,bx			; DS = VM DS
 
-	test	ES:[PrefixFlag],REP_FLAG ;Q: REP prefix active ?
+	test	[ES:PrefixFlag],REP_FLAG ;Q: REP prefix active ?
 	jnz	EOUTSB_loop			;  Y: go do rep instruction
 	outsb					;  N: do single instruction
 	jmp	EOUTSB_exit			;     and leave
 EOUTSB_loop:
 	cld					; assume cld
 	mov	bx,DF_FLAG
-	test	bx,word [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
+	test	bx,word [bp+VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
 	jz	EOUTSB_rep			;  Y: go ahead
 	std					;  N: set it
 EOUTSB_rep:
@@ -2026,7 +2026,7 @@ EmOUTSW:
 ;
 ;;	inc	[bp.VTFOE+VMTF_EIP]	; set IP past the instruction we emulate
 	inc	si			; set IP past the
-	mov	[bp.VTFOE+VMTF_EIP], si ; instruction we emulate
+	mov	[bp+VTFOE+VMTF_EIP], si ; instruction we emulate
 ;
 ;   restore SI
 ;
@@ -2039,23 +2039,23 @@ EmOUTSW:
 ;
 	mov	bx,GDTD_GSEL
 	mov	ds,bx			; DS = GDT selector
-	mov	bx,[bp.VTFOE+VMTF_DS]	; BX = VM DS (segment form)
+	mov	bx,[bp+VTFOE+VMTF_DS]	; BX = VM DS (segment form)
 	shl	bx,4			; BX = low 16 bits of base
-	mov	ds:[VM1_GSEL+2],bx	; place in descriptor
-	mov	bx,[bp.VTFOE+VMTF_DS]	; BX = VM DS (again)
+	mov	[ds:VM1_GSEL+2],bx	; place in descriptor
+	mov	bx,[bp+VTFOE+VMTF_DS]	; BX = VM DS (again)
 	shr	bx,4			; BH = high 8 bits of base
-	mov	ds:[VM1_GSEL+4],bh	; place in descriptor
+	mov	[ds:VM1_GSEL+4],bh	; place in descriptor
 	mov	bx,VM1_GSEL
 	mov	ds,bx			; DS = VM DS
 
-	test	ES:[PrefixFlag],REP_FLAG ;Q: REP prefix active ?
+	test	[ES:PrefixFlag],REP_FLAG ;Q: REP prefix active ?
 	jnz	EOUTSW_loop			;  Y: go do rep instruction
 	outsw					;  N: do single instruction
 	jmp	EOUTSW_exit			;     and leave
 EOUTSW_loop:
 	cld					; assume cld
 	mov	bx,DF_FLAG
-	test	bx,word [bp.VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
+	test	bx,word [bp+VTFOE+VMTF_EFLAGS] ;Q: client's DF bit is CLD?
 	jz	EOUTSW_rep			;  Y: go ahead
 	std					;  N: set it
 EOUTSW_rep:
@@ -2090,10 +2090,10 @@ EmMOVSW:
 	mov	bx, sp
 	cmp	di, 0FFFFh		    ; Q:Does either Di
 	je	EmWRASH
-	cmp	ss:[bx.GPF_ESI], 0FFFFh     ;	or SI = FFFF?
+	cmp	[ss:bx+GPF_ESI], 0FFFFh     ;	or SI = FFFF?
 	je	EmWRASH 		    ;  Y:Assume RASH GPfault
 Reflect6:
-	mov	es:[RefNum], 06h
+	mov	[es:RefNum], 06h
 RefToROM:
 	POP_ESI 			    ;  N: clean up the stack,
 	POP_EBX
@@ -2101,25 +2101,25 @@ RefToROM:
 	add	sp,4			    ; throw away error code,
 	PUSH_EBP
 	mov	bp,sp			    ; reset BP to stack frame
-	push	es:[RefNum]		    ; push the trap number
+	push	[es:RefNum]		    ; push the trap number
 	jmp	hw_int			    ; and, Reflect to ROM
 EmWRASH:
-	test	es:[PrefixFlag], REPS_FLAG  ; Q:Is this a REP of REPNE?
+	test	[es:PrefixFlag], REPS_FLAG  ; Q:Is this a REP of REPNE?
 	jz	EMWCXok 		    ;  N: don't change CX
 	inc	cx
 EMWCXok:
 	mov	ax, 2			    ; assume up counter
-	test	[bp.VTFOE+VMTF_EFLAGS], DF_FLAG
+	test	[bp+VTFOE+VMTF_EFLAGS], DF_FLAG
 	jz	EMWUpdtSI
 	not	ax
 EMWUpdtSI:
-	mov	si, ss:[bx.GPF_ESI]
-	add	ss:[bx.GPF_ESI], ax	    ; verify neg???
+	mov	si, [ss:bx+GPF_ESI]
+	add	[ss:bx+GPF_ESI], ax	    ; verify neg???
 	cmp	si, 0FFFFh		    ; Q:Did SI cause the GP fault
 	jne	EMWUpdtDI		    ;  N:Go fixup DI and CX
 	jmp	short EMW_Exit		    ;  Y:We're done
 EMWUpdtDI:
-	test	es:[PrefixFlag], REPS_FLAG  ; Q:Is this a REP of REPNE?
+	test	[es:PrefixFlag], REPS_FLAG  ; Q:Is this a REP of REPNE?
 	jz	EMWCXok2		    ;  N: don't change CX
 	inc	cx
 EMWCXok2:

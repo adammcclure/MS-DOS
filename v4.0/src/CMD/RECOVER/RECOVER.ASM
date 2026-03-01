@@ -137,7 +137,7 @@ Procedure GetFat,NEAR
 	JNAE $$IF1
 					;can now be 'FFFF'hex			;an005;bgb
 		call	calc_fat_addr		; ;set up div by para		;an005;bgb
-		mov	bx,word es:[bx]	; get contents of fat		;an005;bgb
+		mov	bx,word [es:bx]	; get contents of fat		;an005;bgb
 ;	$ELSE	;small fat		    ;AN000;bgb
 	JMP SHORT $$EN1
 $$IF1:
@@ -183,7 +183,7 @@ Procedure SetFat,NEAR
 ;	$IF	AE  ;changed to above because max clusters now 'ffff'hex	;an005;bgb
 	JNAE $$IF6
 	    call    calc_fat_addr	    ; calc the fat cell addr		;an005;bgb
-	    mov     word es:[bx],dx     ; get the contents			;an005;bgb
+	    mov     word [es:bx],dx     ; get the contents			;an005;bgb
 ;	$ELSE
 	JMP SHORT $$EN6
 $$IF6:
@@ -402,13 +402,13 @@ EndProc fEOF
 ;
 ;*****************************************************************************
 procedure SFFromFCB,NEAR
-	MOV	BL,ES:[DI].FCB_SFN ;fcb+18 = system file table 00
+	MOV	BL,[ES:DI].FCB_SFN ;fcb+18 = system file table 00
 	XOR	BH,BH		   ; 00
 	SaveReg <AX,BX>
 	MOV	AH,Get_IN_Vars		;52h
 	INT	21h			;   p = DOSBASE();
 					; bx = 0026, ax=5200 es=0257
-	LES	DI,dword ES:[BX].SYSI_FCB ;load es:di w/ ptr to sf table
+	LES	DI,dword [ES:BX].SYSI_FCB ;load es:di w/ ptr to sf table
 					; es:di = 0b37:0000
 	LEA	DI,[DI].sfTable 	; di=6			  AC000;bgb
 	RestoreReg <BX>
@@ -559,11 +559,11 @@ TESTKANJ:   push    ds		 ;get dbcs vector				;an012;bgb
 	    sub     si,2	 ;prep for loop 				;an012;bgb
 dbcsmore:									;an012;bgb
 	    add     si,2		;point to next dbcs vector		;an012;bgb
-	    cmp     word ds:[SI],bp ;do until 00 found in dbcs vector table ;an012;bgb
+	    cmp     word [ds:SI],bp ;do until 00 found in dbcs vector table ;an012;bgb
 	    je	    notlead		;00 found, quit 			;an012;bgb
-	    CMP     AL,byte ds:[si] ;look at lead byte of dbcs char 	;an012;bgb
+	    CMP     AL,byte [ds:si] ;look at lead byte of dbcs char 	;an012;bgb
 	    jb	    dbcsmore		;al < lead byte means not dbcs		;an012;bgb
-	    CMP     al,byte ds:[si+1] ;look at 2nd byte of dbcs		;an012;bgb
+	    CMP     al,byte [ds:si+1] ;look at 2nd byte of dbcs		;an012;bgb
 	    JBE     ISLEAD  ;if it is between the 2 chars, it is dbcs		;an012;bgb
 	    jmp     dbcsmore	 ;go get the next dbcs vector			;an012;bgb
 
@@ -672,7 +672,7 @@ Procedure get_fcb,Near		    ;AN000;bgb				      ;an020;bgb
 ;now get the filename from the command line					;an024;bgb;an020;bgb
 ; step 1 - point to end of cmd line						;an024;bgb
 	    mov     si,081h		;point to beginning of command line	;AN014;bgb
-	    mov     cl,byte ds:[80h] ;get length of cmd line		;AN014;bgb
+	    mov     cl,byte [ds:80h] ;get length of cmd line		;AN014;bgb
 	    xor     ch,ch		;zero out hi byte for word arith	;AN014;bgb
 	    add     si,cx		;begin plus length of cmd line = end	;AN014;bgb
 	    dec     si			;point to last char, not CR		;an020;bgb
@@ -680,7 +680,7 @@ Procedure get_fcb,Near		    ;AN000;bgb				      ;an020;bgb
 	    mov     exit_sw,bp ;false						;an024;bgb
 ;	    $DO 			;do until back slash found		;AN014;bgb
 $$DO23:
-		cmp	byte ds:[si],'\'	 ;look for back slash		;AN014;bgb
+		cmp	byte [ds:si],'\'	 ;look for back slash		;AN014;bgb
 ;		$IF	E		;find it?				;an024;bgb;AN014;bgb
 		JNE $$IF24
 		    mov     al,[si-1]	;get possible leading byte		;an024;bgb
@@ -701,7 +701,7 @@ $$IF24:
 		cmp	exit_sw,true						;an024;bgb
 ;		$LEAVE	E							;an024;bgb
 		JE $$EN23
-		cmp	byte ds:[si],0	 ;look for 00 (not a filespec)	;AN018;bgb
+		cmp	byte [ds:si],0	 ;look for 00 (not a filespec)	;AN018;bgb
 ;		$IF	E							;an020;bgb
 		JNE $$IF30
 		    ret 							;an020;bgb
@@ -1059,7 +1059,7 @@ recfile0:
     mov     siztmp+2,ax
     SaveReg <ES,DI>			;   fatptr =
     call    sfFromFCB			;	sfFromFCB(d)->firclus;
-    mov     ax,ES:[DI].sf_firclus	; es:di +0b = 84
+    mov     ax,[ES:DI].sf_firclus	; es:di +0b = 84
     RestoreReg <DI,ES>
     mov     fatptr,ax
     or	    ax,ax			;   if (fatptr == 0)
@@ -1124,11 +1124,11 @@ endproc process_file			;AN000;bgb
 	break
 ;----- Restore INT 24 vector and old current directory -----------------;
 Procedure Rest_dir,Near 		;				;AN000;
-	cmp	cs:[fudge],0
+	cmp	[cs:fudge],0
 ;	$IF	NE
 	JE $$IF71
 	    mov     ax,(set_interrupt_vector shl 8) or 24h
-	    lds     dx,cs:[hardch]
+	    lds     dx,[cs:hardch]
 	    int     21h
 	    push    cs
 	    pop     ds
@@ -1229,7 +1229,7 @@ $$IF74:
 	    SaveReg <ES,DI,BX>		;Save some info
 	    call    sfFromFCB		;Get pointer to sf table
 	    RestoreReg <BX>		;Get back clus to point to
-	    mov     ES:[DI].sf_firclus,BX ;Skip offending cluster
+	    mov     [ES:DI].sf_firclus,BX ;Skip offending cluster
 	    RestoreReg <DI,ES>		;Get back regs
 ;	$ELSE				;Not first entry in chain	;AC000;
 	JMP SHORT $$EN73
@@ -1255,11 +1255,11 @@ $$EN73:
 $$IF78:
 	SaveReg <ES,DI> 		;Save regs
 	call	sfFromFCB		;Get sf pointer
-sfsize: sub	word ES:[di].sf_size,ax ;Adjust internal file sizes
-	sbb	word ES:[di].sf_size+2,bp ;   "  "	 "  "
+sfsize: sub	word [ES:di].sf_size,ax ;Adjust internal file sizes
+	sbb	word [ES:di].sf_size+2,bp ;   "  "	 "  "
 	sub	siztmp,ax		;Keep track of how much done
 	sbb	siztmp,bp		 ;
-	and	ES:[di].sf_flags,NOT devid_file_clean ; mark file dirty
+	and	[ES:di].sf_flags,NOT devid_file_clean ; mark file dirty
 	RestoreReg <DI,ES>		;	    sfFromFCB(d)->flags &= ~CLEAN;
 	lea	di,fcb_copy
 	sub	word [di].fcb_filsiz,ax ;And change the FCB
@@ -1332,7 +1332,7 @@ Procedure fill_fat,Near 		;AN000;bgb				;an005;bgb
     DOS_Call GetCurrentPSP		;Get PSP segment address		;an013;bgb
     mov     ds,bx			;ds points to the psp			;an013;bgb
     ; Assume  DS:Nothing;point to psp				;an013;bgb
-    MOV     DX,DS:[2]			;get the last para of memory		;an013;bgb
+    MOV     DX,[DS:2]			;get the last para of memory		;an013;bgb
     pop     ds									;an013;bgb
     ; assume  ds:dg
     cmp     dx,ax		     ;last-para must be greater or equal	;an013;bgb

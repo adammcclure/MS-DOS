@@ -575,7 +575,7 @@ GOTRESTR:
 	SUB	BX,DI				; compute negatinve of number of chars
 	CMP	BX,-1				; is there just a :?
 	JZ	NotTrailCol			; yep, don't change
-	CMP	byte ES:[DI-1],al		; Trailing ':' OK on devices
+	CMP	byte [ES:DI-1],al		; Trailing ':' OK on devices
 	JNZ	NOTTRAILCOL
 	DEC	DI				; Back up over trailing ':'
 
@@ -631,7 +631,7 @@ CmdCopy:
 	jmp	CmdCopy
 
 CopyDone:
-	 mov	 byte ds:[80h],cl		; Store count
+	 mov	 byte [ds:80h],cl		; Store count
 
 	 ret
 ; ENDP cmd_copy

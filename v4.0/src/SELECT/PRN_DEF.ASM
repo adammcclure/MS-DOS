@@ -265,7 +265,7 @@ ALLOC_FLAG    DB   0
 ALLOCATED     EQU  80H
 
 
-DATA	ENDS			;AN000;
+; END SECTION .DATA;AN000;
 
 SECTION .CODE_FAR;AN000;
 
@@ -671,13 +671,13 @@ COPY_PRINTER_NAME:;AN000;
     ; Copy the type of printer first
     ;**********************************************************************
     POP  BX					 ;AN000; Get the result block address
-    MOV  AL, DS:[BX+1]				 ;AN000; Get the matched item tag
+    MOV  AL, [DS:BX+1]				 ;AN000; Get the matched item tag
     ; .IF < AL EQ 1 >;AN000; Was the parameter a P?
 	 MOV  AL, 'P'                            ;AN000; Yes!
     ; .ELSE;AN000;
 	 MOV  AL, 'S'                            ;AN000; No! It was an S
     ; .ENDIF;AN000;
-    MOV  ES:[DI+40], AL 			 ;AN000; Store in the table
+    MOV  [ES:DI+40], AL 			 ;AN000; Store in the table
     ;**********************************************************************
     ; Skip the spaces between the printer type indicator and the printer name
     ;**********************************************************************
@@ -703,7 +703,7 @@ COPY_PRINTER_NAME:;AN000;
     ; .ENDIF;AN000;
     MOV  DX, CX 				 ;AN000; Save the line length for later use
     ; .WHILE < NONZERO CX >;AN000; Do while there are more characters in the string
-	 MOV  AL, byte ES:[SI]		 ;AN000; Get a character from the file data
+	 MOV  AL, byte [ES:SI]		 ;AN000; Get a character from the file data
 	 ; .IF < AL NE 32 >;AN000; Is this character a space?
 	      MOV  BX, DX			 ;AN000; Get the line length
 	      SUB  BX, CX			 ;AN000; Get the length of the line copied so far
@@ -712,7 +712,7 @@ COPY_PRINTER_NAME:;AN000;
 		   MOV	MAX_NAME, BX	     ;AN000; Yes! This is the new maximum
 	      ; .ENDIF;AN000;
 	 ; .ENDIF;AN000;
-	 MOV  byte ES:[DI], AL		 ;AN000; Put the character in the names table
+	 MOV  byte [ES:DI], AL		 ;AN000; Put the character in the names table
 	 INC  SI				 ;AN000; Increment string pointers
 	 INC  DI     ;AN000;
 	 DEC  CX				 ;AN000; Decrement the number of characters left
@@ -735,8 +735,8 @@ COPY_PRINTER_NAME:;AN000;
     MOV  DX, word FILE_PTR_AT_START[2]	 ;AN000; Get the high order word
     ADD  CX, SI 				 ;AN000; Add the offset of the start of this line
     ADC  DX, 0					 ;AN000; Add the high word
-    MOV  word ES:[DI], CX			 ;AN000; Store the low order word in the list
-    MOV  word ES:[DI+2], DX 		 ;AN000; Store the high order word
+    MOV  word [ES:DI], CX			 ;AN000; Store the low order word in the list
+    MOV  word [ES:DI+2], DX 		 ;AN000; Store the high order word
     INC  N_PRN_NAMES			  ;AN000; Point to the next free area in the list
     CLC 		 ;AN000;
     JMP  EXIT_COPY	 ;AN000;
@@ -877,8 +877,8 @@ GET_PRINTER_INFO_ROUTINE:;AN000;
     ;**********************************************************************
     MOV  AX, SEG_LOC			;AN000; Get the segment where the data is
     MOV  ES, AX 				 ;AN000; Save in a segment register
-    MOV  CX, word ES:[DI+41]		 ;AN000; Get the low order word of the file location
-    MOV  DX, word ES:[DI+43]		 ;AN000; Get the high order word of the file location
+    MOV  CX, word [ES:DI+41]		 ;AN000; Get the low order word of the file location
+    MOV  DX, word [ES:DI+43]		 ;AN000; Get the high order word of the file location
     ;**********************************************************************
     ; Determine if the information is already in the buffer or do we  have
     ; to read more information from the printer profile.
@@ -911,8 +911,8 @@ GET_PRINTER_INFO_ROUTINE:;AN000;
 	      JMP  READ_MORE_INFORMATION	 ;AN000; Not EOF, so read in more data just for safety
 	 ; .ENDIF;AN000;
     ; .ENDIF;AN000;
-    MOV  CX, word ES:[DI+SIZE_NAMES+41] ;AN000; Get the pointer to the NEXT printer name
-    MOV  DX, word ES:[DI+SIZE_NAMES+43] ;AN000; Get the high order word
+    MOV  CX, word [ES:DI+SIZE_NAMES+41] ;AN000; Get the pointer to the NEXT printer name
+    MOV  DX, word [ES:DI+SIZE_NAMES+43] ;AN000; Get the high order word
     ; .IF < DX A BX >;AN000; See if the next printer name is in the buffer
 	 JMP  READ_MORE_INFORMATION		 ;AN000; If not, get more information
     ; .ELSE;AN000;
@@ -927,8 +927,8 @@ GET_PRINTER_INFO_ROUTINE:;AN000;
     ; is necessary to read it from the printer profile file.
     ;**********************************************************************
 READ_MORE_INFORMATION:				 ;AN000;
-    MOV  CX, word ES:[DI+43]		 ;AN000; Get the file pointer of this printer name
-    MOV  DX, word ES:[DI+41]		 ;AN000; Get the low order word of pointer
+    MOV  CX, word [ES:DI+43]		 ;AN000; Get the file pointer of this printer name
+    MOV  DX, word [ES:DI+41]		 ;AN000; Get the low order word of pointer
     MOV  INT_24_ERROR, 0			 ;AN000; Indicate that no critical errors have occured yet
     MOV  AX, 4200H				 ;AN000; DOS Fn. for positioning file pointer
     MOV  BX, FILE_HANDLE			 ;AN000; Get the handle of the file
@@ -977,13 +977,13 @@ PARSE_HERE:		       ;AN000;
     ;**********************************************************************
     ; Get the type of printer.
     ;**********************************************************************
-    MOV  AL, ES:[DI+40] 			 ;AN000; Get the printer type - Parallel or Serial from the table
+    MOV  AL, [ES:DI+40] 			 ;AN000; Get the printer type - Parallel or Serial from the table
     MOV  N_PRINTER_TYPE, AL			 ;AN000; Save in the appropriate variable
     ;**********************************************************************
     ; Get the offset of the start of this printer definition
     ;**********************************************************************
-    MOV  CX, ES:[DI+41] 			 ;AN000; Get the low order word of the file pointer
-    MOV  DX, ES:[DI+43] 			 ;AN000; Get the high order word
+    MOV  CX, [ES:DI+41] 			 ;AN000; Get the low order word of the file pointer
+    MOV  DX, [ES:DI+43] 			 ;AN000; Get the high order word
     SUB  DX, word FILE_PTR_AT_START[2]	 ;AN000; Subtract the high order words
     SBB  CX, word FILE_PTR_AT_START 	 ;AN000; Subtract the low order words
     ADD  CX, BUFFER_START			 ;AN000; Get the offset of the start of the definition
@@ -1281,7 +1281,7 @@ COPY_RESULT:;AN000;
     LES  SI, [BX+4]				 ;AN000; Get the address of the string to copy
     MOV  CX, 0					 ;AN000; Zero the string length indicator
     ; .WHILE < CX B AX >;AN000; Copy up to the number of character in AX
-	 MOV  DL, byte ES:[SI]		 ;AN000; Get the first byte
+	 MOV  DL, byte [ES:SI]		 ;AN000; Get the first byte
 	 .LEAVE < ZERO DL >			 ;AN000; Terminate loop if this is a null char
 	 MOV  byte [DI], DL 		 ;AN000; Save character in the destination string
 	 INC  SI				 ;AN000; Increment source pointer
@@ -1331,7 +1331,7 @@ COPY_LINE:;AN000;
     REP  MOVSB					 ;AN000; Move the data
     POP  CX					 ;AN000; Restore the line length
     POP  DI					 ;AN000; Restore the pointer to the variable
-    MOV  word ES:[DI], CX			 ;AN000; Save the length of the string
+    MOV  word [ES:DI], CX			 ;AN000; Save the length of the string
     POP  SI					 ;AN000; Restore the parser pointer
     PUSH DS					 ;AN000; Swap the segment registers again
     PUSH ES	 ;AN000;
@@ -1551,6 +1551,6 @@ AUTO_EXIT_RO:	 ;AN000;
 
 ; ENDP CHANGE_AUTOEXEC_ROUTINE;AN000;
 
-CODE_FAR    ENDS;AN000;
+; END SECTION .CODE_FAR;AN000;
 
 ; END;AN000;

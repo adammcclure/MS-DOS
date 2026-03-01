@@ -58,14 +58,14 @@
 ;-----------------------------------------------------------------------;
 ;	Request Header (Common portion) 				;
 ;-----------------------------------------------------------------------;
-RH	EQU	DS:[BX] 	;addressability to Request Header structure
+RH	EQU	[DS:BX] 	;addressability to Request Header structure
 
 struc RHC;fields common to all request types
-	   db 0;length of Request Header (including data)
-	   db 0;unit code (subunit)
-RHC_CMD: db 0;command code
-RHC_STA: dw 0;status
-	   dq 0;reserved for DOS
+	   resb 1;length of Request Header (including data)
+	   resb 1;unit code (subunit)
+RHC_CMD: resb 1;command code
+RHC_STA: resw 1;status
+	   resq 1;reserved for DOS
 endstruc;end of common portion
 
 CMD_INPUT  EQU	4		;RHC_CMD is INPUT request
@@ -81,15 +81,15 @@ STAT_BUSY   EQU 0200H		;busy bit (9) for Removable Media call
 ;	Request Header for INIT command 				;
 ;-----------------------------------------------------------------------;
 struc RH0
-	   DB	(TYPE RHC) DUP (?)	;common portion
-RH0_NUN: db 0;number of units
+	   resb 1;common portion
+RH0_NUN: resb 1;number of units
 				;set to 1 if installation succeeds,
 				;set to 0 to cause installation failure
-RH0_ENDO: dw 0;offset  of ending address
-RH0_ENDS: dw 0;segment of ending address
-RH0_BPBO: dw 0;offset  of BPB array address
-RH0_BPBS: dw 0;segment of BPB array address
-RH0_DRIV: db 0;drive code (DOS 3 only)
+RH0_ENDO: resw 1;offset  of ending address
+RH0_ENDS: resw 1;segment of ending address
+RH0_BPBO: resw 1;offset  of BPB array address
+RH0_BPBS: resw 1;segment of BPB array address
+RH0_DRIV: resb 1;drive code (DOS 3 only)
 endstruc
 
 RH0_BPBA   EQU	dword RH0_BPBO	;offset/segment of BPB array address
@@ -99,31 +99,31 @@ RH0_BPBA   EQU	dword RH0_BPBO	;offset/segment of BPB array address
 ;	Request Header for MEDIA CHECK Command				;
 ;-----------------------------------------------------------------------;
 struc RH1
-	   DB	(TYPE RHC) DUP (?)	;common portion
-	   db 0;media descriptor
-RH1_RET: db 0;return information
+	   resb 1;common portion
+	   resb 1;media descriptor
+RH1_RET: resb 1;return information
 endstruc
 ;-----------------------------------------------------------------------;
 ;	Request Header for BUILD BPB Command				;
 ;-----------------------------------------------------------------------;
 struc RH2
-	   DB	(TYPE RHC) DUP(?)	;common portion
-	   db 0;media descriptor
-	   dw 0;offset  of transfer address
-	   dw 0;segment of transfer address
-RH2_BPBO: dw 0;offset  of BPB table address
-RH2_BPBS: dw 0;segment of BPB table address
+	   resb 1;common portion
+	   resb 1;media descriptor
+	   resw 1;offset  of transfer address
+	   resw 1;segment of transfer address
+RH2_BPBO: resw 1;offset  of BPB table address
+RH2_BPBS: resw 1;segment of BPB table address
 endstruc
 ;-----------------------------------------------------------------------;
 ;	Request Header for INPUT, OUTPUT, and OUTPUT with verify	;
 ;-----------------------------------------------------------------------;
 struc RH4
-	   DB	(TYPE RHC) DUP (?)	;common portion
-	   db 0;media descriptor
-RH4_DTAO: dw 0;offset  of transfer address
-RH4_DTAS: dw 0;segment of transfer address
-RH4_CNT: dw 0;sector count
-RH4_SSN: dw 0;starting sector number
+	   resb 1;common portion
+	   resb 1;media descriptor
+RH4_DTAO: resw 1;offset  of transfer address
+RH4_DTAS: resw 1;segment of transfer address
+RH4_CNT: resw 1;sector count
+RH4_SSN: resw 1;starting sector number
 endstruc
 
 RH4_DTAA   EQU	dword RH4_DTAO ;offset/segment of transfer address
@@ -135,8 +135,8 @@ struc DESC;data segment descriptor
 DESC_LMT   DW	0		;segment limit (length)
 DESC_BASEL DW	0		;bits 15-0 of physical address
 DESC_BASEH DB	0		;bits 23-16 of physical address
-	   DB	0		;access rights byte
-	   DW	0		;reserved
+	   resb 1;access rights byte
+	   resw 1;reserved
 endstruc
 
 	; SUBTTL	Equates and Macro Definitions

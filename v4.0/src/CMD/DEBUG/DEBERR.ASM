@@ -130,10 +130,10 @@ NMIInt:
 	    POP     AX			; get old AX back
 	    JZ	    NMICHAIN		; no, go chain interrupt
 	    OUT     0A2H,AL		; reset NMI detector
-	    MOV     CS:[PARITYFLAG],1	; signal detection
+	    MOV     [CS:PARITYFLAG],1	; signal detection
 	    IRET
 NMICHAIN:
-	    JMP     dword CS:[NMIPTR] ; chain the vectors
+	    JMP     dword [CS:NMIPTR] ; chain the vectors
 NMIPTR: dd 0; where old NMI gets stashed
 	%endif
 NMIINTEND:

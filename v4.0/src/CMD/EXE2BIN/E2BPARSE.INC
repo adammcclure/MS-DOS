@@ -81,12 +81,12 @@ Command_Line_Parms      equ     81h             ;                               
 
 struc Control
 
-Match_Flags: dw 0
-Function_Flags: dw 0
-Result: dw 0
-Values: dw 0
-Num_Keywords: db 0
-Keyword: db 0
+Match_Flags: resw 1
+Function_Flags: resw 1
+Result: resw 1
+Values: resw 1
+Num_Keywords: resb 1
+Keyword: resb 1
 
 endstruc
 

@@ -142,5 +142,5 @@ INT_2FH:									;AN000;
       ; .ENDIF;  END If this call is for us.		;AN000;
 ; ENDP INT_2FH_DRIVER;AN000;
 										;AN000;
-CODE   ENDS									;AN000;
+; END SECTION .CODE;AN000;
        ; END;AN000;

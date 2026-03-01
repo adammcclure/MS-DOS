@@ -191,7 +191,7 @@ ASCII:
         MOV     AX,SI                   ; Current dump address
         MOV     SI,DX                   ; ASCII dump address
         SUB     AX,DX                   ; AX=length of ASCII dump
-        %if NOT ZIBO
+        %if ~ZIBO
 ; Compute tab length. ASCII dump always appears on right side
 ; screen regardless of how many bytes were dumped. Figure 3
 ; characters for each byte dumped and subtract from 51, which
@@ -568,7 +568,7 @@ GETROW:
         CALL    BLANK                   ; Leave a space
         CALL    BLANK
 GETBYTE:
-        MOV     AL,ES:[DI]              ; Get current value
+        MOV     AL,[ES:DI]              ; Get current value
         CALL    HEX                     ; And display it
 PUTDOT:
         MOV     AL,"."
@@ -628,7 +628,7 @@ STORE:
         SHL     DH,CL
         POP     CX
         OR      DL,DH                   ; Hex is now converted to binary
-        MOV     ES:[DI],DL              ; Store new value
+        MOV     [ES:DI],DL              ; Store new value
 NOSTO:
         INC     DI                      ; Prepare for next location
         RET
@@ -660,7 +660,7 @@ EOL:
 IN:
         PUSH    DS
         PUSH    SI
-        LDS     SI,CS:[CIN]
+        LDS     SI,[CS:CIN]
         MOV     AH,4
         CALL    DEVIOCALL
         POP     SI

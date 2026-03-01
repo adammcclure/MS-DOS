@@ -40,7 +40,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	I_need	DirStart,WORD
 	I_Need	CONSft,DWORD		; SFT for swapped console In/Out
@@ -162,7 +162,7 @@ dos_rd_call:
 ;
 ; Verify that the sft has been opened in a mode that allows reading.
 ;
-	MOV	AL,byte ES:[DI.sf_mode]
+	MOV	AL,byte [ES:DI+sf_mode]
 	AND	AL,access_mask
 	CMP	AL,open_for_write
 	JNE	READ_NO_MODE		;Is read or both
@@ -184,7 +184,7 @@ READ_OK2:				;AN000;
 ;	LeaveCrit   critDisk		;AN000;;IFS. leave critical section
 IFS_HAS_SHARE:				;AN000;
 
-%if NOT Installed
+%if ~Installed
 	transfer NET_READ
 %else
 	MOV	AX,(multNET SHL 8) OR 8
@@ -201,7 +201,7 @@ NoIORet:
 	return
 
 LOCAL_READ:
-	TEST	ES:[DI.sf_flags],devid_device  ; Check for named device I/O
+	TEST	[ES:DI+sf_flags],devid_device  ; Check for named device I/O
 	JNZ	READDEV
 	MOV	[EXTERR_LOCUS],errLOC_Disk
 	EnterCrit   critDisk
@@ -211,7 +211,7 @@ LOCAL_READ:
 FS_no:
 	invoke	DISKREAD
 	PUSHF				      ; save flag
-	AND	CS:[FastSeekflg],FS_end       ; reset fastseek mode
+	AND	[CS:FastSeekflg],FS_end       ; reset fastseek mode
 	POPF				      ; retore flag
 critexit:
 	LeaveCrit   critDisk
@@ -226,7 +226,7 @@ READDEV:
 	DOSAssume   CS,<DS>,"DISK/ReadDev"
 	; ASSUME	ES:NOTHING
 	MOV	[EXTERR_LOCUS],errLOC_SerDev
-	MOV	BL,byte ES:[DI.sf_flags]
+	MOV	BL,byte [ES:DI+sf_flags]
 	LES	DI,[DMAADD]
 	TEST	BL,devid_device_EOF	; End of file?
 	JZ	ENDRDDEVJ3
@@ -314,7 +314,7 @@ NOTRDCON:
 	POP	CX
 	LDS	SI,[THISSFT]
 	Assert	ISSFT,<DS,SI>,"DOS_Read/NotRdCon"
-	LDS	SI,[SI.sf_devptr]
+	LDS	SI,[SI+sf_devptr]
 DVRDLP:
 	invoke	DSKSTATCHK
 	invoke	DEVIOCALL2
@@ -379,7 +379,7 @@ ENDRDDEV:
 	JNZ	SETSFTC 	; Zero set if Ctrl-Z found in input
 	LES	DI,[THISSFT]
 	Assert	ISSFT,<ES,DI>,"DOS_Read/EndRdDev"
-	AND	byte ES:[DI.sf_flags],NOT devid_device_EOF ; Mark as no more data available
+	AND	byte [ES:DI+sf_flags],NOT devid_device_EOF ; Mark as no more data available
 SETSFTC:
 	invoke	SETSFT
 	return
@@ -457,7 +457,7 @@ dos_wrt_call:
 
 	LES	DI,[THISSFT]
 	Assert	ISSFT,<ES,DI>,"DosWrite"
-	MOV	AL,byte ES:[DI.sf_mode]
+	MOV	AL,byte [ES:DI+sf_mode]
 	AND	AL,access_mask
 	CMP	AL,open_for_read
 	JNE	Check_FCB_RO		 ;Is write or both
@@ -476,9 +476,9 @@ BadMode:
 ;	    to a read-only file.
 ;
 Check_FCB_RO:
-	TEST	ES:[DI.sf_mode],sf_isfcb
+	TEST	[ES:DI+sf_mode],sf_isfcb
 	JZ	WRITE_NO_MODE		; Not an FCB
-	TEST	ES:[DI].sf_attr,attr_read_only
+	TEST	[ES:DI].sf_attr,attr_read_only
 	JNZ	BadMode 		; Can't write to Read_Only files via FCB
 WRITE_NO_MODE:
 	invoke	SETUP
@@ -495,7 +495,7 @@ WRITE_NO_MODE:
 IFS_HAS_SHARE2: 			;AN000;
 
 
-%if NOT Installed
+%if ~Installed
 	transfer NET_WRITE
 %else
 	MOV	AX,(multNET SHL 8) OR 9
@@ -513,7 +513,7 @@ nomore: 			       ;AN000;
 
 
 LOCAL_WRITE:
-	TEST	ES:[DI.sf_flags],devid_device  ; Check for named device I/O
+	TEST	[ES:DI+sf_flags],devid_device  ; Check for named device I/O
 	JNZ	WRTDEV
 	MOV	[EXTERR_LOCUS],errLOC_Disk
 	EnterCrit   critDisk
@@ -523,12 +523,12 @@ LOCAL_WRITE:
 FS_no2: 				       ;AN000;
 	invoke	DISKWRITE
 	PUSHF				       ;AN000;FO. save flag
-	AND	CS:[FastSeekflg],FS_end        ;AN000;FO. reset fastseek mode
+	AND	[CS:FastSeekflg],FS_end        ;AN000;FO. reset fastseek mode
 	POPF				       ;AN000;FO. restore flag
 ;; Extended Open
 	JC	nocommit		       ;AN000;EO.
 	LES	DI,[THISSFT]		       ;AN000;EO.
-	TEST	ES:[DI.sf_mode],auto_commit_write ;AN000;EO.
+	TEST	[ES:DI+sf_mode],auto_commit_write ;AN000;EO.
 	JZ	nocommit		       ;AN000;EO.
 	PUSH	CX			       ;AN000;EO.
 	invoke	DOS_COMMIT		       ;AN000;EO.
@@ -584,8 +584,8 @@ WrtCookJ:
 WRTDEV:
 	DOSAssume   CS,<DS>,"DISK/WrtDev"
 	MOV	[EXTERR_LOCUS],errLOC_SerDev
-	OR	byte ES:[DI.sf_flags],devid_device_EOF  ; Reset EOF for input
-	MOV	BL,byte ES:[DI.sf_flags]
+	OR	byte [ES:DI+sf_flags],devid_device_EOF  ; Reset EOF for input
+	MOV	BL,byte [ES:DI+sf_flags]
 	XOR	AX,AX
 	JCXZ	ENDWRDEV		; problem of creating on a device.
 	PUSH	DS
@@ -611,11 +611,11 @@ TEST_DEV_CON:
 	invoke	SETWRITE
 	POP	CX
 	LDS	SI,[THISSFT]
-	OR	CS:[DOS34_FLAG],X25_Special;AN000;;PTM. bad x25 driver
+	OR	[CS:DOS34_FLAG],X25_Special;AN000;;PTM. bad x25 driver
 	MOV	AH,3			;AN000;;PTM. prompt critical error ASAP
 	invoke	IOFUNC			;AN000;;PTM.
 	Assert	ISSFT,<DS,SI>,"DosWrite/TestDevCon"
-	LDS	SI,[SI.sf_devptr]
+	LDS	SI,[SI+sf_devptr]
 DVWRTLP:
 	invoke	DSKSTATCHK
 	invoke	DEVIOCALL2
@@ -746,11 +746,11 @@ Break	<DIRREAD -- READ A DIRECTORY SECTOR>
 ;
 SubDir:
 	MOV	DL,AL
-	AND	DL,ES:[BP.dpb_cluster_mask]
+	AND	DL,[ES:BP+dpb_cluster_mask]
 ;
 ; DX is the sector-in-cluster
 ;
-	MOV	CL,ES:[BP.dpb_cluster_shift]
+	MOV	CL,[ES:BP+dpb_cluster_shift]
 	SHR	AX,CL
 ;
 ; DX is position in cluster
@@ -804,7 +804,7 @@ HAVESKIPPED:
 	PUSH	SI
 	LDS	SI,[CURBUF]
 	Assert	ISBUF,<DS,SI>,"SetBufAsDir"
-	OR	[SI.buf_flags],buf_isDIR	; Clears carry
+	OR	[SI+buf_flags],buf_isDIR	; Clears carry
 	POP	SI
 	POP	DS
 	return
@@ -829,8 +829,8 @@ Break	<FATSECRD -- READ A FAT SECTOR>
 	Assert	    ISDPB,<ES,BP>,"FATSecRd"
 	MOV	[ALLOWED],allowed_RETRY + allowed_FAIL
 	MOV	DI,CX
-	MOV	CL,ES:[BP.dpb_FAT_count]
-	MOV	AX,ES:[BP.dpb_FAT_size] 	;AN000;>32mb
+	MOV	CL,[ES:BP+dpb_FAT_count]
+	MOV	AX,[ES:BP+dpb_FAT_size] 	;AN000;>32mb
 ;	XOR	AH,AH
 	XOR	CH,CH				;AN000;>32mb
 	PUSH	DX
@@ -902,7 +902,7 @@ Break	<CHECK_WRITE_LOCK>
 	procedure   CHECK_WRITE_LOCK,NEAR      ;AN000;
 ; ASSUME	DS:NOTHING,ES:NOTHING;AN000;
 
-	TEST	ES:[DI].sf_attr,attr_volume_id ;AN000;;MS.  volume id
+	TEST	[ES:DI].sf_attr,attr_volume_id ;AN000;;MS.  volume id
 	JZ	write_cont		       ;AN000;;MS.  no
 	invoke	SET_ACC_ERR_DS		       ;AN000;;MS.
 	return				;AN000;;MS.
@@ -937,7 +937,7 @@ Break	<CHECK_READ_LOCK>
 	procedure   CHECK_READ_LOCK,NEAR       ;AN000;
 ; ASSUME	DS:NOTHING,ES:NOTHING;AN000;
 
-	TEST	ES:[DI].sf_attr,attr_volume_id ;AN000;;MS.  volume id
+	TEST	[ES:DI].sf_attr,attr_volume_id ;AN000;;MS.  volume id
 	JZ	do_retry		       ;AN000;;MS.  no
 	invoke	SET_ACC_ERR		       ;AN000;;MS.
 	return				       ;AN000;;MS.

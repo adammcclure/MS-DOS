@@ -97,19 +97,19 @@ BREAK <$Get_Version -- Return DOS version number>
 	MOV	AX,[MSVERS]
 	invoke	get_user_stack
 ; ASSUME	DS:NOTHING
-	MOV	[SI.user_BX],BX
-	MOV	[SI.user_CX],CX
-	CMP	CS:[Fake_Count],0FFH		   ;AN008;
+	MOV	[SI+user_BX],BX
+	MOV	[SI+user_CX],CX
+	CMP	[CS:Fake_Count],0FFH		   ;AN008;
 	JZ	reg				   ;AN008;
-	CMP	CS:[Fake_Count],0		   ;AN008;
+	CMP	[CS:Fake_Count],0		   ;AN008;
 	JZ	usual				   ;AN008;
-	DEC	CS:[Fake_Count] 		   ;AN008;
+	DEC	[CS:Fake_Count] 		   ;AN008;
 reg:						   ;AN008;
-	CMP	CS:[Special_version],0		   ;AN006;
+	CMP	[CS:Special_version],0		   ;AN006;
 	JZ	usual				   ;AN006;
-	MOV	AX,CS:[Special_version] 	   ;AN006;
+	MOV	AX,[CS:Special_version] 	   ;AN006;
 usual:						   ;AN006;
-	MOV	[SI.user_AX],AX 	; Really only sets AH
+	MOV	[SI+user_AX],AX 	; Really only sets AH
 	return
 EndProc $GET_VERSION
 
@@ -227,7 +227,7 @@ international_find:
 
 international_get:
 	MOV	SI,COUNTRY_CDPG
-	CMP	BX,[SI.ccDosCountry]	 ; = current country id
+	CMP	BX,[SI+ccDosCountry]	 ; = current country id
 	retz				 ; return if equal
 	MOV	DX,BX
 	XOR	BX,BX			 ; bx = 0, default code page
@@ -251,14 +251,14 @@ interr:
 	JMP	setcarry
 
 international_copy:
-	MOV	BX,[SI.ccDosCountry]	 ; = current country id
+	MOV	BX,[SI+ccDosCountry]	 ; = current country id
 	MOV	SI,COUNTRY_CDPG.ccDFormat
 	MOV	CX,OLD_COUNTRY_SIZE
 	REP	MOVSB			 ;copy country info
 international_ok3:
 	invoke	get_user_stack
 ; ASSUME	DS:NOTHING
-	MOV	[SI.user_BX],BX
+	MOV	[SI+user_BX],BX
 international_ok:
 	MOV	AX,BX		     ; Return country code in AX too.
 	transfer SYS_RET_OK
@@ -331,7 +331,7 @@ capit:					;AN000;
 	MOV	AL,DL			;AN000;;MS. set up AL
 	invoke	GETLET3 		;AN000;;MS. upper case it
 	invoke	get_user_stack		;AN000;;MS. get user stack
-	MOV	byte [SI.user_DX],AL;AN000;;MS. user's DL=AL
+	MOV	byte [SI+user_DX],AL;AN000;;MS. user's DL=AL
 	JMP	SHORT nono		;AN000;;MS. done
 chkyes: 				;AN000;
 	CMP	AL,CHECK_YES_NO 	;AN000;;MS. check YES or NO ?
@@ -410,24 +410,24 @@ notcap:
 	MOV	SI,COUNTRY_CDPG
 	CMP	DX,-1			; active country ?
 	JNZ	GETCDPG 		; no
-	MOV	DX,[SI.ccDosCountry]	; get active country id
+	MOV	DX,[SI+ccDosCountry]	; get active country id
 GETCDPG:
 	CMP	BX,-1			; active code page?
 	JNZ	CHKAGAIN		; no, check again
-	MOV	BX,[SI.ccDosCodePage]	; get active code page id
+	MOV	BX,[SI+ccDosCodePage]	; get active code page id
 CHKAGAIN:
-	CMP	DX,[SI.ccDosCountry]	; same as active country id?
+	CMP	DX,[SI+ccDosCountry]	; same as active country id?
 	JNZ	CHKNLS			; no
-	CMP	BX,[SI.ccDosCodePage]	; same as active code page id?
+	CMP	BX,[SI+ccDosCodePage]	; same as active code page id?
 	JNZ	CHKNLS			; no
 CHKTYPE:
-	MOV	BX,[SI.ccSysCodePage]	; bx = sys code page id
+	MOV	BX,[SI+ccSysCodePage]	; bx = sys code page id
 ;	CMP	AL,SetALL		; select all?
 ;	JNZ	SELONE
 ;	MOV	SI,OFFSET DOSGROUP:COUNTRY_CDPG.ccNumber_of_entries
 SELONE:
 	PUSH	CX			; save cx
-	MOV	CX,[SI.ccNumber_of_entries]
+	MOV	CX,[SI+ccNumber_of_entries]
 	MOV	SI,COUNTRY_CDPG.ccSetUcase
 NXTENTRY:
 	CMP	AL,[SI] 		; compare info type
@@ -450,7 +450,7 @@ OK_RETN:
 	MOV	AX,BX			; return sys code page in ax
 GETDONE:
 	invoke	get_user_stack		; return actual length to user's CX
-	MOV	[SI.user_CX],CX
+	MOV	[SI+user_CX],CX
 	transfer SYS_RET_OK
 setsize:
 	SUB	CX,3			; size after length field
@@ -458,7 +458,7 @@ setsize:
 	JAE	setsize2		; no
 	MOV	CX,word [SI]	; truncate to table size
 setsize2:
-	MOV	ES:[DI],CX		; copy actual length to user's
+	MOV	[ES:DI],CX		; copy actual length to user's
 	ADD	DI,2			; update index
 	ADD	SI,2
 	MOV	AX,CX
@@ -476,7 +476,7 @@ sizeerror:
 NLSNXT: CallInstall GetExtInfo,NLSFUNC,2  ;get extended info
 	CMP	AL,0			   ; success ?
 	JNZ	NLSERROR
-	MOV	AX,[SI.ccSysCodePage]	; ax = sys code page id
+	MOV	AX,[SI+ccSysCodePage]	; ax = sys code page id
 	JMP	GETDONE
 NLSERROR:
 	transfer SYS_RET_ERR		; return what is got from NLSFUNC
@@ -507,12 +507,12 @@ BREAK <$GetSetCdPg - get or set global code page>
 	MOV	SI,COUNTRY_CDPG
 	CMP	AL,1		       ; get global code page
 	JNZ	setglpg 	       ; set global cod epage
-	MOV	BX,[SI.ccDosCodePage]  ; get active code page id
-	MOV	DX,[SI.ccSysCodePage]  ; get sys code page id
+	MOV	BX,[SI+ccDosCodePage]  ; get active code page id
+	MOV	DX,[SI+ccSysCodePage]  ; get sys code page id
 	invoke	get_user_stack
 ; ASSUME DS:NOTHING
-	MOV	[SI.user_BX],BX        ; update returned bx
-	MOV	[SI.user_DX],DX        ; update returned dx
+	MOV	[SI+user_BX],BX        ; update returned bx
+	MOV	[SI+user_DX],DX        ; update returned dx
 OK_RETURN:
 	transfer SYS_RET_OK
 ; ASSUME DS:DOSGROUP
@@ -521,7 +521,7 @@ setglpg:
 	JNZ	nomem
 ;;;;;;; CMP	BX,[SI.ccDosCodePage]  ; same as active code page
 ;;;;;;; JZ	OK_RETURN	       ; yes
-	MOV	DX,[SI.ccDosCountry]
+	MOV	DX,[SI+ccDosCountry]
 	CallInstall NLSInstall,NLSFUNC,0 ; check if NLSFUNC in memory
 	CMP	AL,0FFH
 	JNZ	nomem			   ; not in memory
@@ -576,10 +576,10 @@ SET_AX_RET:
 DoSt:
 	invoke	get_user_stack
 ; ASSUME	DS:NOTHING
-	MOV	[SI.user_DX],DX
-	MOV	[SI.user_CX],CX
-	MOV	[SI.user_BX],BX
-	MOV	[SI.user_AX],AX
+	MOV	[SI+user_DX],DX
+	MOV	[SI+user_CX],CX
+	MOV	[SI+user_BX],BX
+	MOV	[SI+user_AX],AX
 	return
 BADFDRV:
 ;	MOV	AL,error_invalid_drive	; Assume error
@@ -602,8 +602,8 @@ BREAK <$Get_DMA, $Set_DMA -- Get/Set current DMA address>
 	MOV	BX,word [DMAADD]
 	MOV	CX,word [DMAADD+2]
 	invoke	get_user_stack
-	MOV	[SI.user_BX],BX
-	MOV	[SI.user_ES],CX
+	MOV	[SI+user_BX],BX
+	MOV	[SI+user_ES],CX
 	return
 EndProc $GET_DMA
 
@@ -672,10 +672,10 @@ BREAK <$Get_Interrupt_Vector - Get/Set interrupt vectors>
 ;	ES:BX is current interrupt vector
 
 	CALL	RECSET
-	LES	BX,dword ES:[BX]
+	LES	BX,dword [ES:BX]
 	invoke	get_user_stack
-	MOV	[SI.user_BX],BX
-	MOV	[SI.user_ES],ES
+	MOV	[SI+user_BX],BX
+	MOV	[SI+user_ES],ES
 	return
 EndProc $GET_INTERRUPT_VECTOR
 
@@ -692,8 +692,8 @@ EndProc $GET_INTERRUPT_VECTOR
 
 	CALL	RECSET
 	CLI				; Watch out!!!!! Folks sometimes use
-	MOV	ES:[BX],DX		;   this for hardware ints (like timer).
-	MOV	ES:[BX+2],DS
+	MOV	[ES:BX],DX		;   this for hardware ints (like timer).
+	MOV	[ES:BX+2],DS
 	STI
 	return
 EndProc $SET_INTERRUPT_VECTOR
@@ -718,7 +718,7 @@ VECOUT:
 	DB	int_spooler
 LSTVEC2: db 0; Map to itself
 
-NUMVEC	=	VECOUT-VECIN
+NUMVEC equ VECOUT-VECIN
 GSET001E:
 ; END SECTION .TABLE
 	%endif
@@ -732,7 +732,7 @@ procedure   RECSET,NEAR
 	MOV	CX,NUMVEC		; Number of possible translations
 	MOV	DI,VECIN    ; Point to vectors
 	REPNE	SCASB
-	MOV	AL,ES:[DI+NUMVEC-1]	; Get translation
+	MOV	AL,[ES:DI+NUMVEC-1]	; Get translation
 	%endif
 
 	XOR	BX,BX
@@ -776,7 +776,7 @@ CharGetDev:
 CharSet:
 	Invoke	Get_User_Stack
 	; ASSUME	DS:NOTHING
-	MOV	[SI.User_DX],DX
+	MOV	[SI+User_DX],DX
 CharSetDev:
 	return
 EndProc $CHAR_OPER
@@ -799,10 +799,10 @@ BREAK <$GetExtendedError - Return Extended DOS error code>
 	MOV	CH,[EXTERR_LOCUS]
 	invoke	get_user_stack
 ; ASSUME	DS:NOTHING
-	MOV	[SI.user_DI],DI
-	MOV	[SI.user_ES],ES
-	MOV	[SI.user_BX],BX
-	MOV	[SI.user_CX],CX
+	MOV	[SI+user_DI],DI
+	MOV	[SI+user_ES],ES
+	MOV	[SI+user_BX],BX
+	MOV	[SI+user_CX],CX
 	transfer SYS_RET_OK
 EndProc $GetExtendedError
 
@@ -815,7 +815,7 @@ BREAK <$Get_Global_CdPg  - Return Global Code Page>
 	; ASSUME	DS:NOTHING,ES:NOTHING
 	PUSH	SI
 	MOV	SI,COUNTRY_CDPG
-	MOV	AX,CS:[SI.ccDosCodePage]
+	MOV	AX,[CS:SI+ccDosCodePage]
 	POP	SI
 	return
 EndProc Get_Global_CdPg
@@ -865,8 +865,8 @@ get_lbt:				; get lead byte table			;AN000;
 	ADD	AX,2			; Skip Lemgth				;AN000;
 	invoke	get_user_stack							;AN000;
  ; assume ds:nothing;AN000;
-	MOV	[SI.user_SI], AX						;AN000;
-	MOV	[SI.user_DS], BX						;AN000;
+	MOV	[SI+user_SI], AX						;AN000;
+	MOV	[SI+user_DS], BX						;AN000;
 	pop	ds								;AN000;
 	pop	bx								;AN000;
 	pop	ax								;AN000;
@@ -878,7 +878,7 @@ set_interim:				; Set interim console flag		;AN000;
 	mov	[InterCon], dl							;AN000;
 	push	ds								;AN000;
 	mov	ds, [CurrentPDB]						;AN000;
-	mov	byte ds:[PDB_InterCon], dl	; update value in pdb		;AN000;
+	mov	byte [ds:PDB_InterCon], dl	; update value in pdb		;AN000;
 	pop	ds								;AN000;
 	pop	dx								;AN000;
 	transfer SYS_RET_OK							;AN000;
@@ -889,7 +889,7 @@ get_interim:									;AN000;
 	mov	dl,[InterCon]							;AN000;
 	invoke	get_user_stack		; get interim console flag		;AN000;
  ; assume ds:nothing;AN000;
-	mov	[SI.user_DX],DX 						;AN000;
+	mov	[SI+user_DX],DX 						;AN000;
 	pop	ds								;AN000;
 	pop	dx								;AN000;
 	transfer SYS_RET_OK							;AN000;
@@ -899,8 +899,8 @@ get_interim:									;AN000;
 get_lbt:						       ;AN000;
 	invoke	get_user_stack				       ;AN000;
  ; assume ds:nothing;AN000;
-	MOV	[SI.user_SI], DBCS_TAB+2       ;AN000;
-	MOV	[SI.user_DS], CS			       ;AN000;
+	MOV	[SI+user_SI], DBCS_TAB+2       ;AN000;
+	MOV	[SI+user_DS], CS			       ;AN000;
 okok:							       ;AN000;
 	transfer SYS_RET_OK		;		       ;AN000;
 

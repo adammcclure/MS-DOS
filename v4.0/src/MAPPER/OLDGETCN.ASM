@@ -33,45 +33,45 @@ SECTION .dosxxx
 
 ;
 struc str
-old_bp: dw 0
-return: dd 0
-ReturnLength: dd 0
-BufferPtr: dd 0
-CountryCodePtr: dd 0
-BufferLength: dw 0
+old_bp: resw 1
+return: resd 1
+ReturnLength: resd 1
+BufferPtr: resd 1
+CountryCodePtr: resd 1
+BufferLength: resw 1
 endstruc
 ;
 
 struc cntry;country info. sturctrue
-ctry_code: dw 0
-code_page: dw 0
-dformat: dw 0
-curr_sym: times 5 db 0
-thous_sep: times 2 db 0
-decimal_sep: times 2 db 0
-date_sep: times 2 db 0
-time_sep: times 2 db 0
-bit_field: dw 0
-curr_cents: dw 0
-tformat: dw 0
-map_call: dd 0
-data_sep: dw 0
+ctry_code: resw 1
+code_page: resw 1
+dformat: resw 1
+curr_sym: resb 5
+thous_sep: resb 2
+decimal_sep: resb 2
+date_sep: resb 2
+time_sep: resb 2
+bit_field: resw 1
+curr_cents: resw 1
+tformat: resw 1
+map_call: resd 1
+data_sep: resw 1
 ra                      times 5 db 0
 endstruc
 ;
 
 struc Doscntry;country info. sturctrue
- Ddformat: dw 0
- Dcurr_sym: times 5 db 0
- Dthous_sep: times 2 db 0
- Ddecimal_sep: times 2 db 0
- Ddate_sep: times 2 db 0
- Dtime_sep: times 2 db 0
- Dbit_field: db 0
- Dsig_digit: db 0
- Dtformat: db 0
- Dmap_call: dd 0
- Ddata_sep: dw 0
+ Ddformat: resw 1
+ Dcurr_sym: resb 5
+ Dthous_sep: resb 2
+ Ddecimal_sep: resb 2
+ Ddate_sep: resb 2
+ Dtime_sep: resb 2
+ Dbit_field: resb 1
+ Dsig_digit: resb 1
+ Dtformat: resb 1
+ Dmap_call: resd 1
+ Ddata_sep: resw 1
  DResv                    times 5 db 0
 endstruc
 
@@ -81,7 +81,7 @@ dosgetctryinfo:
         Enter   Dosgetcntryinfo
 
         lds     si,[bp].CountryCodePtr
-        mov     ax,ds:[si]
+        mov     ax,[ds:si]
 
         cmp     ax,256                ;16 bit country code
         jc      getinfo

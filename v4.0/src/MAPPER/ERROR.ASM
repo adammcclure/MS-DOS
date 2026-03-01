@@ -35,9 +35,9 @@ SECTION .dosxxx
 	    ; .list
 
 struc str
-old_bp: dw 0
-Return: dd 0
-Flag: dw 0; error flag;  0 = APP handle error
+old_bp: resw 1
+Return: resd 1
+Flag: resw 1; error flag;  0 = APP handle error
 endstruc;	       1 = System handle error
 
 

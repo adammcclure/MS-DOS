@@ -56,7 +56,7 @@ BREAK <$Parse_File_Descriptor -- Parse an arbitrary string into an FCB>
 	invoke  MAKEFCB
 	PUSH    SI
 	invoke  get_user_stack
-	POP     [SI.user_SI]
+	POP     [SI+user_SI]
 	return
 EndProc $PARSE_FILE_DESCRIPTOR
 

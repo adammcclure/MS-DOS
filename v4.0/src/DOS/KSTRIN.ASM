@@ -252,7 +252,7 @@ WordLoop:
 	Call	BackSpace		; backspace the one spot
 	OR	DH,DH
 	JZ	GetChJ
-	MOV	AL,ES:[DI-1]
+	MOV	AL,[ES:DI-1]
 	cmp	al,'0'
 	jb	GetChj
 	cmp	al,'9'
@@ -291,7 +291,7 @@ BackSpace:
 	OR	DH,DH
 	JZ	OLDBAK		;No chars in line, do nothing to line
 	CALL	BACKUP		;Do the backup
-	MOV	AL,ES:[DI]	;Get the deleted char
+	MOV	AL,[ES:DI]	;Get the deleted char
 	invoke	TESTKANJ	;AN000;2/13/KK
 	JNZ	OLDBAK		;AN000; Was a dual byte, done  2/13/KK
 	CMP	AL," "
@@ -353,7 +353,7 @@ BAKTAB:
 FNDPOS:
 	SCASB			;Look back
 	JNA	CHKCNT
-	CMP	byte ES:[DI+1],9
+	CMP	byte [ES:DI+1],9
 	JZ	HAVTAB		;Found a tab
 	DEC	BL		;Back one char if non tab control char
 CHKCNT:
@@ -385,7 +385,7 @@ LOOKDUAL2:				;AN000;
 	CMP	DI,AX			;AN000;
 	JAE	ATLOC2			;AN000;
 	PUSH	AX			;AN000;
-	MOV	AL,byte ES:[DI]	;AN000;
+	MOV	AL,byte [ES:DI]	;AN000;
 	invoke	TESTKANJ		;AN000;
 	POP	AX			;AN000;
 	JZ	ONEINC2 		;AN000;
@@ -549,7 +549,7 @@ NOTDUAL5:				;AN000;; 2/13/KK
 ;;;;	REPNE	SCASB		;Look  2/13/KK
 ;--------------------- Start of DBCS 2/13/KK
 	PUSH	AX			;AN000;
-	MOV	AL,byte ES:[DI]	;AN000;
+	MOV	AL,byte [ES:DI]	;AN000;
 	invoke	TESTKANJ		;AN000;
 	POP	AX			;AN000;
 	JZ	ONEINC5 		;AN000;
@@ -560,7 +560,7 @@ ONEINC5:				;AN000;
 	JNZ	LOOKWORD		;AN000;
 LOOKBYTE:				;AN000;
 	PUSH	AX			;AN000;
-	MOV	AL,byte ES:[DI]	;AN000;
+	MOV	AL,byte [ES:DI]	;AN000;
 	invoke	TESTKANJ		;AN000;
 	POP	AX			;AN000;
 	JZ	TESTITB 		;AN000;
@@ -572,7 +572,7 @@ LOOKBYTE:				;AN000;
 					;AN000;
 TESTITB:				;AN000;
 	DEC	CX			;AN000;
-	CMP	AL,ES:[DI]		;AN000;
+	CMP	AL,[ES:DI]		;AN000;
 	JZ	ATSPOT			;AN000;
 	INC	DI			;AN000;
 	INC	CX			;AN000;; Counter next instruction
@@ -596,7 +596,7 @@ NOTFND:
 ;------------------------- Start of DBCS 2/13/KK
 LOOKWORD:			       ;AN000;
 	PUSH	AX		       ;AN000;
-	MOV	AL,byte ES:[DI]    ;AN000;
+	MOV	AL,byte [ES:DI]    ;AN000;
 	invoke	TESTKANJ	       ;AN000;
 	POP	AX		       ;AN000;
 	JNZ	TESTITW 	       ;AN000;
@@ -606,7 +606,7 @@ LOOKWORD:			       ;AN000;
 				       ;AN000;
 TESTITW:			       ;AN000;
 	DEC	CX		       ;AN000;
-	CMP	AX,ES:[DI]	       ;AN000;
+	CMP	AX,[ES:DI]	       ;AN000;
 	JZ	ATSPOT		       ;AN000;
 	INC	DI		       ;AN000;
 	INC	DI		       ;AN000;

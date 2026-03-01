@@ -47,7 +47,7 @@ SECTION .CODE
         error   error_invalid_function
 ; ENDP $EXEC
 %endif
-%if NOT IBM
+%if ~IBM
 %include "EXEC.ASM"
 %endif
 
@@ -80,7 +80,7 @@ keep_shrink:
         JC      keep_done               ; failed on modification
         MOV     AX,DS
         ADD     AX,BX
-        MOV     DS:[PDB_block_len],AX
+        MOV     [DS:PDB_block_len],AX
 
 keep_done:
         POP     AX
@@ -120,7 +120,7 @@ keep_done:
 Exit_inner:
         invoke  get_user_stack
         PUSH    [CurrentPDB]
-        POP     [SI.user_CS]
+        POP     [SI+user_CS]
         transfer    abort_inner
 ; ENDP $EXIT
 

@@ -211,7 +211,7 @@ CALC_EXTENDED:
 
 	mov	ah,52h			;get the sysvars ptr			;an007; dms;
 	int	21h			; to get total ext. memory at boot	;an007; dms;
-	mov	ax,word es:[bx].SYSI_Ext_Mem	;			;an007; dms;
+	mov	ax,word [es:bx].SYSI_Ext_Mem	;			;an007; dms;
 
 	pop	bx			;restore regs				;an007; dms;
 	pop	es			;					;an007; dms;

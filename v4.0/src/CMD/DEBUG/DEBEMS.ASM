@@ -827,9 +827,9 @@ $$DO88:
 		  cmp  bx,0			;an000;end of buffer?
 ;		  $leave  e			;an000;yes
 		  JE $$EN88
-		       mov  ax,word es:[di] ;an000;page handle
+		       mov  ax,word [es:di] ;an000;page handle
 		       mov  XM_HANDLE_RET,ax ;an000;save in var
-		       mov  ax,word es:[di+02];an000;page count
+		       mov  ax,word [es:di+02];an000;page count
 		       mov  XM_PAGE_CNT,ax	;an000;save in var
 		       mov  dx,XM_STATUS_PTR ;an000;point to message
 		       call STD_PRINTF		;an000;print it
@@ -966,9 +966,9 @@ $$IF98:
 
 XM_GET_FRAME_SEG:;an000;find the frame segment
 
-	mov	al,byte es:[di+2]		;an000;get physical page
+	mov	al,byte [es:di+2]		;an000;get physical page
 	mov	XM_PHY,al			;an000;place in print var
-	mov	ax,word es:[di]		;an000;get frame segment
+	mov	ax,word [es:di]		;an000;get frame segment
 	mov	XM_FRAME,ax			;an000;place in print var
 
 	ret					;an000;

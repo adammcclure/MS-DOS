@@ -82,7 +82,7 @@ TRUE	equ	not FALSE
 ;
 %macro DescCopy 0
 	XOR_EAX_EAX			; clear EAX
-	mov	ax,word [si.dc2_BASEhi]	; AL = junk, AH = Access rights
+	mov	ax,word [si+dc2_BASEhi]	; AL = junk, AH = Access rights
 	or	ah,D_DPL3		;* set DPL 3 for virtual mode access
 	OP32
 	stosw				; store: junk->AR1,AR->AR2,0->AR3 & AR4
@@ -95,7 +95,7 @@ TRUE	equ	not FALSE
 	OP32
 	stosw				; store Base Addr for 386 entry
 	XOR_EAX_EAX			; clear EAX
-	mov	ax,[si.dc2_LIMIT]	; get low 16 bits of limit
+	mov	ax,[si+dc2_LIMIT]	; get low 16 bits of limit
 	OP32
 	stosw				; store 32 bit LIMIT into 386 entry
 	%endmacro
@@ -196,16 +196,16 @@ EM286ll:
 	mov	bx,GDTD_GSEL		; get GDT data alias
 	mov	ds,bx			; DS -> GDT
 	mov	bx,800h 		; BX = VM CS (segment form)
-	mov	ds:[VM1_GSEL+2],bx	; place in descriptor
+	mov	[ds:VM1_GSEL+2],bx	; place in descriptor
 	xor	bx,bx
-	mov	ds:[VM1_GSEL+4],bh	; place in descriptor
+	mov	[ds:VM1_GSEL+4],bh	; place in descriptor
 	mov	bx,VM1_GSEL
 	mov	ds,bx			; DS:0 points to 286 loadall buffer
 	; ASSUME	DS:L286BUFF
 ;
 	mov	ax,VDMD_GSEL
 	mov	es,ax
-	mov	di,ES:[ELOff]		; ES:DI pts to 386 loadall buffer
+	mov	di,[ES:ELOff]		; ES:DI pts to 386 loadall buffer
 ;
 	cld
 ;
@@ -349,7 +349,7 @@ CopyCac:				; ES:DI pts to our 386 ll cache entry
 
 	OP32
 	xor	di,di			; clear EDI
-	mov	di,ES:[ELOff]		; ES:EDI pts to loadall buffer
+	mov	di,[ES:ELOff]		; ES:EDI pts to loadall buffer
 	dw	LODAL386		; execute 386 LOADALL
 
 	; ASSUME	DS:DGROUP

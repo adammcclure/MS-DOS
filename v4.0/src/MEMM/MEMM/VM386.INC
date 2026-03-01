@@ -38,13 +38,13 @@
 ;   Structures for accessing memory
 ;
 struc WordS
-	LowByte: db 0
-	HighByte: db 0
+	LowByte: resb 1
+	HighByte: resb 1
 endstruc
 
 struc DwordS
-	LowWord: dw 0
-	HighWord: dw 0
+	LowWord: resw 1
+	HighWord: resw 1
 endstruc
 
 ;
@@ -52,101 +52,101 @@ endstruc
 ;
 
 struc VM_TRAP_FRAME
-VMTF_EIP: dw 0; EIP (low)
-		dw 0; EIP (high)
-VMTF_CS: dw 0; CS
-		dw 0;   (padding)
-VMTF_EFLAGS: dw 0; EFLAGS (low)
-VMTF_EFLAGShi: dw 0; EFLAGS (high)
-VMTF_ESP: dw 0; ESP (low)
-		dw 0; ESP (high)
-VMTF_SS: dw 0; SS
-		dw 0;   (padding)
-VMTF_ES: dw 0; ES
-		dw 0;   (padding)
-VMTF_DS: dw 0; DS
-		dw 0;   (padding)
-VMTF_FS: dw 0; FS
-		dw 0;   (padding)
-VMTF_GS: dw 0; GS
-		dw 0;   (padding)
+VMTF_EIP: resw 1; EIP (low)
+		resw 1; EIP (high)
+VMTF_CS: resw 1; CS
+		resw 1;   (padding)
+VMTF_EFLAGS: resw 1; EFLAGS (low)
+VMTF_EFLAGShi: resw 1; EFLAGS (high)
+VMTF_ESP: resw 1; ESP (low)
+		resw 1; ESP (high)
+VMTF_SS: resw 1; SS
+		resw 1;   (padding)
+VMTF_ES: resw 1; ES
+		resw 1;   (padding)
+VMTF_DS: resw 1; DS
+		resw 1;   (padding)
+VMTF_FS: resw 1; FS
+		resw 1;   (padding)
+VMTF_GS: resw 1; GS
+		resw 1;   (padding)
 endstruc
 ;
 					; Used in EmMovCDTR (vminst.asm)
 struc MOV_CDTR_FRAME
-MCF_WBP: dw 0; Work BP
-MCF_WES: dw 0; Work ES
-MCF_EAX: dw 0; EAXlo
-		dw 0; EAXhi
-MCF_ESI: dw 0; ESIlo
-		dw 0; ESIhi
-MCF_EBX: dw 0; EBXlo
-		dw 0; EBXhi
-MCF_EBP: dw 0; EBPlo
-		dw 0; EBPhi
-MCF_VMERR: dw 0; VM Error Code (low)
-		dw 0; VM Error Code (high)
-MCF_VMEIP: dw 0; VM EIP (low)
-		dw 0; VM EIP (high)
-MCF_VMCS: dw 0; VM CS
-		dw 0;   (padding)
-MCF_VMEFLAGS: dw 0; VM EFLAGS (low)
-MCF_VMEFLAGShi: dw 0; VM EFLAGS (high)
-MCF_VMESP: dw 0; VM ESP (low)
-		dw 0; VM ESP (high)
-MCF_VMSS: dw 0; VM SS
-		dw 0;   (padding)
-MCF_VMES: dw 0; VM ES
-		dw 0;   (padding)
-MCF_VMDS: dw 0; VM DS
-		dw 0;   (padding)
-MCF_VMFS: dw 0; VM FS
-		dw 0;   (padding)
-MCF_VMGS: dw 0; VM GS
-		dw 0;   (padding)
+MCF_WBP: resw 1; Work BP
+MCF_WES: resw 1; Work ES
+MCF_EAX: resw 1; EAXlo
+		resw 1; EAXhi
+MCF_ESI: resw 1; ESIlo
+		resw 1; ESIhi
+MCF_EBX: resw 1; EBXlo
+		resw 1; EBXhi
+MCF_EBP: resw 1; EBPlo
+		resw 1; EBPhi
+MCF_VMERR: resw 1; VM Error Code (low)
+		resw 1; VM Error Code (high)
+MCF_VMEIP: resw 1; VM EIP (low)
+		resw 1; VM EIP (high)
+MCF_VMCS: resw 1; VM CS
+		resw 1;   (padding)
+MCF_VMEFLAGS: resw 1; VM EFLAGS (low)
+MCF_VMEFLAGShi: resw 1; VM EFLAGS (high)
+MCF_VMESP: resw 1; VM ESP (low)
+		resw 1; VM ESP (high)
+MCF_VMSS: resw 1; VM SS
+		resw 1;   (padding)
+MCF_VMES: resw 1; VM ES
+		resw 1;   (padding)
+MCF_VMDS: resw 1; VM DS
+		resw 1;   (padding)
+MCF_VMFS: resw 1; VM FS
+		resw 1;   (padding)
+MCF_VMGS: resw 1; VM GS
+		resw 1;   (padding)
 endstruc
 ;
 					; Used in EmProtIns (vminst.asm)
 struc PROT_INS_FRAME
-PIF_WBP: dw 0; Work BP
-PIF_WES: dw 0; Work ES
-PIF_AX: dw 0; EAXlo
-PIF_DX: dw 0; EDXlo
-PIF_ESI: dw 0; ESIlo
-		dw 0; ESIhi
-PIF_EBX: dw 0; EBXlo
-		dw 0; EBXhi
-PIF_EBP: dw 0; EBPlo
-		dw 0; EBPhi
-PIF_VMERR: dw 0; VM Error Code (low)
-		dw 0; VM Error Code (high)
-PIF_VMEIP: dw 0; VM EIP (low)
-		dw 0; VM EIP (high)
-PIF_VMCS: dw 0; VM CS
-		dw 0;   (padding)
-PIF_VMEFLAGS: dw 0; VM EFLAGS (low)
-PIF_VMEFLAGShi: dw 0; VM EFLAGS (high)
-PIF_VMESP: dw 0; VM ESP (low)
-		dw 0; VM ESP (high)
-PIF_VMSS: dw 0; VM SS
-		dw 0;   (padding)
-PIF_VMES: dw 0; VM ES
-		dw 0;   (padding)
-PIF_VMDS: dw 0; VM DS
-		dw 0;   (padding)
-PIF_VMFS: dw 0; VM FS
-		dw 0;   (padding)
-PIF_VMGS: dw 0; VM GS
-		dw 0;   (padding)
+PIF_WBP: resw 1; Work BP
+PIF_WES: resw 1; Work ES
+PIF_AX: resw 1; EAXlo
+PIF_DX: resw 1; EDXlo
+PIF_ESI: resw 1; ESIlo
+		resw 1; ESIhi
+PIF_EBX: resw 1; EBXlo
+		resw 1; EBXhi
+PIF_EBP: resw 1; EBPlo
+		resw 1; EBPhi
+PIF_VMERR: resw 1; VM Error Code (low)
+		resw 1; VM Error Code (high)
+PIF_VMEIP: resw 1; VM EIP (low)
+		resw 1; VM EIP (high)
+PIF_VMCS: resw 1; VM CS
+		resw 1;   (padding)
+PIF_VMEFLAGS: resw 1; VM EFLAGS (low)
+PIF_VMEFLAGShi: resw 1; VM EFLAGS (high)
+PIF_VMESP: resw 1; VM ESP (low)
+		resw 1; VM ESP (high)
+PIF_VMSS: resw 1; VM SS
+		resw 1;   (padding)
+PIF_VMES: resw 1; VM ES
+		resw 1;   (padding)
+PIF_VMDS: resw 1; VM DS
+		resw 1;   (padding)
+PIF_VMFS: resw 1; VM FS
+		resw 1;   (padding)
+PIF_VMGS: resw 1; VM GS
+		resw 1;   (padding)
 endstruc
 ;
 struc GPFAULT_FRAME
-GPF_ESI: dw 0; ESIlo
-		dw 0; ESIhi
-GPF_EBX: dw 0; EBXlo
-		dw 0; EBXhi
-GPF_EBP: dw 0; EBPlo
-		dw 0; EBPhi
+GPF_ESI: resw 1; ESIlo
+		resw 1; ESIhi
+GPF_EBX: resw 1; EBXlo
+		resw 1; EBXhi
+GPF_EBP: resw 1; EBPlo
+		resw 1; EBPhi
 endstruc
 ;
 ;   The following constants define the offset of the Virtual Mode trap stack

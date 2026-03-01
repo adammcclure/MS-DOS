@@ -30,7 +30,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	NoSetDir,BYTE
 	i_need	THISSFT,DWORD
@@ -125,7 +125,7 @@ IFS_extopen:				    ;AN000;EO.
 NOEXTOP:				    ;AN000;
 ;Extended open hooks
 
-%if NOT Installed
+%if ~Installed
 	transfer NET_SEQ_CREATE
 %else
 	PUSH	AX
@@ -136,13 +136,13 @@ NOEXTOP:				    ;AN000;
 %endif
 
 TEST_RE_NET:
-	TEST	ES:[SI.curdir_flags],curdir_isnet
+	TEST	[ES:SI+curdir_flags],curdir_isnet
 	POP	ES
 	JZ	LOCAL_CREATE
 
 	CALL	Set_EXT_mode		    ;AN000;EO.
 	JC	SHORT dochk		    ;AN000;EO.
-	OR	ES:[DI.sf_mode],sharing_compat + open_for_both ;IFS.
+	OR	[ES:DI+sf_mode],sharing_compat + open_for_both ;IFS.
 dochk:
  ;	invoke	IFS_SHARE_CHECK 	    ;AN000;IFS. check share
  ;	JC	nomore			    ;AN000;IFS. share violation
@@ -152,7 +152,7 @@ dochk:
 	JNZ	IFS_extopen		    ;AN000;EO. yes, issue extended open
 ;Extended open hooks
 
-%if NOT Installed
+%if ~Installed
 	transfer NET_CREATE
 %else
 	PUSH	AX
@@ -166,7 +166,7 @@ nomore:
 LOCAL_CREATE:
 	CALL	Set_EXT_mode	       ;AN000;EO. set mode if from extended open
 	JC	setdone 	       ;AN000;EO.
-	OR	ES:[DI].sf_mode,sharing_compat+open_for_both
+	OR	[ES:DI].sf_mode,sharing_compat+open_for_both
 setdone:
 	EnterCrit   critDisk
 	invoke	MakeNode
@@ -217,7 +217,7 @@ Create_ok:
 	test	al,attr_volume_id
 	jz	NoVolLabel
 	LES	DI,[THISCDS]
-	mov	ah,byte ES:[DI]	; get drive letter
+	mov	ah,byte [ES:DI]	; get drive letter
 	sub	ah,'A'                  ; convert to drive letter
 	mov	[VOLCHNG_FLAG],ah	;Set flag to indicate volid change
 	MOV	BH,1			;AN000;>32mb set volume id to boot record
@@ -356,7 +356,7 @@ EndProc Set_Media_ID		;AN000;
 ;	carry set,mode is set if from Extended Open
 ;	carry clear, mode not set yet
 
-%if NOT IBMCOPYRIGHT
+%if ~IBMCOPYRIGHT
 	global Set_EXT_mode
 %endif
 
@@ -367,7 +367,7 @@ EndProc Set_Media_ID		;AN000;
 	JZ	NOTEX			    ;AN000;EO. no, do normal
 	PUSH	AX			    ;AN000;EO.
 	MOV	AX,[SAVE_BX]		    ;AN000;EO.
-	OR	ES:[DI.sf_mode],AX	    ;AN000;EO.
+	OR	[ES:DI+sf_mode],AX	    ;AN000;EO.
 	POP	AX			    ;AN000;EO.
 	STC				    ;AN000;EO.
 NOTEX:					    ;AN000;

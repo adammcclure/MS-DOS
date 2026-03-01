@@ -83,7 +83,7 @@ IOFUNC_RETRY:
         MOV     word [DEVIOBUF],AX
 
 IOFUNC2:
-        TEST    [SI.fcb_DEVID],080H
+        TEST    [SI+fcb_DEVID],080H
         JNZ     IOTODEV
         JMP     IOTOFILE
 
@@ -168,11 +168,11 @@ IOTOFILE:
         return                  ; NON ZERO FLAG FOR OUTPUT STATUS
 
 IOIST:
-        PUSH    word [SI.fcb_RR]        ; Save position
-        PUSH    word [SI.fcb_RR+2]
+        PUSH    word [SI+fcb_RR]        ; Save position
+        PUSH    word [SI+fcb_RR+2]
         CALL    IOIN
-        POP     word [SI.fcb_RR+2]      ; Restore position
-        POP     word [SI.fcb_RR]
+        POP     word [SI+fcb_RR+2]      ; Restore position
+        POP     word [SI+fcb_RR]
         return
 
 IOUT:
@@ -211,7 +211,7 @@ SETXADDR:
         MOV     CX,[IOSCNT]             ; ioscnt specifies length of buffer
         POP     DS
 ; ASSUME  DS:NOTHING
-        MOV     [SI.fcb_RECSIZ],1           ; One byte per record
+        MOV     [SI+fcb_RECSIZ],1           ; One byte per record
         MOV     DX,SI                   ; FCB to DS:DX
         invoke  GETRRPOS
         JMP     SHORT RESTRET           ; RETURN ADDRESS
@@ -238,15 +238,15 @@ RESTRET:JMP     word [CALLSCNT]      ; Return address
 ;       None
 ; DS:SI,AX destroyed, others preserved
 
-        LDS     SI,dword [SI.fcb_FIRCLUS]
+        LDS     SI,dword [SI+fcb_FIRCLUS]
 
        entry   DEVIOCALL2
 ; As above only DS:SI points to device header on entry, and DS:SI is preserved
-        MOV     AX,[SI.SDEVSTRAT]
+        MOV     AX,[SI+SDEVSTRAT]
         MOV     word [CALLDEVAD],AX
         MOV     word [CALLDEVAD+2],DS
         CALL    dword [CALLDEVAD]
-        MOV     AX,[SI.SDEVINT]
+        MOV     AX,[SI+SDEVINT]
         MOV     word [CALLDEVAD],AX
         CALL    dword [CALLDEVAD]
         return
@@ -288,7 +288,7 @@ NOKTR:
         MOV     SI,NULDEV
 LOOKIO:
 ; ASSUME  DS:NOTHING
-        TEST    [SI.SDEVATT],DEVTYP
+        TEST    [SI+SDEVATT],DEVTYP
         JZ      SKIPDEV                 ; Skip block devices
         PUSH    SI
         ADD     SI,SDEVNAME
@@ -318,7 +318,7 @@ RETNV:  PUSH    SS
 IOCHK:
 ; ASSUME  DS:NOTHING
         MOV     word [DEVPT+2],DS         ; Save pointer to device
-        MOV     BH,byte [SI.SDEVATT]
+        MOV     BH,byte [SI+SDEVATT]
         OR      BH,0C0H
         AND     BH,NOT 020H             ;Clears Carry
         MOV     word [DEVPT],SI
@@ -344,9 +344,9 @@ IOCHK:
         CMC
         JC      GOTDPB          ; Get drive A
 FNDDPB:
-        CMP     AL,ES:[BP.dpb_drive]
+        CMP     AL,[ES:BP+dpb_drive]
         JZ      GOTDPB          ; Carry is clear if jump executed
-        LES     BP,ES:[BP.dpb_next_dpb]
+        LES     BP,[ES:BP+dpb_next_dpb]
         JMP     SHORT FNDDPB
 GOTDPB:
         MOV     word [THISDPB],BP

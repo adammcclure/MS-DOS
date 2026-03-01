@@ -78,12 +78,12 @@
 ;
 
 struc BIOS_SYSTEM_DESCRIPTOR
-bios_SD_leng: dw 0
-bios_SD_modelbyte: db 0
-bios_SD_scnd_modelbyte: db 0
-			db 0
-bios_SD_featurebyte1: db 0
-			times 4 db 0
+bios_SD_leng: resw 1
+bios_SD_modelbyte: resb 1
+bios_SD_scnd_modelbyte: resb 1
+			resb 1
+bios_SD_featurebyte1: resb 1
+			resb 4
 endstruc
 
 ;FeatureByte1	bit map equates

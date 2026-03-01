@@ -102,7 +102,7 @@
 ;---    Equates
 ;-------------------------------
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 MAXREC  EQU     256                     ;MAXIMUM NUL RECORD SIZE
 
 SPACE   EQU     0                       ;Offset zero in the allocated block
@@ -221,7 +221,7 @@ struc querylist;AN001; ;query general list
 qea_num        dw      1                ;AN001;
 qea_type       db      EAISBINARY       ;AN001;
 qea_flags      dw      EASYSTEM         ;AN001;
-qea_namelen: db 0;AN001;
+qea_namelen: resb 1;AN001;
 qea_name       db      "        "       ;AN001;
 endstruc;AN001;
 
@@ -497,7 +497,7 @@ NoBack:
         INC     BX                      ;Nope, skip last char
 GOTEND:
         MOV     BP,BX                   ;BP = filesize-2(CRLF)+temp buffer+2
-        MOV     word DS:[BP],0      ;0 at end of the file
+        MOV     word [DS:BP],0      ;0 at end of the file
 
 ;---------------------------
 ;  We now turn the entire buffer into a linked list of chains by
@@ -574,11 +574,11 @@ SMALL:
         push    ax
         mov     bx,table
 tloop:  lodsb
-        xlat    byte cs:[bx]
+        xlat    byte [cs:bx]
         mov     ah,al
-        mov     al,es:[di]
+        mov     al,[es:di]
         inc     di
-        xlat    byte cs:[bx]
+        xlat    byte [cs:bx]
         cmp     ah,al
         loopz   tloop
         pop     ax
@@ -641,7 +641,7 @@ END_INNER_SORT_LOOP:
         ADD     SI,DX                   ;offset of block
         REP     MOVSW                   ;blam, squeeze out the space
         restore <DI>                    ;get back original destination
-        MOV     word DS:[BP-2],0    ;remake the end of file mark
+        MOV     word [DS:BP-2],0    ;remake the end of file mark
 
 END_INSERT:
         ADD     DI,[DI]                 ;link to next guy

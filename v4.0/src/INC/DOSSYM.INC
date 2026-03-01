@@ -4,9 +4,9 @@
 TRUE	    EQU 0FFFFh
 FALSE	    EQU 0
 
-Installed   = TRUE
+Installed equ TRUE
 %ifndef DEBUG
-    DEBUG	= FALSE
+    DEBUG equ FALSE
 %endif
 
 %include "dbcs.sw"
@@ -56,18 +56,18 @@ BREAK <User stack inside of system call and SysVars>
 ; Location of user registers relative user stack pointer
 
 struc user_environ
-user_AX: dw 0
-user_BX: dw 0
-user_CX: dw 0
-user_DX: dw 0
-user_SI: dw 0
-user_DI: dw 0
-user_BP: dw 0
-user_DS: dw 0
-user_ES: dw 0
-user_IP: dw 0
-user_CS: dw 0
-user_F: dw 0
+user_AX: resw 1
+user_BX: resw 1
+user_CX: resw 1
+user_DX: resw 1
+user_SI: resw 1
+user_DI: resw 1
+user_BP: resw 1
+user_DS: resw 1
+user_ES: resw 1
+user_IP: resw 1
+user_CS: resw 1
+user_F: resw 1
 endstruc
 
 %include "sysvar.INC"

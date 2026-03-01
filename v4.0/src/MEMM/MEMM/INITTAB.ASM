@@ -202,7 +202,7 @@ InitTab:
 	mov	ah,D_DATA0		; data segment
 	mov	bx,OEM0_GSEL
 	call	SetSegDesc		; Set up GDT alias descriptor
-	mov	ES:[bx.BASE_XHI],01h	; set high 8 bits of address
+	mov	[ES:bx+BASE_XHI],01h	; set high 8 bits of address
 
 ;
 ;------------------------------------------------------------------------------
@@ -313,7 +313,7 @@ IT_pdir:
 	db	66h
 	mov	ax,[Page_Dir]			; EAX = page dir 32 bit addr
 	db	66h
-	mov	word ES:[di.TSS386_CR3],ax	; mov EAX into CR3 spot in TSS
+	mov	word [ES:di+TSS386_CR3],ax	; mov EAX into CR3 spot in TSS
 ;
 ;------------------------------------------------------------------------------
 ;  move _TEXT, GDT,IDT, & TSS up to high system memory
@@ -450,12 +450,12 @@ IT_Tloop:
 
 ;	   ELIM_rEntry far call
 	mov	di,EMM_rEfix	; point to far call
-	mov	ES:[di+3],ax			; set seg portion of call
+	mov	[ES:di+3],ax			; set seg portion of call
 
 ;	   Far jump in return to real code
 	mov	es,ax				; ES -> new TEXT seg
 	mov	di,Real_Seg	; ES:DI -> seg of far jmp
-	mov	ES:[di],ax			; fix it
+	mov	[ES:di],ax			; fix it
 
 ;
 ;   reset break address for driver - throw away _TEXT seg and all after it

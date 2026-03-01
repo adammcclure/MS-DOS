@@ -73,7 +73,7 @@ ZSTEP:
 	MOV	DI,[IPSAVE]		; include offset in segment
 	XOR	DX,DX			; where to place breakpoint
 get_opcode:
-	MOV	AL,ES:[DI]		; get the opcode
+	MOV	AL,[ES:DI]		; get the opcode
 	cmp	al,0f0h 		; lock
 	je	is_override
 	cmp	al,26h			; es:
@@ -110,7 +110,7 @@ Not_override:
 	JZ	FOO1
 	JMP	STEP			; can't do anything special, step
 FOO1:
-	MOV	AL,ES:[DI+1]		; next instruction
+	MOV	AL,[ES:DI+1]		; next instruction
 	AND	AL,11111110B		; ignore w bit
 	CMP	AL,10100100B		; MOVS
 	JZ	ZTRACE2 		; two byte
@@ -125,7 +125,7 @@ FOO1:
 	JMP	STEP			; bogus, do single step
 
 ZTRACEMODRM:
-	MOV	AL,ES:[DI+1]		; get next byte
+	MOV	AL,[ES:DI+1]		; get next byte
 	AND	AL,11111000B		; get mod and type
 	CMP	AL,01010000B		; indirect intra 8 bit offset?
 	JZ	ZTRACE3 		; yes, three byte whammy
@@ -151,9 +151,9 @@ ZTRACE1:
 	ADD	DI,DX			; offset to breakpoint instruction
 	MOV	word [BPTAB],DI	; save offset
 	MOV	word [BPTAB+2],ES	; save segment
-	MOV	AL,ES:[DI]		; get next opcode byte
+	MOV	AL,[ES:DI]		; get next opcode byte
 	MOV	byte [BPTAB+4],AL	; save it
-	MOV	byte ES:[DI],0CCH	; break point it
+	MOV	byte [ES:DI],0CCH	; break point it
 	MOV	[BRKCNT],1		; only this breakpoint
 	JMP	DEXIT			; start the operation!
 
@@ -183,7 +183,7 @@ STEP:
 ; it treats them as atomic operations.	We simulate the operation in software.
 	MOV	ES,[CSSAVE]		; Get next instruction pointer
 	MOV	DI,[IPSAVE]
-	MOV	AL,ES:[DI]		; get next opcode
+	MOV	AL,[ES:DI]		; get next opcode
 	cmp	al,0e4h 		; check for 'IN' opcode
 	jne	not_inal_op
 	cmp	es:byte[di+1],21h
@@ -221,15 +221,15 @@ CHECKCC:
 	JMP	SHORT DOVAL
 DOINT:
 ; We have a software interrupt.  Get destination vector
-	MOV	BL,byte ES:[DI+1]	; get vector number
+	MOV	BL,byte [ES:DI+1]	; get vector number
 	XOR	BH,BH			; clear out upper
 DOVAL:
 	SHL	BX,1			; word index
 	SHL	BX,1			; dword index
 	XOR	DI,DI			; interrupt table
 	MOV	ES,DI
-	MOV	AX,ES:[BX]		; point to vector
-	MOV	BX,ES:[BX+2]		; point to vector
+	MOV	AX,[ES:BX]		; point to vector
+	MOV	BX,[ES:BX+2]		; point to vector
 ; AX:BX is the vector.	Swap it with currect CS:IP
 	XCHG	AX,IPSAVE		; new CS:IP
 	XCHG	BX,CSSAVE
@@ -240,14 +240,14 @@ DOVAL:
 ; Take old flags and PUSH the flags.
 	MOV	CX,FLSAVE		 ; get flags
 	SUB	DI,2			; PUSHF
-	MOV	ES:[DI],CX		; rest of push
+	MOV	[ES:DI],CX		; rest of push
 ; Push the old CS
 	SUB	DI,2			; PUSH CS
-	MOV	ES:[DI],BX		; rest of push
+	MOV	[ES:DI],BX		; rest of push
 ; Push the old IP
 	SUB	DI,2			; PUSH IP
 	ADD	AX,2			; increment IP
-	MOV	ES:[DI],AX		; rest of push
+	MOV	[ES:DI],AX		; rest of push
 ; Update stack
 	MOV	SPSAVE,DI		; store
 ; Take flags and turn interrupts off and trace mode off
@@ -255,7 +255,7 @@ DOVAL:
 	AND	CX,NOT F_TRACE		; no trace
 	MOV	FLSAVE,CX		 ; rest of CLI
 ; Set up correct process and go to normal reentry code.
-	%if NOT SYSVER
+	%if ~SYSVER
 	    MOV     BX,[USER_PROC_PDB]
 	    MOV     AH,SET_CURRENT_PDB
 	    INT     21H
@@ -280,7 +280,7 @@ FOO:
 	    STI
 	%endif
 DEXIT:
-	%if NOT SYSVER
+	%if ~SYSVER
 	    MOV     BX,[USER_PROC_PDB]
 	    MOV     AH,SET_CURRENT_PDB
 	    INT     21H
@@ -294,14 +294,14 @@ DEXIT:
 	PUSH	DS
 	XOR	AX,AX
 	MOV	DS,AX
-	MOV	word DS:[12],BREAKFIX ; Set vector 3--breakpoint instruction
-	MOV	word DS:[14],CS
-	MOV	word DS:[4],REENTER ; Set vector 1--Single step
-	MOV	word DS:[6],CS
+	MOV	word [DS:12],BREAKFIX ; Set vector 3--breakpoint instruction
+	MOV	word [DS:14],CS
+	MOV	word [DS:4],REENTER ; Set vector 1--Single step
+	MOV	word [DS:6],CS
 	CLI
 	%if SETCNTC
-	    MOV     word DS:[8CH],CONTC ; Set vector 23H (CTRL-C)
-	    MOV     word DS:[8EH],CS
+	    MOV     word [DS:8CH],CONTC ; Set vector 23H (CTRL-C)
+	    MOV     word [DS:8EH],CS
 	%endif
 	POP	DS
 	MOV	SP,STACK
@@ -349,13 +349,13 @@ BREAKFIX:
 ; Re-entry point from trace mode or interrupt during execution.  All registers
 ; are saved so they can be displayed or modified.
 struc INTERRUPT_FRAME
-OLDBP: dw 0
-OLDIP: dw 0
-OLDCS: dw 0
-OLDF: dw 0
-OLDERIP: dw 0
-OLDERCS: dw 0
-OLDERF: dw 0
+OLDBP: resw 1
+OLDIP: resw 1
+OLDCS: resw 1
+OLDF: resw 1
+OLDERIP: resw 1
+OLDERCS: resw 1
+OLDERF: resw 1
 endstruc
 
 ; ASSUME	CS:DG,DS:NOTHING,ES:NOTHING,SS:NOTHING
@@ -403,10 +403,10 @@ REENTER:
 	%endif
 GOREENTER:
 	%if IBMVER
-	    MOV     AL,CS:[OLD_MASK]	; Recover Old mask
+	    MOV     AL,[CS:OLD_MASK]	; Recover Old mask
 	    OUT     MASK_PORT,AL	; Restore it
 	%endif
-	MOV	AL,CS:[RSETFLAG]
+	MOV	AL,[CS:RSETFLAG]
 ; Determine, based on the previous instruction, what we are supposed to do
 ; to flags on the users stack.
 	CMP	AL,09CH 		; PUSHF
@@ -417,10 +417,10 @@ NOFIX:
 	POP	AX
 	POP	BP
 REENTERREAL:
-	MOV	CS:[SPSAVE+SEGDIF],SP
-	MOV	CS:[SSSAVE+SEGDIF],SS
-	MOV	CS:[FLSAVE],CS
-	MOV	SS,CS:[FLSAVE]
+	MOV	[CS:SPSAVE+SEGDIF],SP
+	MOV	[CS:SSSAVE+SEGDIF],SS
+	MOV	[CS:FLSAVE],CS
+	MOV	SS,[CS:FLSAVE]
 	MOV	SP,RSTACK
 	; ASSUME	SS:DG
 
@@ -465,8 +465,8 @@ SETENVIRON:
 	; ASSUME	DS:NOTHING
 
 	%if SETCNTC
-	    MOV     word DS:[8CH],DABORT ; Set Ctrl-C vector
-	    MOV     word DS:[8EH],CS
+	    MOV     word [DS:8CH],DABORT ; Set Ctrl-C vector
+	    MOV     word [DS:8EH],CS
 	%endif
 	POP	DS
 	; ASSUME	DS:DG
@@ -492,7 +492,7 @@ SETENVIRON:
 	MOV	ES,AX
 	; ASSUME	DS:DG,ES:DG
 
-	%if NOT SYSVER
+	%if ~SYSVER
 	    MOV     AH,GET_CURRENT_PDB
 	    INT     21H
 	    MOV     [USER_PROC_PDB],BX
@@ -615,7 +615,7 @@ NOBP:
 SKIP_FILE:
 	MOV	AH,CHAR_OPER
 	INT	21H
-	MOV	CS:[SWITCHAR],DL	; GET THE CURRENT SWITCH CHARACTER
+	MOV	[CS:SWITCHAR],DL	; GET THE CURRENT SWITCH CHARACTER
 FIND_DELIM:
 	LODSB
 	CALL	DELIM1
@@ -652,7 +652,7 @@ COMP:
 	LODSB
 	MOV	CS:COMP_ARG3,AX
 	DEC	DI
-	MOV	AL,ES:[DI]
+	MOV	AL,[ES:DI]
 	MOV	CS:COMP_ARG4,AX
 	MOV	CS:COMP_ARG5,ES
 	MOV	CS:COMP_ARG6,DI

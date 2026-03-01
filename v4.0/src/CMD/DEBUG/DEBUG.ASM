@@ -84,21 +84,21 @@
 	%if SYSVER
 ; Structure for system call 72
 struc SYSINITVAR
-DPBHEAD: dd 0; Pointer to head of DPB-FAT list
-SFT_ADDR: dd 0; Pointer to first FCB table
+DPBHEAD: resd 1; Pointer to head of DPB-FAT list
+SFT_ADDR: resd 1; Pointer to first FCB table
 ; The following address points to the CLOCK device
-BCLOCK: dd 0
+BCLOCK: resd 1
 ; The following address is used by DISKSTATCHK it is always
 ; points to the console input device header
-BCON: dd 0; Console device entry points
+BCON: resd 1; Console device entry points
 MAXSEC	    DW	    0			; Maximum allowed sector size
-BUFFHEAD: dd 0
-CDS: dd 0
-SFTFCB: dd 0
-KEEP: dw 0
+BUFFHEAD: resd 1
+CDS: resd 1
+SFTFCB: resd 1
+KEEP: resw 1
 NUMIO	    DB	    0			; Number of disk tables
-NCDS: db 0
-DEVHEAD: dd 0
+NCDS: resb 1
+DEVHEAD: resd 1
 endstruc
 
 	%endif
@@ -300,13 +300,13 @@ $$IF1:
 	    MOV     AH,GET_IN_VARS	;(undocumented function call - 52h)
 	    INT     21H
 
-	    LDS     SI,ES:[BX.BCON]	; get system console device
+	    LDS     SI,[ES:BX+BCON]	; get system console device
 	    ; ASSUME  DS:NOTHING
 
-	    MOV     word CS:[CIN+WORD],DS ;save vector to console input device
-	    MOV     word CS:[CIN],SI
-	    MOV     word CS:[COUT+WORD],DS ;save vector to console output device
-	    MOV     word CS:[COUT],SI
+	    MOV     word [CS:CIN+WORD],DS ;save vector to console input device
+	    MOV     word [CS:CIN],SI
+	    MOV     word [CS:COUT+WORD],DS ;save vector to console output device
+	    MOV     word [CS:COUT],SI
 	    PUSH    CS			; restore DS to be
 	    POP     DS			;  just like CS, as before
 	    ; ASSUME  DS:DG
@@ -358,11 +358,11 @@ GOTLIST:
 	%if SYSVER
 	    MOV     SI,DX
 ;	    LDS     SI,DWORD PTR DS:[SI.FCB_FIRCLUS]		; KWC 12/10/86
-	    LDS     SI,dword DS:[SI.FCB_NSLD_DRVPTR] ; KWC 12/10/86
+	    LDS     SI,dword [DS:SI+FCB_NSLD_DRVPTR] ; KWC 12/10/86
 	    ; ASSUME  DS:NOTHING
 
-	    MOV     word CS:[POUT+WORD],DS
-	    MOV     word CS:[POUT],SI
+	    MOV     word [CS:POUT+WORD],DS
+	    MOV     word [CS:POUT],SI
 	%endif
 NOLIST:
 	MOV	AX,CS			;restore the DS and ES segregs
@@ -433,7 +433,7 @@ NOLIST:
 ; Set up initial stack.  We already have a 'good' stack set up already.  DS:6
 ; has the number of bytes remaining in the segment.  We should take this
 ; value, add 100h and use it as the Stack pointer.
-	MOV	AX,word DS:[6]	; get bytes remaining
+	MOV	AX,word [DS:6]	; get bytes remaining
 	MOV	BX,AX
 	ADD	AX,100h
 
@@ -456,7 +456,7 @@ NOLIST:
 	DEC	AX			; ax was no. bytes remaining +100h
 	DEC	AX			; back up one word from end of new stack
 	MOV	BX,AX			; set base to point to last word in new stack
-	MOV	word ES:[BX],0	; set final word in new stack to zero
+	MOV	word [ES:BX],0	; set final word in new stack to zero
 	POP	BX			; back to beginning of new stack area
 	MOV	SPSAVE,AX		; remember where new stack is
 	DEC	AH
@@ -525,18 +525,18 @@ test1:					;for testing only - u can remove this
 	POP	ES			;  common group
 FILECHK:
 	MOV	DI,80H			;point to byte in PSP defining parm length
-	CMP	byte ES:[DI],0	; ANY STUFF FOUND?
+	CMP	byte [ES:DI],0	; ANY STUFF FOUND?
 	JZ	COMMAND 		; no parms, skip
 					; yes parms, continue
 FILOOP:
 	INC	DI			;set index to first/next char in parm text
-	CMP	byte ES:[DI],CR	; carriage return? (at end of parms)
+	CMP	byte [ES:DI],CR	; carriage return? (at end of parms)
 	JZ	COMMAND 		; yes, at end of parms
 					; no, not at end of parms yet, continue
-	CMP	byte ES:[DI],CHAR_BLANK ; is this parm text char a blank?
+	CMP	byte [ES:DI],CHAR_BLANK ; is this parm text char a blank?
 	JZ	FILOOP			; yes, a blank, skip
 					; no, not a blank, continue
-	CMP	byte ES:[DI],CHAR_TAB ; is this parm text char a tab?
+	CMP	byte [ES:DI],CHAR_TAB ; is this parm text char a tab?
 	JZ	FILOOP			; yes, a tab, skip
 					; no, not a tab, continue
 	OR	[NAMESPEC],1		; set flag to indicate
@@ -597,7 +597,7 @@ GOPROMPT:
 	SHL	AL,1			; Times two
 	CBW				; Now a 16-bit quantity
 	XCHG	BX,AX			; In BX we can address with it
-	CALL	CS:[BX+COMTAB]		; Execute command
+	CALL	[CS:BX+COMTAB]		; Execute command
 
 	JMP	SHORT COMMAND		; Get next command
 ERR1:
@@ -618,11 +618,11 @@ RESTORE_DEB_VECT:
 	PUSH	DS
 	PUSH	DX
 	PUSH	AX
-	LDS	DX,CS:[BPINTSAV]
+	LDS	DX,[CS:BPINTSAV]
 	MOV	AX,(SET_INTERRUPT_VECTOR SHL 8) OR VEC_BREAKPOINT ;Vector 3
 	INT	21H
 
-	LDS	DX,CS:[SSINTSAV]
+	LDS	DX,[CS:SSINTSAV]
 	MOV	AX,(SET_INTERRUPT_VECTOR SHL 8) OR VEC_SING_STEP ;Vector 1
 	INT	21H
 
@@ -760,7 +760,7 @@ USERDEV:
 	    MOV     SI,DX
 ;	    TEST    BYTE PTR [SI.FCB_DEVID],080H ; Device?	; KWC 12/10/86
 ;	    JZ	    OPENERR		; NO			; KWC 12/10/86
-	    MOV     AL,byte [SI.FCB_NSL_DRIVE] ; KWC 12/10/86
+	    MOV     AL,byte [SI+FCB_NSL_DRIVE] ; KWC 12/10/86
 	    AND     AL,NOT FCBMASK	; KWC 12/10/86
 	    CMP     AL,0C0H		; KWC 12/10/86
 	    JNE     OPENERR		; KWC 12/10/86
@@ -768,11 +768,11 @@ USERDEV:
 
 ;	    LDS     SI,DWORD PTR [CONFCB.FCB_FIRCLUS]		; KWC 12/10/86
 	    LDS     SI,dword [CONFCB.FCB_NSLD_DRVPTR] ; KWC 12/10/86
-	    MOV     word CS:[CIN],SI
-	    MOV     word CS:[CIN+WORD],DS
+	    MOV     word [CS:CIN],SI
+	    MOV     word [CS:CIN+WORD],DS
 
-	    MOV     word CS:[COUT],SI
-	    MOV     word CS:[COUT+WORD],DS
+	    MOV     word [CS:COUT],SI
+	    MOV     word [CS:COUT+WORD],DS
 	    PUSH    CS
 	    POP     DS
 	    RET
@@ -917,8 +917,8 @@ HEXADD:
 
 ; Put the hex address in DS:SI in the argument list for a call to printf
 OUTSI:
-	MOV	CS:[HEX_ARG1],DS
-	MOV	CS:[HEX_ARG2],SI
+	MOV	[CS:HEX_ARG1],DS
+	MOV	[CS:HEX_ARG2],SI
 	RET
 
 ;Put the hex address in ES:DI in the argument list for a call to printf
@@ -1035,7 +1035,7 @@ QUIT:
 	INC	byte [QFLAG]
 	MOV	BX,[USER_PROC_PDB]
 FIND_DEBUG:
-	%if NOT SYSVER
+	%if ~SYSVER
 	    MOV     AH,SET_CURRENT_PDB
 	    INT     21H
 	%endif

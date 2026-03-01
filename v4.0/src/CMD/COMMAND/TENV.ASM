@@ -336,7 +336,7 @@ FIND11:
 	LODSW
 	INC	DI
 	INC	DI
-	CMP	AX,ES:[DI-2]
+	CMP	AX,[ES:DI-2]
 	JNZ	FIND12
 	DEC	CX
 	LOOP	FIND11
@@ -345,7 +345,7 @@ FIND11:
 NOTKANJ3:
 	CALL	UPCONV
 	INC	DI
-	CMP	AL,ES:[DI-1]
+	CMP	AL,[ES:DI-1]
 	JNZ	FIND12
 	LOOP	FIND11
 
@@ -357,7 +357,7 @@ FIND12:
 	PUSH	CX
 	CALL	SCASB2				; SCAN FOR A NUL
 	POP	CX
-	CMP	byte ES:[DI],0
+	CMP	byte [ES:DI],0
 	JNZ	FIND1
 	STC					; INDICATE NOT FOUND
 	return
@@ -383,7 +383,7 @@ COUNTX:
 	return
 
 MOVE_NAME:
-	CMP	byte DS:[SI],13
+	CMP	byte [DS:SI],13
 	retz
 	LODSB
 
@@ -427,7 +427,7 @@ SCAN_DOUBLE_NULL:
 ; Top cycle-point.  If the string here is empty, then we are done
 ;
 SDN1:
-	cmp	byte es:[di],0		; nul string?
+	cmp	byte [es:di],0		; nul string?
 	retz					; yep, all done
 	CALL	SCASB2
 	JMP	SDN1
@@ -446,18 +446,18 @@ TESTKANJ:
 	push	ds				;AN000;  3/3/KK
 	push	si				;AN000;  3/3/KK
 	push	ax				;AN000;  3/3/KK
-	mov	ds,cs:[resseg]			;AN000;  Get resident segment
+	mov	ds,[cs:resseg]			;AN000;  Get resident segment
 	; assume	ds:resgroup;AN000;
 	lds	si,dbcs_vector_addr		;AN000;  get DBCS vector
 ktlop:						;AN000;  3/3/KK
-	cmp	word ds:[si],0		;AN000;  end of Table	3/3/KK
+	cmp	word [ds:si],0		;AN000;  end of Table	3/3/KK
 	je	notlead 			;AN000;  3/3/KK
 	pop	ax				;AN000;  3/3/KK
 	push	ax				;AN000;  3/3/KK
-	cmp	al, byte ds:[si]		;AN000;  3/3/KK
+	cmp	al, byte [ds:si]		;AN000;  3/3/KK
 	jb	notlead 			;AN000;  3/3/KK
 	inc	si				;AN000;  3/3/KK
-	cmp	al, byte ds:[si]		;AN000;  3/3/KK
+	cmp	al, byte [ds:si]		;AN000;  3/3/KK
 	jbe	islead				;AN000;  3/3/KK
 	inc	si				;AN000;  3/3/KK
 	jmp	short ktlop			;AN000;  try another range ; 3/3/KK
@@ -583,7 +583,7 @@ ENVNOSET:
 	JMP	CERROR
 STORE1:
 	STOSB
-	MOV	word ES:[DI],0		; NULL IS AT END
+	MOV	word [ES:DI],0		; NULL IS AT END
 	POP	ES				;AN056;
 	POP	BX
 	POP	CX
@@ -599,7 +599,7 @@ GETENVSIZ:
 	MOV	AX,ES
 	DEC	AX				;Point at arena
 	MOV	ES,AX
-	MOV	AX,ES:[arena_size]
+	MOV	AX,[ES:arena_size]
 	MOV	CL,4
 	SHL	AX,CL				;Convert to bytes
 	MOV	CX,AX

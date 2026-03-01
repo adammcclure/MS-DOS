@@ -355,7 +355,7 @@ PERIOD		 equ	'.'
 ; subttl NLSFUNC data
 ; page
 IN_DEX		  equ	 bp			       ;AN000;
-FILESPEC_PTR	  equ	 byte ds:[in_dex]	       ;AN000;
+FILESPEC_PTR	  equ	 byte [ds:in_dex]	       ;AN000;
 FILEVAL 	 equ	0100h	;convert data block after checking for the
 				;AN000;
 				;drive only to look for the filespec
@@ -420,7 +420,7 @@ NLS_BUFFER	db	BUFFSIZE dup (?)  ;NLS BUFFER to transfer data
 
 DATASIZE	equ	$-NLS_DATA
 
-NLS_DATA ENDS
+; END SECTION .NLS_DATA
 
 SECTION .NLS_INIT_CODE
 
@@ -617,7 +617,7 @@ CHK_OPEN:
 co_dos: 	push	ds				;save current ds value
 		push	si				;save current si value
 		lds	si,dword SI_DOSLOCATE	;old dos ds si value
-		lea	dx,ds:[si].ccPATH_COUNTRYSYS
+		lea	dx,[ds:si].ccPATH_COUNTRYSYS
 		CallInstall Dosopen,Multdos,38,<BX,DS,ES,SI,DI>,<DI,SI,ES,DS,BX>
 		pop	si				;restore current si
 		pop	ds				;restore current ds
@@ -656,13 +656,13 @@ TRANSTART:
 
 CHK_INFOTYPE:
 		add	si,LOCATE_INFOTYPE	;si > Country info type
-		cmp	byte ds:[si],1	;only 1 type exist currently
+		cmp	byte [ds:si],1	;only 1 type exist currently
 		je	GET_INFOIDS
 		jmp	BAD_FILE
 GET_INFOIDS:
 		inc	si			;si > set to file offset
-		mov	dx,word ds:[si]	;Get the Info file offset
-		mov	cx,word ds:[si+2]	;Doubleword
+		mov	dx,word [ds:si]	;Get the Info file offset
+		mov	cx,word [ds:si+2]	;Doubleword
 
 		mov	SAVEDX,dx		;=FC save offset
 		mov	SAVECX,cx		;=FC for more than 1 buffer
@@ -674,14 +674,14 @@ GET_INFOIDS:
 
 COUNT_ENTRIES:
 
-		mov	cx,word ds:[si]	;Get count of entries
+		mov	cx,word [ds:si]	;Get count of entries
 						;in info
 		inc	si			;next word
 		inc	si			;si >  Entry info packet
 
 FIND_CTY:					;Search for CTY/CP combo
 
-		mov	ax,word ds:[si]	;=FC get size of entry
+		mov	ax,word [ds:si]	;=FC get size of entry
 		add	ax,2			;=FC include length filed
 		add	NOFFSET,ax		;=FC look ahead
 		cmp	NOFFSET,CTL_BUFF-4	;=FC < (256 - 4)
@@ -702,15 +702,15 @@ IN_BUFF:
 
 		mov	dx,CPAGE
 		mov	ax,CCODE
-		cmp	ax,word ds:[si+2]	 ;compare country id
+		cmp	ax,word [ds:si+2]	 ;compare country id
 		jne	NEXT_CTY
-		cmp	dx, word ds:[si+4]	;compare code page id
+		cmp	dx, word [ds:si+4]	;compare code page id
 		je	FOUND_CTY
 		cmp	dx,0		  ;=FC	  if default pick the
 		jz	FOUND_CTY2	  ;=FC	  1st country
 
 NEXT_CTY:
-		add	si, word ds:[si]	;next entry
+		add	si, word [ds:si]	;next entry
 		inc	si
 		inc	si			;take a word for size of entry itself
 		loop	FIND_CTY
@@ -721,17 +721,17 @@ NEXT_CTY:
 READERROR:	pop	cx			;=FC
 		jmp	END_TRANS		;=FC
 
-FOUND_CTY2:	mov	dx,word ds:[si+4]	;=FC from now on,this is
+FOUND_CTY2:	mov	dx,word [ds:si+4]	;=FC from now on,this is
 		mov	CPAGE,dx		;=FC the code page
 
 FOUND_CTY:		       ;found the matching entry
-		mov	dx, word ds:[si+10] ;get the file offset of country data
-		mov	cx, word ds:[si+12]
+		mov	dx, word [ds:si+10] ;get the file offset of country data
+		mov	cx, word [ds:si+12]
 		call	READ_CTLBUFF
 		jnc	NUM_ENTRY
 		jmp	END_TRANS		;=G
 NUM_ENTRY:
-		mov	cx, word ds:[si]	;get the number of entries to handle.
+		mov	cx, word [ds:si]	;get the number of entries to handle.
 		inc	si
 		inc	si			;SI -> first entry
 
@@ -741,7 +741,7 @@ SETDOSCTY_DATA:
 		 push	 si			 ;si -> current entry in Control buffer
 		 push	 cx			 ;save # of entry left
 
-		mov	al, byte ds:[si+2]	;get data entry id
+		mov	al, byte [ds:si+2]	;get data entry id
 		xor	ah,ah			;clear out for comparison with
 						;info-id in case id is > 256
 
@@ -788,8 +788,8 @@ TRANSALL:
 
 GET_ADDR:
 
-		mov	dx, word ds:[si+4]	   ;get offset of data
-		mov	cx, word ds:[si+6]
+		mov	dx, word [ds:si+4]	   ;get offset of data
+		mov	cx, word [ds:si+6]
 
 
 
@@ -827,13 +827,13 @@ CHK_OVERWRITE:					   ;=A
 						   ; write over.  =A
 		cmp	al,SetCountryInfo	   ;=A
 		jne	DOS_MOVE		   ;=A
-		mov	ax,word es:[di+24]	   ;=A
-		mov	word ds:[NLS_BUFFER+CTL_BUFF + 32],ax  ;=A
-		mov	ax,word es:[di+26]	   ;=A
-		mov	word ds:[NLS_BUFFER+CTL_BUFF + 34],ax  ;=A
+		mov	ax,word [es:di+24]	   ;=A
+		mov	word [ds:NLS_BUFFER+CTL_BUFF + 32],ax  ;=A
+		mov	ax,word [es:di+26]	   ;=A
+		mov	word [ds:NLS_BUFFER+CTL_BUFF + 34],ax  ;=A
 
 		mov	ax,CPAGE		   ;=FC, CPAGE is right
-		mov	word ds:[NLS_BUFFER+CTL_BUFF + 12],ax  ;=FC
+		mov	word [ds:NLS_BUFFER+CTL_BUFF + 12],ax  ;=FC
 
 DOS_MOVE:
 		call	CHK_ADJUST						     ;now check to see if the entire
@@ -844,7 +844,7 @@ SETDOSCTY_NEXT:
 		pop	cx
 		pop	si
 		pop	di
-		add	si, word ds:[si]
+		add	si, word [ds:si]
 		inc	si
 		inc	si
 		dec	cx
@@ -903,13 +903,13 @@ GetDOSCty_Dest:
 
 	push	cx
 	add	di, ccNumber_of_entries ;skip the reserved area, syscodepage etc.
-	mov	cx, word es:[di]	;get the number of entries
+	mov	cx, word [es:di]	;get the number of entries
 	inc	di
 	inc	di			;SI -> the first start entry id
 GetCntryDest:
-	cmp	byte es:[di], al
+	cmp	byte [es:di], al
 	je	GetCntryDest_OK
-	cmp	byte es:[di], SetCountryInfo ;was it SetCountryInfo entry?
+	cmp	byte [es:di], SetCountryInfo ;was it SetCountryInfo entry?
 	je	GetCntryDest_1
 	add	di, 5			;next data id
 	jmp	short GetCntryDest_loop
@@ -932,7 +932,7 @@ GetCntryDest_OK:
 
 GetCntryDest_OK1:
 
-	les	di, dword es:[di+1] ;get the destination in ES:DI
+	les	di, dword [es:di+1] ;get the destination in ES:DI
 	clc
 
 GetCntryDest_Exit:
@@ -952,13 +952,13 @@ JUSTONE_ID:
 		je	id_ctyinfo1	;=F
 
 		mov	al,INFO_ID
-		mov	byte es:[di],al
+		mov	byte [es:di],al
 
 		cmp	INFO_ID,SetCountryInfo ;SETCTY_INFO  =D moved.
 		je	ID_CTYINFO	       ;=D don't want ptr if 1.
 
-		mov	word es:[di+1],nls_buffer + ctl_buff+8  ;=H
-		mov	word es:[di+3],ds	     ;my current ds value
+		mov	word [es:di+1],nls_buffer + ctl_buff+8  ;=H
+		mov	word [es:di+3],ds	     ;my current ds value
 		mov	CSIZE,5 		     ;=K
 
 		jmp	GET_EXT_END
@@ -975,13 +975,13 @@ id_ctyinfo1:				;=F
 		push	di		;=A  entry point in user buffer.
 		push	ax		;=A
 		les	di,dword si_doslocate ;=A
-		mov	ax,word es:[di].ccMono_Ptr	  ;=A
-		mov	word ds:[si+24],ax		  ;=A
-		mov	ax,word es:[di].ccMono_Ptr+2  ;=A
-		mov	word ds:[si+26],ax		  ;=A
+		mov	ax,word [es:di].ccMono_Ptr	  ;=A
+		mov	word [ds:si+24],ax		  ;=A
+		mov	ax,word [es:di].ccMono_Ptr+2  ;=A
+		mov	word [ds:si+26],ax		  ;=A
 
 		mov	ax,CPAGE			  ;=FC trust CPAGE
-		mov	word ds:[si+4],ax		  ;=FC
+		mov	word [ds:si+4],ax		  ;=FC
 
 		pop	ax		;=A
 		pop	di		;=A
@@ -994,7 +994,7 @@ id_ctyinfo1:				;=F
 		mov	cx,old_country_size ;=FC
 		jmp	MOVE_CTY	 ;=FC
 
-id_ctyinfo2:	mov	bx,word ds:[si]	;=FC get table size
+id_ctyinfo2:	mov	bx,word [ds:si]	;=FC get table size
 
 
 		sub	CSIZE,3 	;=FC  size begins after length field
@@ -1006,7 +1006,7 @@ id_ctyinfo2:	mov	bx,word ds:[si]	;=FC get table size
 TRUNC_SIZE:
 		mov	cx,bx		;=F
 MOV_SIZE:
-		mov	es:[di],cx	;=FC  move actual length to user's buff
+		mov	[es:di],cx	;=FC  move actual length to user's buff
 		add	di,2		;=FC  update index
 		add	si,2		;=FC  skip length field
 
@@ -1070,7 +1070,7 @@ CHK_ADJUST:
 
 		push	ax			;save info id
 		mov	si,NLS_BUFFER+DATA_N_ID		  ;start of buffer + tag id
-		mov	cx, word ds:[si]	;get the length of the structure
+		mov	cx, word [ds:si]	;get the length of the structure
 
 		inc	cx
 		inc	cx
@@ -1138,7 +1138,7 @@ WALK_DEVICES:
 		mov	es,bx		    ;bx:ax -> hdr.
 		mov	di,ax
 char_test:
-		test	es:[di].sdevatt,devtyp ;check attribute word for
+		test	[es:di].sdevatt,devtyp ;check attribute word for
 		jne	open_device
 		jmp	GET_NEXT_DEVICE        ;character device.
 
@@ -1148,16 +1148,16 @@ OPEN_DEVICE:
 		add	di,10		    ;for DOS file open
 		mov	cx,8
 
-set_asciiz:	mov	al,es:[di]
+set_asciiz:	mov	al,[es:di]
 		cmp	al,20h
 		je	done_set_asciiz
-		mov	ds:[si],al
+		mov	[ds:si],al
 		inc	di
 		inc	si
 		loop	set_asciiz
 
 done_set_asciiz:xor	al,al
-		mov	ds:[si],al
+		mov	[ds:si],al
 
 		pop	di
 		pop	si
@@ -1217,8 +1217,8 @@ invoke_it:	pop	si			     ;save the current
 ;	       mov     bx,es:[di].ccDBCS_ptr	     ;values to allow
 ;	       mov     es,es:[di].ccDBCS_ptr+2	     ;recognition and
 ;*************** CNS ******************
-	       les     bx,es:[di].ccDBCS_ptr
-	       mov     cx,es:[bx]		     ;invocation of data
+	       les     bx,[es:di].ccDBCS_ptr
+	       mov     cx,[es:bx]		     ;invocation of data
 	       add     cx,2
 	       add     bx,2			     ;and ID for start
 	       mov     di,pk.DBCS_EV	     ;and stop values for
@@ -1239,9 +1239,9 @@ DB_EVECS:
 
 	 ; .REPEAT;;AN000;DBCS transmission
 						     ;AN000;
-	       mov     al,es:[bx]		     ;;AN000;get the the contents
+	       mov     al,[es:bx]		     ;;AN000;get the the contents
 ;***CNS 						;AN000;
-	       mov     ds:[di],al			;;AN002;of where the DBCS Points
+	       mov     [ds:di],al			;;AN002;of where the DBCS Points
 ;***CNS 						;AN000;
 	       inc     di			     ;;AN000;data packet for ioctl
 						     ;AN000;
@@ -1283,9 +1283,9 @@ CLOSE_DEVICE:
 		jc	dev_open_close_error  ; ignore this =FC
 
 GET_NEXT_DEVICE:
-		cmp	word es:[di],0FFFFH
+		cmp	word [es:di],0FFFFH
 		je	END_WALK_DEVICES
-		les	di,dword es:[di]
+		les	di,dword [es:di]
 		jmp	char_test
 
 DEVICE_ERROR:
@@ -1332,24 +1332,24 @@ Chk_Revisit:
 	int	2fh				;AN001;
 	jc	Chk_Rvst_Ret			;AN001; This won't happen
 	xor	bx, bx				;AN001;
-	mov	bl, byte es:[di]		;AN001;
+	mov	bl, byte [es:di]		;AN001;
 	mov	ax, 1216h			;AN001; Get the SFT pointer
 	int	2fh				;AN001; es:di-> SFT table
 	jc	Chk_Rvst_Ret			;AN001; This won't happen
-	mov	ax, word es:[di].SF_DEVPTR	;AN001; offset of device
-	mov	bx, word es:[di].SF_DEVPTR+2;AN001; Segment of device
+	mov	ax, word [es:di].SF_DEVPTR	;AN001; offset of device
+	mov	bx, word [es:di].SF_DEVPTR+2;AN001; Segment of device
 	mov	di, NLS_BUFFER		;AN001;
 	add	di, BUFFSIZE-2			;AN001; ds:di-> last word of the buffer
 Chk_Rvst_While: 				;AN001;
-	cmp	word ds:[di], 0		;AN001; di-> segment value
+	cmp	word [ds:di], 0		;AN001; di-> segment value
 	jne	Chk_Rvst_Cont			;AN001;
-	cmp	word ds:[di-2], 0		;AN001; offset
+	cmp	word [ds:di-2], 0		;AN001; offset
 	jne	Chk_Rvst_Cont			;AN001;
 	jmp	Chk_Rvst_New			;AN001; Encountered a blank entry in the buffer
 Chk_Rvst_Cont:					;AN001;
-	cmp	word ds:[di], bx		;AN001;
+	cmp	word [ds:di], bx		;AN001;
 	jne	Chk_Rvst_Next			;AN001;
-	cmp	word ds:[di-2], ax		;AN001;
+	cmp	word [ds:di-2], ax		;AN001;
 	jne	Chk_Rvst_Next			;AN001;
 	stc					;AN001; found a match
 	jmp	Chk_Rvst_Ret			;AN001;
@@ -1357,8 +1357,8 @@ Chk_Rvst_Next:					;AN001;
 	sub	di, 4				;AN001; move the pointer to the next entry
 	jmp	Chk_Rvst_While			;AN001;
 Chk_Rvst_New:					;AN001;
-	mov	word ds:[di],bx		;AN001; Keep the current open device segment
-	mov	word ds:[di-2], ax		;AN001; and offset
+	mov	word [ds:di],bx		;AN001; Keep the current open device segment
+	mov	word [ds:di-2], ax		;AN001; and offset
 	clc					;AN001; New device
 Chk_Rvst_Ret:					;AN001;
 	pop	di				;AN001;
@@ -1419,7 +1419,7 @@ MAIN:
 		  push	  ax			  ;AN004;save existing values
 		  push	  es			  ;
 		  xor	  ax,ax
-		  mov	  ax,es:[2ch]
+		  mov	  ax,[es:2ch]
 		  cmp	  ax,0
 		  je	  NO_FREEDOM
 		  mov	  es,ax
@@ -1508,7 +1508,7 @@ PROCESS_PATH:
 RE_START:
 		mov	si,80h		;get the command line length
 
-		mov	cl,byte ds:[si]	;get the length for the counter
+		mov	cl,byte [ds:si]	;get the length for the counter
 ;
 		mov	LENGTH_HOLD,cl		;save the length of the command line
 ;
@@ -1669,7 +1669,7 @@ RE_START:
 						     ;AN000;
 						     ;AN000;
 		mov	al,FILESPEC_PTR 		;AN000;
-		mov	byte es:[di],al	     ;move value into pathspec and
+		mov	byte [es:di],al	     ;move value into pathspec and
 		inc	in_dex			     ;increment to next char position
 		inc	di			     ;AN000;
 	  .ENDWHILE
@@ -1686,7 +1686,7 @@ RE_START:
 ;
 		; ASSUME	DS:NLS_DATA
 ;
-		mov	byte ds:[si],NULL	       ;add asciiz value
+		mov	byte [ds:si],NULL	       ;add asciiz value
 						       ;AN000;
 		lea	dx,PATH_SPEC		       ;check full pathname
 		mov	ah,4eh
@@ -1800,12 +1800,12 @@ msg_services <DISPLAYmsg,CHARmsg>		      ;AN000;
 msg_services <nlsfunc.cl1,nlsfunc.cl2,nlsfunc.cla>    ;AN000;
 
 ;******************************** END OF NLS_INIT_CODE **************************
-NLS_INIT_CODE	 ENDS
+; END SECTION .NLS_INIT_CODE
 ; subttl stack
 ; page
 
 SECTION .STACK
 	times 512 db 0
-STACK	ENDS
+; END SECTION .STACK
 
 	; END	MAIN

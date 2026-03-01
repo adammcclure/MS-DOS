@@ -74,7 +74,7 @@ NODEEXISTSJ: JMP NODEEXISTS
 ; ASSUME  DS:NOTHING
         SUB     SI,DI
         PUSH    SI              ; Pointer to fcb_FIRCLUS
-        PUSH    [DI.BUFSECNO]   ; Sector of new node
+        PUSH    [DI+BUFSECNO]   ; Sector of new node
         PUSH    SS
         POP     DS
 ; ASSUME  DS:DOSGROUP
@@ -85,7 +85,7 @@ NODEEXISTSJ: JMP NODEEXISTS
         JC      NODEEXISTSPOPDEL    ; No room
         invoke  GETENT          ; First entry
         LES     DI,[CURBUF]
-        MOV     ES:[DI.BUFDIRTY],1
+        MOV     [ES:DI+BUFDIRTY],1
         ADD     DI,BUFINSIZ     ; Point at buffer
         MOV     AX,202EH        ; ". "
         STOSW
@@ -110,11 +110,11 @@ ZAPENT:
         MOV     [SI+2],DX
         MOV     [SI+4],DX
 DIRUP:
-        MOV     [DI.BUFDIRTY],1
+        MOV     [DI+BUFDIRTY],1
         PUSH    SS
         POP     DS
 ; ASSUME  DS:DOSGROUP
-        MOV     AL,ES:[BP.dpb_drive]
+        MOV     AL,[ES:BP+dpb_drive]
         invoke  FLUSHBUF
 SYS_RET_OKJ:
         JMP     SYS_RET_OK
@@ -162,7 +162,7 @@ BREAK <$ChDir -- Change current directory on a drive>
 ; ASSUME  DS:DOSGROUP
         MOV     AX,[DIRSTART]
         MOV     BX,AX
-        XCHG    BX,ES:[BP.dpb_current_dir]
+        XCHG    BX,[ES:BP+dpb_current_dir]
         OR      AX,AX
         POP     SI
         POP     DS
@@ -187,7 +187,7 @@ NOTROOTPATH:
         JZ      COPYTHESTRING   ; Yes
         XOR     BX,BX
 ENDLOOP:
-        CMP     byte ES:[DI],0
+        CMP     byte [ES:DI],0
         JZ      PATHEND
         INC     DI
         INC     BX
@@ -231,14 +231,14 @@ FOOB:
 CHECK_LEN:
         CMP     BX,DIRSTRLEN
         JB      COPYTHESTRING
-        MOV     AL,ES:[DI-1]
+        MOV     AL,[ES:DI-1]
         invoke  PATHCHRCMP
         JNZ     OK_DI
         DEC     DI
 OK_DI:
         XOR     AL,AL
         STOSB                   ; Correctly terminate the path
-        MOV     ES:[BP.dpb_current_dir],-1      ; Force re-validation
+        MOV     [ES:BP+dpb_current_dir],-1      ; Force re-validation
         JMP     SHORT PATHTOOLONG
 
 SEEDOT:
@@ -310,7 +310,7 @@ DELELMES:
 DELLOOP:
         CMP     DI,CX
         JZ      GOTDELE
-        MOV     AL,ES:[DI]
+        MOV     AL,[ES:DI]
         INC     DI
         invoke  TESTKANJ
         JZ      NOTKANJ11
@@ -337,7 +337,7 @@ DELLOOP:
         CMP     DI,DX
         retz
         PUSH    AX
-        MOV     AL,ES:[DI-1]
+        MOV     AL,[ES:DI-1]
         invoke  PATHCHRCMP
         POP     AX
         retz
@@ -425,13 +425,13 @@ NOPATHJ: JMP    NOPATH
         MOV     DI,[DIRSTART]
         OR      DI,DI
         JZ      NOTDIRPATH
-        MOV     CX,ES:[BP.dpb_current_dir]
+        MOV     CX,[ES:BP+dpb_current_dir]
         CMP     CX,-1
         JNZ     rmdir_current_dir_check
         invoke  GetCurrDir
         invoke  Get_user_stack
-        MOV     DX,[SI.user_DX]
-        MOV     DS,[SI.user_DS]
+        MOV     DX,[SI+user_DX]
+        MOV     DS,[SI+user_DS]
         JMP     $RMDIR
 
 NOTDIRPATHPOP:
@@ -450,7 +450,7 @@ rmdir_get_buf:
 ; ASSUME  DS:NOTHING
         SUB     BX,DI
         PUSH    BX                      ; Save entry pointer
-        PUSH    [DI.BUFSECNO]           ; Save sector number
+        PUSH    [DI+BUFSECNO]           ; Save sector number
         PUSH    SS
         POP     DS
 ; ASSUME  DS:DOSGROUP

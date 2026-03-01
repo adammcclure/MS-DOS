@@ -186,7 +186,7 @@ check_one_volume_id:
 	JZ	NEXTENTJ		; Otherwise continue searching
 RETFF:
 	LES	BP,[THISDPB]
-	MOV	AH,ES:[BP.dpb_drive]
+	MOV	AH,[ES:BP+dpb_drive]
 SETESRET:
 	PUSH	SS
 	POP	ES
@@ -209,9 +209,9 @@ EndProc Search
 	MOV	CX,11
  %if DBCS;AN000;
 ;-------------------- Start of DBCS	;AN000;
-	CMP	byte DS:[SI],05H	;AN000;; Special case for lead byte of 05h
+	CMP	byte [DS:SI],05H	;AN000;; Special case for lead byte of 05h
 	JNE	WILDCRD2		;AN000;; Compare as normal if not an 05h
-	CMP	byte ES:[DI],0E5H	;AN000;; 05h and 0E5h equivalent for lead byte
+	CMP	byte [ES:DI],0E5H	;AN000;; 05h and 0E5h equivalent for lead byte
 	JNE	WILDCRD2		;AN000;; Compare as normal if not an 05h
 	DEC	CX			;AN000;; One less byte to compare
 	INC	SI			;AN000;; Bypass lead byte in source and
@@ -225,7 +225,7 @@ cagain: 				;AN000;;KK.
 	invoke	testkanj		;AN000;;KK.
 	JZ	notdb			;AN000;;KK. no
 	MOV	AX,'??'                 ;AN000;;KK.
-	CMP	ES:[DI],AX		;AN000;;KK. is es:di pointing to '??'
+	CMP	[ES:DI],AX		;AN000;;KK. is es:di pointing to '??'
 	JNZ	metaend3		;AN000;;KK. no
 	ADD	SI,2			;AN000;;KK.
 	ADD	DI,2			;AN000;;KK. update pointers and count
@@ -239,7 +239,7 @@ metaend3:				;AN000;;KK.
 notdb:					;AN000;
 	CMPSB				;AN000;;KK. same code ?
 	JZ	sameco			;AN000;;KK. yes
-	CMP	byte ES:[DI-1],"?"  ;AN000;;KK. ?
+	CMP	byte [ES:DI-1],"?"  ;AN000;;KK. ?
 	JNZ	metaend2		;AN000;;KK. no
 sameco: 				;AN000;
 	DEC	CX			;AN000;;KK. decrement count
@@ -253,7 +253,7 @@ WILDCRD:
 	REPE	CMPSB
 	JZ	MetaRet 		; most of the time we will fail.
 CHECK_META:
-	CMP	byte ES:[DI-1],"?"
+	CMP	byte [ES:DI-1],"?"
 	JZ	WildCrd
 MetaRet:
  %endif;AN000;
@@ -305,9 +305,9 @@ SAMECLUS:
 	PUSH	DS
 	LDS	DI,[CURBUF]
 ; ASSUME	DS:NOTHING
-	MOV	DX,word [DI.buf_sector+2]	;AN000; >32mb
+	MOV	DX,word [DI+buf_sector+2]	;AN000; >32mb
 	MOV	[HIGH_SECTOR],DX		;AN000; >32mb
-	MOV	DX,word [DI.buf_sector]	;AN000; >32mb
+	MOV	DX,word [DI+buf_sector]	;AN000; >32mb
 
 	ADD	DX,1				;AN000; >32mb
 	ADC	[HIGH_SECTOR],0 		;AN000; >32mb
@@ -356,7 +356,7 @@ Procedure GETENTRY,NEAR
 ; beginning of the directory.  Convert this to a sector number.  Round the
 ; sector size down to a multiple of 32.
 ;
-	MOV	BX,ES:[BP.dpb_sector_size]
+	MOV	BX,[ES:BP+dpb_sector_size]
 	AND	BL,255-31		; Must be multiple of 32
 	DIV	BX
 	MOV	BX,DX			; Position within sector
@@ -368,7 +368,7 @@ SETENTRY:
 	MOV	DX,word [CURBUF]
 	ADD	DX,BUFINSIZ
 	ADD	BX,DX
-	ADD	DX,ES:[BP.dpb_sector_size]  ; Always clears carry
+	ADD	DX,[ES:BP+dpb_sector_size]  ; Always clears carry
 	return
 EndProc GetEntry
 
@@ -394,7 +394,7 @@ Break	<SETDIRSRCH SETROOTSRCH -- Set Search environments>
 	OR	BX,BX
 	JZ	SETROOTSRCH
 	MOV	[DIRSTART],BX
-	MOV	AL,ES:[BP.dpb_cluster_mask]
+	MOV	AL,[ES:BP+dpb_cluster_mask]
 	INC	AL
 	MOV	byte [CLUSFAC],AL
 ; DOS 3.3 for FastOPen	F.C. 6/12/86
@@ -431,8 +431,8 @@ entry	SETROOTSRCH
 	MOV	byte [SECCLUSPOS],AL
 	DEC	AX
 	MOV	[CLUSNUM],AX
-	MOV	AX,ES:[BP.dpb_first_sector]
-	MOV	DX,ES:[BP.dpb_dir_sector]
+	MOV	AX,[ES:BP+dpb_first_sector]
+	MOV	DX,[ES:BP+dpb_dir_sector]
 	SUB	AX,DX
 	MOV	byte [CLUSFAC],AL
 	MOV	word [DIRSEC],DX		      ;F.C. >32mb

@@ -557,5 +557,5 @@ FORMAT_DISK_SCREEN:						;AN000;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS							;AN000;
+; END SECTION .SELECT;AN000;
 	; END;AN000;

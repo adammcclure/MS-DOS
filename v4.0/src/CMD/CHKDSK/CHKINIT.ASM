@@ -296,7 +296,7 @@ Procedure get_psp			;;AN000;				;an000;bgb
 	mov	ds,cx			;  "   "   "   "    "                   ;an000;bgb;AN000;bgb
 	; assume	ds:NOTHING,es:dg;  "   "   "   "    "                   ;an000;bgb;AN000;bgb
 ; get the drive number of the target from the psp (0=default, a=1, b=2, c=3) ;AN;an000;bgb000;bgb
-	mov	bl,ds:[FCB1]	    ;Get target drive from FCB -74	    ;AN0;an000;bgb00;
+	mov	bl,[ds:FCB1]	    ;Get target drive from FCB -74	    ;AN0;an000;bgb00;
 	Set_Data_Segment	    ;Set DS,ES to Data segment		    ;AN0;an000;bgb00;bgb
 	call	get_drive							;an000;bgb
 	ret									;an000;bgb
@@ -607,7 +607,7 @@ Procedure Parse_Command_Line			;				;an000;bgb;AN000;
 global nextdi;an046;bgb
 nextdi: 									;an046;bgb
 	mov	al,0dh				;search for end of line 	;an046;bgb
-	cmp	al,ES:[Di]			   ;zero terminate string	   ;an046;bgb
+	cmp	al,[ES:Di]			   ;zero terminate string	   ;an046;bgb
 ;	$IF	NZ								;an046;bgb
 	JZ $$IF18
 	    inc    di								;an046;bgb
@@ -615,7 +615,7 @@ nextdi: 									;an046;bgb
 ;	$ELSE									;an046;bgb
 	JMP SHORT $$EN18
 $$IF18:
-	    mov    byte ES:[di+1],00					;an046;bgb
+	    mov    byte [ES:di+1],00					;an046;bgb
 ;	$ENDIF									;an046;bgb
 $$EN18:
 										;an046;bgb

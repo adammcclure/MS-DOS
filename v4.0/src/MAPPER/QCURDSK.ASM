@@ -44,10 +44,10 @@ SECTION .dosxxx
 	    ; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-Drvmap: dd 0; drive map pointer
-Drvnbr: dd 0; drive number
+old_bp: resw 1
+return: resd 1
+Drvmap: resd 1; drive map pointer
+Drvnbr: resd 1; drive number
 endstruc
 
 

@@ -39,25 +39,25 @@ SECTION .dosxxx
 
 
 struc FileInfo
-CreateDate: dw 0
-CreateTime: dw 0
-LastAccessDate: dw 0
-LastAccessTime: dw 0
-LastWriteDate: dw 0
-LastWriteTime: dw 0
-DataLength: dd 0; File size
-FileSpace: dd 0; falloc_size
-Attributes: dw 0; attributes
+CreateDate: resw 1
+CreateTime: resw 1
+LastAccessDate: resw 1
+LastAccessTime: resw 1
+LastWriteDate: resw 1
+LastWriteTime: resw 1
+DataLength: resd 1; File size
+FileSpace: resd 1; falloc_size
+Attributes: resw 1; attributes
 endstruc
 
 
 struc str
-old_bp: dw 0
-return: dd 0
-BufferSize: dw 0; file data buffer size
-BufferPtr: dd 0; file data buffer
-Level: dw 0; file data info level
-Handle: dw 0; file handle
+old_bp: resw 1
+return: resd 1
+BufferSize: resw 1; file data buffer size
+BufferPtr: resd 1; file data buffer
+Level: resw 1; file data info level
+Handle: resw 1; file handle
 endstruc
 
 dosQfileinfo:
@@ -70,12 +70,12 @@ dosQfileinfo:
 	jc	ErrorExit		   ; jump if error
 
 	lds	si,[bp].BufferPtr	   ; copy date and time to
-	mov	ds:[si].CreateDate,dx	   ; file info return data area
-	mov	ds:[si].CreateTime,cx
-	mov	ds:[si].LastAccessDate,dx
-	mov	ds:[si].LastAccessTime,cx
-	mov	ds:[si].LastWriteDate,dx
-	mov	ds:[si].LastWriteTime,cx
+	mov	[ds:si].CreateDate,dx	   ; file info return data area
+	mov	[ds:si].CreateTime,cx
+	mov	[ds:si].LastAccessDate,dx
+	mov	[ds:si].LastAccessTime,cx
+	mov	[ds:si].LastWriteDate,dx
+	mov	[ds:si].LastWriteTime,cx
 
 ;  Calculate the file length and file space and save in the file info data area
 

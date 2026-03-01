@@ -31,11 +31,11 @@ inv_parm    equ      0002h
 model_byte  equ      0fffeh
 
 struc str
-old_bp: dw 0
-return: dd 0
-rsrvd: dw 0; reserved
-item: dw 0; item number
-data: dd 0; returned information
+old_bp: resw 1
+return: resd 1
+rsrvd: resw 1; reserved
+item: resw 1; item number
+data: resd 1; returned information
 endstruc
 
 dosdevconfig:

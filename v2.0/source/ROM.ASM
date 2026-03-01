@@ -41,8 +41,8 @@ SECTION .CODE
         JNZ     NORMFCB1
         ADD     DI,7
 NORMFCB1:
-        MOV     AX,word [DI.fcb_RR]
-        MOV     DX,word [DI.fcb_RR+2]
+        MOV     AX,word [DI+fcb_RR]
+        MOV     DX,word [DI+fcb_RR+2]
         return
 ; ENDP GET_random_record
 
@@ -63,16 +63,16 @@ NORMFCB1:
 
         PUSH    ES
         LES     DI,[THISFCB]
-        MOV     BX,ES:[DI.fcb_LSTCLUS]  ; fcb_lstclus is packed with dir clus
+        MOV     BX,[ES:DI+fcb_LSTCLUS]  ; fcb_lstclus is packed with dir clus
         AND     BX,0FFFh                ; get rid of dir nibble
-        MOV     DX,ES:[DI.fcb_CLUSPOS]
+        MOV     DX,[ES:DI+fcb_CLUSPOS]
         OR      BX,BX
         JZ      NOCLUS
         SUB     CX,DX
         JNB     FINDIT
         ADD     CX,DX
         XOR     DX,DX
-        MOV     BX,ES:[DI.fcb_FIRCLUS]
+        MOV     BX,[ES:DI+fcb_FIRCLUS]
 FINDIT:
         POP     ES
         JCXZ    RET10
@@ -153,10 +153,10 @@ EVENRD:
         REP     MOVSW
         POP     ES
         LDS     DI,[CURBUF]
-        LEA     BX,[DI.BufInSiz]
+        LEA     BX,[DI+BufInSiz]
         SUB     SI,BX                   ; Position in buffer
         invoke  PLACEBUF
-        CMP     SI,ES:[BP.dpb_sector_size]
+        CMP     SI,[ES:BP+dpb_sector_size]
         JB      RBUFPLACED
         invoke  PLACEHEAD
 RBUFPLACED:
@@ -190,13 +190,13 @@ EVENWRT:
         REP     MOVSW
         POP     ES
         LDS     BX,[CURBUF]
-        MOV     byte [BX.BUFDIRTY],1
-        LEA     SI,[BX.BufInSiz]
+        MOV     byte [BX+BUFDIRTY],1
+        LEA     SI,[BX+BufInSiz]
         SUB     DI,SI                   ; Position in buffer
         MOV     SI,DI
         MOV     DI,BX
         invoke  PLACEBUF
-        CMP     SI,ES:[BP.dpb_sector_size]
+        CMP     SI,[ES:BP+dpb_sector_size]
         JB      WBUFPLACED
         invoke  PLACEHEAD
 WBUFPLACED:
@@ -217,7 +217,7 @@ WBUFPLACED:
         JZ      CLRET
         MOV     AL,[SECCLUSPOS]
         INC     AL
-        CMP     AL,ES:[BP.dpb_cluster_mask]
+        CMP     AL,[ES:BP+dpb_cluster_mask]
         JBE     SAVPOS
         MOV     BX,[CLUSNUM]
         CMP     BX,0FF8H
@@ -259,7 +259,7 @@ NONEXT:
 
         PUSH    DX
         PUSH    BX
-        MOV     AL,ES:[BP.dpb_cluster_mask]
+        MOV     AL,[ES:BP+dpb_cluster_mask]
         INC     AL              ; Number of sectors per cluster
         MOV     AH,AL
         SUB     AL,DL           ; AL = Number of sectors left in first cluster
@@ -288,7 +288,7 @@ FINCLUS:
         SUB     DX,CX           ; Number of sectors still needed
         PUSH    DX
         MOV     AX,CX
-        MUL     ES:[BP.dpb_sector_size]  ; Number of sectors times sector size
+        MUL     [ES:BP+dpb_sector_size]  ; Number of sectors times sector size
         MOV     SI,[NEXTADD]
         ADD     AX,SI           ; Adjust by size of transfer
         MOV     [NEXTADD],AX
@@ -323,12 +323,12 @@ BLKDON:
 ; No other registers affected.
 
         PUSH    CX
-        MOV     CL,ES:[BP.dpb_cluster_shift]
+        MOV     CL,[ES:BP+dpb_cluster_shift]
         DEC     DX
         DEC     DX
         SHL     DX,CL
         OR      DL,BL
-        ADD     DX,ES:[BP.dpb_first_sector]
+        ADD     DX,[ES:BP+dpb_first_sector]
         POP     CX
         return
 ; ENDP FIGREC
@@ -352,8 +352,8 @@ BLKDON:
         ADD     DI,7
 NORMFCB2:
         MOV     CX,1
-        MOV     AL,[DI.fcb_NR]
-        MOV     DX,[DI.fcb_EXTENT]
+        MOV     AL,[DI+fcb_NR]
+        MOV     DX,[DI+fcb_EXTENT]
         SHL     AL,1
         SHR     DX,1
         RCR     AL,1
@@ -400,7 +400,7 @@ CLUSALLOC:
         MOV     DX,BX
 FINDFRE:
         INC     BX
-        CMP     BX,ES:[BP.dpb_max_cluster]
+        CMP     BX,[ES:BP+dpb_max_cluster]
         JLE     TRYOUT
         CMP     AX,1
         JG      TRYIN
@@ -413,7 +413,7 @@ FINDFRE:
         invoke  RESTFATBYT
         INC     DX              ; Position of first cluster allocated
         ADD     AX,DX           ; AX=max no. of cluster in file
-        MOV     DL,ES:[BP.dpb_cluster_mask]
+        MOV     DL,[ES:BP+dpb_cluster_mask]
         MOV     DH,0
         INC     DX              ; DX=records/cluster
         MUL     DX              ; AX=max no. of records in file
@@ -455,9 +455,9 @@ HAVFRE:
         PUSH    ES
         LES     DI,[THISFCB]
         AND     BX,0FFFh
-        MOV     ES:[DI.fcb_FIRCLUS],BX
-        AND     ES:[DI.fcb_LSTCLUS],0F000h  ; clear out old lstclus
-        OR      ES:[DI.fcb_LSTCLUS],BX      ; or the new guy in...
+        MOV     [ES:DI+fcb_FIRCLUS],BX
+        AND     [ES:DI+fcb_LSTCLUS],0F000h  ; clear out old lstclus
+        OR      [ES:DI+fcb_LSTCLUS],BX      ; or the new guy in...
         POP     ES
         return
 ; ENDP ALLOCATE

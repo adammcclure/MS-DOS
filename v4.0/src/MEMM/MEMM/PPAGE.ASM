@@ -52,15 +52,15 @@ CPU 386
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-FIRST_SYSTEM_ROM_SEG_HI =  0F000h
-FIRST_SYSTEM_ROM_SEG_LO =  0E000h
-LAST_SYSTEM_ROM_SEG	=  0FFFFh
+FIRST_SYSTEM_ROM_SEG_HI equ 0F000h
+FIRST_SYSTEM_ROM_SEG_LO equ 0E000h
+LAST_SYSTEM_ROM_SEG equ 0FFFFh
 ;
-FIRST_VIDEO_MEM_SEG	=  0A000h
-LAST_VIDEO_MEM_SEG	=  0BFFFh
+FIRST_VIDEO_MEM_SEG equ 0A000h
+LAST_VIDEO_MEM_SEG equ 0BFFFh
 ;
-FIRST_CONV_UMAP_SEG	=  00000h
-LAST_CONV_UMAP_SEG	=  03FFFh
+FIRST_CONV_UMAP_SEG equ 00000h
+LAST_CONV_UMAP_SEG equ 03FFFh
 
 
 ;******************************************************************************

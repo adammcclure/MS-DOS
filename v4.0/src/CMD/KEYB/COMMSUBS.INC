@@ -20,10 +20,10 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-        extern FIND_SYS_TYPE   ;;
-        extern FIND_KEYB_TYPE  ;;
+        extern FIND_SYS_TYPE;;
+        extern FIND_KEYB_TYPE;;
                                        ;;
-        extern HW_TYPE         ;;
+        extern HW_TYPE;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -51,7 +51,7 @@ SECTION .CODE
 	i_need	DOS34_FLAG,WORD 	;AN000; 	2/12/KK
 
 	procedure   MakeFcb,NEAR
-ScanSeparator	=   1
+ScanSeparator equ 1
 DRVBIT	EQU	2
 NAMBIT	EQU	4
 EXTBIT	EQU	8
@@ -59,7 +59,7 @@ EXTBIT	EQU	8
 	XOR	DL,DL		; Flag--not ambiguous file name
 	TEST	AL,DRVBIT	; Use current drive field if default?
 	JNZ	DEFDRV
-	MOV	byte ES:[DI],0	; No - use default drive
+	MOV	byte [ES:DI],0	; No - use default drive
 DEFDRV:
 	INC	DI
 	MOV	CX,8
@@ -353,12 +353,12 @@ CHK1:
 	JB	GOTIT		; DOS 3.3
 	SUB	AL,80H		;translate to upper case with this index
 ;
-	XLAT	byte CS:[BX]
+	XLAT	byte [CS:BX]
 %if TableLook
 GOTIT:
 	PUSH	AX
 	MOV	BX,CharType
-	XLAT	byte CS:[BX]
+	XLAT	byte [CS:BX]
 
 	TEST	AL,fChk
 	POP	AX
@@ -389,7 +389,7 @@ entry	DELIM
 	PUSH	AX
 	PUSH	BX
 	MOV	BX,CharType
-	XLAT	byte CS:[BX]
+	XLAT	byte [CS:BX]
 	TEST	AL,fDelim
 	POP	BX
 	POP	AX
@@ -419,7 +419,7 @@ entry SPCHK
 	PUSH	AX
 	PUSH	BX
 	MOV	BX,CharType
-	XLAT	byte CS:[BX]
+	XLAT	byte [CS:BX]
 	TEST	AL,fSpChk
 	POP	BX
 	POP	AX

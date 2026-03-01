@@ -47,7 +47,7 @@ BREAK <NullDev -- Driver for null device>
 
 procedure   SNULDEV,FAR
 ; ASSUME DS:NOTHING,ES:NOTHING,SS:NOTHING
-	OR	ES:[BX.REQSTAT],STDON	; Set done bit
+	OR	[ES:BX+REQSTAT],STDON	; Set done bit
 entry INULDEV
 	RET				; MUST NOT BE A RETURN!
 EndProc SNULDEV
@@ -93,7 +93,7 @@ Procedure   AbsSetup,NEAR
 	Context DS
 	CALL	GETBP
 	JC	errdriv 		;PM. error drive			;AN000;
-	MOV	ES:[BP.dpb_free_cnt],-1 ; do not trust user at all.
+	MOV	[ES:BP+dpb_free_cnt],-1 ; do not trust user at all.
 errdriv:
 	POP	DS
 ; ASSUME	DS:NOTHING
@@ -173,7 +173,7 @@ TLEAVE:
 	MOV	DI,ERRIN    ; Point to error conditions
 	REPNE	SCASB
 	JNZ	LEAVECODE		; Not found
-	MOV	AH,ES:[DI+NUMERR-1]	; Get translation
+	MOV	AH,[ES:DI+NUMERR-1]	; Get translation
 LEAVECODE:
 	POP	ES
 	%endif
@@ -257,10 +257,10 @@ SkipGet:
 	POP	AX
 	retc
 	LES	BP,[THISCDS]
-	TEST	ES:[BP.curdir_flags],curdir_isnet   ; Clears carry
+	TEST	[ES:BP+curdir_flags],curdir_isnet   ; Clears carry
 	JZ	GETBP_CDS
-	LES	BP,ES:[BP.curdir_ifs_hdr]	    ;IFS. if remote file	;AN000;
-	TEST	ES:[BP.ifs_attribute],IFSREMOTE     ;IFS.			;AN000;
+	LES	BP,[ES:BP+curdir_ifs_hdr]	    ;IFS. if remote file	;AN000;
+	TEST	[ES:BP+ifs_attribute],IFSREMOTE     ;IFS.			;AN000;
 	LES	BP,[THISCDS]
 	JZ	GETBP_CDS			    ;IFS. then error		;AN000;
 	MOV	ExtErr,error_not_supported
@@ -268,7 +268,7 @@ SkipGet:
 	return
 
 GETBP_CDS:
-	LES	BP,ES:[BP.curdir_devptr]
+	LES	BP,[ES:BP+curdir_devptr]
 
 	entry	GOTDPB
 	DOSAssume   CS,<DS>,"GotDPB"
@@ -294,7 +294,7 @@ procedure   SYS_RETURN,NEAR
 entry	SYS_RET_OK
 	invoke	FETCHI_CHECK		; TAG checking for FETCHI
 	invoke	get_user_stack
-	AND	[SI.user_F],NOT f_Carry ; turn off user's carry flag
+	AND	[SI+user_F],NOT f_Carry ; turn off user's carry flag
 	JMP	SHORT DO_RET		; carry is now clear
 
 entry	SYS_RET_ERR
@@ -303,10 +303,10 @@ entry	SYS_RET_ERR
 	CALL	ErrorMap
 entry	From_GetSet
 	invoke	get_user_stack
-	OR	[SI.user_F],f_Carry	; signal carry to user
+	OR	[SI+user_F],f_Carry	; signal carry to user
 	STC				; also, signal internal error
 DO_RET:
-	MOV	[SI.user_AX],AX 	; Really only sets AH
+	MOV	[SI+user_AX],AX 	; Really only sets AH
 	return
 
 	entry	FCB_RET_OK
@@ -553,8 +553,8 @@ Procedure   RW32_CONVERT,NEAR
 	JZ	new32format		     ;>32mb  yes			;AN000;
 	PUSH	AX			     ;>32mb  save ax			;AN000;
 	PUSH	DX			     ;>32mb  save dx			;AN000;
-	MOV	AX,ES:[BP.dpb_max_cluster]   ;>32mb  get max cluster #		;AN000;
-	MOV	DL,ES:[BP.dpb_cluster_mask]  ;>32mb				;AN000;
+	MOV	AX,[ES:BP+dpb_max_cluster]   ;>32mb  get max cluster #		;AN000;
+	MOV	DL,[ES:BP+dpb_cluster_mask]  ;>32mb				;AN000;
 	CMP	DL,0FEH 		     ;>32mb  removable ?		;AN000;
 	JZ	letold			     ;>32mb  yes			;AN000;
 	INC	DL			     ;>32mb				;AN000;
@@ -569,11 +569,11 @@ letold:
 	STC				     ;>32mb				;AN000;
 	return				     ;>32mb				;AN000;
 new32format:
-	MOV	DX,word [BX.SECTOR_RBA+2];>32mb				;AN000;
+	MOV	DX,word [BX+SECTOR_RBA+2];>32mb				;AN000;
 	MOV	[HIGH_SECTOR],DX	     ;>32mb				;AN000;
-	MOV	DX,word [BX.SECTOR_RBA]  ;>32mb				;AN000;
-	MOV	CX,[BX.ABS_RW_COUNT]	     ;>32mb				;AN000;
-	LDS	BX,[BX.BUFFER_ADDR]	     ;>32mb				;AN000;
+	MOV	DX,word [BX+SECTOR_RBA]  ;>32mb				;AN000;
+	MOV	CX,[BX+ABS_RW_COUNT]	     ;>32mb				;AN000;
+	LDS	BX,[BX+BUFFER_ADDR]	     ;>32mb				;AN000;
 old_style:				     ;>32mb				;AN000;
 	CLC				     ;>32mb				;AN000;
 	return				     ;>32mb				;AN000;
@@ -600,7 +600,7 @@ topen:
 	MOV	AH,FastOpen_ID		      ; set fastseek installed		;AN000;
 dofast:
 	MOV	AL,FONC_purge		      ; purge				;AN000;
-	MOV	DL,ES:[BP.dpb_drive]	      ; set up drive number		;AN000;
+	MOV	DL,[ES:BP+dpb_drive]	      ; set up drive number		;AN000;
 	invoke	Fast_Dispatch		      ; call fastopen/seek		;AN000;
 nofast:
 	POP	DX								;AN000;

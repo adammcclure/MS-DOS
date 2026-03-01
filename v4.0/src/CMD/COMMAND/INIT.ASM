@@ -197,7 +197,7 @@ SECTION .INIT
 ; ASSUME	CS:RESGROUP,DS:RESGROUP,ES:RESGROUP,SS:RESGROUP
 
 	ORG	0
-ZERO	=	$
+ZERO equ $
 
 
 CONPROC:
@@ -209,7 +209,7 @@ CONPROC:
 	mov	ax,badver			;AN000; set DOS version
 	invoke	sysdispmsg			;AN000; must be incorrect version
 	mov	ax,es
-	cmp	es:[PDB_Parent_PID],AX		; If command is its own parent,
+	cmp	[es:PDB_Parent_PID],AX		; If command is its own parent,
 here:						;  loop forever.
 	Jz	here
 	int	20h				; Otherwise, exit.
@@ -312,11 +312,11 @@ set_msg_addr:
 	mov	dbcs_vector_addr+2,bx		;AN000;     dbcs vector
 
 
-	mov	ax,word ds:[PDB_Parent_PID] ; Init PARENT so we can exit
+	mov	ax,word [ds:PDB_Parent_PID] ; Init PARENT so we can exit
 	mov	[PARENT],ax			;  correctly.
-	MOV	AX,word DS:[PDB_Exit]
+	MOV	AX,word [DS:PDB_Exit]
 	MOV	word OldTerm,AX
-	MOV	AX,word DS:[PDB_Exit+2]
+	MOV	AX,word [DS:PDB_Exit+2]
 	MOV	word OldTerm+2,AX
 
 	MOV	AX,ENVIREND + 15
@@ -332,7 +332,7 @@ set_msg_addr:
 	MOV	AX, [RES_TPA]
 TPASET:
 	MOV	[LTPA],AX			; Good enough for the moment
-	MOV	AX,word DS:[PDB_block_len]	; ax = # of paras given to command
+	MOV	AX,word [DS:PDB_block_len]	; ax = # of paras given to command
 
 	MOV	[MYSEG1],DS			; These 3 variables are used as part of
 	MOV	[MYSEG2],DS			;  3 long ptrs that the transient will
@@ -355,7 +355,7 @@ TPASET:
 
 	SUB	AX,DX				; max seg addr - # para's needed for transient
 	MOV	[TRNSEG],AX			;  = seg addr to load the transient at.
-	MOV	AX,DS:[PDB_environ]		; ax = environment segment
+	MOV	AX,[DS:PDB_environ]		; ax = environment segment
 	OR	AX,AX				; If there is no environment segment,
 	JZ	BUILDENV			;  go compute one.
 	INC	byte [CHUCKENV]		; Flag no new ENVIRONSEG to set up
@@ -384,7 +384,7 @@ GOTTHEENVIR:
 	MOV	[COMSPECT],al			;  there is a new ENVIRONSEG) to
 	CMP	byte [CHUCKENV],0		;  backslash.
 	JNZ	IUSESLASH
-	MOV	ES:[ECOMSPEC],al		;eg
+	MOV	[ES:ECOMSPEC],al		;eg
 
 IUSESLASH:
 ;
@@ -395,7 +395,7 @@ IUSESLASH:
 	INC	AL
 	MOV	ComDrv,AL
 
-	MOV	AL,byte DS:[FCB]		; al = default drive number for command
+	MOV	AL,byte [DS:FCB]		; al = default drive number for command
 	OR	AL,AL
 	JZ	NoComDrv			; no drive specified
 
@@ -415,7 +415,7 @@ IUSESLASH:
 	MOV	CX,ENVIRONSIZ2 - 2
 	REP	MOVSB
 	POP	DS
-	MOV	word ES:[ECOMSPEC],AX
+	MOV	word [ES:ECOMSPEC],AX
 
 NOTWIDENV:
 	CLD					; Add the drivespec to the string
@@ -749,7 +749,7 @@ SETCOMSR:
 	MOV	SI,COMSPECT
 	MOV	CX,14
 
-	MOV	AL,ES:[DI-1]
+	MOV	AL,[ES:DI-1]
 
 ;;;;	IF	KANJI		3/3/KK
 	OR	AH,AH
@@ -857,7 +857,7 @@ ARGSDONE:
 	STOSW
 	MOV	AX,DS
 	STOSW
-	MOV	word DS:[PDB_Parent_PID],DS ; Parent is me forever
+	MOV	word [DS:PDB_Parent_PID],DS ; Parent is me forever
 
 	MOV	DX,INT_2E
 	MOV	AX,(SET_INTERRUPT_VECTOR SHL 8) OR 02EH
@@ -865,10 +865,10 @@ ARGSDONE:
 	POP	ES				;Remember environment
 
 COMRETURNS:
-	MOV	AX,word DS:[PDB_Parent_PID]
+	MOV	AX,word [DS:PDB_Parent_PID]
 	MOV	[PARENT],AX			; Save parent
-	MOV	word DS:[PDB_Parent_PID],DS ; Parent is me
-	MOV	AX,word DS:[PDB_JFN_Table]
+	MOV	word [DS:PDB_Parent_PID],DS ; Parent is me
+	MOV	AX,word [DS:PDB_JFN_Table]
 	MOV	[IO_SAVE],AX			; Get the default stdin and out
 	MOV	word [COM_PTR+2],DS 	; Set all these to resident
 	MOV	word [COM_FCB1+2],DS
@@ -900,7 +900,7 @@ COMRETURNS:
 	JNC	COPYCOMSP
 
 COMSPECNOFND:
-	MOV	SI,CS:[ECOMLOC] 		;AC062
+	MOV	SI,[CS:ECOMLOC] 		;AC062
 	ADD	SI,PATHSTRING
 	PUSH	CS
 	POP	DS
@@ -1357,7 +1357,7 @@ IFIND11:
 	LODSW
 	INC	DI
 	INC	DI
-	CMP	AX,ES:[DI-2]
+	CMP	AX,[ES:DI-2]
 	JNZ	IFIND12
 	DEC	CX
 	LOOP	IFIND11
@@ -1368,7 +1368,7 @@ NOTKANJ4:
 
 	CALL	IUPCONV
 	INC	DI
-	CMP	AL,ES:[DI-1]
+	CMP	AL,[ES:DI-1]
 	JNZ	IFIND12
 	LOOP	IFIND11
 
@@ -1380,7 +1380,7 @@ IFIND12:
 	PUSH	CX
 	CALL	ISCASB2 			; SCAN FOR A NUL
 	POP	CX
-	CMP	byte ES:[DI],0
+	CMP	byte [ES:DI],0
 	JNZ	IFIND1
 	STC					; INDICATE NOT FOUND
 

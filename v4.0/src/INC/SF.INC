@@ -13,9 +13,9 @@ BREAK <Internal system file table format>
 ;
 
 struc SF
-SFLink: dd 0
-SFCount: dw 0; number of entries
-SFTable: dw 0; beginning of array of the following
+SFLink: resd 1
+SFCount: resw 1; number of entries
+SFTable: resw 1; beginning of array of the following
 endstruc
 
 ;
@@ -23,11 +23,11 @@ endstruc
 ;
 
 struc sf_entry
-sf_ref_count: dw 0; number of processes sharing entry
+sf_ref_count: resw 1; number of processes sharing entry
 					;   if FCB then ref count
-sf_mode: dw 0; mode of access or high bit on if FCB
-sf_attr: db 0; attribute of file
-sf_flags: dw 0;Bits 8-15
+sf_mode: resw 1; mode of access or high bit on if FCB
+sf_attr: resb 1; attribute of file
+sf_flags: resw 1;Bits 8-15
 					; Bit 15 = 1 if remote file
 					;	 = 0 if local file or device
 					; Bit 14 = 1 if date/time is not to be
@@ -49,38 +49,38 @@ sf_flags: dw 0;Bits 8-15
 					;		Bit 1=1 if console output device
 					;		Bit 2=1 if null device
 					;		Bit 3=1 if clock device
-sf_devptr: dd 0; Points to DPB if local file, points
+sf_devptr: resd 1; Points to DPB if local file, points
 					; to device header if local device,
 					; points to net device header if
 					; remote
-sf_firclus: dw 0; First cluster of file (bit 15 = 0)
-sf_time: dw 0; Time associated with file
-sf_date: dw 0; Date associated with file
-sf_size: dd 0; Size associated with file
-sf_position: dd 0; Read/Write pointer or LRU count for FCBs
+sf_firclus: resw 1; First cluster of file (bit 15 = 0)
+sf_time: resw 1; Time associated with file
+sf_date: resw 1; Date associated with file
+sf_size: resd 1; Size associated with file
+sf_position: resd 1; Read/Write pointer or LRU count for FCBs
 ;
 ; Starting here, the next 7 bytes may be used by the file system to store an
 ; ID
 ;
-sf_cluspos: dw 0; Position of last cluster accessed
-sf_dirsec: dd 0; Sector number of directory sector for
+sf_cluspos: resw 1; Position of last cluster accessed
+sf_dirsec: resd 1; Sector number of directory sector for
 					; for this file
-sf_dirpos: db 0; Offset of this entry in the above
+sf_dirpos: resb 1; Offset of this entry in the above
 ;
 ; End of 7 bytes of file-system specific info.
 ;
-sf_name: times 11 db 0; 11 character name that is in the
+sf_name: resb 11; 11 character name that is in the
 					; directory entry.  This is used by
 					; close to detect file deleted and
 					; disk changed errors.
 
 ; SHARING INFO
-sf_chain: dd 0; link to next SF
-sf_UID: dw 0
-sf_PID: dw 0
-sf_MFT: dw 0
-sf_lstclus: dw 0;AN009; Last cluster accessed
-sf_IFS_HDR: dd 0
+sf_chain: resd 1; link to next SF
+sf_UID: resw 1
+sf_PID: resw 1
+sf_MFT: resw 1
+sf_lstclus: resw 1;AN009; Last cluster accessed
+sf_IFS_HDR: resd 1
 endstruc
 
 sf_fsda 	EQU	byte sf_cluspos	     ;DOS 4.00

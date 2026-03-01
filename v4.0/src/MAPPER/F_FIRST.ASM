@@ -39,10 +39,10 @@ FindDTAs:
 
                 global FindHandles
 FindHandles:
-FindDTAIndex    =       0
+FindDTAIndex equ 0
                 %rep MaxFinds
                 dw      FindDTAs + FindDTAIndex
-FindDTAIndex    =       FindDTAIndex + dtastr_size
+FindDTAIndex equ FindDTAIndex + dtastr_size
                 %endmacro
 
 
@@ -102,15 +102,15 @@ SECTION .dosxxx
 
 
 struc str
-old_bp: dw 0
-return: dd 0
+old_bp: resw 1
+return: resd 1
 ReservedZero    dd      0       ; reserved
-FindCountPtr: dd 0; number of entries to find
-FindBufferLen: dw 0; result buffer lenght
-FindBufferPtr: dd 0; result buffer pointer
-FileAttribute: dw 0; search attribute
-DirHandlePtr: dd 0; directory search handle
-PathNamePtr: dd 0; file path name pointer
+FindCountPtr: resd 1; number of entries to find
+FindBufferLen: resw 1; result buffer lenght
+FindBufferPtr: resd 1; result buffer pointer
+FileAttribute: resw 1; search attribute
+DirHandlePtr: resd 1; directory search handle
+PathNamePtr: resd 1; file path name pointer
 endstruc
 
 
@@ -140,7 +140,7 @@ DosFindFirst:
 ; Incoming DirHandle = -1 ==> allocate a new dir handle
 
         les     di,[bp].DirHandlePtr
-        mov     ax,es:[di]
+        mov     ax,[es:di]
         cmp     ax,-1
         je      AllocateHandle
 
@@ -154,7 +154,7 @@ DosFindFirst:
 ; if it is a valid (ie - previously allocated by us) DirHandle
 
         mov     si,ax                     ; verify it is an active handle
-        test    ds:[si],OpenedHandle
+        test    [ds:si],OpenedHandle
         jnz     HandleFound               ; jump if true
 
         mov     ax,6                      ; else set error code
@@ -167,7 +167,7 @@ AllocateHandle:
         dec     cx
 
 FindHandleLoop:
-        test    ds:[si],OpenedHandle
+        test    [ds:si],OpenedHandle
         jz      HandleFound
 
         add     si,2
@@ -182,13 +182,13 @@ FindHandleLoop:
 ; We have a handle, let's look for the file(s)
 
 HandleFound:
-        mov     ax,ds:[si]              ; get the dta pointer
-        or      ds:[si],OpenedHandle    ; allocate the handle
+        mov     ax,[ds:si]              ; get the dta pointer
+        or      [ds:si],OpenedHandle    ; allocate the handle
         and     ax,not OpenedHandle
         mov     CurrentDTA,ax
 
         les     di,[bp].DirHandlePtr    ; the handle number we return is the
-        mov     es:[di],si              ;  offset to the entry in FindSegment
+        mov     [es:di],si              ;  offset to the entry in FindSegment
 
 ; save the callers dta so we can restore it later
 
@@ -208,7 +208,7 @@ HandleFound:
 ; Get the count of files to search for
 
         les     di,[bp].FindCountPtr    ; load result buffer pointer
-        mov     ax,es:[di]              ; save the search
+        mov     ax,[es:di]              ; save the search
         mov     SearchCount,ax          ;                count
         mov     es:word [di],0      ; set found count to zero
 
@@ -259,15 +259,15 @@ BufferLengthOk:
 ;       es:di -> where we are to put the resultant data
 ;       ds:si -> DTA from find (either first or next)
 
-        mov     ax,ds:[si].DTAFileDate    ; save date
-        mov     es:[di].Create_Date,ax
-        mov     es:[di].Access_Date,ax
-        mov     es:[di].Write_Date,ax
+        mov     ax,[ds:si].DTAFileDate    ; save date
+        mov     [es:di].Create_Date,ax
+        mov     [es:di].Access_Date,ax
+        mov     [es:di].Write_Date,ax
 
-        mov     ax,ds:[si].DTAFileTime    ; save time
-        mov     es:[di].Create_Time,ax
-        mov     es:[di].Access_Time,ax
-        mov     es:[di].Write_Time,ax
+        mov     ax,[ds:si].DTAFileTime    ; save time
+        mov     [es:di].Create_Time,ax
+        mov     [es:di].Access_Time,ax
+        mov     [es:di].Write_Time,ax
 
         mov     ax,ds:word [si].DTAFileSize+0    ; save file size
         mov     es:word [di].File_Size+0,ax
@@ -284,32 +284,32 @@ BufferLengthOk:
 
 AllocateSizeSet:
         xor     ax,ax
-        mov     al,ds:[si].DTAFileAttrib
-        mov     es:[di].Attributes,ax
+        mov     al,[ds:si].DTAFileAttrib
+        mov     [es:di].Attributes,ax
 
         mov     cx,12
         mov     bx,0
 
 MoveNameLoop:
-        mov     al,ds:[si+bx].DTAFileName
+        mov     al,[ds:si+bx].DTAFileName
         cmp     al,0
         je      EndOfName
 
-        mov     es:[di+bx].File_Name,al
+        mov     [es:di+bx].File_Name,al
         inc     bx
         loop    MoveNameLoop
 
 EndOfName:
-        mov     es:[di+bx].File_Name,0
+        mov     [es:di+bx].File_Name,0
         mov     ax,bx
-        mov     es:[di].String_len,al
+        mov     [es:di].String_len,al
 
         add     di,bx
         mov     word ReturnBufferSave+0,di
         mov     word ReturnBufferSave+2,es
 
         les     di,[bp].FindCountPtr
-        inc     word es:[di]
+        inc     word [es:di]
 
 ;
 ;  Check if the request was for more than one

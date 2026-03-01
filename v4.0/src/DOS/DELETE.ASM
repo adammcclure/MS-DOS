@@ -41,7 +41,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	NoSetDir,BYTE
 	i_need	Creating,BYTE
@@ -101,8 +101,8 @@ Installed = TRUE
 ;			  Carry will NOT be set in this case.
 ; DS preserved, others destroyed
 
-fileFound   = 01h
-fileDeleted = 10h
+fileFound equ 01h
+fileDeleted equ 10h
 
 	procedure   DOS_DELETE,NEAR
 	DOSAssume   CS,<DS>,"DOS_Delete"
@@ -135,7 +135,7 @@ nofiles:
 ifsshare:
 
 
-%if NOT Installed
+%if ~Installed
 	transfer NET_DELETE
 %else
 	MOV	AX,(multNET SHL 8) OR 19
@@ -238,7 +238,7 @@ DELFILE:
 ;; Extended Attributes
 	TEST	[Attrib],attr_read_only ; are we deleting RO files too?
 	JNZ	DoDelete		; yes
-	TEST	DS:[BX.dir_attr],attr_read_only
+	TEST	[DS:BX+dir_attr],attr_read_only
 	JZ	DoDelete		; not read only
 	POP	DS
 	JMP	SHORT DelNxt		; Skip it (Note ES:BP not set)
@@ -251,10 +251,10 @@ DoDelete:
 
 DEL_SHARE_OK:
 	Assert	ISBUF,<DS,DI>,"Del_Share_OK"
-	TEST	[DI.buf_flags],buf_dirty  ;LB. if already dirty 		;AN000;
+	TEST	[DI+buf_flags],buf_dirty  ;LB. if already dirty 		;AN000;
 	JNZ	yesdirty		  ;LB.	  don't increment dirty count   ;AN000;
 	invoke	INC_DIRTY_COUNT 	  ;LB.					;AN000;
-	OR	[DI.buf_flags],buf_dirty
+	OR	[DI+buf_flags],buf_dirty
 yesdirty:
 	MOV	[BX],AH 		; Put in E5H or 0
 	MOV	BX,[SI] 		; Get firclus pointer
@@ -263,7 +263,7 @@ yesdirty:
 	OR	[FoundDel],fileDeleted	; Deleted file
 	CMP	BX,2
 	JB	DELEXT			; File has invalid FIRCLUS (too small)
-	CMP	BX,ES:[BP.dpb_max_cluster]
+	CMP	BX,[ES:BP+dpb_max_cluster]
 	JA	DELEXT			; File has invalid FIRCLUS (too big)
 ;; FastSeek 10/27/86
 	CALL	Delete_FSeek		; delete the fastseek entry
@@ -302,7 +302,7 @@ flsh:
 	JNC	DELFILE
 %endif
 	LES	BP,[THISDPB]		; NEXTENT sets ES=DOSGROUP
-	MOV	AL,ES:[BP.dpb_drive]
+	MOV	AL,[ES:BP+dpb_drive]
 	invoke	FLUSHBUF
 	JC	No_fileJ
 ;
@@ -324,7 +324,7 @@ flsh:
 	PUSH	DI
 	LES	DI,[THISCDS]
 ; ASSUME	ES:NOTHING
-	MOV	AH,byte ES:[DI]	; Get drive
+	MOV	AH,byte [ES:DI]	; Get drive
 	SUB	AH,'A'                  ; Convert to 0-based
 	mov	byte [VOLCHNG_FLAG],AH
 	XOR	BH,BH			;>32mb delte volume id from boot record ;AN000;
@@ -412,12 +412,12 @@ Break	<REN_DEL_Check - check for access for rename and delete>
 	XOR	AH,AH		; Indicate file to DOOPEN (high bit off)
 	invoke	DOOPEN		; Fill in SFT for share check
 	LES	DI,[THISSFT]
-	MOV	ES:[DI.sf_mode],sharing_deny_both   ; requires exclusive access
-	MOV	ES:[DI.sf_ref_count],1	; Pretend open
+	MOV	[ES:DI+sf_mode],sharing_deny_both   ; requires exclusive access
+	MOV	[ES:DI+sf_ref_count],1	; Pretend open
 	invoke	ShareEnter
 	jc	CheckDone
 	LES	DI,[THISSFT]
-	MOV	ES:[DI.sf_ref_count],0	; Pretend closed and free
+	MOV	[ES:DI+sf_ref_count],0	; Pretend closed and free
 	invoke	SHAREEND		; Tell sharer we're done with THISSFT
 	CLC
 CheckDone:
@@ -541,7 +541,7 @@ EndProc FastSeek_Open								;AN000;
 	MOV	SI,FastTable + 2	; index to the		;AN000;
 	ADD	SI,AX					; fastxxxx entry	;AN000;
 	POP	AX					; restore ax		;AN000;
-	CALL	dword CS:[SI]			; call fastseek 	;AN000;
+	CALL	dword [CS:SI]			; call fastseek 	;AN000;
 	return
 EndProc FSeek_dispatch
 
@@ -609,7 +609,7 @@ EndProc FastSeek_Delete 							;AN000;
 	PUSH	CX			; save regs				;AN000;
 	PUSH	DX								;AN000;
 	MOV	CX,BX			; first cluster #			;AN000;
-	MOV	DL,ES:[BP.dpb_drive]	; drive #				;AN000;
+	MOV	DL,[ES:BP+dpb_drive]	; drive #				;AN000;
 	CALL	FastSeek_Delete 	; call fastseek to delete an entry	;AN000;
 	POP	DX			; restore regs				;AN000;
 	POP	CX								;AN000;

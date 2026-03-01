@@ -22,7 +22,7 @@ SECTION .dosxxx
 	    ; .list
 
 struc str
-modeaddr: dw 0
+modeaddr: resw 1
 endstruc
 
 dosgetmachinemode:

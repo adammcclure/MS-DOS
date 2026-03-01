@@ -220,11 +220,11 @@ ok_exit:
 	ret			; bye!
 
 i67_off_err:				; set h/w error
-	mov	byte [bp.rAX+1],EMM_HW_MALFUNCTION
+	mov	byte [bp+rAX+1],EMM_HW_MALFUNCTION
 	jmp	ok_exit
 
 i67_inv_exit:				; set invalid function code error
-	mov	byte [bp.rAX+1],INVALID_FUNCTION
+	mov	byte [bp+rAX+1],INVALID_FUNCTION
 	jmp	ok_exit
 
 ; ENDP int67_entry

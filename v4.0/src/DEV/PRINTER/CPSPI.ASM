@@ -1581,7 +1581,7 @@ NAME_MATCHED :				;;
 	    PUSH    CX			;;
 					;;
 	    LEA     SI,BUF.PAR_EXTRACTO ;; was the LPT1/PRN defined before ?
-	    MOV     AX,CS:[SI].PAR_DNMO ;;
+	    MOV     AX,[CS:SI].PAR_DNMO ;;
 	    CMP     AX,0FFFFH		;;
 					;;
 	    JNE     DEV_COMPARE 	;; DI = PAR_DEVOT
@@ -1589,19 +1589,19 @@ NAME_MATCHED :				;;
 					;;
 					;; no device previousely defined
 	    MOV     AX,PSE.PAR_DNMO	;;
-	    MOV     CS:[SI].PAR_DNMO,AX ;; define device parameters for LPTn
+	    MOV     [CS:SI].PAR_DNMO,AX ;; define device parameters for LPTn
 					;;
 	    MOV     AX,PSE.PAR_DIDO	;;
-	    MOV     CS:[SI].PAR_DIDO,AX ;;
+	    MOV     [CS:SI].PAR_DIDO,AX ;;
 					;;
 	    MOV     AX,PSE.PAR_HWCPO	;;
-	    MOV     CS:[SI].PAR_HWCPO,AX ;;
+	    MOV     [CS:SI].PAR_HWCPO,AX ;;
 					;;
 	    MOV     AX,PSE.PAR_DESGO	;;
-	    MOV     CS:[SI].PAR_DESGO,AX ;;
+	    MOV     [CS:SI].PAR_DESGO,AX ;;
 					;;
 	    MOV     AX,PSE.PAR_PARMO	;;
-	    MOV     CS:[SI].PAR_PARMO,AX ;;
+	    MOV     [CS:SI].PAR_PARMO,AX ;;
 					;;
 					;;---------------------------------
 	    CALL    CHK_DID		;; define the STATE according to
@@ -1848,17 +1848,17 @@ DID_EXTRACT:;;
 	add	bx,bx			;; double to index [bx]
 	MOV	DX,BX			;;
 					;;
-	MOV	AX,DS:[SI].FONTSZ	;;
+	MOV	AX,[DS:SI].FONTSZ	;;
 	MOV	FSIZE[BX],AX		;; size of font buffer to be created
 					;;
-	MOV	AX,DS:[SI].HSLOTS	;;
+	MOV	AX,[DS:SI].HSLOTS	;;
 	CMP	AX,HARDSL_MAX		;;
 	JNA	LESS_HARDSL		;;
 	MOV	INIT_CHK, 0010H 	;; ERROR 0010H
 	POP	BX			;;
 	JMP	END_MATCH_BAD		;;
 LESS_HARDSL :				;;
-	CMP	AX,DS:[SI].HWCPMIN	;;
+	CMP	AX,[DS:SI].HWCPMIN	;;
 	JNB	VALID_HARDSL		;;
 	MOV	INIT_CHK, 0012H 	;; ERROR 0012H
 	POP	BX			;;
@@ -1867,7 +1867,7 @@ VALID_HARDSL :				;;
 	MOV	HRMAX[BX],AX		;;
 	MOV	CTMAX[BX],AX		;; will be reduced by the no. of hwcp
 					;;
-	MOV	AX,DS:[SI].RSLOTS	;;
+	MOV	AX,[DS:SI].RSLOTS	;;
 	CMP	AX,RAMSL_MAX		;;
 	JNA	LESS_RAMSL		;;
 	MOV	INIT_CHK, 0011H 	;; ERROR 0011H
@@ -1892,12 +1892,12 @@ HWCPgt: PUSH	DI			;; get the hwcp
 	push	bx			;;
 	mov	bx,dx			;;
 	MOV	HRMAX[BX],CX		;;
-	MOV	CX,DS:[SI].HWCPMIN	;;
+	MOV	CX,[DS:SI].HWCPMIN	;;
 	SUB	CTMAX[BX],CX		;; what is left becomes cartridge slot
 	pop	bx			;;
 	JMP	DESIGN			;;
 					;; hwcp to be defined
-chk_hwcp: MOV	AX,DS:[SI].HSLOTS	;; defined in printer_desc
+chk_hwcp: MOV	AX,[DS:SI].HSLOTS	;; defined in printer_desc
 	CMP	CX,AX			;;
 	JA	BAD_MATCH2		;;
 	CMP	CX,HARDSL_MAX		;;
@@ -1917,9 +1917,9 @@ HWCP_GOOD:				;; there are sufficient hard-slot for
 	MOV	AX,CTMAX[BX]		;;
 					;;
 	PUSH	CX			;; calculate what is left for cart_slot
-	CMP	CX,DS:[SI].HWCPMIN	;;
+	CMP	CX,[DS:SI].HWCPMIN	;;
 	JNB	MORE_THAN_HWCPMIN	;;
-	MOV	CX,DS:[SI].HWCPMIN	;;
+	MOV	CX,[DS:SI].HWCPMIN	;;
 MORE_THAN_HWCPMIN :			;;
 	SUB	AX,CX			;;
 	POP	CX			;;
@@ -1942,13 +1942,13 @@ FILL_HWCP:				;;
 	JZ	DESIGN_P		;;
 	INC	DI			;; next code page in PARSE table
 	INC	DI			;;
-	MOV	AX,ES:[DI]		;; get code page value
+	MOV	AX,[ES:DI]		;; get code page value
 					;;
 					;; IF THERE IS ANY REPETITIVE HWCP
 	push	dx			;;
 	push	bx			;;
 hwcp_norep :				;;
-	cmp	ax,cs:[bx].slt_cp	;;
+	cmp	ax,[cs:bx].slt_cp	;;
 	jne	hwcp_repnext		;;
 	pop	bx			;;
 	pop	dx			;;
@@ -1967,11 +1967,11 @@ hwcp_repnext:				;;
 	pop	bx			;;
 	pop	dx			;;
 					;;
-	MOV	CS:[SI].SLT_CP,AX	;;
-	MOV	AX,CS:[SI].SLT_AT	;; get the attributes
+	MOV	[CS:SI].SLT_CP,AX	;;
+	MOV	AX,[CS:SI].SLT_AT	;; get the attributes
 	OR	AX,AT_OCC		;; occupied
 	OR	AX,AT_HWCP		;; hwcp slot
-	MOV	CS:[SI].SLT_AT,AX	;;
+	MOV	[CS:SI].SLT_AT,AX	;;
 	INC	SI			;;
 	INC	SI			;; next slot
 	INC	SI			;; next slot
@@ -1997,7 +1997,7 @@ DESIGN: POP	DI			;; get the designate no.
 	AND	AX,AX			;;
 	JZ	DEF_RBUFMAX		;;
 					;;
-	CMP	CS:[SI].CLASS,1 	;;
+	CMP	[CS:SI].CLASS,1 	;;
 	JNE	DESIG_NOt_CLASS1	;;
 					;;
 	PUSH	BX			;; if there is any cartridge slot ?
@@ -2095,7 +2095,7 @@ DEFINE_BUFFER : 			;;
 					;;
 	PUSH	DI			;;
 	MOV	DI,AX			;;
-	MOV	AX,CS:[DI].CLASS	;;
+	MOV	AX,[CS:DI].CLASS	;;
 	MOV	BUF.PCLASS,AX		;;
 	POP	DI			;;
 					;;
@@ -2201,7 +2201,7 @@ MULTIPLE_DONE : 			;;
 	POP	DS			;;
 	MOV	BUF.RBUFMX,0		;;
 	MOV	SI,BUF.PDESCO		;;
-	MOV	SI,CS:[SI].SELH_O	;;
+	MOV	SI,[CS:SI].SELH_O	;;
 	XOR	CX,CX			;;
 	MOV	CL,CS:byte [SI]	;;
 	INC	CX			;; including the length byte
@@ -2233,7 +2233,7 @@ DEF_FThwcp :				;;
 	POP	ES			;;
 	MOV	DI,CTL5202_OFFS 	;; offset to the HWCP words
 					;;
-	MOV	AX,CS:[SI].SLT_CP	;;
+	MOV	AX,[CS:SI].SLT_CP	;;
 	MOV	ES:word [DI],AX	;;
 					;;
 	INC	SI			;;

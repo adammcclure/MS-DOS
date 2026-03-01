@@ -239,7 +239,7 @@ Map1:
 FINISH:
 	PUSH	CS		;Move to DS
 	POP	DS
-	XLAT	ds:[bx] 	;Get upper case character
+	XLAT	[ds:bx] 	;Get upper case character
 	POP	BX
 	POP	DS
 L_RET:	RET
@@ -258,9 +258,9 @@ SECTION .TABLE
 CANCHAR DB	CANCEL			;Cancel line character
 	global ESCCHAR
 ESCCHAR DB	ESCCH			;Lead-in character for escape sequences
-	%if NOT Rainbow
+	%if ~Rainbow
 ESCTAB:
-	%if NOT IBM
+	%if ~IBM
 	%if WANG
 	DB	0C0h			; ^Z inserter
 	DB	0C1H			; Copy one char
@@ -364,7 +364,7 @@ extern intCNE0;AN000; 2/17/KK
  %else;AN000;
 	invoke	$std_con_input_no_echo	; Get the second byte of the sequence
  %endif;AN000;
-	%if NOT Rainbow
+	%if ~Rainbow
 	MOV	CL,ESCTABLEN		; length of table for scan
 	PUSH	DI			; save DI (cannot change it!)
 	MOV	DI,ESCTAB   ; offset of second byte table

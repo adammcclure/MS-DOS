@@ -210,7 +210,7 @@ FIND11:
         LODSW
         INC     DI
         INC     DI
-        CMP     AX,ES:[DI-2]
+        CMP     AX,[ES:DI-2]
         JNZ     FIND12
         DEC     CX
         LOOP    FIND11
@@ -221,7 +221,7 @@ NOTKANJ3:
 
         CALL    UPCONV
         INC     DI
-        CMP     AL,ES:[DI-1]
+        CMP     AL,[ES:DI-1]
         JNZ     FIND12
         LOOP    FIND11
 FIND12:
@@ -232,7 +232,7 @@ FIND12:
         PUSH    CX
         CALL    SCASB2                  ; SCAN FOR A NUL
         POP     CX
-        CMP     byte ES:[DI],0
+        CMP     byte [ES:DI],0
         JNZ     FIND1
         STC                             ; INDICATE NOT FOUND
         return
@@ -256,7 +256,7 @@ COUNTX:
         return
 
 MOVE_NAME:
-        CMP     byte DS:[SI],13
+        CMP     byte [DS:SI],13
         retz
         LODSB
 
@@ -294,7 +294,7 @@ SCAN_DOUBLE_NULL:
         XOR     DI,DI
 SDN1:
         CALL    SCASB2
-        CMP     byte ES:[DI],0
+        CMP     byte [ES:DI],0
         JNZ     SDN1
         return
 
@@ -339,7 +339,7 @@ UPCONV:
         JA      RET22C
         SUB     AL,20H          ; Lower-case changed to upper-case
 RET22C:
-        CALL    dword CS:[INTERNATVARS.Map_call]
+        CALL    dword [CS:INTERNATVARS.Map_call]
         return
 ;
 ; STORE A CHAR IN environment, GROWING IT IF NECESSARY
@@ -377,7 +377,7 @@ STORE_CHAR:
         JMP     CERROR
 STORE1:
         STOSB
-        MOV     word ES:[DI],0            ; NULL IS AT END
+        MOV     word [ES:DI],0            ; NULL IS AT END
         POP     BX
         POP     CX
         return
@@ -392,7 +392,7 @@ GETENVSIZ:
         MOV     AX,ES
         DEC     AX              ;Point at arena
         MOV     ES,AX
-        MOV     AX,ES:[arena_size]
+        MOV     AX,[ES:arena_size]
         MOV     CL,4
         SHL     AX,CL           ;Convert to bytes
         MOV     CX,AX
@@ -413,9 +413,9 @@ PWD:
         return
 
 PRINT_DEFAULT_DIRECTORY:
-        MOV     byte DS:[FCB],0
+        MOV     byte [DS:FCB],0
 PRINT_DIRECTORY:
-        MOV     DL,DS:[FCB]
+        MOV     DL,[DS:FCB]
         MOV     AL,DL
         ADD     AL,'@'
         CMP     AL,'@'
@@ -446,12 +446,12 @@ $EXIT:
         MOV     ES,[RESSEG]
 ; ASSUME  ES:RESGROUP
         MOV     AX,[PARENT]
-        MOV     word ES:[PDB_Parent_PID],AX
+        MOV     word [ES:PDB_Parent_PID],AX
 
 %if IBM
         CMP     [PERMCOM],0
         JNZ     NORESETVEC      ;Don't reset the vector if a PERMCOM
-        LDS     DX,dword ES:[SYS_CALL]
+        LDS     DX,dword [ES:SYS_CALL]
 ; ASSUME  DS:NOTHING
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) + INT_COMMAND
         INT     int_command
@@ -509,7 +509,7 @@ RESRET:
         MOV     DS,[RESSEG]
 ; ASSUME  DS:RESGROUP
         PUSH    DS
-        MOV     AX,word DS:[PDB_JFN_Table]           ; Get new 0 and 1
+        MOV     AX,word [DS:PDB_JFN_Table]           ; Get new 0 and 1
         MOV     [IO_SAVE],AX
         MOV     AX,LODCOM1
         PUSH    AX

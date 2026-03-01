@@ -111,7 +111,7 @@ LOCSTRT:
         MOV     SI,81H
         MOV     BX,DATA
         MOV     ES,BX
-        MOV     BX,word DS:[2]      ;Get size of memory
+        MOV     BX,word [DS:2]      ;Get size of memory
 
         ; assume  es:data
 
@@ -166,7 +166,7 @@ sj1:
         jmp     short sj0               ;       }
 sj2:
         dec     si                      ;   p--;
-        mov     byte es:[di],00h    ;   *d = 0;
+        mov     byte [es:di],00h    ;   *d = 0;
         call    kill_bl                 ;   if (End(p))
         jnc     get_second
         cmp     byte [file1+1],':'  ; Drive spec on first file?
@@ -208,7 +208,7 @@ sj4:
         stosb                           ;       *d++ = c;
         jmp     short sj3               ;       }
 sj5:
-        mov     byte es:[di],00h    ;   *d = 0;
+        mov     byte [es:di],00h    ;   *d = 0;
         mov     ah,Set_DMA              ; Use find_first to see if file2 is
         mov     dx,dma_buf       ; a directory.  If it isn't, go to
         push    es                      ; chex_ext.  If it is, put a back-
@@ -223,7 +223,7 @@ sj5:
         jNZ     DoDirectory
         jmp     Check_Ext
 CheckDrive:
-        CMP     byte ES:[DI-1],':'
+        CMP     byte [ES:DI-1],':'
         JNZ     Check_Ext               ; if char is not a : then skip
         JMP     SetSecond               ; presume drive:
 DoDirectory:
@@ -472,7 +472,7 @@ RDCMP:
         MOV     AX,[RELSEG]             ;Get segment
         ADD     AX,BX                   ;Bias segment with actual load segment
         MOV     ES,AX
-        ADD     ES:[DI],BP              ;Relocate
+        ADD     [ES:DI],BP              ;Relocate
         DEC     [RELCNT]                ;Count off
         JNZ     RELOC
 STORE:

@@ -2,11 +2,11 @@ BREAK <Device table and SRH definition>
 
 ; The device table list has the form:
 struc SYSDEV
-SDEVNEXT: dd 0;Pointer to next device header
-SDEVATT: dw 0;Attributes of the device
-SDEVSTRAT: dw 0;Strategy entry point
-SDEVINT: dw 0;Interrupt entry point
-SDEVNAME: times 8 db 0;Name of device (only first byte used for block)
+SDEVNEXT: resd 1;Pointer to next device header
+SDEVATT: resw 1;Attributes of the device
+SDEVSTRAT: resw 1;Strategy entry point
+SDEVINT: resw 1;Interrupt entry point
+SDEVNAME: resb 8;Name of device (only first byte used for block)
 endstruc
 
 ;
@@ -82,11 +82,11 @@ ISCIN	    EQU     0001H		      ;Bit 0 - This device is the console input.
 
 ;Static Request Header
 struc SRHEAD
-REQLEN: db 0;Length in bytes of request block
-REQUNIT: db 0;Device unit number
-REQFUNC: db 0;Type of request
-REQSTAT: dw 0;Status Word
-	times 8 db 0;Reserved for queue links
+REQLEN: resb 1;Length in bytes of request block
+REQUNIT: resb 1;Device unit number
+REQFUNC: resb 1;Type of request
+REQSTAT: resw 1;Status Word
+	resb 8;Reserved for queue links
 endstruc
 
 ;Status word masks

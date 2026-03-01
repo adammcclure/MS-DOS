@@ -80,15 +80,15 @@ DSK_TBL:DW      DSK_INI         ;0  - Initialize Driver.
 ;Define offsets for io data packet
 
 struc IODAT
-CMDLEN: db 0;LENGTH OF THIS COMMAND
-UNIT: db 0;SUB UNIT SPECIFIER
-CMD: db 0;COMMAND CODE
-STATUS: dw 0;STATUS
-        times 8 db 0
-MEDIA: db 0;MEDIA DESCRIPTOR
-TRANS: dd 0;TRANSFER ADDRESS
-COUNT: dw 0;COUNT OF BLOCKS OR CHARACTERS
-START: dw 0;FIRST BLOCK TO TRANSFER
+CMDLEN: resb 1;LENGTH OF THIS COMMAND
+UNIT: resb 1;SUB UNIT SPECIFIER
+CMD: resb 1;COMMAND CODE
+STATUS: resw 1;STATUS
+        resb 8
+MEDIA: resb 1;MEDIA DESCRIPTOR
+TRANS: resd 1;TRANSFER ADDRESS
+COUNT: resw 1;COUNT OF BLOCKS OR CHARACTERS
+START: resw 1;FIRST BLOCK TO TRANSFER
 endstruc
 
 PTRSAV  DD      0               ;Strategy pointer save.
@@ -103,8 +103,8 @@ PTRSAV  DD      0               ;Strategy pointer save.
 STRATP:
 
 STRATEGY:
-        MOV     word CS:[PTRSAV],BX
-        MOV     word CS:[PTRSAV+2],ES
+        MOV     word [CS:PTRSAV],BX
+        MOV     word [CS:PTRSAV+2],ES
         RET
 
 ; ENDP STRATP
@@ -132,21 +132,21 @@ ENTRY:  PUSH    AX              ;Save all nessacary registers.
         PUSH    ES
         PUSH    BX
 
-        LDS     BX,CS:[PTRSAV]  ;Retrieve pointer to I/O Packet.
+        LDS     BX,[CS:PTRSAV]  ;Retrieve pointer to I/O Packet.
 
-        MOV     AL,[BX.UNIT]    ;AL = Unit code.
-        MOV     AH,[BX.MEDIA]   ;AH = Media descriptor.
-        MOV     CX,[BX.COUNT]   ;CX = Contains byte/sector count.
-        MOV     DX,[BX.START]   ;DX = Starting Logical sector.
+        MOV     AL,[BX+UNIT]    ;AL = Unit code.
+        MOV     AH,[BX+MEDIA]   ;AH = Media descriptor.
+        MOV     CX,[BX+COUNT]   ;CX = Contains byte/sector count.
+        MOV     DX,[BX+START]   ;DX = Starting Logical sector.
         XCHG    DI,AX           ;Save Unit and Media Temporarily.
-        MOV     AL,[BX.CMD]     ;Retrieve Command type. (1 => 11)
+        MOV     AL,[BX+CMD]     ;Retrieve Command type. (1 => 11)
         XOR     AH,AH           ;Clear upper half of AX for calculation.
         ADD     SI,AX           ;Compute entry pointer in dispatch table.
         ADD     SI,AX
         CMP     AL,11           ;Verify that not more than 11 commands.
         JA      CMDERR          ;Ah, well, error out.
         XCHG    AX,DI
-        LES     DI,[BX.TRANS]   ;DI contains addess of Transfer address.
+        LES     DI,[BX+TRANS]   ;DI contains addess of Transfer address.
                                 ;ES contains segment.
         PUSH    CS
         POP     DS              ;Data segment same as Code segment.
@@ -188,8 +188,8 @@ ERR_EXIT:
 EXITP:;Normal exit for device drivers.
 
 EXIT:   MOV     AH,00000001B    ;Set done bit for MSDOS.
-EXIT1:  LDS     BX,CS:[PTRSAV]
-        MOV     [BX.STATUS],AX  ;Save operation compete and status.
+EXIT1:  LDS     BX,[CS:PTRSAV]
+        MOV     [BX+STATUS],AX  ;Save operation compete and status.
 
         POP     BX              ;Restore registers.
         POP     ES
@@ -238,20 +238,20 @@ hd_rmsk equ     9ch
 ;
 
 struc SIOPB
-        times 4 db 0;Monitor Use Only
-OPCODE: db 0;I/O operation code.
-DRIVE: db 0;Logical drive spec.
-TRACK: dw 0;Logical track number.
-HEAD: db 0;Logical head number.
-SECTOR: db 0;Logical sector to start with.
-SCOUNT: db 0;Number of logical sectors in buffer.
-RETCODE: db 0;Error code after masking.
-RETMASK: db 0;Error mask.
-RETRIES: db 0;Number of retries before error exit.
-DMAOFF: dw 0;Buffer offset address.
-DMASEG: dw 0;Buffer segment.
-SECLENG: dw 0;Sector Length.
-        times 6 db 0;8089 use only.
+        resb 4;Monitor Use Only
+OPCODE: resb 1;I/O operation code.
+DRIVE: resb 1;Logical drive spec.
+TRACK: resw 1;Logical track number.
+HEAD: resb 1;Logical head number.
+SECTOR: resb 1;Logical sector to start with.
+SCOUNT: resb 1;Number of logical sectors in buffer.
+RETCODE: resb 1;Error code after masking.
+RETMASK: resb 1;Error mask.
+RETRIES: resb 1;Number of retries before error exit.
+DMAOFF: resw 1;Buffer offset address.
+DMASEG: resw 1;Buffer segment.
+SECLENG: resw 1;Sector Length.
+        resb 6;8089 use only.
 endstruc
 
 IOPB    SIOPB   <,0,0,0,0,0,0,0,0,0,0,0,0,>
@@ -261,25 +261,25 @@ IOPB    SIOPB   <,0,0,0,0,0,0,0,0,0,0,0,0,>
 
 struc DBP
 
-JMPNEAR: times 3 db 0;Jmp Near xxxx  for boot.
-NAMEVER: times 8 db 0;Name / Version of OS.
+JMPNEAR: resb 3;Jmp Near xxxx  for boot.
+NAMEVER: resb 8;Name / Version of OS.
 
 ;-------  Start of Drive Parameter Block.
 
-SECSIZE: dw 0;Sector size in bytes.                  (dpb)
-ALLOC: db 0;Number of sectors per alloc. block.    (dpb)
-RESSEC: dw 0;Reserved sectors.                      (dpb)
-FATS: db 0;Number of FAT's.                       (dpb)
-MAXDIR: dw 0;Number of root directory entries.      (dpb)
-SECTORS: dw 0;Number of sectors per diskette.        (dpb)
-MEDIAID: db 0;Media byte ID.                         (dpb)
-FATSEC: dw 0;Number of FAT Sectors.                 (dpb)
+SECSIZE: resw 1;Sector size in bytes.                  (dpb)
+ALLOC: resb 1;Number of sectors per alloc. block.    (dpb)
+RESSEC: resw 1;Reserved sectors.                      (dpb)
+FATS: resb 1;Number of FAT's.                       (dpb)
+MAXDIR: resw 1;Number of root directory entries.      (dpb)
+SECTORS: resw 1;Number of sectors per diskette.        (dpb)
+MEDIAID: resb 1;Media byte ID.                         (dpb)
+FATSEC: resw 1;Number of FAT Sectors.                 (dpb)
 
 ;-------  End of Drive Parameter Block.
 
-SECTRK: dw 0;Number of Sectors per track.
-HEADS: dw 0;Number of heads per cylinder.
-HIDDEN: dw 0;Number of hidden sectors.
+SECTRK: resw 1;Number of Sectors per track.
+HEADS: resw 1;Number of heads per cylinder.
+HIDDEN: resw 1;Number of hidden sectors.
 
 endstruc
 
@@ -303,8 +303,8 @@ INI_TAB DW      HDDRIVE.SECSIZE
 ;       [MEDIA FLAG] = 1 if not changed.
 ;
 
-MEDIAC: LDS     BX,CS:[PTRSAV]
-        MOV     byte [BX.TRANS],1
+MEDIAC: LDS     BX,[CS:PTRSAV]
+        MOV     byte [BX+TRANS],1
         JMP     EXIT
 
         ; PAGE
@@ -323,9 +323,9 @@ MEDIAC: LDS     BX,CS:[PTRSAV]
 
 GET_BPB:
         MOV     SI,HDDRIVE+11
-        LDS     BX,CS:[PTRSAV]
-        MOV     word [BX.COUNT],SI
-        MOV     word [BX.COUNT+2],CS
+        LDS     BX,[CS:PTRSAV]
+        MOV     word [BX+COUNT],SI
+        MOV     word [BX+COUNT+2],CS
         JMP     EXIT
 
         ; PAGE
@@ -358,28 +358,28 @@ DSK_COM:
         MOV     SI,HDDRIVE       ;Keeps code size down.
         MOV     [IOPB.DMASEG],ES
         MOV     [IOPB.DMAOFF],DI
-        MOV     DI,[SI.SECSIZE]
+        MOV     DI,[SI+SECSIZE]
         MOV     [IOPB.SECLENG],DI
         MOV     [IOPB.RETRIES],1
         MOV     [IOPB.RETMASK],05DH     ;Error return mask.
         MOV     [IOPB.OPCODE],AH
         MOV     [IOPB.DRIVE],4		;Drive 4 is only available.
-        ADD     DX,[SI.HIDDEN]          ;Account for invisible sectors.
+        ADD     DX,[SI+HIDDEN]          ;Account for invisible sectors.
         MOV     BP,CX                   ;Save number of sectors to R/W
 DSK_IO1:
         PUSH    DX                      ;Save starting sector.
         MOV     AX,DX
         MOV     DX,0                    ;32 bit divide coming up.
-        MOV     CX,[SI.SECTRK]
+        MOV     CX,[SI+SECTRK]
         DIV     CX                      ;Get track+head and start sector.
         MOV     [IOPB.SECTOR],DL        ;Starting sector.
         MOV     BL,DL                   ;Save starting sector for later.
         MOV     DX,0
-        MOV     CX,[SI.HEADS]
+        MOV     CX,[SI+HEADS]
         DIV     CX                      ;Compute head we are on.
         MOV     [IOPB.HEAD],DL
         MOV     [IOPB.TRACK],AX         ;Track to read/write.
-        MOV     AX,[SI.SECTRK]          ;Now see how many sectors
+        MOV     AX,[SI+SECTRK]          ;Now see how many sectors
         INC     AL                      ;  we can burst read.
         SUB     AL,BL                   ;BL is the starting sector.
         MOV     AH,0
@@ -402,7 +402,7 @@ DSK_IO3:MOV     [IOPB.SCOUNT],AL
         OR      AL,AL
         JNZ     DERROR
         MOV     AX,DI                   ;Retrieve number of sectors read.
-        MOV     CX,[SI.SECSIZE]         ;Number of bytes per sector.
+        MOV     CX,[SI+SECSIZE]         ;Number of bytes per sector.
         PUSH    DX
         MUL     CX
         POP     DX
@@ -427,8 +427,8 @@ SERR1:  MOV     AL,12
 ;
 
 DERROR:
-        LDS     BX,CS:[PTRSAV]
-        MOV     [BX.COUNT],0
+        LDS     BX,[CS:PTRSAV]
+        MOV     [BX+COUNT],0
         PUSH    CS
         POP     DS
 
@@ -437,7 +437,7 @@ DERROR:
         MOV     BH,14           ;Lenght of table.
         MOV     SI,DERRTAB
 DERROR2:INC     BL              ;Increment to next error code.
-        LODS    byte CS:[SI]
+        LODS    byte [CS:SI]
         CMP     AH,AL           ;See if error code matches disk status.
         JZ      DERROR3         ;Got the right error, exit.
         DEC     BH
@@ -487,12 +487,12 @@ ROM_CALL:
         ; SUBTTL  Hard Disk Drive initalization routine.
 
 DSK_INI:
-        LDS     BX,CS:[PTRSAV]
-        MOV     byte [BX.MEDIA],1
-        MOV     word [BX.TRANS],DSK_INI
-        MOV     word [BX.TRANS+2],CS
-        MOV     word [BX.COUNT],INI_TAB
-        MOV     word [BX.COUNT+2],CS
+        LDS     BX,[CS:PTRSAV]
+        MOV     byte [BX+MEDIA],1
+        MOV     word [BX+TRANS],DSK_INI
+        MOV     word [BX+TRANS+2],CS
+        MOV     word [BX+COUNT],INI_TAB
+        MOV     word [BX+COUNT+2],CS
         JMP     EXIT
 
 ; END SECTION .CODE

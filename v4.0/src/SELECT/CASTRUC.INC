@@ -19,7 +19,7 @@ PCB_UCOL       DW   0			     ;AN000;column location of panel
 PCB_WIDTH      DW   0			     ;AN000;text char width of panel
 PCB_MAXSIZE    DW   0			     ;AN000;Max poss panel sizing in text
 PCB_CCBID      DW   0			     ;AN000;Index number of log color
-PCB_BORDER: times 8 db 0;AN000;8 log border characters
+PCB_BORDER: resb 8;AN000;8 log border characters
 PCB_COMPLEN    DW   0			     ;AN000;Length compress panel in mem
 PCB_COMPOFF    DW   0			     ;AN000;Off addr compressed panel
 PCB_COMPSEG    DW   0			     ;AN000;Seg addr compressed panel
@@ -178,9 +178,9 @@ CHD_PCB DW	0			     ;AN000;child PCB element number
 CHD_ROW DW	0			     ;AN000;row override
 CHD_COL DW	0			     ;AN000;column override
 CHD_INX DW	0			     ;AN000;color index pointer override
-	DW	0			     ;AN000;function key attribute
-	DB	0,0			     ;AN000;keystroke associated with child
-	DW	0			     ;AN000;option word
+	resw 1;AN000;function key attribute
+	resb 1;AN000;keystroke associated with child
+	resw 1;AN000;option word
 endstruc;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;

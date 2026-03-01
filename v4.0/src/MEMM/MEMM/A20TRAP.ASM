@@ -407,7 +407,7 @@ togl_A20:
 ; in the base address.
 ;
 w64_loop:
-	xor	dword es:[di], WRAP_BIT
+	xor	dword [es:di], WRAP_BIT
 	add	di,4
 	loop	w64_loop
 ;

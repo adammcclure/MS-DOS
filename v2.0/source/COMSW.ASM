@@ -1,6 +1,6 @@
 ; Use the following booleans to set assembly flags
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 IBMVER  EQU     true  ; Switch to build IBM version of Command
 IBM     EQU     IBMVER

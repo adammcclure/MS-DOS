@@ -355,8 +355,8 @@ DirNFFix:
 ; and reset our directory afterward.
 ;
 DoSearch:
-	mov	byte DS:[FCB-7],0FFH
-	mov	byte DS:[FCB-1],010H
+	mov	byte [DS:FCB-7],0FFH
+	mov	byte [DS:FCB-1],010H
 ;
 ; Caution!  Since we are using an extended FCB, we will *also* be returning
 ; the directory information as an extended FCB.  We must bias all fetches into
@@ -553,7 +553,7 @@ mmessage:
 	mov	dir_num,si
 	call	std_printf
 	mov	ah,Get_Drive_Freespace
-	mov	dl,byte DS:[FCB]
+	mov	dl,byte [DS:FCB]
 	int	int_command
 	cmp	ax,-1
 	retz

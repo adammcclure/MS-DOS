@@ -35,7 +35,7 @@ EXTBIT  EQU     8
         XOR     DL,DL           ; Flag--not ambiguous file name
         TEST    AL,DRVBIT       ; Use current drive field if default?
         JNZ     DEFDRV
-        MOV     byte ES:[DI],0      ; No - use default drive
+        MOV     byte [ES:DI],0      ; No - use default drive
 DEFDRV:
         INC     DI
         MOV     CX,8
@@ -140,7 +140,7 @@ NOSTAR:
         DEC     CX
         JMP     SHORT NOTDUAL3
 BNDERR:
-        MOV     byte ES:[DI-1]," "  ; patch up that space
+        MOV     byte [ES:DI-1]," "  ; patch up that space
         JMP     MustGetWord             ; go back and scan until delim
 
 NOTDUAL3:
@@ -434,7 +434,7 @@ CHK1:
         MOV     SI,[Current_Country]
         ADD     SI,Map_call
         PUSH    CS              ; CS for long return
-        CALL    word CS:[SI]
+        CALL    word [CS:SI]
         POP     SI
         entry   CHK
         CMP     AL,"."

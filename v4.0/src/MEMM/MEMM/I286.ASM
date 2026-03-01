@@ -132,16 +132,16 @@ SetDescInfo:
 
 ;	fill in the limit field
 
-	mov	es:[bx],cx
+	mov	[es:bx],cx
 
 ;	fill in base address
 
-	mov	es:[bx + 2],dx
-	mov	es:[bx + 4],al
+	mov	[es:bx + 2],dx
+	mov	[es:bx + 4],al
 
 ;	fill in access rights byte
 
-	mov	es:[bx + 5],ah
+	mov	[es:bx + 5],ah
 	pop	bx
 	ret
 ; ENDP SetDescInfo

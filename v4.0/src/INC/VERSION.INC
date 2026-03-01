@@ -12,8 +12,8 @@
 ;
 ; Use the following switches to control cmacros.inc
 ;
-?PLM       =       0
-?WIN       =       0
+?PLM equ 0
+?WIN equ 0
 
 memS       EQU     1			; Small model
 ;
@@ -34,10 +34,10 @@ memS       EQU     1			; Small model
 IBMVER     EQU     TRUE
 IBMCOPYRIGHT EQU   FALSE
 
-BUFFERFLAG	EQU	NOT IBMCOPYRIGHT
+BUFFERFLAG	EQU	~IBMCOPYRIGHT
 
 %ifndef MSVER
-MSVER      EQU     NOT IBMVER
+MSVER      EQU     ~IBMVER
 %endif
 IBM	   EQU	   IBMVER
 ;
@@ -50,7 +50,7 @@ IBM	   EQU	   IBMVER
 	      %warning ... CLONE version build switch on ...
 	    %endif
 	%else
-	    %if NOT IBMCOPYRIGHT
+	    %if ~IBMCOPYRIGHT
 	      %warning ... MS version build switch on ...
 	    %else
 	      %warning !!!!!!!!!  VERSION SWITCHES SET INCORECTLY  !!!!!!!!!

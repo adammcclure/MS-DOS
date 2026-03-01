@@ -20,8 +20,8 @@
                                        ;;
         extern COPY_SD_AREA;;
                                        ;;
-        extern SD_DEST_PTR ;;
-        extern SHARED_DATA ;;
+        extern SD_DEST_PTR;;
+        extern SHARED_DATA;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

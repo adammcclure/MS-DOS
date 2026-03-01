@@ -953,7 +953,7 @@ OPTAB   DB      11111111B               ; DB
         DW      NO_OPER
 
 zzopcode:
-MAXOP   = (zzopcode-optab)/3
+MAXOP equ (zzopcode-optab)/3
 
 SHFTAB  DW             ROLMN,RORMN,RCLMN
         DW             RCRMN,SHLMN,SHRMN

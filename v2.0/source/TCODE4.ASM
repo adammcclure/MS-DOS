@@ -120,8 +120,8 @@ NOTEST:
         JMP     NOTFNDERR                       ; Can't DIR a device
 OKDODIR:
         MOV     AH,DIR_SEARCH_FIRST
-        MOV     byte DS:[FCB-7],0FFH
-        MOV     byte DS:[FCB-1],010H
+        MOV     byte [DS:FCB-7],0FFH
+        MOV     byte [DS:FCB-1],010H
         POPF
         JC      SHOWDIR                         ; Current dir
         JZ      DOFIRST                         ; FCB is *.*
@@ -308,7 +308,7 @@ NOTEST3:
         CALL    SCANOFF
         MOV     AX,(PARSE_FILE_DESCRIPTOR SHL 8) OR 01H
         INT     int_command
-        CMP     byte DS:[FCB+10H+1]," "  ; Check if parameter exists
+        CMP     byte [DS:FCB+10H+1]," "  ; Check if parameter exists
         MOV     DX,BADARGS
         JZ      ERRJ            ; Error if missing parameter
         MOV     AH,FCB_RENAME
@@ -386,7 +386,7 @@ RET56:
 VOLUME:
         mov     si,81H
         call    SCANOFF         ; Skip to first non-delim
-        CMP     byte DS:[FCB],0     ;Default drive?
+        CMP     byte [DS:FCB],0     ;Default drive?
         JZ      CHECKNOARG              ;Yes
         INC     SI
         INC     SI      ;Skip over d:
@@ -636,7 +636,7 @@ DATINIT:
         MOV     DX,INTERNATVARS        ;Set up internat vars
         MOV     AX,INTERNATIONAL SHL 8
         INT     21H
-        MOV     word DS:[81H],13    ; Want to prompt for date during initialization
+        MOV     word [DS:81H],13    ; Want to prompt for date during initialization
         MOV     [COMBUF],COMBUFLEN      ; Init COMBUF
         MOV     word [COMBUF+1],0D01H
         CALL    DATE
@@ -900,7 +900,7 @@ T24:
         CALL    P_TSEP
         MOV     AL,DH
         CALL    OUT2
-        %if NOT IBMJAPAN
+        %if ~IBMJAPAN
         MOV     AL,"."
         STOSB
         MOV     AL,DL

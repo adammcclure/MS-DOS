@@ -227,8 +227,8 @@ PIPEERRJ:
 no_pipeerr:
 	MOV	BX,AX
 	MOV	AL,0FFH
-	XCHG	AL,[BX.PDB_JFN_Table]
-	MOV	DS:[PDB_JFN_Table],AL		; Redirect
+	XCHG	AL,[BX+PDB_JFN_Table]
+	MOV	[DS:PDB_JFN_Table],AL		; Redirect
 
 FIRSTPIPE:
 	MOV	DI,COMBUF + 2
@@ -270,7 +270,7 @@ NOTKANJ5:
 	CMP	AL,vbar
 	JNZ	PIPECOMLP
 IsPipe2:
-	MOV	byte ES:[DI-1],0DH
+	MOV	byte [ES:DI-1],0DH
 	DEC	CX
 	MOV	[COMBUF+1],CL
 	DEC	SI
@@ -284,8 +284,8 @@ IsPipe2:
 	JC	PIPEERRJ			; Lost the file
 	MOV	BX,AX
 	MOV	AL,0FFH
-	XCHG	AL,[BX.PDB_JFN_Table]
-	MOV	DS:[PDB_JFN_Table+1],AL
+	XCHG	AL,[BX+PDB_JFN_Table]
+	MOV	[DS:PDB_JFN_Table+1],AL
 	XCHG	DX,[INPIPEPTR]			; Swap for next element of pipe
 	MOV	[OUTPIPEPTR],DX
 	JMP	SHORT PIPECOM
@@ -314,7 +314,7 @@ NOSINGP2:
 ; this routines since they need to do a long return
 
 DATINIT:
-	mov	cs:[resseg],ds			; SetInitFlag needs resseg initialized
+	mov	[cs:resseg],ds			; SetInitFlag needs resseg initialized
 	PUSH	ES
 	PUSH	DS				; Going to use the previous stack
 	MOV	AX,CS				; Set up the appropriate segment registers
@@ -326,7 +326,7 @@ DATINIT:
 	MOV	DX,INTERNATVARS;Set up internat vars
 	MOV	AX,INTERNATIONAL SHL 8
 	INT	21H
-	MOV	word DS:[81H],13		; Want to prompt for date during initialization
+	MOV	word [DS:81H],13		; Want to prompt for date during initialization
 	MOV	[COMBUF],COMBUFLEN		; Init COMBUF
 	MOV	word [COMBUF+1],0D01H
 	CALL	DATE

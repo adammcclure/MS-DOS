@@ -612,13 +612,13 @@ $$IF30:
 ;	$ENDLOOP				;Parse error, see what it was	;AN000;
 	JMP SHORT $$DO30
 $$EN30:
-	   mov	byte ds:[si],0
+	   mov	byte [ds:si],0
 	   push di
 	   push ax
 	   mov	di,Sublist_MsgParse_Error
 	   mov	ax,word es:Command_Old_Ptr
-	   mov	word es:[di+2],ax
-	   mov	word es:[di+4],ds
+	   mov	word [es:di+2],ax
+	   mov	word [es:di+4],ds
 	   pop	ax
 	   pop	di
 	   PARSE_MESSAGE			;Display parse error		;AN000;
@@ -836,7 +836,7 @@ $$IF57:
 	      ; assume  ds:nothing
 
 	      mov     si,es:Switch_String_Buffer.Switch_String_Off ;		   ;AN000;
-	      cmp     byte ds:[si],None	;Is there a string there?	;AN000;
+	      cmp     byte [ds:si],None	;Is there a string there?	;AN000;
 ;	      $IF     NE			;Yep				;AN000;
 	      JE $$IF64
 		 cld				;				;AN000;

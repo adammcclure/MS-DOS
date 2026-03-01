@@ -203,7 +203,7 @@ SECTION .TRANSPACE
 
 
 	ORG	0
-ZERO	=	$
+ZERO equ $
 SRCXNAME	DB	DIRSTRLEN + times 20 db 0	;g buffer for name translate
 TRGXNAME	DB	DIRSTRLEN + times 20 db 0	;g buffer for name translate
 UCOMBUF 	DB	COMBUFLEN+times 3 db 0	; Raw console buffer

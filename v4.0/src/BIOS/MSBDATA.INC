@@ -400,7 +400,7 @@ ERROUT:
 	DB	0			;WRITE ATTEMPT ON WRITE-PROTECT DISK
 	DB	12			;GENERAL ERROR
 	global NUMERR
-NUMERR	=	ERROUT-ERRIN
+NUMERR equ ERROUT-ERRIN
 
 ;-------------------------------------------------------------
 
@@ -655,12 +655,12 @@ VOLSER4 dd	0	     ;Current volume serial number from Boot record
 SYSID4	db	"FAT12   ",0 ;Current file system id from Boot record
 
 struc BPBTYPE
-SPF: db 0
-SPT: db 0
-CDIRE: db 0
-CSEC: dw 0
-SPA: db 0
-CHEAD: db 0
+SPF: resb 1
+SPT: resb 1
+CDIRE: resb 1
+CSEC: resw 1
+SPA: resb 1
+CHEAD: resb 1
 endstruc
 	global SM92
 SM92	BPBTYPE <3,9,70H,2*9*80,2,2>

@@ -13,17 +13,17 @@ FILE_TYPE_MSG	EQU    4					      ;AN001;
 DATA_LENGTH	EQU    14					      ;AN000;
 ;								      ;AN000;
 struc ANSI_STR;AN000;
-	    DB	  0						      ;AN000;
-	    DB	  0						      ;AN000;
-	    DW	  DATA_LENGTH					      ;AN000;
-	    dw 0;AN000;
-D_MODE: db 0;AN000;
-	    db 0;AN000;
-	    dw 0;AN000;
-	    dw 0;AN000;
-	    dw 0;AN000;
-	    dw 0;AN000;
-SCR_ROWS: dw 0;AN000;
+	    resb 1;AN000;
+	    resb 1;AN000;
+	    resw 1;AN000;
+	    resw 1;AN000;
+D_MODE: resb 1;AN000;
+	    resb 1;AN000;
+	    resw 1;AN000;
+	    resw 1;AN000;
+	    resw 1;AN000;
+	    resw 1;AN000;
+SCR_ROWS: resw 1;AN000;
 endstruc;AN000;
 
 

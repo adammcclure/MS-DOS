@@ -69,18 +69,18 @@ ExitNo  equ     5
 struc Media_ID
 Media_ID_Info_Level dw 0
 Media_ID_Serial_Number dd 0
-Media_ID_Volume_Label: times 11 db " "
-Media_ID_File_System: times 8 db " "
+Media_ID_Volume_Label: resb 11
+Media_ID_File_System: resb 8
 endstruc
 
 
 struc Relative_Sector_Buffer;                               ;AN000;
 
-Start_Sector_Low: dw 0;Low word of RBA sector         ;AN000;
-Start_Sector_High: dw 0;High word of RBA sector        ;AN000;
-Number_Sectors: dw 0;Number of sectors              ;AN000;
-Buffer_Offset: dw 0;Address of data buffer         ;AN000;
-Buffer_Segment: dw 0;                               ;AN000;
+Start_Sector_Low: resw 1;Low word of RBA sector         ;AN000;
+Start_Sector_High: resw 1;High word of RBA sector        ;AN000;
+Number_Sectors: resw 1;Number of sectors              ;AN000;
+Buffer_Offset: resw 1;Address of data buffer         ;AN000;
+Buffer_Segment: resw 1;                               ;AN000;
 
 endstruc;                               ;AN000;
 
@@ -88,13 +88,13 @@ endstruc;                               ;AN000;
 ;Per system file data structure
 
 struc a_FileStructure
-fileHandle: dw 0
-fileSizeInParagraphs: dw 0
-fileSizeInBytes: dd 0
-fileOffset: dd 0
-fileStartSegment: dw 0
-fileDate: dw 0
-fileTime: dw 0
+fileHandle: resw 1
+fileSizeInParagraphs: resw 1
+fileSizeInBytes: resd 1
+fileOffset: resd 1
+fileStartSegment: resw 1
+fileDate: resw 1
+fileTime: resw 1
 endstruc
 
 ;-------------------------------------------------------------------------------

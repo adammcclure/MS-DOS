@@ -228,9 +228,9 @@ EMULATE:
         MOV     SS:word [BP+BP_CS2],0 ;   task's CS and IP
 
         DATAOV
-        MOV     SI,SS:[BP+BP_IP]       ; Get the V86 IP into our SI.  The high
+        MOV     SI,[SS:BP+BP_IP]       ; Get the V86 IP into our SI.  The high
         DATAOV                         ;   order word is zeroes.
-        MOV     AX,SS:[BP+BP_CS]       ; Get the V86 CS into AX.  Again, the
+        MOV     AX,[SS:BP+BP_CS]       ; Get the V86 CS into AX.  Again, the
         DATAOV                         ;   high order word is zeroes.
         SHL     AX,4                   ; Multiply CS by 16 to convert it to an
         DATAOV                         ;   offset.
@@ -326,7 +326,7 @@ WHOOPS:
 LOCK_INST:                                    ;                             @P1C
         CMP     SS:word [BP+BP_EX],0006H  ; Check if it's an invalid op code
         JNE     TRYIOPL3                      ; Try setting the IOPL to 3
-        ADD     word SS:[BP+BP_IP],1      ; Step IP past the instruction
+        ADD     word [SS:BP+BP_IP],1      ; Step IP past the instruction
         JMP     POPIO                         ;   thus treating it as a NOP
 
 ; PAGE
@@ -337,9 +337,9 @@ LOCK_INST:                                    ;                             @P1C
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 STI_INST:                                     ;                             @P1C
-        OR      word SS:[BP+BP_FL],3200H  ; Set the enable interrupts bit
+        OR      word [SS:BP+BP_FL],3200H  ; Set the enable interrupts bit
                                               ;   and set IOPL to 3
-        ADD     word SS:[BP+BP_IP],1      ; Step IP past STI instruction
+        ADD     word [SS:BP+BP_IP],1      ; Step IP past STI instruction
         JMP     POPIO
 
 ; PAGE
@@ -350,9 +350,9 @@ STI_INST:                                     ;                             @P1C
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 CLI_INST:                                     ;                             @P1C
-        AND     word SS:[BP+BP_FL],3DFFH  ; Set interrupts disabled
-        OR      word SS:[BP+BP_FL],3000H  ; Insure IOPL = 3 for speed
-        ADD     word SS:[BP+BP_IP],1      ; Step IP past instruction
+        AND     word [SS:BP+BP_FL],3DFFH  ; Set interrupts disabled
+        OR      word [SS:BP+BP_FL],3000H  ; Insure IOPL = 3 for speed
+        ADD     word [SS:BP+BP_IP],1      ; Step IP past instruction
         JMP     POPIO
 
 ; PAGE
@@ -364,10 +364,10 @@ CLI_INST:                                     ;                             @P1C
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 INT3:
-        MOV     word SS:[BP+BP_EX],3      ; Put a 3 in the exception field
+        MOV     word [SS:BP+BP_EX],3      ; Put a 3 in the exception field
                                               ;   This will cause the INTCOM
                                               ;   section to go to interrupt 3
-        ADD     word SS:[BP+BP_IP],1      ; Step IP past INT3 inscruction
+        ADD     word [SS:BP+BP_IP],1      ; Step IP past INT3 inscruction
         JMP     INTCOM                        ; Go get the vector from real
                                               ;   memory
 
@@ -379,10 +379,10 @@ INT3:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 INTO_INST:                                    ;                             @P1C
-        MOV     word SS:[BP+BP_EX],4      ; Put a 4 in the exception field
+        MOV     word [SS:BP+BP_EX],4      ; Put a 4 in the exception field
                                               ;   This will cause the INTCOM
                                               ;   section to go to interrupt 4
-        ADD     word SS:[BP+BP_IP],1      ; Step IP past INTO inscruction
+        ADD     word [SS:BP+BP_IP],1      ; Step IP past INTO inscruction
         JMP     INTCOM                        ; Go get the vector from real
                                               ;   memory
 
@@ -396,7 +396,7 @@ INTO_INST:                                    ;                             @P1C
 
 IRET_INST:                                    ;                             @P1C
         DATAOV                                ; Get the user's ESP (32 bit SP)
-        MOV     AX,SS:[BP+BP_SP]              ;   and save it in ESI.
+        MOV     AX,[SS:BP+BP_SP]              ;   and save it in ESI.
         DATAOV
         MOV     SI,AX
         ADD     AX,6                          ; Add 6 to the user's SP.  This
@@ -407,7 +407,7 @@ IRET_INST:                                    ;                             @P1C
                                               ;   there are at least six bytes
                                               ;   on the stack.
         DATAOV
-        MOV     AX,SS:[BP+BP_SS]              ; Get the user's SS and multiply
+        MOV     AX,[SS:BP+BP_SS]              ; Get the user's SS and multiply
         DATAOV                                ;   by 16.  This converts the
         SHL     AX,4                          ;   segment value to an offset.
         DATAOV                                ; Add this on to the ESP value in
@@ -419,7 +419,7 @@ IRET_INST:                                    ;                             @P1C
         ADDROV                                ; Intel bug # A0-119
         NOP                                   ; Intel bug # A0-119
 
-        MOV     word SS:[BP+BP_IP],AX     ; Put IP into the register values
+        MOV     word [SS:BP+BP_IP],AX     ; Put IP into the register values
                                               ;   on our stack
         ADDROV
         LODSW                                 ; Get the user's CS into EAX
@@ -427,7 +427,7 @@ IRET_INST:                                    ;                             @P1C
         ADDROV                                ; Intel bug # A0-119
         NOP                                   ; Intel bug # A0-119
 
-        MOV     word SS:[BP+BP_CS],AX     ; Put CS into the register values
+        MOV     word [SS:BP+BP_CS],AX     ; Put CS into the register values
                                               ;   on our stack
         ADDROV
         LODSW                                 ; Get the user's flags (32 bits)
@@ -437,7 +437,7 @@ IRET_INST:                                    ;                             @P1C
 
         AND     AX,3FFFH                      ; Clean up the flags
         OR      AX,3000H                      ; Set IOPL to 3
-        MOV     word SS:[BP+BP_FL],AX     ; Put the flags into the register
+        MOV     word [SS:BP+BP_FL],AX     ; Put the flags into the register
                                               ;   values on our stack
         JMP     POPREGS                       ; Go return to the V86 task   @P1C
 
@@ -462,12 +462,12 @@ INT_INST:                                     ;                             @P1C
         NOP                                   ; Intel bug # A0-119
 
         MOV     AH,0                          ; Clear the high byte
-        MOV     word SS:[BP+BP_EX],AX     ; Save the interrupt number in
+        MOV     word [SS:BP+BP_EX],AX     ; Save the interrupt number in
                                               ;   the exception code field
 
 ; Step IP past the INT instruction.
 
-        ADD     word SS:[BP+BP_IP],2      ; STEP IP PAST INT INSTRUCTION
+        ADD     word [SS:BP+BP_IP],2      ; STEP IP PAST INT INSTRUCTION
 
 ; Check for INT 15.  This is handled by INDEI15.
 
@@ -483,7 +483,7 @@ INTCOM:
         MOV     AX,HUGE_PTR                   ; Load ES with the selector that
         MOV     ES,AX                         ;   accesses all of memory as data
         DATAOV
-        MOV     DI,SS:[BP+BP_SP]              ; Load EDI with the user's ESP
+        MOV     DI,[SS:BP+BP_SP]              ; Load EDI with the user's ESP
                                               ; Now ES:EDI points to the user's
                                               ;   stack
         SUB     DI,6                          ; Decrement "SP" to make space for
@@ -491,7 +491,7 @@ INTCOM:
         MOV     SS:word [BP+BP_SP],DI     ; Set the user's new SP
 
         DATAOV
-        MOV     AX,SS:[BP+BP_SS]              ; Get the user's SS and shift it
+        MOV     AX,[SS:BP+BP_SS]              ; Get the user's SS and shift it
         DATAOV                                ;   left four bits to convert it
         SHL     AX,4                          ;   to an offset
         DATAOV                                ; Add it to EDI so that EDI now
@@ -503,19 +503,19 @@ INTCOM:
 ; and then IP.  This is because we are moving forward through memory (CLD)
 ; whereas the stack grows backwards through memory as things apushed on to it.
 
-        MOV     AX,SS:[BP+BP_IP]
+        MOV     AX,[SS:BP+BP_IP]
         ADDROV
         STOSW                                 ; Put IP on the V86 task's stack
         ADDROV                                ; Intel bug # A0-119
         NOP                                   ; Intel bug # A0-119
 
-        MOV     AX,SS:[BP+BP_CS]
+        MOV     AX,[SS:BP+BP_CS]
         ADDROV
         STOSW                                 ; Put CS on the V86 task's stack
         ADDROV                                ; Intel bug # A0-119
         NOP                                   ; Intel bug # A0-119
 
-        MOV     AX,SS:[BP+BP_FL]              ; Get the v86 task's flags
+        MOV     AX,[SS:BP+BP_FL]              ; Get the v86 task's flags
         OR      AX,3000H                      ; Set IPOL to 3 while we're here
         ADDROV
         STOSW                                 ; Put the flags on the v86 task's
@@ -524,17 +524,17 @@ INTCOM:
         ADDROV                                ; INTEL BUG # A0-119
         NOP                                   ; INTEL BUG # A0-119
         AND     AX,3CFFH                      ; Clean up flags for our IRET
-        MOV     word SS:[BP+BP_FL],AX
+        MOV     word [SS:BP+BP_FL],AX
 
 ; Use the interrupt number to get the CS and IP of the interrupt routine
 
-        MOV     SI,SS:[BP+BP_EX]              ; Get the interrupt number
+        MOV     SI,[SS:BP+BP_EX]              ; Get the interrupt number
         SHL     SI,2                          ; Multiply by 4 since interrupt
                                               ;   vectors are 4 bytes long
         LODSW                                 ; Get the IP for the vector
-        MOV     word SS:[BP+BP_IP],AX     ; Put it in the V86 task's IP
+        MOV     word [SS:BP+BP_IP],AX     ; Put it in the V86 task's IP
         LODSW                                 ; Get the CS for the vector
-        MOV     word SS:[BP+BP_CS],AX     ; Put it in the V86 task's CS
+        MOV     word [SS:BP+BP_CS],AX     ; Put it in the V86 task's CS
 
         JMP     POPREGS                       ; Go return to the V86 task   @P1C
 
@@ -548,25 +548,25 @@ PUSHF_INST:                                   ;                             @P1C
         MOV     ES,AX                         ;   accesses all of memory as data
 
         DATAOV
-        MOV     DI,SS:[BP+BP_SP]              ; Load EDI with the V86 task's SP
+        MOV     DI,[SS:BP+BP_SP]              ; Load EDI with the V86 task's SP
         SUB     DI,2                          ; Decrement "SP" by one word to
                                               ;   make room for the flags
         MOV     SS:word [BP+BP_SP],DI     ; Store the new V86 task's SP
         DATAOV
-        MOV     AX,SS:[BP+BP_SS]              ; Get the user's SS and shift it
+        MOV     AX,[SS:BP+BP_SS]              ; Get the user's SS and shift it
         DATAOV                                ;   left four bits to convert it
         SHL     AX,4                          ;   to an offset
         DATAOV                                ; Add it to EDI so that EDI now
         ADD     DI,AX                         ;   contains the physical offset
                                               ;   of the user's stack
-        MOV     AX,SS:[BP+BP_FL]              ; Get the v86 task's flags
+        MOV     AX,[SS:BP+BP_FL]              ; Get the v86 task's flags
         OR      AX,3000H                      ; Set IPOL to 3 so that we won't
         ADDROV                                ;   be bothered anymore
         STOSW                                 ; Put the flags on the stack
         ADDROV                                ; Intel bug # A0-119
         NOP                                   ; Intel bug # A0-119
 
-        ADD     word SS:[BP+BP_IP],1      ; Step IP past PUSHF instruction
+        ADD     word [SS:BP+BP_IP],1      ; Step IP past PUSHF instruction
 
         JMP     POPIO                         ; Go return to the V86 task
 
@@ -579,13 +579,13 @@ POPF_INST:                                    ;                             @P1C
         MOV     AX,HUGE_PTR                   ; Big segment selector
         MOV     DS,AX                         ; Stack seg
         DATAOV          ; Create 32-bit operand prefix for next instruction
-        MOV     AX,SS:[BP+BP_SP]              ; stack ptr
+        MOV     AX,[SS:BP+BP_SP]              ; stack ptr
         DATAOV          ; Create 32-bit operand prefix for next instruction
         MOV     SI,AX                         ; SI = stack ptr
         ADD     AX,2
         MOV     SS:word [BP+BP_SP],AX     ; NEW STACK POINTER
         DATAOV          ; Create 32-bit operand prefix for next instruction
-        MOV     AX,SS:[BP+BP_SS]              ; Convert ss to 20 bit address
+        MOV     AX,[SS:BP+BP_SS]              ; Convert ss to 20 bit address
         DATAOV          ; Create 32-bit operand prefix for next instruction
         SHL     AX,4
         DATAOV          ; Create 32-bit operand prefix for next instruction
@@ -597,8 +597,8 @@ POPF_INST:                                    ;                             @P1C
         AND     AX,0FFFH                      ; CLEAN UP FLAGS FOR OUR IRET
 ; A POPF at level 3 will not change IOPL - WE WANT TO KEEP IT AT IOPL = 3
         OR      AX,3000H                      ; SET IOPL = 3
-        MOV     word SS:[BP+BP_FL],AX
-        ADD     word SS:[BP+BP_IP],1      ; STEP IP PAST INSTRUCTION
+        MOV     word [SS:BP+BP_FL],AX
+        ADD     word [SS:BP+BP_IP],1      ; STEP IP PAST INSTRUCTION
         JMP     POPIO                         ; CHECK FOR SINGLE STEP
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -621,7 +621,7 @@ POPIO:
                                               ;   give control to the single
                                               ;   step routine 'cause we already
                                               ;   did it.
-        TEST    word SS:[BP+BP_FL],0100H  ; Was the single step flag on?
+        TEST    word [SS:BP+BP_FL],0100H  ; Was the single step flag on?
         JZ      POPCONT                       ; If not then just IRET
         MOV     SS:word [BP+BP_EX],1      ; Otherwise put a 1 (single step
         JMP     INTCOM                        ;   interrupt number) in the

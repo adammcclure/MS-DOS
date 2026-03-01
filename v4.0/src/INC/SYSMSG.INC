@@ -49,8 +49,8 @@
 				       ;;
 %include "VERSIONA.INC";;AN003;;
 
-FALSE	       = 0		       ;;
-TRUE	       = NOT FALSE	       ;;    List message services and flags
+FALSE equ 0;;
+TRUE equ ~FALSE;;    List message services and flags
 				       ;;
 
 ; Control Characters For Message Skeleton file
@@ -193,7 +193,7 @@ $M_CLASS_NOT_EXIST	EQU	 0     ;; Does class exist?
 $M_TERMINATING_FLAG	EQU	-1     ;; Is there any more classes?
 $M_ADDR_SZ_NEAR 	EQU	2      ;; Size to increment if NEAR
 $M_ADDR_SZ_FAR		EQU	4      ;; Size to increment if FAR
-$M_SL			EQU   DS:[SI]  ;; Refer to SUBLIST as $M_SL
+$M_SL			EQU   [DS:SI]  ;; Refer to SUBLIST as $M_SL
 $M_NO_HANDLE		EQU	-1     ;; No handle flag
 $M_TEMP_BUF_SZ		EQU	64     ;; Size of temporary buffer	 ;AN003;
 $M_NEXT_DBCS_VECTOR	EQU	2      ;; Amount to increment to get next vector
@@ -223,40 +223,40 @@ STDPRN			EQU	0004H  ;; Standard Printer device handle
 
 ; Reserved Message Service equates
 
-NEARmsg 		 =	TRUE   ;; \
-NOVERCHECKmsg		 =	FALSE  ;;  |
-MSGDATA 		 =	FALSE  ;;  |
-FARmsg			 =	FALSE  ;;  |
-GETmsg			 =	FALSE  ;;  |
-LOADmsg 		 =	FALSE  ;;  |
-DISPLAYmsg		 =	FALSE  ;;   } Set default cases
-SETSTDIO		 =	FALSE  ;;  |
-NOCHECKSTDIN		 =	FALSE  ;;  |
-NOCHECKSTDOUT		 =	FALSE  ;;  |
-DISK_PROC		 =	FALSE  ;;  |			       ;AN003;
-INPUTmsg		 =	FALSE  ;;  |
-CHARmsg 		 =	FALSE  ;;  |
-NUMmsg			 =	FALSE  ;;  |
-TIMEmsg 		 =	FALSE  ;;  |
-DATEmsg 		 =	FALSE  ;; /
+NEARmsg equ TRUE;; \
+NOVERCHECKmsg equ FALSE;;  |
+MSGDATA equ FALSE;;  |
+FARmsg equ FALSE;;  |
+GETmsg equ FALSE;;  |
+LOADmsg equ FALSE;;  |
+DISPLAYmsg equ FALSE;;   } Set default cases
+SETSTDIO equ FALSE;;  |
+NOCHECKSTDIN equ FALSE;;  |
+NOCHECKSTDOUT equ FALSE;;  |
+DISK_PROC equ FALSE;;  |			       ;AN003;
+INPUTmsg equ FALSE;;  |
+CHARmsg equ FALSE;;  |
+NUMmsg equ FALSE;;  |
+TIMEmsg equ FALSE;;  |
+DATEmsg equ FALSE;; /
 
 %if 1  ; IF1 - pass-specific;;
-COMR			 =	FALSE  ;;  COMMAND.COM Cases (resident)
-COMT			 =	FALSE  ;;		     (transient)
+COMR equ FALSE;;  COMMAND.COM Cases (resident)
+COMT equ FALSE;;		     (transient)
 %endif;;
 
-$M_STRUC		 =	TRUE   ;; Internal message service defaults
-$M_LOAD 		 =	TRUE   ;;
-$M_SUBS 		 =	TRUE   ;;
-$M_REPLACE		 =	TRUE   ;;
-$M_REPL_DONE		 =	FALSE  ;;
-$M_CHAR_ONLY		 =	TRUE   ;;
-$M_PARSE_FLAG		 =	TRUE   ;;
-$M_EXT_ERR_FLAG 	 =	TRUE   ;;
-$M_MSGDATA_ONLY 	 =	TRUE   ;;
-$M_END			 =	FALSE  ;;
-$M_EXT_CLS		 =	TRUE   ;;
-$M_PAR_CLS		 =	TRUE   ;;
+$M_STRUC equ TRUE;; Internal message service defaults
+$M_LOAD equ TRUE;;
+$M_SUBS equ TRUE;;
+$M_REPLACE equ TRUE;;
+$M_REPL_DONE equ FALSE;;
+$M_CHAR_ONLY equ TRUE;;
+$M_PARSE_FLAG equ TRUE;;
+$M_EXT_ERR_FLAG equ TRUE;;
+$M_MSGDATA_ONLY equ TRUE;;
+$M_END equ FALSE;;
+$M_EXT_CLS equ TRUE;;
+$M_PAR_CLS equ TRUE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	$M_POPF 	     Macro
@@ -280,7 +280,7 @@ $M_MYRET:
 %macro MSG_UTILNAME 1;
 				       ;
    %include "&utilname.CTL";  Include the control file for the utility
-   $M_STRUC = TRUE		       ;
+   $M_STRUC equ TRUE;
    %include "MSGSERV.ASM";  Get structure definitions
 				       ;
 %endmacro;
@@ -291,9 +291,9 @@ $M_MYRET:
 					  ;
 %macro MSG_SERVICES 1;  MACRO used in source routine
 					  ;
-   $M_SERVICE = FALSE			  ;  Reset service flag
+   $M_SERVICE equ FALSE;  Reset service flag
    ; IRP	   var,<varlist>;  FOR each variable in the list
-     $M_INCLUDE = TRUE			  ;  Reset include flag
+     $M_INCLUDE equ TRUE;  Reset include flag
 					  ;	For each service predefined
 
 ; IRP  serv,<MSGDATA,LOADmsg,NOVERCHECKmsg,DISPLAYmsg,GETmsg,INPUTmsg,CHARmsg,NUMmsg,TIMEmsg,DATEmsg,NEARmsg,FARmsg,COMR,COMT>
@@ -301,16 +301,16 @@ $M_MYRET:
 	 %ifnidn <var>,<serv>;	  IF it IS a service (defined above)
 	 %else;
 	   %ifnidn <var>,<MSGDATA>;	    IF it is NOT the message data space request
-	     $M_MSGDATA_ONLY = FALSE	  ;	       Instruct the assembler to include all services
+	     $M_MSGDATA_ONLY equ FALSE;	       Instruct the assembler to include all services
 	   %endif;	    ENDIF
 	   ; IRP	repl,<CHARmsg,NUMmsg,TIMEmsg,DATEmsg>; IF it is a replace service
 	     %ifidn <var>,<repl>;
-	       $M_REPLACE = TRUE	  ;	       Set replace flag
+	       $M_REPLACE equ TRUE;	       Set replace flag
 	     %endif;
 	   %endmacro;
-	   serv = TRUE			  ;	    Let the assembler know about the service
-	   $M_SERVICE = TRUE		  ;	    Let the macro know it was a service
-	   $M_INCLUDE = FALSE		  ;	    Let the macro know it wasn't a class
+	   serv equ TRUE;	    Let the assembler know about the service
+	   $M_SERVICE equ TRUE;	    Let the macro know it was a service
+	   $M_INCLUDE equ FALSE;	    Let the macro know it wasn't a class
 	 %endif;	  ENDIF
       %endmacro;	NEXT service
 
@@ -343,9 +343,9 @@ MSG_SERVICES2  <varlist>
 					    ;AN003; IF it IS a service (defined above)
 	 %ifnidn <var2>,<serv2>
 	 %else;
-	   serv2 = TRUE 		   ;	     Let the assembler know about the service
-	   $M_SERVICE = TRUE		  ;	    Let the macro know it was a service
-	   $M_INCLUDE = FALSE		  ;	    Let the macro know it wasn't a class
+	   serv2 equ TRUE;	     Let the assembler know about the service
+	   $M_SERVICE equ TRUE;	    Let the macro know it was a service
+	   $M_INCLUDE equ FALSE;	    Let the macro know it wasn't a class
 	 %endif;	  ENDIF
       %endmacro;	NEXT service
    %endmacro;  NEXT variable
@@ -367,7 +367,7 @@ MSG_SERVICES2  <varlist>
 						 ;
 %macro $M_BUILD_PTRS 1;
 						 ;
-    $M_INDEX =	    0				 ;
+    $M_INDEX equ 0;
 %if COMR; IF this is resident COMMAND.COM
     $M_MAKE_COMR			     ;
 %else; ELSE
@@ -375,11 +375,11 @@ MSG_SERVICES2  <varlist>
     $M_MAKE_COMT			     ;
   %else;   ELSE
 						 ;
-    $M_INDEX =	    0				 ;
-    $M_COUNT =	    0				 ;     Build normal utilities
+    $M_INDEX equ 0;
+    $M_COUNT equ 0;     Build normal utilities
 						 ;
     %rep nummsg;
-    $M_COUNT =	    $M_COUNT + 1		 ;
+    $M_COUNT equ $M_COUNT + 1;
     $M_MAKE %$M_COUNT				 ;
     %endmacro;
   %endif;
@@ -399,7 +399,7 @@ MSG_SERVICES2  <varlist>
     CALL    $M_CLS_&$m_append			 ;  Get addressibilty to class &$M_APPEND (ES:DI)
     MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
 %endif;
-$M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
+$M_INDEX equ $M_INDEX + 4;  Set next available table location
 						 ;
 %endmacro;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -410,23 +410,23 @@ $M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
 						 ;
     CALL    $M_CLS_3				 ;  Get addressibilty to class A
     MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
-$M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
+$M_INDEX equ $M_INDEX + 4;  Set next available table location
 						 ;
     CALL    $M_CLS_4				 ;  Get addressibilty to class B
     MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
-$M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
+$M_INDEX equ $M_INDEX + 4;  Set next available table location
 						 ;
     CALL    $M_CLS_5				 ;  Get addressibilty to class C
     MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
-$M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
+$M_INDEX equ $M_INDEX + 4;  Set next available table location
 						 ;
     CALL    $M_CLS_6				 ;  Get addressibilty to class D
     MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
-$M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
+$M_INDEX equ $M_INDEX + 4;  Set next available table location
 						 ;
     CALL    $M_CLS_7				 ;  Get addressibilty to class E
     MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
-$M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
+$M_INDEX equ $M_INDEX + 4;  Set next available table location
 						 ;
 %endmacro;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -437,7 +437,7 @@ $M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
 						 ;
     CALL    $M_CLS_8				 ;  Get addressibilty to class A
     MOV     word $M_RT.$M_CLASS_ADDRS+$M_INDEX,DI ;
-$M_INDEX =  $M_INDEX + 4			 ;  Set next available table location
+$M_INDEX equ $M_INDEX + 4;  Set next available table location
 						 ;
 %endmacro;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -193,8 +193,8 @@ GoVirtual:
 ;
 	mov	ax,[GDT_Seg]
 	mov	ds, ax			; DS:0 = ptr to gdt
-	lgdt	qword ds:[GDTD_GSEL]
-	lidt	qword ds:[IDTD_GSEL]
+	lgdt	qword [ds:GDTD_GSEL]
+	lidt	qword [ds:IDTD_GSEL]
 ;
 ;   go protected and enable paging - turn on bits in CR0
 ;
@@ -320,8 +320,8 @@ sts_addr:
 	mov	ds,ax
 	and	bl,0F8h
 
-	mov	ax,word ds:[bx + 2] ; low 16 bits of base address
-	mov	bh,ds:[bx + 4]		; high 8 bits of base address
+	mov	ax,word [ds:bx + 2] ; low 16 bits of base address
+	mov	bh,[ds:bx + 4]		; high 8 bits of base address
 	shr	ax,4
 	shl	bh,4
 	mov	bl,0

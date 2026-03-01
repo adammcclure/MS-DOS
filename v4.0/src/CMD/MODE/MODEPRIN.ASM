@@ -118,7 +118,7 @@ MOV   [BP].sublist_off,SI		     ;the sublist now points to the desired message p
 SECTION .ROM
 	ORG	530H
 RESSEG:;VECTOR POINTING TO MODETO IF RESIDENT
-ROM	ENDS
+; END SECTION .ROM
 
 ;**********************************************************************
 SECTION .PRINTF_CODE
@@ -628,7 +628,7 @@ modify_resident_code:;AN000;
 	   SHL	SI,1	;SI=0, 2, 4, ... , 14, INDEX TO SHOW WHICH LPTns to be retried					  ;AC000;
 	   MOV	BX,OFFRETRY	;OFFSET TO TEST INSTR IN RETRY CODE
 	   CLI		;DISABLE INTERRUPTS
-	   MOV	byte ES:[BX]+4,5	;SET JMP TARGET TO +5
+	   MOV	byte [ES:BX]+4,5	;SET JMP TARGET TO +5
 	   JMP	CASE[SI]	;CALL BRANCH TABLE
 ;
 CASE	DW	P0
@@ -642,43 +642,43 @@ CASE	DW	P0
 ;
 P0:
 ;				SINCE NO PRINTER IS TO BE RETRIED
-	     MOV	word ES:[BX]+3,00EBH	;MAKE JUMP INTO NOP
+	     MOV	word [ES:BX]+3,00EBH	;MAKE JUMP INTO NOP
 ;				TO CAUSE FALL THRU TO JMP PRINTER_IO INSTR
 	     JMP	SHORT ENDC
 ;
 P1:
 ;	RETRY LPT1 ONLY
-	     MOV	word ES:[BX]+2,7403H	;TEST 3 : JZ RT
+	     MOV	word [ES:BX]+2,7403H	;TEST 3 : JZ RT
 	     JMP	SHORT ENDC
 ;
 P2:
 ;	RETRY LPT2 ONLY
-	     MOV	word ES:[BX]+2,7501H	;TEST 1 : JNZ RT
+	     MOV	word [ES:BX]+2,7501H	;TEST 1 : JNZ RT
 	     JMP	SHORT ENDC
 ;
 P3:
 ;	RETRY LPT1 AND LPT2 ONLY
-	     MOV	word ES:[BX]+2,7402H	;TEST 2 : JZ RT
+	     MOV	word [ES:BX]+2,7402H	;TEST 2 : JZ RT
 	     JMP	SHORT ENDC
 ;
 P4:
 ;	REDIRECT LPT3 ONLY
-	     MOV	word ES:[BX]+2,7502H	;TEST 2 : JNZ RT
+	     MOV	word [ES:BX]+2,7502H	;TEST 2 : JNZ RT
 	     JMP	SHORT ENDC
 ;
 P5:
 ;	REDIRECT LPT1 AND LPT3 ONLY
-	     MOV	word ES:[BX]+2,7401H	;TEST 1 : JZ RT
+	     MOV	word [ES:BX]+2,7401H	;TEST 1 : JZ RT
 	     JMP	SHORT ENDC
 ;
 P6:
 ;	REDIRECT LPT2 AND LPT3 ONLY
-	     MOV	word ES:[BX]+2,7503H	;TEST 3 : JNZ RT
+	     MOV	word [ES:BX]+2,7503H	;TEST 3 : JNZ RT
 	     JMP	SHORT ENDC
 ;
 P7:
 ;	REDIRECT ALL THREE: LPT1, LPT2, AND LPT3
-	     MOV	word ES:[BX]+2,0EB00H	;TEST 0 : JMP SHORT RT
+	     MOV	word [ES:BX]+2,0EB00H	;TEST 0 : JMP SHORT RT
 ;
 ENDC:
 	     STI		;REENABLE INTERRUPTS
@@ -1091,6 +1091,6 @@ RET											       ;AN663;
 												     ;AN663;
 ; ENDP set_retry_type;AN663;
 
-PRINTF_CODE   ENDS
+; END SECTION .PRINTF_CODE
      ; END
 

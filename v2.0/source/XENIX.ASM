@@ -231,7 +231,7 @@ Find_sfn_in_table:
         CMP     BX,-1                   ; end of chain
         JZ      Find_no_free_sfns
         MOV     DI,sft_table            ; offset to sf entry
-        MOV     CX,ES:[BX].sft_count    ; count of fcbs in table
+        MOV     CX,[ES:BX].sft_count    ; count of fcbs in table
 
 Find_sfn:
         CMP     ES:byte [BX+DI].sf_ref_count,0h
@@ -239,7 +239,7 @@ Find_sfn:
         ADD     DI,sf_entry_size        ; look to next entry
         INC     SI                      ; bump sfn
         LOOP    Find_sfn
-        LES     BX,ES:[BX].sft_link     ; link to next
+        LES     BX,[ES:BX].sft_link     ; link to next
         JMP     SHORT Find_sfn_in_table ; look for more
 
 Find_no_free_sfns:
@@ -323,7 +323,7 @@ open_check_access:
         MOV     open_devid,AH
         TEST    AH,080h
         JNZ     open_set_FCB_dev        ;is a device
-        MOV     AL,ES:[BX].dir_attr
+        MOV     AL,[ES:BX].dir_attr
         TEST    AL,attr_directory       ; can't open directories
         JZ      open_try_volid
 
@@ -358,16 +358,16 @@ open_set_FCB:
 ;
 ; need to save attribute for the close operation
 ;
-        MOV     AH,DS:[BX.dir_attr]     ; save attribute for close
-        MOV     ES:[DI.sf_attr],AH
+        MOV     AH,[DS:BX+dir_attr]     ; save attribute for close
+        MOV     [ES:DI+sf_attr],AH
 
         ADD     DI,sf_fcb+1             ; point to name
 
         %if KANJI
         MOVSB
-        CMP     byte ES:[DI-1],5
+        CMP     byte [ES:DI-1],5
         JNZ     NOTKTRAN
-        MOV     byte ES:[DI-1],0E5H
+        MOV     byte [ES:DI-1],0E5H
 NOTKTRAN:
         DEC     CX
         %endif
@@ -382,14 +382,14 @@ NOTKTRAN:
         invoke  DOOPEN                  ; let open code fill in blanks
         context DS
         LES     DI,dword [open_sfoff]
-        INC     ES:[DI].sf_ref_count    ; reference this FCB
+        INC     [ES:DI].sf_ref_count    ; reference this FCB
         MOV     AL,open_access          ; stash the access
         MOV     ES:byte [DI].sf_mode,AL
         XOR     AX,AX
-        MOV     ES:word [DI.sf_FCB.fcb_RR],AX       ; beginning of file
-        MOV     ES:word [DI.sf_FCB.fcb_RR+2],AX
+        MOV     ES:word [DI+sf_FCB.fcb_RR],AX       ; beginning of file
+        MOV     ES:word [DI+sf_FCB.fcb_RR+2],AX
         INC     AX
-        MOV     ES:word [DI.sf_FCB.fcb_RECSIZ],AX   ; byte io only
+        MOV     ES:word [DI+sf_FCB.fcb_RECSIZ],AX   ; byte io only
         LES     DI,dword [open_jfn]
         MOV     AX,open_sfn
         MOV     ES:byte [DI],AL     ; stash sfn in PDB
@@ -419,15 +419,15 @@ BREAK <$UNLINK - delete a file entry>
 unlink_check_attr:
         JZ      unlink_dir
         LDS     DI,dword [CURBUF]   ; get directory entry
-        TEST    DS:[BX.dir_attr],attr_read_only
+        TEST    [DS:BX+dir_attr],attr_read_only
         JZ      unlink_doit
 
 unlink_dir:
         error   error_access_denied
 
 unlink_doit:
-        MOV     byte DS:[BX.dir_name],0E5h  ; delete dir entry
-        MOV     byte DS:[DI.BUFDIRTY],1     ; dirty the buffer
+        MOV     byte [DS:BX+dir_name],0E5h  ; delete dir entry
+        MOV     byte [DS:DI+BUFDIRTY],1     ; dirty the buffer
         LODSW
         MOV     BX,AX
         AND     BX,0FFFh
@@ -435,7 +435,7 @@ unlink_doit:
         JZ      unlink_flush
         invoke  RELEASE
 unlink_flush:
-        MOV     AL,byte ES:[BP.DPB_drive]
+        MOV     AL,byte [ES:BP+DPB_drive]
         invoke  FLUSHBUF
         transfer    SYS_RET_OK
 ; ENDP $UNLINK
@@ -516,7 +516,7 @@ dup_force:
         JC      dup_bad_handle
         ; ES:DI is pointer to sf entry
         ; DS:DI is pointer to jfn
-        INC     ES:[DI].sf_ref_count    ; another jfn reference...
+        INC     [ES:DI].sf_ref_count    ; another jfn reference...
         MOV     AL,[BX].PDB_JFN_table   ; get old sfn
         MOV     [SI],AL                 ; store in new place
         SUB     SI,PDB_JFN_table        ; get jfn
@@ -594,17 +594,17 @@ chmod_try_file:
         context DS
         OR      DL,DL
         JZ      chmod_fetch
-        AND     byte ES:[BX].dir_attr,NOT attr_changeable
-        OR      byte ES:[BX].dir_attr,CL
-        MOV     ES:[DI.BUFDIRTY],1
+        AND     byte [ES:BX].dir_attr,NOT attr_changeable
+        OR      byte [ES:BX].dir_attr,CL
+        MOV     [ES:DI+BUFDIRTY],1
         MOV     AL,-1
         invoke  FlushBuf
         transfer    SYS_RET_OK
 chmod_fetch:
         XOR     CX,CX
-        MOV     CL,byte ES:[BX].dir_attr
+        MOV     CL,byte [ES:BX].dir_attr
         invoke  Get_user_stack
-        MOV     [SI.user_CX],CX
+        MOV     [SI+user_CX],CX
         transfer    SYS_RET_OK
 ; ENDP $chmod
 
@@ -637,13 +637,13 @@ procedure   $CURRENT_DIR,NEAR
 
 current_copy:
         POP     DI              ; where to move to
-        POP     [SI.user_BX]    ; restore old BX
+        POP     [SI+user_BX]    ; restore old BX
         POP     BX
-        MOV     [SI.user_DS],BX ; and restore old DS
+        MOV     [SI+user_DS],BX ; and restore old DS
 ;
 ; ES:BP is pointer to DPB. BX:DI is pointer to destination
 ;
-        CMP     ES:[BP.dpb_current_dir],-1
+        CMP     [ES:BP+dpb_current_dir],-1
         JNZ     current_ok
         PUSH    BX
         PUSH    DI
@@ -656,9 +656,9 @@ current_ok:
         PUSH    ES
         POP     DS              ; DS:SI is source
         MOV     ES,BX           ; ES:DI is destination
-        CMP     [SI.dpb_current_dir],0
+        CMP     [SI+dpb_current_dir],0
         JNZ     current_move
-        MOV     byte [SI.dpb_dir_text],0
+        MOV     byte [SI+dpb_dir_text],0
 
 current_move:
         ADD     SI,dpb_dir_text
@@ -697,12 +697,12 @@ procedure   $RENAME,near
 rename_check_dir:
         JZ      rename_no_access
         MOV     DS,word [CurBuf+2]
-        PUSH    [BX.dir_date]
-        PUSH    [BX.dir_first]
-        PUSH    [BX.dir_size_h]
-        PUSH    [BX.dir_size_l]
-        PUSH    [BX.dir_time]
-        PUSH    word [BX.dir_attr]
+        PUSH    [BX+dir_date]
+        PUSH    [BX+dir_first]
+        PUSH    [BX+dir_size_h]
+        PUSH    [BX+dir_size_l]
+        PUSH    [BX+dir_time]
+        PUSH    word [BX+dir_attr]
         PUSH    word [ThisDrv]
         LDS     SI,[rename_dest]
         invoke  GetPath
@@ -728,18 +728,18 @@ rename_create:
         JC      rename_bad_access
         LDS     SI,[CurBuf]
         POP     AX
-        MOV     [BX.dir_attr],AL
-        POP     [BX.dir_time]
-        POP     [BX.dir_size_l]
-        POP     [BX.dir_size_h]
-        POP     [BX.dir_first]
-        POP     [BX.dir_date]
-        MOV     [SI.BUFDIRTY],1
+        MOV     [BX+dir_attr],AL
+        POP     [BX+dir_time]
+        POP     [BX+dir_size_l]
+        POP     [BX+dir_size_h]
+        POP     [BX+dir_first]
+        POP     [BX+dir_date]
+        MOV     [SI+BUFDIRTY],1
         LDS     SI,[rename_source]
         invoke  GetPath
         LDS     SI,[CurBuf]
         MOV     byte [BX],0E5h
-        MOV     [SI.BUFDIRTY],1
+        MOV     [SI+BUFDIRTY],1
         context DS
         MOV     AL,0FFh
         invoke  FlushBuf
@@ -780,7 +780,7 @@ find_no_more:
         error   error_no_more_files
 find_check_attr:
         MOV     DS,word [CURBUF+2]
-        MOV     CH,[BX.dir_attr]
+        MOV     CH,[BX+dir_attr]
         invoke  MatchAttributes
         JZ      found_it
         PUSH    [LastEnt]
@@ -801,9 +801,9 @@ found_it:
 
         %if KANJI
         MOVSB
-        CMP     byte ES:[DI-1],5
+        CMP     byte [ES:DI-1],5
         JNZ     NOTKANJB
-        MOV     byte ES:[DI-1],0E5H
+        MOV     byte [ES:DI-1],0E5H
 NOTKANJB:
         DEC     CX
         %endif
@@ -880,12 +880,12 @@ procedure   $FIND_NEXT,near
 findnext_no_more:
         error   error_no_more_files
 find_load:
-        MOV     AX,[SI.find_buf_LastEnt]
-        LES     BP,[SI.find_buf_ThisDPB]
+        MOV     AX,[SI+find_buf_LastEnt]
+        LES     BP,[SI+find_buf_ThisDPB]
         OR      AX,AX
         JS      findnext_no_more
-        MOV     BX,[SI.find_buf_DirStart]
-        MOV     DL,[SI.find_buf_sattr]
+        MOV     BX,[SI+find_buf_DirStart]
+        MOV     DL,[SI+find_buf_sattr]
         MOV     [Attrib],DL
         PUSH    AX
         MOV     word [ThisDPB],BP

@@ -94,7 +94,7 @@ SECTION .CODE
 ; .list
 ; .sall
 
-Installed = TRUE
+Installed equ TRUE
 
 	I_need	ThisCDS,DWORD		; pointer to CDS used
 	I_need	CDSAddr,DWORD		; pointer to CDS table
@@ -150,14 +150,14 @@ srinuse:									;AN000;
 	CALL	GetCDSFromDrv			      ; ds:si -> cds		;AN000;
 	POP	AX				      ; 			;AN000;
 	JC	baddrv				      ; bad drive		;AN000;
-	CMP	word [SI.curdir_devptr],0	      ; dpb ptr =0 ?		;AN000;
+	CMP	word [SI+curdir_devptr],0	      ; dpb ptr =0 ?		;AN000;
 	JZ	baddrv				      ;     no			;AN000;
 	CMP	AL,7				      ; set ?			;AN000;
 	JNZ	resetdrv			      ; no			;AN000;
-	OR	[SI.curdir_flags],curdir_inuse	      ; set in_use		;AN000;
+	OR	[SI+curdir_flags],curdir_inuse	      ; set in_use		;AN000;
 	JMP	SHORT okdone			      ; 			;AN000;
 resetdrv:									;AN000;
-	AND	[SI.curdir_flags],NOT curdir_inuse    ; reset in_use		;AN000;
+	AND	[SI+curdir_flags],NOT curdir_inuse    ; reset in_use		;AN000;
 	JMP	SHORT okdone			      ; 			;AN000;
 baddrv: 									;AN000;
 	MOV	AX,error_invalid_drive		      ; error			;AN000;
@@ -166,7 +166,7 @@ chk08:										;AN000;
 	CMP	AL,8				      ; reset inuse ?		;AN000;
 	JZ	srinuse 			      ; yes			;AN000;
 
-	%if NOT INSTALLED
+	%if ~INSTALLED
 	transfer NET_ASSOPER
 	%else
 	PUSH	AX
@@ -197,9 +197,9 @@ Procedure FIND_DPB,NEAR
 DPB_LOOP:
 	CMP	SI,-1
 	JZ	NO_DPB
-	CMP	AL,[SI.dpb_drive]
+	CMP	AL,[SI+dpb_drive]
 	retz				; Carry clear
-	LDS	SI,[SI.dpb_next_dpb]
+	LDS	SI,[SI+dpb_next_dpb]
 	JMP	DPB_LOOP
 
 NO_DPB:
@@ -223,25 +223,25 @@ Procedure InitCDS,NEAR
 	CMP	[NUMIO],AL
 	POP	AX
 	LES	DI,[THISCDS]
-	MOV	ES:[DI.curdir_flags],0	; "free" CDS
+	MOV	[ES:DI+curdir_flags],0	; "free" CDS
 	JB	RET_OK			; Drive does not map a physical drive
-	MOV	word ES:[DI.curdir_text],AX
+	MOV	word [ES:DI+curdir_text],AX
 	PUSH	AX
 	MOV	AX,"\"
-	MOV	word ES:[DI.curdir_text+2],AX   ; NUL terminate
+	MOV	word [ES:DI+curdir_text+2],AX   ; NUL terminate
 	POP	AX
-	OR	ES:[DI.curdir_flags],curdir_inuse
-	MOV	ES:[DI.curdir_END],2	; MZ 3 Nov 83
-	MOV	ES:[DI.curdir_ID],0
-	MOV	ES:[DI.curdir_ID+2],0
+	OR	[ES:DI+curdir_flags],curdir_inuse
+	MOV	[ES:DI+curdir_END],2	; MZ 3 Nov 83
+	MOV	[ES:DI+curdir_ID],0
+	MOV	[ES:DI+curdir_ID+2],0
 	PUSH	AX
 	PUSH	DS
 	PUSH	SI
 	SUB	AL,"A"                  ; A = 0
 	invoke	FIND_DPB
 	JC	PRET			; OOOOPPPPPSSSS!!!!
-	MOV	word ES:[DI.curdir_devptr],SI
-	MOV	word ES:[DI.curdir_devptr+2],DS
+	MOV	word [ES:DI+curdir_devptr],SI
+	MOV	word [ES:DI+curdir_devptr+2],DS
 PRET:
 	POP	SI
 	POP	DS
@@ -287,7 +287,7 @@ UserGet:
 	MOV	DI,DX			; destination
 	MOV	CX,[MYNUM]		; Get number
 	invoke	get_user_stack
-	MOV	[SI.User_CX],CX 	; Set number return
+	MOV	[SI+User_CX],CX 	; Set number return
 	Context DS			; point to DOSGroup
 ; ASSUME	DS:DOSGROUP
 	MOV	SI,MyName   ; point source to user string
@@ -313,7 +313,7 @@ UserSet:
 
 UserPrint:
 	; ASSUME	ES:NOTHING
-%if NOT Installed
+%if ~Installed
 	transfer PRINTER_GETSET_STRING
 %else
 	PUSH	AX
@@ -384,7 +384,7 @@ GetMap:
 	MOV	word ThisCDS+2,CS	;	ThisCDS = &DummyCDS;
 	ADD	AL,'A'
 	CALL	InitCDS 		;	InitCDS(c);
-	TEST	ES:[DI.curdir_flags],curdir_inuse	; Clears carry
+	TEST	[ES:DI+curdir_flags],curdir_inuse	; Clears carry
 	RestoreReg  <DI,ES,AX>
 	JZ	GetBerr 		; Not a physical drive.
 	JMP	SHORT GetBye		; carry clear
@@ -392,11 +392,11 @@ GetMap:
 Not_SRVC:
 	invoke	GetCDSFromDrv
 	JC	GetBerr2		; Unassigned CDS -> return error already set
-	TEST	[SI.curdir_flags],curdir_inuse	; Clears Carry
+	TEST	[SI+curdir_flags],curdir_inuse	; Clears Carry
 	JNZ	GetBye			; carry clear
 GetBerr:
 	MOV	AL,error_not_DOS_disk	;AN000;IFS. Formatted IFS drive
-	CMP	word [SI.curdir_devptr],0	 ;AN000;IFS. dpb ptr =0 ?
+	CMP	word [SI+curdir_devptr],0	 ;AN000;IFS. dpb ptr =0 ?
 	JNZ	notfat			;AN000;IFS. no
 GetBerr2:
 	MOV	AL,error_invalid_drive	;AN000;;IFS. invalid FAT drive

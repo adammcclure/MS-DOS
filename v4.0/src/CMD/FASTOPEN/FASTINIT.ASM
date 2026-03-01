@@ -119,11 +119,11 @@
 TRUE	   EQU	  0FFFFh									   ;AN000;
 FALSE	   EQU	  0										   ;AN000;
 
-DBCS	    =	  FALSE 									   ;AN000;
-Installed   =	  TRUE										   ;AN000;
+DBCS equ FALSE;AN000;
+Installed equ TRUE;AN000;
 
 %ifndef DEBUG
-    DEBUG	= FALSE
+    DEBUG equ FALSE
 %endif
 
 %include "dosmac.inc";AN000;
@@ -186,7 +186,7 @@ EMS_RESTORE_STATE      EQU	48H								   ;AN000;;AN000;
 EMS_PAGE_SIZE	       EQU	4FH								   ;AN000;;AN000;
 EMS_2F_HANDLER	       EQU	1BH								   ;AN000;;AN000;
 
-%if NOT IBMCOPYRIGHT
+%if ~IBMCOPYRIGHT
 
 EMS_GET_COUNT	       EQU	5801H
 
@@ -206,8 +206,8 @@ SINGLE_SEGMENT	       EQU	 1								   ;AN000;
 
 struc PAGE_FRAME_STRUC; EMS page frame structure				       ;AN000;
 
-  PAGE_SEG: dw 0;EMS page segment					     ;AN000;
-  PAGE_NUM: dw 0;EMS page number (only one page is used)						 ;AN000;
+  PAGE_SEG: resw 1;EMS page segment					     ;AN000;
+  PAGE_NUM: resw 1;EMS page number (only one page is used)						 ;AN000;
 
 endstruc
 
@@ -215,8 +215,8 @@ BUFFER_ENTRY_SIZE      EQU    TYPE  PAGE_FRAME_STRUC
 
 
 struc SUB_LIST; Message handler sublist structure			   ;AN000;
-	DB	11			;							   ;AN000;
-	DB	0			;							   ;AN000;
+	resb 1;							   ;AN000;
+	resb 1;							   ;AN000;
 DATA_OFF DW	0			; offset of data to be inserted 			   ;AN000;
 DATA_SEG DW	0			; offset of data to be inserted 			   ;AN000;
 MSG_ID	DB	0			; n of %n						   ;AN000;
@@ -470,25 +470,25 @@ INIT_LOOP:				    ; ES:SI-->cache buffer				   ;AN000;
 	 je	skip_this_drive 	    ; no - dont create header for this		     ;AN000;
 					    ; this drive
 	 mov	ax,0			    ; *** for debugging sequence count
-	 mov	es:[si].EXTENT_COUNT,ax     ; *** use this area for sequence counting
+	 mov	[es:si].EXTENT_COUNT,ax     ; *** use this area for sequence counting
 	 xor	ax,ax										   ;AN000;
 	 mov	ax,[di] 		    ; get drive ID from drive ID buff			   ;AN000;
-	 mov	es:[si].DRIVE_NUMBER,ax     ; save drive ID in drive header			   ;AN000;
+	 mov	[es:si].DRIVE_NUMBER,ax     ; save drive ID in drive header			   ;AN000;
 	 mov	bx, Drive_Header_size								   ;AN000;
 	 add	bx,si			    ; BX-->Free area				     ;AN000;
-	 mov	es:[si].FREE_PTR,bx	    ; pointing to free area				   ;AN000;
+	 mov	[es:si].FREE_PTR,bx	    ; pointing to free area				   ;AN000;
 												   ;AN000;
-	 mov	es:[si].MRU_HDR_PTR,-1	    ; mark OPEN QUEUE empty				   ;AN000;
-	 mov	es:[si].CLOSE_PTR,-1	    ; make CLOSE QUEUE empty				   ;AN000;
+	 mov	[es:si].MRU_HDR_PTR,-1	    ; mark OPEN QUEUE empty				   ;AN000;
+	 mov	[es:si].CLOSE_PTR,-1	    ; make CLOSE QUEUE empty				   ;AN000;
 	 xor	ax,ax										   ;AN000;
 	 mov	ax,[di+2]		    ; get extent count (n)				   ;AN000;
 	 mov	cx, Extent_Header_size	    ; get extent size				     ;AN000;
 	 mul	cx			    ; AX=total cache for this drive			   ;AN000;
-	 mov	es:[si].BUFF_SIZE,ax	    ; save it as initial available size 			    ;AN000;
-	 mov	es:[si].FREE_SIZE,ax	    ; save it as initial free size
+	 mov	[es:si].BUFF_SIZE,ax	    ; save it as initial available size 			    ;AN000;
+	 mov	[es:si].FREE_SIZE,ax	    ; save it as initial free size
 	 add	ax, Drive_Header_size	    ; (2/9/88)
 	 add	ax,si			    ; AX-->offset to next drive hdr			   ;AN000;
-	 mov	es:[si].Next_Drv_hdr_Ptr,ax    ; save next drive header ptr in			   ;AN000;
+	 mov	[es:si].Next_Drv_hdr_Ptr,ax    ; save next drive header ptr in			   ;AN000;
 					    ; current drive header				   ;AN000;
 	 mov	bx,ax										   ;AN000;
 	 mov	ax,si			    ; save current header pointer			   ;AN000;
@@ -500,7 +500,7 @@ SKIP_THIS_DRIVE:										   ;AN000;
 	 LOOP	init_loop		    ; repeat for next drive number			   ;AN000;
 												   ;AN000;
 	 mov	si,ax										   ;AN000;
-	 mov	es:[si].Next_Drv_hdr_Ptr,-1   ; mark current header as last
+	 mov	[es:si].Next_Drv_hdr_Ptr,-1   ; mark current header as last
 					      ; drive header
 ;----------------------------------------------------------------------------
 ; Close handles 0 - 4
@@ -1601,7 +1601,7 @@ COPY_DATA:
 
 Paramloop:
 	 mov   al,[si]										   ;AN000;
-	 mov   es:[di],al									   ;AN000;
+	 mov   [es:di],al									   ;AN000;
 	 inc   si										   ;AN000;
 	 inc   di										   ;AN000;
 	 LOOP  paramloop									   ;AN000;
@@ -1808,8 +1808,8 @@ PARSE:
 ; Copy command parameters from PSP  to the  command buffer
 ;----------------------------------------------------------------------------
 Cmdloop:
-	 mov   al,ds:[si]	   ; DS:SI-->Command line					   ;AN000;
-	 mov   es:[di],al	   ; ES:DI-->program command buffer				   ;AN000;
+	 mov   al,[ds:si]	   ; DS:SI-->Command line					   ;AN000;
+	 mov   [es:di],al	   ; ES:DI-->program command buffer				   ;AN000;
 	 inc   si										   ;AN000;
 	 inc   di										   ;AN000;
 	 LOOP  cmdloop		   ; copy command line
@@ -1955,7 +1955,7 @@ Bad_Param:
 Set_Disp_Param:
 	mov   di,Next_Parm	  ; ending address of bad param  (1/6/88)
 	mov   al,0
-	mov   ds:[di],al	   ; set termination character
+	mov   [ds:di],al	   ; set termination character
 	LEA   SI,SUBLIST1	  ; DS:SI-->Substitution list					   ;AN000;
 	MOV   AX,CURRENT_PARM	  ; starting address of bad parameter				  ;AN000;
 	MOV   [SI].DATA_OFF,AX	  ; SI-->File name						   ;AN000;
@@ -2251,7 +2251,7 @@ Set_ExtFlag:			   ; no, check reult buffer
 Bad_Switch:
 	mov   di,Next_Parm	  ; ending address of bad param  1/6/88
 	mov   al,0
-	mov   ds:[di],al	   ; set termination character
+	mov   [ds:di],al	   ; set termination character
 	LEA   SI,SUBLIST1	  ; DS:SI-->Substitution list					   ;AN000;
 	MOV   AX,CURRENT_PARM	  ; starting address of bad parameter				  ;AN000;
 	MOV   [SI].DATA_OFF,AX	  ; SI-->File name						   ;AN000;
@@ -2593,7 +2593,7 @@ EMS_GET_PAGE:
 	PUSH	ES			; save ES,DI they may destroy by 2F
 	PUSH	DI
 
-%if NOT BUFFERFLAG
+%if ~BUFFERFLAG
 
 	MOV	AH,EMS_2F_HANDLER
 	XOR	AL,AL
@@ -2622,7 +2622,7 @@ EMS_GET_PAGE:
 	mov	dx, ax
 	
 get_page:
-	cmp	es:[di], 0a000h		; is the page in ax above 640K
+	cmp	[es:di], 0a000h		; is the page in ax above 640K
 	jb	next_page		; if no get next_page
 
 	mov	bx, di			; we have a valid page
@@ -2632,9 +2632,9 @@ get_page:
 	cmp	dx, 1
 	je	next_page
 	sub	di, 4
-	mov	ax, es:[di]
+	mov	ax, [es:di]
 	mov	[FST_PAGE], ax
-	mov	ax, es:[di+2]
+	mov	ax, [es:di+2]
 	mov	[FST_PAGE+2], ax
 	mov	di, bx			; restore di
 
@@ -2649,9 +2649,9 @@ found_page:
 	cmp	dx, 1
 	jne	second_last_page
 	mov	di, bx
-	mov	ax, es:[di]
+	mov	ax, [es:di]
 	mov	ems_page_seg, ax
-	mov	ax, es:[di+2]
+	mov	ax, [es:di+2]
 	mov	ems_page_num, ax
 	jmp	save_state
 
@@ -2814,7 +2814,7 @@ EMS_CHECK1:;EMS INSTALL CHECK
 	MOV	AX, BUFFER_ENTRY_SIZE
 	MUL	CX			; CALCULATE THE ARRAY SIZE BE RESERVED
 
-%if NOT IBMCOPYRIGHT
+%if ~IBMCOPYRIGHT
 	CMP	AX, 100h			
 %else
 	CMP	AX, 30H				

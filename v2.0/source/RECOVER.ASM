@@ -12,7 +12,7 @@
 ;
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 
 IBMVER  EQU     true
@@ -418,7 +418,7 @@ not_root:
                                         ; has been changed.
 
 ;----- Save current directory for exit ---------------------------------;
-        mov     dl,byte ds:[fcb]    ;get specified drive if any
+        mov     dl,byte [ds:fcb]    ;get specified drive if any
         or      dl,dl                   ;default disk?
         jz      same_drive
         dec     dl                      ;adjust to real drive (a=0,b=1,...)
@@ -442,7 +442,7 @@ same_drive:
         jmp     printerr
 
 drvisok:
-        cmp     [bx.dpb_current_dir],0
+        cmp     [bx+dpb_current_dir],0
         je      curr_is_root
         mov     si,bx
         add     si,dpb_dir_text

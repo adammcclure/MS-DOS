@@ -158,7 +158,7 @@ no_sys_wait:
 	PUSH	BX			; the follwing code is to
 	MOV	BX,DATE_FLAG
 	ADD	BX,2			; check the TAG
-	CMP	word CS:[BX],22642
+	CMP	word [CS:BX],22642
 	JZ	check_ok
 	invoke	DOSINIT 		; should never come here
 check_ok:
@@ -188,7 +188,7 @@ Get:
 noscan:
 ;;; 7/15/86
  %if DBCS;AN000;
-	cmp	cs:[InterChar],1    ;AN000; set the zero flag if the character3/31/KK ;AN000;
+	cmp	[cs:InterChar],1    ;AN000; set the zero flag if the character3/31/KK ;AN000;
  %endif;AN000;
 	return
  %if DBCS;AN000;
@@ -267,12 +267,12 @@ RAW22:						      ;AN000;
 	pop	word [InterCon]	;AN000; restore interim flag
  %endif;AN000;
 	invoke	SPOOLINT
-	OR	byte ES:[DI.user_F],40H ; Set user's zero flag
+	OR	byte [ES:DI+user_F],40H ; Set user's zero flag
 	XOR	AL,AL
 	return
 
 RESFLG:
-	AND	byte ES:[DI.user_F],0FFH-40H    ; Reset user's zero flag
+	AND	byte [ES:DI+user_F],0FFH-40H    ; Reset user's zero flag
  %if DBCS;AN000;
 	XOR	AH,AH			;AN000;
 	invoke	IOFUNC			;AN000; get the character
@@ -329,10 +329,10 @@ do_koren:				;AN000; 3/16/KK
 	popf				;AN000;
 	LES	DI,dword [user_SP]	;AN000; Get pointer to register save area KK
 	jnz	sj0			;AN000; 		      2/11/KK
-	OR	byte ES:[DI.user_F],40H	;AN000; Set user's zero flag  2/11/KK
+	OR	byte [ES:DI+user_F],40H	;AN000; Set user's zero flag  2/11/KK
 	return				;AN000; 		2/11/KK
 sj0:					;AN000; 		2/11/KK
-	AND	byte ES:[DI.user_F],0FFH-40H ;AN000; Reset user's zero flag 2/KK
+	AND	byte [ES:DI+user_F],0FFH-40H ;AN000; Reset user's zero flag 2/KK
  %endif;AN000;
 	return					 ;AN000;
 ;
@@ -346,7 +346,7 @@ sj0:					;AN000; 		2/11/KK
 	invoke	GET_IO_SFT
 	JC	RAWRET1
 
-	MOV	BX,[SI.sf_flags]
+	MOV	BX,[SI+sf_flags]
 
  ;
  ; If we are a network handle OR if we are not a local device then go do the
@@ -367,7 +367,7 @@ sj0:					;AN000; 		2/11/KK
 ;	JZ	RAWNORM 			; if so, do normally
 
 	PUSH	DS
-	LDS	BX,[SI.sf_devptr]		; output to special?
+	LDS	BX,[SI+sf_devptr]		; output to special?
 	TEST	byte [BX+SDEVATT],ISSPEC
 	POP	DS
 	JZ	RAWNORM 			; if not, do normally

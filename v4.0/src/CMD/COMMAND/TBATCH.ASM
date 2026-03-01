@@ -231,8 +231,8 @@ TESTNOP:
 	MOV	AX,DS
 	MOV	DS,Batch
 	; ASSUME	DS:NOTHING
-	PUSH	word DS:[BatSeek]
-	PUSH	word DS:[BatSeek+2] 	; save current location.
+	PUSH	word [DS:BatSeek]
+	PUSH	word [DS:BatSeek+2] 	; save current location.
 	MOV	DS,AX
 	; ASSUME	DS:ResGroup
 	invoke	SkipDelim			; skip to first non-delim
@@ -256,8 +256,8 @@ SET_BAT_POS:					;g
 	PUSH	DS
 	MOV	DS,Batch
 	; ASSUME	DS:NOTHING
-	MOV	word DS:[BatSeek],DX	; reseek back to beginning
-	MOV	word DS:[BatSeek+2],CX
+	MOV	word [DS:BatSeek],DX	; reseek back to beginning
+	MOV	word [DS:BatSeek+2],CX
 	POP	DS
 	; ASSUME	DS:ResGroup
 	MOV	AX,(LSEEK SHL 8) + 0		; seek back
@@ -311,7 +311,7 @@ SAVBATBYT:
 Found_EOL:
 	SUB	DI,COMBUF+3
 	MOV	AX,DI				; remember that we've not counted the CR
-	MOV	ES:[COMBUF+1],AL		; Set length of line
+	MOV	[ES:COMBUF+1],AL		; Set length of line
 	invoke	GetBatByt			; Eat linefeed
 	invoke	BATCLOSE
 	CMP	SUPPRESS, NO_ECHO		;G
@@ -465,7 +465,7 @@ GETENV1:
 ;
 ; The user entered a string with a % but no trailing %.  We copy the string.
 ;
-	mov	byte es:[di-1],0		; nul terminate the string
+	mov	byte [es:di-1],0		; nul terminate the string
 	mov	si,ID		; point to buffer
 	pop	di				; point to line buffer
 	push	cs
@@ -484,7 +484,7 @@ getenv15:
 	CMP	AL,'%'                          ; terminating %?
 	JNZ	GETENV1 			; no, go suck out more characters
 	mov	al,'='                          ; terminate  with =
-	MOV	ES:[DI-1],al
+	MOV	[ES:DI-1],al
 ;
 ; ID now either has a =-terminated string which we are to find in the
 ; environment or a non =-terminated string which will not be found in the
@@ -687,13 +687,13 @@ Procedure   BatCom,NEAR
 
 	MOV	ES,[RESSEG]
 ; ASSUME	ES:RESGROUP
-	cmp	es:[call_batch_flag],call_in_progress ;AN043; If in CALL,
+	cmp	[es:call_batch_flag],call_in_progress ;AN043; If in CALL,
 	jz	skip_ioset			;AN043;   redirection was already set up
 	invoke	IOSET				; Set up any redirection
 
 skip_ioset:					;AN043;
 	CALL	FREE_TPA			; G
-	cmp	es:[call_batch_flag],call_in_progress ;G
+	cmp	[es:call_batch_flag],call_in_progress ;G
 	jz	getecho 			; G if we're in a call, don't execute
 ;
 ; Since BATCH has lower precedence than PIPE or FOR.  If a new BATCH file is
@@ -710,10 +710,10 @@ getecho:
 	push	ax
 
 	xor	ax,ax				;G
-	test	es:[batch],-1			;G  Are we in a batch file?
+	test	[es:batch],-1			;G  Are we in a batch file?
 	jz	leavebat			;G  No, nothing to save
-	mov	ax,es:[batch]			;G get current batch segment
-	cmp	es:[call_batch_flag],call_in_progress  ;G
+	mov	ax,[es:batch]			;G get current batch segment
+	cmp	[es:call_batch_flag],call_in_progress  ;G
 	jz	leavebat			;G
 ;
 ;  We are in a chained batch file, save batlast from previous batch segment
@@ -721,12 +721,12 @@ getecho:
 ;
 	push	es				;G
 	mov	es,ax				;G get current batch segment
-	mov	ax,es:[batlast] 		;G get previous batch segment
+	mov	ax,[es:batlast] 		;G get previous batch segment
 	pop	es				;G
 
 leavebat:					;G
 	push	ax				;G keep segment until new one created
-	cmp	es:[call_batch_flag],call_in_progress  ;G are we in a CALL?
+	cmp	[es:call_batch_flag],call_in_progress  ;G are we in a CALL?
 	jz	startbat			;G Yes, keep current batch segment
 	call	BatchOff			;G No, deallocate old batch segment
 
@@ -736,7 +736,7 @@ leavebat:					;G
 
 startbat:					;G
 	; ASSUME	ES:RESGROUP
-	MOV	es:[CALL_BATCH_FLAG], 0 	;G  reset call flag
+	MOV	[es:CALL_BATCH_FLAG], 0 	;G  reset call flag
 	mov	SI, EXECPATH
 
 	mov	ax,AppendTruename		;AN042; Get the real path where the batch file
@@ -808,29 +808,29 @@ enough_mem:
 	PUSH	ES
 	MOV	ES,[BATCH]
 ; ASSUME	ES:NOTHING
-	MOV	ES:[BatType],BatchType		; signal batch file type
-	MOV	ES:[batlast],ax 		;G save segment of last batch file
+	MOV	[ES:BatType],BatchType		; signal batch file type
+	MOV	[ES:batlast],ax 		;G save segment of last batch file
 	push	DS				;G
 	mov	DS,[resseg]			;G set to resident data
 ; ASSUME	DS:RESGROUP
 	xor	ax,ax				;G
 	mov	bl,forflag			;G get the current FOR state
-	mov	ES:[batforflag],bl		;G save it in the batch segment
+	mov	[ES:batforflag],bl		;G save it in the batch segment
 	test	bl,-1				;G are we in a FOR?
 	jz	for_not_on			;G no, for segment set to 0
 	mov	ax,forptr			;G yes, get current FOR segment
 	mov	forflag,0			;G reset forflag
 
 for_not_on:
-	mov	ES:[batforptr],ax		;G save FOR segment in batch segment
+	mov	[ES:batforptr],ax		;G save FOR segment in batch segment
 	XOR	AX,AX
 	mov	forptr,ax			;G make sure for segment is not active
 	mov	bl,echoflag			;G
 	pop	DS				;G
 
-	mov	byte es:[Batechoflag],bl	;G save echo state of parent
-	MOV	word ES:[BatSeek],AX	; point to beginning of file
-	MOV	word ES:[BatSeek+2],AX
+	mov	byte [es:Batechoflag],bl	;G save echo state of parent
+	MOV	word [ES:BatSeek],AX	; point to beginning of file
+	MOV	word [ES:BatSeek+2],AX
 ;
 ; Initialize pointers
 ;
@@ -873,7 +873,7 @@ EACHPARM:
 ;
 ; Go into allocated piece and stick in new argument pointer.
 ;
-	MOV	ES:[BX],DI			; store batch pointer
+	MOV	[ES:BX],DI			; store batch pointer
 	ADD	BX,2				; advance arg counter
 ;
 ; Move the parameter into batch segment
@@ -969,13 +969,13 @@ Procedure   BatchOff
 	mov	suppress,no_echo		;G no - don't echo last line in file
 
 echo_last_line:
-	MOV	BL,ES:[BATECHOFLAG]		;G  Get echo state
+	MOV	BL,[ES:BATECHOFLAG]		;G  Get echo state
 	mov	[echoflag],bl			;G     and restore it
-	MOV	BX,ES:[BATFORPTR]		;G  Get FOR segment
+	MOV	BX,[ES:BATFORPTR]		;G  Get FOR segment
 	MOV	FORPTR,BX			;G     and restore it
-	MOV	BL,ES:[BATFORFLAG]		;G  Get FOR flag
+	MOV	BL,[ES:BATFORFLAG]		;G  Get FOR flag
 	MOV	FORFLAG,BL			;G     and restore it
-	MOV	BX,es:[batlast] 		;G  get old batch segment
+	MOV	BX,[es:batlast] 		;G  get old batch segment
 	MOV	AH,DEALLOC
 	INT	int_command
 	POP	ES

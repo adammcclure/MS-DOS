@@ -7,7 +7,7 @@
 ; .xcref
 %include "mssw.asm"
 %include "dosseg.asm"
-debug = FALSE                           ; No dossym (too big)
+debug equ FALSE; No dossym (too big)
 %include "DOSMAC.INC"
 %include "SF.INC"
 %include "DIRENT.INC"
@@ -26,7 +26,7 @@ debug = FALSE                           ; No dossym (too big)
 ; TITLE   IBMDATA - DATA segment for DOS
 ; NAME    IBMDATA
 
-installed = TRUE
+installed equ TRUE
 
 %include "msdata.asm"
 %include "msinit.asm"

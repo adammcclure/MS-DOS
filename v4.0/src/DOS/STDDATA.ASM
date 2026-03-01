@@ -7,7 +7,7 @@
 ; .xcref
 %include "stdsw.asm"
 %include "dosseg.asm"
-debug = FALSE                           ; No dossym (too big)
+debug equ FALSE; No dossym (too big)
 %include "DOSMAC.INC"
 %include "SF.INC"
 %include "DIRENT.INC"
@@ -26,7 +26,7 @@ debug = FALSE                           ; No dossym (too big)
 ; TITLE   STDDATA - DATA segment for MS-DOS
 ; NAME    STDDATA
 
-installed = TRUE
+installed equ TRUE
 
 %include "msdata.asm"
 %include "msinit.asm"

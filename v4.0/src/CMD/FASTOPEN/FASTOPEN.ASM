@@ -178,7 +178,7 @@ MAIN:; FAR procedure for FAR call from DOS
 	cmp	cs:Main_EMS_flag,1	  ; EMS enabled ??					     ;AN000;
 	jne	dispatch_funcs		  ; no - dispatch functions			   ;AN000;
 					  ; yes - save EMS page state
-%if NOT BUFFERFLAG
+%if ~BUFFERFLAG
 
 ;-----------------------------------------------------------------------------
 ; SAVE EMS PAGE STATE
@@ -269,7 +269,7 @@ EMS_FAILED:
 
 %endif
 
-%if NOT BUFFERFLAG
+%if ~BUFFERFLAG
 SAVE_FAILED:
 %endif
 
@@ -312,7 +312,7 @@ CHECK_DRIVE_ID:
 	mov	cx,cs:Main_Num_Of_Drives    ; number of drives					   ;AN000;
 
 Get_Drive_Id:											   ;AN000;
-	mov	bx,cs:[si]									   ;AN000;
+	mov	bx,[cs:si]									   ;AN000;
 	cmp	bl,dl			    ; drive ID match ?? 				   ;AN000;
 	je	drive_found		    ; yes, drive ID found				   ;AN000;
 	add	si,4			    ; (2/11) no, move pointer to next ID			  ;AN000;
@@ -781,13 +781,13 @@ Lookup_Path:
 	push	ds			   ;yes-drive header
 	mov	ds,cs:Open_Name_Cache_Seg
 	; ASSUME	ds:Cseg_Init
-	mov	BP, DS:[BP.DCH_Child_ptr]  ;BP-->first child node under drive hdr
+	mov	BP, [DS:BP+DCH_Child_ptr]  ;BP-->first child node under drive hdr
 	pop	ds
 	; ASSUME	ds:nothing
 	jmp	short Lp_Path2
 
 Lp_Path1:
-	mov	BP, ES:[BP.nChild_ptr]	   ;BP--> child of current node
+	mov	BP, [ES:BP+nChild_ptr]	   ;BP--> child of current node
 
 Lp_Path2:
 	cmp	BP, -1			   ;no child?
@@ -800,7 +800,7 @@ Lp_Cmpare:
 	je	Lookup_Found		   ;Yes, found a match. Next level for
 					   ;possible remianing path
 
-	mov	BP, ES:[BP.nSibling_ptr]   ;not found. Any siblings?
+	mov	BP, [ES:BP+nSibling_ptr]   ;not found. Any siblings?
 	mov	cs:Current_Sibling,BP
 	cmp	BP, -1			   ;any more sibling?
 	je	Lookup_Done		   ;no - done
@@ -900,7 +900,7 @@ INSERT:
 	mov	ds,cs:Open_Name_Cache_Seg	;DS=name cache segment
 
 	; ASSUME	ds:Cseg_Init;AN000;
-	cmp	ax, ds:[bp.DCH_Num_Entries]	;Level > (Num_Entries - 1) ?
+	cmp	ax, [ds:bp+DCH_Num_Entries]	;Level > (Num_Entries - 1) ?
 	pop	ds
 	; ASSUME	ds:nothing
 	jbe	Insert_it			;no- insert it
@@ -920,20 +920,20 @@ Insert_it:
 	mov	bx, bp			   ;save it into bx
 	cmp	cs:Current_Sibling,0fffeh  ;current node sibling node ??
 	je	I_Child 		   ;no-child of preceding node
-	mov	es:[bp.nSibling_ptr], ax   ;yes-make new node sibling of
+	mov	[es:bp+nSibling_ptr], ax   ;yes-make new node sibling of
 	jmp	short I_Done		   ;current node
 
 I_Child:				   ;set nChild_ptr
 	test	cs:Flag,Is_drive_head	   ;drive level?
 	jnz	I_Child_first		   ;Yes, must be the first child
-	mov	es:[bp.nChild_ptr], ax	   ;no-make ndew node child of
+	mov	[es:bp+nChild_ptr], ax	   ;no-make ndew node child of
 	jmp	short I_Done		   ;current node
 
 I_Child_first:				   ;this is the first child in this drive.
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg							   ;AN000;
 	; ASSUME	ds:Cseg_Init;AN000;
-	mov	ds:[bp.DCH_Child_ptr],ax   ;make new node 1st child current drive
+	mov	[ds:bp+DCH_Child_ptr],ax   ;make new node 1st child current drive
 	pop	ds
 	; ASSUME	ds:nothing
 	mov	bx, cs:Current_Drive	   ;change bx to Current_Drive
@@ -941,7 +941,7 @@ I_Child_first:				   ;this is the first child in this drive.
 
 I_Done:
 	mov	bp, ax
-	mov	es:[bp.nBackward_ptr],bx ;set the backward ptr of the inserted node.
+	mov	[es:bp+nBackward_ptr],bx ;set the backward ptr of the inserted node.
 
 	CALL	PRE_LRU_STACK		   ;save this inserted record temporarily.
 
@@ -1000,7 +1000,7 @@ DELETE:
 	; ASSUME	ds:nothing
 	jc	D_err_Exit		   ;indirectly in the same segment
 
-	cmp	byte ds:[si], 0	   ;found the whole path?
+	cmp	byte [ds:si], 0	   ;found the whole path?
 	jne	D_err_Exit		   ;No.
 
 ;At this point, Current_Node = BP.
@@ -1009,12 +1009,12 @@ DELETE:
 	; ASSUME	es:Cseg_Init
 
 Delete_Node:
-	cmp	es:[bp.nChild_ptr], -1	   ;No children?
+	cmp	[es:bp+nChild_ptr], -1	   ;No children?
 	jne	D_err_Exit
 	CALL	REMOVEFROMTREE		   ;remove the node while maintaing the
 					   ;integrity of the tree.
 
-	mov	es:[bp.nCmpct_Dir_Info], ' ' ;mark that this entry is free!!!
+	mov	[es:bp+nCmpct_Dir_Info], ' ' ;mark that this entry is free!!!
 
 D_LRU_MRU:
 	CALL	REMOVEFROMLRUCHAIN	   ;Remove BP from the LRU,MRU chain
@@ -1024,11 +1024,11 @@ D_LRU_MRU:
 	mov	ds,cs:Open_Name_Cache_Seg
 	; ASSUME	ds:Cseg_Init;AN000;
 
-	mov	bx, ds:[si.DCH_LRU_ROOT]   ;es:bx -> first node
-	mov	es:[bp.nLRU_ptr],bx	   ;Target.nLRU_ptr -> first node
-	mov	es:[bx.nMRU_ptr],bp	   ;First_node.nMRU_ptr -> target
-	mov	ds:[si.DCH_LRU_ROOT],bp    ;LRU_ROOT -> target
-	mov	es:[bp.nMRU_ptr],-1
+	mov	bx, [ds:si+DCH_LRU_ROOT]   ;es:bx -> first node
+	mov	[es:bp+nLRU_ptr],bx	   ;Target.nLRU_ptr -> first node
+	mov	[es:bx+nMRU_ptr],bp	   ;First_node.nMRU_ptr -> target
+	mov	[ds:si+DCH_LRU_ROOT],bp    ;LRU_ROOT -> target
+	mov	[es:bp+nMRU_ptr],-1
 	pop	ds
 	; ASSUME	ds:nothing
 	jmp	short	D_Exit		   ;exit
@@ -1114,7 +1114,7 @@ Update_Delete1: 			; same as delete (PTR P3718  3/10/88)
 	jmp	Delete_Node		; if found, delete node
 
 Update_Dir_Entry:
-	mov	cx, es:[di.dir_first]
+	mov	cx, [es:di+dir_first]
 	push	es			;save Dir_Info pointer ES:DI
 	push	di
 	CALL	FIND_CLUSTER_NUMBER
@@ -1139,7 +1139,7 @@ Update_Extended_clusnum:		;update extended info field
 
 	add	bp, nExtended_Info	;es:bp -> Name_record.nExtended_Info
 	mov	bx, cs:New_FEI_clusnum
-	mov	es:[bp.FEI_clusnum],bx
+	mov	[es:bp+FEI_clusnum],bx
 
 Update_Exit:
 	CALL	Check_It		   ;check tree structure
@@ -1167,32 +1167,32 @@ FP_PURGE:
 
 	mov	si,Open_Name_Drive_Buff        ; SI-->first Name drive cache buff
 	mov	es,Open_Name_Cache_Seg	       ; ES = name cache seg ID
-	mov	bx,es:[si].DCH_Name_Buff       ; BX-->Name cache buffer
+	mov	bx,[es:si].DCH_Name_Buff       ; BX-->Name cache buffer
 	inc	dl			       ; DL=drive number
 	add	dl,040H 		       ; convert drive num to drive letter
 
 ; Search for the name drive header corresponds to the drive letter
 Purge_Drv_Loop:
-	cmp	es:[si].DCH_Drive_Letter,dl    ; drive letter match ??
+	cmp	[es:si].DCH_Drive_Letter,dl    ; drive letter match ??
 	je	Purge_drive_cache	       ; yes - set drive cache
 	add	si, Drive_Cache_Header_size    ; no - get address of next drive cache
 	jmp	purge_drv_loop		       ; try next name drive header
 
 Purge_Drive_Cache:			       ; SI-->drive header
-	mov	bx,es:[si].DCH_Name_Buff       ; BX-->Name cache buffer
-	mov	cx,es:[si].DCH_num_entries     ; get number of name records
+	mov	bx,[es:si].DCH_Name_Buff       ; BX-->Name cache buffer
+	mov	cx,[es:si].DCH_num_entries     ; get number of name records
 	mov	ax,bx			       ; save last name record address
-	mov	es:[bx].nMRU_ptr, -1	       ; make first MRU -1
+	mov	[es:bx].nMRU_ptr, -1	       ; make first MRU -1
 	jmp	short set_start
 
 Set_Up_Names:
-	mov	es:[bx].nMRU_ptr,ax		;save last name record as MRU entry
+	mov	[es:bx].nMRU_ptr,ax		;save last name record as MRU entry
 	add	ax, Name_Record_size		;AX = last name record = current name record
 
 Set_Start:
-	mov	es:[bx].nChild_ptr, -1		;no children or siblings
-	mov	es:[bx].nsibling_ptr, -1	;right now
-	mov	es:[bx].nBackward_ptr, -1
+	mov	[es:bx].nChild_ptr, -1		;no children or siblings
+	mov	[es:bx].nsibling_ptr, -1	;right now
+	mov	[es:bx].nBackward_ptr, -1
 
 	push	di
 	push	ax
@@ -1212,7 +1212,7 @@ Set_Start:
 	jcxz	purge_exit			;exit if last name record is done
 	mov	dx,bx
 	add	dx, Name_Record_size		;DX-->next name record
-	mov	es:[bx].nLRU_ptr,dx		   ;set LRU pointer - next name record
+	mov	[es:bx].nLRU_ptr,dx		   ;set LRU pointer - next name record
 	add	bx, Name_Record_size
 	jmp	set_up_names			;set next name record
 
@@ -1251,13 +1251,13 @@ FIND_DRIVE_CACHE_HEADER:
 	; ASSUME	ds:Cseg_Init;DS:BP-->first drive header    ;AN000;
 
 FDCH_while:
-	cmp	byte ds:[bp.DCH_Drive_Letter], dl	; drive letter match
+	cmp	byte [ds:bp+DCH_Drive_Letter], dl	; drive letter match
 	jne	fdch_chk_end				; no - check next header
 	clc						; yes - exit
 	jmp	short FDCH_Exit
 
 FDCH_Chk_End:
-	cmp	byte ds:[bp.DCH_Sibling_ptr], -1	; is this last header ?
+	cmp	byte [ds:bp+DCH_Sibling_ptr], -1	; is this last header ?
 	je	FDCH_Not_Found				; yes - header not found
 	add	bp, Drive_Cache_Header_size		; no - get next header
 	jmp	short	FDCH_while			; look for match
@@ -1303,7 +1303,7 @@ GET_FREE_NODE:
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg
 	; ASSUME	ds:Cseg_Init
-	mov	ax, ds:[si.DCH_LRU_ROOT]	;get the LRU node
+	mov	ax, [ds:si+DCH_LRU_ROOT]	;get the LRU node
 	pop	ds
 	; ASSUME	ds:nothing
 
@@ -1311,16 +1311,16 @@ GET_FREE_NODE:
 	je	GFN_skip			;yes-
 
 	mov	bp, ax				;BP=Current node
-	mov	di, es:[bp.nLRU_ptr]		;DI= current LRU node's following node
-	mov	es:[di.nMRU_ptr],-1		;set that node's MRU ptr
+	mov	di, [es:bp+nLRU_ptr]		;DI= current LRU node's following node
+	mov	[es:di+nMRU_ptr],-1		;set that node's MRU ptr
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg	;DS=Name cache segment
 	; ASSUME	ds:Cseg_Init
-	mov	ds:[si.DCH_LRU_ROOT],di 	;connect previous node to
+	mov	[ds:si+DCH_LRU_ROOT],di 	;connect previous node to
 	pop	ds				;next node
 	; ASSUME	ds:nothing
 
-	cmp	byte es:[bp.nCmpct_Dir_Info],' ';an empty node?
+	cmp	byte [es:bp+nCmpct_Dir_Info],' ';an empty node?
 	je	GFN_OK			      ;then no problem.
 
 	CALL	RemoveFromTree		    ;otherwise, it should be removed
@@ -1395,7 +1395,7 @@ PLS_Push:
 	cmp	cs:Depth, 1
 	jne	PLS_Top
 	mov	cs:Bottom, bp		   ;bottom = bp
-	mov	es:[bp.nLRU_ptr], -1
+	mov	[es:bp+nLRU_ptr], -1
 	jmp	short PLS_Done
 
 PLS_Top:
@@ -1405,8 +1405,8 @@ PLS_Top:
 	mov	di, cs:bottom		   ;di = bottom
 
 PLS_com:
-	mov	es:[bp.nLRU_ptr],di	;Top.LRU_ptr = bottom
-	mov	es:[di.nMRU_ptr],bp	;Bottom.MRU_ptr = top
+	mov	[es:bp+nLRU_ptr],di	;Top.LRU_ptr = bottom
+	mov	[es:di+nMRU_ptr],bp	;Bottom.MRU_ptr = top
 	jmp	short PLS_Done
 
 PLS_Temp:
@@ -1416,7 +1416,7 @@ PLS_Temp:
 	jmp	short PLS_com
 
 PLS_Done:
-	mov	es:[bp.nMRU_ptr],-1
+	mov	[es:bp+nMRU_ptr],-1
 	pop	di
 
 PLS_Exit:
@@ -1462,23 +1462,23 @@ SET_LRU:
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg							   ;AN000;
 	; ASSUME	ds:Cseg_Init;AN000;
-	mov	di, ds:[si.DCH_MRU_ROOT] ;es:di -> Last node in LRU chain
+	mov	di, [ds:si+DCH_MRU_ROOT] ;es:di -> Last node in LRU chain
 
 	cmp	cs:Depth, 1
 	jne	SL_Other
 
 	mov	bx, cs:Bottom
-	mov	es:[di.nLRU_ptr],bx	;Last_Node.LRU_ptr = Bottom
-	mov	es:[bx.nMRU_ptr],di	;Bottom.MRU_ptr = Last_Node
-	mov	ds:[si.DCH_MRU_ROOT],bx ;MRU_ROOT = Bottom
+	mov	[es:di+nLRU_ptr],bx	;Last_Node.LRU_ptr = Bottom
+	mov	[es:bx+nMRU_ptr],di	;Bottom.MRU_ptr = Last_Node
+	mov	[ds:si+DCH_MRU_ROOT],bx ;MRU_ROOT = Bottom
 	jmp	short SL_Done
 
 SL_Other:				;Depth >= 2
 	mov	bx, cs:Top
-	mov	es:[di.nLRU_ptr],bx
-	mov	es:[bx.nMRU_ptr],di
+	mov	[es:di+nLRU_ptr],bx
+	mov	[es:bx+nMRU_ptr],di
 	mov	bx, cs:Bottom
-	mov	ds:[si.DCH_MRU_ROOT],bx
+	mov	[ds:si+DCH_MRU_ROOT],bx
 
 SL_Done:
 	pop	ds
@@ -1516,32 +1516,32 @@ RemoveFromLRUChain:
 	push	si
 
 	mov	si, cs:Current_drive	   ;cs:si-> Drive_cache_header
-	mov	bx, es:[bp.nMRU_ptr]	;es:bx-> Preceding node
-	mov	di, es:[bp.nLRU_ptr]	;es:di-> Following node
+	mov	bx, [es:bp+nMRU_ptr]	;es:bx-> Preceding node
+	mov	di, [es:bp+nLRU_ptr]	;es:di-> Following node
 	cmp	bx, -1			;Is target the first node?
 	je	RFLC_first_node
 	cmp	di, -1			;Is target the last node of LRU chain?
 	je	RFLC_last_node
-	mov	es:[bx.nLRU_ptr],di	;Preceding.LRU_ptr->following node
-	mov	es:[di.nMRU_ptr],bx	;Following.MRU_ptr->preceding node
+	mov	[es:bx+nLRU_ptr],di	;Preceding.LRU_ptr->following node
+	mov	[es:di+nMRU_ptr],bx	;Following.MRU_ptr->preceding node
 	jmp	short RFLC_done
 
 RFLC_first_node:
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg							   ;AN000;
 	; ASSUME	ds:Cseg_Init;AN000;
-	mov	ds:[si.DCH_LRU_ROOT],di ;LRU_ROOT-> following node
+	mov	[ds:si+DCH_LRU_ROOT],di ;LRU_ROOT-> following node
 	pop	ds
 	; ASSUME	ds:nothing
-	mov	es:[di.nMRU_ptr], -1	;Following node's MRU_ptr
+	mov	[es:di+nMRU_ptr], -1	;Following node's MRU_ptr
 	jmp	short RFLC_done
 
 RFLC_last_node:
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg
 	; ASSUME	ds:Cseg_Init
-	mov	ds:[si.DCH_MRU_ROOT],bx ;MRU_ROOT-> preceding node
-	mov	es:[bx.nLRU_ptr], -1	;Preceding node's LRU_ptr
+	mov	[ds:si+DCH_MRU_ROOT],bx ;MRU_ROOT-> preceding node
+	mov	[es:bx+nLRU_ptr], -1	;Preceding node's LRU_ptr
 	pop	ds
 	; ASSUME	ds:nothing
 
@@ -1575,13 +1575,13 @@ REMOVEFROMTREE:
 	push	bx
 	push	dx
 
-	mov	bx, es:[bp.nBackward_ptr]	;get the preceding node
-	mov	dx, es:[bp.nSibling_ptr]	;get the sibling node
+	mov	bx, [es:bp+nBackward_ptr]	;get the preceding node
+	mov	dx, [es:bp+nSibling_ptr]	;get the sibling node
 	cmp	bx, cs:Current_Drive
 	je	RFT_First_Child 	;bp is the first child
-	cmp	es:[bx.nChild_ptr],bp
+	cmp	[es:bx+nChild_ptr],bp
 	je	RFT_Child		;bp is the child of the preceding node
-	mov	es:[bx.nSibling_ptr],dx ;bp is the Sibling of the preceding node
+	mov	[es:bx+nSibling_ptr],dx ;bp is the Sibling of the preceding node
 					;Update the preceding node's Sibling ptr
 	jmp	short RFT_Reset
 
@@ -1589,23 +1589,23 @@ RFT_First_Child:
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg							   ;AN000;
 	; ASSUME	ds:Cseg_Init;AN000;
-	mov	ds:[bx.DCH_Child_ptr],dx
+	mov	[ds:bx+DCH_Child_ptr],dx
 	pop	ds
 	; ASSUME	ds:nothing
 	jmp	short RFT_Reset
 
 RFT_Child:
-	mov	es:[bx.nChild_ptr],dx
+	mov	[es:bx+nChild_ptr],dx
 
 RFT_Reset:				;reset the deleted node's tree pointers
-	mov	es:[bp.nChild_ptr],-1
-	mov	es:[bp.nSibling_ptr],-1
-	mov	es:[bp.nBackward_ptr],-1
+	mov	[es:bp+nChild_ptr],-1
+	mov	[es:bp+nSibling_ptr],-1
+	mov	[es:bp+nBackward_ptr],-1
 
 	xchg	dx,bx			;now, dx=preceding node, bx=following node
 	cmp	bx,-1			;end of sibling?
 	je	RFT_ret
-	mov	es:[bx.nBackward_ptr],dx;modify backward_ptr of the sibling node
+	mov	[es:bx+nBackward_ptr],dx;modify backward_ptr of the sibling node
 
 RFT_ret:
 	pop	dx
@@ -1672,10 +1672,10 @@ MAKE_NAME_RECORD:
 	; ASSUME	es:Cseg_Init;AN000;
 	mov	di, ax			;ES:DI -> Name_Record
 	mov	ax, -1
-	mov	es:[di.nLRU_ptr],ax	;initialize pointers
-	mov	es:[di.nChild_ptr],ax
-	mov	es:[di.nSibling_ptr],ax
-	mov	es:[di.nMRU_ptr],ax
+	mov	[es:di+nLRU_ptr],ax	;initialize pointers
+	mov	[es:di+nChild_ptr],ax
+	mov	[es:di+nSibling_ptr],ax
+	mov	[es:di+nMRU_ptr],ax
 	add	di, nCmpct_Dir_Info	;ES:DI -> Name_Record.nCmpct_Dir_Info
 	mov	cx, ODI_head_leng	;currently 10.
 	rep	movsb			;Move header part
@@ -1766,24 +1766,24 @@ UNR_Exit:
 
 PACK_DIR_NAME:
 
-	cmp	byte ds:[si], 0	;end of path ??
+	cmp	byte [ds:si], 0	;end of path ??
 	jne	PDN_Drive		;no-check for drive letter
 	stc
 	jmp	short PDN_Exit		;yes-exit
 
 PDN_Drive:
-	cmp	byte ds:[si+1], ':' ;drive letter terminater?
+	cmp	byte [ds:si+1], ':' ;drive letter terminater?
 	jnz	PDN_chk_skip		;no -
-	mov	dl, byte ds:[si]	;yes-set DL to the drive letter
+	mov	dl, byte [ds:si]	;yes-set DL to the drive letter
 	inc	si
 	inc	si			;set SI -> '\' after ':'
 	jmp	short PDN_Exit		;then exit
 
 PDN_chk_skip:
-	cmp	byte ds:[si], '\'   ;delimeter?
+	cmp	byte [ds:si], '\'   ;delimeter?
 	jne	PDN_Path		;no-
 	inc	si			;yes-skip delimiter
-	cmp	byte ds:[si], 0	;end of path ??
+	cmp	byte [ds:si], 0	;end of path ??
 	jne	PDN_Path		;no-pack path name
 	stc				;yes-In fact, the input from DOS was
 	mov	ax, -1			;D:\,0.  FASTOPEN will treate
@@ -1883,19 +1883,19 @@ FIND_CLUSTER_NUMBER:
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg
 	; ASSUME	ds:Cseg_Init
-	mov	cx, ds:[bp.DCH_Num_Entries]	;Max number to try
-	mov	bp, ds:[bp.DCH_MRU_ROOT]	;get the start of MRU chaing
+	mov	cx, [ds:bp+DCH_Num_Entries]	;Max number to try
+	mov	bp, [ds:bp+DCH_MRU_ROOT]	;get the start of MRU chaing
 	pop	ds
 	; ASSUME	ds:nothing
 
 FCN_while:
-	cmp	es:[bp.nCmpct_Dir_Info], ' ' ;Is it a free node ?
+	cmp	[es:bp+nCmpct_Dir_Info], ' ' ;Is it a free node ?
 	je	FCN_not_found		;then no reason to continue search.
 
-	cmp	dx, es:[bp.nCmpct_Dir_Info.CDI_cluster] ;matching starting cluster # ?
+	cmp	dx, [es:bp+nCmpct_Dir_Info.CDI_cluster] ;matching starting cluster # ?
 	je	FCN_exit		;found it!!!
 
-	mov	bp, es:[bp.nMRU_ptr]	;next MRU entry address
+	mov	bp, [es:bp+nMRU_ptr]	;next MRU entry address
 	cmp	bp, -1			;It was the end of MRU chain?
 	je	FCN_not_found		;not found. End of search
 	LOOP	FCN_while		;else compare cluster and contine...
@@ -1953,26 +1953,26 @@ FIND_DIR_SECTOR:
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg
 	; ASSUME	ds:Cseg_Init
-	mov	cx, ds:[bp.DCH_Num_Entries]	;Max number to try
-	mov	bp, ds:[bp.DCH_MRU_ROOT]	;get the start of MRU chaing
+	mov	cx, [ds:bp+DCH_Num_Entries]	;Max number to try
+	mov	bp, [ds:bp+DCH_MRU_ROOT]	;get the start of MRU chaing
 	pop	ds
 	; ASSUME	ds:nothing
 
 FDIR_while:
-	cmp	es:[bp.nCmpct_Dir_Info], ' ' ;Is it a free node ?
+	cmp	[es:bp+nCmpct_Dir_Info], ' ' ;Is it a free node ?
 	je	FDIR_NOT_FOUND		;then no reason to continue search.
 
-	cmp	di, word es:[bp.nExtended_Info.FEI_dirsec] ;matching directory sector hi?
+	cmp	di, word [es:bp+nExtended_Info.FEI_dirsec] ;matching directory sector hi?
 	jne	FDIR_Next		;check next entry
 
-	cmp	ax, word es:[bp.nExtended_Info.FEI_dirsec+2] ;matching directory sector low ?
+	cmp	ax, word [es:bp+nExtended_Info.FEI_dirsec+2] ;matching directory sector low ?
 	jne	FDIR_Next		;check next entry
 
-	cmp	dh, es:[bp.nExtended_Info.FEI_dirpos] ;matching directory postion ?
+	cmp	dh, [es:bp+nExtended_Info.FEI_dirpos] ;matching directory postion ?
 	je	FDIR_Exit		;check next entry
 
 FDIR_Next:
-	mov	bp, es:[bp.nMRU_ptr]	;next MRU entry address
+	mov	bp, [es:bp+nMRU_ptr]	;next MRU entry address
 	cmp	bp, -1			;It was the end of MRU chain?
 	je	FDIR_not_found		;not found. End of search
 	loop	FDIR_while		;else compare cluster and contine...

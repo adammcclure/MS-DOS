@@ -45,13 +45,13 @@ SECTION .dosxxx
         ; .list
 ;
 struc str
-old_bp: dw 0
-return: dd 0
-Qprocessid: dw 0; Child process ID
-Aprocessid: dd 0; process id pointer
-resultcode: dd 0; result code pointer
-waitoption: dw 0; wait option
-actioncode: dw 0; action code
+old_bp: resw 1
+return: resd 1
+Qprocessid: resw 1; Child process ID
+Aprocessid: resd 1; process id pointer
+resultcode: resd 1; result code pointer
+waitoption: resw 1; wait option
+actioncode: resw 1; action code
 endstruc
 
 doscwait:
@@ -71,11 +71,11 @@ WeHaveExeced:
         mov     ax,DosExecPgmReturnCode
         lds     si,[bp].ResultCode
         ; assume  ds:nothing
-        mov     ds:[si],ax               ; return termination code
+        mov     [ds:si],ax               ; return termination code
 
         mov     ax,[bp].Qprocessid       ; return child process id
         lds     si,[bp].Aprocessid
-        mov     ds:[si],ax
+        mov     [ds:si],ax
 
         xor     ax,ax                    ; set good return code
 

@@ -39,15 +39,15 @@ SECTION .vioxxx
 error_bvs_parameter equ 0002h
 
 struc str
-old_bp: dw 0
-return: dd 0
-handle: dw 0; vio handle
-cell: dd 0; cell to be written
-lines: dw 0; number of blank lines
-rightcol: dw 0; right column
-botrow: dw 0; bottom row
-leftcol: dw 0; left column
-toprow: dw 0; top row
+old_bp: resw 1
+return: resd 1
+handle: resw 1; vio handle
+cell: resd 1; cell to be written
+lines: resw 1; number of blank lines
+rightcol: resw 1; right column
+botrow: resw 1; bottom row
+leftcol: resw 1; left column
+toprow: resw 1; top row
 endstruc
 
 vioscrollup:
@@ -80,7 +80,7 @@ ar02:   mov     ah,06h                  ; set scroll up function code
         mov     ch,bl                   ; top row in CH
 
         lds     si,[bp].cell            ; Set up cell in BX
-        mov     bx,ds:[si]              ;                    *****************
+        mov     bx,[ds:si]              ;                    *****************
 ;       cmp     bl,15                   ; check validity     ** assume good **
 ;       jg      error                   ; branch if error    ** attribute!  **
                                         ;                    *****************

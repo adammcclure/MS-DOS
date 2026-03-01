@@ -87,54 +87,54 @@ CODPAGE DW      0                       ; CODE PAGE ID
 RESV1   DW      0                       ; RESERVED
 RESV2   DW      0                       ; RESERVED
 CDPOINT DW      0                       ; POINTER TO COUNTRY DATA
-        DW      0
+        resw 1
 endstruc
 
 %macro CTRYENT 1
           CTRYSTR <PARMS>
-CNTRYCNT = CNTRYCNT+1
+CNTRYCNT equ CNTRYCNT+1
         %endmacro
 ;
 struc CTRYDAT
-        DW      0
-        DB      0
-        DB      0
-        DW      0
-        DW      0
+        resw 1
+        resb 1
+        resb 1
+        resw 1
+        resw 1
 endstruc
 ;
 struc CINFO
-        DW      0                       ; COUNTRY ID
-        DW      0                       ; CODE PAGE
-        DW      0                       ; DATE FORMAT
-        DB      0                       ; CURRENCY SYMBOL (5 BYTES)
-        DB      0
-        DB      0
-        DB      0
-        DB      0
-        DB      0                       ; 1000 SEPARATOR
-        DB      0
-        DB      0                       ; DECIMAL SEPARATOR
-        DB      0
-        DB      0                       ; DATE SEPARATOR
-        DB      0
-        DB      0                       ; TIME SEPARATOR
-        DB      0
-        DB      0                       ; CURRENCY FORMAT FLAGS
-        DB      0                       ; DIGITS IN CURRENCY
-        DB      0                       ; TIME FORMAT
-        DD      0                       ; RESERVED
-        DB      0                       ; DATA LIST SEPARATOR
-        DB      0
-        times 5 dw 0; RESERVED
+        resw 1; COUNTRY ID
+        resw 1; CODE PAGE
+        resw 1; DATE FORMAT
+        resb 1; CURRENCY SYMBOL (5 BYTES)
+        resb 1
+        resb 1
+        resb 1
+        resb 1
+        resb 1; 1000 SEPARATOR
+        resb 1
+        resb 1; DECIMAL SEPARATOR
+        resb 1
+        resb 1; DATE SEPARATOR
+        resb 1
+        resb 1; TIME SEPARATOR
+        resb 1
+        resb 1; CURRENCY FORMAT FLAGS
+        resb 1; DIGITS IN CURRENCY
+        resb 1; TIME FORMAT
+        resd 1; RESERVED
+        resb 1; DATA LIST SEPARATOR
+        resb 1
+        resb 10; RESERVED
 endstruc
 ;
 CINFOSIZE       EQU     TYPE CINFO      ; SIZE OF COUNTRY INFO TABLE
 ;
 struc CTABLE
-        DB      0FFh
-        DB      'CTYINFO'
-        DW      CINFOSIZE
+        resb 1
+        resb 1
+        resw 1
 endstruc
 ;
 

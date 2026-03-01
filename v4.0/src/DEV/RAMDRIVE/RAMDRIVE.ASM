@@ -471,9 +471,9 @@ RAM$IN:
     ;
     ; Set up registers for READ or WRITE since this is the most common case
     ;
-	MOV	CX,DS:[BX.RW_COUNT]	;CX = COUNT
-	MOV	DX,DS:[BX.RW_START]	;DX = START SECTOR
-	MOV	AL,DS:[BX.REQFUNC]	; Command code
+	MOV	CX,[DS:BX+RW_COUNT]	;CX = COUNT
+	MOV	DX,[DS:BX+RW_START]	;DX = START SECTOR
+	MOV	AL,[DS:BX+REQFUNC]	; Command code
 	MOV	AH,byte [RAMTBL]	; Valid range
 	CMP	AL,AH
 	JA	CMDERR			; Out of range command code
@@ -482,7 +482,7 @@ RAM$IN:
 	ADD	SI,AX			; Add it twice since one word in
 	ADD	SI,AX			;  table per command.
 
-	LES	DI,DS:[BX.RW_TRANS]	; ES:DI transfer address
+	LES	DI,[DS:BX+RW_TRANS]	; ES:DI transfer address
 
 	PUSH	CS
 	POP	DS
@@ -557,7 +557,7 @@ CMDERR:
 
 ERR$CNT:
 	LDS	BX,[PTRSAV]
-	MOV	[BX.RW_COUNT],0 	; NO sectors transferred
+	MOV	[BX+RW_COUNT],0 	; NO sectors transferred
 ERR$EXIT:				; Error in AL
 	MOV	AH,(STERR + STDON) SHR 8  ;MARK ERROR RETURN
 	JMP	SHORT ERR1
@@ -568,7 +568,7 @@ DEVEXIT:
 	MOV    AH,STDON SHR 8
 ERR1:
 	LDS	BX,[PTRSAV]
-	MOV	[BX.REQSTAT],AX 	; Set return status
+	MOV	[BX+REQSTAT],AX 	; Set return status
 
 	POP	BX
 	POP	ES
@@ -602,7 +602,7 @@ MEDIA$CHK:
 ; ASSUME	DS:RAMCODE,ES:NOTHING,SS:NOTHING
 	LDS	BX,[PTRSAV]
 ; ASSUME	DS:NOTHING
-	MOV	[BX.MCH_RETVAL],1	; ALWAYS NOT CHANGED
+	MOV	[BX+MCH_RETVAL],1	; ALWAYS NOT CHANGED
 	JMP	DEVEXIT
 
 ;**	GET$BPB - Device Driver Build BPB routine
@@ -624,8 +624,8 @@ GET$BPB:
 ; ASSUME	DS:RAMCODE,ES:NOTHING,SS:NOTHING
 	LDS	BX,[PTRSAV]
 ; ASSUME	DS:NOTHING
-	MOV	word [BX.BPB_BPB],RDRIVEBPB
-	MOV	word [BX.BPB_BPB + 2],CS
+	MOV	word [BX+BPB_BPB],RDRIVEBPB
+	MOV	word [BX+BPB_BPB + 2],CS
 	JMP	DEVEXIT
 
 ;**	RAM$REM - Device Driver Removable Media routine
@@ -1069,7 +1069,7 @@ SET_TRANS:
 ;;
 
 ;;	MOV	AH,0DFH
-	mov	ax,cs:[A20On]		;; set up for PLUS or AT
+	mov	ax,[cs:A20On]		;; set up for PLUS or AT
 	CALL	A20
 	Jc	NR_ERR
 ;	 JMP	 SHORT IO_START 	;sp
@@ -1086,7 +1086,7 @@ io_donej:   jmp io_done
 move_main_loop: 			;sp
 ; assume ds:nothing;sp
 	jcxz	io_donej		;sp
-	mov	cs:[ldx],cx		   ;sp
+	mov	[cs:ldx],cx		   ;sp
 	MOV	AX,80H
 	MOV	DS,AX
 	PUSH	CS
@@ -1094,7 +1094,7 @@ move_main_loop: 			;sp
 	XOR	SI,SI
 	MOV	DI,[SWAP_80]
 	MOV	CX,102/2
-	mov	cs:[ssSave],ss
+	mov	[cs:ssSave],ss
 	CLD
 	CLI				; Un interruptable
 	test	[sys_flg],dos_33	; is it dos 3.3 or above
@@ -1121,13 +1121,13 @@ AFTER_LOADALL:
 	test	[sys_flg],dos_33
 	jne	mml$2
 move_loop:
-	lods	word cs:[si]
-	mov	ss:[bp],ax
+	lods	word [cs:si]
+	mov	[ss:bp],ax
 	inc	bp
 	inc	bp
 	loop	move_loop
 mml$2:
-	mov	ss,cs:[ssSave]
+	mov	ss,[cs:ssSave]
 	mov	cx,dx
 	mov	si,bx
 ;critical code
@@ -1150,8 +1150,8 @@ mml$2:
 	db	0cbh
 ;
 resume_int:
-	mov	cs:[ldi],di
-	mov	cs:[lbx],si
+	mov	[cs:ldi],di
+	mov	[cs:lbx],si
 	jmp	move_main_loop
 
 ;	 REP	 MOVSW			 ; Move data
@@ -1176,7 +1176,7 @@ OFFLP:
 ;;
 
 ;;	MOV	AH,0DDH
-	mov	ax,cs:[A20Off]	;; setup for PLUS or AT. ah for IBM, al for PLUS
+	mov	ax,[cs:A20Off]	;; setup for PLUS or AT. ah for IBM, al for PLUS
 	CALL	A20		; Disable address line 20
 	jnc	dis_done
 	LOOP	OFFLP
@@ -1212,15 +1212,15 @@ A20:
 ; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 ;; CS override needed on S5_FLAG to avoid phase errors on
 ;; forward declaration of this variable.
-	cmp	cs:[S5_FLAG],S_OLIVETTI ;; test for 6300 PLUS
+	cmp	[cs:S5_FLAG],S_OLIVETTI ;; test for 6300 PLUS
 	jne    test_vec 	       ;; yes, do this code
 	jmp	a20s5
 test_vec:
-	cmp	cs:[S5_FLAG],S_VECTRA
+	cmp	[cs:S5_FLAG],S_VECTRA
 	jne	test_ps2
 	jmp	VecA20
 test_ps2:
-	test	cs:[sys_flg],M_PS2	; is it a ps2 machine
+	test	[cs:sys_flg],M_PS2	; is it a ps2 machine
 	jne	a20ps2			 ; if yes it has separate a20 routine
 old_a20:
 	CLI
@@ -1282,7 +1282,7 @@ check_a20:
 ;
 ;   check if a20 disabling allowed
 ;
-	test	cs:[sys_flg],a20_st
+	test	[cs:sys_flg],a20_st
 	jne	no_toggle
 toggle: clc
 	ret
@@ -1290,7 +1290,7 @@ toggle: clc
 ;   a20 enabling, check if allowed
 ;
 check_a20_enable:
-	and	cs:[sys_flg], not A20_ST
+	and	[cs:sys_flg], not A20_ST
 	push	cx
 	push	ds
 	push	si
@@ -1307,7 +1307,7 @@ repe	cmpsw
 	pop	ds
 	jcxz	not_enabled
 	pop	cx
-	or	cs:[sys_flg],A20_ST
+	or	[cs:sys_flg],A20_ST
 no_toggle:
 	stc
 	ret
@@ -1330,11 +1330,11 @@ A20PS2:
 ;
 ;   enabling the a20
 ;
-	and	cs:[sys_flg],not A20_ST
+	and	[cs:sys_flg],not A20_ST
 	in	al,PS2_PORTA	; input a20 status
 	test	al,GATE_A20	; is the a20 line set
 	je	set_it		;
-	or	cs:[sys_flg],A20_ST ; indicate that it was already set
+	or	[cs:sys_flg],A20_ST ; indicate that it was already set
 ps2a20suc:
 	clc
 	sti
@@ -1357,7 +1357,7 @@ see_agn:
 ;	disabling the ps2
 ;
 disbl_PS2:
-	test	cs:[sys_flg],A20_ST
+	test	[cs:sys_flg],A20_ST
 	jne	ps2a20suc
 ;
 	push	cx
@@ -1480,7 +1480,7 @@ RSet:
 ; assume	ds:BiosSeg
 	push	word [RealLoc1]	;; save what might have been here
 	push	word [RealLoc1+2]
-	mov	word [RealLoc1],cs:[ReturnBack] ;; load our return address
+	mov	word [RealLoc1],[cs:ReturnBack] ;; load our return address
 	mov	word [RealLoc1+2],cs
 ; assume ds:nothing
 	mov	[OldStackSeg],ss	;; save the stack segment, too
@@ -1582,7 +1582,7 @@ set_trans_1:
 	pop	cx
 
 ;
-	mov	ax,cs:[A20On]
+	mov	ax,[cs:A20On]
 	call	A20
 	jc	nr_err_1
 ;
@@ -1664,7 +1664,7 @@ flushcs:
 
 	mov	cx,800h 		; Retry this many times
 offlp_1:
-	mov	ax,cs:[A20Off]
+	mov	ax,[cs:A20Off]
 	call	A20			; Disable address line 20
 	jnc	offlp1_out
 	loop	offlp_1
@@ -1796,8 +1796,8 @@ SEG_SET:
 	PUSH	CX
 	MOV	CX,16
 	MUL	CX	; Believe or not, this is faster than a 32 bit SHIFT
-	MOV	word [SI.SEG_BASE],AX
-	MOV	byte [SI.SEG_BASE + 2],DL
+	MOV	word [SI+SEG_BASE],AX
+	MOV	byte [SI+SEG_BASE + 2],DL
 	POP	CX
 	POP	DX
 	RET
@@ -2121,9 +2121,9 @@ INT_19:
     ;
 	MOV	AX,word [OLD_19]
 	CLI
-	MOV	word DS:[19H * 4],AX
+	MOV	word [DS:19H * 4],AX
 	MOV	AX,word [OLD_19 + 2]
-	MOV	word DS:[(19H * 4) + 2],AX
+	MOV	word [DS:(19H * 4) + 2],AX
 ;	 MOV	 AX,WORD PTR [OLD_9]
 ;	 MOV	 WORD PTR DS:[9H * 4],AX
 ;	 MOV	 AX,WORD PTR [OLD_9 + 2]
@@ -2135,9 +2135,9 @@ INT_19:
 	cmp	ax,-1
 	je	skip_res
 res_15:
-	mov	word ds:[15h*4],ax
+	mov	word [ds:15h*4],ax
 	mov	ax,word [old_15+2]
-	mov	word ds:[(15h*4) +2],ax
+	mov	word [ds:(15h*4) +2],ax
 
 skip_res:
 	POP	DS
@@ -2240,13 +2240,13 @@ AFTER_LDA:
     ;
 
 LOOK_RECY:
-	TEST	[DI.EMM_FLAGS],EMM_ALLOC
+	TEST	[DI+EMM_FLAGS],EMM_ALLOC
 	JZ	DONEY			; Hit free record, done
-	TEST	[DI.EMM_FLAGS],EMM_ISDRIVER
+	TEST	[DI+EMM_FLAGS],EMM_ISDRIVER
 	JZ	NEXTRECY		; No Driver
-	CMP	[DI.EMM_SYSTEM],EMM_MSDOS
+	CMP	[DI+EMM_SYSTEM],EMM_MSDOS
 	JNZ	NEXTRECY		; Wrong system
-	AND	[DI.EMM_FLAGS],NOT EMM_ISDRIVER     ; No longer a driver
+	AND	[DI+EMM_FLAGS],NOT EMM_ISDRIVER     ; No longer a driver
 NEXTRECY:
 	ADD	DI,EMM_REC_size
 	LOOP	LOOK_RECY
@@ -2407,7 +2407,7 @@ cpu_386:
 cpu_286:
 	mov	ax,0ffffh
 	mov	es,ax
-	cmp	byte es:[0eh],0fch	; AT model byte
+	cmp	byte [es:0eh],0fch	; AT model byte
 	jne	cpu_err			; if not abort
 ;
 	or	[sys_flg],M_286		; set 286 flag bit
@@ -2429,8 +2429,8 @@ NCRTest:
 	; We're on an NCR machine, send D7 and D5 to the 8042 in order
 	; to toggle A20 instead of the DF and DD we usually send.
 	; ChipA 06-16-88
-	mov	cs:[A20On],0D790h
-	mov	cs:[A20Off],0D500h
+	mov	[cs:A20On],0D790h
+	mov	[cs:A20Off],0D500h
 
 
 ;----------------------------------
@@ -2494,7 +2494,7 @@ IsNCRMachine:
 
 	    mov     ax,0F000h
 	    mov     es,ax
-	    mov     ax,word es:[0FFEAh]
+	    mov     ax,word [es:0FFEAh]
 	    cmp     ax,'CN'
 	    je	    INMFoundIt
 	    xor     ax,ax
@@ -2537,9 +2537,9 @@ is_b0:
 	mov	ds,bx			; DS = 0000 (real mode IDT)
 ; assume ds:R_Mode_IDT
 	push	[bx+(6*4)]
-	pop	cs:[int6_save]		; save old INT 6 offset
+	pop	[cs:int6_save]		; save old INT 6 offset
 	push	[bx+(6*4)+2]
-	pop	cs:[int6_save+2]	; save old INT 6 segment
+	pop	[cs:int6_save+2]	; save old INT 6 segment
 					
 	mov	word [bx+(6*4)],int6
 	mov	[bx+(6*4)+2],cs 	; set vector to new INT 6 handler
@@ -2557,9 +2557,9 @@ is_b0:
 	
 	xor	bx,bx
 	mov	ds,bx			; DS = 0000 (real mode IDT)
-	push	cs:[int6_save]		; restore original INT 6 offset
+	push	[cs:int6_save]		; restore original INT 6 offset
 	pop	[bx+(6*4)]		;
-	push	cs:[int6_save+2]	; restore original INT 6 segment
+	push	[cs:int6_save+2]	; restore original INT 6 segment
 	pop	[bx+(6*4)+2]
 
 	or	cx,cx			; Q: CX = 0 (meaning <=B0) ?
@@ -2816,11 +2816,11 @@ VER_OK:
 	push	es				;; Olivetti Machine?
 	mov	ax,0fc00h			;; Look for 'OL' at fc00:50
 	mov	es,ax
-	cmp	es:[0050h],'LO'
+	cmp	[es:0050h],'LO'
 	jnz	notS5				;; not found
 	mov	ax,0f000h
 	mov	es,ax
-	cmp	word es:[0fffdh],0fc00h	;; look for 6300 plus
+	cmp	word [es:0fffdh],0fc00h	;; look for 6300 plus
 	jnz	notS5
 	mov	[S5_FLAG],S_OLIVETTI		;; yep, set flag
 	jmp	notHP
@@ -2829,7 +2829,7 @@ notS5:
 ;;
 	mov	ax,0f000H
 	mov	es,ax
-	cmp	es:[0f8H],'PH'
+	cmp	[es:0f8H],'PH'
 	jnz	notHP
 	mov	[S5_FLAG],S_VECTRA
 notHP:
@@ -2839,11 +2839,11 @@ notHP:
 ;
 	LDS	SI,[PTRSAV]
 ; ASSUME	DS:NOTHING
-	MOV	AL,[SI.INIT_DOSDEV] ; DOS drive letter
-	ADD	CS:[DOS_DRV],AL     ; Need explicit over, this is a forward ref
+	MOV	AL,[SI+INIT_DOSDEV] ; DOS drive letter
+	ADD	[CS:DOS_DRV],AL     ; Need explicit over, this is a forward ref
 	MOV	DX,HEADERMES
 	CALL	PRINT
-	LDS	SI,[SI.INIT_BPB]    ; DS:SI points to config.sys
+	LDS	SI,[SI+INIT_BPB]    ; DS:SI points to config.sys
 SKIPLP1:			    ; Skip leading delims to start of name
 	LODSB
 	CMP	AL," "
@@ -3230,12 +3230,12 @@ NO_RELOC:
 	REP	STOSW
 	MOV	DI,SECTOR_BUFFER
 	MOV	CX,1
-	MOV	word ES:[DI],0FFF8H
-	MOV	byte ES:[DI + 2],0FFH
+	MOV	word [ES:DI],0FFF8H
+	MOV	byte [ES:DI + 2],0FFH
 	CALL	INIMEMIO
 	INC	DX		; Next sector
-	MOV	word ES:[DI],0
-	MOV	byte ES:[DI + 2],0
+	MOV	word [ES:DI],0
+	MOV	byte [ES:DI + 2],0
 	MOV	CX,[FATSEC]
 	DEC	CX
 	JCXZ	FATDONE
@@ -3295,14 +3295,14 @@ SETBPB:
     ; 7.  Set the return INIT I/O packet values
     ;
 	LDS	BX,[PTRSAV]
-	MOV	[BX.INIT_NUM],AL
+	MOV	[BX+INIT_NUM],AL
 	MOV	CX,word [TERM_ADDR]
-	MOV	word [BX.INIT_BREAK],CX		   ;SET BREAK ADDRESS
+	MOV	word [BX+INIT_BREAK],CX		   ;SET BREAK ADDRESS
 	MOV	CX,word [TERM_ADDR + 2]
-	MOV	word [BX.INIT_BREAK + 2],CX
-	MOV	word [BX.INIT_BPB],INITAB	   ;SET POINTER TO BPB ARRAY
+	MOV	word [BX+INIT_BREAK + 2],CX
+	MOV	word [BX+INIT_BPB],INITAB	   ;SET POINTER TO BPB ARRAY
 	MOV	CX,[TRUE_CS]
-	MOV	word [BX.INIT_BPB + 2],CX
+	MOV	word [BX+INIT_BPB + 2],CX
 	JMP	DEVEXIT
 
 ;**	INIMEMIO call MEMIO but preserve registers
@@ -3516,11 +3516,11 @@ LOOK_RECX:
     ;
     ; Look for last installed MS-DOS region
     ;
-	TEST	[DI.EMM_FLAGS],EMM_ALLOC
+	TEST	[DI+EMM_FLAGS],EMM_ALLOC
 	JZ	DONE
-	TEST	[DI.EMM_FLAGS],EMM_ISDRIVER
+	TEST	[DI+EMM_FLAGS],EMM_ISDRIVER
 	JZ	NEXTRECX		; No Driver
-	CMP	[DI.EMM_SYSTEM],EMM_MSDOS
+	CMP	[DI+EMM_SYSTEM],EMM_MSDOS
 	JNZ	NEXTRECX
 	MOV	BX,DI
 NEXTRECX:
@@ -3529,7 +3529,7 @@ NEXTRECX:
 DONE:
 	CMP	BX,-1		; DIDn't find it
 	JZ	RET002
-	AND	[BX.EMM_FLAGS],NOT EMM_ISDRIVER     ; Undo install
+	AND	[BX+EMM_FLAGS],NOT EMM_ISDRIVER     ; Undo install
 	MOV	BH,1		; WRITE
 	CALL	CTRL_IO 	; EMM_CTRL back out
 RET002:
@@ -3970,8 +3970,8 @@ set_ctrl:				 ; else we have to install a new one
 	POP	DI
 	MOV	AX,[EXT_K]
 	DEC	AX		; Size in EMM_CTRL doesn't include EMM_CTRL
-	MOV	[DI.EMM_TOTALK],AX
-	MOV	[DI.EMM_AVAILK],AX
+	MOV	[DI+EMM_TOTALK],AX
+	MOV	[DI+EMM_AVAILK],AX
 SCAN_DEV:
 	XOR	BX,BX		; Will get tripped if a DOS dev found
 	MOV	SI,SECTOR_BUFFER ; DS:SI points to EMM_CTRL
@@ -3979,17 +3979,17 @@ SCAN_DEV:
 	ADD	DI,EMM_RECORD	      ; DS:DI points to EMM records
 	MOV	CX,EMM_NUMREC
 LOOK_REC:
-	TEST	[DI.EMM_FLAGS],EMM_ALLOC
+	TEST	[DI+EMM_FLAGS],EMM_ALLOC
 	JNZ	CHECK_SYS
 	JMP	GOT_FREE_REC		; Must alloc new region
 
 CHECK_SYS:
-	CMP	[DI.EMM_SYSTEM],EMM_MSDOS
+	CMP	[DI+EMM_SYSTEM],EMM_MSDOS
 	JNZ	NEXTREC 		; Not MS-DOS
-	TEST	[DI.EMM_FLAGS],EMM_ISDRIVER
+	TEST	[DI+EMM_FLAGS],EMM_ISDRIVER
 	JNZ	NEXTRECI		; Driver already in, I am not first driver
 	CALL	SET_RESET		; Set up INT 19,9 as per BX
-	MOV	AX,[DI.EMM_KSIZE]
+	MOV	AX,[DI+EMM_KSIZE]
 	CMP	CX,1
 	JBE	OK_SET_DEV		; If this is last record, must
 					;   select this size
@@ -4000,7 +4000,7 @@ CHECK_SYS:
     ;	User MUST have edited CONFIG.SYS.
 	PUSH	DI
 	ADD	DI,EMM_REC_size
-	TEST	[DI.EMM_FLAGS],EMM_ALLOC
+	TEST	[DI+EMM_FLAGS],EMM_ALLOC
 	POP	DI
 	JZ	SHRINK_BLOCK	; Next block is free, shrink
 	MOV	AX,[DEV_SIZE]
@@ -4008,38 +4008,38 @@ CHECK_SYS:
 
 SHRINK_BLOCK:
 	SUB	AX,[DEV_SIZE]	; AX is amount to shrink
-	ADD	[SI.EMM_AVAILK],AX
+	ADD	[SI+EMM_AVAILK],AX
 	MOV	AX,[DEV_SIZE]
-	MOV	[DI.EMM_KSIZE],AX
+	MOV	[DI+EMM_KSIZE],AX
 	JMP	SHORT SET_2
 
 INSUFF_MEM:			; Size of found block is smaller
 				;   than requested size.
 	PUSH	DI
 	ADD	DI,EMM_REC_size
-	TEST	[DI.EMM_FLAGS],EMM_ALLOC
+	TEST	[DI+EMM_FLAGS],EMM_ALLOC
 	POP	DI
 	JNZ	OK_SET_DEV	; Next block is NOT free, can't grow
 TRY_TO_GROW_BLOCK:
-	CMP	[SI.EMM_AVAILK],0
+	CMP	[SI+EMM_AVAILK],0
 	JZ	OK_SET_DEV	; Need SPECIAL check for this case so
 				;  that INIT_DRIVE doesn't get set to 2
 				;  when it shouldn't
 	SUB	AX,[DEV_SIZE]
 	NEG	AX		; AX is amount we would like to grow
-	SUB	[SI.EMM_AVAILK],AX
+	SUB	[SI+EMM_AVAILK],AX
 	JNC	GOT_THE_MEM
-	ADD	AX,[SI.EMM_AVAILK]    ; AX is MAX we can grow
-	MOV	[SI.EMM_AVAILK],0     ; We take all that's left
+	ADD	AX,[SI+EMM_AVAILK]    ; AX is MAX we can grow
+	MOV	[SI+EMM_AVAILK],0     ; We take all that's left
 GOT_THE_MEM:
-	ADD	[DI.EMM_KSIZE],AX
-	MOV	AX,[DI.EMM_KSIZE]
+	ADD	[DI+EMM_KSIZE],AX
+	MOV	AX,[DI+EMM_KSIZE]
 SET_2:
 	MOV	[INIT_DRIVE],2	; CANNOT TRUST BPB in boot sector
 OK_SET_DEV:
 	MOV	[DEV_SIZE],AX
-	OR	[DI.EMM_FLAGS],EMM_ISDRIVER
-	LES	DI,[DI.EMM_BASE]
+	OR	[DI+EMM_FLAGS],EMM_ISDRIVER
+	LES	DI,[DI+EMM_BASE]
 	XOR	AX,AX			; Set zero, clear carry
 	RET
 
@@ -4058,7 +4058,7 @@ LOOK_RECJ:
 	JMP	LOOK_REC
 
 GOT_FREE_REC:
-	MOV	AX,[SI.EMM_AVAILK]
+	MOV	AX,[SI+EMM_AVAILK]
 	CMP	AX,16
 	JB	VERRR			; 16K is smallest device
 	CALL	SET_RESET		; Set INT 19,9 as per BX
@@ -4067,23 +4067,23 @@ GOT_FREE_REC:
 	MOV	AX,[DEV_SIZE]		; User size is OK
 GOTSIZE:
 	MOV	[DEV_SIZE],AX
-	SUB	[SI.EMM_AVAILK],AX
-	MOV	[DI.EMM_KSIZE],AX
-	MOV	[DI.EMM_SYSTEM],EMM_MSDOS
-	MOV	[DI.EMM_FLAGS],EMM_ALLOC + EMM_ISDRIVER
+	SUB	[SI+EMM_AVAILK],AX
+	MOV	[DI+EMM_KSIZE],AX
+	MOV	[DI+EMM_SYSTEM],EMM_MSDOS
+	MOV	[DI+EMM_FLAGS],EMM_ALLOC + EMM_ISDRIVER
 	PUSH	DI
 	SUB	DI,EMM_REC_size       ; Look at prev record to compute base
-	MOV	AX,[DI.EMM_KSIZE]
-	LES	BX,[DI.EMM_BASE]
+	MOV	AX,[DI+EMM_KSIZE]
+	LES	BX,[DI+EMM_BASE]
 	MOV	DI,ES			; DI:BX is prev base
 	MOV	CX,1024
 	MUL	CX			; Mult size by 1024 to get # bytes
 	ADD	AX,BX			; Add size onto base to get next base
 	ADC	DX,DI
 	POP	DI
-	MOV	word [DI.EMM_BASE],AX
-	MOV	word [DI.EMM_BASE + 2],DX
-	LES	DI,[DI.EMM_BASE]
+	MOV	word [DI+EMM_BASE],AX
+	MOV	word [DI+EMM_BASE + 2],DX
+	LES	DI,[DI+EMM_BASE]
 	XOR	AX,AX			; Set zero, clear carry
 	INC	AX			; RESET zero
 	RET
@@ -4103,8 +4103,8 @@ new_st:
 	sub	bx,1			; subtract the emm ctrl record size
 	mov	di,sector_buffer  ; set up to address the ctrl record
 					; read in
-	mov	ax,[di.emm_totalk]	; ax <- totalk
-	sub	ax,[di.emm_availk]	; ax <- totalk - availk
+	mov	ax,[di+emm_totalk]	; ax <- totalk
+	sub	ax,[di+emm_availk]	; ax <- totalk - availk
 	sub	bx,ax			; adjust memory available
 	jc	verrr			; if no memory go to abort
 ;
@@ -6156,13 +6156,13 @@ LOOK_RECRY:
     ;
     ; Scan EMM_CTRL for all ISDRIVER MS-DOS regions and turn off ISDRIVER
     ;
-	TEST	[DI.EMM_FLAGS],EMM_ALLOC
+	TEST	[DI+EMM_FLAGS],EMM_ALLOC
 	JZ	DONERY
-	TEST	[DI.EMM_FLAGS],EMM_ISDRIVER
+	TEST	[DI+EMM_FLAGS],EMM_ISDRIVER
 	JZ	NEXTRECRY		 ; No Driver
-	CMP	[DI.EMM_SYSTEM],EMM_MSDOS
+	CMP	[DI+EMM_SYSTEM],EMM_MSDOS
 	JNZ	NEXTRECRY
-	AND	[DI.EMM_FLAGS],NOT EMM_ISDRIVER
+	AND	[DI+EMM_FLAGS],NOT EMM_ISDRIVER
 NEXTRECRY:
 	ADD	DI,EMM_REC_size
 	LOOP	LOOK_RECRY

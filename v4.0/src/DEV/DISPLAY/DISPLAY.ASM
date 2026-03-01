@@ -345,7 +345,7 @@ PASS_CONTROL:;
 	PUSH	BX			;
 	POP	SI			;
 	LES	BX,dword BUF.RH_PTRO; pass the request header to the
-	CALL	dword CS:[SI].CON_STRAO ; CON strategy routine.
+	CALL	dword [CS:SI].CON_STRAO ; CON strategy routine.
 	POP	BX			;
 	CALL	dword BUF.CON_INTRO ; interrupt the CON
 	RET				;

@@ -304,33 +304,33 @@ ACOUNTOK:
 	mov	al,[CURDRV]			; Dest is default drive:*.*
 	add	al,capital_A
 	mov	ah,':'
-	mov	[bp.SIZ],2
+	mov	[bp+SIZ],2
 	mov	di,DESTBUF
 	stosw
 	mov	[DESTSWITCH],0			; no switches on dest
-	mov	[bp.INFO],2			; Flag dest is ambig
-	mov	[bp.ISDIR],0			; Know destination specs file
+	mov	[bp+INFO],2			; Flag dest is ambig
+	mov	[bp+ISDIR],0			; Know destination specs file
 	invoke	SETSTARS
 GOT2ARGS:
-	cmp	[bp.SIZ],2
+	cmp	[bp+SIZ],2
 	jnz	NOTSHORTDEST
 	mov	al,':'
 	cmp	[DESTBUF+1],al
 	jnz	NOTSHORTDEST			; Two char file name
-	or	[bp.INFO],2			; Know dest is d:
+	or	[bp+INFO],2			; Know dest is d:
 	mov	di,DESTBUF + 2
-	mov	[bp.ISDIR],0			; Know destination specs file
+	mov	[bp+ISDIR],0			; Know destination specs file
 	invoke	SETSTARS
 NOTSHORTDEST:
-	mov	di,[bp.TTAIL]
+	mov	di,[bp+TTAIL]
 	cmp	byte [DI],0
 	jnz	CHKSWTCHES
 	mov	dx,BADCD_ptr
 	mov	al,':'
 	cmp	byte [DI-2],al
 	jnz	CERROR4J			; Trailing '/' error
-	mov	[bp.ISDIR],2			; Know destination is d:/
-	or	[bp.INFO],6
+	mov	[bp+ISDIR],2			; Know destination is d:/
+	or	[bp+INFO],6
 	invoke	SETSTARS
 CHKSWTCHES:
 ;AD018; mov	ax,[ALLSWITCH]
@@ -457,7 +457,7 @@ FIRSTENT:
 DRVSPEC1:
 	or	al,20h
 	sub	al,60h
-	mov	ds:[FCB],al
+	mov	[ds:FCB],al
 	mov	ah,DIR_SEARCH_FIRST
 	call	SEARCH
 SrchDone:

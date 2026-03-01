@@ -29,7 +29,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	THISCDS,DWORD
 	i_need	CURBUF,DWORD
@@ -92,7 +92,7 @@ share_okok:
 ;	POP	WORD PTR [DMAADD]	       ;IFS. retor DMAADD		;AN000;
 ;	POP	WORD PTR [DMAADD+2]	       ;IFS.				;AN000;
 ifsshare:
-%if NOT Installed
+%if ~Installed
 	transfer NET_GET_FILE_INFO
 %else
 	MOV	AX,(multNET SHL 8) OR 15
@@ -139,14 +139,14 @@ info_check_dev:
 	MOV	SI,BX
 	XOR	BX,BX			; Assume size=0 (dir)
 	MOV	DI,BX
-	MOV	CX,[SI.dir_time]
-	MOV	DX,[SI.dir_date]
+	MOV	CX,[SI+dir_time]
+	MOV	DX,[SI+dir_date]
 	XOR	AH,AH
-	MOV	AL,[SI.dir_attr]
+	MOV	AL,[SI+dir_attr]
 	TEST	AL,attr_directory
 	JNZ	NO_SIZE
-	MOV	DI,[SI.dir_size_l]
-	MOV	BX,[SI.dir_size_h]
+	MOV	DI,[SI+dir_size_l]
+	MOV	BX,[SI+dir_size_h]
 NO_SIZE:
 	POP	DS
 	CLC
@@ -205,7 +205,7 @@ set_look:
 	Invoke	TestNet
 	JNC	Local_Set
 
-%if NOT Installed
+%if ~Installed
 	transfer NET_SEQ_SET_FILE_ATTRIBUTE
 %else
 	PUSH	AX
@@ -240,13 +240,13 @@ set_check_share:
 
 set_do:
 	LES	DI,[CURBUF]
-	AND	byte ES:[BX].dir_attr,NOT attr_changeable
-	OR	byte ES:[BX].dir_attr,AL
+	AND	byte [ES:BX].dir_attr,NOT attr_changeable
+	OR	byte [ES:BX].dir_attr,AL
 
-	TEST	ES:[DI.buf_flags],buf_dirty  ;LB. if already dirty		;AN000;
+	TEST	[ES:DI+buf_flags],buf_dirty  ;LB. if already dirty		;AN000;
 	JNZ	yesdirty		  ;LB.	  don't increment dirty count   ;AN000;
 	invoke	INC_DIRTY_COUNT 	  ;LB.					;AN000;
-	OR	ES:[DI.buf_flags],buf_dirty
+	OR	[ES:DI+buf_flags],buf_dirty
 yesdirty:
 	MOV	AL,[THISDRV]
 ;;;; 10/1/86 F.C update fastopen cache

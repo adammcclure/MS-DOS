@@ -246,7 +246,7 @@ Procedure Exec_FS_Format			;				;AC000;
 	      ; assume  ds:PSP;an000;dms;
 
 	      mov     si,FCB1			;an000;dms;ptr to 1st. FCB
-	      mov     bl,byte ds:[si]	;an000;dms;get drive ID
+	      mov     bl,byte [ds:si]	;an000;dms;get drive ID
 
 	      pop     si			;an000;dms;restore si
 	      pop     ds			;an000;dms;restore ds
@@ -487,7 +487,7 @@ Procedure EXEC_Routine				;				;AN000;
 	xor	si,si				;Start at beginning		;     ;
 ;	$SEARCH 				;				;AC000;
 $$DO21:
-	   cmp	   word ds:[si],0		;End of the Evironment? 	;     ;
+	   cmp	   word [ds:si],0		;End of the Evironment? 	;     ;
 ;	$EXITIF E				;Reached end, no more look	;AC000;
 	JNE $$IF21
 						;				;     ;
@@ -523,17 +523,17 @@ Procedure Build_Path_And_Exec			;				;AN000;
 
 ;	$DO					;				;AC000;
 $$DO27:
-	   cmp	   byte ds:[si],0		;All path entries done? 	;     ;
+	   cmp	   byte [ds:si],0		;All path entries done? 	;     ;
 ;	   $IF	   NE				;				;AC000;
 	   JE $$IF28
 	      mov     di,EXEC_Path	;Point at where to put path	;     ;
-	      mov     byte es:[di],0	;End path just in case		;     ;
+	      mov     byte [es:di],0	;End path just in case		;     ;
 ;	      $DO				;				;AC000;
 $$DO29:
-		 cmp	 byte ds:[si],0	;End of Path?			;     ;
+		 cmp	 byte [ds:si],0	;End of Path?			;     ;
 ;	      $LEAVE  E 			;				;AC000;
 	      JE $$EN29
-		 cmp	 byte ds:[si],';'	;End of entry?		       ;     ;
+		 cmp	 byte [ds:si],';'	;End of entry?		       ;     ;
 ;		 $if	 e			;yes				;an000; dms;
 		 JNE $$IF31
 			 inc	si		;point to next character	;an000; dms;
@@ -547,14 +547,14 @@ $$EN29:
 
 EXIT_BPE_LOOP:					;				;an000; dms;
 						;Path filled in,get backslash	;     ;
-	      cmp     byte ds:[si-1],0	;Any path there?		;     ;
+	      cmp     byte [ds:si-1],0	;Any path there?		;     ;
 ;	      $IF     NE			;				;AC000;
 	      JE $$IF34
 						;Nope				;     ;
-		 cmp	 byte ds:[si-1],"\" ;Need a backslash?	     ;	   ;
+		 cmp	 byte [ds:si-1],"\" ;Need a backslash?	     ;	   ;
 ;		 $IF	 NE			;				;AC000;
 		 JE $$IF35
-		    mov     byte es:[di],"\" ;Yes, put one in	     ;	   ;
+		    mov     byte [es:di],"\" ;Yes, put one in	     ;	   ;
 		    inc     di			;Line it up for next stuff	;     ;
 		    inc     si			;				;     ;
 ;		 $ENDIF 			;				;AN000;
@@ -617,7 +617,7 @@ Procedure Set_FCB1_Drive			;an000;dms;set drive ID
 	mov	ds,si				;an000;dms;put it in ds
 	; assume	ds:PSP;an000;dms;
 	mov	si,FCB1 			;an000;dms;ptr to FCB1
-	mov	byte ds:[si],00h		;an000;dms;set drive ID to
+	mov	byte [ds:si],00h		;an000;dms;set drive ID to
 						;      default drive
 	pop	si				;an000;dms;restore si
 	pop	ds				;an000;dms;restore ds

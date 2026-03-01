@@ -179,7 +179,7 @@ BREAK <RETURN - return from a function>
 ; .xcref
 a:
  RET
-ret_l = a
+ret_l equ a
 ; .cref
 %endmacro
 

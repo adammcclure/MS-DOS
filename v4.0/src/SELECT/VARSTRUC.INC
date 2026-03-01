@@ -38,7 +38,7 @@ struc DISK_STATUS;AN000;
 N_PART_NAME	DB	0		;AN000; Partition name
 N_PART_SIZE	DW	0		;AN000; size of above partition in MBytes
 N_PART_STATUS	DB	0		;AN000; Partition status
-P_PART_DRIVE: db 0;AN000; drive letter assigned to the partition (ASCII)
+P_PART_DRIVE: resb 1;AN000; drive letter assigned to the partition (ASCII)
 N_PART_TYPE	DB	0		;AN000;
 N_PART_LEVEL1	DB	0		;AN065; SEH version number (1st part) for DOS 4.00 1st part = blank
 N_PART_LEVEL2	DB	0		;AN065; SEH version number (2nd part) for DOS 4.00 2nd part = 4
@@ -51,13 +51,13 @@ PRINTER_INDEX	DW	0		;AN000; index into SELECT.PRT
 PRINTER_TYPE	DB	0		;AN000; printer type serial/parallel
 PRINTER_DATA_VALID DB	0		;AN000;
 MODE_PARMS	DW	0		;AN000;
-		times 40 db 0;AC000;JW
+		resb 40;AC000;JW
 CODE_DRIVER	DW	0		;AN000;
-		times 22 db 0;AN000;
+		resb 22;AN000;
 CODE_PREPARE	DW	0		;AN000;
-		times 12 db 0;AN000;
+		resb 12;AN000;
 GRAPHICS_PARMS	DW	0		;AN000;
-		times 20 db 0;AN000;
+		resb 20;AN000;
 PORT_NUMBER	DW	0		;AN000;
 REDIRECTION_PORT DW	0		;AN000;
 PRINTER_TAB_NUM DW	0		;AN000; indicates 1st, 2nd, 3rd, etc. printer selected

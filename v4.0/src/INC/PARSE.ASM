@@ -334,8 +334,8 @@ $P_IF5: 			   ;AN029;
 ;--------------------------- End of Line
 	mov	ax,$P_RC_EOL		;AN000; set exit code to -1
 	push	bx			;AN000;
-	mov	bx,es:[di].$P_PARMSX_Address ;AN000; Get the PARMSX address to
-	cmp	cl,es:[bx].$P_MinP	;AN000; check ORDINAL to see if the minimum
+	mov	bx,[es:di].$P_PARMSX_Address ;AN000; Get the PARMSX address to
+	cmp	cl,[es:bx].$P_MinP	;AN000; check ORDINAL to see if the minimum
 	jae	$P_Fin			;AN000; positional found.
 
 	mov	ax,$P_Op_Missing	;AN000; If no, set exit code to missing operand
@@ -400,7 +400,7 @@ $P_Pack_End:				;AN000;
 	mov	psdata_seg:$P_SI_Save,si     ;AC034; save next pointer, SI
 	mov	byte psdata_seg:[bx],$P_NULL ;AN000; put NULL at the end
 	mov	psdata_seg:$P_Save_EOB,bx    ;AC034; 3/17/87 keep the address for later use of complex
-	mov	bx,es:[di].$P_PARMSX_Address ;AN000; get PARMSX address
+	mov	bx,[es:di].$P_PARMSX_Address ;AN000; get PARMSX address
 	lea	si,psdata_seg:$P_STRING_BUF  ;AC034;
 	cmp	byte psdata_seg:[si],$P_Switch ;AN000; the operand begins w/ switch char ?
 	je	$P_SW_Manager		     ;AN000; if yes, process as switch
@@ -409,7 +409,7 @@ $P_Pack_End:				;AN000;
 	jne	$P_Key_manager		     ;AN000; if yes, process as keyword
 
 $P_Positional_Manager:			;AN000; else process as positional
-	mov	al,es:[bx].$P_MaxP	;AN000; get maxp
+	mov	al,[es:bx].$P_MaxP	;AN000; get maxp
 	xor	ah,ah			;AN000; ax = maxp
 	cmp	psdata_seg:$P_ORDINAL,ax ;AC034; too many positional ?
 	jae	$P_Too_Many_Error	;AN000; if yes, set exit code to too many
@@ -421,7 +421,7 @@ $P_Positional_Manager:			;AN000; else process as positional
 					;AN000; now bx points to 1st CONTROL
 ;(changed ;AC035;) add	   bx,2 	;AN000; now bx points to 1st CONTROL
 	add	bx,ax			;AN000; now bx points to specified CONTROL address
-	mov	bx,es:[bx]		;AN000; now bx points to specified CONTROL itself
+	mov	bx,[es:bx]		;AN000; now bx points to specified CONTROL itself
 	call	$P_Chk_Pos_Control	;AN000; Do process for positional
 	jmp	short $P_Return_to_Caller ;AN000; and return to the caller
 
@@ -430,12 +430,12 @@ $P_Too_Many_Error:			;AN000;
 	jmp	short $P_Return_to_Caller ;AN000; and return to the caller
 ;
 $P_SW_Manager:				;AN000;
-	mov	al,es:[bx].$P_MaxP	;AN000; get maxp
+	mov	al,[es:bx].$P_MaxP	;AN000; get maxp
 	xor	ah,ah			;AN000; ax = maxp
 	inc	ax			;AN000;
 	shl	ax,1			;AN000; ax = (ax+1)*2
 	add	bx,ax			;AN000; now bx points to maxs
-	mov	cl,es:[bx]		;AN000;
+	mov	cl,[es:bx]		;AN000;
 	xor	ch,ch			;AN000; cx = maxs
 	or	cx,cx			;AN000; at least one switch ?
 	je	$P_SW_Not_Found 	;AN000;
@@ -444,7 +444,7 @@ $P_SW_Manager:				;AN000;
 
 $P_SW_Mgr_Loop: 			;AN000;
 	push	bx			;AN000;
-	mov	bx,es:[bx]		;AN000; bx points to Switch CONTROL itself
+	mov	bx,[es:bx]		;AN000; bx points to Switch CONTROL itself
 	call	$P_Chk_SW_Control	;AN000; do process for switch
 	pop	bx			;AN000;
 	jnc	$P_Return_to_Caller	;AN000; if the CONTROL is for the switch, exit
@@ -460,17 +460,17 @@ $P_SW_Not_Found:			;AN000;
 	jmp	short $P_Return_to_Caller0    ;AN000; not been found, means error.
 ;
 $P_Key_Manager: 			;AN000;
-	mov	al,es:[bx].$P_MaxP	;AN000; get maxp
+	mov	al,[es:bx].$P_MaxP	;AN000; get maxp
 	xor	ah,ah			;AN000; ax = maxp
 	inc	ax			;AN000;
 	shl	ax,1			;AN000; ax = (ax+1)*2
 	add	bx,ax			;AN000; now bx points to maxs
-	mov	al,es:[bx]		;AN000;
+	mov	al,[es:bx]		;AN000;
 	xor	ah,ah			;AN000; ax = maxs
 	shl	ax,1			;AN000;
 	inc	ax			;AN000; ax = ax*2+1
 	add	bx,ax			;AN000; now bx points to maxk
-	mov	cl,es:[bx]		;AN000;
+	mov	cl,[es:bx]		;AN000;
 	xor	ch,ch			;AN000; cx = maxk
 	or	cx,cx			;AN000; at least one keyword ?
 	je	$P_Key_Not_Found	;AN000;
@@ -479,7 +479,7 @@ $P_Key_Manager: 			;AN000;
 
 $P_Key_Mgr_Loop:			;AN000;
 	push	bx			;AN000;
-	mov	bx,es:[bx]		;AN000; bx points to keyword CONTROL itself
+	mov	bx,[es:bx]		;AN000; bx points to keyword CONTROL itself
 	call	$P_Chk_Key_Control	;AN000; do process for keyword
 	pop	bx			;AN000;
 	jnc	$P_Return_to_Caller	;AN000; if the CONTROL is for the keyword, exit
@@ -530,7 +530,7 @@ $P_Single_Exit: 			;AN000;
 ;***********************************************************************
 $P_Chk_Pos_Control:;AN000;
 	push	ax			;AN000;
-	mov	ax,es:[bx].$P_Match_Flag ;AN000;
+	mov	ax,[es:bx].$P_Match_Flag ;AN000;
 	test	ax,$P_Repeat		;AN000; repeat allowed ?
 	jne	$P_CPC00		;AN000; then do not increment ORDINAL
 
@@ -633,12 +633,12 @@ $P_Chk_Key_Exit:			;AN000;
 $P_Search_KEYorSW:;AN000;
 	push	bp			;AN000;
 	push	cx			;AN000;
-	mov	cl,es:[bx].$P_nid	;AN000; Get synonym count
+	mov	cl,[es:bx].$P_nid	;AN000; Get synonym count
 	xor	ch,ch			;AN000; and set it to cx
 	or	cx,cx			;AN000; No synonyms specified ?
 	je	$P_KEYorSW_Not_Found	;AN000; then indicate not found by CY
 
-	lea	bp,es:[bx].$P_KEYorSW	;AN000; BP points to the 1st synonym
+	lea	bp,[es:bx].$P_KEYorSW	;AN000; BP points to the 1st synonym
 $P_KEYorSW_Loop:			;AN000;
 	call	$P_String_Comp		;AN000; compare string in buffer w/ the synonym
 	jnc	$P_KEYorSW_Found	;AN000; If match, set it to synonym pointer
@@ -662,7 +662,7 @@ $P_KEYorSW_Exit:			;AN000;
 ;***********************************************************************
 $P_MoveBP_NUL:;AN000;
 $P_MBP_Loop:				;AN000;
-	cmp	byte es:[bp],$P_NULL ;AN000; Increment BP that points
+	cmp	byte [es:bp],$P_NULL ;AN000; Increment BP that points
 	je	$P_MBP_Exit		;AN000; to the synomym list
 
 	inc	bp			;AN000; until
@@ -715,10 +715,10 @@ $P_Chk_SW_Control:;AN000;
 	jmp	short $P_Chk_SW_Exit	;AN000;
 
 $P_Chk_if_data_required:		;AN018; no data, no colon
-	cmp	es:[bx].$P_Match_Flag,0 ;AN018; should have data? zero match flag means switch followed by nothing is OK
+	cmp	[es:bx].$P_Match_Flag,0 ;AN018; should have data? zero match flag means switch followed by nothing is OK
 	je	$P_Chk_SW_Exit		;AN018; match flags not zero so should have something if optional bit is not on
 
-	test	es:[bx].$P_Match_Flag,$P_Optional ;AN019; see if no value is valid
+	test	[es:bx].$P_Match_Flag,$P_Optional ;AN019; see if no value is valid
 	jnz	$P_Chk_SW_Exit		;AN019; if so, then leave, else yell
 
 	mov	psdata_seg:$P_RC,$P_Op_Missing ;AC034; return required operand missing
@@ -772,28 +772,28 @@ $P_Chk_SW_Single_Exit:			;AN000;
 ;***********************************************************************
 $P_Fill_Result:;AN000;
 	push	di			;AN000;
-	mov	di,es:[bx].$P_Result_Buf ;AN000; di points to result buffer
+	mov	di,[es:bx].$P_Result_Buf ;AN000; di points to result buffer
 	mov	psdata_seg:$P_DX,di	;AC034; set returned result address
-	mov	es:[di].$P_Type,al	;AN000; store type
-	mov	es:[di].$P_Item_Tag,ah	;AN000; store item tag
+	mov	[es:di].$P_Type,al	;AN000; store type
+	mov	[es:di].$P_Item_Tag,ah	;AN000; store item tag
 	push	ax			;AN000;
 	mov	ax,psdata_seg:$P_Found_SYNONYM ;AC034; if yes,
-	mov	es:[di].$P_SYNONYM_Ptr,ax ;AN000;   then set it to the result
+	mov	[es:di].$P_SYNONYM_Ptr,ax ;AN000;   then set it to the result
 	pop	ax			;AN000;
 $P_RLT04:				;AN000;
 	cmp	al,$P_Number		;AN000; if number
 	jne	$P_RLT00		;AN000;
 
 $P_RLT02:				;AN000;
-	mov	word es:[di].$P_Picked_Val,dx ;AN000; then store 32bit
-	mov	word es:[di+2].$P_Picked_Val,cx ;AN000;	number
+	mov	word [es:di].$P_Picked_Val,dx ;AN000; then store 32bit
+	mov	word [es:di+2].$P_Picked_Val,cx ;AN000;	number
 	jmp	short $P_RLT_Exit	;AN000;
 
 $P_RLT00:				;AN000;
 	cmp	al,$P_List_Idx		;AN000; if list index
 	jne	$P_RLT01		;AN000;
 
-	mov	word es:[di].$P_Picked_Val,dx ;AN000; then store list index
+	mov	word [es:di].$P_Picked_Val,dx ;AN000; then store list index
 	jmp	short $P_RLT_Exit	;AN000;
 
 $P_RLT01:				;AN000;
@@ -806,7 +806,7 @@ $P_RLT01:				;AN000;
 	cmp	al,$P_Drive		;AN000; drive format ?
 	jne	$P_RLT03		;AN000;
 
-	mov	byte es:[di].$P_Picked_Val,dl ;AN000; store drive number
+	mov	byte [es:di].$P_Picked_Val,dl ;AN000; store drive number
 	jmp	short $P_RLT_Exit	;AN000;
 
 $P_RLT03:				;AN000;
@@ -815,25 +815,25 @@ $P_RLT03:				;AN000;
 
 	mov	ax,psdata_seg:$P_SaveSI_Cmpx ;AC034; then get pointer in command buffer
 	inc	ax			;AN000; skip left Parentheses
-	mov	word es:[di].$P_Picked_Val,ax ;AN000; store offset
-	mov	word es:[di+2].$P_Picked_Val,ds ;AN000; store segment
+	mov	word [es:di].$P_Picked_Val,ax ;AN000; store offset
+	mov	word [es:di+2].$P_Picked_Val,ds ;AN000; store segment
 	jmp	short $P_RLT_Exit	;AN000;
 
 $P_RLT05:				;AN000;
 ;------------------------  AL = 3, 5, or 9
-	mov	word es:[di].$P_Picked_Val,si ;AN000; store offset of STRING_BUF
+	mov	word [es:di].$P_Picked_Val,si ;AN000; store offset of STRING_BUF
 ;(replaced ;AN031;)  mov word ptr es:[di+word].$P_Picked_Val,cs ;AN000; store segment of STRING_BUF
-	mov	word es:[di+2].$P_Picked_Val,Psdata_Seg ;AN031; store segment of STRING_BUF
+	mov	word [es:di+2].$P_Picked_Val,Psdata_Seg ;AN031; store segment of STRING_BUF
 ;
 	push	ax			;AN000;
-	test	byte es:[bx].$P_Function_Flag,$P_CAP_File ;AN000; need CAPS by file table?
+	test	byte [es:bx].$P_Function_Flag,$P_CAP_File ;AN000; need CAPS by file table?
 	je	$P_RLT_CAP00		;AN000;
 
 	mov	al,$P_DOSTBL_File	;AN000; use file upper case table
 	jmp	short $P_RLT_CAP02	;AN000;
 
 $P_RLT_CAP00:				;AN000;
-	test	byte es:[bx].$P_Function_Flag,$P_CAP_Char ;AN000; need CAPS by char table ?
+	test	byte [es:bx].$P_Function_Flag,$P_CAP_Char ;AN000; need CAPS by char table ?
 	je	$P_RLT_CAP01		;AN000;
 
 	mov	al,$P_DOSTBL_Char	;AN000; use character upper case table
@@ -841,7 +841,7 @@ $P_RLT_CAP02:				;AN000;
 	call	$P_Do_CAPS_String	;AN000;  process CAPS along the table
 $P_RLT_CAP01:				;AN000;
 	pop	ax			;AN000;
-	test	byte es:[bx].$P_Function_Flag,$P_Rm_Colon ;AN000; removing colon at end ?
+	test	byte [es:bx].$P_Function_Flag,$P_Rm_Colon ;AN000; removing colon at end ?
 	je	$P_RLT_Exit		;AN000;
 
 	call	$P_Remove_Colon 	;AN000; then process it.
@@ -877,7 +877,7 @@ $P_RLT_Exit:				;AN000;
 $P_Check_Match_Flags:;AN000;
 	mov	psdata_seg:$P_err_flag,$P_NULL ;AN033;AC034;; clear filespec error flag.
 	push	ax			;AN000;
-	mov	ax,es:[bx].$P_Match_Flag ;AN000; load match flag(16bit) to ax
+	mov	ax,[es:bx].$P_Match_Flag ;AN000; load match flag(16bit) to ax
 
 	or	ax,ax			;AC035; test ax for zero
 ;(changed ;AC035;)  cmp     ax,0	;AN000; (tm12)
@@ -1195,7 +1195,7 @@ $P_DCC01:				;AN000;
 					;AN000; skip length field
 ;(changed ;AN035;) add	   bx,word	;AN000; skip length field
 	sub	al,$P_ASCII80		;AN000; make char to index
-	xlat	es:[bx] 		;AN000; perform case map
+	xlat	[es:bx] 		;AN000; perform case map
 
 %ifdef BASESW;AN037; If BASESW has been defined, and
   %if (BASESW) == 0;AN037; If ES is psdata base
@@ -1310,8 +1310,8 @@ $P_Value00:				;AN000;
 	add	dx,1			;AN000; |
 	adc	cx,0			;AN000; +
 $P_Value01:				;AN000; / nval =0
-	mov	si,es:[bx].$P_Value_List ;AN000; si points to value list
-	mov	al,es:[si]		;AN000; get nval
+	mov	si,[es:bx].$P_Value_List ;AN000; si points to value list
+	mov	al,[es:si]		;AN000; get nval
 	cmp	al,$P_nval_None 	;AN000; no value list ?
 	jne	$P_Value02		;AN000;
 
@@ -1325,7 +1325,7 @@ $P_Value02:				;AN000; / nval = 1
 ;(tm07) jne	$P_Value03		;AN000;
 
 	inc	si			;AN000;
-	mov	al,es:[si]		;AN000; al = number of range
+	mov	al,[es:si]		;AN000; al = number of range
 	cmp	al,$P_No_nrng		;AN000; (tm07)
 	je	$P_Value03		;AN000; (tm07)
 
@@ -1334,42 +1334,42 @@ $P_Val02_Loop:				;AN000;
 	test	psdata_seg:$P_Flags2,$P_Signed ;AC034;
 	jne	$P_Val02_Sign		;AN000;
 
-	cmp	cx,es:[si+$P_Val_XH]	;AN000; comp cx with XH
+	cmp	cx,[es:si+$P_Val_XH]	;AN000; comp cx with XH
 	jb	$P_Val02_Next		;AN000;
 
 	ja	$P_Val_In		;AN000;
 
-	cmp	dx,es:[si+$P_Val_XL]	;AN000; comp dx with XL
+	cmp	dx,[es:si+$P_Val_XL]	;AN000; comp dx with XL
 	jb	$P_Val02_Next		;AN000;
 
 $P_Val_In:				;AN000;
 ;;;;;;	cmp	cx,es:$P_Val_YH]	; comp cx with YH (tm01)
-	cmp	cx,es:[si+$P_Val_YH]	;AN000; comp cx with YH (tm01)
+	cmp	cx,[es:si+$P_Val_YH]	;AN000; comp cx with YH (tm01)
 	ja	$P_Val02_Next		;AN000;
 
 	jb	$P_Val_Found		;AN000;
 
-	cmp	dx,es:[si+$P_Val_YL]	;AN000; comp dx with YL
+	cmp	dx,[es:si+$P_Val_YL]	;AN000; comp dx with YL
 	ja	$P_Val02_Next		;AN000;
 
 	jmp	short $P_Val_Found	;AN000;
 
 $P_Val02_Sign:				;AN000;
-	cmp	cx,es:[si+$P_Val_XH]	;AN000; comp cx with XH
+	cmp	cx,[es:si+$P_Val_XH]	;AN000; comp cx with XH
 	jl	$P_Val02_Next		;AN000;
 
 	jg	$P_SVal_In		;AN000;
 
-	cmp	dx,es:[si+$P_Val_XL]	;AN000; comp dx with XL
+	cmp	dx,[es:si+$P_Val_XL]	;AN000; comp dx with XL
 	jl	$P_Val02_Next		;AN000;
 
 $P_SVal_In:				;AN000;
-	cmp	cx,es:[si+$P_Val_YH]	;AN000; comp cx with YH
+	cmp	cx,[es:si+$P_Val_YH]	;AN000; comp cx with YH
 	jg	$P_Val02_Next		;AN000;
 
 	jl	$P_Val_Found		;AN000;
 
-	cmp	dx,es:[si+$P_Val_YL]	;AN000; comp dx with YL
+	cmp	dx,[es:si+$P_Val_YL]	;AN000; comp dx with YL
 	jg	$P_Val02_Next		;AN000;
 
 	jmp	short $P_Val_Found	;AN000;
@@ -1388,7 +1388,7 @@ $P_Val02_Next:				;AN000;
 %if Val1SW+Val2SW;AN000;(Check if value list id #1 or #2 is supported)
 $P_Val_Found:				;AN000;
 	mov	al,$P_Number		;AN000;
-	mov	ah,es:[si]		;AN000; found ITEM_TAG set
+	mov	ah,[es:si]		;AN000; found ITEM_TAG set
 	jmp	short $P_Value_Exit	;AN000;
 
 %endif;AN000;(of Val1SW+Val2SW)
@@ -1402,13 +1402,13 @@ $P_Value03:				;AN000; / nval = 2
 	mul	ah			;AN000;  Skip nrng field
 	inc	ax			;AN000;
 	add	si,ax			;AN000; si points to nnval
-	mov	al,es:[si]		;AN000; get nnval
+	mov	al,[es:si]		;AN000; get nnval
 	inc	si			;AN000; si points to 1st item_tag
 $P_Val03_Loop:				;AN000;
-	cmp	cx,es:[si+$P_Val_XH]	;AN000; comp cx with XH
+	cmp	cx,[es:si+$P_Val_XH]	;AN000; comp cx with XH
 	jne	$P_Val03_Next		;AN000;
 
-	cmp	dx,es:[si+$P_Val_XL]	;AN000; comp dx with XL
+	cmp	dx,[es:si+$P_Val_XL]	;AN000; comp dx with XL
 	je	$P_Val_Found		;AN000;
 
 $P_Val03_Next:				;AN000;
@@ -1514,8 +1514,8 @@ $P_Simple_String:;AN000;
 	push	bx			;AN000;
 	push	dx			;AN000;
 	push	di			;AN000;
-	mov	di,es:[bx].$P_Value_List ;AN000; di points to value list
-	mov	al,es:[di]		;AN000; get nval
+	mov	di,[es:bx].$P_Value_List ;AN000; di points to value list
+	mov	al,[es:di]		;AN000; get nval
 	or	al,al			;AN000; no value list ?
 	jne	$P_Sim00		;AN000; then
 
@@ -1528,23 +1528,23 @@ $P_Sim00:				;AN000;
 	jne	$P_Sim01		;AN000; if no, syntax error
 
 	inc	di			;AN000;
-	mov	al,es:[di]		;AN000; al = nrng
+	mov	al,[es:di]		;AN000; al = nrng
 	mov	ah,$P_Len_Range 	;AN000;
 	mul	ah			;AN000;  Skip nrng field
 	inc	ax			;AN000; ax = (nrng*9)+1
 	add	di,ax			;AN000; di points to nnval
-	mov	al,es:[di]		;AN000; get nnval
+	mov	al,[es:di]		;AN000; get nnval
 	mov	ah,$P_Len_Value 	;AN000;
 	mul	ah			;AN000; Skip nnval field
 	inc	ax			;AN000; ax = (nnval*5)+1
 	add	di,ax			;AN000; di points to nstrval
-	mov	al,es:[di]		;AN000; get nstrval
+	mov	al,[es:di]		;AN000; get nstrval
 	inc	di			;AC035; add '2' to
 	inc	di			;AC035;  DI reg
 					;AN000; di points to 1st string in list
 ;(replaced ;AC035;) add     di,2	;AN000; di points to 1st string in list
 $P_Sim_Loop:				;AN000;
-	mov	bp,es:[di]		;AN000; get string pointer
+	mov	bp,[es:di]		;AN000; get string pointer
 	call	$P_String_Comp		;AN000; compare it with operand
 	jnc	$P_Sim_Found		;AN000; found on list ?
 
@@ -1557,9 +1557,9 @@ $P_Sim_Loop:				;AN000;
 	jmp	short $P_Sim_Exit	;AN000;
 
 $P_Sim_Found:				;AN000;
-	mov	ah,es:[di-1]		;AN000; set item_tag
+	mov	ah,[es:di-1]		;AN000; set item_tag
 	mov	al,$P_List_Idx		;AN000;
-	mov	dx,es:[di]		;AN000; get address of STRING
+	mov	dx,[es:di]		;AN000; get address of STRING
 	jmp	short $P_Sim_Exit0	;AN000;
 %endif;AN000;(of Val3SW+KeySW)
 $P_Sim01:				;AN000;
@@ -1610,7 +1610,7 @@ $P_SCOM_Loop:				;AN000;
 	cmp	al,$P_Keyword		;AN000; "=" is delimiter
 	jne	$P_SCOM03		;AN000;IF "=" on command line AND  (bp+1=> char after the "=" in synonym list)
 
-	cmp	byte es:[bp+1],$P_NULL ;AN021;   at end of keyword string in the control block THEN
+	cmp	byte [es:bp+1],$P_NULL ;AN021;   at end of keyword string in the control block THEN
 	jne	$P_SCOM_DIFFER		;AN021;
 
 	jmp	short $P_SCOM05 	;AN000;   keyword found in synonym list
@@ -1622,7 +1622,7 @@ $P_SCOM04:				;AN000;
 	cmp	al,$P_Colon		;AN000; ":" is delimiter, at end of switch on command line
 	jne	$P_SCOM03		;AN000; continue compares
 
-	cmp	byte es:[bp],$P_NULL ;AN021; IF at end of switch on command AND
+	cmp	byte [es:bp],$P_NULL ;AN021; IF at end of switch on command AND
 	jne	$P_SCOM_DIFFER		;AN021;   at end of switch string in the control block THEN
 
 $P_SCOM05:				;AN000;   found a match
@@ -1631,7 +1631,7 @@ $P_SCOM05:				;AN000;   found a match
 
 $P_SCOM03:				;AN000;
 %endif;AN000;(of KeySW+SwSW)
-	cmp	al,es:[bp]		;AN000; compare operand w/ a synonym
+	cmp	al,[es:bp]		;AN000; compare operand w/ a synonym
 	jne	$P_SCOM_Differ0 	;AN000; if different, check ignore colon option
 
 	or	al,al			;AN000; end of line
@@ -1642,13 +1642,13 @@ $P_SCOM03:				;AN000;
 	jmp	short $P_SCOM01 	;AN000; loop until NULL or "=" or ":" found in case
 
 $P_SCOM00:				;AN000; Here al is DBCS leading byte
-	cmp	al,es:[bp]		;AN000; compare leading byte
+	cmp	al,[es:bp]		;AN000; compare leading byte
 	jne	$P_SCOM_Differ		;AN000; if not match, say different
 
 	inc	si			;AN000; else, load next byte
 	mov	al,psdata_seg:[si]	;AN000; and
 	inc	bp			;AN000;
-	cmp	al,es:[bp]		;AN000; compare 2nd byte
+	cmp	al,[es:bp]		;AN000; compare 2nd byte
 	jne	$P_SCOM_Differ		;AN000; if not match, say different, too
 
 	inc	si			;AN000; else update operand pointer
@@ -1662,23 +1662,23 @@ $P_SCOM_Differ0:			;AN000;
 	test	psdata_seg:$P_Flags2,$P_SW ;AC034;(tm10)
 	je	$P_not_applicable	;AN000;(tm10)
 
-	test	es:[bx].$P_Function_Flag,$P_colon_is_not_necessary ;AN000;(tm10)
+	test	[es:bx].$P_Function_Flag,$P_colon_is_not_necessary ;AN000;(tm10)
 	je	$P_not_applicable	;AN000;(tm10)
 
-	cmp	byte es:[bp],$P_NULL ;AN000;(tm10)
+	cmp	byte [es:bp],$P_NULL ;AN000;(tm10)
 ;(deleted ;AN025;) jne $P_not_applicable ;AN000;(tm10)
 	je	$P_SCOM_Same		;AN025;(tm10)
 
 $P_not_applicable:			;AN000;(tm10)
 %endif;AN000;(tm10)
 
-	test	es:[bx].$P_Match_Flag,$P_Ig_Colon ;AN000; ignore colon option specified ?
+	test	[es:bx].$P_Match_Flag,$P_Ig_Colon ;AN000; ignore colon option specified ?
 	je	$P_SCOM_Differ		;AN000; if no, say different.
 
 	cmp	al,$P_Colon		;AN000; End up with ":" and
 	jne	$P_SCOM02		;AN000;    subseqently
 
-	cmp	byte es:[bp],$P_NULL ;AN000;       NULL ?
+	cmp	byte [es:bp],$P_NULL ;AN000;       NULL ?
 	jne	$P_SCOM_Differ		;AN000; if no, say different
 
 	jmp	short $p_SCOM_Same	;AN000; else, say same
@@ -1687,7 +1687,7 @@ $P_SCOM02:				;AN000;
 	cmp	al,$P_NULL		;AN000; end up NULL and :
 	jne	$P_SCOM_Differ		;AN000;
 
-	cmp	byte es:[bp],$P_Colon ;AN000; if no, say different
+	cmp	byte [es:bp],$P_Colon ;AN000; if no, say different
 	je	$p_SCOM_Same		;AN000; else, say same
 
 $P_SCOM_Differ: 			;AN000;
@@ -2472,7 +2472,7 @@ $P_FileF_Err:				;AN000;
 ;(deleted ;AN030;) mov di,$P_SaveSI_cmpx ;AN000; get user buffer address
 ;(deleted ;AN030;) mov $P_SI_Save,di	 ;AN000; update pointer to user buffer
 	pop	di			;AN000;
-	test	es:[bx].$P_Match_Flag,$P_Optional ;AN000; is it optional ?
+	test	[es:bx].$P_Match_Flag,$P_Optional ;AN000; is it optional ?
 	jne	$P_FileF02		;AN000;
 
 	mov	psdata_seg:$P_RC,$P_Op_Missing ;AC034; 3/17/87
@@ -2583,7 +2583,7 @@ $P_Drive_Format:;AN000;
 	cmp	word psdata_seg:[si+byte],$P_Colon ;AN000; "d", ":", 0  ?
 	je	$P_DrvF00		;AN000;
 
-	test	es:[bx].$P_Match_Flag,$P_Ig_Colon ;AN000; colon can be ignored?
+	test	[es:bx].$P_Match_Flag,$P_Ig_Colon ;AN000; colon can be ignored?
 	je	$P_Drv_Err		;AN000;
 
 	cmp	byte psdata_seg:[si+byte],$P_NULL ;AN000; "d", 0  ?
@@ -2687,20 +2687,20 @@ $P_Chk_EOL:;AN000;
 	je	$P_Chk_EOL_Exit 	;AN000;
 %endif;AN028;
 
-	cmp	byte es:[di].$P_Num_Extra,$P_I_Have_EOL ;AN000; EOL character specified ?
+	cmp	byte [es:di].$P_Num_Extra,$P_I_Have_EOL ;AN000; EOL character specified ?
 	jb	$P_Chk_EOL_Exit 	;AN000;
 
 	xor	bx,bx			;AN000;
-	mov	bl,es:[di].$P_Len_Extra_Delim ;AN000; get length of delimiter list
+	mov	bl,[es:di].$P_Len_Extra_Delim ;AN000; get length of delimiter list
 	add	bx,$P_Len_PARMS 	;AN000; skip it
-	cmp	byte es:[bx+di],$P_I_Use_Default ;AN000; No extra EOL character ?
+	cmp	byte [es:bx+di],$P_I_Use_Default ;AN000; No extra EOL character ?
 	je	$P_Chk_EOL_NZ		;AN000;
 
 	xor	cx,cx			;AN000; Get number of extra chcracter
-	mov	cl,es:[bx+di]		;AN000;
+	mov	cl,[es:bx+di]		;AN000;
 $P_Chk_EOL_Loop:			;AN000;
 	inc	bx			;AN000;
-	cmp	al,es:[bx+di]		;AN000; Check extra EOL character
+	cmp	al,[es:bx+di]		;AN000; Check extra EOL character
 	je	$P_Chk_EOL_Exit 	;AN000;
 
 	loop	$P_Chk_EOL_Loop 	;AN000;
@@ -2755,18 +2755,18 @@ $P_Chk_Delim00: 			;AN000;
 	jmp	short $P_Chk_Delim_Exit ;AN000;
 
 $P_Chk_Delim01: 			;AN000;
-	cmp	byte es:[di].$P_Num_Extra,$P_I_Have_Delim ;AN000; delimiter character specified ?
+	cmp	byte [es:di].$P_Num_Extra,$P_I_Have_Delim ;AN000; delimiter character specified ?
 	jb	$P_Chk_Delim_Exit	;AN000;
 
 	xor	cx,cx			;AN000;
-	mov	cl,es:[di].$P_Len_Extra_Delim ;AN000; get length of delimiter list
+	mov	cl,[es:di].$P_Len_Extra_Delim ;AN000; get length of delimiter list
 	or	cx,cx			;AN000; No extra Delim character ?
 	je	$P_Chk_Delim_NZ 	;AN000;
 
 	mov	bx,$P_Len_PARMS-1	;AN000; set bx to 1st extra delimiter
 $P_Chk_Delim_Loop:			;AN000;
 	inc	bx			;AN000;
-	cmp	al,es:[bx+di]		;AN000; Check extra Delim character
+	cmp	al,[es:bx+di]		;AN000; Check extra Delim character
 	je	$P_Chk_Delim_Exit0	;AN000;
 
 	loop	$P_Chk_Delim_Loop	;AN000; examine all extra delimiter

@@ -722,7 +722,7 @@ $$EN14:
 ;
 	push	ds				;save ds for size calc
 	mov	ds,[org_ds]
-	MOV	CX,DS:[2]
+	MOV	CX,[DS:2]
 	MOV	DI,CS
 	SUB	CX,DI
 	CMP	CX,1000h
@@ -813,7 +813,7 @@ CHKLP:
 ;
 ; AL has first char after arg
 ;
-	MOV	ds:[BP+DI],DX
+	MOV	[ds:BP+DI],DX
 	ADD	DI,2
 
 	MOV	ParamCt,DI		; set up count of parameters
@@ -1209,7 +1209,7 @@ CopyText:
 	SUB	CX,SI			; number of bytes to move
 	CLD				; forwards
 	REP	MOVSB
-	MOV	byte ES:[DI],1Ah	; remember ^Z terminate
+	MOV	byte [ES:DI],1Ah	; remember ^Z terminate
 	MOV	EndTxt,DI		; new end of file
 ;
 ; May need to relocate current line (parameter 3).
@@ -1799,8 +1799,8 @@ Calc_Memory_Avail:;an000; dms;
 	push	cx				;an000; dms;
 	push	di				;an000; dms;
 
-	mov	ds,cs:[org_ds]
-	MOV	CX,DS:[2]
+	mov	ds,[cs:org_ds]
+	MOV	CX,[DS:2]
 	MOV	DI,CS
 	SUB	CX,DI
 	mov	dx,cx				;an000; dms;put paras in DX

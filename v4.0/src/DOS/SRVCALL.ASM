@@ -31,7 +31,7 @@ AsmVars <Installed>
 
 %include "dpl.asm"
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	USER_ID,WORD
 	i_need	PROC_ID,WORD
@@ -116,14 +116,14 @@ SRVC001E:
 	PUSH	SS				   ;IFS.			;AN000;
 	POP	ES				   ;IFS.			;AN000;
 	invoke	GET_USER_STACK			   ;IFS.			;AN000;
-	MOV	[SI.user_DS],ES 		   ;IFS.   ds:si -> swap tab	;AN000;
-	MOV	[SI.user_SI],DI 		   ;IFS.			;AN000;
+	MOV	[SI+user_DS],ES 		   ;IFS.   ds:si -> swap tab	;AN000;
+	MOV	[SI+user_SI],DI 		   ;IFS.			;AN000;
 	transfer SYS_RET_OK			   ;IFS.			;AN000;
 SET_STUFF:
 	MOV	SI,DX			; Point to DPL with DS:SI
-	MOV	BX,[SI.DPL_UID]
+	MOV	BX,[SI+DPL_UID]
 	MOV	[USER_ID],BX		; Set UID
-	MOV	BX,[SI.DPL_PID]
+	MOV	BX,[SI+DPL_PID]
 	MOV	[PROC_ID],BX		; Set process ID
 NO_SET_ID:
 	PUSH	SERVERLEAVE		; push return address
@@ -147,9 +147,9 @@ CommitLoop:
 	SaveReg <BX>
 	Invoke	SFFromSFN
 	JC	CommitDone
-	CMP	ES:[DI].sf_Ref_Count,0	;	if (ThisSFT->refcount != 0)
+	CMP	[ES:DI].sf_Ref_Count,0	;	if (ThisSFT->refcount != 0)
 	JZ	CommitNext
-	CMP	ES:[DI].sf_Ref_Count,sf_busy  ; BUSY SFTs have god knows what
+	CMP	[ES:DI].sf_Ref_Count,sf_busy  ; BUSY SFTs have god knows what
 	JZ	CommitNext		      ;   in them.
 ;	TEST	ES:[DI].sf_flags,sf_isnet
 	invoke	Test_IFS_Remote 	;IFS.					;AN000;
@@ -210,11 +210,11 @@ GET_LIST:
 %endif
 	JC	func_err
 	invoke	get_user_stack
-	MOV	[SI.user_BX],BX
-	MOV	[SI.user_DI],DI
-	MOV	[SI.user_ES],ES
+	MOV	[SI+user_BX],BX
+	MOV	[SI+user_DI],DI
+	MOV	[SI+user_ES],ES
 SetCXOK:
-	MOV	[SI.user_CX],CX
+	MOV	[SI+user_CX],CX
 	transfer    SYS_RET_OK
 
 SRV_CALL:
@@ -242,14 +242,14 @@ SRV_CALL:
 	MOVSW				; DS
 	MOVSW				; ES
 	RestoreReg  <SI>		; DS:SI -> DPL
-	MOV	AX,[SI.DPL_AX]
-	MOV	BX,[SI.DPL_BX]
-	MOV	CX,[SI.DPL_CX]
-	MOV	DX,[SI.DPL_DX]
-	MOV	DI,[SI.DPL_DI]
-	MOV	ES,[SI.DPL_ES]
-	PUSH	[SI.DPL_SI]
-	MOV	DS,[SI.DPL_DS]
+	MOV	AX,[SI+DPL_AX]
+	MOV	BX,[SI+DPL_BX]
+	MOV	CX,[SI+DPL_CX]
+	MOV	DX,[SI+DPL_DX]
+	MOV	DI,[SI+DPL_DI]
+	MOV	ES,[SI+DPL_ES]
+	PUSH	[SI+DPL_SI]
+	MOV	DS,[SI+DPL_DS]
 	POP	SI
 	MOV	[SaveDS],DS
 	MOV	[SaveBX],BX
@@ -263,9 +263,9 @@ GET_DOS_DATA:
 	AND	DX,7FFFH		     ;IFS. clear high bit	      ;AC000;
 	MOV	CX,[SWAP_AREA_LEN]	     ;IFS. get swap len 	      ;AC000;
 	invoke	GET_USER_STACK
-	MOV	[SI.user_DS],ES 	     ;	set user regs
-	MOV	[SI.user_SI],DI 	     ;
-	MOV	[SI.user_DX],DX 	     ;
+	MOV	[SI+user_DS],ES 	     ;	set user regs
+	MOV	[SI+user_SI],DI 	     ;
+	MOV	[SI+user_DX],DX 	     ;
 	JMP	SetCXOK 		     ;				      ;AN000;
 
 SPOOL_OPER:

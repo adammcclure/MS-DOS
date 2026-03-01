@@ -149,7 +149,7 @@ SECTION .CODERES
 
 
         ORG     0
-ZERO    =       $
+ZERO equ $
 
         ORG     100H
 
@@ -247,12 +247,12 @@ HAVEXEC:
         JMP     SHORT EXECRET
 execmer:
         LDS     SI,dword [user_Sp]
-        MOV     [SI.user_AX],exec_not_enough_memory
-        PUSH    [SI.user_F]
+        MOV     [SI+user_AX],exec_not_enough_memory
+        PUSH    [SI+user_F]
         POPF
         STC
         PUSHF
-        POP     [SI.user_F]
+        POP     [SI+user_F]
 execret:
         MOV     SS,[user_SS]
 ; ASSUME  SS:NOTHING
@@ -374,7 +374,7 @@ FATALRET2:
         INT     int_command
 %endif
         MOV     AX,[PARENT]
-        MOV     word CS:[PDB_Parent_PID],AX
+        MOV     word [CS:PDB_Parent_PID],AX
         MOV     AX,(EXIT SHL 8)                 ; Return to lower level
         INT     int_command
 
@@ -528,7 +528,7 @@ USESLASH:
         MOV     CX,8
         REP     MOVSW                   ; Transfer INFO to transient
         MOV     AX,[MEMSIZ]
-        MOV     word DS:[PDB_block_len],AX  ; Adjust my own header
+        MOV     word [DS:PDB_block_len],AX  ; Adjust my own header
         JMP     dword [TRANS]
 
 ; Far call to REMCHECK for TRANSIENT
@@ -586,19 +586,19 @@ THEADFIX:
 HEADFIX:
         XOR     BX,BX           ; Clean up header
         MOV     CX,[IO_SAVE]
-        MOV     DX,word DS:[PDB_JFN_Table]
+        MOV     DX,word [DS:PDB_JFN_Table]
         CMP     CL,DL
         JZ      CHK1            ; Stdin matches
         MOV     AH,CLOSE
         INT     int_command
-        MOV     DS:[PDB_JFN_Table],CL   ; Restore stdin
+        MOV     [DS:PDB_JFN_Table],CL   ; Restore stdin
 CHK1:
         INC     BX
         CMP     CH,DH           ; Stdout matches
         JZ      CHKOTHERHAND
         MOV     AH,CLOSE
         INT     int_command
-        MOV     DS:[PDB_JFN_Table+1],CH ; Restore stdout
+        MOV     [DS:PDB_JFN_Table+1],CH ; Restore stdout
 CHKOTHERHAND:
         ADD     BX,4                    ; Skip 2,3,4
         MOV     CX,FilPerProc - 5       ; Already done 0,1,2,3,4
@@ -617,11 +617,11 @@ SAVHAND:
         MOV     AH,GET_CURRENT_PDB
         INT     int_command             ; Get user's header
         MOV     DS,BX
-        MOV     AX,word DS:[PDB_JFN_Table]
+        MOV     AX,word [DS:PDB_JFN_Table]
         MOV     [HANDLE01],AX           ; Save user's stdin, stdout
-        MOV     AL,DS:[PDB_JFN_Table+2]
+        MOV     AL,[DS:PDB_JFN_Table+2]
         MOV     AH,AL
-        MOV     word DS:[PDB_JFN_Table],AX   ; Dup stderr
+        MOV     word [DS:PDB_JFN_Table],AX   ; Dup stderr
         POP     AX
         POP     BX
         POP     DS
@@ -641,7 +641,7 @@ RESTHAND:
         MOV     AX,[HANDLE01]
         MOV     DS,BX
 ; ASSUME DS:NOTHING
-        MOV     word DS:[PDB_JFN_Table],AX   ; Stuff his old 0 and 1
+        MOV     word [DS:PDB_JFN_Table],AX   ; Stuff his old 0 and 1
         POP     AX
         POP     BX
         POP     DS

@@ -76,13 +76,13 @@ BREAK <get_sf_from_sfn - translate a sfn into sf pointer>
 get_sfn_loop:
         CMP     DI,-1                   ; end of chain of tables?
         JZ      get_sf_invalid          ; I guess so...
-        SUB     AX,ES:[DI].sft_count    ; chop number of entries in this table
+        SUB     AX,[ES:DI].sft_count    ; chop number of entries in this table
         JL      get_sf_gotten           ; sfn is in this table
-        LES     DI,ES:[DI].sft_link     ; step to next table
+        LES     DI,[ES:DI].sft_link     ; step to next table
         JMP     get_sfn_loop
 
 get_sf_gotten:
-        ADD     AX,ES:[DI].sft_count    ; reset to index in this table
+        ADD     AX,[ES:DI].sft_count    ; reset to index in this table
         PUSH    BX
         MOV     BX,sf_entry_size
         MUL     BL                      ; number of bytes offset into table
@@ -117,7 +117,7 @@ BREAK <get_sf_from_jfn - translate a jfn into sf pointer>
         PUSH    AX                      ; save him
         invoke  get_jfn_pointer
         JC      get_sf_jfn_invalid
-        MOV     AL,ES:[DI]              ; get sfn
+        MOV     AL,[ES:DI]              ; get sfn
         CMP     AL,0FFh                 ; is it free?
         JZ      get_sf_jfn_invalid      ; yep... error
         XOR     AH,AH
@@ -172,10 +172,10 @@ close_bad_handle:
         error   error_invalid_handle
 
 close_jfn:
-        MOV     AL,byte ES:[DI]
+        MOV     AL,byte [ES:DI]
         CMP     AL,0FFh
         JE      close_bad_handle
-        MOV     byte ES:[DI],0FFh;
+        MOV     byte [ES:DI],0FFh;
         XOR     AH,AH
         invoke  get_sf_from_sfn
         JC      close_bad_handle
@@ -187,7 +187,7 @@ close_jfn:
 ;
 ; need to restuff Attrib if we are closing a protected file
 ;
-        TEST    [DI.sf_fcb.fcb_DevID],devid_file_clean+devid_device
+        TEST    [DI+sf_fcb.fcb_DevID],devid_file_clean+devid_device
         JNZ     close_ok
         PUSH    word [DI].sf_attr
         invoke  MOVNAMENOSET
@@ -292,7 +292,7 @@ BREAK <$Read - Do file/device I/O>
         invoke  PushDMA
         CALL    IO_setup
         JC      IO_err
-        CMP     ES:[DI].sf_mode,open_for_write
+        CMP     [ES:DI].sf_mode,open_for_write
         JNE     read_setup
 IO_bad_mode:
         MOV     AL,read_access_denied
@@ -331,7 +331,7 @@ BREAK <$Write - Do file/device I/O>
         invoke  PushDMA
         CALL    IO_setup
         JC      IO_err
-        CMP     ES:[DI].sf_mode,open_for_read
+        CMP     [ES:DI].sf_mode,open_for_read
         JE      IO_bad_mode
         invoke  $FCB_RANDOM_WRITE_BLOCK ; do write
         JMP     IO_done
@@ -381,7 +381,7 @@ lseek_get_sf:
 ;
 ; don't seek device
 ;
-        TEST    [DI.sf_fcb+fcb_devid],devid_device
+        TEST    [DI+sf_fcb+fcb_devid],devid_device
         JZ      lseek_dispatch
         XOR     AX,AX
         XOR     DX,DX
@@ -408,8 +408,8 @@ lseek_ret:
         MOV     word [DI+sf_fcb+fcb_RR],AX
         MOV     word [DI+sf_fcb+fcb_RR+2],DX
         invoke  get_user_stack
-        MOV     [SI.user_DX],DX
-        MOV     [SI.user_AX],AX
+        MOV     [SI+user_DX],DX
+        MOV     [SI+user_AX],AX
         transfer    SYS_RET_OK
 
 lseek_current:
@@ -459,7 +459,7 @@ ioctl_check_permissions:
         CMP     AL,2
         JAE     ioctl_control_string
         CMP     AL,0
-        MOV     AL,byte ES:[DI+sf_fcb+fcb_devid]
+        MOV     AL,byte [ES:DI+sf_fcb+fcb_devid]
         JZ      ioctl_read              ; read the byte
         OR      DH,DH
         JZ      ioctl_check_device      ; can I set with this data?
@@ -468,25 +468,25 @@ ioctl_check_permissions:
 ioctl_check_device:
         TEST    AL,devid_ISDEV          ; can I set this handle?
         JZ      ioctl_bad_fun           ; no, it is a file.
-        MOV     byte ES:[DI+sf_fcb+fcb_devid],DL
+        MOV     byte [ES:DI+sf_fcb+fcb_devid],DL
         transfer    SYS_RET_OK
 
 ioctl_read:
         XOR     AH,AH
         TEST    AL,devid_ISDEV          ; Should I set high byte
         JZ      ioctl_no_high           ; no
-        LES     DI,dword ES:[DI+sf_fcb+fcb_FIRCLUS]  ;Get device pointer
-        MOV     AH,byte ES:[DI.SDEVATT+1]   ;Get high byte
+        LES     DI,dword [ES:DI+sf_fcb+fcb_FIRCLUS]  ;Get device pointer
+        MOV     AH,byte [ES:DI+SDEVATT+1]   ;Get high byte
 ioctl_no_high:
         invoke  get_user_stack
         MOV     DX,AX
-        MOV     [SI.user_DX],DX
+        MOV     [SI+user_DX],DX
         transfer    SYS_RET_OK
 
 ioctl_control_string:
-        TEST    byte ES:[DI+sf_fcb+fcb_devid],devid_ISDEV   ; can I?
+        TEST    byte [ES:DI+sf_fcb+fcb_devid],devid_ISDEV   ; can I?
         JZ      ioctl_bad_fun           ; no, it is a file.
-        LES     DI,dword ES:[DI+sf_fcb+fcb_FIRCLUS]  ;Get device pointer
+        LES     DI,dword [ES:DI+sf_fcb+fcb_FIRCLUS]  ;Get device pointer
         XOR     BL,BL           ; Unit number of char dev = 0
         JMP     SHORT ioctl_do_string
 
@@ -531,8 +531,8 @@ ioctl_get_dev:
         invoke  GETTHISDRV
         JC      ioctl_bad_drv
         invoke  FATREAD         ;"get" the drive
-        MOV     BL,ES:[BP.dpb_UNIT]     ; Unit number
-        LES     DI,ES:[BP.dpb_driver_addr]
+        MOV     BL,[ES:BP+dpb_UNIT]     ; Unit number
+        LES     DI,[ES:BP+dpb_driver_addr]
         CLC                     ;Make sure error jump not taken
 ioctl_bad_drv:
         POP     SI
@@ -541,7 +541,7 @@ ioctl_bad_drv:
         POP     CX
         JC      ioctl_acc_err
 ioctl_do_string:
-        TEST    ES:[DI.SDEVATT],DEVIOCTL        ;See if device accepts control
+        TEST    [ES:DI+SDEVATT],DEVIOCTL        ;See if device accepts control
         JZ      ioctl_bad_fun                   ;NO
         DEC     AL
         DEC     AL
@@ -605,17 +605,17 @@ filetimes_ok:
 filetimes_disp:
         OR      AL,AL
         JNZ     filetimes_set
-        MOV     CX,ES:[DI.sf_fcb.fcb_FTIME]
-        MOV     DX,ES:[DI.sf_fcb.fcb_FDATE]
+        MOV     CX,[ES:DI+sf_fcb.fcb_FTIME]
+        MOV     DX,[ES:DI+sf_fcb.fcb_FDATE]
         invoke  Get_user_stack
-        MOV     [SI.user_CX],CX
-        MOV     [SI.user_DX],DX
+        MOV     [SI+user_CX],CX
+        MOV     [SI+user_DX],DX
         transfer    SYS_RET_OK
 
 filetimes_set:
-        MOV     ES:[DI.sf_fcb.fcb_FTIME],CX
-        MOV     ES:[DI.sf_fcb.fcb_FDATE],DX
-        AND     ES:[DI.sf_fcb.fcb_DEVID],NOT devid_file_clean
+        MOV     [ES:DI+sf_fcb.fcb_FTIME],CX
+        MOV     [ES:DI+sf_fcb.fcb_FDATE],DX
+        AND     [ES:DI+sf_fcb.fcb_DEVID],NOT devid_file_clean
         transfer    SYS_RET_OK
 ; ENDP $file_times
 

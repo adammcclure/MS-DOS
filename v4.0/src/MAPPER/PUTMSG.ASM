@@ -35,11 +35,11 @@ SECTION .dosxxx
 	; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-MessagePtr: dd 0; message pointer
-MessageLength: dw 0; message length
-Handle: dw 0; file handle
+old_bp: resw 1
+return: resd 1
+MessagePtr: resd 1; message pointer
+MessageLength: resw 1; message length
+Handle: resw 1; file handle
 endstruc
 
 dosputmessage:

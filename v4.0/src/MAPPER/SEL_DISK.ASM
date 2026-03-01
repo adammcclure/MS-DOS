@@ -28,9 +28,9 @@ SECTION .dosxxx
             ; .list
 
 struc str
-old_bp: dw 0
-Return: dd 0
-Drive: dw 0; drive number
+old_bp: resw 1
+Return: resd 1
+Drive: resw 1; drive number
 endstruc
 
 dosselectdisk:

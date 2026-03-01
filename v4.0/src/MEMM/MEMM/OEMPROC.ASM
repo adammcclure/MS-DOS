@@ -480,10 +480,10 @@ MB_Start:
 	push	VDMD_GSEL
 	pop	es			; ES = DGROUP alias
 	; ASSUME	ES:DGROUP
-	cmp	es:[DiagAddr],0 	;Q: does target -> diag byte ?
+	cmp	[es:DiagAddr],0 	;Q: does target -> diag byte ?
 	je	MB_nodiag		;  N: then don't worry
 	mov	al,[si] 		;  Y: get current diag byte
-	mov	es:[DiagByte],al	;     and save it where we can access it
+	mov	[es:DiagByte],al	;     and save it where we can access it
 MB_nodiag:
 	pop	es			; restore es
 %endif
@@ -742,12 +742,12 @@ hbuf_chk:
 	mov	bx,X_HI_MEM_SEG 	; segment of hi memory control words
 	mov	es,bx
 	mov	bx,es:X_HI_PTR		; pointer to hi memory control words
-	mov	ax,es:[bx+X_MEM_BOARD]	; 32-bit memory board status
+	mov	ax,[es:bx+X_MEM_BOARD]	; 32-bit memory board status
 	inc	ax			; q: memory board status word == -1?
 	stc
 	jz	hbuf_xit		; y: not installed
-	mov	ax,es:[bx+X_AVAIL_MEM]	; get available memory in 16 byte pieces
-	mov	bx,es:[bx+X_LAST_HI]	; get last used address
+	mov	ax,[es:bx+X_AVAIL_MEM]	; get available memory in 16 byte pieces
+	mov	bx,[es:bx+X_LAST_HI]	; get last used address
 	and	bx,0ffh 		; align to 4k byte boundary (2**8)*16
 	sub	ax,bx			; ax = available 16 byte pieces
 	shr	ax,10			; ax = available 16k byte pieces
@@ -798,7 +798,7 @@ HiAlloc:
 	mov	es,bx
 	mov	bx,es:X_HI_PTR		; pointer to high memory control words
 	mov	cx,0ffh 		; determine waste by aligning to 4k
-	and	cx,es:[bx+X_LAST_HI]	; cx = extra needed to align
+	and	cx,[es:bx+X_LAST_HI]	; cx = extra needed to align
 	add	ax,cx			; ax = total to allocate
 	mov	[hi_alloc],ax		; save it in case we need to put it back
 	xor	bx,bx			; bx = no hi system memory to alloc
@@ -856,7 +856,7 @@ HiSysAlloc:
 	mov	bx,X_HI_MEM_SEG 	; high memory segment
 	mov	es,bx
 	mov	bx,es:X_HI_PTR		; pointer to high memory control words
-	mov	ax,es:[bx+X_HISYS]	; ax = amount of hi system mem available
+	mov	ax,[es:bx+X_HISYS]	; ax = amount of hi system mem available
 	and	ax,00ffh		;    after we get rid of high byte
 	pop	bx			; bx = amount requested
 					; ax = amount currently available
@@ -917,11 +917,11 @@ unlock_ok:
 	mov	bx,X_HI_MEM_SEG 	; high memory segment
 	mov	es,bx
 	mov	bx,es:X_HI_PTR		; pointer to high memory control words
-	sub	es:[bx+X_AVAIL_MEM],ax	; update hi memory available
-	sub	es:[bx+X_LAST_HI],ax	; and last used address
+	sub	[es:bx+X_AVAIL_MEM],ax	; update hi memory available
+	sub	[es:bx+X_LAST_HI],ax	; and last used address
 	pop	ax			; get hi system memory amount
-	sub	es:[bx+X_HISYS],ax	; update hi system memory available
-	mov	ax,es:[bx+X_LAST_HI]	; start of this hi memory
+	sub	[es:bx+X_HISYS],ax	; update hi system memory available
+	mov	ax,[es:bx+X_LAST_HI]	; start of this hi memory
 ;
 	call	LockROM 		;Q: ROM write protected now ?
 	clc				;     clear error flag
@@ -1098,14 +1098,14 @@ InitLOCK:
 	mov	ax,X_HI_MEM_SEG
 	mov	es,ax			; ES -> ROM
 	mov	bx,X_MT_386		; ES:BX -> machine type byte
-	mov	ax,ES:[bx]		; AX = ROM contents
-	xor	ES:[bx],0FFFFh		; flip all bits in ROM
+	mov	ax,[ES:bx]		; AX = ROM contents
+	xor	[ES:bx],0FFFFh		; flip all bits in ROM
 	xor	ax,0FFFFh		; AX = "flipped" value
-	cmp	ax,ES:[bx]		;Q: flipped value in ROM ?
+	cmp	ax,[ES:bx]		;Q: flipped value in ROM ?
 	jne	gv_locked		;  N: "ROM" is locked
 	mov	[DiagByte],LOW UNLOCK_ROM ;Y: ROM is UNLOCKED
 gv_locked:
-	xor	ES:[bx],0FFFFh		; restore ROM contents (if changed)
+	xor	[ES:bx],0FFFFh		; restore ROM contents (if changed)
 ;
 	pop	es
 	ret

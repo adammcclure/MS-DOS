@@ -670,13 +670,13 @@ $$IF43:
 	mov	si,es:DBCS_Vector_Off		;				;AN000;
 ;	$SEARCH 				;Check all the vectors		;AN000;
 $$DO45:
-	   cmp	   word ds:[si],End_Of_Vector ;End of vector table? 	  ;AN000;
+	   cmp	   word [ds:si],End_Of_Vector ;End of vector table? 	  ;AN000;
 ;	$LEAVE	E				;Yes, done			;AN000;
 	JE $$EN45
-	   cmp	   al,ds:[si]			;See if char is in vector	;AN000;
+	   cmp	   al,[ds:si]			;See if char is in vector	;AN000;
 ;	$EXITIF AE,AND				;If >= to lower, and		;AN000;
 	JNAE $$IF45
-	   cmp	   al,ds:[si+1] 		; =< than higher range		;AN000;
+	   cmp	   al,[ds:si+1] 		; =< than higher range		;AN000;
 ;	$EXITIF BE				; then DBCS character		;AN000;
 	JNBE $$IF45
 	   stc					;Set CY to indicate DBCS	;AN000;

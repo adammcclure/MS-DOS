@@ -16,8 +16,8 @@ Lock_add	    equ    6
 
 struc LockBuf
 
-   Lock_position: dd 0; file position for LOCK
-   Lock_length: dd 0; number of bytes to LOCK
+   Lock_position: resd 1; file position for LOCK
+   Lock_length: resd 1; number of bytes to LOCK
 
 endstruc
 ;

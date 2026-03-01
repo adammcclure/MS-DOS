@@ -97,7 +97,7 @@ keep_shrink:
 	JC	keep_done		; failed on modification
 	MOV	AX,DS
 	ADD	AX,BX
-	MOV	DS:[PDB_block_len],AX
+	MOV	[DS:PDB_block_len],AX
 
 keep_done:
 	POP	AX
@@ -139,7 +139,7 @@ EndProc Stay_resident
 
 	invoke	get_user_stack
 	PUSH	[CurrentPDB]
-	POP	[SI.user_CS]
+	POP	[SI+user_CS]
 	JMP	SHORT abort_inner
 EndProc $EXIT
 
@@ -169,7 +169,7 @@ BREAK <$ABORT -- Terminate a process>
 	MOV	AH,[exit_type]
 	MOV	[exit_code],AX
 	invoke	Get_user_stack
-	MOV	DS,[SI.user_CS] 	; set up old interrupts
+	MOV	DS,[SI+user_CS] 	; set up old interrupts
 	XOR	AX,AX
 	MOV	ES,AX
 	MOV	SI,SAVEXIT

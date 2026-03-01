@@ -23,7 +23,7 @@
 				       ;;
 	extern KEYB_INT_9;;
 	extern BUFFER_FILL;;
-	extern ERROR_BEEP ;;
+	extern ERROR_BEEP;;
 	extern COUNTRY_FLAG;;
 	extern BEEP_PENDING;;
 	extern SCAN_CODE;;
@@ -33,7 +33,7 @@
 	extern BUSY_TFLAG;;
 	extern MYBUFF;;
 	extern ENABLE_FL;;
-	extern NEW_BUFF_CTR ;;
+	extern NEW_BUFF_CTR;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -173,10 +173,10 @@ _source_addr:
 	push	bp
 ;
 	mov	bp,[_regp]			; get entry stack frame pointer
-	test	[bp.PFlag],PFLAG_VIRTUAL	;Q: real/virtual mode ?
+	test	[bp+PFlag],PFLAG_VIRTUAL	;Q: real/virtual mode ?
 	jnz	sa_pm				; N: go get selector/offset
-	mov	ax,word [bp.rSI]		; Y: get offset
-	mov	dx,word [bp.rDS]		;    get segment
+	mov	ax,word [bp+rSI]		; Y: get offset
+	mov	dx,word [bp+rDS]		;    get segment
 	jmp	sa_exit				;    return DX:AX = seg:offset
 ;
 ;  protected mode - set up selector to client's DS
@@ -192,8 +192,8 @@ sa_pm:
 	;
 	; compute physical address
 	;
-	mov	ax,word [bp.rDS]	; ax <-- base addr
-	mov	dx,word [bp.rSI]	; dx <-- offset
+	mov	ax,word [bp+rDS]	; ax <-- base addr
+	mov	dx,word [bp+rSI]	; dx <-- offset
 	call	SegOffTo24Resident	; converts to physical addr
 
 	;
@@ -247,10 +247,10 @@ _dest_addr:
 	push	bp
 ;
 	mov	bp,[_regp]			; get entry stack frame pointer
-	test	[bp.PFlag],PFLAG_VIRTUAL	;Q: real/virtual mode ?
+	test	[bp+PFlag],PFLAG_VIRTUAL	;Q: real/virtual mode ?
 	jnz	da_pm				; N: go get selector/offset
-	mov	ax,word [bp.rDI]		; Y: get offset
-	mov	dx,word [bp.rES]		;    get segment
+	mov	ax,word [bp+rDI]		; Y: get offset
+	mov	dx,word [bp+rES]		;    get segment
 	jmp	da_exit				;    return DX:AX = seg:offset
 ;
 ;  protected mode - set up selector to client's DS
@@ -266,8 +266,8 @@ da_pm:
 	;
 	; compute physical address
 	;
-	mov	ax,word [bp.rES]	; ax <-- base addr
-	mov	dx,word [bp.rDI]	; dx <-- offset
+	mov	ax,word [bp+rES]	; ax <-- base addr
+	mov	dx,word [bp+rDI]	; dx <-- offset
 	call	SegOffTo24Resident	; converts to physical addr
 
 	;
@@ -321,9 +321,9 @@ da_exit:
 ;
 ; 05/09/88  ISP   No update needed for MEMM
 ;***********************************************
-destptr	=	4
-srcptr	=	8
-count	=	10
+destptr equ 4
+srcptr equ 8
+count equ 10
 _copyout:
 	push	bp		; entry prolog
 	mov	bp,sp
@@ -361,9 +361,9 @@ _copyout:
 ;
 ; 05/09/88  ISP   Written for MEMM.
 ;***********************************************
-destptr	=	4
-srcptr	=	6
-count	=	10
+destptr equ 4
+srcptr equ 6
+count equ 10
 _copyin:
 	push	bp		; entry prolog
 	mov	bp,sp
@@ -406,9 +406,9 @@ _copyin:
 ;
 ; 05/09/88  ISP   No update needed for MEMM
 ;***********************************************
-srcptr	=	4
-destptr	=	6
-count	=	8
+srcptr equ 4
+destptr equ 6
+count equ 8
 _wcopy:
 	push	bp		; entry prolog
 	mov	bp,sp
@@ -449,9 +449,9 @@ _wcopy:
 ;
 ; 05/20/88  ISP   Shifted in from win386 and updated for 16 bit ptrs
 ;***********************************************
-srcptr	=	4
-destptr	=	6
-count	=	8
+srcptr equ 4
+destptr equ 6
+count equ 8
 _wcopyb:
 	push	bp		; entry prolog
 	mov	bp,sp
@@ -500,12 +500,12 @@ _valid_handle:
 	mov	bp,[_regp]		; get entry args pointer
 	push	bx
 ;
-	mov	bx,word [bp.rDX]	; BX = entry handle
+	mov	bx,word [bp+rDX]	; BX = entry handle
 	cmp	bx,[_handle_table_size]	;Q: handle in range ?
 	jae	vh_fail			;  N: return invalid handle error
 	shl	bx,2			;  Y: BX = handle's table offset
 	add	bx,_handle_table	; BX = offset to handle's data
-	cmp	[bx.ht_index],NULL_PAGE	;Q: is this an active handle ?
+	cmp	[bx+ht_index],NULL_PAGE	;Q: is this an active handle ?
 	je	vh_fail			;    N: return invalid handle error
 	mov	ax,bx			;    Y: return ptr to handle's data
 ;
@@ -514,7 +514,7 @@ vh_exit:
 	pop	bp
 	ret
 vh_fail:
-	mov	byte [bp.rAX+1],INVALID_HANDLE	; set AH on stack
+	mov	byte [bp+rAX+1],INVALID_HANDLE	; set AH on stack
 	mov	ax,NULL_HANDLE		; return NULL_HANDLE to caller
 	jmp	short vh_exit
 
@@ -549,8 +549,8 @@ global _flush_tlb
 ;
 ; 05/09/88  ISP   Shifted in from WIN386 and modified for 16 bit ptrs
 ;***********************************************
-name1	=	4
-name2	=	6
+name1 equ 4
+name2 equ 6
 	global _Names_Match
 _Names_Match:
 	push	bp		; entry prolog
@@ -603,16 +603,16 @@ SetDescInfoResident:
 
 ;	fill in the limit field
 
-	mov	es:[bx],cx
+	mov	[es:bx],cx
 
 ;	fill in base address
 
-	mov	es:[bx + 2],dx
-	mov	es:[bx + 4],al
+	mov	[es:bx + 2],dx
+	mov	[es:bx + 4],al
 
 ;	fill in access rights byte
 
-	mov	es:[bx + 5],ah
+	mov	[es:bx + 5],ah
 	pop	bx
 	ret
 ; ENDP SetDescInfoResident

@@ -13,36 +13,36 @@ BUFFSTRT: dw 0
 
         extern QUIT,IRET,ABSDRD,ABSDWRT
         extern COMMAND,CALL_ENTRY
-        %if NOT IBM
+        %if ~IBM
         extern HEADER
         %endif
 
 MOVDPB:
 ; This section of code is safe from being overwritten by block move
-        MOV     SP,CS:[INITSP]
-        MOV     SS,CS:[INITSS]
-        REP     MOVS    byte [DI],[SI]
+        MOV     SP,[CS:INITSP]
+        MOV     SS,[CS:INITSS]
+        REP     movsb
         CLD
-        MOV     word ES:[DMAADD+2],DX
+        MOV     word [ES:DMAADD+2],DX
         MOV     SI,word [DPBHEAD]   ; Address of first DPB
-        MOV     word ES:[DPBHEAD+2],ES
-        MOV     word ES:[sft_addr+2],ES
+        MOV     word [ES:DPBHEAD+2],ES
+        MOV     word [ES:sft_addr+2],ES
         MOV     CL,[NUMIO]      ; Number of DPBs
         XOR     CH,CH
 SETFINDPB:
-        MOV     word ES:[SI.dpb_next_dpb+2],ES
-        MOV     ES:[SI.dpb_first_access],-1      ; Never accessed before
+        MOV     word [ES:SI+dpb_next_dpb+2],ES
+        MOV     [ES:SI+dpb_first_access],-1      ; Never accessed before
         ADD     SI,DPBSIZ       ; Point to next DPB
         LOOP    SETFINDPB
         SUB     SI,DPBSIZ
-        MOV     word ES:[SI.dpb_next_dpb+2],-1
+        MOV     word [ES:SI+dpb_next_dpb+2],-1
         MOV     DI,[BUFFSTRT]                   ; Set up one default buffer
-        MOV     word ES:[BUFFHEAD+2],ES
-        MOV     word ES:[BUFFHEAD],DI
-        MOV     word ES:[DI.BUFDRV],00FFH
-        MOV     ES:[DI.BUFPRI],FREEPRI
-        MOV     word ES:[DI.NEXTBUF],-1
-        MOV     word ES:[DI.NEXTBUF+2],-1
+        MOV     word [ES:BUFFHEAD+2],ES
+        MOV     word [ES:BUFFHEAD],DI
+        MOV     word [ES:DI+BUFDRV],00FFH
+        MOV     [ES:DI+BUFPRI],FREEPRI
+        MOV     word [ES:DI+NEXTBUF],-1
+        MOV     word [ES:DI+NEXTBUF+2],-1
         PUSH    ES
         INC     DX                          ; Leave enough room for the ARENA
         MOV     byte [CreatePDB],0FFh   ; create jfns and set CurrentPDB
@@ -60,18 +60,18 @@ SETFINDPB:
 ;
         PUSH    AX
         MOV     AX,[CurrentPDB]
-        MOV     ES:[CurrentPDB],AX         ; Put it in the REAL location
-        MOV     byte ES:[CreatePDB],0h ; reset flag in REAL location
+        MOV     [ES:CurrentPDB],AX         ; Put it in the REAL location
+        MOV     byte [ES:CreatePDB],0h ; reset flag in REAL location
         DEC     AX
-        MOV     ES:[arena_head],AX
+        MOV     [ES:arena_head],AX
         PUSH    DS
         MOV     DS,AX
-        MOV     DS:[arena_signature],arena_signature_end
-        MOV     DS:[arena_owner],arena_owner_system
-        SUB     AX,ES:[ENDMEM]
+        MOV     [DS:arena_signature],arena_signature_end
+        MOV     [DS:arena_owner],arena_owner_system
+        SUB     AX,[ES:ENDMEM]
         NEG     AX
         DEC     AX
-        MOV     DS:[arena_size],AX
+        MOV     [DS:arena_size],AX
         POP     DS
         POP     AX
 
@@ -135,13 +135,13 @@ DOSINIT:
         STOSW                   ; Device pointer in FIRCLUS
         MOV     AX,DS
         STOSW
-        OR      byte [SI.SDEVATT],ISCIN OR ISCOUT
+        OR      byte [SI+SDEVATT],ISCIN OR ISCOUT
         MOV     word [BCON],SI
         MOV     word [BCON+2],DS
 CHAR_INIT_LOOP:
         LDS     SI,dword [SI]               ; AUX device
         CALL    CHARINIT
-        TEST    byte [SI.SDEVATT],ISCLOCK
+        TEST    byte [SI+SDEVATT],ISCLOCK
         JZ      CHAR_INIT_LOOP
         MOV     word [BCLOCK],SI
         MOV     word [BCLOCK+2],DS
@@ -151,11 +151,11 @@ PERDRV:
         CMP     SI,-1
         JZ      CONTINIT
         CALL    CHARINIT
-        TEST    [SI.SDEVATT],DEVTYP
+        TEST    [SI+SDEVATT],DEVTYP
         JNZ     PERDRV                          ; Skip any other character devs
         MOV     CL,[CALLUNIT]
         XOR     CH,CH
-        MOV     [SI.SDEVNAME],CL                ; Number of units in name field
+        MOV     [SI+SDEVNAME],CL                ; Number of units in name field
         MOV     DL,[NUMIO]
         XOR     DH,DH
         ADD     [NUMIO],CL
@@ -166,13 +166,13 @@ PERUNIT:
         MOV     SI,[BX]                 ; DS:SI Points to BPB
         INC     BX
         INC     BX                      ; On to next BPB
-        MOV     ES:[BP.dpb_drive],DL
-        MOV     ES:[BP.dpb_UNIT],DH
+        MOV     [ES:BP+dpb_drive],DL
+        MOV     [ES:BP+dpb_UNIT],DH
         PUSH    BX
         PUSH    CX
         PUSH    DX
         invoke  $SETDPB
-        MOV     AX,ES:[BP.dpb_sector_size]
+        MOV     AX,[ES:BP+dpb_sector_size]
         CMP     AX,[MAXSEC]
         JBE     NOTMAX
         MOV     [MAXSEC],AX
@@ -183,8 +183,8 @@ NOTMAX:
         MOV     AX,DS                   ; Save DS
         POP     SI
         POP     DS
-        MOV     word ES:[BP.dpb_driver_addr],SI
-        MOV     word ES:[BP.dpb_driver_addr+2],DS
+        MOV     word [ES:BP+dpb_driver_addr],SI
+        MOV     word [ES:BP+dpb_driver_addr+2],DS
         PUSH    DS
         PUSH    SI
         INC     DH
@@ -240,7 +240,7 @@ TRUEDPBAD:
         MOV     DX,CS           ; Program segment
         %endif
 
-        %if NOT HIGHMEM
+        %if ~HIGHMEM
         MOV     BP,CS
         %endif
 
@@ -262,20 +262,20 @@ TRUEDPBAD:
 NOTODD:
         %endif
 
-        MOV     word ES:[DSKCHRET+3],ES
+        MOV     word [ES:DSKCHRET+3],ES
         XOR     AX,AX
         MOV     DS,AX
         MOV     ES,AX
 ; ASSUME  DS:NOTHING,ES:NOTHING
         MOV     DI,INTBASE+2
         MOV     AX,BP
-        MOV     byte DS:[ENTRYPOINT],mi_Long_JMP
-        MOV     word DS:[ENTRYPOINT+1],CALL_ENTRY
-        MOV     word DS:[ENTRYPOINT+3],AX
+        MOV     byte [DS:ENTRYPOINT],mi_Long_JMP
+        MOV     word [DS:ENTRYPOINT+1],CALL_ENTRY
+        MOV     word [DS:ENTRYPOINT+3],AX
         extern DIVOV
-        MOV     word DS:[0],DIVOV   ; Set default divide 
+        MOV     word [DS:0],DIVOV   ; Set default divide 
 							; trap address
-        MOV     DS:[2],AX
+        MOV     [DS:2],AX
         MOV     CX,17
         REP STOSW               ; Set 9 segments (skip 2 between each)
 
@@ -285,23 +285,23 @@ NOTODD:
         REP     STOSW           ; Set 8 segments (skip 2 between each)
         %endif
 
-        MOV     word DS:[addr_int_abort],QUIT
-        MOV     word DS:[addr_int_command],COMMAND
-        MOV     word DS:[addr_int_terminate],100H
-        MOV     word DS:[addr_int_terminate+2],DX
-        MOV     word DS:[addr_int_ctrl_c],IRET   
+        MOV     word [DS:addr_int_abort],QUIT
+        MOV     word [DS:addr_int_command],COMMAND
+        MOV     word [DS:addr_int_terminate],100H
+        MOV     word [DS:addr_int_terminate+2],DX
+        MOV     word [DS:addr_int_ctrl_c],IRET   
 							; Ctrl-C exit
-        MOV     word DS:[addr_int_fatal_abort],IRET
+        MOV     word [DS:addr_int_fatal_abort],IRET
 							; Fatal error exit
-        MOV     word DS:[addr_int_disk_read],ABSDRD
+        MOV     word [DS:addr_int_disk_read],ABSDRD
 							; INT 25
-        MOV     word DS:[addr_int_disk_write],ABSDWRT
+        MOV     word [DS:addr_int_disk_write],ABSDWRT
 							; INT 26
         extern Stay_resident
-        MOV     word DS:[addr_int_keep_process],Stay_resident
-        MOV     word DS:[addr_int_spooler],IRET  ; Spooler
+        MOV     word [DS:addr_int_keep_process],Stay_resident
+        MOV     word [DS:addr_int_spooler],IRET  ; Spooler
 
-        %if NOT ALTVECT
+        %if ~ALTVECT
         MOV     CX,12
         XOR     AX,AX
         MOV     DI,2AH*4
@@ -346,8 +346,8 @@ NOTODD:
 ; After this points the char device functions for CON will work for
 ; printing messages
 
-        %if NOT IBM
-        %if NOT ALTVECT
+        %if ~IBM
+        %if ~ALTVECT
         MOV     SI,HEADER
         invoke  OUTMES
         PUSH    CS                      ; Outmes stomps on segments

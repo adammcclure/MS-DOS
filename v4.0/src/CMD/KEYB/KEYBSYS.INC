@@ -28,7 +28,7 @@
 struc KEYBSYS_HEADER;;
 				       ;;
 KH_SIGNATURE	DB   0FFh,'KEYB   '    ;; signature
-KH_RESV_1: times 8 db 0;; reserved
+KH_RESV_1: resb 8;; reserved
 KH_MAX_COM_SZ	DW   0	      ;AN000;**chg  ;; maximum size of Common Xlat Sect
 KH_MAX_SPEC_SZ	DW   0	      ;AN000;;**chg   ;; max size of Specific Xlat Sect
 KH_MAX_LOGIC_SZ DW   0	      ;AN000;;**chg   ;; max size of State Logic
@@ -88,8 +88,8 @@ endstruc;;
 				       ;;
 struc KEYBSYS_STATE_LOGIC;;
 				       ;;
-KT_LOGIC_LEN: dw 0;; length of state logic
-KT_SPECIAL_FEATURES: dw 0;; Special Features (see KEYBSHAR.INC)
+KT_LOGIC_LEN: resw 1;; length of state logic
+KT_SPECIAL_FEATURES: resw 1;; Special Features (see KEYBSHAR.INC)
 KT_LOGIC_CMDS	DB   0		       ;; state logic commands begin here
 				       ;;
 endstruc;;
@@ -102,9 +102,9 @@ endstruc;;
 				       ;;
 struc KEYBSYS_XLAT_SECT;;
 				       ;;
-KX_SECTION_LEN: dw 0;; Length of this section
-KX_CP_ID: dw 0;; code page id
-KX_FIRST_STATE: db 0;;
+KX_SECTION_LEN: resw 1;; Length of this section
+KX_CP_ID: resw 1;; code page id
+KX_FIRST_STATE: resb 1;;
 				       ;;
 endstruc;;
 				       ;;
@@ -117,11 +117,11 @@ struc KEYBSYS_STATE;;
 	     ;; The last State is a null State containing only the
 	     ;; KX_STATE_LEN field with a value of 0.
 	     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-KX_STATE_LEN: dw 0;; length of state section
-KX_STATE_ID: db 0;; State ID
-KX_KBD_TYPE: dw 0;; Keyboard Type
-KX_ERROR_CHAR: dw 0;; Buffer entry for error character
-KX_FIRST_XLAT: db 0;; XLAT tables begin here
+KX_STATE_LEN: resw 1;; length of state section
+KX_STATE_ID: resb 1;; State ID
+KX_KBD_TYPE: resw 1;; Keyboard Type
+KX_ERROR_CHAR: resw 1;; Buffer entry for error character
+KX_FIRST_XLAT: resb 1;; XLAT tables begin here
 	     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	     ;; Each State consists of multiple translate tables.
 	     ;; The last translate table within a state is a null

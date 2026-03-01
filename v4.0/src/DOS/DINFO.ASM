@@ -27,7 +27,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	THISCDS,DWORD
 	i_need	CURBUF,DWORD
@@ -60,7 +60,7 @@ Break	<DISK_INFO -- Get Disk Drive Information>
 
 	Invoke	TestNet
 	JNC	LOCAL_INFO
-%if NOT Installed
+%if ~Installed
 	transfer NET_DISK_INFO
 %else
 	MOV	AX,(multNET SHL 8) OR 12
@@ -80,12 +80,12 @@ LOCAL_INFO:
 ; ASSUME	DS:NOTHING
 	MOV	AH,[SI].bufinsiz	; get FAT ID BYTE
 	context DS
-	MOV	CX,ES:[BP.dpb_max_cluster]
+	MOV	CX,[ES:BP+dpb_max_cluster]
 ;
 ; Examine the current free count.  If it indicates that we have an invalid
 ; count, do the expensive calculation.
 ;
-	MOV	DX,ES:[BP.dpb_free_cnt] ; get free count
+	MOV	DX,[ES:BP+dpb_free_cnt] ; get free count
 	CMP	DX,-1			; is it valid?
 	JZ	DoScan
 ;
@@ -110,10 +110,10 @@ NOTFREECLUS:
 	DEC	BX			; BX was next cluster.	Convert to
 ReturnVals:
 	DEC	BX			; count
-	MOV	AL,ES:[BP.dpb_cluster_mask]
+	MOV	AL,[ES:BP+dpb_cluster_mask]
 	INC	AL			; Sectors/cluster
-	MOV	CX,ES:[BP.dpb_sector_size]  ; Bytes/sector
-	MOV	ES:[BP.dpb_free_cnt],DX
+	MOV	CX,[ES:BP+dpb_sector_size]  ; Bytes/sector
+	MOV	[ES:BP+dpb_free_cnt],DX
 	CLC
 CRIT_LEAVE:
 	LeaveCrit   critDisk

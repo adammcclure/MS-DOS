@@ -96,7 +96,7 @@ USTABLE internat_block <0,'$',0,0,0,0,',',0,'.',0,'-',0,':',0,0,2,0,MAP_DCASE,0,
 ;	has different currency symbols for the KANJI and
 ;	non-KANJI versions.
 
-%if NOT	KANJI
+%if ~KANJI
 %if IBM
                     DB  internat_block_size   ; Size in bytes of this table
                     DB  44              ; Country code
@@ -128,7 +128,7 @@ SECTION .CODE
 ;
 ; Example:
        MAP_DCASE:
-%if NOT	KANJI
+%if ~KANJI
 %if IBM
                CMP     AL,80H
                JB      L_RET           ;Map no chars below 80H ever
@@ -147,7 +147,7 @@ SECTION .CODE
 %endif
        L_RET:  RET
        ; ENDP MAP_DCASE
-%if NOT KANJI
+%if ~KANJI
 %if IBM
 TABLE:	DB	80H,9AH,"E","A",8EH,"A",8FH,80H
 	DB	"E","E","E","I","I","I",8EH,8FH
@@ -167,9 +167,9 @@ TABLE:	DB	80H,9AH,"E","A",8EH,"A",8FH,80H
 
         global ESCCHAR
 ESCCHAR DB      ESCCH                   ;Lead-in character for escape sequences
-        %if NOT Rainbow
+        %if ~Rainbow
 ESCTAB:
-        %if NOT IBM
+        %if ~IBM
         %if WANG
         DB      0C0h                    ; ^Z inserter
         DB      0C1H                    ; Copy one char
@@ -181,7 +181,7 @@ ESCTAB:
         DB      08BH                    ; Reedit line (new template)
         DB      0C3H                    ; Backspace
         DB      0C6H                    ; Enter insert mode
-        %if NOT TOGLINS
+        %if ~TOGLINS
         DB      0D6H                    ; Exit insert mode
         %endif
         DB      0C6H                    ; Escape character
@@ -224,7 +224,7 @@ ESCTABLEN EQU   ESCEND-ESCTAB
 ESCFUNC:
         short_addr  GETCH               ; Ignore the escape sequence
         short_addr  TWOESC
-        %if NOT TOGLINS
+        %if ~TOGLINS
         short_addr  EXITINS
         %endif
         short_addr  ENTERINS
@@ -273,7 +273,7 @@ OEMFunctionKey:
         ; ASSUME  DS:NOTHING,ES:NOTHING,SS:DOSGROUP
         invoke  $STD_CON_INPUT_NO_ECHO  ; Get the second byte of the sequence
 
-        %if NOT Rainbow
+        %if ~Rainbow
         MOV     CL,ESCTABLEN            ; length of table for scan
         PUSH    DI                      ; save DI (cannot change it!)
         MOV     DI,ESCTAB   ; offset of second byte table

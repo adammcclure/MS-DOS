@@ -35,7 +35,7 @@ SECTION .code
 ; .list
 MSG_UTILNAME <DRIVER>
 
-iTEST = 0
+iTEST equ 0
 ;---------------------------------------------------
 ;
 ;	Device entry point
@@ -68,8 +68,8 @@ PTRSAV	DD	0
 STRATP:
 
 STRATEGY:
-	MOV	word CS:[PTRSAV],BX
-	MOV	word CS:[PTRSAV+2],ES
+	MOV	word [CS:PTRSAV],BX
+	MOV	word [CS:PTRSAV+2],ES
 	RET
 
 ; ENDP STRATP
@@ -78,8 +78,8 @@ DSK$IN:
 	push	es
 	push	bx
 	push	ax
-	les	bx,cs:[ptrsav]
-	cmp	byte es:[bx].cmd,0
+	les	bx,[cs:ptrsav]
+	cmp	byte [es:bx].cmd,0
 	jnz	Not_Init
 	jmp	DSK$INIT
 
@@ -87,8 +87,8 @@ not_init:
 ; Because we are passing the call onto the block driver in IBMBIO, we need to
 ; ensure that the unit number corresponds to the logical (DOS) unit number, as
 ; opposed to the one that is relevant to this device driver.
-	mov	al,byte cs:[DOS_Drive_Letter]
-	mov	byte es:[bx].UNIT,al
+	mov	al,byte [cs:DOS_Drive_Letter]
+	mov	byte [es:bx].UNIT,al
 	mov	ax,0802H
 	int	2fH
 ;
@@ -339,14 +339,14 @@ SetDrive:
 ;
 ERR$EXIT:
 	MOV	AH,10000001B			   ;MARK ERROR RETURN
-	lds	bx, cs:[ptrsav]
-	mov	byte ds:[bx.MEDIA], 0	   ;AN002; # of units
-	mov	word ds:[bx.CONFIG_ERRMSG], -1 ;AN009;Show IBMBIO error message too.
+	lds	bx, [cs:ptrsav]
+	mov	byte [ds:bx+MEDIA], 0	   ;AN002; # of units
+	mov	word [ds:bx+CONFIG_ERRMSG], -1 ;AN009;Show IBMBIO error message too.
 	JMP	SHORT ERR1
 
 global EXIT
 EXIT:	MOV	AH,00000001B
-ERR1:	LDS	BX,CS:[PTRSAV]
+ERR1:	LDS	BX,[CS:PTRSAV]
 	MOV	word [BX].STATUS,AX ;MARK OPERATION COMPLETE
 
 RestoreRegsAndReturn:
@@ -435,14 +435,14 @@ DSK$INIT:
 	PUSH	BP
 	PUSH	DS
 
-	LDS	BX,CS:[PTRSAV]		;GET POINTER TO I/O PACKET
+	LDS	BX,[CS:PTRSAV]		;GET POINTER TO I/O PACKET
 
-	MOV	AL,byte DS:[BX].UNIT    ;AL = UNIT CODE
-	MOV	AH,byte DS:[BX].MEDIA   ;AH = MEDIA DESCRIP
-	MOV	CX,word DS:[BX].COUNT   ;CX = COUNT
-	MOV	DX,word DS:[BX].START   ;DX = START SECTOR
+	MOV	AL,byte [DS:BX].UNIT    ;AL = UNIT CODE
+	MOV	AH,byte [DS:BX].MEDIA   ;AH = MEDIA DESCRIP
+	MOV	CX,word [DS:BX].COUNT   ;CX = COUNT
+	MOV	DX,word [DS:BX].START   ;DX = START SECTOR
 
-	LES	DI,dword DS:[BX].TRANS
+	LES	DI,dword [DS:BX].TRANS
 
 	PUSH	CS
 	POP	DS
@@ -491,13 +491,13 @@ GoodVer:
 	pop	es			    ; es:di -> BDS
 	Call	ParseLine
 	jc	err$exitj2
-	LDS	BX,cs:[PTRSAV]
+	LDS	BX,[cs:PTRSAV]
 	mov	al,byte [bx].extra	; get DOS drive letter
-	mov	byte es:[di].DriveLet,al
-	mov	cs:[DOS_Drive_Letter],al
+	mov	byte [es:di].DriveLet,al
+	mov	[cs:DOS_Drive_Letter],al
 	add	al,"A"
 ;	 mov	 cs:[letter],al 	 ; set up for printing final message
-	mov	cs:[D_Letter], al	;AN000;
+	mov	[cs:D_Letter], al	;AN000;
 	call	SetDrvParms		; Set up BDS according to switches
 	jc	err$exitj2
 	mov	ah,8			; Int 2f multiplex number
@@ -506,9 +506,9 @@ GoodVer:
 	pop	ds			; ds:di -> BDS for drive
 	mov	di,BDS
 	int	2FH
-	lds	bx,dword cs:[ptrsav]
+	lds	bx,dword [cs:ptrsav]
 	mov	ah,1
-	mov	cs:[DRVMAX],ah
+	mov	[cs:DRVMAX],ah
 	mov	byte [bx].media,ah
 	mov	ax,ENDCODE
 	mov	word [bx].TRANS,AX	    ; set address of end of code
@@ -787,7 +787,7 @@ Stch_F: 				;AN000;
 	mov	cl, 5			;AN000;
 	mul	cl			;AN000;
 	add	si, ax			;AN000;
-	mov	al, byte es:[si+1]	;AN000;get the result of choices
+	mov	al, byte [es:si+1]	;AN000;get the result of choices
 	mov	ffactor, al		;AN000;set form factor
 	pop	si			;AN004;
 GR_Ret: 				;AN000;
@@ -795,7 +795,7 @@ GR_Ret: 				;AN000;
 	push	di			;AN006; Save di
 	push	ax			;AN006;
 	pop	di			;AN006;
-	mov	byte es:[di], ' '   ;AN006;We don't have this switch any more.
+	mov	byte [es:di], ' '   ;AN006;We don't have this switch any more.
 	pop	di			;AN006;
 	jmp	short Gr_Done_Ret	;AN006;
 GR_Not_Found_Ret:
@@ -1010,7 +1010,7 @@ SetDrvParms:
 	call	SetDrive		; ds:di -> BDS
 	;test	 cs:switches,flagff	 ; has formfactor been specified?
 	;jz	 formfcont
-	mov	bl,cs:[ffactor]
+	mov	bl,[cs:ffactor]
 	mov	byte [di].formfactor,bl   ; replace with new value
 formfcont:
 	mov	bl,[di].FormFactor
@@ -1043,7 +1043,7 @@ formfcont:
 	call	message
 %endif
 	mov	cx,40
-	mov	cs:[cyln],cx
+	mov	[cs:cyln],cx
 Got_80_cyln:
 	shl	bx,1			; bx is word index into table of BPBs
 	mov	si,BPBTable
@@ -1183,21 +1183,21 @@ Handle_Switches:
 	call	setdrive		; ds:di -> BDS
 	test	cs:switches,flagdrive
 	jz	done_handle		    ; if drive not specified, exit
-	mov	al,cs:[drivenumb]
+	mov	al,[cs:drivenumb]
 	mov	byte [di].DriveNum,al
 ;	 test	 cs:switches,flagcyln
 ;	 jz	 no_cyln
-	mov	ax,cs:[cyln]
+	mov	ax,[cs:cyln]
 	mov	word [di].cCyln,ax
 no_cyln:
 	test	cs:switches,flagseclim
 	jz	no_seclim
-	mov	ax,cs:[slim]
+	mov	ax,[cs:slim]
 	mov	word [di].RSeclim,ax
 no_seclim:
 	test	cs:switches,flagheads
 	jz	done_handle
-	mov	ax,cs:[heads]
+	mov	ax,[cs:heads]
 	mov	word [di].RHdlim,ax
 done_handle:
 	RET
@@ -1249,7 +1249,7 @@ BPB96T	DW	512
 	DW	2
 	DW	0
 
-BPBSIZ	=	$-BPB96T
+BPBSIZ equ $-BPB96T
 
 ; 3 1/2 inch diskette BPB
 

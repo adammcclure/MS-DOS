@@ -1,7 +1,7 @@
    ; TITLE Message file for MS-DOS SYS Program
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
         %include "DOSSYM.ASM"
 

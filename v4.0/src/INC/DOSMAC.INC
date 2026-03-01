@@ -25,7 +25,7 @@ AsmVar  var
 
 %macro AsmVar 1
 %ifndef var
-var = FALSE
+var equ FALSE
 %endif
 %endmacro
 
@@ -36,7 +36,7 @@ BREAK <I_NEED: declare a variable external, if necessary, and allocate a size>
 ;
 AsmVar  InstalledData
 %macro I_NEED 2
-%if NOT InstalledData
+%if ~InstalledData
 	SECTION .DATA
     %ifidn <len>,<WORD>
 	extern &sym
@@ -124,14 +124,14 @@ AsmVar  InstalledData
 ; .xcref ?aframe
 ; .xcref ?stackdepth
 ; .xcref ?initstack
-?frame        =   0                     ; initial
-?aframe       =   0                     ; initial
-?stackdepth   =   0                     ; initial stack size
-?initstack    =   0                     ; initial stack size
+?frame equ 0; initial
+?aframe equ 0; initial
+?stackdepth equ 0; initial stack size
+?initstack equ 0; initial stack size
 
 %macro procedure 2
-	?frame =    0
-	?aframe =   2                   ;; remember the pushed BP
+	?frame equ 0
+	?aframe equ 2;; remember the pushed BP
 	global name
 	%if 1  ; IF1 - pass-specific
 	%warning name... pass 1
@@ -140,7 +140,7 @@ AsmVar  InstalledData
 	%warning name... pass 2
 	%endif
 ; name    PROC    distance
-	?initstack    = ?stackdepth     ;; beginning of procedure
+	?initstack equ ?stackdepth;; beginning of procedure
 %endmacro
 ; .xcref  procedure
 
@@ -151,7 +151,7 @@ AsmVar  InstalledData
 	%ifnidn <chk>,<NoCheck>;; check the stack size
 	%if 1  ; IF2 - pass-specific
 	%if ?initstack NE ?stackdepth;; is it different?
-	%warning ***** Possible stack size error in name *****
+	%warning ***** Possible stack error_size in name *****
 	%endif
 	%endif
 	%endif
@@ -169,22 +169,22 @@ AsmVar  InstalledData
 ;; declare the type of the object
     %ifidn <size>,<WORD>
 ; name    LABEL WORD
-	I_AM_SIZE   =   1
-	I_AM_LEN    =   2
+	I_AM_SIZE equ 1
+	I_AM_LEN equ 2
     %else
 	%ifidn <size>,<DWORD>
 ; name    LABEL DWORD
-	I_AM_SIZE   =   2
-	I_AM_LEN    =   2
+	I_AM_SIZE equ 2
+	I_AM_LEN equ 2
 	%else
 	    %ifidn <size>,<BYTE>
 ; name    LABEL BYTE
-	I_AM_SIZE   =   1
-	I_AM_LEN    =   1
+	I_AM_SIZE equ 1
+	I_AM_LEN equ 1
 	    %else
 ; name    LABEL BYTE
-	I_AM_SIZE   =   size
-	I_AM_LEN    =   1
+	I_AM_SIZE equ size
+	I_AM_LEN equ 1
 	    %endif
 	%endif
     %endif
@@ -192,14 +192,14 @@ AsmVar  InstalledData
     %if 0  ; IFB <init>
 	DB  I_AM_SIZE*I_AM_LEN DUP (?)
     %else
-%if NOT InstalledData
+%if ~InstalledData
 	; IRP itm,<init>
 	    %if I_AM_LEN EQ 1
 		DB  itm
 	    %else
 		DW  itm
 	    %endif
-	    I_AM_SIZE = I_AM_SIZE - 1
+	    I_AM_SIZE equ I_AM_SIZE - 1
 	%endmacro
 	%if I_AM_SIZE NE 0
 	    %warning ***** initialization of name not complete *****
@@ -212,8 +212,8 @@ AsmVar  InstalledData
 ; .xcref  I_AM
 ; .xcref  I_AM_SIZE
 ; .xcref  I_AM_LEN
-I_AM_SIZE   = 0
-I_AM_LEN    = 0
+I_AM_SIZE equ 0
+I_AM_LEN equ 0
 
 ; PAGE
 
@@ -267,7 +267,7 @@ BREAK <RETURN - return from a function>
 ; .xcref
 a:
 	RET
-ret_l = a
+ret_l equ a
 ; .cref
 %endmacro
 ; .xcref  return
@@ -343,7 +343,7 @@ BREAK <SaveReg - save a set of registers>
 
 %macro SaveReg 1;; push those registers
 ; IRP reg,<reglist>
-	?stackdepth = ?stackdepth + 1
+	?stackdepth equ ?stackdepth + 1
 	PUSH    reg
 %endmacro
 %endmacro
@@ -353,7 +353,7 @@ BREAK <RestoreReg - unsave some registers>
 
 %macro RestoreReg 1;; pop those registers
 ; IRP reg,<reglist>
-	?stackdepth = ?stackdepth - 1
+	?stackdepth equ ?stackdepth - 1
 	POP     reg
 %endmacro
 %endmacro
@@ -401,7 +401,7 @@ b:      mov     ax,a
 %endif
 %endif
 	PUSH    AX
-cargs = 2
+cargs equ 2
 ; IRP item,<args>
 %ifidn <AX>,<item>
 	MOV     AX,[BP+2]
@@ -409,7 +409,7 @@ cargs = 2
 	MOV     AX,item
 %endif
 	PUSH    AX
-cargs = cargs + 2
+cargs equ cargs + 2
 %endmacro
 	invoke  PFMT
 	ADD     SP,Cargs
@@ -431,20 +431,20 @@ AsmVar  Debug,$temp
 %macro DOSAssume 3
 ; LOCAL a,b
     %ifidn <reg>,<CS>
-	$temp   =   1
+	$temp equ 1
     %else
 	%ifidn <reg>,<SS>
-	    $temp   =   0
+	    $temp equ 0
 	%else
 	    %warning ***** Invalid DOS register reg in DOSAssume *****
 	%endif
     %endif
     ; IRP r,<reglist>
 	%ifidn <r>,<DS>
-	    $temp = $temp OR 2
+	    $temp equ $temp OR 2
 	%else
 	    %ifidn <r>,<ES>
-		$temp = $temp OR 4
+		$temp equ $temp OR 4
 	    %else
 		%warning ***** Invalid register reg in DOSAssume *****
 	    %endif
@@ -461,7 +461,7 @@ AsmVar  Debug,$temp
 	PUSH    AX
 	Invoke  SegCheck
 	POP     AX
-%if NOT SHAREF
+%if ~SHAREF
 SECTION .Table
 a       DB      message,0
 ; END SECTION .Table
@@ -558,24 +558,24 @@ Break   <Stack frame manipulators>
 %macro localvar 2
 ; LOCAL a
 	%ifidn <length>,<BYTE>
-	    ?frame =  ?frame + 1
-	    a = ?frame
+	    ?frame equ ?frame + 1
+	    a equ ?frame
 	    ; name EQU  BYTE PTR [BP-a]
 	%else
 	    %ifidn <length>,<WORD>
-		?frame =  ?frame + 2
-		a = ?frame
+		?frame equ ?frame + 2
+		a equ ?frame
 		; name EQU  WORD PTR [BP-a]
 	    %else
 		%ifidn <length>,<DWORD>
-		    ?frame =  ?frame + 4
-		    a = ?frame
+		    ?frame equ ?frame + 4
+		    a equ ?frame
 		    ; name EQU  DWORD PTR [BP-a]
 		    name&l EQU  word [BP-a]
 		    name&h EQU  word [BP-a+2]
 		%else
-		    ?frame =  ?frame + length
-		    a = ?frame
+		    ?frame equ ?frame + length
+		    a equ ?frame
 		    ; name EQU  BYTE PTR [BP-a]
 		%endif
 	    %endif
@@ -596,24 +596,24 @@ Break   <Stack frame manipulators>
 %macro Argvar 2
 ; LOCAL a
 	%ifidn <length>,<BYTE>
-	    a = ?aframe
-	    ?aframe =  ?aframe + 1
+	    a equ ?aframe
+	    ?aframe equ ?aframe + 1
 	    ; name EQU  BYTE PTR [BP+a]
 	%else
 	    %ifidn <length>,<WORD>
-		a = ?aframe
-		?aframe =  ?aframe + 2
+		a equ ?aframe
+		?aframe equ ?aframe + 2
 		; name EQU  WORD PTR [BP+a]
 	    %else
 		%ifidn <length>,<DWORD>
-		    a = ?aframe
-		    ?aframe =  ?aframe + 4
+		    a equ ?aframe
+		    ?aframe equ ?aframe + 4
 		    ; name EQU  DWORD PTR [BP+a]
 		    name&l EQU  word [BP+a]
 		    name&h EQU  word [BP+a+2]
 		%else
-		    a = ?aframe
-		    ?aframe =  ?aframe + length
+		    a equ ?aframe
+		    ?aframe equ ?aframe + length
 		    ; name EQU  BYTE PTR [BP+a]
 		%endif
 	    %endif

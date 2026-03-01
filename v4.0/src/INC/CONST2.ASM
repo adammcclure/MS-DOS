@@ -82,7 +82,7 @@ sftabl:; [SYSTEM] file table
 global CritPatch
 CritPatch:
 ; IRP sect,<critDisk,critDevice>
-%if (NOT REDIRECTOR) AND (NOT SHAREF)
+%if (~REDIRECTOR) AND (~SHAREF)
 	Short_Addr  E&sect
 	Short_Addr  L&sect
 %else

@@ -25,11 +25,11 @@ SECTION .dosxxx
 	%include "macros.inc"
 
 struc str
-old_bp: dw 0
-return: dd 0
-DataAreaPtr: dd 0; Data buffer pointer
-CountryCodePtr: dd 0; Country code pointer
-DataAreaLength: dw 0; Length of data area
+old_bp: resw 1
+return: resd 1
+DataAreaPtr: resd 1; Data buffer pointer
+CountryCodePtr: resd 1; Country code pointer
+DataAreaLength: resw 1; Length of data area
 endstruc
 
 DosGetDBCSEv:
@@ -51,8 +51,8 @@ Copy_Vector:
 	les	di,[bp].DataAreaPtr	     ;AN000; ES:DI-->return buffer
 	mov	cx,[bp].DataAreaLength	     ;AN000;
 loopx:
-	mov    al,ds:[si]		     ;AN000;
-	mov    es:[di],al		     ;AN000;
+	mov    al,[ds:si]		     ;AN000;
+	mov    [es:di],al		     ;AN000;
 	inc    si			     ;AN000;
 	inc    di			     ;AN000;
 	loop   loopx			     ;AN000;

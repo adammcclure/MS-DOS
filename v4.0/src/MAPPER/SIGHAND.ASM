@@ -32,13 +32,13 @@ SECTION .dosxxx
             ; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-Signumber: dw 0; signal number
-Action: dw 0; action code
-Prevaction: dd 0; previous action code
-Prevadrs: dd 0; previous vector address
-Routineadrs: dd 0; interrupt handler address
+old_bp: resw 1
+return: resd 1
+Signumber: resw 1; signal number
+Action: resw 1; action code
+Prevaction: resd 1; previous action code
+Prevadrs: resd 1; previous vector address
+Routineadrs: resd 1; interrupt handler address
 endstruc
 
 ; While we hate to do this, we have to.  The following data areas are

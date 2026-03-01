@@ -522,7 +522,7 @@ pccont:
 ;
 PATHCRUNCH:
 	mov	[msg_numb],0			;AN022; Set up message flag
-	MOV	DL,DS:[FCB]
+	MOV	DL,[DS:FCB]
 	CALL	SAVUDIR
 	jc	pcrunch_cderrJ			;AN022; if error on current dir - report
 

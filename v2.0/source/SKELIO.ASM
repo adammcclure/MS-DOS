@@ -192,15 +192,15 @@ PRNTBL: DW      EXIT            ;0  - (Not used)
 ;Define offsets for io data packet
 
 struc IODAT
-CMDLEN: db 0;LENGTH OF THIS COMMAND
-UNIT: db 0;SUB UNIT SPECIFIER
-CMD: db 0;COMMAND CODE
-STATUS: dw 0;STATUS
-        times 8 db 0
-MEDIA: db 0;MEDIA DESCRIPTOR
-TRANS: dd 0;TRANSFER ADDRESS
-COUNT: dw 0;COUNT OF BLOCKS OR CHARACTERS
-START: dw 0;FIRST BLOCK TO TRANSFER
+CMDLEN: resb 1;LENGTH OF THIS COMMAND
+UNIT: resb 1;SUB UNIT SPECIFIER
+CMD: resb 1;COMMAND CODE
+STATUS: resw 1;STATUS
+        resb 8
+MEDIA: resb 1;MEDIA DESCRIPTOR
+TRANS: resd 1;TRANSFER ADDRESS
+COUNT: resw 1;COUNT OF BLOCKS OR CHARACTERS
+START: resw 1;FIRST BLOCK TO TRANSFER
 endstruc
 
 PTRSAV  DD      0               ;Strategy pointer save.
@@ -215,8 +215,8 @@ PTRSAV  DD      0               ;Strategy pointer save.
 STRATP:
 
 STRATEGY:
-        MOV     word CS:[PTRSAV],BX
-        MOV     word CS:[PTRSAV+2],ES
+        MOV     word [CS:PTRSAV],BX
+        MOV     word [CS:PTRSAV+2],ES
         RET
 
 ; ENDP STRATP
@@ -279,22 +279,22 @@ ENTRY:  PUSH    AX              ;Save all nessacary registers.
         PUSH    ES
         PUSH    BX
 
-        LDS     BX,CS:[PTRSAV]  ;Retrieve pointer to I/O Packet.
+        LDS     BX,[CS:PTRSAV]  ;Retrieve pointer to I/O Packet.
 
-        MOV     AL,[BX.UNIT]    ;AL = Unit code.
-        MOV     AH,[BX.MEDIA]   ;AH = Media descriptor.
-        MOV     CX,[BX.COUNT]   ;CX = Contains byte/sector count.
-        MOV     DX,[BX.START]   ;DX = Starting Logical sector.
+        MOV     AL,[BX+UNIT]    ;AL = Unit code.
+        MOV     AH,[BX+MEDIA]   ;AH = Media descriptor.
+        MOV     CX,[BX+COUNT]   ;CX = Contains byte/sector count.
+        MOV     DX,[BX+START]   ;DX = Starting Logical sector.
 
         XCHG    DI,AX           ;Move Unit & Media into DI temporarily.
-        MOV     AL,[BX.CMD]     ;Retrieve Command type. (1 => 11)
+        MOV     AL,[BX+CMD]     ;Retrieve Command type. (1 => 11)
         XOR     AH,AH           ;Clear upper half of AX for calculation.
         ADD     SI,AX           ;Compute entry pointer in dispatch table.
         ADD     SI,AX
         CMP     AL,11           ;Verify that not more than 11 commands.
         JA      CMDERR          ;Ah, well, error out.
         XCHG    AX,DI           ;Move Unit & Media back where they belong.
-        LES     DI,[BX.TRANS]   ;DI contains addess of Transfer address.
+        LES     DI,[BX+TRANS]   ;DI contains addess of Transfer address.
                                 ;ES contains segment.
         PUSH    CS
         POP     DS              ;Data segment same as Code segment.
@@ -336,8 +336,8 @@ ERR_EXIT:
 EXITP:;Normal exit for device drivers.
 
 EXIT:   MOV     AH,00000001B    ;Set done bit for MSDOS.
-EXIT1:  LDS     BX,CS:[PTRSAV]
-        MOV     [BX.STATUS],AX  ;Save operation compete and status.
+EXIT1:  LDS     BX,[CS:PTRSAV]
+        MOV     [BX+STATUS],AX  ;Save operation compete and status.
 
         POP     BX              ;Restore registers.
         POP     ES
@@ -399,8 +399,8 @@ CON_RDND:
         CALL    CISTAT          ;See if character ready.
         JZ      CON_RDN2        ;No, return busy signal.
 CON_RDN1:
-        LDS     BX,CS:[PTRSAV]
-        MOV     [BX.MEDIA],AL
+        LDS     BX,[CS:PTRSAV]
+        MOV     [BX+MEDIA],AL
         JMP     EXIT
 CON_RDN2:
         JMP     BUS_EXIT
@@ -437,7 +437,7 @@ CON_WRST:
 CON_WRIT:
         MOV     SI,DI           ;Get destination to source.
 CON_WRI1:
-        LODS    byte ES:[SI]
+        LODS    byte [ES:SI]
         PUSH    CX
 %if ANSI
         CALL    CONOUT          ;Call ansi driver.
@@ -714,7 +714,7 @@ PRN_STA:
 
 PRN_WRT:MOV     SI,DI           ;Set source = destination index.
 
-PRN_WR1:LODS    byte ES:[SI];Get a data byte.
+PRN_WR1:LODS    byte [ES:SI];Get a data byte.
         PUSH    CX
         MOV     CX,[PCON]
         MOV     BX,ROM_CONOUT
@@ -809,7 +809,7 @@ AUX_WRST:
 AUX_WRIT:
         MOV     SI,DI
 AUX_WRI1:
-        LODS    byte ES:[SI]        ;Get char. from users buffer.
+        LODS    byte [ES:SI]        ;Get char. from users buffer.
         CALL    AOUT            ;Send it to device.
         LOOP    AUX_WRI1        ;Cycle until all done.
         JMP     EXIT
@@ -858,20 +858,20 @@ TIM_RED:
 ;
 
 struc SIOPB
-        times 4 db 0;Monitor Use Only
-OPCODE: db 0;I/O operation code.
-DRIVE: db 0;Logical drive spec.
-TRACK: dw 0;Logical track number.
-HEAD: db 0;Logical head number.
-SECTOR: db 0;Logical sector to start with.
-SCOUNT: db 0;Number of logical sectors in buffer.
-RETCODE: db 0;Error code after masking.
-RETMASK: db 0;Error mask.
-RETRIES: db 0;Number of retries before error exit.
-DMAOFF: dw 0;Buffer offset address.
-DMASEG: dw 0;Buffer segment.
-SECLENG: dw 0;Sector Length.
-        times 6 db 0;8089 use only.
+        resb 4;Monitor Use Only
+OPCODE: resb 1;I/O operation code.
+DRIVE: resb 1;Logical drive spec.
+TRACK: resw 1;Logical track number.
+HEAD: resb 1;Logical head number.
+SECTOR: resb 1;Logical sector to start with.
+SCOUNT: resb 1;Number of logical sectors in buffer.
+RETCODE: resb 1;Error code after masking.
+RETMASK: resb 1;Error mask.
+RETRIES: resb 1;Number of retries before error exit.
+DMAOFF: resw 1;Buffer offset address.
+DMASEG: resw 1;Buffer segment.
+SECLENG: resw 1;Sector Length.
+        resb 6;8089 use only.
 endstruc
 
 IOPB    SIOPB   <,00H,0,0,0,0,0,0,000H,0,0,0,0,>
@@ -900,23 +900,23 @@ IOPB    SIOPB   <,00H,0,0,0,0,0,0,000H,0,0,0,0,>
 
 struc DBP
 
-JMPNEAR: times 3 db 0;Jmp Near xxxx  for boot.
-NAMEVER: times 8 db 0;Name / Version of OS.
+JMPNEAR: resb 3;Jmp Near xxxx  for boot.
+NAMEVER: resb 8;Name / Version of OS.
 
 ;-------  Start of Drive Parameter Block.
 
-SECSIZE: dw 0;Sector size in bytes.                  (dpb)
-ALLOC: db 0;Number of sectors per alloc. block.    (dpb)
-RESSEC: dw 0;Reserved sectors.                      (dpb)
-FATS: db 0;Number of FAT's.                       (dpb)
-MAXDIR: dw 0;Number of root directory entries.      (dpb)
-SECTORS: dw 0;Number of sectors per diskette.        (dpb)
-MEDIAID: db 0;Media byte ID.                         (dpb)
-FATSEC: dw 0;Number of FAT Sectors.                 (dpb)
+SECSIZE: resw 1;Sector size in bytes.                  (dpb)
+ALLOC: resb 1;Number of sectors per alloc. block.    (dpb)
+RESSEC: resw 1;Reserved sectors.                      (dpb)
+FATS: resb 1;Number of FAT's.                       (dpb)
+MAXDIR: resw 1;Number of root directory entries.      (dpb)
+SECTORS: resw 1;Number of sectors per diskette.        (dpb)
+MEDIAID: resb 1;Media byte ID.                         (dpb)
+FATSEC: resw 1;Number of FAT Sectors.                 (dpb)
 
 ;-------  End of Drive Parameter Block.
 
-SECTRK: dw 0;Number of Sectors per track.
+SECTRK: resw 1;Number of Sectors per track.
 
 endstruc
 
@@ -971,9 +971,9 @@ PREDENS DB      0,0,0,0
 ;
 
 struc MEDIAS
-        times 13 db 0;Static request header.
-MEDIAS1: db 0;Media byte.
-MEDIAS2: db 0;Media status byte flag.
+        resb 13;Static request header.
+MEDIAS1: resb 1;Media byte.
+MEDIAS2: resb 1;Media status byte flag.
 endstruc
 
 MEDIAC: 
@@ -990,7 +990,7 @@ MEDIAC:
 MEDIA1A:MOV	[PREDENS],DL	;Save last density used for read.
 
 MEDIA1: LDS     BX,[PTRSAV]     ;Udate media section of data block.
-        MOV     [BX.MEDIAS2],AH
+        MOV     [BX+MEDIAS2],AH
 	MOV	AL,0
         JMP     EXIT
 
@@ -1062,12 +1062,12 @@ DCOM2:  IN      AL,41H          ;Get 1793's status.
 ;
 
 struc BPBS
-        times 13 db 0;Static request header.
-BPB1: db 0;Media byte.
-BPB2: dw 0;DWORD transfer address.
-        dw 0
-BPB3: dw 0;DWORD pointer to BPB
-        dw 0
+        resb 13;Static request header.
+BPB1: resb 1;Media byte.
+BPB2: resw 1;DWORD transfer address.
+        resw 1
+BPB3: resw 1;DWORD pointer to BPB
+        resw 1
 endstruc
 
 GET_BPB:
@@ -1097,26 +1097,26 @@ GET_BPB:
         OR      AH,AH
 	JNZ	GET_BP3		;Disk error, assume old single density.
 
-GET_BP1:MOV     AL,ES:[DI.MEDIAID] ;Get diskettes media ID.
+GET_BP1:MOV     AL,[ES:DI+MEDIAID] ;Get diskettes media ID.
         MOV     SI,LSDRIV2
-        CMP     AL,[SI.MEDIAID]
+        CMP     AL,[SI+MEDIAID]
         JZ      GET_BP4
         MOV     SI,LDDRIV1
-        CMP     AL,[SI.MEDIAID]
+        CMP     AL,[SI+MEDIAID]
         JZ      GET_BP4
 	MOV	SI,LDDRIV2
-	CMP	AL,[SI.MEDIAID]
+	CMP	AL,[SI+MEDIAID]
 	JZ	GET_BP4
 
 GET_BP3:MOV     SI,LSDRIV1 ;No compares, assume old style for now.
 
-GET_BP4:MOV     AL,[SI.MEDIAID]
+GET_BP4:MOV     AL,[SI+MEDIAID]
         ADD     SI,11           ;Convert to DPB pointer
 
 GET_BP5:LDS     BX,[PTRSAV]     ;Update I/O data packet.
-        MOV     [BX.BPB1],AL    ;Media byte.
-        MOV     [BX.BPB3],SI    ;DPB pointer.
-        MOV     [BX.BPB3+2],CS  ;Code segment.
+        MOV     [BX+BPB1],AL    ;Media byte.
+        MOV     [BX+BPB3],SI    ;DPB pointer.
+        MOV     [BX+BPB3+2],CS  ;Code segment.
 	OR	AH,AH
 	JNZ	GET_BP6
 	MOV	AL,0
@@ -1192,16 +1192,16 @@ DSK_WRV:
 DSK_WRT:MOV     BX,0FCA8H               ;Set write mode and Error mask.
 
 DSK_COM:MOV     SI,LSDRIV1
-        CMP     AH,[SI.MEDIAID]
+        CMP     AH,[SI+MEDIAID]
         JE      DSK_CO3
         MOV     SI,LSDRIV2
-        CMP     AH,[SI.MEDIAID]
+        CMP     AH,[SI+MEDIAID]
         JE      DSK_CO3
         MOV     SI,LDDRIV1
-        CMP     AH,[SI.MEDIAID]
+        CMP     AH,[SI+MEDIAID]
         JE      DSK_CO2
 	MOV	SI,LDDRIV2
-	CMP	AH,[SI.MEDIAID]
+	CMP	AH,[SI+MEDIAID]
 	JE	DSK_CO2
         MOV     AL,7
         JMP     ERR_EXIT
@@ -1210,7 +1210,7 @@ DSK_CO2:OR      AL,F_DD                 ;Set double density mode.
 
 DSK_CO3:MOV     [IOPB.DMASEG],ES	;Setup Buffer segment.
         MOV     [IOPB.DMAOFF],DI	;Setup buffer offset.
-        MOV     DI,[SI.SECSIZE]		;Get sector size.
+        MOV     DI,[SI+SECSIZE]		;Get sector size.
         MOV     [IOPB.SECLENG],DI
         MOV     [IOPB.RETRIES],1	;Setup number of retries.
         MOV     [IOPB.RETMASK],BH	;Operation error mask.
@@ -1221,13 +1221,13 @@ DSK_CO3:MOV     [IOPB.DMASEG],ES	;Setup Buffer segment.
 DSK_CO4:PUSH    DX                      ;Save starting sector.
         MOV     AX,DX
         MOV     DX,0                    ;32 bit divide coming up.
-        MOV     CX,[SI.SECTRK]
+        MOV     CX,[SI+SECTRK]
         DIV     CX                      ;Get track+head and start sector.
         INC     DL
         MOV     [IOPB.SECTOR],DL        ;Starting sector.
         MOV     BL,DL                   ;Save starting sector for later.
         MOV     [IOPB.TRACK],AX         ;Track to read/write.
-        MOV     AX,[SI.SECTRK]          ;Now see how many sectors
+        MOV     AX,[SI+SECTRK]          ;Now see how many sectors
         INC     AL                      ;  we can burst read.
         SUB     AL,BL                   ;BL is the starting sector.
         MOV     AH,0
@@ -1250,7 +1250,7 @@ DSK_CO6:MOV     [IOPB.SCOUNT],AL
         OR      AL,AL
         JNZ     DERROR
         MOV     AX,DI                   ;Retrieve number of sectors read.
-        MOV     CX,[SI.SECSIZE]         ;Number of bytes per sector.
+        MOV     CX,[SI+SECSIZE]         ;Number of bytes per sector.
         PUSH    DX
         MUL     CX
         POP     DX
@@ -1274,8 +1274,8 @@ DSK_CO7:MOV     AL,12
 ; Disk error routine.
 ;
 
-DERROR: LDS     BX,CS:[PTRSAV]
-        MOV     [BX.COUNT],0
+DERROR: LDS     BX,[CS:PTRSAV]
+        MOV     [BX+COUNT],0
         PUSH    CS
         POP     DS
 
@@ -1284,7 +1284,7 @@ DERROR: LDS     BX,CS:[PTRSAV]
         MOV     BH,14           ;Lenght of table.
         MOV     SI,DERRTAB
 DERROR2:INC     BL              ;Increment to next error code.
-        LODS    byte CS:[SI]
+        LODS    byte [CS:SI]
         CMP     AH,AL           ;See if error code matches disk status.
         JZ      DERROR3         ;Got the right error, exit.
         DEC     BH
@@ -1359,14 +1359,14 @@ HWINIT: XOR     BP,BP
 
         MOV     AX,CS
         ADD     AX,BIOSIZS
-        MOV     DS:[CURRENT_DOS_LOCATION],AX
-        MOV     DS:[MEMORY_SIZE],MAX_MEM
+        MOV     [DS:CURRENT_DOS_LOCATION],AX
+        MOV     [DS:MEMORY_SIZE],MAX_MEM
         MOV     AX,CS
-        MOV     word DS:[DEVICE_LIST+2],AX
-        MOV     word DS:[DEVICE_LIST],DEVSTART
+        MOV     word [DS:DEVICE_LIST+2],AX
+        MOV     word [DS:DEVICE_LIST],DEVSTART
         MOV     AX,CS
         ADD     AX,((WRKSTK - INIT)+50) /16
-        MOV     DS:[FINAL_DOS_LOCATION],AX
+        MOV     [DS:FINAL_DOS_LOCATION],AX
         JMP     SYSINIT
 
 DOSSPOT:

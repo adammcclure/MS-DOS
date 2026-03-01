@@ -127,63 +127,63 @@ SECTION .CSEG;AN000;
  extern ASCII_DRV1_ID;40H	SOURCE DRIVE ID IN ASCII
  extern ASCII_DRV2_ID;40H	TARGET DRIVE ID IN ASCII
  extern MSGNUM_INVALID_DRV;"INVALID DRIVE SPECIFICATION"		;AC000;
- extern MSGNUM_NOT_COMPATIBLE ;"DEVICE TYPE OF DISKETTE TYPES NOT COMPATIBLE";AC000;
+ extern MSGNUM_NOT_COMPATIBLE;"DEVICE TYPE OF DISKETTE TYPES NOT COMPATIBLE";AC000;
  extern MSGNUM_DRV_REDIRECTED;"INVALID, DRIVE REDIRECTED"		;AC000;
 
 
- extern SUBLIST_8	     ;					;AN000;
- extern SUBLIST_9	     ;					;AN000;
- extern SUBLIST_13	     ;					;AN000;
- extern SUBLIST_17A	     ;					;AN000;
- extern SUBLIST_17B	     ;					;AN000;
- extern SUBLIST_17C	     ;					;AN000;
- extern SUBLIST_19C	     ;					;AN000;
- extern SUBLIST_19D	     ;					;AN000;
- extern SUBLIST_19E	     ;					;AN000;
- extern SUBLIST_26A	     ;					;AN001;
- extern SUBLIST_26B	     ;					;AN001;
+ extern SUBLIST_8;					;AN000;
+ extern SUBLIST_9;					;AN000;
+ extern SUBLIST_13;					;AN000;
+ extern SUBLIST_17A;					;AN000;
+ extern SUBLIST_17B;					;AN000;
+ extern SUBLIST_17C;					;AN000;
+ extern SUBLIST_19C;					;AN000;
+ extern SUBLIST_19D;					;AN000;
+ extern SUBLIST_19E;					;AN000;
+ extern SUBLIST_26A;					;AN001;
+ extern SUBLIST_26B;					;AN001;
  extern SUBLIST_PARSE;PARSE ERROR XX - %0			     ;AN003;
 
 ; .XLIST
 ;EXTRN	MSG_INVALID_PARM_PTR:BYTE	;"INVALID PARAMETER"
 ;EXTRN	MSG_INVALID_DOS :BYTE		;"INVALID DOS"
 ; .LIST
- extern S_DRV_SECT_TRACK ;SECT/TRACK
- extern S_DRV_HEADS ;# OF HEADS
- extern S_DRV_TRACKS ;# OF TRACKS
- extern T_DRV_SECT_TRACK 
- extern T_DRV_HEADS 
- extern T_DRV_TRACKS 
- extern SOURCE_DRIVE ;SRC DRV LOGICAL NUMBER
- extern TARGET_DRIVE ;TARGET DRV LOGICAL NUMBER
- extern COPY_TYPE ;1 = 1-DRIVE COPY  2 = 2-DRIVE COPY
- extern USER_OPTION ;NO OPTION (-1)  /1 (1), INVALID (9)
- extern BUFFER_BEGIN ;STARTING BUFFER @ FOR LOADING
- extern BUFFER_END ;ENDING BUFFER @ FOR LOADING
- extern MAIN_EXIT ;EXIT ADDRESS FOR CONTROL-BREAK
+ extern S_DRV_SECT_TRACK;SECT/TRACK
+ extern S_DRV_HEADS;# OF HEADS
+ extern S_DRV_TRACKS;# OF TRACKS
+ extern T_DRV_SECT_TRACK
+ extern T_DRV_HEADS
+ extern T_DRV_TRACKS
+ extern SOURCE_DRIVE;SRC DRV LOGICAL NUMBER
+ extern TARGET_DRIVE;TARGET DRV LOGICAL NUMBER
+ extern COPY_TYPE;1 = 1-DRIVE COPY  2 = 2-DRIVE COPY
+ extern USER_OPTION;NO OPTION (-1)  /1 (1), INVALID (9)
+ extern BUFFER_BEGIN;STARTING BUFFER @ FOR LOADING
+ extern BUFFER_END;ENDING BUFFER @ FOR LOADING
+ extern MAIN_EXIT;EXIT ADDRESS FOR CONTROL-BREAK
 
- extern IO_ERROR 
+ extern IO_ERROR
 
- extern DS_IOCTL_DRV_PARM ;PLACE HOLDER FOR DEFAULT SOURCE DRV PARM
- extern DT_IOCTL_DRV_PARM ;PLACE HOLDER FOR DEFAULT TARGET DRV PARM
- extern DS_specialFunctions ;AND THEIR CONTENTS
- extern DT_specialFunctions 
+ extern DS_IOCTL_DRV_PARM;PLACE HOLDER FOR DEFAULT SOURCE DRV PARM
+ extern DT_IOCTL_DRV_PARM;PLACE HOLDER FOR DEFAULT TARGET DRV PARM
+ extern DS_specialFunctions;AND THEIR CONTENTS
+ extern DT_specialFunctions
  extern DS_deviceType
  extern DT_deviceType
- extern DS_deviceAttributes 
- extern DT_deviceAttributes 
- extern DS_numberOfCylinders 
- extern DT_numberOfCylinders 
- extern DS_mediaType 
- extern DT_mediaType 
- extern DS_BPB_PTR 
- extern DT_BPB_PTR 
+ extern DS_deviceAttributes
+ extern DT_deviceAttributes
+ extern DS_numberOfCylinders
+ extern DT_numberOfCylinders
+ extern DS_mediaType
+ extern DT_mediaType
+ extern DS_BPB_PTR
+ extern DT_BPB_PTR
 
- extern MS_IOCTL_DRV_PARM ;DRIVE PARM FROM SOURCE MEDIUM
- extern MT_IOCTL_DRV_PARM 
+ extern MS_IOCTL_DRV_PARM;DRIVE PARM FROM SOURCE MEDIUM
+ extern MT_IOCTL_DRV_PARM
 
- extern GENERIC_IOCTL 
- extern SET_LOGICAL_DRIVE 
+ extern GENERIC_IOCTL
+ extern SET_LOGICAL_DRIVE
 
 ;		   $salut (4,20,24,41)	;					;AN000;
 struc MY_BPB
@@ -200,7 +200,7 @@ CSECT_TRACK	   DW  0		;
 CHEAD		   DW  0		;
 CHIDDEN_SECT	   DD  0		;
 BIG_TOT_SECT	   DD  0		;
-		   times 6 db 0;
+		   resb 6;
 endstruc
 
 

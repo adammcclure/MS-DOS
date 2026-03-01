@@ -77,10 +77,10 @@ check_frame:
 
 	mov	si,word frame_result.$P_Picked_Val[+0]
 
-	mov	word ds:[si+0],0				;clear the
-	mov	word ds:[si+4],0				;  pages
-	mov	word ds:[si+8],0
-	mov	word ds:[si+12],0
+	mov	word [ds:si+0],0				;clear the
+	mov	word [ds:si+4],0				;  pages
+	mov	word [ds:si+8],0
+	mov	word [ds:si+12],0
 
 	pop	si						;restore regs
 
@@ -106,7 +106,7 @@ check_p0:
 
 	mov	si,word p0_result.$P_Picked_Val[+0]
 
-	mov	word ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -130,7 +130,7 @@ check_p1:
 
 	mov	si,word p1_result.$P_Picked_Val[+0]
 
-	mov	word ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -154,7 +154,7 @@ check_p2:
 
 	mov	si,word p2_result.$P_Picked_Val[+0]
 
-	mov	word ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -178,7 +178,7 @@ check_p3:
 
 	mov	si,word p3_result.$P_Picked_Val[+0]
 
-	mov	word ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -200,7 +200,7 @@ check_p254:
 
 	mov	si,word p254_result.$P_Picked_Val[+0]
 
-	mov	word ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -224,7 +224,7 @@ do_p255:
 
 	mov	si,word p255_result.$P_Picked_Val[+0]
 
-	mov	word ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table

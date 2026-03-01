@@ -95,12 +95,12 @@ Command_Line_Parms	equ	81h		;				;AN000;
 
 struc Control
 
-Match_Flags: dw 0
-Function_Flags: dw 0
-Result: dw 0
-Values: dw 0
-Num_Keywords: db 0
-Keyword: db 0
+Match_Flags: resw 1
+Function_Flags: resw 1
+Result: resw 1
+Values: resw 1
+Num_Keywords: resb 1
+Keyword: resb 1
 
 endstruc
 
@@ -110,7 +110,7 @@ Drive_Type	db	0			;				;AN000;
 Drive_Item_Tag	db	0			;				;AN000;
 Drive_Pointer	dw	0			;				;AN000;
 Drive_Number	db	0			;A=1, B=2, C=3			;AN000;
-Drive_debug: times 8 db 0
+Drive_debug: resb 8
 
 endstruc;				;AN000;
 
@@ -119,7 +119,7 @@ struc Switch_Return;				;AN000;
 Switch_Type	db	0			;				;AN000;
 Switch_Item_Tag db	0			;				;AN000;
 Switch_Pointer	dw	0			;				;AN000;
-Switch_Debug: times 4 db 0
+Switch_Debug: resb 4
 
 endstruc;				;AN000;
 

@@ -444,7 +444,7 @@ testkanj:
 	xchg	ah,al		    ;put byte in ah
 	push	ds
 	push	si
-	lds	si,cs:[lbtbl]	       ;get pointer to lead byte table
+	lds	si,[cs:lbtbl]	       ;get pointer to lead byte table
 ktlop:
 	lodsb			    ;direction flag should be OK
 	or	al,al		    ;are we at the end of table?
@@ -830,7 +830,7 @@ kill_bl_cont:
 		  cmp  al,dbcs_lead_byte;an000;is it 81h
 ;		  $if  z		;an000;it is 81h
 		  JNZ $$IF6
-		       mov  bl,ds:[si]	;an000;set up for compare
+		       mov  bl,[ds:si]	;an000;set up for compare
 		       cmp  bl,asian_blk;an000;is it 40h
 ;		       $if  z		;an000;we have an asian blank
 		       JNZ $$IF7

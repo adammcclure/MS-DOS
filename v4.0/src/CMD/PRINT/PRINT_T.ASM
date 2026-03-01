@@ -585,7 +585,7 @@ TRANSIENT:
 					;-------------------------------------
 
    cld
-   mov	ax,ds:[pdb_environ]
+   mov	ax,[ds:pdb_environ]
    or	ax,ax
 
 ;  $if	nz				; if pdb_environ != 0		       ;AC000;
@@ -838,7 +838,7 @@ $$IF33:
 
        mov  ax,[whichmsg]		;				       ;AN000;
        mov  [whichmsg],(CLASS_C shl 8) + SecMes ; set up in queue msg	       ;AC000;
-       cmp  byte ds:[si],0		; is the queue empty?
+       cmp  byte [ds:si],0		; is the queue empty?
 
 ;      $if  ne				; if queue not empty		       ;AC000;
        JE $$IF35
@@ -859,7 +859,7 @@ $$DO36:
 ;		mov  ax,(xNameTrans SHL 8) ; check for name translation 	;AN009;
 ;		int  21h		 ; get real path and name		;AN009;
 	       mov  ax,[whichmsg]	;				       ;AC009;
-	       cmp  byte ds:[si],0	; end of queue?
+	       cmp  byte [ds:si],0	; end of queue?
 
 ;	   $enddo e			;				       ;AC000;
 	   JNE $$DO36
@@ -1820,7 +1820,7 @@ $$DO132:
 					;    to its physical name.
 
 		   lea	si,NameBuf	; DS:SI = NameBuf containing name      ;AN010;
-		   mov	bl,ds:[si]	; get DRIVE ID			       ;AN010;
+		   mov	bl,[ds:si]	; get DRIVE ID			       ;AN010;
 		   sub	bl,40h		; convert to a number		       ;AN010;
 					; IOCtl call to see if target drive is local
 		   mov	ax,(IOCTL SHL 8) + 9 ;AN010;
@@ -1862,7 +1862,7 @@ $$IF133:
 		   lds	si,OPEN_FILE	;				       ;AC001;
 		   mov	bx,open_mode	; set open mode 		       ;AC000;
 		   mov	ah,ExtOpen	; open for reading exist.	       ;AN010;
-		   mov	al,ds:[si]	; recover drive ID		       ;AN010;
+		   mov	al,[ds:si]	; recover drive ID		       ;AN010;
 
 		   call TO_DOS		; make a SERVER DOS call	       ;AC010;
 
@@ -3133,7 +3133,7 @@ $$IF191:
 $$IF194:
 
 	   lea	bx,Parse_Ret_Code
-	   xlat cs:[bx]
+	   xlat [cs:bx]
 
 ;      $endif				; endif errors			       ;AN000;
 $$IF193:
@@ -3311,7 +3311,7 @@ $$IF205:
        push ds				;				       ;AN005;
        mov  si,[SCAN_PTR]		; point to end of bad parm	       ;AN005;
        mov  ds,cx			;				       ;AN005;
-       mov  byte ds:[si],0		; terminate the parameter	       ;AN005;
+       mov  byte [ds:si],0		; terminate the parameter	       ;AN005;
        pop  ds				;   restore current pointer	       ;AN005;
        pop  si				;				       ;AN005;
        mov  [insert_num],0		;				       ;AN005;
@@ -3417,7 +3417,7 @@ $$DO211:
        call MoveMes			; LOAD the message		       ;AN000;
 ;  $leave c				; leave loop if ERROR		       ;AN000;
    JC $$EN211
-       mov  byte es:[di],DOLLAR	; append a delimiter
+       mov  byte [es:di],DOLLAR	; append a delimiter
        inc  di				; move to next message		       ;AN000;
        inc  al				; advance message #		       ;AN000;
        cmp  al,ERR12			; are we past ERR12 ?		       ;AN000;
@@ -3468,7 +3468,7 @@ $$IF214:
 					;--------------------------------------
 MoveMes:
 
-   mov	es:[bx],di			; save the pointer to this message     ;AN000;
+   mov	[es:bx],di			; save the pointer to this message     ;AN000;
    call SYSGETMSG			; line up the pointer on the message   ;AN000;
 ;  $if	nc				; if no error			       ;AN000;
    JC $$IF219

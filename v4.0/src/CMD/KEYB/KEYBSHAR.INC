@@ -68,7 +68,7 @@ TABLE_OK            DB    0            ;; flag to INT 9 that table is built
 JR_KB_FLAG          DB    0            ;; flag for special PCjr processing
 TIMING_FACTOR       DW    1            ;; Scale factor for INT 9 timing loops
                                        ;;  PC_AT = 1
-                    times 2 db 0;; reserved
+                    resb 2;; reserved
                                        ;;
                                        ;; Table copy begins here:
 ACTIVE_LANGUAGE     DB    'US'         ;; language code
@@ -79,12 +79,12 @@ FIRST_XLAT_PTR      DW    -1           ;; ptr to first Specific Translate Sect
 RESIDENT_END        DW    0ffffh       ;; offset of last byte in resident mem
 LOGIC_PTR           DW    -1           ;; ptr to State Logic
 COMMON_XLAT_PTR     DW    -1           ;; ptr to Common Translate Section
-SPECIAL_FEATURES: dw 0;; special Features
+SPECIAL_FEATURES: resw 1;; special Features
 TABLE_OVERFLOW      DB    0            ;; overflow flag for table rebuild
-HOT_KEY_ON_SCAN: db 0;; scan codes to use with ALT+CTRL
-HOT_KEY_OFF_SCAN: db 0;;  to turn hot key on and off
-                    times 4 db 0;; reserved
-TABLE_AREA: db 0;; tables loaded here:
+HOT_KEY_ON_SCAN: resb 1;; scan codes to use with ALT+CTRL
+HOT_KEY_OFF_SCAN: resb 1;;  to turn hot key on and off
+                    resb 4;; reserved
+TABLE_AREA: resb 1;; tables loaded here:
                                        ;;  State Logic
                                        ;;  Common Translate Section
                                        ;;  Specific Translate Sections for
@@ -102,8 +102,8 @@ endstruc;;
                                        ;;
 struc STATE_LOGIC_STR;;
                                        ;;
-SL_LOGIC_LEN: dw 0;; length of state logic
-SL_SPECIAL_FEATURES: dw 0;;
+SL_LOGIC_LEN: resw 1;; length of state logic
+SL_SPECIAL_FEATURES: resw 1;;
 SL_LOGIC_CMDS   DB   0                 ;; state logic commands begin here
                                        ;;
 endstruc;;
@@ -208,10 +208,10 @@ P12_KB               EQU   0400H       ;;
                                        ;;
 struc XLAT_SECT_STR;;
                                        ;;
-XS_NEXT_SECT_PTR: dw 0;; Pointer to next Specific Translate
+XS_NEXT_SECT_PTR: resw 1;; Pointer to next Specific Translate
                                        ;;  Section
-XS_CP_ID: dw 0;; code page id
-XS_FIRST_STATE: db 0;;
+XS_CP_ID: resw 1;; code page id
+XS_FIRST_STATE: resb 1;;
                                        ;;
 endstruc;;
                                        ;;
@@ -223,11 +223,11 @@ endstruc;;
                                        ;;
 struc STATE_STR;;
                                        ;;
-XS_STATE_LEN: dw 0;; length of state section
-XS_STATE_ID: db 0;; State ID
-XS_KBD_TYPE: dw 0;; Keyboard Type
-XS_ERROR_CHAR: dw 0;; Buffer entry for error character
-XS_FIRST_TAB: db 0;;
+XS_STATE_LEN: resw 1;; length of state section
+XS_STATE_ID: resb 1;; State ID
+XS_KBD_TYPE: resw 1;; Keyboard Type
+XS_ERROR_CHAR: resw 1;; Buffer entry for error character
+XS_FIRST_TAB: resb 1;;
                                        ;;
 endstruc;;
                                        ;;
@@ -264,24 +264,24 @@ ASC_ONLY_TAB_2_ENT_SZ  EQU   2         ;;
                                        ;;
 struc XLAT_STR;;
                                        ;;
-XLAT_TAB_SIZE: dw 0;; Size in bytes of this table -
+XLAT_TAB_SIZE: resw 1;; Size in bytes of this table -
                                        ;;  includes this field, options etc.
-XLAT_OPTIONS: db 0;; xlat options
+XLAT_OPTIONS: resb 1;; xlat options
                                        ;; XLAT TABLE IS HERE
 endstruc;;
                                        ;;
 struc XLAT_TYPE_1_STR;; use scan code as index into table
-                    DB TYPE XLAT_STR DUP(?)   ;; filler
-XLAT_SCAN_LO: db 0;; Scan code
-XLAT_SCAN_HI: db 0;;  range
-XLAT_1_BUF_ENTRY: db 0;; The table itself
+                    resb 1;; filler
+XLAT_SCAN_LO: resb 1;; Scan code
+XLAT_SCAN_HI: resb 1;;  range
+XLAT_1_BUF_ENTRY: resb 1;; The table itself
 endstruc;;
                                        ;;
 struc XLAT_TYPE_2_STR;; search table for scan
-                    DB TYPE XLAT_STR DUP(?)   ;; filler
-XLAT_NUM: db 0;; number of scans
-XLAT_SCAN: db 0;; Scan code
-XLAT_2_BUF_ENTRY: db 0;; The table itself
+                    resb 1;; filler
+XLAT_NUM: resb 1;; number of scans
+XLAT_SCAN: resb 1;; Scan code
+XLAT_2_BUF_ENTRY: resb 1;; The table itself
 endstruc;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

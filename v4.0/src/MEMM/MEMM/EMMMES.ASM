@@ -188,7 +188,7 @@ POE_Mess	db	CR,LF
 POE_Num		db	"xx -",CR,LF
 		db	"Deactivate EMM386 and Continue (C) or reBoot (B)"
 		db	" (C or B) ? "
-POE_Len		=	$-POE_Mess
+POE_Len equ $-POE_Mess
 		db	"$"
 
 EXCPE_Mess	db	CR,LF
@@ -199,7 +199,7 @@ EXCPE_CS	db	"xxxx:"
 EXCPE_EIP	db	"xxxxxxxx Code "
 EXCPE_ERR	db	"xxxx"
 		db	CR,LF,"Press enter to reboot"
-EXCPE_Len	=	$-EXCPE_Mess
+EXCPE_Len equ $-EXCPE_Mess
 		db	"$"
 
 ;

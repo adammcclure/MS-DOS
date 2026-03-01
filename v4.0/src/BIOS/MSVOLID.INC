@@ -120,27 +120,27 @@ read_volume_id:
 
 	pop	DI			; Restore Current BDS
 	pop	DS
-	mov	al,byte ds:[di].cFAT    ; # of fats
-	mov	cx,word ds:[di].csecfat ; sectors / fat
+	mov	al,byte [ds:di].cFAT    ; # of fats
+	mov	cx,word [ds:di].csecfat ; sectors / fat
 	mul	cl			    ; size taken by fats
-	add	ax,word ds:[di].ressec  ; add on reserved sectors
+	add	ax,word [ds:di].ressec  ; add on reserved sectors
 					; AX is now sector # (0 based)
-	mov	cs:[root_sec],ax	; set initial value
+	mov	[cs:root_sec],ax	; set initial value
 	mov	ax,[di].cDir		; # root dir entries
 	mov	cl,4			; 16 entries/sector
 	shr	ax,cl			; divide by 16
 	mov	cx,ax			; cx is # of sectors to scan
 next_sec:
 	push	cx			; save outer loop counter
-	mov	ax,cs:[root_sec]	; get sector #
-	mov	cx,word ds:[di].seclim    ; sectors / track
+	mov	ax,[cs:root_sec]	; get sector #
+	mov	cx,word [ds:di].seclim    ; sectors / track
 	xor	DX,DX
 	div	cx
 			; set up registers for call to read_sector
 	inc	DX		; dx= sectors into track, ax= track count from 0
 	mov	cl,dl		; sector to read
 	xor	DX,DX
-	div	word ds:[di].hdlim ; # heads on this disc
+	div	word [ds:di].hdlim ; # heads on this disc
 	mov	dh,dl		; Head number
 	mov	ch,al		; Track #
 	call	read_sector	; get first sector of the root directory,
@@ -149,17 +149,17 @@ next_sec:
 	mov	cx,16		; # of dir entries in a block of root
 	mov	al,08h		; volume label bit
 fvid_loop:
-	cmp	byte es:[bx],0	; End of dir?
+	cmp	byte [es:bx],0	; End of dir?
 	jz	no_vid			; yes, no vol id
-	cmp	byte es:[bx],0E5h	; empty entry?
+	cmp	byte [es:bx],0E5h	; empty entry?
 	jz	ent_loop		; yes, skip
-	test	es:[bx+11],al		; is volume label bit set in fcb?
+	test	[es:bx+11],al		; is volume label bit set in fcb?
 	jnz	found_vid		; jmp yes
 ent_loop:
 	ADD	BX,32		;MJB003 ADD LENGTH OF DIRECTORY ENTRY	  ;3.30
 	loop	fvid_loop
 	pop	cx			; outer loop
-	inc	cs:[root_sec]		; next sector
+	inc	[cs:root_sec]		; next sector
 	loop	next_sec		; continue
 NotFound:
 	XOR	SI,SI

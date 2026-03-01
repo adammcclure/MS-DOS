@@ -39,29 +39,29 @@ Set_For_Search	       equ     00010000B	     ;DCR 167
 
 struc Fastopen_Entry;Fastopen Entry pointer in DOS
 Fastopen_Entry_size	dw	4	;size of the following
-Fastopen_Name_Caching: dd 0
+Fastopen_Name_Caching: resd 1
 ;Fastopen_FatChain_Caching dd	  ?	;reserved for future use
 endstruc
 ;
 
 
 struc CMPCT_DIR_INFO;compact version of Dir Info.
-CDI_file_name: times 11 db ' '
-CDI_file_attr: db 0
-CDI_codepage: dw 0
-CDI_extcluster: dw 0
-CDI_attr2: db 0
-CDI_time: dw 0
-CDI_date: dw 0
-CDI_cluster: dw 0
-CDI_filesize: dd 0
+CDI_file_name: resb 11
+CDI_file_attr: resb 1
+CDI_codepage: resw 1
+CDI_extcluster: resw 1
+CDI_attr2: resb 1
+CDI_time: resw 1
+CDI_date: resw 1
+CDI_cluster: resw 1
+CDI_filesize: resd 1
 endstruc
 ;
 
 struc ORIG_DIR_INFO
-ODI_head: times 17 db 0
-ODI_skip: times 5 db 0;reserved for DOS. FASTOPEN does not
-ODI_tail: times 10 db 0;  use ODI_skip part.
+ODI_head: resb 17
+ODI_skip: resb 5;reserved for DOS. FASTOPEN does not
+ODI_tail: resb 10;  use ODI_skip part.
 endstruc
 ;
 
@@ -126,9 +126,9 @@ FH_Refer_Count	     dw     0	   ; reference count			;AN000;
 FH_Next_Extn_Ptr     dw     0	   ; pointer to first extent of the file;AN000;
 FH_Next_Hdr_Ptr      dw     0	   ; pointer to next file header	;AN000;
 FH_MRU_Extn_Ptr      dw     0	   ; pointer to  MRU extent
-		     dw     0
-		     dw     0
-		     dw     0
+		     resw 1
+		     resw 1
+		     resw 1
 endstruc;AN000;
 
 
@@ -141,7 +141,7 @@ EH_Next_Extn_Ptr     dw     0	   ; pointer to next extent		;AN000;
 EH_Prev_Extn_Ptr     dw     0	   ; pointer to previous extent  ;AN000;
 EH_Next_LRU_Ptr      dw     0	   ; pointer to next LRU extent
 EH_Prev_LRU_Ptr      dw     0	   ; pointer tp previous LRU extent
-		     dw     0
+		     resw 1
 endstruc
 
 

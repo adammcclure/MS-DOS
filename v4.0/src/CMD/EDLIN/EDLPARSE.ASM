@@ -177,7 +177,7 @@ parse_continue: 				;an000;loop return point
 	jne	parse_end			;an000;continue on good parse
 	push	si
 	mov	si,dx
-	cmp	byte es:[si],fs_flag	;an000;do we have a filespec
+	cmp	byte [es:si],fs_flag	;an000;do we have a filespec
 ;	$if	e				;an000;yes we do
 	JNE $$IF1
 		call build_fs			;an000;save filespec

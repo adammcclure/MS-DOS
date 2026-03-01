@@ -2,7 +2,7 @@
 	; PAGE	60,132
 ; Use the following booleans to set the switches 
 FALSE	EQU	0
-TRUE	EQU	NOT FALSE
+TRUE	EQU	~FALSE
 
 ; Use the switches below to produce the standard Microsoft version of the IBM
 ; version of the operating system

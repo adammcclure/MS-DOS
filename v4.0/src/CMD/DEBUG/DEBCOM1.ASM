@@ -720,7 +720,7 @@ GETROW:
 	POP	ES
 	POP	DI
 GETBYTE:
-	MOV	AL,ES:[DI]		; Get current value
+	MOV	AL,[ES:DI]		; Get current value
 	PUSH	DI
 	PUSH	ES
 	PUSH	DS
@@ -813,7 +813,7 @@ STORE:
 	SHL	DH,CL
 	POP	CX
 	OR	DL,DH			; Hex is now converted to binary
-	MOV	ES:[DI],DL		; Store new value
+	MOV	[ES:DI],DL		; Store new value
 NOSTO:
 	INC	DI			; Prepare for next location
 	RET
@@ -866,7 +866,7 @@ EOL:
 INPT:					  ;*** change for build - label to inpt
 	    PUSH    DS
 	    PUSH    SI
-	    LDS     SI,CS:[CIN]
+	    LDS     SI,[CS:CIN]
 	    MOV     AH,4
 	    CALL    DEVIOCALL
 

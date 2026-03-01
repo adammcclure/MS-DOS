@@ -14,7 +14,7 @@
 ;                     have a better message.
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 IBMJAPVER EQU   FALSE
 IBMVER  EQU     FALSE
@@ -165,7 +165,7 @@ SYS:
 
         %if IBMVER; Check for "valid" destination
         PUSH    AX
-        MOV     AL,byte DS:[5Ch]
+        MOV     AL,byte [DS:5Ch]
         DEC     AL
         MOV     BX,BUF        ; Temp space
         MOV     DX,1                    ; Sector 1 (first sec of FAT)
@@ -422,8 +422,8 @@ CHKLEN:
         INT     21H
         JC      ERR3                    ; cannot find file, error
         POP     CX                      ; get cluster size back
-        MOV     DX,DS:[80h+find_buf_size_h] ; get destination size high
-        MOV     AX,DS:[80h+find_buf_size_l] ; get size low
+        MOV     DX,[DS:80h+find_buf_size_h] ; get destination size high
+        MOV     AX,[DS:80h+find_buf_size_l] ; get size low
         ADD     AX,CX                   ; add cluster size
         ADC     DX,0                    ; 32 bit add
         SUB     AX,1                    ; adding CLUSSIZE-1
@@ -460,7 +460,7 @@ PUTBOOT:
         %if IBMVER
 PUTBOOT:
         MOV     AH,GET_DPB
-        MOV     DL,byte DS:[5Ch]    ; Target drive
+        MOV     DL,byte [DS:5Ch]    ; Target drive
         INT     21H
 ; ASSUME  DS:NOTHING
         MOV     AL,[BX+16H]             ; Media byte
@@ -478,7 +478,7 @@ PUTBOOT:
         INC     word [BX+26]        ; Number of heads = 2
 
 GOTBOOT:
-        MOV     AL,byte DS:[5Ch]
+        MOV     AL,byte [DS:5Ch]
         DEC     AL
         MOV     BX,BOOT       ; Boot sector
         XOR     DX,DX                   ; Sector 0
@@ -543,8 +543,8 @@ CHECK_TRAN:
         MOV     DL,AL
         MOV     AH,GET_DPB
         INT     21H
-        MOV     AX,[BX.dpb_first_sector]    ; Get new first sector of data
-        MOV     BH,[BX.dpb_media]
+        MOV     AX,[BX+dpb_first_sector]    ; Get new first sector of data
+        MOV     BH,[BX+dpb_media]
         POP     DS
         MOV     [STARTSECTOR],AX
         MOV     [BOOT+108H],AX          ; Set new start of data in boot

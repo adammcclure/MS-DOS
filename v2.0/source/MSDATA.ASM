@@ -211,7 +211,7 @@ DSKSTCNT        DW      1
         DB      30                      ; November
         DB      31                      ; December
 
-        %if NOT IBM
+        %if ~IBM
         global OEM_HANDLER
 OEM_HANDLER     DD      -1
         %endif

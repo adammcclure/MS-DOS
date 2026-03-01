@@ -136,19 +136,19 @@ sw_missing equ	03h			;an000;not a valid switch
 
 struc Display_Buffer_Struc;an000;dms;
 
-	Display_Info_Level: db 0;an000;dms;
-	Display_Reserved: db 0;an000;dms;
-	Display_Buffer_Size: dw 0;an000;dms;
-	Display_Flags: dw 0;an000;dms;
-	Display_Mode: db 0;an000;dms;
+	Display_Info_Level: resb 1;an000;dms;
+	Display_Reserved: resb 1;an000;dms;
+	Display_Buffer_Size: resw 1;an000;dms;
+	Display_Flags: resw 1;an000;dms;
+	Display_Mode: resb 1;an000;dms;
 					;  TEXT=01
 					;  APA =02
-	Display_Mode_Reserved: db 0;an000;dms;
-	Display_Colors: dw 0;an000;dms;# of colors
-	Display_Width_Pixels: dw 0;an000;dms;# of pixels in width
-	Display_Length_Pixels: dw 0;an000;dms;# of pixels in len.
-	Display_Width_Char: dw 0;an000;dms;# of chars in width
-	Display_Length_Char: dw 0;an000;dms;# of chars in length
+	Display_Mode_Reserved: resb 1;an000;dms;
+	Display_Colors: resw 1;an000;dms;# of colors
+	Display_Width_Pixels: resw 1;an000;dms;# of pixels in width
+	Display_Length_Pixels: resw 1;an000;dms;# of pixels in len.
+	Display_Width_Char: resw 1;an000;dms;# of chars in width
+	Display_Length_Char: resw 1;an000;dms;# of chars in length
 
 endstruc;an000;dms;
 

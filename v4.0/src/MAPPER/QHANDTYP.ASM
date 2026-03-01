@@ -38,11 +38,11 @@ SECTION .dosxxx
 
 
 struc str
-old_bp: dw 0
-return: dd 0
-AttributePtr: dd 0; Device descriptor word returned if device
-HandleTypePtr: dd 0; handle type; 0 = file handle, 1 = device handle
-Handle: dw 0; file handle
+old_bp: resw 1
+return: resd 1
+AttributePtr: resd 1; Device descriptor word returned if device
+HandleTypePtr: resd 1; handle type; 0 = file handle, 1 = device handle
+Handle: resw 1; file handle
 endstruc
 
 
@@ -55,7 +55,7 @@ dosqhandtype:
         int     21h                     ; get handle type
 
         lds     si,[bp].AttributePtr    ; setup area for attribute return
-        mov     ds:[si],dx
+        mov     [ds:si],dx
 
         lds     si,[bp].HandleTypePtr
         mov     ds:word [si],0      ; assume it is a file

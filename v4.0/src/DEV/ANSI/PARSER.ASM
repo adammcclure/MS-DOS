@@ -283,16 +283,16 @@ PARM_ERROR:;AN000;
 	       mov    si, cs:Old_SI	;AN001;Now es:dx -> offending parms
 	       push   si		;AN001;Save it
 Get_CR:
-	       cmp    byte es:[si], 13 ;AN001;CR?
+	       cmp    byte [es:si], 13 ;AN001;CR?
 	       je     Got_CR		   ;AN001;
 	       inc    si		   ;AN001;
 	       jmp    Get_CR		   ;AN001;
 Got_CR: 				   ;AN001;
 	       inc    si		   ;AN001; The next char.
-	       mov    al, byte es:[si] ;AN001;
+	       mov    al, byte [es:si] ;AN001;
 	       mov    cs:Saved_Chr, al	   ;AN001; Save the next char
 
-	       mov    byte es:[si], 0     ;AN001; and make it an ASCIIZ
+	       mov    byte [es:si], 0     ;AN001; and make it an ASCIIZ
 	       mov    cs:Old_SI, si	;AN001; Set it again
 	       pop    dx		;AN001; saved SI -> DX
 
@@ -310,7 +310,7 @@ Got_CR: 				   ;AN001;
 	      CALL   SYSDISPMSG 	; display error message 			 ;AN000;
 	      mov    si, cs:Old_SI	;AN001;restore the original char.
 	      mov    cl, cs:Saved_Chr	;AN001;
-	      mov    byte es:[si], cl ;AN001;
+	      mov    byte [es:si], cl ;AN001;
 
 	      POP    DS 								 ;AN000;
 	      POP    ES 								 ;AN000;
@@ -321,5 +321,5 @@ Got_CR: 				   ;AN001;
 
 %include "msgdcl.inc"
 
-CODE	      ENDS
+; END SECTION .CODE
 	      ; END

@@ -205,15 +205,15 @@ CR	   EQU	0DH		; ASCII carriage return
 ;	Request Header (Common portion) 				       ;
 ;------------------------------------------------------------------------------;
 
-RH	EQU	DS:[BX] 	; The Request Header structure is based off
+RH	EQU	[DS:BX] 	; The Request Header structure is based off
 				;   of DS:[BX]
 
 struc RHC; Fields common to all request types
-	   db 0; Length of Request Header (including data)
-	   db 0; Unit code (subunit)
-RHC_CMD: db 0; Command code
-RHC_STA: dw 0; Status
-	   dq 0; Reserved for DOS
+	   resb 1; Length of Request Header (including data)
+	   resb 1; Unit code (subunit)
+RHC_CMD: resb 1; Command code
+RHC_STA: resw 1; Status
+	   resq 1; Reserved for DOS
 endstruc; End of common portion
 
 ; Status values for RHC_STA
@@ -227,16 +227,16 @@ STAT_GEN    EQU 800CH		; General error code			     D0A
 ;------------------------------------------------------------------------------;
 
 struc RH0
-	   DB	(TYPE RHC) DUP (?)	; Reserve space for the header
+	   resb 1; Reserve space for the header
 
-RH0_NUN: db 0; Number of units
+RH0_NUN: resb 1; Number of units
 				; Set to 1 if installation succeeds,
 				; Set to 0 to cause installation failure
-RH0_ENDO: dw 0; Offset  of ending address
-RH0_ENDS: dw 0; Segment of ending address
-RH0_BPBO: dw 0; Offset  of BPB array address
-RH0_BPBS: dw 0; Segment of BPB array address
-RH0_DRIV: db 0; Drive code (DOS 3 only)
+RH0_ENDO: resw 1; Offset  of ending address
+RH0_ENDS: resw 1; Segment of ending address
+RH0_BPBO: resw 1; Offset  of BPB array address
+RH0_BPBS: resw 1; Segment of BPB array address
+RH0_DRIV: resb 1; Drive code (DOS 3 only)
 endstruc
 
 RH0_BPBA   EQU	dword RH0_BPBO  ; Offset & segment of BPB array address.
@@ -249,13 +249,13 @@ RH0_BPBA   EQU	dword RH0_BPBO  ; Offset & segment of BPB array address.
 ;---------------------------------------------------------------------------D2A;
 
 struc RH19
-	    DB	 (TYPE RHC) DUP (?)	; Reserve space for the header	   @D2A
+	    resb 1; Reserve space for the header	   @D2A
 
-RH19_MAJF: db 0; Major function			   @D2A
-RH19_MINF: db 0; Minor function			   @D2A
-RH19_SI: dw 0; Contents of SI			   @D2A
-RH19_DI: dw 0; Contents of DI			   @D2A
-RH19_RQPK: dd 0; Pointer to Generic IOCTL request packet  @D2A
+RH19_MAJF: resb 1; Major function			   @D2A
+RH19_MINF: resb 1; Minor function			   @D2A
+RH19_SI: resw 1; Contents of SI			   @D2A
+RH19_DI: resw 1; Contents of DI			   @D2A
+RH19_RQPK: resd 1; Pointer to Generic IOCTL request packet  @D2A
 endstruc
 
 ; SUBTTL	Device Driver Header
@@ -357,7 +357,7 @@ IRPT:; Device interrupt entry point
 	MOV	BX,0FFFFH	; Check the model byte at FFFF:000E    @D0A @P1M
 	MOV	ES,BX		;   to see if we're running on a       @D0A @P1M
 	MOV	BX,0EH		;   model_80 (PS/2 model 80).	       @D0A @P1M
-	CMP	byte ES:[BX],model_80 ;				    @P1A
+	CMP	byte [ES:BX],model_80 ;				    @P1A
 	MOV	BX,CS:RBX	; Restore BX			       @P1A @D2M
 	JNE	NO_model_80
 
@@ -494,13 +494,13 @@ SET_LOG_DEVICE: 		;					    @D2A
 ; other functions uspported at this time.				    D2A;
 ;------------------------------------------------------------------------------;
 
-GIP	EQU	ES:[DI] 	      ; 				    @D2A
+GIP	EQU	[ES:DI] 	      ; 				    @D2A
 
 struc GEN_IOCTL_PARM; 				    @D2A
 
-GIOPLEN: dw 0; Length of the parameter list	    @D2A
-GIOPFCN: dw 0; Function code			    @D2A
-GIOPBLK: dw 0; Number of XMA blocks available	    @D2A
+GIOPLEN: resw 1; Length of the parameter list	    @D2A
+GIOPFCN: resw 1; Function code			    @D2A
+GIOPBLK: resw 1; Number of XMA blocks available	    @D2A
 
 endstruc; 				    @D2A
 
@@ -596,7 +596,7 @@ INIT_P1:
 	MOV	DI,0			;   fixed location 0:4F4.  This     @P3C
 	MOV	ES,DI			;   gives us a quick way to find CS @P3C
 	MOV	DI,4F4H 		;   and also enables us to break on @P3C
-	MOV	ES:[DI],CS		;   a write to 0:4F4 which helps us @P3C
+	MOV	[ES:DI],CS		;   a write to 0:4F4 which helps us @P3C
 	POP	ES			;   find the code on the ICE386.    @D0A
 	MOV	AH,DISPSTRG		; Display the welcome message.	    @D0A
 	MOV	DX,WELCOME	;				    @D0A

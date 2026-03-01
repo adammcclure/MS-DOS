@@ -6,18 +6,18 @@
 %include "DOSSYM.INC"
 %include "DEVSYM.INC"
 
-ShareF  = FALSE
+ShareF equ FALSE
 
-%if NOT SHAREF
+%if ~SHAREF
 %include "dosseg.asm"
 %endif
 ; .list
 
 AsmVars <NET, DEBUG>
 
-DEBUG   = FALSE
+DEBUG equ FALSE
 
-%if NOT SHAREF
+%if ~SHAREF
 SECTION .CODE
 ; ASSUME  CS:DOSGroup
 %else
@@ -25,7 +25,7 @@ SECTION .SHARE
 ; ASSUME  CS:SHARE
 %endif
 
-DEBUG   = FALSE
+DEBUG equ FALSE
 
 BREAK   <SegCheck - validate segments in MSDOS>
 
@@ -58,7 +58,7 @@ b:      mov     ax,a
 %endif
 %endif
 	PUSH    AX
-cargs = 2
+cargs equ 2
 ; IRP item,<args>
 %ifidn <AX>,<item>
 	MOV     AX,[BP+2]
@@ -66,7 +66,7 @@ cargs = 2
 	MOV     AX,item
 %endif
 	PUSH    AX
-cargs = cargs + 2
+cargs equ cargs + 2
 %endmacro
 	invoke  PFMT
 	ADD     SP,Cargs
@@ -76,10 +76,10 @@ cargs = cargs + 2
 %endmacro
 
 struc segFrame
-segbp: dw 0
-segip: dw 0
-segmes: dw 0
-segtemp: dw 0
+segbp: resw 1
+segip: resw 1
+segmes: resw 1
+segtemp: resw 1
 endstruc
 ;
 ;   SegCheck - assure that segments are correctly set up
@@ -127,7 +127,7 @@ SegTestDone:
 EndProc SegCheck
 
 
-%if NOT SHAREF
+%if ~SHAREF
 I_need  DPBHead,DWORD
 I_need  BuffHead,DWORD
 I_need  sftFCB,DWORD
@@ -143,10 +143,10 @@ CritNOP:
 	RET
 
 struc AstFrame
-Astbp: dw 0
-Astip: dw 0
-Astmes: dw 0
-Astarg: dd 0
+Astbp: resw 1
+Astip: resw 1
+Astmes: resw 1
+Astarg: resd 1
 endstruc
 
 global SGCHK001S,SGCHK001E
@@ -182,7 +182,7 @@ DPBLoop:CMP     DI,-1
 	JZ      DPBNotFound
 	invoke  PointComp
 	JZ      DPBRet
-	LES     DI,ES:[DI.dpb_next_dpb]
+	LES     DI,[ES:DI+dpb_next_dpb]
 	JMP     DPBLoop
 DPBNotFound:
 	MOV     AX,[BP].Astmes
@@ -218,8 +218,8 @@ SFTLoop:
 SFTNext:INC     BX                      ;           else
 	JMP     SFTLoop                 ;               i++;
 SFT1:   LES     DI,sftFCB
-	MOV     BX,ES:[DI.sfCount]
-	LEA     DI,[DI.sfTable]
+	MOV     BX,[ES:DI+sfCount]
+	LEA     DI,[DI+sfTable]
 SFT2:
 	invoke  PointComp
 DPBRETJ:JZ      DPBRet
@@ -277,7 +277,7 @@ BUFLoop:CMP     DI,-1
 	JNZ     BufNext
 	JMP     DPBRet
 BufNext:
-	LES     DI,ES:[DI.buf_link]
+	LES     DI,[ES:DI+buf_link]
 	JMP     BUFLoop
 EndProc BUFCheck
 

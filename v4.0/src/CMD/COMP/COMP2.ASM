@@ -244,11 +244,11 @@
 struc ea;AN001; ;extended attr. structure
 ea_type db	EAISBINARY		;AN001;
 ea_flags dw	EASYSTEM		;AN001;
-ea_rc: db 0;AN001;
+ea_rc: resb 1;AN001;
 ea_namelen db	2			;AN001;
 ea_vallen dw	2			;AN001;
 ea_name db	"CP"			;AN001;
-ea_value: dw 0;AN001;
+ea_value: resw 1;AN001;
 endstruc;AN001;
 
 struc qea;AN001; ;query extended attr. name
@@ -773,7 +773,7 @@ cmp1:					;***** FOUND UNEQUAL BYTes
 	dec	si			;point to the bad bytes
 	dec	di
 	mov	al,[si] 		;bad byte from small buffer
-	mov	ah,es:[di]		;bad byte from large buffer
+	mov	ah,[es:di]		;bad byte from large buffer
 	mov	dx,infcb 	;AC000; ;FIND OUT WHICH byte CAME FROM WHICH FILE
 					;AN000; ;SO THAT "File 1 = %1" AND "File 2 = %1"
 					;AN000; ;MEssAGes WILL BE CORRECT.
@@ -1634,16 +1634,16 @@ get_dbcs_vector:;AN006;
 	int	21h			;AN006; ;DOS function call,vector returned
 					;AN006; ; in ES:DI
 	inc	di			;AN006; ;skip over id byte returned
-	mov	ax,word es:[di]	;AN006; ;get offset of DBCS table
+	mov	ax,word [es:di]	;AN006; ;get offset of DBCS table
 	mov	cs:dbcs_off,ax		;AN006; ;save it
 ;
 	add	di,2			;AN006; ;skip over offset to get segment
-	mov	bx,word es:[di]	;AN006; ;get segment of DBCS table
+	mov	bx,word [es:di]	;AN006; ;get segment of DBCS table
 	mov	cs:dbcs_seg,bx		;AN006; ;save it
 ;
 	mov	di,ax			;AN006; ;Point to DBCS table to get length
 	mov	es,bx			;AN006;
-	mov	ax,word es:[di]	;AN006;
+	mov	ax,word [es:di]	;AN006;
 	mov	cs:dbcs_len,ax		;AN006;
 	add	cs:dbcs_off,2		;AN006; ;change offset to point to table
 ;
@@ -1706,24 +1706,24 @@ DB_loop:				;AN006;
 ;
 
 is_loop:				;AN006;
-	cmp	word es:[di],00h	;AN006; ;Check for two consecutive 00 bytes
+	cmp	word [es:di],00h	;AN006; ;Check for two consecutive 00 bytes
 	jne	is_next1		;AN006; ;no, continue
 	jmp	short DB_inc		;AC008; ;AN006; ;yes, found them, quit
 ;
 ; Check if byte is within range values of DOS dbcs table
 ;
 is_next1:				;AN006;
-	cmp	al,byte es:[di]	;AN006; ;is byte >= first byte in range?
+	cmp	al,byte [es:di]	;AN006; ;is byte >= first byte in range?
 	jae	is_next2		;AN006; ;yes, continue
 	jmp	short is_again		;AC008; ;AN006; ;no, loop again
 is_next2:				;AN006;
-	cmp	al,byte es:[di+1]	;AN006; ;is byte <= last byte in range?
+	cmp	al,byte [es:di+1]	;AN006; ;is byte <= last byte in range?
 	jbe	is_found		;AN006; ;yes, found a lead byte of db char
 is_again:				;AN006;
 	add	di,2			;AN006; ;no, increment ptr to next range
 	jmp	is_loop 		;AN006;
 is_found:				;AN006;
-	mov	byte ds:[bx],'D'	;AN006; ;byte is lead byte of db char, set [BX] = 'D'
+	mov	byte [ds:bx],'D'	;AN006; ;byte is lead byte of db char, set [BX] = 'D'
 	inc	bx			;AN006; ;skip over second part of double byte char.
 	inc	si			;AN006; ; "     "    "     "   "    "	  "     "
 DB_inc: 				;AN006;

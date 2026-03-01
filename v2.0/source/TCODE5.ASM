@@ -236,7 +236,7 @@ PIPEERRSYNJ5:
 
 GOTRESTR:
         XCHG    AH,AL
-        CMP     byte ES:[DI-1],':'  ; Trailing ':' OK on devices
+        CMP     byte [ES:DI-1],':'  ; Trailing ':' OK on devices
         JNZ     NOTTRAILCOL
         DEC     DI              ; Back up over trailing ':'
 NOTTRAILCOL:
@@ -290,7 +290,7 @@ PATHCRUNCH:
 ; Carry set if no CHDIRs worked, FCB not altered.
 ; DESTISDIR set non zero if PATHCHRs in path (via SETPATH)
 
-        MOV     DL,DS:[FCB]
+        MOV     DL,[DS:FCB]
         CALL    SAVUDIR
         CALL    SETPATH
         TEST    [DESTINFO],2
@@ -554,7 +554,7 @@ PRINT_PROMPT:
         PUSH    ES
         CALL    FIND_PROMPT     ; LOOK FOR PROMPT STRING
         JC      PP0             ; CAN'T FIND ONE
-        CMP     byte ES:[DI],0
+        CMP     byte [ES:DI],0
         JNZ     PP1
 PP0:
         CALL    PRINT_DRIVE     ; USE DEFAULT PROMPT
@@ -563,7 +563,7 @@ PP0:
         JMP     SHORT PP5
 
 PP1:
-        MOV     AL,ES:[DI]      ; GET A CHAR
+        MOV     AL,[ES:DI]      ; GET A CHAR
         INC     DI
         OR      AL,AL
         JZ      PP5             ; NUL TERMINATED
@@ -574,7 +574,7 @@ PPP1:
         JMP     PP1
 
 PP2:
-        MOV     AL,ES:[DI]
+        MOV     AL,[ES:DI]
         INC     DI
         MOV     BX,PROMPT_TABLE-3
         OR      AL,AL
@@ -767,7 +767,7 @@ DISPPATH:
         return
 
 PRINT_PATH:
-        CMP     byte ES:[DI],0
+        CMP     byte [ES:DI],0
         JNZ     PATH1
 PATH0:
         MOV     DX,NULPATH

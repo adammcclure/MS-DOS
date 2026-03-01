@@ -100,10 +100,10 @@ struc DMARegRec
 DMALinAdr	dd	00000000	; Channel Linear Base Register
 DMAPhyAdr	dd	00000000	; Channel Physical Base Register
 DMACount	dd	00000000	; Channel Count Register
-DMAPagePort: db 0; byte addr of page reg
-DMABasePort: db 0; byte addr of base addr reg
-DMACntPort: db 0; byte addr of cnt addr reg
-DMAMode: db 0; Mode register
+DMAPagePort: resb 1; byte addr of page reg
+DMABasePort: resb 1; byte addr of base addr reg
+DMACntPort: resb 1; byte addr of cnt addr reg
+DMAMode: resb 1; Mode register
 endstruc
 
 struc DMARegBuf

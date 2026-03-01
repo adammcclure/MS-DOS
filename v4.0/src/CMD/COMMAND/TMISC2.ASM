@@ -232,8 +232,8 @@ TESTDOREIN:
 ; Mega sleaze!! We move the SFN from the new handle spot into the old stdin
 ; spot.  We invalidate the new JFN we got.
 ;
-	XCHG	AL,[BX.PDB_JFN_Table]
-	MOV	DS:[PDB_JFN_Table],AL
+	XCHG	AL,[BX+PDB_JFN_Table]
+	MOV	[DS:PDB_JFN_Table],AL
 
 	return
 ;
@@ -356,8 +356,8 @@ SET_REOUT:
 ; spot.  We invalidate the new JFN we got.
 ;
 	MOV	AL,0FFH
-	XCHG	AL,[BX.PDB_JFN_Table]
-	MOV	DS:[PDB_JFN_Table+1],AL
+	XCHG	AL,[BX+PDB_JFN_Table]
+	MOV	[DS:PDB_JFN_Table+1],AL
 
 NOREOUT:
 	return

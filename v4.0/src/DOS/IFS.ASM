@@ -12,7 +12,7 @@ SECTION .CODE;AN000;
 %include "doscntry.inc";AN000;
 ; .cref;AN000;
 ; .list
-StackSize   =	180h			; gross but effective
+StackSize equ 180h; gross but effective
 
 	i_need	VERFLG		       ; verify status flag		  ;AN000;
 	i_need	CNTCFLAG	       ; break status flag		  ;AN000;
@@ -48,7 +48,7 @@ files	  dw	0							  ;AN000;
 fcbs1	  dw	0							  ;AN000;
 fcbs2	  dw	0							  ;AN000;
 buffers   dw	0							  ;AN000;
-	  dw	0							  ;AN000;
+	  resw 1;AN000;
 lastdrv   dw	0							  ;AN000;
 secsize   dw	0							  ;AN000;
 endstruc;AN000;
@@ -112,12 +112,12 @@ PROCEDURE   IFS_DOSCALL,FAR						  ;AN000;
 	 CLI			;					  ;AN000;
 	 CMP	 AH,39		;					  ;AN000;
 	 JNZ	 others 	;					  ;AN000;
-	 INC	 CS:[INDOS]	; in DOS				  ;AN000;
+	 INC	 [CS:INDOS]	; in DOS				  ;AN000;
 	 JMP	 Dosend 	;					  ;AN000;
 others:
 	 CMP	 AH,40		;					  ;AN000;
 	 JNZ	 others2	;					  ;AN000;
-	 DEC	 CS:[INDOS]	; out DOS				  ;AN000;
+	 DEC	 [CS:INDOS]	; out DOS				  ;AN000;
 	 JMP	 Dosend 	;					  ;AN000;
 others2:
 	 CMP	 AH,38		;					  ;AN000;
@@ -129,7 +129,7 @@ others2:
 	 JMP	 Dosend 	;					  ;AN000;
 				;					  ;AN000;
 not_stack:			;					  ;AN000;
-	 MOV	 CS:[Temp_Var],DS; save ds for strcmp strcpy		  ;AN000;
+	 MOV	 [CS:Temp_Var],DS; save ds for strcmp strcpy		  ;AN000;
 	 PUSH	 CS		;					  ;AN000;
 	 POP	 DS		;					  ;AN000;
  ; assume DS:DOSGROUP;AN000;
@@ -219,8 +219,8 @@ Dos_Exit:								  ;AN000;
 	 JZ	 noSS_SP	    ;yes				  ;AN000;
 	 MOV	 [Callback_flag],0  ;					  ;AN000;
 	 POPF						    ;AN000;
-	 MOV	 SP,CS:[Callback_SP];					     ;AN000;
-	 MOV	 SS,CS:[Callback_SS]; restore user's SS:SP                   ;AN000;
+	 MOV	 SP,[CS:Callback_SP];					     ;AN000;
+	 MOV	 SS,[CS:Callback_SS]; restore user's SS:SP                   ;AN000;
 	 JMP	 SHORT DOSend				    ;AN000;
 noSS_SP:						    ;AN000;
 	 POPF
@@ -411,16 +411,16 @@ chk_al5:
 	jz	nomore		      ; 				   ;AN000;
 	add	ax,[si].SFCount       ; 				   ;AN000;
 nomore: 			      ; 				   ;AN000;
-	mov	es:[di].files,ax	 ; save files= value		   ;AN000;
+	mov	[es:di].files,ax	 ; save files= value		   ;AN000;
 	pop	si							   ;AN000;
 	pop	ds							   ;AN000;
 	mov	ax,[si].Sysi_MaxSec	 ; get maximum sector size	   ;AN000;
-	mov	es:[di].secsize,ax	 ; save files= value		   ;AN000;
+	mov	[es:di].secsize,ax	 ; save files= value		   ;AN000;
 	mov	ax,[si].Sysi_Keep	 ;				   ;AN000;
-	mov	es:[di].fcbs2,ax	 ;				   ;AN000;
+	mov	[es:di].fcbs2,ax	 ;				   ;AN000;
 	lds	si,[si].Sysi_FCB      ; get FCB address 		   ;AN000;
 	mov	ax,[si].SFCount       ; get number of fcbs		   ;AN000;
-	mov	es:[di].fcbs1,ax	 ; save fcbs=  value		   ;AN000;
+	mov	[es:di].fcbs1,ax	 ; save fcbs=  value		   ;AN000;
 	jmp	get_info_exit						   ;AN000;
 
 

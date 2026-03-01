@@ -58,7 +58,7 @@ DSKCPY_PAN3		DW	  0	  ;AN000;DT
 DSKCPY_ERR		DB	  0	  ;AN000;
 ;DSKCPY_EXIT	 EQU	1
 
-DATA	       ENDS			  ;AN000; DATA
+; END SECTION .DATA;AN000; DATA
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -542,5 +542,5 @@ HAKEY_EXIT:				;AN000;DT
 	RET				;AN000;DT
 ; ENDP HANDLE_KEY256KB;AN000;DT
 
-CODE_FAR    ENDS			;AN000;
+; END SECTION .CODE_FAR;AN000;
 	    ; END;AN000;

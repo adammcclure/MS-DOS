@@ -78,7 +78,7 @@ SECTION .CODE
 ; ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
 ;Structures used by DIRPROC
 struc SRCHFCB
-	times 44 db 0
+	resb 44
 endstruc
 SFCBSIZ EQU	SRCHFCB_size
 	extern PRINTF_CRLF,SUBERRP,FCB_TO_ASCZ
@@ -446,7 +446,7 @@ $$EN20:
 
 DOTOK:
 	MOV	SI,DIRBUF
-	MOV	AL,[SI.DIRATT]
+	MOV	AL,[SI+DIRATT]
 	TEST	AL,ISDIR
 	JNZ	DATTOK
 	PUSH	SI				;. not a dir?
@@ -455,10 +455,10 @@ DOTOK:
 	mov	dx,norecddot2 	;				;AN000;
 	CALL	DOTCOMBMES
 	POP	SI
-	OR	[SI.DIRATT],ISDIR
+	OR	[SI+DIRATT],ISDIR
 	CALL	FIXENT				;Fix it
 DATTOK:
-	MOV	AX,[SI.DIRCLUS]
+	MOV	AX,[SI+DIRCLUS]
 	CMP	AX,[BP+6]			;. link = MYSELF?
 	JZ	DLINKOK
 	PUSH	SI				;Link messed up
@@ -468,13 +468,13 @@ DATTOK:
 	CALL	DOTCOMBMES
 	POP	SI
 	MOV	AX,[BP+6]
-	MOV	[SI.DIRCLUS],AX
+	MOV	[SI+DIRCLUS],AX
 	CALL	FIXENT				;Fix it
 DLINKOK:
-	MOV	AX,word [SI.DIRESIZ]
+	MOV	AX,word [SI+DIRESIZ]
 	OR	AX,AX
 	JNZ	BADDSIZ
-	MOV	AX,word [SI.DIRESIZ+2]
+	MOV	AX,word [SI+DIRESIZ+2]
 	OR	AX,AX
 	JZ	DSIZOK
 BADDSIZ:					;Size should be zero
@@ -485,8 +485,8 @@ BADDSIZ:					;Size should be zero
 	CALL	DOTCOMBMES
 	POP	SI
 	XOR	AX,AX
-	MOV	word [SI.DIRESIZ],AX
-	MOV	word [SI.DIRESIZ+2],AX
+	MOV	word [SI+DIRESIZ],AX
+	MOV	word [SI+DIRESIZ+2],AX
 	CALL	FIXENT				;Fix it
 DSIZOK: 					;Get next (should be ..)
 	MOV	DX,BX
@@ -507,7 +507,7 @@ DOTDOTOK:
 ;	$endif
 $$IF23:
 	MOV	SI,DIRBUF
-	MOV	AL,[SI.DIRATT]
+	MOV	AL,[SI+DIRATT]
 	TEST	AL,ISDIR
 	JNZ	DDATTOK 			;.. must be a dir
 	PUSH	SI
@@ -516,11 +516,11 @@ $$IF23:
 	mov	dx,norecddot2 	;				;AN000;
 	CALL	DOTCOMBMES
 	POP	SI
-	OR	[SI.DIRATT],ISDIR
+	OR	[SI+DIRATT],ISDIR
 	CALL	FIXENT				;Fix it
 DDATTOK:
 	PUSH	SI
-	MOV	AX,[SI.DIRCLUS]
+	MOV	AX,[SI+DIRCLUS]
 	CMP	AX,[BP+4]			;.. link must be PARENT
 	JZ	DDLINKOK
 	MOV	SI,PARSTR
@@ -529,13 +529,13 @@ DDATTOK:
 	CALL	DOTCOMBMES
 	POP	SI
 	MOV	AX,[BP+4]
-	MOV	[SI.DIRCLUS],AX
+	MOV	[SI+DIRCLUS],AX
 	CALL	FIXENT				;Fix it
 DDLINKOK:
-	MOV	AX,word [SI.DIRESIZ]
+	MOV	AX,word [SI+DIRESIZ]
 	OR	AX,AX
 	JNZ	BADDDSIZ
-	MOV	AX,word [SI.DIRESIZ+2]
+	MOV	AX,word [SI+DIRESIZ+2]
 	OR	AX,AX
 ;	$if	z
 	JNZ $$IF25
@@ -550,8 +550,8 @@ BADDDSIZ:					;.. size should be 0
 	CALL	DOTCOMBMES
 	POP	SI
 	XOR	AX,AX
-	MOV	word [SI.DIRESIZ],AX
-	MOV	word [SI.DIRESIZ+2],AX
+	MOV	word [SI+DIRESIZ],AX
+	MOV	word [SI+DIRESIZ+2],AX
 	CALL	FIXENT				;Fix it
 
 
@@ -595,7 +595,7 @@ DIRDONE:
 ;*****************************************************************
 MOREDIR:
 	MOV	SI,DIRBUF  ;point to where ext fcb of found file is
-	TEST	[SI.DIRATT],ISDIR    ;attr 010h = sub-directory
+	TEST	[SI+DIRATT],ISDIR    ;attr 010h = sub-directory
 	JNZ	NEWDIR				;Is a new directory?
 	CMP	[SECONDPASS],False		;no, same dir			;AC000;
 	JZ	FPROC1				;2nd pass here
@@ -612,7 +612,7 @@ $$IF27:
 NOPRINT2:
 	mov	Cluster_Count,0 		;No clusters for vol label	;AN000;
 	mov	cx,0				;setup cx for 0 size vol labels ;an016;bgb
-	TEST	[SI.DIRATT],VOLIDA   ;attr=08	;Don't chase chains on labels   ;AC000;
+	TEST	[SI+DIRATT],VOLIDA   ;attr=08	;Don't chase chains on labels   ;AC000;
 ;	$IF	Z		     ;no, regular file
 	JNZ $$IF29
 	    MOV     AL,81H			    ;Head of file
@@ -627,7 +627,7 @@ NOPRINT2:
 ;;;;;;;;;;;;CALL    Check_Extended_Attributes	    ;See if XA exist, and handle    ;AN000;
 ;;;;;;;;;;;;POP     CX				    ;Get File length clusters
 ;;;;;;;;;;;;ADD     CX,Cluster_Count		    ;Add in XA clusters
-	    TEST    [SI.DIRATT],HIDDN		    ;
+	    TEST    [SI+DIRATT],HIDDN		    ;
 	    JZ	    NORMFILE			    ;
 ;	$ENDIF
 $$IF29:
@@ -664,7 +664,7 @@ DPROC1: 				;1st pass
 	CMP	[ZEROTRUNC],0		;did we modify the file size?		;an026;bgb
 	JZ	DPROC2				;Dir not truncated
 CONVDIR:				;yes, dir size truncated
-	AND	[SI.DIRATT],NOT ISDIR		;Turn into file
+	AND	[SI+DIRATT],NOT ISDIR		;Turn into file
 	CALL	FIXENT
 	POP	BX			;Get my SRCH FCB pointer back
 	POP	[ERRSUB]		;restore from prev dir
@@ -749,13 +749,13 @@ $$IF35:
 	REP	MOVSB				;Transfer entry to DIRBUF
 	POP	SI
 	PUSH	SI
-	MOV	SI,[SI.DIRCLUS] 		;First cluster
+	MOV	SI,[SI+DIRCLUS] 		;First cluster
 	CALL	GETFILSIZ
 	POP	SI
 	POP	BX
 	POP	BP
-	MOV	word [SI.DIRESIZ],AX	;Fix entry
-	MOV	word [SI.DIRESIZ+2],DX
+	MOV	word [SI+DIRESIZ],AX	;Fix entry
+	MOV	word [SI+DIRESIZ+2],DX
 	JMP	CONVDIR 				   ;convert directory
 ;*****************************************************************************
 ;end of newdir
@@ -773,7 +773,7 @@ CROSSLOOK:
 ;Same as MRKFAT only simpler for pass 2
 	MOV	[SRFCBPT],BX				   ;an014;bgb
 	MOV	BX,SI					   ;an014;bgb
-	MOV	SI,[BX.DIRCLUS] 			   ;an014;bgb
+	MOV	SI,[BX+DIRCLUS] 			   ;an014;bgb
 	CALL	CROSSCHK				   ;an014;bgb
 	JNZ	CROSSLINK				   ;an014;bgb
 ;;;;;;;;mov	XA_Pass,False				   ;an014;bgb			   ;an014;bgb
@@ -857,7 +857,7 @@ CROSSLINK:					;File is cross linked
 	CALL	PRINTf_crlf					   ;an014;bgb
 global ChainDone
 CHAINDONE:
-	 TEST	 [BX.DIRATT],ISDIR
+	 TEST	 [BX+DIRATT],ISDIR
 	 JNZ	 NOSIZE 			 ;Don't size dirs
 	 CMP	 [ISCROSS],0
 	 JNZ	 NOSIZE 			 ;Don't size cross linked files;an014;bgb
@@ -870,8 +870,8 @@ CHAINDONE:
 	 MUL	 CX
 	 MOV	 DI,DX				 ;Save allocation size
 	 MOV	 SI,AX
-	 SUB	 AX,word [BX.DIRESIZ]
-	 SBB	 DX,word [BX.DIRESIZ+2]
+	 SUB	 AX,word [BX+DIRESIZ]
+	 SBB	 DX,word [BX+DIRESIZ+2]
 	 JC	 BADFSIZ			 ;Size to big
 	 OR	 DX,DX
 	 JNZ	 BADFSIZ			 ;Size to small
@@ -883,8 +883,8 @@ CHAINDONE:
  BADFSIZ:
 	 POP	 DX
 	 PUSH	 CX				 ;Save size of file
-	 MOV	 word [BX.DIRESIZ],SI
-	 MOV	 word [BX.DIRESIZ+2],DI
+	 MOV	 word [BX+DIRESIZ],SI
+	 MOV	 word [BX+DIRESIZ+2],DI
 	 CALL	 FIXENT2			 ;Fix it
 	 CALL	 get_THISELERR
 	 MOV	 DX,BADCLUS
@@ -906,9 +906,9 @@ CHAINDONE:
 	 POP	 DX
 	 CALL	 EPRINT
 	 XOR	 SI,SI
-	 MOV	 [BX.DIRCLUS],SI		 ;Set it to 0
-	 MOV	 word [BX.DIRESIZ],SI	 ;Set size too
-	 MOV	 word [BX.DIRESIZ+2],SI
+	 MOV	 [BX+DIRCLUS],SI		 ;Set it to 0
+	 MOV	 word [BX+DIRESIZ],SI	 ;Set size too
+	 MOV	 word [BX+DIRESIZ+2],SI
 	 CALL	 FIXENT2			 ;Fix it
 	 INC	 [ZEROTRUNC]			 ;Indicate truncation
 	 JMP	 CHAINDONE
@@ -916,9 +916,9 @@ CHAINDONE:
  global ChkSiz
  CHKSIZ:
 	 MOV	 DX,BADCLUS
-	 CMP	 word [BX.DIRESIZ],0
+	 CMP	 word [BX+DIRESIZ],0
 	 JNZ	 ADJUST 			 ;Size wrong
-	 CMP	 word [BX.DIRESIZ+2],0
+	 CMP	 word [BX+DIRESIZ+2],0
 	 JNZ	 ADJUST 			 ;Size wrong
 	 JMP	 CHAINDONE			 ;Size OK
 

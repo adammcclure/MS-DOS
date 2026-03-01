@@ -1876,7 +1876,7 @@ PASS	:				;; STAGE - PASS DUMMY BYTES
 	MOV	AX,cs:pass_cnt		   ;;
 					;;
 NEXT_BRK:				;; find the next pass-break
-	CMP	AX,ES:[DI]		;;
+	CMP	AX,[ES:DI]		;;
 					;;
 	JB	UPTO_BRK		;;
 					;;
@@ -1887,7 +1887,7 @@ NEXT_BRK:				;; find the next pass-break
 	JMP	NEXT_BRK		;;
 					;;
 UPTO_BRK :				;; next break point found
-	MOV	DX,ES:[DI]		;;
+	MOV	DX,[ES:DI]		;;
 	SUB	DX,AX			;; bytes to be skipped
 	CMP	CX,DX			;; all to be skipped ?
 	JAE	PASS_ALL		;;

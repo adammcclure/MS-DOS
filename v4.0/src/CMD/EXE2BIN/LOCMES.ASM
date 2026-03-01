@@ -2,7 +2,7 @@
 	; title   LOCATE (EXE2BIN) Messages
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 %macro addr 2
     global name

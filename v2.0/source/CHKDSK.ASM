@@ -32,7 +32,7 @@
 ;       CHKDSK and CHKPROC
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 DRVCHAR EQU     ":"
 
@@ -212,7 +212,7 @@ OKDOS:
         MOV     DX,SP
         CMP     DX,BX
         JAE     STACKOK         ;Lots of stack
-        MOV     DX,DS:[2]       ;High break
+        MOV     DX,[DS:2]       ;High break
         MOV     CX,CS
         SUB     DX,CX
         CMP     DX,0FFFH
@@ -294,7 +294,7 @@ DRVISOK:
         DEC     DL                      ;A = 0
         MOV     AH,SET_DEFAULT_DRIVE    ;Set Target
         INT     21H
-        CMP     [BX.dpb_current_dir],0
+        CMP     [BX+dpb_current_dir],0
         JZ      CURRISROOT              ;Save users current dir for target
         MOV     SI,BX
         ADD     SI,dpb_dir_text
@@ -344,16 +344,16 @@ CURRISROOT:
 NOTVOLID:
         LDS     BX,[THISDPB]
 ; ASSUME  DS:NOTHING
-        MOV     AX,[BX.dpb_sector_size]
+        MOV     AX,[BX+dpb_sector_size]
         MOV     [SSIZE],AX              ;Sector size in bytes
-        MOV     AL,[BX.dpb_cluster_mask]
+        MOV     AL,[BX+dpb_cluster_mask]
         INC     AL
         MOV     [CSIZE],AL              ;Sectros per cluster
-        MOV     AX,[BX.dpb_max_cluster]
+        MOV     AX,[BX+dpb_max_cluster]
         MOV     [MCLUS],AX              ;Bound for FAT searching
         DEC     AX
         MOV     [DSIZE],AX              ;Total data clusters on disk
-        MOV     AL,[BX.dpb_FAT_size]          ;Sectors for one fat
+        MOV     AL,[BX+dpb_FAT_size]          ;Sectors for one fat
         XOR     AH,AH
         MOV     CX,AX
         MUL     [SSIZE]                 ;Bytes for FAT
@@ -366,8 +366,8 @@ NOTVOLID:
         ADD     AX,20                   ;Insurance
         MOV     [STACKLIM],AX           ;Limit on recursion
         MOV     DI,CX
-        MOV     CL,[BX.dpb_FAT_count]          ;Number of FATs
-        MOV     DX,[BX.dpb_first_FAT]          ;First sector of FAT
+        MOV     CL,[BX+dpb_FAT_count]          ;Number of FATs
+        MOV     DX,[BX+dpb_first_FAT]          ;First sector of FAT
         PUSH    CS
         POP     DS
 ; ASSUME  DS:DG
@@ -530,13 +530,13 @@ FIGREC:
 ;Convert cluster number in BX to sector # AH of cluster in DX
         LDS     DI,[THISDPB]
 ; ASSUME  DS:NOTHING
-        MOV     CL,[DI.dpb_cluster_shift]
+        MOV     CL,[DI+dpb_cluster_shift]
         MOV     DX,BX
         DEC     DX
         DEC     DX
         SHL     DX,CL
         OR      DL,AH
-        ADD     DX,[DI.dpb_first_sector]
+        ADD     DX,[DI+dpb_first_sector]
         PUSH    CS
         POP     DS
 ; ASSUME  DS:DG

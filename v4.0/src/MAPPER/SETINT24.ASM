@@ -25,9 +25,9 @@ SECTION .dosxxx;AN000;
 	    ; .list;AN000;
 
 struc str;AN000;
-old_bp: dw 0;AN000;
-Return: dd 0;AN000;
-Flag: dw 0;AN000;
+old_bp: resw 1;AN000;
+Return: resd 1;AN000;
+Flag: resw 1;AN000;
 endstruc;AN000;
 
 

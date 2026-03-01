@@ -278,18 +278,18 @@ path_found:					; pathinfo[] points to winner
 	push	ES
 	push	pathinfo[0]
 	pop	ES
-	cmp	byte ES:[SI+2],'.'          ; Look for Current dir at start of path
+	cmp	byte [ES:SI+2],'.'          ; Look for Current dir at start of path
 	jnz	path_cpy
 
 	push	CX				; Save pointer to end of string
-	mov	AL, ES:[SI]
+	mov	AL, [ES:SI]
 	mov	[DI],AL 			; Copy drive letter, :, and root char
-	mov	AL, ES:[SI+1]			; to EXECPATH
+	mov	AL, [ES:SI+1]			; to EXECPATH
 	mov	[DI+1],AL
 	mov	AL,psep_char
 	mov	[DI+2],AL
 	push	SI				; Save pointer to begining of string
-	mov	DL,ES:[SI]			; Convert device letter for cur dir
+	mov	DL,[ES:SI]			; Convert device letter for cur dir
 	or	DL,20h
 	sub	DL,"a"-1
 	mov	SI,DI				; pointer to EXECPATH

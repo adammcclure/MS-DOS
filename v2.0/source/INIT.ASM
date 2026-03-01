@@ -70,20 +70,20 @@ SECTION .INIT
 ; ASSUME  CS:RESGROUP,DS:RESGROUP,ES:RESGROUP,SS:RESGROUP
 
         ORG     0
-ZERO    =       $
+ZERO equ $
 
 CONPROC:
         MOV     SP,RSTACK
 
         %if HIGHMEM
-        MOV     BX,word DS:[PDB_block_len]
+        MOV     BX,word [DS:PDB_block_len]
         MOV     AX,ENVIREND + 15
         MOV     CL,4
         SHR     AX,CL
         PUSH    AX                         ; Save size to alloc
         INC     AX                         ; Plus one for arena
         SUB     BX,AX                      ; Subtract size of resident
-        MOV     word DS:[PDB_block_len],BX
+        MOV     word [DS:PDB_block_len],BX
         MOV     AX,CS
         SUB     BX,AX
         MOV     AH,SETBLOCK
@@ -107,8 +107,8 @@ CONPROC:
         MOV     BX,DATARESEND + 15
         MOV     CL,4
         SHR     BX,CL           ; BX is size for SETBLOCK
-        MOV     word DS:[PDB_block_len],BX
-        ADD     word DS:[PDB_block_len],AX
+        MOV     word [DS:PDB_block_len],BX
+        ADD     word [DS:PDB_block_len],AX
         MOV     [LTPA],CS
         MOV     AH,SETBLOCK
         INT     21H             ;Shrink to not include environment
@@ -116,24 +116,24 @@ CONPROC:
         MOV     AH,ALLOC
         INT     21H             ;Allocate the environment
         MOV     [ENVIRSEG],AX
-        MOV     CS:[ENVIRSEGSAV],AX
+        MOV     [CS:ENVIRSEGSAV],AX
         MOV     ES,AX
 ; ASSUME  ES:ENVIRONMENT
         XOR     DI,DI
         MOV     SI,PATHSTRING
         MOV     CX,ENVIRONSIZ
         REP     MOVSB
-        MOV     AX,word CS:[PDB_block_len]
+        MOV     AX,word [CS:PDB_block_len]
         %endif
 
-        %if NOT HIGHMEM
+        %if ~HIGHMEM
         MOV     AX,ENVIREND + 15
         MOV     CL,4
         SHR     AX,CL
         MOV     CX,CS
         ADD     AX,CX                         ; Compute segment of TPA
         MOV     [LTPA],AX                     ; Good enough for the moment
-        MOV     AX,word DS:[PDB_block_len]
+        MOV     AX,word [DS:PDB_block_len]
         %endif
 
         MOV     [MYSEG1],DS
@@ -156,12 +156,12 @@ CONPROC:
 
         SUB     AX,DX
         MOV     [TRNSEG],AX                     ; Read it in here
-        MOV     AX,DS:[PDB_environ]
+        MOV     AX,[DS:PDB_environ]
         OR      AX,AX
         JZ      BUILDENV                        ; Need to make an environment
 
         %if HIGHMEM
-        INC     byte CS:[CHUCKENV]          ; Flag no ENVIRONSEG
+        INC     byte [CS:CHUCKENV]          ; Flag no ENVIRONSEG
         %else
         INC     byte [CHUCKENV]             ; Flag no ENVIRONSEG
         %endif
@@ -170,7 +170,7 @@ CONPROC:
 
 BUILDENV:
 
-        %if NOT HIGHMEM
+        %if ~HIGHMEM
         MOV     AX,PATHSTRING   ; Figure environment pointer
         MOV     CL,4
         SHR     AX,CL
@@ -187,7 +187,7 @@ ENVIRONPASSED:
         DEC     AX
         MOV     ES,AX
         INC     AX
-        MOV     ES:[arena_owner],DS             ; Adjust owner of passed envir
+        MOV     [ES:arena_owner],DS             ; Adjust owner of passed envir
         %endif
 
         MOV     ES,AX
@@ -202,20 +202,20 @@ GOTTHEENVIR:
         JNZ     IUSESLASH
 
         %if HIGHMEM
-        MOV     CS:[COMSPECT],'\'
+        MOV     [CS:COMSPECT],'\'
         %else
         MOV     [COMSPECT],'\'
         %endif
 
         %if HIGHMEM
-        CMP     byte CS:[CHUCKENV],0
+        CMP     byte [CS:CHUCKENV],0
         %else
         CMP     byte [CHUCKENV],0
         %endif
 
         JNZ     IUSESLASH
 
-        MOV     ES:[ECOMSPEC-10H],'\'
+        MOV     [ES:ECOMSPEC-10H],'\'
 IUSESLASH:
 
 %if IBMVER
@@ -230,7 +230,7 @@ IUSESLASH:
         POP     ES
 %endif
 
-        MOV     AL,byte DS:[FCB]         ; get drive spec for default
+        MOV     AL,byte [DS:FCB]         ; get drive spec for default
         MOV     AH,DRVCHAR
         MOV     [COMDRV],AL
         ADD     AL,40H                  ; Convert to letter
@@ -238,7 +238,7 @@ IUSESLASH:
         JZ      NOCOMDRV
         STD
         %if HIGHMEM
-        CMP     byte CS:[CHUCKENV],0
+        CMP     byte [CS:CHUCKENV],0
         %else
         CMP     byte [CHUCKENV],0
         %endif
@@ -254,12 +254,12 @@ IUSESLASH:
         REP     MOVSB
 
         POP     DS
-        MOV     word ES:[ECOMSPEC-10H],AX
+        MOV     word [ES:ECOMSPEC-10H],AX
 
 NOTWIDENV:
         CLD
         %if HIGHMEM
-        MOV     word CS:[AUTOBAT],AX
+        MOV     word [CS:AUTOBAT],AX
         %else
         MOV     word [AUTOBAT],AX
         %endif
@@ -295,7 +295,7 @@ NEXTCH:
         JNZ     NEXTCH3
 
         %if HIGHMEM
-        MOV     byte CS:[PRDATTM],1  ; User explicitly says no date time
+        MOV     byte [CS:PRDATTM],1  ; User explicitly says no date time
         %else
         MOV     byte [PRDATTM],1     ; User explicitly says no date time
         %endif
@@ -309,7 +309,7 @@ NEXTCH3:
         MOV     [PERMCOM],0     ; A SINGLECOM must not be a PERMCOM
 
         %if HIGHMEM
-        MOV     byte CS:[PRDATTM],1  ; No date or time either, explicit
+        MOV     byte [CS:PRDATTM],1  ; No date or time either, explicit
         %else
         MOV     byte [PRDATTM],1     ; No date or time either, explicit
         %endif
@@ -386,8 +386,8 @@ RCCLLOOP:                                ; Close 0,1 and 2
 CHKSRCHSPEC:                    ; Not a device, so must be directory spec
 
         %if HIGHMEM
-        MOV     byte CS:[CHUCKENV],0    ; If search specified -- no inheritance
-        MOV     AX,CS:[ENVIRSEGSAV]
+        MOV     byte [CS:CHUCKENV],0    ; If search specified -- no inheritance
+        MOV     AX,[CS:ENVIRSEGSAV]
         MOV     [ENVIRSEG],AX
         %else
         MOV     byte [CHUCKENV],0    ; If search specified -- no inheritance
@@ -405,7 +405,7 @@ CHKSRCHSPEC:                    ; Not a device, so must be directory spec
         POP     CX                      ; and count
 
         %if HIGHMEM
-        MOV     DI,CS:[ECOMLOC]
+        MOV     DI,[CS:ECOMLOC]
         %else
         MOV     DI,[ECOMLOC]
         %endif
@@ -450,7 +450,7 @@ SETCOMSR:
         MOV     SI,COMSPECT
         MOV     CX,14
 
-        MOV     AL,ES:[DI-1]
+        MOV     AL,[ES:DI-1]
 
         %if KANJI
         OR      AH,AH
@@ -511,7 +511,7 @@ SETPERM:
         INC     [PERMCOM]
 
         %if HIGHMEM
-        CMP     byte CS:[PRDATTM],-1
+        CMP     byte [CS:PRDATTM],-1
         %else
         CMP     byte [PRDATTM],-1
         %endif
@@ -519,7 +519,7 @@ SETPERM:
         JNZ     LOOPIT
 
         %if HIGHMEM
-        MOV     byte CS:[PRDATTM],0          ; If not set explicit, set to prompt
+        MOV     byte [CS:PRDATTM],0          ; If not set explicit, set to prompt
         %else
         MOV     byte [PRDATTM],0             ; If not set explicit, set to prompt
         %endif
@@ -543,16 +543,16 @@ ARGSDONE:
         STOSW
         MOV     AX,DS
         STOSW
-        MOV     word DS:[PDB_Parent_PID],DS ; Parent is me forever
+        MOV     word [DS:PDB_Parent_PID],DS ; Parent is me forever
         MOV     DX,INT_2E
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) OR 02EH
         INT     int_command                     ;Set magic interrupt
         POP     ES                              ;Remember environment
 COMRETURNS:
-        MOV     AX,word DS:[PDB_Parent_PID]
+        MOV     AX,word [DS:PDB_Parent_PID]
         MOV     [PARENT],AX                     ; Save parent
-        MOV     word DS:[PDB_Parent_PID],DS ; Parent is me
-        MOV     AX,word DS:[PDB_JFN_Table]
+        MOV     word [DS:PDB_Parent_PID],DS ; Parent is me
+        MOV     AX,word [DS:PDB_JFN_Table]
         MOV     [IO_SAVE],AX                    ; Get the default stdin and out
         MOV     word [COM_PTR+2],DS         ; Set all these to resident
         MOV     word [COM_FCB1+2],DS
@@ -560,8 +560,8 @@ COMRETURNS:
         MOV     DI,COMSPEC
 
         %if HIGHMEM
-        MOV     SI,CS:[ECOMLOC]
-        CMP     byte CS:[CHUCKENV],0
+        MOV     SI,[CS:ECOMLOC]
+        CMP     byte [CS:CHUCKENV],0
         %else
         MOV     SI,[ECOMLOC]
         CMP     byte [CHUCKENV],0
@@ -590,8 +590,8 @@ COMRETURNS:
 COMSPECNOFND:
 
         %if HIGHMEM
-        MOV     DS,CS:[ENVIRSEG]
-        MOV     SI,CS:[ECOMLOC]
+        MOV     DS,[CS:ENVIRSEG]
+        MOV     SI,[CS:ECOMLOC]
         %else
         MOV     SI,[ECOMLOC]
         ADD     SI,PATHSTRING
@@ -606,14 +606,14 @@ COPYCOMSP:
         JNZ     COPYCOMSP
 
         %if HIGHMEM
-        MOV     DS,CS:[REALRES]
+        MOV     DS,[CS:REALRES]
         PUSH    CS
         POP     ES
         MOV     AH,DEALLOC
         INT     21H
-        CMP     byte CS:[CHUCKENV],0
+        CMP     byte [CS:CHUCKENV],0
         JZ      GOTENVIR                ; Environment is ok
-        MOV     ES,CS:[ENVIRSEGSAV]
+        MOV     ES,[CS:ENVIRSEGSAV]
         MOV     AH,DEALLOC
         INT     21H
         %else
@@ -672,7 +672,7 @@ NOPHEAD:
         %endif
 
         %if HIGHMEM
-        CMP     byte CS:[PRDATTM],0
+        CMP     byte [CS:PRDATTM],0
         %else
         CMP     byte [PRDATTM],0
         %endif
@@ -687,7 +687,7 @@ NOPHEAD:
         XOR     DI,DI
 
         %if HIGHMEM
-        CMP     byte CS:[AUTOBAT],0
+        CMP     byte [CS:AUTOBAT],0
         %else
         CMP     byte [AUTOBAT],0
         %endif
@@ -698,7 +698,7 @@ NOPHEAD:
         ADD     AL,'A'
 
         %if HIGHMEM
-        MOV     CS:[AUTOBAT],AL
+        MOV     [CS:AUTOBAT],AL
         %else
         MOV     [AUTOBAT],AL
         %endif
@@ -745,10 +745,10 @@ DODTTM:
 
         %if HIGHMEM
         MOV     AX,DATINIT
-        MOV     word CS:[INITADD],AX
+        MOV     word [CS:INITADD],AX
         MOV     AX,[TRNSEG]
-        MOV     word CS:[INITADD+2],AX
-        CALL    dword CS:[INITADD]
+        MOV     word [CS:INITADD+2],AX
+        CALL    dword [CS:INITADD]
         %else
         MOV     AX,DATINIT
         MOV     word[INITADD],AX
@@ -803,9 +803,9 @@ IFIND:
         CALL    ICOUNT0                  ; CX = LENGTH OF NAME
 
         %if HIGHMEM
-        MOV     ES,CS:[REALRES]
+        MOV     ES,[CS:REALRES]
 ; ASSUME  ES:RESGROUP
-        MOV     ES,ES:[ENVIRSEG]
+        MOV     ES,[ES:ENVIRSEG]
 ; ASSUME  ES:NOTHING
         %else
         MOV     ES,[ENVIRSEG]
@@ -826,7 +826,7 @@ IFIND11:
         LODSW
         INC     DI
         INC     DI
-        CMP     AX,ES:[DI-2]
+        CMP     AX,[ES:DI-2]
         JNZ     IFIND12
         DEC     CX
         LOOP    IFIND11
@@ -837,7 +837,7 @@ NOTKANJ4:
 
         CALL    IUPCONV
         INC     DI
-        CMP     AL,ES:[DI-1]
+        CMP     AL,[ES:DI-1]
         JNZ     IFIND12
         LOOP    IFIND11
 IFIND12:
@@ -848,7 +848,7 @@ IFIND12:
         PUSH    CX
         CALL    ISCASB2                  ; SCAN FOR A NUL
         POP     CX
-        CMP     byte ES:[DI],0
+        CMP     byte [ES:DI],0
         JNZ     IFIND1
         STC                             ; INDICATE NOT FOUND
 IFIND2:

@@ -13,7 +13,7 @@ MessageLength	dw	0
 NextVarPointer	dd	0
 VarsToGo	dw	0
 
-MaxMessageNumber	=	0
+MaxMessageNumber equ 0
 
 ; This macro is used to define/declare all of the messages
 
@@ -22,7 +22,7 @@ MaxMessageNumber	=	0
 ;			    msgContinue  ->   continues a started message
 ;			    msgEnd	 ->	ends a message
 
-MacroState = 0
+MacroState equ 0
 
 ;----------------------------------------------
 
@@ -51,10 +51,10 @@ Message&Number	db	text
 		db	0
 
 	%if MaxMessageNumber lt &number
-	  MaxMessageNumber	  =	  &Number
+	  MaxMessageNumber equ &Number
 	%endif
 
-MacroState = 0
+MacroState equ 0
 
 	%endmacro
 
@@ -70,10 +70,10 @@ MacroState = 0
 Message&Number	db	text
 
 	%if MaxMessageNumber lt &number
-	  MaxMessageNumber	  =	  &Number
+	  MaxMessageNumber equ &Number
 	%endif
 
-MacroState = 1
+MacroState equ 1
 
 	%endmacro
 
@@ -88,7 +88,7 @@ MacroState = 1
 
 	db	text
 
-MacroState = 1
+MacroState equ 1
 
 	%endmacro
 
@@ -103,7 +103,7 @@ MacroState = 1
 
 	db	0
 
-MacroState = 0
+MacroState equ 0
 
 	%endmacro
 
@@ -114,7 +114,7 @@ MacroState = 0
 
 	%include "messages.inc"
 
-NotFoundNumber	=	-2
+NotFoundNumber equ -2
 
 NotFoundMessage:
 		msg	NotFoundNumber,<'We could not find your message #'>
@@ -132,10 +132,10 @@ NotFoundMessage:
 
 MessageIndex:
 
-ThisMessageNumber	=	0
+ThisMessageNumber equ 0
 	%rep MaxMessageNumber + 1
 	msgidx	%ThisMessageNumber
-ThisMessageNumber	=	ThisMessageNumber + 1
+ThisMessageNumber equ ThisMessageNumber + 1
 	%endmacro
 
 	dw	-1
@@ -176,15 +176,15 @@ SECTION .dosxxx
 	    ; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-ReturnLengthPtr: dd 0; length of returned message
-MessageFileName: dd 0; message file name
-MessageNumber: dw 0; number of the message
-MessageBufferLen: dw 0; length of the message buffer
-MessageBufferPtr: dd 0; buffer address to return message
-VariablesCount: dw 0; number of variables
-VariableTablePtr: dd 0; table of variables to insert
+old_bp: resw 1
+return: resd 1
+ReturnLengthPtr: resd 1; length of returned message
+MessageFileName: resd 1; message file name
+MessageNumber: resw 1; number of the message
+MessageBufferLen: resw 1; length of the message buffer
+MessageBufferPtr: resd 1; buffer address to return message
+VariablesCount: resw 1; number of variables
+VariableTablePtr: resd 1; table of variables to insert
 endstruc
 
 
@@ -214,7 +214,7 @@ SearchForMessageLoop:			; search for message in table
 ; Here, ds:[si] -> word message number, followed by word message offset
 
 FoundMessage:
-	mov	si,ds:[si]
+	mov	si,[ds:si]
 
 ; Here, ds:[si] -> message text bytes
 
@@ -407,7 +407,7 @@ GetMessageDone:
 	mov	ax,MessageLength
 	lds	si,[bp].ReturnLengthPtr
 	; assume	ds:nothing
-	mov	ds:[si],ax
+	mov	[ds:si],ax
 	pop	si
 	pop	ds
 	; assume	ds:messages
@@ -432,7 +432,7 @@ PutItHere:
 	lds	si,[bp].ReturnLengthPtr
 	; assume	ds:nothing
 	add	ax,3			; for cr, lf, nul
-	add	ds:[si],ax
+	add	[ds:si],ax
 
 	mov	al,0dh
 	stosb
@@ -453,7 +453,7 @@ NotErrorMessage:
 	int	21h			   ; display message
 
 	lds	si,[bp].ReturnLengthPtr
-	mov	cx,ds:[si]
+	mov	cx,[ds:si]
 	lds	dx,[bp].MessageBufferPtr
 
 	mov	bx,1
@@ -512,9 +512,9 @@ DigitLoop:
 ; Loop, counting the number of times you can subtract the current digit value
 
 CountLoop:
-	mov	ax,cs:[bx+0]
+	mov	ax,[cs:bx+0]
 	sub	LowValue,ax
-	mov	ax,cs:[bx+2]
+	mov	ax,[cs:bx+2]
 	sbb	HighValue,ax
 	jc	TooFar
 	inc	dx		; Subtraction did no go negative, inc digit
@@ -524,9 +524,9 @@ CountLoop:
 ;  fixup the damage.
 
 TooFar:
-	mov	ax,cs:[bx+0]
+	mov	ax,[cs:bx+0]
 	add	LowValue,ax
-	mov	ax,cs:[bx+2]
+	mov	ax,[cs:bx+2]
 	adc	HighValue,ax
 
 ; We need to supress leading zeros, so check to see if this digit is non zero

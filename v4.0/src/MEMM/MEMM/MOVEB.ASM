@@ -66,21 +66,21 @@ FLAGS_IF	equ	0200h
 
 	; 386 data descriptor format
 struc DATA_DESC_386
-DD386_Limit_lo: dw 0; low word of seg limit
-DD386_Base_lo: dw 0; low 24 bits of seg base addr
-		db 0;
-DD386_Access: db 0; access byte
-DD386_L_Stat: db 0; high 4 bits of seg limit
+DD386_Limit_lo: resw 1; low word of seg limit
+DD386_Base_lo: resw 1; low 24 bits of seg base addr
+		resb 1;
+DD386_Access: resb 1; access byte
+DD386_L_Stat: resb 1; high 4 bits of seg limit
 					; and futher status
-DD386_Base_hi: db 0; high 8 bits of seg base addr
+DD386_Base_hi: resb 1; high 8 bits of seg base addr
 endstruc
 
 	; format of move block descriptor table passed on entry
 struc MB_GDT
-MG_dummy: times 2 dd 0; dummy descriptor entry
-MG_GDT: times 2 dd 0; GDT entry
-MG_Source: times 2 dd 0; source segment entry
-MG_Target: times 2 dd 0; target segment entry
+MG_dummy: resb 8; dummy descriptor entry
+MG_GDT: resb 8; GDT entry
+MG_Source: resb 8; source segment entry
+MG_Target: resb 8; target segment entry
 endstruc
 
 ;************************************************************
@@ -90,17 +90,17 @@ endstruc
 ;	USED:	EAX
 ;************************************************************
 %macro DescrMap 0
-	mov	ah,ES:[di.DD386_Base_hi]	; ah = high 8 bits of address
-	mov	al,byte ES:[di.DD386_Base_lo+2] ; al = bits 16-23 of addr
+	mov	ah,[ES:di+DD386_Base_hi]	; ah = high 8 bits of address
+	mov	al,byte [ES:di+DD386_Base_lo+2] ; al = bits 16-23 of addr
 	OP32
 	shl	ax,16				; high addr word into high EAX
-	mov	ax,ES:[di.DD386_Base_lo]	; EAX = 32 bit address
+	mov	ax,[ES:di+DD386_Base_lo]	; EAX = 32 bit address
 	call	MapLinear			; map linear address
-	mov	ES:[di.DD386_Base_lo],ax	; store low word of address
+	mov	[ES:di+DD386_Base_lo],ax	; store low word of address
 	OP32
 	shr	ax,16				; ax = high word of address
-	mov	byte ES:[di.DD386_Base_lo+2],al	;   store
-	mov	ES:[di.DD386_Base_hi],ah		;  high word of address
+	mov	byte [ES:di+DD386_Base_lo+2],al	;   store
+	mov	[ES:di+DD386_Base_hi],ah		;  high word of address
 	%endmacro
 
 ;*******************************************************************************
@@ -211,12 +211,12 @@ MB_chk_length:
 	shl	ax,1			; AX = # of bytes to transfer(0=>8000h)
 	dec	ax			; convert to seg limit type value
 					;  ( 0FFFFh => 64K )
-	cmp	ax,ES:[si.MG_Source.DD386_Limit_lo] ;Q: source seg limit low ?
+	cmp	ax,[ES:si+MG_Source.DD386_Limit_lo] ;Q: source seg limit low ?
 	jbe	MB_chk_tarl		;	       N: chk target length
 	jmp	MB_Excp_Error		;	       Y: return excp error.
 
 MB_chk_tarl:
-	cmp	ax,ES:[si.MG_Target.DD386_Limit_lo] ;Q: tar seg too small ?
+	cmp	ax,[ES:si+MG_Target.DD386_Limit_lo] ;Q: tar seg too small ?
 	jbe	MB_setup		;	       N: seg limits OK.
 	jmp	MB_Excp_Error		;	       Y: return excp error
 ;
@@ -232,7 +232,7 @@ MB_setup:
 	mov	es,ax		; ES:0 pts to GDT
 	mov	di,MBSRC_GSEL	; ES:DI pts to source work descriptor in GDT
 	push	si		; save input descr table ptr
-	lea	si,[si.MG_Source]; DS:SI pts to input source descr
+	lea	si,[si+MG_Source]; DS:SI pts to input source descr
 	mov	cx,4
 	rep movsw		; set move block source work descr
 	pop	si		; restore input descr table ptr
@@ -242,7 +242,7 @@ MB_setup:
 
 	mov	di,MBTAR_GSEL	; ES:DI pts to target work descr in GDT
 	push	si		; save input descr table ptr
-	lea	si,[si.MG_Target] ; DS:SI pts to input target descr
+	lea	si,[si+MG_Target] ; DS:SI pts to input target descr
 	mov	cx,4
 	rep movsw		; set move blk target work descr
 	pop	si		; restore input descr table ptr
@@ -345,14 +345,14 @@ MB_leave:
 ;
 ; set client's flags to no error
 ;
-	or	[bp.VTFOE+VMTF_EFLAGS],FLAGS_ZF 	; ZF
-	and	[bp.VTFOE+VMTF_EFLAGS],NOT FLAGS_CY	; NC
+	or	[bp+VTFOE+VMTF_EFLAGS],FLAGS_ZF 	; ZF
+	and	[bp+VTFOE+VMTF_EFLAGS],NOT FLAGS_CY	; NC
 
 	or	ah,ah		;Q: error occured ?
 	jz	MB_ret		;  N: continue
 				;  Y: set error in client's flags
-	and	[bp.VTFOE+VMTF_EFLAGS],NOT FLAGS_ZF	; NZ
-	or	[bp.VTFOE+VMTF_EFLAGS],FLAGS_CY 	; CY
+	and	[bp+VTFOE+VMTF_EFLAGS],NOT FLAGS_ZF	; NZ
+	or	[bp+VTFOE+VMTF_EFLAGS],FLAGS_CY 	; CY
 ;
 MB_ret:
 	pop	es
@@ -439,7 +439,7 @@ i15_Entry:
 ;  Implement int15 allocation scheme by reporting a lowered value of extended
 ;  memory.
 	popf
-	mov	ax,cs:[ext_mem_size]	; report new extended memory size
+	mov	ax,[cs:ext_mem_size]	; report new extended memory size
 	iret				;
 ;
 ;  Checking for move block call
@@ -454,7 +454,7 @@ chk_blk_move:
 	pop	ds			; reset DS
 	je	i15_jmpf		;	N: jmp to old code
 					;	Y: VM move block
-	mov	CS:[MB_Flag],TRUE	;		let MEMM have it ...
+	mov	[CS:MB_Flag],TRUE	;		let MEMM have it ...
 	popf				; retrieve entry flags (IF cleared!!!)
 	int	15h			;  give it to MEMM
 					; MEMM will reset MB_Flag
@@ -475,7 +475,7 @@ chk_blk_move:
 ;
 i15_jmpf:
 	popf				; retrieve entry flags
-	jmp	CS:[i15_Old]
+	jmp	[CS:i15_Old]
 ;
 ; ENDP i15_Entry
 

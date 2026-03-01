@@ -54,8 +54,8 @@ STAT_NOCP EQU	08007H			; no codepage designated/invoked
 TYPE_DISPLAY EQU 01H			;; display type device
 FLAG_RESTART EQU 000001H		;; bit 1 = restart the parsing
 
-FPKT	EQU	DS:[SI] 		;
-FTP	EQU	ES:[BX] 		;
+FPKT	EQU	[DS:SI] 		;
+FTP	EQU	[ES:BX] 		;
 					; ( I=Input  O=Output )
 struc FTBLK;
 FTB_LENGTH DW	TYPE FTBLK		; (NOT TO BE CHANGED)
@@ -1957,7 +1957,7 @@ PASS	:				;; STAGE - PASS DUMMY BYTES
 	MOV	AX,cs:pass_cnt		   ;;
 					;;
 NEXT_BRK:				;; find the next pass-break
-	CMP	AX,ES:[DI]		;;
+	CMP	AX,[ES:DI]		;;
 					;;
 	JB	UPTO_BRK		;;
 					;;
@@ -1968,7 +1968,7 @@ NEXT_BRK:				;; find the next pass-break
 	JMP	NEXT_BRK		;;
 					;;
 UPTO_BRK :				;; next break point found
-	MOV	DX,ES:[DI]		;;
+	MOV	DX,[ES:DI]		;;
 	SUB	DX,AX			;; bytes to be skipped
 	CMP	CX,DX			;; all to be skipped ?
 	JAE	PASS_ALL		;;

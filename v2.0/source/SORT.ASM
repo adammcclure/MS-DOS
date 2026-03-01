@@ -13,7 +13,7 @@
 ;                       Comment the Damn source
 ;
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 ;NOTE:	"internat" must be false if KANJI version
 internat	equ	true
@@ -217,7 +217,7 @@ NoBack:
         INC     BX                      ; Nope, skip last char
 GOTEND:
         MOV     BP,BX                   ; BP = filesize-2(CRLF)+temp buffer+2
-        MOV     word DS:[BP],0      ; 0 at end of the file
+        MOV     word [DS:BP],0      ; 0 at end of the file
 ;
 ;  We now turn the entire buffer into a linked list of chains by
 ;  replacing CRLFs with the length of the following line (with 2 for CRLF)
@@ -297,11 +297,11 @@ SMALL:
 	push	ax
 	mov	bx,table
 tloop:	lodsb
-	xlat	byte cs:[bx]
+	xlat	byte [cs:bx]
 	mov	ah,al
-	mov	al,es:[di]
+	mov	al,[es:di]
 	inc	di
-	xlat	byte cs:[bx]
+	xlat	byte [cs:bx]
 	cmp	ah,al
 	loopz	tloop
 	pop	ax
@@ -364,7 +364,7 @@ END_INNER_SORT_LOOP:
         ADD     SI,DX                   ; offset of block
         REP     MOVSW                   ; blam, squeeze out the space
         restore <DI>                    ; get back original destination
-        MOV     word DS:[BP-2],0    ; remake the end of file mark
+        MOV     word [DS:BP-2],0    ; remake the end of file mark
 
 END_INSERT:
         ADD     DI,[DI]                 ; link to next guy

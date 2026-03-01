@@ -29,9 +29,9 @@ EM_Size_Get		EQU	88h		;an001; dms;
 
 
 struc GET_PAGE_FRAME_STRUC
-  FRAME_SEGMENT: dw 0
-  START_PAGE: db 0
-  NUM_PAGE: db 0
+  FRAME_SEGMENT: resw 1
+  START_PAGE: resb 1
+  NUM_PAGE: resb 1
 endstruc
 BUFFER_ENTRY_SIZE	EQU	TYPE GET_PAGE_FRAME_STRUC
 

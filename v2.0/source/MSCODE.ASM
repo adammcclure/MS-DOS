@@ -47,7 +47,7 @@ HIGHMEM  EQU     0
         i_need  LEAVEADDR,WORD
         i_need  NULLDEVPT,DWORD
 
-        %if NOT IBM
+        %if ~IBM
         i_need  OEM_HANDLER,DWORD
         %endif
 
@@ -58,8 +58,8 @@ BREAK   <Copyright notice and version>
 
 CODSTRT EQU     $
 
-        %if NOT IBM
-        %if NOT KANJI
+        %if ~IBM
+        %if ~KANJI
         global HEADER
 HEADER  DB      13,10,"Microsoft MS-DOS version "
         DB      DOS_MAJOR_VERSION + "0"
@@ -95,7 +95,7 @@ entry   QUIT                                   ; INT 20H entry point
 
 entry   COMMAND                         ; Interrupt call entry point (INT 21H)
 
-        %if NOT IBM
+        %if ~IBM
         CMP     AH,SET_OEM_HANDLER
         JB      NOTOEM
         JMP     $SET_OEM_HANDLER
@@ -141,8 +141,8 @@ SAVREGS:
 ; Here comes multitasking!!!
 ;
         MOV     DS,[CurrentPDB]
-        MOV     word DS:[PDB_User_stack],SP
-        MOV     word DS:[PDB_User_stack+2],SS
+        MOV     word [DS:PDB_User_stack],SP
+        MOV     word [DS:PDB_User_stack+2],SS
 
         MOV     BX,CS                   ; no holes here.
         MOV     SS,BX
@@ -186,7 +186,7 @@ DSKROUT:
         POP     AX
 DISPCALL:
         PUSH    [LEAVEADDR]
-        PUSH    CS:[BX+DISPATCH]
+        PUSH    [CS:BX+DISPATCH]
         MOV     BX,[SaveBX]
         MOV     DS,[SaveDS]
 ; ASSUME  DS:NOTHING
@@ -199,7 +199,7 @@ DISPCALL:
         MOV     SP,[user_SP]
         MOV     SS,[user_SS]
         MOV     BP,SP
-        MOV     byte [BP.user_AX],AL
+        MOV     byte [BP+user_AX],AL
         MOV     AX,[NSP]
         MOV     [user_SP],AX
         MOV     AX,[NSS]
@@ -311,7 +311,7 @@ DISPATCH:
         short_addr  $FCB_RANDOM_WRITE               ; 34     22
         short_addr  $GET_FCB_FILE_LENGTH            ; 35     23
         short_addr  $GET_FCB_POSITION               ; 36     24
-MAXCALL =       ($-DISPATCH)/2 - 1
+MAXCALL equ ($-DISPATCH)/2 - 1
 
 ; Extended Functions
         short_addr  $SET_INTERRUPT_VECTOR           ; 37     25
@@ -400,13 +400,13 @@ MAXCALL =       ($-DISPATCH)/2 - 1
         short_addr  $FILE_TIMES                     ; 87     57
         short_addr  $AllocOper                      ; 88     58
 
-MAXCOM  =       ($-DISPATCH)/2 - 1
+MAXCOM equ ($-DISPATCH)/2 - 1
 
 CPMFUNC:
         XOR     AL,AL
         return
 
-        %if NOT IBM
+        %if ~IBM
 BREAK <Set_OEM_Handler -- Set OEM sys call address and handle OEM Calls>
 
 $SET_OEM_HANDLER:
@@ -456,7 +456,7 @@ OEM_JMP:
         ; ASSUME  DS:NOTHING,SS:NOTHING
         invoke  get_user_stack
         PUSH    [CurrentPDB]
-        POP     [SI.user_BX]
+        POP     [SI+user_BX]
         return
 ; ENDP $GET_CURRENT_PDB
 ;                                                                          ;
@@ -475,7 +475,7 @@ BREAK <NullDev -- Driver for null device>
         PUSH    ES
         PUSH    BX
         LES     BX,[NULLDEVPT]
-        OR      ES:[BX.REQSTAT],STDON           ; Set done bit
+        OR      [ES:BX+REQSTAT],STDON           ; Set done bit
         POP     BX
         POP     ES
         return
@@ -541,7 +541,7 @@ TLEAVE:
         MOV     DI,ERRIN   ; Point to error conditions
         REPNE   SCASB
         JNZ     LEAVECODE               ; Not found
-        MOV     AH,ES:[DI+NUMERR-1]     ; Get translation
+        MOV     AH,[ES:DI+NUMERR-1]     ; Get translation
 LEAVECODE:
         POP     ES
         %endif
@@ -590,7 +590,7 @@ ILEAVE:
         ; ASSUME  DS:NOTHING,ES:NOTHING
         entry   SYS_RET_OK
         call    get_user_stack
-        PUSH    [SI.user_F]
+        PUSH    [SI+user_F]
         POPF
         CLC
         JMP     SHORT DO_RET
@@ -598,13 +598,13 @@ ILEAVE:
         entry   SYS_RET_ERR
         XOR     AH,AH                   ; hack to allow for smaller error rets
         call    get_user_stack
-        PUSH    [SI.user_F]
+        PUSH    [SI+user_F]
         POPF
         STC
 DO_RET:
-        MOV     [SI.user_AX],AX         ; Really only sets AH
+        MOV     [SI+user_AX],AX         ; Really only sets AH
         PUSHF
-        POP     [SI.user_F]             ; dump on his flags
+        POP     [SI+user_F]             ; dump on his flags
         return
 ; ENDP SYS_RETURN
 

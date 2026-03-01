@@ -31,11 +31,11 @@ SECTION .dosxxx
 error_code  equ      0002h
 
 struc str
-old_bp: dw 0
-return: dd 0
-rsrvd: dd 0
-Attrib: dd 0; current attribute pointer
-Path: dd 0; file path name pointer
+old_bp: resw 1
+return: resd 1
+rsrvd: resd 1
+Attrib: resd 1; current attribute pointer
+Path: resd 1; file path name pointer
 endstruc
 
 dosqfilemode:

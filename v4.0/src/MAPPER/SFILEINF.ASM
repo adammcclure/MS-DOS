@@ -41,12 +41,12 @@ SECTION .dosxxx
 
 
 struc str
-old_bp: dw 0
-return: dd 0
-BufferSize: dw 0; file info buufer size
-BufferPtr: dd 0; file info buffer
-Level: dw 0; file info level
-Handle: dw 0; file handle
+old_bp: resw 1
+return: resd 1
+BufferSize: resw 1; file info buufer size
+BufferPtr: resd 1; file info buffer
+Level: resw 1; file info level
+Handle: resw 1; file handle
 endstruc
 
 dossetfileinfo:

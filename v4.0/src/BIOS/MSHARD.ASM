@@ -17,18 +17,18 @@
 
 	CPU 286;Use 80286 non-protected mode
 
-BIOSEG		= 040h		;Segment for ROM BIOS Data
-ROMSEG		= 0F000h	;Segment of ROM
+BIOSEG equ 040h;Segment for ROM BIOS Data
+ROMSEG equ 0F000h;Segment of ROM
 
 
-BAD_DISK 	= 01
+BAD_DISK equ 01
 
-HF_PORT 	= 01F0h
-HF_REG_PORT 	= 03F6h
+HF_PORT equ 01F0h
+HF_REG_PORT equ 03F6h
 
 ;*	Offsets into Fixed disk parameter table
-FDP_PRECOMP	= 5
-FDP_CONTROL 	= 8
+FDP_PRECOMP equ 5
+FDP_CONTROL equ 8
 
 SECTION .DATA;ROM BIOS data segment
 
@@ -36,14 +36,14 @@ SECTION .DATA;ROM BIOS data segment
 CMD_BLOCK: times 6 db 0
 
 ;*	Offsets into CMD_BLOCK for registers
-PRE_COMP = 0	;Write Pre-compensation
-SEC_CNT	 = 1	;Sector count
-SEC_NUM	 = 2	;Sector number
-CYL_LOW	 = 3	;Cylinder number, low part
-CYL_HIGH = 4	;Cylinder number, high part
-DRV_HEAD = 5	;Drive/Head (Bit 7 = ECC mode, Bit 5 = 512 byte sectors, 
+PRE_COMP equ 0;Write Pre-compensation
+SEC_CNT equ 1;Sector count
+SEC_NUM equ 2;Sector number
+CYL_LOW equ 3;Cylinder number, low part
+CYL_HIGH equ 4;Cylinder number, high part
+DRV_HEAD equ 5;Drive/Head (Bit 7 = ECC mode, Bit 5 = 512 byte sectors, 
 		;            Bit 4 = drive number, Bits 3-0 have head number)
-CMD_REG  = 6	;Command register
+CMD_REG equ 6;Command register
 
 
 	ORG 074h

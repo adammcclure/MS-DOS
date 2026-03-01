@@ -102,11 +102,11 @@ INDEIDT:
 struc SPSTACK
 
 SP_SI   DW      0             ; Saved ESI (32 bit SI)
-        DW      0
+        resw 1
 SP_DI   DW      0             ; Saved EDI (32 bit DI)
-        DW      0
+        resw 1
 SP_AX   DW      0             ; Saved EAX
-        DW      0
+        resw 1
 SP_BP   DW      0             ; Saved BP (only 16 bits)
 SP_EX   DW      0             ; Interrupt vector offset (interrupt number * 4)
 
@@ -123,13 +123,13 @@ SP_SP2  DW      0
 SP_SS   DW      0             ; Interruptee's SS
 SP_SS2  DW      0
 SP_VMES DW      0             ; Interruptee's ES
-        DW      0
+        resw 1
 SP_VMDS DW      0             ; Interruptee's DS
-        DW      0
+        resw 1
 SP_VMFS DW      0             ; Interruptee's FS
-        DW      0
+        resw 1
 SP_VMGS DW      0             ; Interruptee's GS
-        DW      0
+        resw 1
 SP_STK  DW      0             ; The rest of the stack
 
 endstruc
@@ -345,14 +345,14 @@ PASS_ON:                                ;                                  @P2C
         MOV     ES,AX
         DATAOV
         SUB     DI,DI                   ; Clear EDI
-        MOV     DI,SS:[BP+SP_SP]        ; Load DI with the interruptee's SP
+        MOV     DI,[SS:BP+SP_SP]        ; Load DI with the interruptee's SP
         SUB     DI,6                    ; Decrement "SP" to simulate the pushing
                                         ;   of the flags, CS and IP on an INT.
         MOV     SS:word [BP+SP_SP],DI ; Replace the user's SP
 
         DATAOV
         SUB     AX,AX                   ; Clear EAX
-        MOV     AX,SS:[BP+SP_SS]        ; Load AX with the user's SS register
+        MOV     AX,[SS:BP+SP_SS]        ; Load AX with the user's SS register
         DATAOV                          ; Shift "SS" left four bits to convert
         SHL     AX,4                    ;   it to an offset
         DATAOV                          ; Add on "SP" to get a 32 bit offset
@@ -361,35 +361,35 @@ PASS_ON:                                ;                                  @P2C
 ; Put the user's IP, CS and flags onto his stack.  This is done in reverse
 ; order because we are moving forward in memory whereas stacks grow backward.
 
-        MOV     AX,SS:[BP+SP_IP]        ; Get the user's IP
+        MOV     AX,[SS:BP+SP_IP]        ; Get the user's IP
         ADDROV
         STOSW                           ; And put it on the stack
         ADDROV                          ; Intel bug # A0-119
         NOP                             ; Intel bug # A0-119
 
-        MOV     AX,SS:[BP+SP_CS]        ; Get the user's CS
+        MOV     AX,[SS:BP+SP_CS]        ; Get the user's CS
         ADDROV
         STOSW                           ; And put it on the stack
         ADDROV                          ; Intel bug # A0-119
         NOP                             ; Intel bug # A0-119
 
-        MOV     AX,SS:[BP+SP_FL]        ; Get the user's flags
+        MOV     AX,[SS:BP+SP_FL]        ; Get the user's flags
         ADDROV
         STOSW                           ; And put them on the stack
         ADDROV                          ; Intel bug # A0-119
         NOP                             ; Intel bug # A0-119
 
         AND     AX,3CFFH                ; Clean up the flags for our IRET by
-        MOV     word SS:[BP+SP_FL],AX  ; setting IOPL to 3
+        MOV     word [SS:BP+SP_FL],AX  ; setting IOPL to 3
 
 ; Replace the interruptee's CS:IP with the CS:IP of the interrupt vector.  When
 ; we IRET back to the V86 task control will go to the interrupt routine.
 
-        MOV     SI,SS:[BP+SP_EX]        ; Get the interrupt vector offset
+        MOV     SI,[SS:BP+SP_EX]        ; Get the interrupt vector offset
         LODSW                           ; Get the IP of the interrupt vector
-        MOV     word SS:[BP+SP_IP],AX ; Replace the user's IP
+        MOV     word [SS:BP+SP_IP],AX ; Replace the user's IP
         LODSW                           ; Get the CS of the interrupt vector
-        MOV     word SS:[BP+SP_CS],AX ; Replace the user's CS
+        MOV     word [SS:BP+SP_CS],AX ; Replace the user's CS
 
         DATAOV
         POP     SI                      ; Restore ESI from off our stack

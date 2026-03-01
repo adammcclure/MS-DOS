@@ -55,12 +55,12 @@ SECTION .dosxxx
 	; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-FSIBS40: dw 0; info buffer size
-FSIB40: dd 0; info buffer
-ILL40: dw 0; info level
-DRNUM40: dw 0; driver number
+old_bp: resw 1
+return: resd 1
+FSIBS40: resw 1; info buffer size
+FSIB40: resd 1; info buffer
+ILL40: resw 1; info level
+DRNUM40: resw 1; driver number
 endstruc
 
 DosQFsInfo:
@@ -105,24 +105,24 @@ getinfo40:;
 bufok40:;
 	les	di,[bp].fsib40	   ; get FSI buffer pointer
 	sub	ax,ax		   ; return
-	mov	es:[di],ax	   ;	    null
-	mov	es:[di]+2,ax	   ;		File system ID
+	mov	[es:di],ax	   ;	    null
+	mov	[es:di]+2,ax	   ;		File system ID
 	add	di,4		   ; set pointer to number of sectors in alloc
 	sub	ax,ax		   ;
-	mov	es:[di]+2,ax	   ; set high order # of sectors in alloc to 0
+	mov	[es:di]+2,ax	   ; set high order # of sectors in alloc to 0
 	mov	ax,secalc40	   ;
-	mov	es:[di],ax	   ; store low order # of sectors in alloc
+	mov	[es:di],ax	   ; store low order # of sectors in alloc
 	add	di,4		   ; set pointer to number of allocation units
 	mov	ax,clsdr40	   ; load low order number
-	mov	es:[di],ax	   ;		     of alloc units
+	mov	[es:di],ax	   ;		     of alloc units
 	sub	ax,ax		   ;
-	mov	es:[di]+2,ax	   ; set high order # of alloc units to 0
+	mov	[es:di]+2,ax	   ; set high order # of alloc units to 0
 	mov	ax,avlcls40	   ; load low order number
-	mov	es:[di]+4,ax	   ;		       of avail alloc units
+	mov	[es:di]+4,ax	   ;		       of avail alloc units
 	sub	ax,ax		   ;
-	mov	es:[di]+6,ax	   ; set high order # of avail alloc to 0
+	mov	[es:di]+6,ax	   ; set high order # of avail alloc to 0
 	mov	ax,bytsec40	   ; get number
-	mov	es:[di]+8,ax	   ;	       of bytes per sector
+	mov	[es:di]+8,ax	   ;	       of bytes per sector
 	sub	ax,ax		   ; set good return code
 
 erret40:;

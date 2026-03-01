@@ -1211,12 +1211,12 @@ found_it_remote:			; come here only if the file was found in
 	mov	es,bx			; need to use it as a segment			  ;AN002;
 	mov	di,PDB_Append		; get pointer to APPEND flag in PDB		  ;AN002;
 											  ;AN002;
-	mov	ax,es:[di]		; get APPEND flag into AX			  ;AN002;
+	mov	ax,[es:di]		; get APPEND flag into AX			  ;AN002;
 	test	ax,true_name_flag	; is true name flag armed?			  ;AN002;
 	jz	no_true_name		; no, don't copy true name                        ;AN002;
 											  ;AN002;
 	sub	ax,true_name_flag	; clear true name flag				  ;AN002;
-	mov	es:[di],ax		; save it in PSP				  ;AN002;
+	mov	[es:di],ax		; save it in PSP				  ;AN002;
 											  ;AN002;
 	mov	di,word handle_ptr+0	; get user's buffer pointer ES:DI         ;AN002;
 	mov	es,word handle_ptr+2						  ;AN002;
@@ -1237,8 +1237,8 @@ found_it_remote:			; come here only if the file was found in
 	mov	cx,true_name_count	; get number of chars in true_name dir		  ;AN002;
 
 copy_true_name_loop2:
-	mov	ah,ds:[si]		; get byte of append dir path			  ;AN002;
-	mov	es:[di],ah		; copy it to user's buffer                        ;AN002;
+	mov	ah,[ds:si]		; get byte of append dir path			  ;AN002;
+	mov	[es:di],ah		; copy it to user's buffer                        ;AN002;
 	inc	si			; in this loop, the null is not copied		  ;AN002;
 	inc	di									  ;AN002;
 	loop	copy_true_name_loop2							  ;AN002;
@@ -1246,7 +1246,7 @@ copy_true_name_loop2:
 ;	put in the "\"
 
 	mov	ah,"\"			; get a \
-	mov	es:[di],ah		; copy it
+	mov	[es:di],ah		; copy it
 	inc	di			; increment pointer
 
 ;	we have copied the first part of the string, now get the real filename
@@ -1265,8 +1265,8 @@ copy_true_name_loop2:
 	pop	es
 
 copy_true_name_loop3:
-	mov	ah,ds:[si+30]	     ; get byte of actual filename		       ;AN002;
-	mov	es:[di],ah		; copy it to user's buffer                        ;AN002;
+	mov	ah,[ds:si+30]	     ; get byte of actual filename		       ;AN002;
+	mov	[es:di],ah		; copy it to user's buffer                        ;AN002;
 	cmp	ah,null 		; is it a null? 				  ;AN002;
 	je	true_name_copied	; yes, all done 				  ;AN002;
 	inc	si			; in this loop the null is copied		  ;AN002;
@@ -1277,8 +1277,8 @@ not_hf:
 	mov	si,dx			; make DS:SI point to true name
 
 copy_true_name_loop:									  ;AN002;
-	mov	ah,ds:[si]		; get byte of true name 			  ;AN002;
-	mov	es:[di],ah		; copy it to user's buffer                        ;AN002;
+	mov	ah,[ds:si]		; get byte of true name 			  ;AN002;
+	mov	[es:di],ah		; copy it to user's buffer                        ;AN002;
 	cmp	ah,null 		; is it a null? 				  ;AN002;
 	je	true_name_copied	; yes, all done 				  ;AN002;
 	inc	si									  ;AN002;
@@ -1682,7 +1682,7 @@ ck8:									 ;AN000;
 											  ;AN002;
 ;	is the flag already set?
 
-	mov	ax,es:[di]		; get APPEND flag into AX			  ;AN002;
+	mov	ax,[es:di]		; get APPEND flag into AX			  ;AN002;
 	test	ax,true_name_flag	; is it set?					  ;AN002;
 	jnz	no_set_true_name	; yes, do nothing				  ;AN002;
 											  ;AN002;
@@ -1690,7 +1690,7 @@ ck8:									 ;AN000;
 
 set_true_name:										  ;AN002;
 	add	ax,true_name_flag	; set true name flag				  ;AN002;
-	mov	es:[di],ax		; save in PSP					  ;AN002;
+	mov	[es:di],ax		; save in PSP					  ;AN002;
 											  ;AN002;
 no_set_true_name:
 	pop	di			; restore some regs				  ;AN002;
@@ -1994,12 +1994,12 @@ set_return_flags:
 	mov	es,bx			; need to use it as a segment			  ;AN002;
 	mov	di,PDB_Append		; get pointer to APPEND flag in PDB		  ;AN002;
 											  ;AN002;
-	mov	ax,es:[di]		; get APPEND flag into AX			  ;AN002;
+	mov	ax,[es:di]		; get APPEND flag into AX			  ;AN002;
 	test	ax,true_name_flag	; is true name flag armed?			  ;AN002;
 	jz	reset_stack2		; no, don't copy true name                        ;AN002;
 											  ;AN002;
 	sub	ax,true_name_flag	; clear true name flag				  ;AN002;
-	mov	es:[di],ax		; save it in PSP				  ;AN002;
+	mov	[es:di],ax		; save it in PSP				  ;AN002;
 											  ;AN002;
 											  ;AN002;
 reset_stack2:										  ;AN002;
@@ -2908,9 +2908,9 @@ check_dirs2:
 	lea	di,app_dirs						  ; @@08
 
 copy_dirs_loop:
-	movs	es: byte[di],ds:[si]; copy char
+	movs	es: byte[di],[ds:si]; copy char
 
-	cmp	byte ds:[si-1],0	; is char a null
+	cmp	byte [ds:si-1],0	; is char a null
 	je	done_copy_dirs
 
 	jmp	copy_dirs_loop
@@ -3310,7 +3310,7 @@ Release_Environment:								;an007; dms;
 	mov	ah,Get_PSP		; get the PSP segment			;an007; dms;
 	call	int_21			; invoke INT 21h			;an007; dms;
 	mov	es,bx			; BX contains PSP segment - put in ES	;an007; dms;
-	mov	bx,word es:[PSP_Env]; get segment of environmental vector	;an007; dms;
+	mov	bx,word [es:PSP_Env]; get segment of environmental vector	;an007; dms;
 	mov	es,bx			; place segment in ES for Free Memory	;an007; dms;
 	mov	ah,Free_Alloc_Mem	; Free Allocated Memory 		;an007; dms;
 	int	21h			; invoke INT 21h			;an007; dms;
@@ -3346,18 +3346,18 @@ Scan_For_Equal:
 	push	cx				;				;an008; dms;
 
 	xor	cx,cx				; clear cx			;an008; dms;
-	mov	cl,byte ds:[80h]		; get length of command line	;an008; dms;
+	mov	cl,byte [ds:80h]		; get length of command line	;an008; dms;
 
 Scan_For_Equal_Loop:
 
 	cmp	cx,0				; at end?			;an008; dms;
 	jbe	Scan_For_Equal_Exit		; exit loop			;an008; dms;
-	mov	al,byte ds:[si]		; get 1st. character		;an008; dms;
+	mov	al,byte [ds:si]		; get 1st. character		;an008; dms;
 	call	Chk_DBCS			; DBCS lead byte?		;an008; dms;
 	jnc	Scan_For_Equal_No_DBCS		; no				;an008; dms;
-		cmp	byte ds:[si],81h	; blank lead byte		;an008; dms;
+		cmp	byte [ds:si],81h	; blank lead byte		;an008; dms;
 		jne	Scan_For_Equal_Exit	; exit with adjusted SI 	;an008; dms;
-		cmp	byte ds:[si+1],40h	; DBCS blank			;an008; dms;
+		cmp	byte [ds:si+1],40h	; DBCS blank			;an008; dms;
 		jne	Scan_For_Equal_Exit	; exit with adjusted SI 	;an008; dms;
 
 		add	si,2			; yes - DBCS lead byte		;an008; dms;

@@ -39,11 +39,11 @@ SECTION .kbdxxx
 error_kbd_parameter equ 0002h
 
 struc str
-old_bp: dw 0
-return: dd 0
-handle: dw 0; keyboard handle
-iowait: dw 0; indicate if wait for io
-data: dd 0; data buffer pointer
+old_bp: resw 1
+return: resd 1
+handle: resw 1; keyboard handle
+iowait: resw 1; indicate if wait for io
+data: resd 1; data buffer pointer
 endstruc
 
 
@@ -72,32 +72,32 @@ nosavedchar:
 	cmp	ax,0			; if so,
 	jz	loopx			;	  keep trying
 					; else...
-	mov	ds:[si].Char_Code,0	; |  zero out scan and char codes
-	mov	ds:[si].Scan_Code,0	; |  zero out scan and char codes
-	mov	ds:[si].Status,0	; |  0 for status
+	mov	[ds:si].Char_Code,0	; |  zero out scan and char codes
+	mov	[ds:si].Scan_Code,0	; |  zero out scan and char codes
+	mov	[ds:si].Status,0	; |  0 for status
 	jmp	short shift		; |  go to get shift status
 					; end of block
 
 avail:
 	cmp	al,0
 	je	loopx
-	mov	ds:[si].Scan_Code,0	; |
-	mov	ds:[si].Char_Code,al	; |  move char&scan code into structure
-	mov	ds:[si].Status,1	; |  1 for status
+	mov	[ds:si].Scan_Code,0	; |
+	mov	[ds:si].Char_Code,al	; |  move char&scan code into structure
+	mov	[ds:si].Status,1	; |  1 for status
 					;
 shift:	mov	ah,02h			; Start of shift check block
 	int	16h			; |  BIOS call to get shift state
 
 	sub	ah,ah			; |
-	mov	ds:[si].Shift_State,ax	; |  put shift status into structure
+	mov	[ds:si].Shift_State,ax	; |  put shift status into structure
 
 	mov	ah,2ch			; start time stamping
 	int	21h				; |  get current time of day
 
-	mov	byte ds:[si].Time+0,ch	; |  put hours into structure
-	mov	byte ds:[si].Time+1,cl	; |  put minutes into structure
-	mov	byte ds:[si].Time+2,dh	; |  put seconds into structure
-	mov	byte cs:[si].Time+3,dl	; |  put hundreds into structure
+	mov	byte [ds:si].Time+0,ch	; |  put hours into structure
+	mov	byte [ds:si].Time+1,cl	; |  put minutes into structure
+	mov	byte [ds:si].Time+2,dh	; |  put seconds into structure
+	mov	byte [cs:si].Time+3,dl	; |  put hundreds into structure
 
 
 	sub	ax,ax			; set good return code

@@ -25,7 +25,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	RENAMEDMA,BYTE
 	i_need	AUXSTACK,BYTE
@@ -133,7 +133,7 @@ nofiles:
 ;	ret				       ;IFS. return			;AN000;
 ifsshare:
 
-%if NOT Installed
+%if ~Installed
 	transfer NET_RENAME
 %else
 	MOV	AX,(multNET SHL 8) OR 17
@@ -181,7 +181,7 @@ Check_dev:
 	PUSH	DS			      ;PTM.				;AN000;
 	LDS	SI,[DMAADD]		      ;PTM.  chek if source a dir	;AN000;
 	ADD	SI,find_buf_attr	      ;PTM.				;AN000;
-	TEST	[SI.dir_attr],attr_directory  ;PTM.				;AN000;
+	TEST	[SI+dir_attr],attr_directory  ;PTM.				;AN000;
 	JZ	notdir			      ;PTM.				;AN000;
 	MOV	SI,[REN_WFP]		      ;PTM.  if yes, make sure path	;AN000;
 	invoke	Check_Pathlen2		      ;PTM.   length < 67		;AN000;
@@ -316,10 +316,10 @@ GOT_DEST:
 	LES	DI,[CURBUF]
 	Assert	ISBUF,<ES,DI>,"Got_Dest"
 
-	TEST	ES:[DI.buf_flags],buf_dirty  ;LB. if already dirty		;AN000;
+	TEST	[ES:DI+buf_flags],buf_dirty  ;LB. if already dirty		;AN000;
 	JNZ	yesdirty		  ;LB.	  don't increment dirty count   ;AN000;
 	invoke	INC_DIRTY_COUNT 	  ;LB.					;AN000;
-	OR	ES:[DI.buf_flags],buf_dirty
+	OR	[ES:DI+buf_flags],buf_dirty
 yesdirty:
 	MOV	DI,BX
 	ADD	DI,dir_attr		; Skip name
@@ -345,10 +345,10 @@ SIMPLE_RENAME:
 DIRTY_IT:
 	MOV	DI,word [CURBUF]
 
-	TEST	ES:[DI.buf_flags],buf_dirty  ;LB. if already dirty		;AN000;
+	TEST	[ES:DI+buf_flags],buf_dirty  ;LB. if already dirty		;AN000;
 	JNZ	yesdirty2		  ;LB.	  don't increment dirty count   ;AN000;
 	invoke	INC_DIRTY_COUNT 	  ;LB.					;AN000;
-	OR	ES:[DI.buf_flags],buf_dirty
+	OR	[ES:DI+buf_flags],buf_dirty
 yesdirty2:
 	Assert	ISBUF,<ES,DI>,"Dirty_it"
 NEXT_SOURCE:

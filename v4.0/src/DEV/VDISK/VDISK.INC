@@ -19,9 +19,9 @@ DOS_PAGE2               EQU     0FFH
 DOS_PAGE_SZ             EQU     16
 
 struc GET_PAGE_FRAME_STRUC
-  START_PAGE: db 0
-  NUM_PAGE: db 0
-  FRAME_SEGMENT: dw 0
+  START_PAGE: resb 1
+  NUM_PAGE: resb 1
+  FRAME_SEGMENT: resw 1
 endstruc
 BUFFER_ENTRY_SIZE       EQU     TYPE GET_PAGE_FRAME_STRUC
 

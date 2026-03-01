@@ -324,7 +324,7 @@ INT_23:
 	LDS	DX,[HARDCH]
 	mov	al,24h				;				;AC000;
 	DOS_Call Set_Interrupt_Vector		;				;AC000;
-	LDS	DX,cs:[CONTCH]							;ac039;bgb
+	LDS	DX,[cs:CONTCH]							;ac039;bgb
 	mov	al,23h				;				;AC000;
 	DOS_Call Set_Interrupt_Vector		;				;AC000;
 	PUSH	CS
@@ -445,13 +445,13 @@ $$IF23:
 	mov	si,es:DBCS_Vector_Off		;				;an055;bgb
 ;	$SEARCH 				;Check all the vectors		;an055;bgb
 $$DO25:
-	   cmp	   word ds:[si],End_Of_Vector ;End of vector table? 	;an055;bgb
+	   cmp	   word [ds:si],End_Of_Vector ;End of vector table? 	;an055;bgb
 ;	$LEAVE	E				;Yes, done			;an055;bgb
 	JE $$EN25
-	   cmp	   al,ds:[si]			;See if char is in vector	;an055;bgb
+	   cmp	   al,[ds:si]			;See if char is in vector	;an055;bgb
 ;	$EXITIF AE,AND				;If >= to lower, ANd		;an055;bgb
 	JNAE $$IF25
-	   cmp	   al,ds:[si+1] 		; =< thAN higher rANge		;an055;bgb
+	   cmp	   al,[ds:si+1] 		; =< thAN higher rANge		;an055;bgb
 ;	$EXITIF BE				; then DBCS charACter		;an055;bgb
 	JNBE $$IF25
 	   stc					;Set CY to indicate DBCS	;an055;bgb

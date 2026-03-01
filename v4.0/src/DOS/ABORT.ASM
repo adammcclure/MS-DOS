@@ -28,7 +28,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	I_Need  PROC_ID,WORD            ; current process ID
 	I_Need  USER_ID,WORD            ; current user ID
@@ -52,7 +52,7 @@ Break   <DOS_ABORT -- CLOSE all files for process>
 	; ASSUME  DS:NOTHING,ES:NOTHING
 
 	MOV     ES,[CurrentPDB]
-	MOV     CX,ES:[PDB_JFN_Length]  ; Number of JFNs
+	MOV     CX,[ES:PDB_JFN_Length]  ; Number of JFNs
 reset_free_jfn:
 	MOV     BX,CX
 	PUSH    CX
@@ -90,14 +90,14 @@ reset_free_jfn:
 ; counts.
 ;
 	les     di,sftFCB               ; grab the pointer to the table
-	mov     cx,es:[di].sfCount
+	mov     cx,[es:di].sfCount
 	jcxz    FCBScanDone
 	LEA     DI,[DI].sfTable         ; point at table
 	mov     ax,proc_id
 FCBTest:
-	cmp     es:[di].sf_PID,ax       ; is this one of ours
+	cmp     [es:di].sf_PID,ax       ; is this one of ours
 	jnz     FCBNext                 ; no, skip it
-	mov     es:[di].sf_ref_count,0  ; yes, blast ref count
+	mov     [es:di].sf_ref_count,0  ; yes, blast ref count
 FCBNext:
 	add     di,sf_Entry_size
 	loop    FCBTest
@@ -112,21 +112,21 @@ Scan:
 	invoke  SFFromSFN
 	pop     bx
 	retc
-	cmp     es:[di].sf_ref_count,0
+	cmp     [es:di].sf_ref_count,0
 	jz      next
 ;
 ; we have a SFT that is not free.  See if it is for the current process
 ;
 	mov     ax,proc_id
-	cmp     es:[di].sf_pid,ax
+	cmp     [es:di].sf_pid,ax
 	jnz     next
 	mov     ax,user_id
-	cmp     es:[di].sf_uid,ax
+	cmp     [es:di].sf_uid,ax
 	jnz     next
 ;
 ; This SFT is labelled as ours.
 ;
-	mov     es:[di].sf_ref_count,0
+	mov     [es:di].sf_ref_count,0
 next:
 	inc     bx
 	jmp     scan

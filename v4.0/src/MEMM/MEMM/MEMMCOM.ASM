@@ -90,23 +90,23 @@ MSDOS		equ	21h			; MS-DOS function call
 ;
 struc emm_hdr
 ;
-	dw 0;Null segment address
-	dw 0;Null offset address
-	dw 0;Attribute - Char
-	dw 0;Strategy routine entry
-	dw 0;Interrupt routine entry
-	DB		'EMMXXXX0'		;Character device name
+	resw 1;Null segment address
+	resw 1;Null offset address
+	resw 1;Attribute - Char
+	resw 1;Strategy routine entry
+	resw 1;Interrupt routine entry
+	resb 1;Character device name
 ;
 ; GENERAL FUNCTIONS ENTRY POINT
 ; ELIM_Entry is a entry point for executing general MEMM
 ; functions. (e.g. ON, OFF function).
 ;
-ELIM_Entry_off: dw 0; general entry point
+ELIM_Entry_off: resw 1; general entry point
 
 ;
 ;	       MEMM signature
 ;
-memmsig: db 0; MEMM signature
+memmsig: resb 1; MEMM signature
 
 endstruc
 
@@ -221,7 +221,7 @@ Inst_chk:
 	inc	ax			; y: return one
 	mov	[entry_seg],es		; save segment for far call
 	xor	di,di
-	mov	cx,es:[ELIM_Entry_off]	 ; save offset for far call
+	mov	cx,[es:ELIM_Entry_off]	 ; save offset for far call
 	mov	[entry_off],cx
 not_inst:
 	pop	cx

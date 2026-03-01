@@ -20,7 +20,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                               ;;
-        extern KEYB_COMMAND        ;;
+        extern KEYB_COMMAND;;
                                               ;;
         extern KEYBSYS_FILE_HANDLE;;
         extern CP_TAB_OFFSET;;

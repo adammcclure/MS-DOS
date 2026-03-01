@@ -55,9 +55,9 @@ dos_int 	equ	21h		; interrupt 21
 xor_mask	equ	0ffffh		; mask used to confuse the random numbers a little
 
 struc ppm_struct; define the structure
-phys_page_offset: dw 0; offsets into PPM entry
-ppm_handle_offset: dw 0
-ppm_log_page_offset: dw 0
+phys_page_offset: resw 1; offsets into PPM entry
+ppm_handle_offset: resw 1
+ppm_log_page_offset: resw 1
 endstruc
 
 	; page
@@ -143,14 +143,14 @@ pm_get:
 	push	si
 	push	ds
 
-	mov	di,cs:[bp].IE_Saved_DI_Reg ; restore caller's DI, pointer to mapping control structure
+	mov	di,[cs:bp].IE_Saved_DI_Reg ; restore caller's DI, pointer to mapping control structure
 
 
 ;-------------------------------------------------------------------
 
 ;	get count from caller's control structure
 
-	mov	cx,ds:[si]		; the first word of the control
+	mov	cx,[ds:si]		; the first word of the control
 					; structure holds the # of entries
 
 	cmp	cx,0			; 0 pages requested?			;an000; dms;
@@ -733,7 +733,7 @@ hn_get:
 	ADD	SI,DI			; name field in the handle lookup
 	ADD	SI,H_NAME		; lookup table
 
-	MOV	DI,cs:[bp].IE_Saved_DI_Reg  ;Restore the user's dest where
+	MOV	DI,[cs:bp].IE_Saved_DI_Reg  ;Restore the user's dest where
 					; the handle name will be stored
 
 	MOV	CX,8			; want to copy 8 characters
@@ -910,7 +910,7 @@ hd_directory:
 
 ;	initialize some things for the loop
 HD_LOOP_INIT:
-	mov	di,cs:[bp].IE_Saved_DI_Reg ;restore users DI			;an000; dms;
+	mov	di,[cs:bp].IE_Saved_DI_Reg ;restore users DI			;an000; dms;
 	xor	al,al			; al = num entries
 	xor	dx,dx			; dx = handle index
 	mov	cx,NUM_HANDLES		; loop enough for all handles
@@ -1187,7 +1187,7 @@ Address_Get_Physical_Address:
 
 ;	set up some things for the loop
 
-	mov	di,cs:[bp].IE_Saved_DI_Reg ; restore caller's DI, pointer to handle area
+	mov	di,[cs:bp].IE_Saved_DI_Reg ; restore caller's DI, pointer to handle area
 
 	mov	cx,map_count		; number of entries in table
 
@@ -1200,11 +1200,11 @@ Address_Get_Physical_Address:
 
 copy_address_array:
 
-	mov	ax,DS:[si+phys_page_segment]
-	mov	ES:[di],ax
+	mov	ax,[DS:si+phys_page_segment]
+	mov	[ES:di],ax
 	add	di,2			; increment destination pointer
-	mov	ax,DS:[si+phys_page_number]
-	mov	ES:[di],ax
+	mov	ax,[DS:si+phys_page_number]
+	mov	[ES:di],ax
 
 	add	si,type mappable_phys_page_struct ; increment pointer
 	add	di,2			; increment destination pointer
@@ -1268,7 +1268,7 @@ hi_exit:
 
 hi_info_fcn:
 
-	mov	di,cs:[bp].IE_Saved_DI_Reg ; get di register
+	mov	di,[cs:bp].IE_Saved_DI_Reg ; get di register
 
 	mov	es:word[di+0],1024	; raw page size = 16KB
 	mov	es:word[di+2],0	; number of alternate register sets
@@ -1372,7 +1372,7 @@ AM_Get_Continue:
 
 	mov	di,cs:AM_DI_Save
 	mov	es,cs:AM_ES_Save
-	mov	cs:[bp].IE_Saved_DI_Reg,di;set instance table entry		;an000; dms;
+	mov	[cs:bp].IE_Saved_DI_Reg,di;set instance table entry		;an000; dms;
 
 	call	GET_SUBFCN		; copy the save area info to user's buffer
 
@@ -1398,7 +1398,7 @@ _am_set:
 	cmp	bl,null 		; bl must be 0 for us
 	jne	_am_set_error		; set error code and exit
 
-	mov	di,cs:[bp].IE_Saved_DI_Reg ; restore caller's DI, pointer to mapping control structure
+	mov	di,[cs:bp].IE_Saved_DI_Reg ; restore caller's DI, pointer to mapping control structure
 
 	mov	cs:AM_ES_Save,es	; save es value 			;an000; dms;
 	mov	cs:AM_DI_Save,di	; save di value 			;an000; dms;

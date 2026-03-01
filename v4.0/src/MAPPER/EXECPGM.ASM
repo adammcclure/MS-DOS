@@ -56,14 +56,14 @@ inv_parm equ 0002
 not_suf_mem equ 0004
 
 struc str
-old_bp: dw 0
-return: dd 0
-Pgmpointer: dd 0; address of program file name
-Processid: dd 0; this is used when only sync exec
-EnvPointer: dd 0; address of environment string
-ArgPointer: dd 0; address of argument string
-Traceindic: dw 0; ignored,  what is a trace process?
-Asyncindic: dw 0; ignored,  PC-DOS always waits!
+old_bp: resw 1
+return: resd 1
+Pgmpointer: resd 1; address of program file name
+Processid: resd 1; this is used when only sync exec
+EnvPointer: resd 1; address of environment string
+ArgPointer: resd 1; address of argument string
+Traceindic: resw 1; ignored,  what is a trace process?
+Asyncindic: resw 1; ignored,  PC-DOS always waits!
 endstruc
 
 dosexecpgm:; push registers

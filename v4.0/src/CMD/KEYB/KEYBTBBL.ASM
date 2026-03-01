@@ -197,11 +197,11 @@ TABLE_BUILD:;;
 TB_CHECK_CONTINUE1:                       ;;;;;;;;
         MOV   BP,SD_SOURCE_PTR           ;;    Put language parm and    ;AN000
         MOV   AX,TB_ID_PARM                     ;; WGR id parm and..           ;AN000
-        MOV   ES:[BP].INVOKED_KBD_ID,AX         ;; WGR
+        MOV   [ES:BP].INVOKED_KBD_ID,AX         ;; WGR
         MOV   BX,TB_CODE_PAGE_PARM              ;;
-        MOV   ES:[BP].INVOKED_CP_TABLE,BX       ;;;;;; code page parm into the
+        MOV   [ES:BP].INVOKED_CP_TABLE,BX       ;;;;;; code page parm into the
         MOV   AX,TB_LANGUAGE_PARM                   ;;  SHARED_DATA_AREA
-        MOV   word ES:[BP].ACTIVE_LANGUAGE,AX   ;;
+        MOV   word [ES:BP].ACTIVE_LANGUAGE,AX   ;;
                                                     ;;
         MOV   BX,KEYBSYS_FILE_HANDLE   ;;;;;;;;;;;;;;; Get handle
         XOR   DX,DX                    ;; LSEEK file pointer
@@ -265,7 +265,7 @@ TB_STATE_CONTINUE2:                            ;;
         MOV   word SB_STATE_OFFSET,DX      ;;     states in Keyb Def file
                                                ;;
         SUB   DI,SD_AREA_DIFFERENCE            ;;  Adjust for relocation
-        MOV   ES:[BP].LOGIC_PTR,DI     ;;;;;;;;;;  Set because this is state
+        MOV   [ES:BP].LOGIC_PTR,DI     ;;;;;;;;;;  Set because this is state
         ADD   DI,SD_AREA_DIFFERENCE    ;;  Adjust for relocation
                                        ;;
         MOV   CX,4                     ;; Set number bytes to read length and
@@ -284,33 +284,33 @@ TB_STATE_CONTINUE3:                    ;;
                                        ;;;;;
 TB_ERROR_CHECK2:                          ;;
         MOV   AX,FB.KT_SPECIAL_FEATURES   ;; Save the special features in the
-        MOV   ES:[BP].SPECIAL_FEATURES,AX ;;  SHARED_DATA_AREA
+        MOV   [ES:BP].SPECIAL_FEATURES,AX ;;  SHARED_DATA_AREA
                                           ;;
         CMP   HW_TYPE,JR_KB               ;;;;;;;;
         JNE   USE_F1_F2                         ;;
         TEST  AX,JR_HOT_KEY_1_2                 ;;
         JZ    USE_F1_F2                         ;;
-        MOV   ES:[BP].HOT_KEY_ON_SCAN,ONE_SCAN  ;;
-        MOV   ES:[BP].HOT_KEY_OFF_SCAN,TWO_SCAN ;;
+        MOV   [ES:BP].HOT_KEY_ON_SCAN,ONE_SCAN  ;;
+        MOV   [ES:BP].HOT_KEY_OFF_SCAN,TWO_SCAN ;;
         JMP   HOT_KEY_SET                       ;;
                                                 ;;
 USE_F1_F2:                                      ;;
-        MOV   ES:[BP].HOT_KEY_ON_SCAN,F1_SCAN   ;;
-        MOV   ES:[BP].HOT_KEY_OFF_SCAN,F2_SCAN  ;;
+        MOV   [ES:BP].HOT_KEY_ON_SCAN,F1_SCAN   ;;
+        MOV   [ES:BP].HOT_KEY_OFF_SCAN,F2_SCAN  ;;
                                                 ;;
 HOT_KEY_SET:                              ;;;;;;;;
         MOV   CX,FB.KT_LOGIC_LEN          ;; Set length of section to read
         CMP   CX,0                        ;;
         JNE   TB_STATE_CONTINUE4          ;;
         MOV   CX,-1                    ;;;;;
-        MOV   ES:[BP].LOGIC_PTR,CX     ;;
+        MOV   [ES:BP].LOGIC_PTR,CX     ;;
         JMP   SB_COMM_BEGIN            ;;
                                        ;;
 TB_STATE_CONTINUE4:                    ;;
-        MOV   ES:[DI],CX               ;; Store length parameter in
+        MOV   [ES:DI],CX               ;; Store length parameter in
         ADD   DI,2                     ;;                  SHARED_DATA_AREA
         MOV   CX,FB.KT_SPECIAL_FEATURES;; Save the special features
-        MOV   ES:[DI],CX               ;;
+        MOV   [ES:DI],CX               ;;
         ADD   DI,2                     ;;
         MOV   CX,FB.KT_LOGIC_LEN       ;; Set length of section to read
         SUB   CX,4                     ;; Adjust for what we have already read
@@ -356,7 +356,7 @@ SB_COMM_BEGIN:                         ;;
         JMP   TB_ERROR4                ;;
                                        ;;
 TB_STATE_CONTINUE6:                    ;;
-        MOV   CX,ES:[DI].KX_SECTION_LEN;; Set length of section to read
+        MOV   CX,[ES:DI].KX_SECTION_LEN;; Set length of section to read
         CMP   CX,0                     ;;
         JNE   TB_STATE_CONTINUE7       ;;
         JMP   TB_CP_BEGIN              ;;
@@ -366,7 +366,7 @@ TB_STATE_CONTINUE7:                         ;;
         ADD   CX,FB.KT_LOGIC_LEN            ;;
         MOV   word SB_STATE_OFFSET,CX   ;;  Save the offset of the
         SUB   DI,SD_AREA_DIFFERENCE         ;;  Adjust for relocation
-        MOV   ES:[BP].COMMON_XLAT_PTR,DI    ;;
+        MOV   [ES:BP].COMMON_XLAT_PTR,DI    ;;
         ADD   DI,SD_AREA_DIFFERENCE         ;;  Adjust for relocation
                                        ;;;;;;;
         CALL  STATE_BUILD              ;;
@@ -387,7 +387,7 @@ TB_CP_BEGIN:                                           ;; Get the offset to
         MOV   DESIG_CP_OFFSET,CX                       ;; table of designated
                                                    ;;;;;; code pages
 TB_CPN_BEGIN:                                      ;;
-        MOV   AX,word ES:[BP].ACTIVE_LANGUAGE  ;; Get the active language
+        MOV   AX,word [ES:BP].ACTIVE_LANGUAGE  ;; Get the active language
         MOV   CX,NUM_DESIG_CP          ;;;;;;;;;;;;;; Get the number of CPs
         CMP   CX,0                     ;; IF we have done all requested CPs
         JNE   TB_CPN_VALID1            ;;
@@ -437,12 +437,12 @@ TB_CPN_CONTINUE3:                              ;;
         JNE   TB_CPN_CONTINUE4              ;;  Then
                                             ;;
         SUB   DI,SD_AREA_DIFFERENCE         ;;  Adjust for relocation
-        MOV   ES:[BP].ACTIVE_XLAT_PTR,DI    ;;  Set active xlat section
+        MOV   [ES:BP].ACTIVE_XLAT_PTR,DI    ;;  Set active xlat section
         ADD   DI,SD_AREA_DIFFERENCE         ;;  Adjust for relocation
                                        ;;;;;;;
 TB_CPN_CONTINUE4:                      ;;
         SUB   DI,SD_AREA_DIFFERENCE    ;;  Adjust for relocation
-        MOV   ES:[BP].FIRST_XLAT_PTR,DI;;          Set flag
+        MOV   [ES:BP].FIRST_XLAT_PTR,DI;;          Set flag
         ADD   DI,SD_AREA_DIFFERENCE    ;;  Adjust for relocation
                                        ;;
 TB_CPN_CONTINUE5:                      ;;
@@ -476,17 +476,17 @@ TB_DONE:                               ;;
         SUB   CX,SD_AREA_DIFFERENCE             ;;  Adjust for relocation
         MOV   ES,word SHARED_AREA_PTR       ;;    Set segment
         MOV   BP,word SHARED_AREA_PTR+2     ;;
-        CMP   CX,ES:[BP].RESIDENT_END           ;;
+        CMP   CX,[ES:BP].RESIDENT_END           ;;
         JNA   TB_DONE_CONTINUE1        ;;;;;;;;;;;
         JMP   TB_ERROR5                ;;
                                        ;;
 TB_DONE_CONTINUE1:                     ;;
-        CMP   ES:[BP].RESIDENT_END,-1  ;;
+        CMP   [ES:BP].RESIDENT_END,-1  ;;
         JNE   DONT_REPLACE             ;;
         PUSH  CS                       ;;
         POP   ES                       ;;
         MOV   BP,SD_SOURCE_PTR  ;;
-        MOV   ES:[BP].RESIDENT_END,CX  ;;  Save resident end
+        MOV   [ES:BP].RESIDENT_END,CX  ;;  Save resident end
         JMP   CONTINUE_2_END           ;;
                                        ;;
 DONT_REPLACE:                          ;;
@@ -611,7 +611,7 @@ SB_HEAD_CONTINUE1:                     ;;
         SUB   DX,SD_AREA_DIFFERENCE    ;;  Adjust for relocation
                                        ;;;;;
 SB_HEAD_CONTINUE2:                        ;;
-        MOV   ES:[DI].XS_NEXT_SECT_PTR,DX ;;
+        MOV   [ES:DI].XS_NEXT_SECT_PTR,DX ;;
         CMP   DX,-1                       ;;
         JE    SB_HEAD_CONTINUE3        ;;;;;
         ADD   DX,SD_AREA_DIFFERENCE    ;;  Adjust for relocation
@@ -632,7 +632,7 @@ SB_NEXT_STATE:                         ;;
 SB_CONTINUE1:                          ;;
         PUSH  CS                       ;; Reset the data segment
         POP   DS                       ;;
-        MOV   CX,ES:[DI].KX_STATE_LEN  ;; If the length of the state section
+        MOV   CX,[ES:DI].KX_STATE_LEN  ;; If the length of the state section
         MOV   STATE_LENGTH,CX          ;;
         ADD   DI,2                     ;;  is zero then done
         CMP   CX,0                     ;;
@@ -650,10 +650,10 @@ SB_CONTINUE1A:                         ;;
         PUSH  CS                       ;; Reset the data segment
         POP   DS                       ;;
         SUB   DI,2                     ;;
-        MOV   AX,ES:[DI].XS_KBD_TYPE   ;;   Get the keyboard type def
+        MOV   AX,[ES:DI].XS_KBD_TYPE   ;;   Get the keyboard type def
         TEST  AX,HW_TYPE               ;;   Does it match our hardware?
         JNZ   SB_CONTINUE2             ;;
-        MOV   DX,ES:[DI].XS_STATE_LEN  ;;     No, then
+        MOV   DX,[ES:DI].XS_STATE_LEN  ;;     No, then
         LEA   CX,[BP].KX_FIRST_XLAT    ;;
         SUB   DX,CX                    ;;
         XOR   CX,CX                    ;;

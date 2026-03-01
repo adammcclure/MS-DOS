@@ -261,7 +261,7 @@ ioctl_check_permissions:
 	CMP	AL,2
 	JAE	ioctl_control_string
 	CMP	AL,0
-	MOV	AL,byte ES:[DI.sf_flags]; Get low byte of flags
+	MOV	AL,byte [ES:DI+sf_flags]; Get low byte of flags
 	JZ	ioctl_read		; read the byte
 	PUSH	DX			;AN000;MS.
 	AND	DH,0FEH 		;AN000;MS.allow DH=01H
@@ -279,9 +279,9 @@ ioctl_check_device:
 					;   device bit!! He can muck with the
 					;   others at will.
 	MOV	[EXTERR_LOCUS],errLOC_SerDev
-	MOV	byte ES:[DI.sf_flags],DL  ;AC000;MS.; Set flags
+	MOV	byte [ES:DI+sf_flags],DL  ;AC000;MS.; Set flags
 do_exception:
-	OR	byte ES:[DI.sf_flags+1],DH;AN000;MS.;set 100H bit for disk full
+	OR	byte [ES:DI+sf_flags+1],DH;AN000;MS.;set 100H bit for disk full
 
 	transfer    SYS_RET_OK
 
@@ -295,25 +295,25 @@ ioctl_read:
 	TEST	AL,devid_device 	; Should I set high byte
 	JZ	ioctl_no_high		; no
 	MOV	[EXTERR_LOCUS],errLOC_SerDev
-	LES	DI,ES:[DI.sf_devptr]	; Get device pointer
-	MOV	AH,byte ES:[DI.SDEVATT+1]	; Get high byte
+	LES	DI,[ES:DI+sf_devptr]	; Get device pointer
+	MOV	AH,byte [ES:DI+SDEVATT+1]	; Get high byte
 ioctl_no_high:
 	MOV	DX,AX
 	invoke	get_user_stack
-	MOV	[SI.user_DX],DX
+	MOV	[SI+user_DX],DX
 	transfer    SYS_RET_OK
 
 ioctl_control_string:
-	TEST	ES:[DI.sf_flags],devid_device	; can I?
+	TEST	[ES:DI+sf_flags],devid_device	; can I?
 	JNZ	ioctl_ctl_str_1
 	JMP	ioctl_bad_fun			; No it is a file
 ioctl_ctl_str_1:
-	TEST	ES:[DI.sf_flags],sf_isnet	;AN000;IFS.; IFS ?
+	TEST	[ES:DI+sf_flags],sf_isnet	;AN000;IFS.; IFS ?
 	JZ	localrw 			;AN000;IFS.; no
 	JMP	callifs 			;AN000;IFS.; call IFS
 localrw:
 	MOV	[EXTERR_LOCUS],errLOC_SerDev
-	LES	DI,ES:[DI.sf_devptr]	; Get device pointer
+	LES	DI,[ES:DI+sf_devptr]	; Get device pointer
 	XOR	BL,BL			; Unit number of char dev = 0
 	JMP	ioctl_do_string
 
@@ -404,12 +404,12 @@ goodh:
 	JZ	okokok			;AN000;;IFS.
 	jmp	ioctl_bad_fun		; Cannot do this over net.
 okokok:
-	TEST	[DI.sf_flags],sf_isnet	;AN000;IFS.; local IFS
+	TEST	[DI+sf_flags],sf_isnet	;AN000;IFS.; local IFS
 	JNZ	callifs 		;AN000;IFS.; yes
 
 
 	mov	[EXTERR_LOCUS],ErrLOC_Serdev
-	les	di,es:[di.sf_devptr]	; Get pointer to device.
+	les	di,[es:di+sf_devptr]	; Get pointer to device.
 	jmp	short Do_GenIOCTL
 
 GENERICIOCTL:
@@ -421,7 +421,7 @@ GENERICIOCTL:
 	PUSH	ES			;   certainly don't know how to do this ;AN000;
 	PUSH	DI				 ;AN000;IFS.
 	LES	DI,[THISCDS]			 ;AN000;IFS.	 ;
-	TEST	ES:[DI.curdir_flags],curdir_isnet;AN000;IFS.	 ; local IFS ?
+	TEST	[ES:DI+curdir_flags],curdir_isnet;AN000;IFS.	 ; local IFS ?
 	POP	DI				 ;AN000;IFS.
 	POP	ES				 ;AN000;IFS.
 	JZ	Do_GenIOCTL			 ;AN000;IFS.	 ; no
@@ -442,7 +442,7 @@ callrose:
 	MOV	DI,AX			     ;AN000;	     ;IFS.
 	JMP	device_err		     ;AN000;	     ;IFS.
 Do_GenIOCTL:
-	test	ES:[DI.SDEVATT],DEV320	; Can device handle Generic IOCTL funcs
+	test	[ES:DI+SDEVATT],DEV320	; Can device handle Generic IOCTL funcs
 	jz	ioctl_bad_fun
 	PUSH	ES			; DEVIOCALL2 expects Device header block
 	PUSH	DI			; in DS:SI
@@ -481,7 +481,7 @@ ioctl_rem_media:
 	JNZ	ioctl_bad_fun		; There are no "net devices", and they
 					;   certainly don't know how to do this
 					;   call.
-	TEST	ES:[DI.SDEVATT],DEVOPCL ; See if device can
+	TEST	[ES:DI+SDEVATT],DEVOPCL ; See if device can
 	JZ	ioctl_bad_fun		; NO
 	MOV	[IOCALL.REQFUNC],DEVRMD
 	MOV	AL,REMHL
@@ -515,7 +515,7 @@ Ioctl_Drive_attr:
 	call	Get_Driver_BL
 	JC	ioctl_drv_err		; drive not valid
 	MOV	AX,[Temp_Var2]		;AN000;IFS.
-	mov	dx,word es:[di.SDEVATT]	; get device attribute word
+	mov	dx,word [es:di+SDEVATT]	; get device attribute word
 	MOV	BL,AL			; Phys letter to BL (A=0)
 	LES	DI,[THISCDS]
 ;;;;;	TEST	ES:[DI.curdir_flags],curdir_isnet
@@ -535,13 +535,13 @@ IOCTLShare:
 	JNC	ioctlLocal		; Not shared
 	OR	DX,0200H		; Shared, bit 9
 IOCTLLocal:
-	TEST	ES:[DI].curdir_flags,curdir_local
+	TEST	[ES:DI].curdir_flags,curdir_local
 	JZ	ioctl_set_dx
 	OR	DX,8000h
 
 ioctl_set_DX:
 	invoke	get_user_stack
-	MOV	[SI.user_DX],DX
+	MOV	[SI+user_DX],DX
 	transfer    SYS_RET_OK
 
 ioctl_drv_err:
@@ -555,7 +555,7 @@ Ioctl_Handle_redir:
 	error	error_invalid_handle
 
 ioctl_got_sft:
-	MOV	DX,ES:[DI.sf_flags]	; Get flags
+	MOV	DX,[ES:DI+sf_flags]	; Get flags
 	JMP	ioctl_set_DX
 
 ioctl_bad_funj:
@@ -568,7 +568,7 @@ ioctl_get_dev:
 					;   certainly don't know how to do this
 					;   call.
 ioctl_do_string:
-	TEST	ES:[DI.SDEVATT],DEVIOCTL; See if device accepts control
+	TEST	[ES:DI+SDEVATT],DEVIOCTL; See if device accepts control
 	JZ	ioctl_bad_funj		; NO
 	DEC	AL
 	DEC	AL
@@ -632,11 +632,11 @@ ioctl_goodrv:
 	LES	DI,[THISCDS]
 ;	TEST	ES:[DI.curdir_flags],curdir_isnet
 	CALL	TEST_IFS_REMOTE2	;AN000;;IFS. test if remote
-	LES	DI,ES:[DI.curdir_devptr]; ES:DI -> Dpb or net dev
+	LES	DI,[ES:DI+curdir_devptr]; ES:DI -> Dpb or net dev
 	JNZ	got_dev_ptr		; Is net
 	MOV	[EXTERR_LOCUS],errLOC_Disk
-	MOV	BL,ES:[DI.dpb_UNIT]	; Unit number
-	LES	DI,ES:[DI.dpb_driver_addr]  ; Driver addr
+	MOV	BL,[ES:DI+dpb_UNIT]	; Unit number
+	LES	DI,[ES:DI+dpb_driver_addr]  ; Driver addr
 got_dev_ptr:
 	CLC
 	MOV	[Temp_Var2],AX		     ;AN000;IFS.
@@ -664,11 +664,11 @@ entry TEST_IFS_REMOTE2
 	PUSH	ES
 	PUSH	DI
 	LES	DI,[THISCDS]
-	TEST	ES:[DI.curdir_flags],curdir_isnet
+	TEST	[ES:DI+curdir_flags],curdir_isnet
 	JZ	belocal 		       ;AN000;	 ;IFS.
-	LES	DI,ES:[DI.curdir_ifs_hdr]      ;AN000;	 ;IFS.	test if remote
+	LES	DI,[ES:DI+curdir_ifs_hdr]      ;AN000;	 ;IFS.	test if remote
 TEST_REMOTE:				       ;AN000;
-	TEST	ES:[DI.ifs_attribute],IFSREMOTE;AN000;	 ;IFS.
+	TEST	[ES:DI+ifs_attribute],IFSREMOTE;AN000;	 ;IFS.
 belocal:
 	POP	DI
 	POP	ES
@@ -690,7 +690,7 @@ ioctl_drive_owner:
 	JNZ	ioctl_bad_funj3 	; There are no "net devices", and they
 					;   certainly don't know how to do this
 					;   call.
-	TEST	ES:[DI.SDEVATT],DEV320	; See if device can handle this
+	TEST	[ES:DI+SDEVATT],DEV320	; See if device can handle this
 	JZ	ioctl_bad_funj3 	; NO
 	dec	al
 	jz	GetOwner
@@ -731,11 +731,11 @@ EndProc $IOCTL
 	procedure   TEST_IFS_REMOTE,NEAR  ;AN000;
 	; ASSUME	DS:NOTHING,ES:NOTHING;AN000;
 
-	TEST	ES:[DI.sf_flags],sf_isnet ;AN000;;IFS.	ifs ?
+	TEST	[ES:DI+sf_flags],sf_isnet ;AN000;;IFS.	ifs ?
 	JZ	nonifs			  ;AN000;;IFS.	no
 	PUSH	ES		       ;AN000;;IFS. save regs
 	PUSH	DI		       ;AN000;;IFS.
-	LES	DI,ES:[DI.sf_IFS_hdr]  ;AN000;;IFS. get ifs header
+	LES	DI,[ES:DI+sf_IFS_hdr]  ;AN000;;IFS. get ifs header
 	JMP	TEST_REMOTE	       ;AN000;;IFS.
 nonifs: 			       ;AN000;
 	return			       ;AN000;;IFS.

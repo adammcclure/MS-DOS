@@ -71,14 +71,14 @@ StackInit:;3.30
 	PUSH	BP							       ;3.30
 									       ;3.30
 ;Currently ES -> stack code area					       ;3.30
-	MOV	AX, cs:[STACK_COUNT]		   ;defined in CS	       ;3.30
-	MOV	es:[STACKCOUNT], AX		   ;defined in STACK CODE AREA ;3.30
+	MOV	AX, [cs:STACK_COUNT]		   ;defined in CS	       ;3.30
+	MOV	[es:STACKCOUNT], AX		   ;defined in STACK CODE AREA ;3.30
 	MOV	AX, [STACK_SIZE]		;in CS			       ;3.30
-	MOV	es:[STACKSIZE], AX		   ;			       ;3.30
-	MOV	AX, word cs:[STACK_ADDR]	   ; OFFSET		       ;3.30
-	MOV	word es:[STACKS], AX				       ;3.30
-	MOV	AX, word cs:[STACK_ADDR+WORD]  ; SEGMENT		       ;3.30
-	MOV	word es:[STACKS+WORD], AX				       ;3.30
+	MOV	[es:STACKSIZE], AX		   ;			       ;3.30
+	MOV	AX, word [cs:STACK_ADDR]	   ; OFFSET		       ;3.30
+	MOV	word [es:STACKS], AX				       ;3.30
+	MOV	AX, word [cs:STACK_ADDR+WORD]  ; SEGMENT		       ;3.30
+	MOV	word [es:STACKS+WORD], AX				       ;3.30
 									       ;3.30
 ; INITIALIZE THE DATA FIELDS WITH THE PARAMETERS			       ;3.30
 									       ;3.30
@@ -108,7 +108,7 @@ StackInit:;3.30
 	pop	ds				;ds = Relocated stack code seg.;3.30
 	; assume	ds:nothing;3.30
 ;Now, DS -> stack code area						       ;3.30
-	MOV	ES, word ds:[STACKS+2]	   ; GET SEGMENT OF STACK AREA.;3.30
+	MOV	ES, word [ds:STACKS+2]	   ; GET SEGMENT OF STACK AREA.;3.30
 	CLD								       ;3.30
 	REP	STOSB							       ;3.30
 									       ;3.30
@@ -127,7 +127,7 @@ BUILDLOOP:								       ;3.30
 	MOV	SAVEDSS,AX						       ;3.30
 	ADD	BX,ds:STACKSIZE 					       ;3.30
 	MOV	NEWSP,BX						       ;3.30
-	MOV	ES:[BX],BP						       ;3.30
+	MOV	[ES:BX],BP						       ;3.30
 	ADD	BP,ENTRYSIZE						       ;3.30
 									       ;3.30
 	LOOP	BUILDLOOP						       ;3.30
@@ -167,17 +167,17 @@ Skip_disableNMIS:							       ;3.30
 									       ;3.30
 	MOV	SI,AA&H*4		;PASS WHERE VECTOR IS TO BE ADJUSTED   ;3.30
 	push	ds			;save relocated stack code segment     ;3.30
-	lds	bx, es:[si]		;ds:bx -> original interrupt handler   ;3.30
+	lds	bx, [es:si]		;ds:bx -> original interrupt handler   ;3.30
 	push	ds							       ;3.30
 	pop	dx			;dx = segment value		       ;3.30
 
 	cmp	dx,0
 	jz	int&AA&_first
 
-	cmp	byte ds:[bx],0cfh	;Does vector point to an IRET?
+	cmp	byte [ds:bx],0cfh	;Does vector point to an IRET?
 	jz	int&AA&_first
 
-	cmp	word ds:[bx.6],424Bh ;Magic offset (see INT&AA, msstack.inc)
+	cmp	word [ds:bx+6],424Bh ;Magic offset (see INT&AA, msstack.inc)
 	jz	int&AA&_Not_first
 
 	cmp	dx,0f000h		;ROM BIOS segment
@@ -251,21 +251,21 @@ NEW_INIT_LOOP:;3.30
 ;	es=ZERO, SEGID OF VECTOR TABLE					       ;3.30
 ;	ds=Relocated Stack code segment 				       ;3.30
 									       ;3.30
-	MOV	AX,es:[SI+0]	       ;REMEMBER OFFSET IN VECTOR	       ;3.30
-	MOV	word ds:[BX],AX	  ; TO ORIGINAL OWNER in DS	       ;3.30
-	MOV	AX,es:[SI+2]	       ;REMEMBER SEGID IN VECTOR	       ;3.30
-	MOV	word ds:[BX]+2,AX	  ; TO ORIGINAL OWNER in DS	       ;3.30
+	MOV	AX,[es:SI+0]	       ;REMEMBER OFFSET IN VECTOR	       ;3.30
+	MOV	word [ds:BX],AX	  ; TO ORIGINAL OWNER in DS	       ;3.30
+	MOV	AX,[es:SI+2]	       ;REMEMBER SEGID IN VECTOR	       ;3.30
+	MOV	word [ds:BX]+2,AX	  ; TO ORIGINAL OWNER in DS	       ;3.30
 	push	ds							       ;3.30
 	mov	ax, code						       ;3.30
 	mov	ds, ax			;Set Int19OLDxx value in BIOS for      ;3.30
-	mov	ax,es:[si+0]		;Int 19 handler 		       ;3.30
-	mov	word ds:[di],ax					       ;3.30
-	mov	ax,es:[si+2]						       ;3.30
-	mov	word ds:[di]+2,ax					       ;3.30
+	mov	ax,[es:si+0]		;Int 19 handler 		       ;3.30
+	mov	word [ds:di],ax					       ;3.30
+	mov	ax,[es:si+2]						       ;3.30
+	mov	word [ds:di]+2,ax					       ;3.30
 	pop	ds							       ;3.30
 									       ;3.30
-	MOV	word es:[SI+0],DX  ;SET VECTOR TO POINT TO NEW INT HANDLER ;3.30
-	MOV	es:[SI+2],ds						       ;3.30
+	MOV	word [es:SI+0],DX  ;SET VECTOR TO POINT TO NEW INT HANDLER ;3.30
+	MOV	[es:SI+2],ds						       ;3.30
 	RET								       ;3.30
 ; ENDP NEW_INIT_LOOP;3.30
 									       ;3.30

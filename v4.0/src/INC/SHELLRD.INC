@@ -38,16 +38,16 @@ INIT_GTEXT:
 ;
 	       CALL far GET_PCB	     ;return panel address at ES:DI
 ;
-	       PUSH ES:[DI]+PCB_FLAGSEG      ;flag string segment
-	       PUSH ES:[DI]+PCB_FLAGOFF      ;flag string offset
-	       PUSH ES:[DI]+PCB_EXPANDSEG    ;segment of text string
-	       PUSH ES:[DI]+PCB_EXPANDOFF    ;offset of text string
-	       PUSH ES:[DI]+PCB_WIDTH	     ;width of panel
-	       PUSH ES:[DI]+PCB_LROW	     ;lower right corner
-	       PUSH ES:[DI]+PCB_UCOL	     ;column location of panel
-	       PUSH ES:[DI]+PCB_UROW	     ;row location of panel
-	       PUSH ES:[DI]+PCB_CCBID	     ;Index number of log color
-	       MOV  AL,ES:[DI]+PCB_OPT4
+	       PUSH [ES:DI]+PCB_FLAGSEG      ;flag string segment
+	       PUSH [ES:DI]+PCB_FLAGOFF      ;flag string offset
+	       PUSH [ES:DI]+PCB_EXPANDSEG    ;segment of text string
+	       PUSH [ES:DI]+PCB_EXPANDOFF    ;offset of text string
+	       PUSH [ES:DI]+PCB_WIDTH	     ;width of panel
+	       PUSH [ES:DI]+PCB_LROW	     ;lower right corner
+	       PUSH [ES:DI]+PCB_UCOL	     ;column location of panel
+	       PUSH [ES:DI]+PCB_UROW	     ;row location of panel
+	       PUSH [ES:DI]+PCB_CCBID	     ;Index number of log color
+	       MOV  AL,[ES:DI]+PCB_OPT4
 ;
 	       LEA  DI,GEN_DATA 	     ;point graphics window structure
 					     ; to data area
@@ -88,7 +88,7 @@ IGT10:	       MOV  [DI]+G_DRAWTOPT,BX	     ;option word
 	       PUSH ES			     ;save pointer to panel data
 	       PUSH DI
 	       CALL far GET_COLOR	     ;get color attribute
-	       MOV  AL,ES:[DI]+CCB_A1	     ;get normal panel color
+	       MOV  AL,[ES:DI]+CCB_A1	     ;get normal panel color
 	       POP  DI			     ;point back to panel data
 	       POP  ES
 	       MOV  [DI]+G_DRAWT_A,AL	     ;window attribute
@@ -229,7 +229,7 @@ SI11:	       MOV  AX,0		     ;turn monocasing off
 SI12:	       CMP  COM_MOK,1		     ;check if keyboard input
 	       JE   SI15
 ;
-	       CMP  BX,ES:[DI]+KY_ENTER      ;check if Enter pressed
+	       CMP  BX,[ES:DI]+KY_ENTER      ;check if Enter pressed
 	       JNE  SI13
 ;
 	       CMP  COM_SCROPT,1	     ;is this the multiple select opt?
@@ -238,7 +238,7 @@ SI12:	       CMP  COM_MOK,1		     ;check if keyboard input
 	       MOV  AX,COM_CURPUPF	     ;get current highlighted field
 	       CALL far GET_MOUSEF	     ;get mouse structure
 ;
-	       MOV  AX,ES:[DI]+MS_KEYS	     ;keystroke assigned to field
+	       MOV  AX,[ES:DI]+MS_KEYS	     ;keystroke assigned to field
 	       MOV  COM_KEY,AX
 	       MOV  COM_MOK,0		     ;set for keystroke input
 ;
@@ -246,7 +246,7 @@ SI13:	       JMP  SIEXIT		     ;mouse action exit
 ;
 ; Process down arrow key
 ;
-SI15:	       CMP  BX,ES:[DI]+KY_DARROW     ;check if up arrow pressed
+SI15:	       CMP  BX,[ES:DI]+KY_DARROW     ;check if up arrow pressed
 	       JNE  SI30
 ;
 	       CMP  COM_CURPUPF,CX	     ;check if below last field
@@ -263,7 +263,7 @@ SI20:	       PUSH COM_HCBIDL		     ;initialize help to first field
 ;
 ; process up arrow key
 ;
-SI30:	       CMP  BX,ES:[DI]+KY_UARROW     ;check if up arrow pressed
+SI30:	       CMP  BX,[ES:DI]+KY_UARROW     ;check if up arrow pressed
 	       JNE  SI50
 ;
 	       CMP  COM_CURPUPF,DX	     ;check if above first field
@@ -297,7 +297,7 @@ SI45:	       CALL far MOUSE_OFF	     ;turn mouse pointer off
 ;
 ; Process Enter key
 ;
-SI50:	       CMP  BX,ES:[DI]+KY_ENTER      ;check if Enter pressed
+SI50:	       CMP  BX,[ES:DI]+KY_ENTER      ;check if Enter pressed
 	       JNE  SI60
 ;
 	       CMP  COM_SCROPT,1	     ;is this the multiple select opt?
@@ -306,14 +306,14 @@ SI50:	       CMP  BX,ES:[DI]+KY_ENTER      ;check if Enter pressed
 	       MOV  AX,COM_CURPUPF	     ;get current highlighted field
 	       CALL far GET_MOUSEF	     ;get mouse structure
 ;
-	       MOV  AX,ES:[DI]+MS_KEYS	     ;keystroke assigned to field
+	       MOV  AX,[ES:DI]+MS_KEYS	     ;keystroke assigned to field
 	       MOV  COM_KEY,AX
 	       MOV  COM_MOK,0		     ;set for keystroke input
 	       JMP  SIEXIT		     ;exit process_scroll
 ;
 ; if escape key, exit
 ;
-SI60:	       CMP  BX,ES:[DI]+KY_CANCEL     ;check if Escape pressed
+SI60:	       CMP  BX,[ES:DI]+KY_CANCEL     ;check if Escape pressed
 	       JNE  SI70
 ;
 	       JMP  SIEXIT
@@ -333,7 +333,7 @@ SI80:	       JMP  SI100		     ;poll for next keystroke
 ;
 ; multiple select, exit on spacebar
 ;
-SI90:	       CMP  BX,ES:[DI]+KY_SELECT     ;was this the space bar?
+SI90:	       CMP  BX,[ES:DI]+KY_SELECT     ;was this the space bar?
 	       JE   SIEXIT		     ;yes, exit routine
 ;
 SI100:	       CALL far PCMBEEP_CALL     ;beep on unknown keystroke  P*3940
@@ -430,31 +430,31 @@ PH03:	       CALL far MOUSE_OFF	     ;turn mouse pointer off
 ;
 ; initialize, display and exit field
 ;
-	       AND  ES:[DI]+ICB_OPT1,NOT ICB_PSW
+	       AND  [ES:DI]+ICB_OPT1,NOT ICB_PSW
 					     ;deactivate password option
 	       CMP  COM_INOPT,0 	     ;check if password option is on
 	       JE   PH04
 ;
-	       OR   ES:[DI]+ICB_OPT1,ICB_PSW ;activate password option
+	       OR   [ES:DI]+ICB_OPT1,ICB_PSW ;activate password option
 ;
-PH04:	       AND  ES:[DI]+ICB_STATUS,NOT ICB_DONE
-	       AND  ES:[DI]+ICB_STATUS,NOT ICB_SINS
+PH04:	       AND  [ES:DI]+ICB_STATUS,NOT ICB_DONE
+	       AND  [ES:DI]+ICB_STATUS,NOT ICB_SINS
 ;
-	       MOV  ES:[DI]+ICB_CURCHAR,1
+	       MOV  [ES:DI]+ICB_CURCHAR,1
 ;
-PH05:	       OR   ES:[DI]+ICB_OPT4,ICB_INIT
-	       AND  ES:[DI]+ICB_OPT3,NOT ICB_KEY
+PH05:	       OR   [ES:DI]+ICB_OPT4,ICB_INIT
+	       AND  [ES:DI]+ICB_OPT3,NOT ICB_KEY
 	       CALL far PCINPUT_CALL     ;initialize field
-	       AND  ES:[DI]+ICB_OPT4,NOT ICB_INIT
-	       OR   ES:[DI]+ICB_OPT3,ICB_KEY
+	       AND  [ES:DI]+ICB_OPT4,NOT ICB_INIT
+	       OR   [ES:DI]+ICB_OPT3,ICB_KEY
 					     ;remove initialization option
 ;
 ; Process field
 ;
 PH06:	       XOR  AX,AX
-	       OR   ES:[DI]+ICB_OPT3,ICB_KEY
-	       AND  ES:[DI]+ICB_OPT4,NOT ICB_INIT
-	       TEST ES:[DI]+ICB_OPT2,ICB_UPC ;check if monocasing option active
+	       OR   [ES:DI]+ICB_OPT3,ICB_KEY
+	       AND  [ES:DI]+ICB_OPT4,NOT ICB_INIT
+	       TEST [ES:DI]+ICB_OPT2,ICB_UPC ;check if monocasing option active
 	       JE   PH07
 ;
 	       MOV  AX,0000000000000001B     ;set monocasing option on
@@ -489,19 +489,19 @@ PH10:	       CALL far MOUSE_ON	     ;turn mouse pointer on
 	       jne  ph1005		     ;
 	       mov  es,in_icbseg	     ;
 	       mov  di,in_icboff	     ;
-	       inc  es:[di]+icb_hrstart      ;
-	       INC  ES:[DI]+ICB_CURCHAR      ;
-	       AND  ES:[DI]+ICB_OPT3,NOT ICB_KEY
-	       OR   ES:[DI]+ICB_OPT4,ICB_INIT
+	       inc  [es:di]+icb_hrstart      ;
+	       INC  [ES:DI]+ICB_CURCHAR      ;
+	       AND  [ES:DI]+ICB_OPT3,NOT ICB_KEY
+	       OR   [ES:DI]+ICB_OPT4,ICB_INIT
 	       jmp  ph12		     ;
 ph1005:        cmp  ah, lfarrow 	     ;
 	       jne  ph12		     ;
 	       mov  es,in_icbseg	     ;
 	       mov  di,in_icboff	     ;
-	       dec  es:[di]+icb_hrstart      ;
-	       DEC  ES:[DI]+ICB_CURCHAR      ;
-	       AND  ES:[DI]+ICB_OPT3,NOT ICB_KEY
-	       OR   ES:[DI]+ICB_OPT4,ICB_INIT
+	       dec  [es:di]+icb_hrstart      ;
+	       DEC  [ES:DI]+ICB_CURCHAR      ;
+	       AND  [ES:DI]+ICB_OPT3,NOT ICB_KEY
+	       OR   [ES:DI]+ICB_OPT4,ICB_INIT
 	       |
 	       JMP  PH12		     ;continue
 PH11:	       XOR  AH, AH		     ;clear keystroke byte
@@ -513,16 +513,16 @@ PH12:	       MOV  COM_KEY, AX 	     ;update keystroke
 ;
 PH50:	       MOV  ES,IN_ICBSEG	     ;point to current ICB
 	       MOV  DI,IN_ICBOFF
-	       MOV  ES:[DI]+ICB_KS,AX	     ;set keystroke to ICB
+	       MOV  [ES:DI]+ICB_KS,AX	     ;set keystroke to ICB
 ;
 	       CALL far PCINPUT_CALL     ;process input field
 ;
 	       MOV  ES,IN_ICBSEG	     ;point to current ICB
 	       MOV  DI,IN_ICBOFF
 ;
-	       MOV  AX,ES:[DI]+ICB_KS	     ;return keystroke
+	       MOV  AX,[ES:DI]+ICB_KS	     ;return keystroke
 ;
-	       TEST ES:[DI]+ICB_STATUS,ICB_DONE
+	       TEST [ES:DI]+ICB_STATUS,ICB_DONE
 	       jne  ph51
 	       jmp  PH06		     ;check for exit condition
 ;
@@ -531,11 +531,11 @@ ph51:	       CALL far MOUSE_ON	     ;turn mouse pointer on
 	       MOV  COM_FLDT,0		     ;no field type
 	       MOV  COM_INOPT,0 	     ;no password option
 ;
-	       MOV  DX,ES:[DI]+ICB_OPT4      ;get option word 4
+	       MOV  DX,[ES:DI]+ICB_OPT4      ;get option word 4
 ;
-	       PUSH ES:[DI]+ICB_ENDBYTE      ;return length of data
-	       PUSH ES:[DI]+ICB_FIELDOFF     ;return offset of data
-	       PUSH ES:[DI]+ICB_FIELDSEG     ;return segment of data
+	       PUSH [ES:DI]+ICB_ENDBYTE      ;return length of data
+	       PUSH [ES:DI]+ICB_FIELDOFF     ;return offset of data
+	       PUSH [ES:DI]+ICB_FIELDSEG     ;return segment of data
 ;
 	       POP  ES
 	       POP  DI
@@ -546,7 +546,7 @@ ph51:	       CALL far MOUSE_ON	     ;turn mouse pointer on
 ;
 	       MOV  SI,DI		     ;save string offset
 	       ADD  DI,CX		     ;get end of string offset
-	       MOV  byte ES:[DI],0	     ;null-terminate pathname
+	       MOV  byte [ES:DI],0	     ;null-terminate pathname
 	       MOV  DI,SI		     ;restore string offset
 ;
 	       CALL TRUNC_NAME		     ;truncate DOS names & extensions
@@ -554,7 +554,7 @@ ph51:	       CALL far MOUSE_ON	     ;turn mouse pointer on
 	       PUSH DI							;MJK005
 	       MOV  ES,IN_ICBSEG	     ;point to current ICB	;MJK005
 	       MOV  DI,IN_ICBOFF					;MJK005
-	       MOV  ES:[DI]+ICB_ENDBYTE,CX   ;return length of data	;MJK005
+	       MOV  [ES:DI]+ICB_ENDBYTE,CX   ;return length of data	;MJK005
 	       POP  DI							;MJK005
 	       POP  ES							;MJK005
 ;
@@ -768,7 +768,7 @@ PK30:	       CMP  COM_HLPOPT,10	     ;check if help deactivated
 	       CALL far GET_STRING	     ;structure at ES:DI
 ;
 	       MOV  AX,COM_KEY		     ;get keystroke
-	       CMP  AX,ES:[DI]+KY_CHELP
+	       CMP  AX,[ES:DI]+KY_CHELP
 	       JNE  PKEXIT
 ;
 	       CALL far CURSOROFF	     ;turn hardware cursor off
@@ -793,7 +793,7 @@ PKEXIT:        PUSH ES
 	       MOV  AX, 40H
 	       MOV  ES, AX
 	       MOV  BX, 17H
-	       MOV  AL, ES:[BX]
+	       MOV  AL, [ES:BX]
 	       XOR  AH, AH
 	       MOV  COM_SHIFT, AX
 	       POP  DI
@@ -958,7 +958,7 @@ DISP_DATETIME:
 ; Set up to get the date and time.
 ;
 DT_02:	       MOV  DI,TIME_WKA	     ;time workarea
-	       MOV  BX,DS:[DI+4]	     ;save currect seconds
+	       MOV  BX,[DS:DI+4]	     ;save currect seconds
 ;
 	       CALL PCDATES_CALL	     ;get date
 ;
@@ -980,7 +980,7 @@ DT_05:	       MOV  AX,COM_BASESCR	     ;get base screen
 	       MOV  COM_BASE_WKA,AX	     ;save new base screen
 	       JMP  DT_20		     ;continue
 ;
-DT_10:	       CMP  BX,DS:[DI+4]	     ;has the time minutes changed?
+DT_10:	       CMP  BX,[DS:DI+4]	     ;has the time minutes changed?
 	       JE   DT_RET		     ;no, don't update it
 ;
 DT_20:	       MOV  SI,PAN_ATITLE	     ;get panel id for moveg
@@ -1385,10 +1385,10 @@ SET_DEFAULT:
 ;
 	       CALL far GET_ICB	     ;get input control block
 ;
-	       MOV  ES:[DI]+ICB_CURCHAR,1    ;reset starting cursor position
-	       MOV  ES:[DI]+ICB_DEFLEN,CX    ;set length
-	       POP  ES:[DI]+ICB_DEFOFF	     ;offset
-	       POP  ES:[DI]+ICB_DEFSEG	     ;segment
+	       MOV  [ES:DI]+ICB_CURCHAR,1    ;reset starting cursor position
+	       MOV  [ES:DI]+ICB_DEFLEN,CX    ;set length
+	       POP  [ES:DI]+ICB_DEFOFF	     ;offset
+	       POP  [ES:DI]+ICB_DEFSEG	     ;segment
 ;
 	       RET
 ; ENDP SET_DEFAULT
@@ -1436,8 +1436,8 @@ GET_PCB:
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into PCB vec
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  BX,ES:[DI]		     ;get actual PCB segment
-	       MOV  CX,ES:[DI]+2	     ;point past PCB seg to get PCB off
+	       MOV  BX,[ES:DI]		     ;get actual PCB segment
+	       MOV  CX,[ES:DI]+2	     ;point past PCB seg to get PCB off
 ;
 	       MOV  ES,BX		     ;set ES:DI to panel's actual
 	       MOV  DI,CX		     ; PCB address
@@ -1493,8 +1493,8 @@ GET_SCB:
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into SCB vec
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  BX,ES:[DI]		     ;get actual SCB segment
-	       MOV  CX,ES:[DI]+2	     ;point past SCB seg to get SCB off
+	       MOV  BX,[ES:DI]		     ;get actual SCB segment
+	       MOV  CX,[ES:DI]+2	     ;point past SCB seg to get SCB off
 ;
 	       MOV  ES,BX		     ;set ES:DI to panel's actual
 	       MOV  DI,CX		     ; PCB address
@@ -1550,8 +1550,8 @@ GET_ICB:
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into ICB vec
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  BX,ES:[DI]		     ;get actual ICB segment
-	       MOV  CX,ES:[DI]+2	     ;point past ICB seg to get ICB off
+	       MOV  BX,[ES:DI]		     ;get actual ICB segment
+	       MOV  CX,[ES:DI]+2	     ;point past ICB seg to get ICB off
 ;
 	       MOV  ES,BX		     ;set ES:DI to input's actual
 	       MOV  DI,CX		     ; ICB address
@@ -1559,7 +1559,7 @@ GET_ICB:
 	       TEST COM_STATE,COM_TEXT	     ;check if in text mode
 	       JE   GIEXIT
 ;
-	       AND  ES:[DI]+ICB_OPT1,NOT ICB_BOX
+	       AND  [ES:DI]+ICB_OPT1,NOT ICB_BOX
 					     ;if in text mode deactivate box
 					     ; option
 ;
@@ -1614,9 +1614,9 @@ GET_ERROR:
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into vector
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  CX,ES:[DI]		     ;get error text offset
+	       MOV  CX,[ES:DI]		     ;get error text offset
 	       XOR  AX,AX		     ;clear to zero
-	       MOV  AL,ES:[DI]+2	     ;get error text length
+	       MOV  AL,[ES:DI]+2	     ;get error text length
 ;
 	       MOV  DI,CX		     ;set ES:DI to panel's actual
 					     ; PCB address
@@ -1670,7 +1670,7 @@ GET_BUTTON:
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into vector
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  CX,ES:[DI]		     ;get text offset
+	       MOV  CX,[ES:DI]		     ;get text offset
 	       MOV  DI,CX		     ;set ES:DI to actual data
 ;
 	       POP  DX
@@ -1723,9 +1723,9 @@ GET_STRING:
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into vector
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  CX,ES:[DI]		     ;get text offset
+	       MOV  CX,[ES:DI]		     ;get text offset
 	       XOR  AX,AX		     ;clear to zero
-	       MOV  AL,ES:[DI]+2	     ;get text length
+	       MOV  AL,[ES:DI]+2	     ;get text length
 ;
 	       MOV  DI,CX		     ;set ES:DI to actual data
 ;
@@ -1766,11 +1766,11 @@ GET_ATTR:
 	       PUSH DI
 ;
 	       CALL far GET_PCB	     ;load the panel's PCB in ES:DI
-	       MOV  AX,ES:[DI]+PCB_CCBID     ;get panel's color index number
+	       MOV  AX,[ES:DI]+PCB_CCBID     ;get panel's color index number
 ;
 	       CALL far GET_COLOR	     ;load the color index
-	       MOV  AH,ES:[DI]+CCB_A1	     ;get the normal color attr
-	       MOV  AL,ES:[DI]+CCB_A2	     ;get the highlighted color attr
+	       MOV  AH,[ES:DI]+CCB_A1	     ;get the normal color attr
+	       MOV  AL,[ES:DI]+CCB_A2	     ;get the highlighted color attr
 ;
 	       POP  DI			     ;restore registers
 	       POP  ES
@@ -2171,9 +2171,9 @@ SMC30:	       CMP  COM_SVIDMODE,3H	     ;check if color mode should be set
 ;
 	       XOR  AX,AX		     ;clear to zero
 	       MOV  ES,AX		     ;point to BIOS data area and
-	       MOV  DL,ES:[410H]	     ; get mode byte
+	       MOV  DL,[ES:410H]	     ; get mode byte
 	       OR   DL,00110000B
-	       MOV  ES:[410H],DL
+	       MOV  [ES:410H],DL
 	       XOR  AH,AH		     ;set color monochrome mode
 	       MOV  AL,7H
 	       INT  10H
@@ -2188,10 +2188,10 @@ SMC40:	       PUSH DS
 ;
 	       XOR  AX,AX		     ;clear to zero
 	       MOV  ES,AX		     ;point to BIOS data area and
-	       MOV  DL,ES:[410H]	     ; get mode byte
+	       MOV  DL,[ES:410H]	     ; get mode byte
 	       AND  DL,11001111B
 	       OR   DL,00100000B
-	       MOV  ES:[410H],DL
+	       MOV  [ES:410H],DL
 	       XOR  AH,AH		     ;set color mode
 	       MOV  AL,3H
 	       INT  10H
@@ -2213,10 +2213,10 @@ SMC50:	       MOV  AH,0FH		     ;get current video mode
 ;
 	       XOR  AX,AX		     ;clear to zero
 	       MOV  ES,AX		     ;point to BIOS data area and
-	       MOV  DL,ES:[410H]	     ; get mode byte
+	       MOV  DL,[ES:410H]	     ; get mode byte
 	       AND  DL,11001111B
 	       OR   DL,00100000B
-	       MOV  ES:[410H],DL
+	       MOV  [ES:410H],DL
 	       XOR  AH,AH		     ;set color 80x25 mode before
 	       MOV  AL,3H		     ; setting graphics mode
 	       INT  10H
@@ -2619,13 +2619,13 @@ PCSLCTP_CALL:
 ; Initialize color index vector
 ;
 	       MOV  AX,PM_CCBVECNUM	     ;set color index number
-	       MOV  ES:[DI]+SCB_CCBVECNUM,AX
+	       MOV  [ES:DI]+SCB_CCBVECNUM,AX
 ;
 	       MOV  AX,CRD_CCBVECOFF	     ;set color index offset
-	       MOV  ES:[DI]+SCB_CCBVECOFF,AX
+	       MOV  [ES:DI]+SCB_CCBVECOFF,AX
 ;
 	       MOV  AX,CRD_CCBVECSEG	     ;set color index segment
-	       MOV  ES:[DI]+SCB_CCBVECSEG,AX
+	       MOV  [ES:DI]+SCB_CCBVECSEG,AX
 ;
 %if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
@@ -3808,7 +3808,7 @@ EXAMINE_PSP:
 	       MOV  INS_OPT,0		     ;set to find string
 	       MOV  ES, COM_PSPSEG	     ;get PSP segment
 	       MOV  DI, 80H		     ;get offset of PSP length byte
-	       MOV  CL, ES:[DI] 	     ;get PSP length byte
+	       MOV  CL, [ES:DI] 	     ;get PSP length byte
 	       CMP  CL, 0		     ;any command line options?
 	       JA   EP03		     ;yes, continue
 	       MOV  COM_ERRID,ERR_PSP	     ;invalid psp command line
@@ -3827,7 +3827,7 @@ EP03:	       XOR  CH, CH		     ;clear high byte
 ;
 EP034:	       PUSH DS			     ;save data seg
 	       MOV  DS, COM_PSPSEG	     ;PSP segment is source seg
-	       mov  al, ds:[si] 	     ;
+	       mov  al, [ds:si] 	     ;
 	       POP  DS			     ;
 ;
 	       cmp  al, ' '                  ;
@@ -3852,7 +3852,7 @@ EP038:	       cmp  dl, 1		     ;
 	       ja   ep0385		     ;
 	       sub  al, 32		     ;
 ;
-ep0385:        mov  es:[di], al 	     ;
+ep0385:        mov  [es:di], al 	     ;
 	       inc  ins_slen		     ;
 	       inc  com_cmdact		     ;
 	       inc  di			     ;
@@ -3933,17 +3933,17 @@ EP1930:        PUSH SI
 	       POP  DS
 	       POP  ES
 ;
-EP1940:        MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP1940:        MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell profile name buffer
 	       JE   EP1980
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP1940
 ;
-EP1980:        CMP  byte ES:[DI-1],'\'   ;check if root and skip add of
+EP1980:        CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP1990		     ; file separator
 ;
-	       MOV  byte ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP1990:        POP  DS			     ;now move profile filename string
@@ -4245,20 +4245,20 @@ EP685:	       MOV  AH, 1BH
 	       POP  ES
 	       LEA  DI, GEN_DATA
 	       INT  10H
-	       PUSH ES:[DI]
-	       PUSH ES:[DI+2]
+	       PUSH [ES:DI]
+	       PUSH [ES:DI+2]
 	       POP  ES
 	       POP  DI
 ;
-	       TEST byte ES:[DI+2], 00000100B
+	       TEST byte [ES:DI+2], 00000100B
 	       JZ   EP6851
 	       OR   COM_STATE, COM_M12H
 	       JMP  EP74
-EP6851:        TEST byte ES:[DI+2], 00000010B
+EP6851:        TEST byte [ES:DI+2], 00000010B
 	       JZ   EP6852
 	       OR   COM_STATE, COM_M11H
 	       JMP  EP74
-EP6852:        TEST byte ES:[DI+2], 00000001B
+EP6852:        TEST byte [ES:DI+2], 00000001B
 	       JZ   EP6853
 	       OR   COM_STATE, COM_M10H
 	       JMP  EP74
@@ -4391,17 +4391,17 @@ EP92:	       MOV  CX,AX		     ; = number of bytes to move
 	       POP  DS
 	       POP  ES
 ;
-EP94:	       MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP94:	       MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell app menu file buffer
 	       JE   EP98
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP94
 ;
-EP98:	       CMP  byte ES:[DI-1],'\'   ;check if root and skip add of
+EP98:	       CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP99		     ; file separator
 ;
-	       MOV  byte ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP99:	       POP  DS			     ;now move shell menu filename to
@@ -4561,17 +4561,17 @@ EP122:	       MOV  CX,AX		     ; = number of bytes to move
 	       POP  DS
 	       POP  ES
 ;
-EP124:	       MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP124:	       MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell color file buffer
 	       JE   EP128
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP124
 ;
-EP128:	       CMP  byte ES:[DI-1],'\'   ;check if root and skip add of
+EP128:	       CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP129		     ; file separator
 ;
-	       MOV  byte ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP129:	       POP  DS			     ;now move color filename string
@@ -4729,17 +4729,17 @@ EP193:	       PUSH SI
 	       POP  DS
 	       POP  ES
 ;
-EP194:	       MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP194:	       MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell mouse file buffer
 	       JE   EP198
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP194
 ;
-EP198:	       CMP  byte ES:[DI-1],'\'   ;check if root and skip add of
+EP198:	       CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP199		     ; file separator
 ;
-	       MOV  byte ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP199:	       POP  DS			     ;now move mouse filename string
@@ -4803,17 +4803,17 @@ EP250:	       LEA  DI,COM_HFILSPEC	     ;get dest offset
 	       MOV  AX,DS
 	       MOV  ES,AX
 ;
-EP260:	       MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP260:	       MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell help file buffer
 	       JE   EP270
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP260
 ;
-EP270:	       CMP  byte ES:[DI-1],'\'   ;check if root and skip add of
+EP270:	       CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP275		     ; file separator
 ;
-	       MOV  byte ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP275:	       PUSH DS			     ;save register
@@ -4911,17 +4911,17 @@ EP322:	       MOV  CX,AX		     ; = number of bytes to move
 	       POP  DS
 	       POP  ES
 ;
-EP324:	       MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP324:	       MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell associate file buffer
 	       JE   EP328
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP324
 ;
-EP328:	       CMP  byte ES:[DI-1],'\'   ;check if root and skip add of
+EP328:	       CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP329		     ; file separator
 ;
-	       MOV  byte ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP329:	       POP  DS			     ;now move filename string

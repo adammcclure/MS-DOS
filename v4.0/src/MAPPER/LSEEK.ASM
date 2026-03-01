@@ -31,12 +31,12 @@ SECTION .dosxxx
 	    ; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-newptr: dd 0; new file pointer
-movtyp: dw 0; move type
-dstnce: dd 0; distance to be moved
-handle: dw 0; file handle
+old_bp: resw 1
+return: resd 1
+newptr: resd 1; new file pointer
+movtyp: resw 1; move type
+dstnce: resd 1; distance to be moved
+handle: resw 1; file handle
 endstruc
 
 doschgfileptr:

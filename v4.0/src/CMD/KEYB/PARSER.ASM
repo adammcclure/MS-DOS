@@ -513,5 +513,5 @@ PROCESS_3RD_PARM:;AN000;					   ;AN000
        RET				     ;AN000;;					   ;AN000
 ; ENDP PROCESS_3RD_PARM;AN000;					   ;AN000
 					     ;AN000;
-CODE	      ENDS			     ;AN000;
+; END SECTION .CODE;AN000;
 	      ; END;AN000;

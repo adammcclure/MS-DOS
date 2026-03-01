@@ -9,10 +9,10 @@ $Short		equ	3
 $Near		equ	4
 $NearToShort	equ	5
 $ncxz		equ	6
-$AndOr		=	0
-$Temp		=	0
-$Temp2		=	0
-$Dist		=	0
+$AndOr equ 0
+$Temp equ 0
+$Temp2 equ 0
+$Dist equ 0
 
 $NoType 	equ	10
 $ConjIfType	equ	11
@@ -68,12 +68,12 @@ $OtherwiseType	equ	$ElseType
 ; purge	$BuildJump
 
 %macro $GetConj 2
-	$AndOr	= $NoConj
+	$AndOr equ $NoConj
 	; irp	parm,<p1,p2>
 	    %if 1  ; IFNB <&parm>
 		; irp	x,<and,AND,or,OR>
 		    %ifidn <parm>,<x>
-			 $AndOr = $&&&x
+			 $AndOr equ $&&&x
 			 exitm
 		    %endif
 		%endmacro
@@ -86,7 +86,7 @@ $OtherwiseType	equ	$ElseType
 	    %if 1  ; IFNB <parm>
 		; irp	x,<short,SHORT,near,NEAR>
 		    %ifidn <parm>,<x>
-			$Dist	= $&&&x
+			$Dist equ $&&&x
 			 exitm
 		     %endif
 		%endmacro
@@ -101,18 +101,18 @@ $OtherwiseType	equ	$ElseType
 %endmacro
 
 %macro $Peek 2
-	x	= $st&n
+	x equ $st&n
 %endmacro
 
 %macro $Push 1
-	$st	= $st+1
+	$st equ $st+1
 	$Poke	%$st,n
 %endmacro
 
 %macro $Pop 1
 	%if $st gt 0
 	    $Peek   x,%$st
-	    $st     = $st-1
+	    $st equ $st-1
 	%else
 	    $StrucError <open structure>
 	%endif
@@ -139,8 +139,8 @@ $OtherwiseType	equ	$ElseType
 	    $EquateLabel %$LastLabel,n
 	    $ll&n   = n
 	    ; .xcref  $ll&n
-	    $LastLabel = n
-	    $LastLabelOrg = $
+	    $LastLabel equ n
+	    $LastLabelOrg equ $
 $l&n:
 	%else
 	    %if $ll&n eq n
@@ -182,30 +182,30 @@ $l&n:
 	    %if 1  ; IFNB <c>
 		ifdef	$l&l
 		    %if (($ - $l&l) le 126) and (($l&l - $) le 129)
-			$Dist	= $NearToShort
-			$nops	= 3
+			$Dist equ $NearToShort
+			$nops equ 3
 			%ifidn <tf>,<f>
 					jn&c $l&l
 			    ifdef   $n&c
 				%if $n&c eq $ncxz
-				    $nops = 0
+				    $nops equ 0
 				%endif
 			    %endif
 			    ifdef   $&c
 				%if $&c eq $ncxz
-				    $nops = 5
+				    $nops equ 5
 				%endif
 			    %endif
 			%else
 					j&c $l&l
 			    ifdef   $n&c
 				%if $n&c eq $ncxz
-				    $nops = 5
+				    $nops equ 5
 				%endif
 			    %endif
 			    ifdef   $&c
 				%if $&c eq $ncxz
-				    $nops = 0
+				    $nops equ 0
 				%endif
 			    %endif
 			%endif
@@ -297,7 +297,7 @@ $l&n:
 
 %macro $TopTest 5
 	$GetConj p4,p5
-	$Dist	= $DefDist
+	$Dist equ $DefDist
 	$GetDist p4,p5
 	%if $AndOr eq $NoConj
 	    $Test   <$sn-1,f>,args
@@ -310,7 +310,7 @@ $l&n:
 	    %if $AndOr eq $And
 		$Test	<$sn-1,f>,args
 	    %else
-		$OrFound = 1
+		$OrFound equ 1
 		$Test	<$sn,t>,args
 	    %endif
 	    $Push   c
@@ -322,12 +322,12 @@ $l&n:
 	%if $Temp eq $ConjIfType
 	    $Pop    $Temp
 	%else
-	    $OrFound = 0
-	    $sn     = $sn+1
+	    $OrFound equ 0
+	    $sn equ $sn+1
 	    $Push   $sn
-	    $sn     = $sn+1
+	    $sn equ $sn+1
 	    $Push   $sn
-	    $sn     = $sn+1
+	    $sn equ $sn+1
 	    $Push   $sn
 	%endif
 	$TopTest <t>,$IfType,$ConjIfType,p2,p3
@@ -348,15 +348,15 @@ $l&n:
 	    $StrucError <elseif without if>
 	    exitm
 	%endif
-	$OrFound = 0
+	$OrFound equ 0
 	$Pop	$Temp
 	$Peek	$Temp2,%$st
-	$Dist	= $Near
+	$Dist equ $Near
 	$CondJump %$Temp2
 	$Label	%$Temp
-	$sn	= $sn+1
+	$sn equ $sn+1
 	$Push	$sn
-	$sn	= $sn+1
+	$sn equ $sn+1
 	$Push	$sn
 	$TopTest <t>,$IfType,$ConjIfType,p2,p3
 %endmacro
@@ -371,11 +371,11 @@ $l&n:
 	%endif
 	%endif
 	%endif
-	$sn	= $sn+1
+	$sn equ $sn+1
 	%if $Temp eq $SelectType
 	    $Push   $sn
 	%else
-	    $Dist   = $DefDist
+	    $Dist equ $DefDist
 	    $GetDist dist
 	    $CondJump %$sn
 	    $Pop    $Temp
@@ -400,8 +400,8 @@ $l&n:
 %endmacro
 ;;*****************************************************************************
 .select macro	x
-	$OrFound = 0
-	$sn	= $sn+1
+	$OrFound equ 0
+	$sn equ $sn+1
 	$Push	$sn
 	$Push	$SelectType
 %endmacro
@@ -417,17 +417,17 @@ $l&n:
 	%endif
 	%endif
 	%if $Temp ne $ConjWhenType
-	    $Dist   = $Near
-	    $OrFound = 0
+	    $Dist equ $Near
+	    $OrFound equ 0
 	    %if $Temp eq $WhenType
 		$Pop	$Temp2
 		$Peek	$Temp,%$st
 		$CondJump %$Temp
 		$Label	 %$Temp2
 	    %endif
-	    $sn     = $sn+1
+	    $sn equ $sn+1
 	    $Push   $sn
-	    $sn     = $sn+1
+	    $sn equ $sn+1
 	    $Push   $sn
 	%endif
 	$TopTest <tst>,$WhenType,$ConjWhenType,p2,p3
@@ -443,11 +443,11 @@ $l&n:
 	%endif
 	%endif
 	%endif
-	$sn	= $sn+1
+	$sn equ $sn+1
 	%if $Temp eq $SelectType
 	    $Push   $sn
 	%else
-	    $Dist   = $DefDist
+	    $Dist equ $DefDist
 	    $GetDist dist
 	    $CondJump %$sn
 	    $Pop    $Temp
@@ -481,13 +481,13 @@ $l&n:
 	    $Pop    $Temp
 	%else
 	    $Push   $LoopEnd
-	    $OrFound = 0
-	    $sn     = $sn + 1
+	    $OrFound equ 0
+	    $sn equ $sn + 1
 	    $Push   $sn
 	    $Label  %$sn
-	    $sn     = $sn + 2
+	    $sn equ $sn + 2
 	    $Push   $sn
-	    $LoopEnd = $sn - 1
+	    $LoopEnd equ $sn - 1
 	%endif
 	$TopTest <t>,$WhileType,$ConjWhileType,p2,p3
 %endmacro
@@ -498,7 +498,7 @@ $l&n:
 	    $StrucError <endwhile without while>
 	    exitm
 	%endif
-	$Dist	= $Near
+	$Dist equ $Near
 	$Pop	$Temp
 	$CondJump %$Temp,NoFold
 	$Label	%$Temp+1
@@ -508,13 +508,13 @@ $l&n:
 ; .repeat macro
 	$Push	$LoopEnd
 	$Push	$LeaveFound
-	$sn	= $sn+1
+	$sn equ $sn+1
 	$Label	%$sn
 	$Push	$sn
 	$Push	$RepeatType
-	$sn	= $sn+1
-	$LoopEnd = $sn
-	$LeaveFound = 0
+	$sn equ $sn+1
+	$LoopEnd equ $sn
+	$LeaveFound equ 0
 %endmacro
 ;;*****************************************************************************
 ; .until	macro	t,p2,p3
@@ -528,16 +528,16 @@ $l&n:
 		exitm
 	    %endif
 	%else
-	    $OrFound = 0
+	    $OrFound equ 0
 	%endif
-	$Dist	= $DefDist
+	$Dist equ $DefDist
 	$GetDist p2,p3
 	$GetConj p2,p3
 
 	%if $AndOr eq $NoConj
 	    $Pop    $Temp
 	    %if 0  ; IFB <a1>
-		$Dist	= $Near
+		$Dist equ $Near
 		$CondJump %$Temp,NoFold
 	    %else
 		$Test	 <$Temp,f>,<a1>,<a2>,<a3>,<a4>,<x>
@@ -552,7 +552,7 @@ $l&n:
 	    %if $AndOr eq $And
 		$Test	 <$Temp,f>,<a1>,<a2>,<a3>,<a4>,<x>
 	    %else
-		$OrFound = 1
+		$OrFound equ 1
 		$Test	 <$Temp+1,t>,<a1>,<a2>,<a3>,<a4>,<x>
 	    %endif
 	    $Push   $ConjUntilType
@@ -577,13 +577,13 @@ $l&n:
 .for	macro	index,equals,start,to,stop,by,step,dist
 					mov index,start
 	$Push	$LoopEnd
-	$sn	= $sn+1
+	$sn equ $sn+1
 	$Push	$sn
 	$Label	%$sn
-	$sn	= $sn+1
-	$LoopEnd = $sn
+	$sn equ $sn+1
+	$LoopEnd equ $sn
 					cmp index,stop
-	$Dist	= $DefDist
+	$Dist equ $DefDist
 	%if 0  ; IFB <step>
 	    $Push   1
 	    $GetDist by
@@ -617,7 +617,7 @@ $l&n:
 	    %endif
 	%endif
 	$Pop	$Temp
-	$Dist	= $Near
+	$Dist equ $Near
 	$CondJump %$Temp,NoFold
 	$Label	%$Temp+1
 	$Pop	$LoopEnd
@@ -631,15 +631,15 @@ $l&n:
 	    $StrucError <leave outside a loop>
 	    exitm
 	%endif
-	$LeaveFound = 1
+	$LeaveFound equ 1
 	$Peek	$Temp,%$st
 	%if $Temp eq $ConjLeaveType
 	    $Pop    $Temp
 	%else
-	    $OrFound = 0
-	    $sn     = $sn + 1
+	    $OrFound equ 0
+	    $sn equ $sn + 1
 	%endif
-	$Dist	= 0
+	$Dist equ 0
 	$GetDist <a1>
 	%if $Dist
 	    $CondJump %$LoopEnd
@@ -647,7 +647,7 @@ $l&n:
 		$Label	%$sn
 	    %endif
 	%else
-	    $Dist   = $DefDist
+	    $Dist equ $DefDist
 	    $GetDist p2,p3
 	    $GetConj p2,p3
 	    %if $AndOr eq $NoConj
@@ -661,7 +661,7 @@ $l&n:
 		%endif
 	    %else
 		%if $AndOr eq $And
-		    $OrFound = 1
+		    $OrFound equ 1
 		    $Test   <$sn,f>,<a1>,<a2>,<a3>,<a4>,<x>
 		%else
 		    $Test   <$LoopEnd,t>,<a1>,<a2>,<a3>,<a4>,<x>
@@ -691,12 +691,12 @@ $Pop	$Temp
 %endif
 
 
-$st	= 0
-$sn	= 0
-$OrFound = 0
-$LoopEnd = 0
-$LeaveFound = 0
-$LastLabel = -1
-$LastLabelOrg = $
+$st equ 0
+$sn equ 0
+$OrFound equ 0
+$LoopEnd equ 0
+$LeaveFound equ 0
+$LastLabel equ -1
+$LastLabelOrg equ $
 $DefDist= $Short
 $Push	%$NoType

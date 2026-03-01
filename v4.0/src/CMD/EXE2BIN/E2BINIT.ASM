@@ -347,11 +347,11 @@ $$DO7:
 		    mov     ds,ax					;AN000;
 		    ; ASSUME  DS:NOTHING;AN000;
 		    mov     si,rb_string1_off			;AN000;
-		    mov     ax,ds:[si]					;AN000;
+		    mov     ax,[ds:si]					;AN000;
 		    mov     bx,ax					;AN000;
 
 
-		    mov     ax,ds:[si+2]				;AN000;
+		    mov     ax,[ds:si+2]				;AN000;
 		    mov     ds,ax					;AN000;
 		    ; ASSUME  DS:NOTHING;AN000;
 		    mov     si,bx					;AN000;
@@ -370,11 +370,11 @@ $$IF9:
 		    mov     ds,ax					;AN000;
 		    ; ASSUME  DS:NOTHING;AN000;
 		    mov     si,rb_string2_off			;AN000;
-		    mov     ax,ds:[si]					;AN000;
+		    mov     ax,[ds:si]					;AN000;
 		    mov     bx,ax					;AN000;
 
 
-		    mov     ax,ds:[si+2]				;AN000;
+		    mov     ax,[ds:si+2]				;AN000;
 		    mov     ds,ax					;AN000;
 		    ; ASSUME  DS:NOTHING;AN000;
 		    mov     si,bx					;AN000;
@@ -412,7 +412,7 @@ $$IF8:
 		mov	ax,es:parse_ptr 				;AN001;
 		mov	es:parsoff,ax					;AN001;
 		mov	es:parseg,ds					;AN001;
-		mov	byte ds:[si],0				;AN001;
+		mov	byte [ds:si],0				;AN001;
 		pop	ax						;AN001;
 		parse_message		       ;Must enter file name	;AN000;
 		mov	es:Fatal_Error,YES     ;Indicate death! 	;AN000;
@@ -448,7 +448,7 @@ procedure LOCATE near
 	MOV	ES,BX
 	; assume	es:data;AN000;
 
-	MOV	BX,word DS:[2]	;Get size of memory
+	MOV	BX,word [DS:2]	;Get size of memory
 
 
 ;-----------------------------------------------------------------------;
@@ -894,7 +894,7 @@ RDCMP:
 	ADD	AX,BX			;Bias segment with actual load segment
 	MOV	ES,AX
 	; ASSUME	ES:NOTHING;AN000;
-	ADD	ES:[DI],BP		;Relocate
+	ADD	[ES:DI],BP		;Relocate
 	DEC	[RELCNT]		;Count off
 	JNZ	RELOC
 STORE:
@@ -1085,13 +1085,13 @@ $$IF19:
 	mov	si,es:DBCS_Vector_Off		;			;AC000;
 ;	$SEARCH 				;Check all the vectors	;AC000;
 $$DO21:
-	   cmp	   word ds:[si],End_Of_Vector ;End of vector table? ;AC000;
+	   cmp	   word [ds:si],End_Of_Vector ;End of vector table? ;AC000;
 ;	$LEAVE	E				;Yes, done		;AC000;
 	JE $$EN21
-	   cmp	   al,ds:[si]			;See if char is in vector;AC000;
+	   cmp	   al,[ds:si]			;See if char is in vector;AC000;
 ;	$EXITIF AE,AND				;If >= to lower, and	;AC000;
 	JNAE $$IF21
-	   cmp	   al,ds:[si+1] 		; =< than higher range	;AC000;
+	   cmp	   al,[ds:si+1] 		; =< than higher range	;AC000;
 ;	$EXITIF BE				; then DBCS character	;AC000;
 	JNBE $$IF21
 	   stc					;Set CY to indicate DBCS;AC000;

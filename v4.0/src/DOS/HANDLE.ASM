@@ -128,9 +128,9 @@ Procedure   $Close,NEAR
 ; FCB, we examine the ref count on the SFT;  if it was 1, we free the JFN.
 ; If the file was not a net FCB, we free the JFN too.
 ;
-	CMP	ES:[DI].sf_ref_count,1	; will the SFT become free?
+	CMP	[ES:DI].sf_ref_count,1	; will the SFT become free?
 	JZ	FreeJFN 		; yes, free JFN anyway.
-	MOV	AL,byte ES:[DI].sf_mode
+	MOV	AL,byte [ES:DI].sf_mode
 	AND	AL,sharing_mask
 	CMP	AL,sharing_net_fcb
 	JZ	PostFree		; 70-mode and big ref count => free it
@@ -141,7 +141,7 @@ Procedure   $Close,NEAR
 FreeJFN:
 	Invoke	pJFNFromHandle		;   d = pJFN (handle);
 	fmt TypAccess,LevSFN,<"$p  Close jfn pointer $x:$x\n">,<es,di>
-	MOV	byte ES:[DI],0FFh	; release the JFN
+	MOV	byte [ES:DI],0FFh	; release the JFN
 PostFree:
 ;
 ; ThisSFT is correctly set, we have DS = DOSGROUP.  Looks OK for a DOS_CLOSE!
@@ -227,17 +227,17 @@ Procedure   $ExtHandle,NEAR
 
 getpdb:
 	MOV	ES,[CurrentPDB] 	; get user process data block
-	MOV	CX,ES:[PDB_JFN_Length]	; get number of handle allowed
+	MOV	CX,[ES:PDB_JFN_Length]	; get number of handle allowed
 	CMP	BX,CX			; the requested == current
 	JE	ok_done 		; yes and exit
 	JA	larger			; go allocate new table
 
 	MOV	BP,1			; shrink
-	MOV	DS,word ES:[PDB_JFN_Pointer+2] ;
+	MOV	DS,word [ES:PDB_JFN_Pointer+2] ;
 	MOV	SI,BX			;
 	SUB	CX,BX			; get difference
 chck_handles:
-	CMP	byte DS:[SI],-1	; scan through handles to ensure close
+	CMP	byte [DS:SI],-1	; scan through handles to ensure close
 	JNZ	too_many_files		; status
 	INC	SI
 	LOOP	chck_handles
@@ -280,10 +280,10 @@ too_many_files:
 	MOV	AL,error_too_many_open_files
 	transfer    Sys_Ret_Err
 enlarge:
-	MOV	CX,DS:[PDB_JFN_Length]	  ; get number of old handles
+	MOV	CX,[DS:PDB_JFN_Length]	  ; get number of old handles
 copy_hand:
 	MOV	DX,CX
-	LDS	SI,DS:[PDB_JFN_Pointer]   ; get old table pointer
+	LDS	SI,[DS:PDB_JFN_Pointer]   ; get old table pointer
 ; ASSUME DS:NOTHING
 	REP	MOVSB			; copy infomation to new table
 
@@ -294,12 +294,12 @@ copy_hand:
 	REP	STOSB
 
 	MOV	DS,[CurrentPDB] 	; get user process data block
-	CMP	word DS:[PDB_JFN_Pointer],0  ; check if original table pointer
+	CMP	word [DS:PDB_JFN_Pointer],0  ; check if original table pointer
 	JNZ	update_info		; yes, go update PDB entries
 	PUSH	BP
 	PUSH	DS			; save old table segment
 	PUSH	ES			; save new table segment
-	MOV	ES,word DS:[PDB_JFN_Pointer+2] ; get old table segment
+	MOV	ES,word [DS:PDB_JFN_Pointer+2] ; get old table segment
 	invoke	$DEALLOC		; deallocate old table meomory
 	POP	ES			; restore new table segment
 	POP	DS			; restore old table segment
@@ -308,13 +308,13 @@ copy_hand:
 update_info:
 	TEST	BP,2			; psp?
 	JZ	non_psp 		; no
-	MOV	word DS:[PDB_JFN_Pointer],PDB_JFN_Table   ; restore
+	MOV	word [DS:PDB_JFN_Pointer],PDB_JFN_Table   ; restore
 	JMP	final
 non_psp:
-	MOV	word DS:[PDB_JFN_Pointer],0  ; new table pointer offset always 0
+	MOV	word [DS:PDB_JFN_Pointer],0  ; new table pointer offset always 0
 final:
-	MOV	word DS:[PDB_JFN_Pointer+2],ES  ; update table pointer segment
-	POP	DS:[PDB_JFN_Length]	 ; restore new number of handles
+	MOV	word [DS:PDB_JFN_Pointer+2],ES  ; update table pointer segment
+	POP	[DS:PDB_JFN_Length]	 ; restore new number of handles
 	transfer   Sys_Ret_Ok
 no_memory:
 	POP	BX			; clean stack
@@ -348,7 +348,7 @@ procedure   $READ,NEAR
 ReadDo:
 	invoke	pJFNFromHandle
 	JC	ReadError
-	MOV	AL,ES:[DI]
+	MOV	AL,[ES:DI]
 	call	CheckOwner		; get the handle
 	JNC	ReadSetup		; no errors do the operation
 ReadError:
@@ -358,7 +358,7 @@ ReadSetup:
 	MOV	word [ThisSFT],DI	; save offset of pointer
 	MOV	word [ThisSFT+2],ES ; save segment value
 ;; Extended Open
-	TEST	ES:[DI.sf_mode],INT_24_ERROR  ;AN000;;EO. need i24
+	TEST	[ES:DI+sf_mode],INT_24_ERROR  ;AN000;;EO. need i24
 	JZ	needi24 		      ;AN000;;EO. yes
 	OR	[EXTOPEN_ON],EXT_OPEN_I24_OFF ;AN000;;EO. set it off
 needi24:				      ;AN000;
@@ -389,17 +389,17 @@ needi24:				      ;AN000;
 	push	ax
 	push	bx
 
-	cmp	cs:[BUF_EMS_MODE], -1
+	cmp	[cs:BUF_EMS_MODE], -1
 	jz	dos_call_done
 	call	restore_user_map
-	mov	ax, word cs:[BUF_EMS_LAST_PAGE]
-	cmp	cs:[BUF_EMS_PFRAME], ax
+	mov	ax, word [cs:BUF_EMS_LAST_PAGE]
+	cmp	[cs:BUF_EMS_PFRAME], ax
 	je	dos_call_done
-	mov	word cs:[LASTBUFFER], -1
-	mov	cs:[BUF_EMS_PFRAME], ax
-	mov	ax, word cs:[BUF_EMS_LAST_PAGE+2]
-	mov	cs:[BUF_EMS_PAGE_FRAME], ax
-	mov	cs:[BUF_EMS_SAFE_FLAG], 1
+	mov	word [cs:LASTBUFFER], -1
+	mov	[cs:BUF_EMS_PFRAME], ax
+	mov	ax, word [cs:BUF_EMS_LAST_PAGE+2]
+	mov	[cs:BUF_EMS_PAGE_FRAME], ax
+	mov	[cs:BUF_EMS_SAFE_FLAG], 1
 	call	Setup_EMS_Buffers
 
 dos_call_done:
@@ -408,7 +408,7 @@ dos_call_done:
 	popf
 %endif
 
-%if NOT	BUFFERFLAG
+%if ~BUFFERFLAG
 	JC	ReadError		; if error, say bye bye
 %else
 	jmp	tmp_rerr
@@ -502,30 +502,30 @@ LSeekDisp:
 	CMP	AL,1			; best way to dispatch; check middle
 	JB	LSeekStore		; just store CX:DX
 	JA	LSeekEOF		; seek from end of file
-	ADD	DX,word ES:[DI.SF_Position]
-	ADC	CX,word ES:[DI.SF_Position+2]
+	ADD	DX,word [ES:DI+SF_Position]
+	ADC	CX,word [ES:DI+SF_Position+2]
 LSeekStore:
 	MOV	AX,CX			; AX:DX
 	XCHG	AX,DX			; DX:AX is the correct value
 LSeekSetpos:
-	MOV	word ES:[DI.SF_Position],AX
-	MOV	word ES:[DI.SF_Position+2],DX
+	MOV	word [ES:DI+SF_Position],AX
+	MOV	word [ES:DI+SF_Position+2],DX
 	invoke	Get_user_stack
-	MOV	DS:[SI.User_DX],DX	; return DX:AX
+	MOV	[DS:SI+User_DX],DX	; return DX:AX
 	transfer    SYS_RET_OK		; successful return
 
 LSeekEOF:
-	TEST	ES:[DI.sf_flags],sf_isnet
+	TEST	[ES:DI+sf_flags],sf_isnet
 	JNZ	Check_LSeek_Mode	; Is Net
 LOCAL_LSeek:
-	ADD	DX,word ES:[DI.SF_Size]
-	ADC	CX,word ES:[DI.SF_Size+2]
+	ADD	DX,word [ES:DI+SF_Size]
+	ADC	CX,word [ES:DI+SF_Size+2]
 	JMP	LSeekStore		; go and set the position
 
 Check_LSeek_Mode:
-	TEST	ES:[DI.sf_mode],sf_isfcb
+	TEST	[ES:DI+sf_mode],sf_isfcb
 	JNZ	LOCAL_LSeek		; FCB treated like local file
-	MOV	AX,ES:[DI.sf_mode]
+	MOV	AX,[ES:DI+sf_mode]
 	AND	AX,sharing_mask
 	CMP	AX,sharing_deny_none
 	JZ	NET_LSEEK		; LSEEK exported in this mode
@@ -611,7 +611,7 @@ getsetit:				;AN000;
 ;	JZ	nomask			       ;AN000;;FT. no
 ;	OR	[EXTOPEN_ON],EXT_OPEN_I24_OFF  ;AN000;;FT. set bit for I24 handler
 nomask: 				       ;AN000;
-	TEST	ES:[DI.sf_flags],sf_isnet      ;AN000;;FT. remote handle
+	TEST	[ES:DI+sf_flags],sf_isnet      ;AN000;;FT. remote handle
 	JZ	localhandle		       ;AN000;;FT. no
 	LeaveCrit   critSFT		       ;AN000;;FT. doesn't support Network
 
@@ -669,18 +669,18 @@ gsdt:
 	OR	AL,AL			; is it Get?
 	JNZ	filetimes_set		; no, go set the time
 	CLI
-	MOV	CX,ES:[DI.sf_Time]	; suck out time
-	MOV	DX,ES:[DI.sf_Date]	; and date
+	MOV	CX,[ES:DI+sf_Time]	; suck out time
+	MOV	DX,[ES:DI+sf_Date]	; and date
 	STI
 	invoke	Get_user_stack		; obtain place to return it
-	MOV	[SI.user_CX],CX 	; and stash in time
-	MOV	[SI.user_DX],DX 	; and stask in date
+	MOV	[SI+user_CX],CX 	; and stash in time
+	MOV	[SI+user_DX],DX 	; and stask in date
 ext_done:
 	transfer    SYS_RET_OK		; and say goodnight
 filetimes_set:
 	EnterCrit   critSFT
-	MOV	ES:[DI.sf_Time],CX	; drop in new time
-	MOV	ES:[DI.sf_Date],DX	; and date
+	MOV	[ES:DI+sf_Time],CX	; drop in new time
+	MOV	[ES:DI+sf_Date],DX	; and date
 	XOR	AX,AX
 do_share:
 %if installed
@@ -689,8 +689,8 @@ do_share:
 	Call	ShSU
 %endif
 datetimeflg:
-	AND	ES:[DI.sf_Flags],NOT devid_file_clean
-	OR	ES:[DI.sf_Flags],sf_close_nodate
+	AND	[ES:DI+sf_Flags],NOT devid_file_clean
+	OR	[ES:DI+sf_Flags],sf_close_nodate
 ftok:
 	LeaveCrit   critSFT
 	transfer    SYS_RET_OK		; mark file as dirty and return
@@ -719,8 +719,8 @@ DupErrorCheck:
 	JC	DupErr			; errors go home
 	invoke	DOS_Dup_Direct
 	invoke	pJFNFromHandle		; get pointer
-	MOV	BL,ES:[DI]		; get SFT number
-	MOV	DS:[SI],BL		; stuff in new SFT
+	MOV	BL,[ES:DI]		; get SFT number
+	MOV	[DS:SI],BL		; stuff in new SFT
 	transfer    SYS_RET_OK		; and go home
 DupErr: transfer    SYS_RET_ERR
 
@@ -769,7 +769,7 @@ Procedure   CheckOwner,NEAR
 	retc
 	push	ax
 	mov	ax,user_id
-	cmp	ax,es:[di].sf_UID
+	cmp	ax,[es:di].sf_UID
 	pop	ax
 	retz
 	mov	al,error_invalid_handle

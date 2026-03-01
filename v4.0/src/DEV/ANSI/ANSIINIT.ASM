@@ -61,11 +61,11 @@ extern Switch_K;AN003;
 %include "ANSIVID.INC"; WGR video tables data				 ;AN000;
 
 CON$INIT:
-	LDS	BX,CS:[PTRSAV]	       ; WGR establish addressability to request header  ;AC000;
+	LDS	BX,[CS:PTRSAV]	       ; WGR establish addressability to request header  ;AC000;
 	LDS	SI,[BX].ARG_PTR        ; WGR DS:SI now points to rest of DEVICE=statement;AN000;
 	CALL	PARSE_PARM	       ; WGR parse DEVICE= command line 		 ;AN000;
 	JNC	CONT_INIT	       ; WGR no error in parse...continue install	 ;AN000;
-	LDS	BX,CS:[PTRSAV]	       ; WGR prepare to abort install			 ;AC000;
+	LDS	BX,[CS:PTRSAV]	       ; WGR prepare to abort install			 ;AC000;
 	XOR	AX,AX		       ; WGR						 ;AC000;
 	MOV	[BX].NUM_UNITS,AL      ; WGR set number of units to zero		 ;AC000;
 	MOV	[BX].END_ADDRESS_O,AX  ; WGR set ending address offset to 0		 ;AC000;
@@ -80,7 +80,7 @@ CONT_INIT:			       ; WGR						 ;AN000;
 	POP	DS		       ; WGR restore DS to ANSI segment 		 ;AN000;
 	MOV	AX,ROM_BIOS	       ; WGR						 ;AN000;
 	MOV	ES,AX		       ; WGR DS now points to BIOS data area		 ;AN000;
-	MOV	AH,ES:[KBD_FLAG_3]     ; WGR load AH with KBD_FLAG_3			 ;AN000;
+	MOV	AH,[ES:KBD_FLAG_3]     ; WGR load AH with KBD_FLAG_3			 ;AN000;
 	; .IF  <BIT AH AND EXT16_FLAG> AND; WGR see if extended INT16 is loaded	       ;AN000;
 	; .IF  <Switch_K EQ OFF>;The user does not want to disable the extended INT 16h ;AN003;
 	  MOV	  EXT_16,ON	       ; WGR extended INT16 available, set flag 	 ;AN000;
@@ -115,7 +115,7 @@ setbrk:
 	MOV	word [BX],COUT
 	MOV	word [BX+2],CS
 
-	LDS	BX,CS:[PTRSAV]
+	LDS	BX,[CS:PTRSAV]
 	MOV	word [BX].TRANS,CON$INIT	;SET BREAK ADDRESS
 	MOV	[BX].TRANS+2,CS
 	JMP	EXIT
@@ -209,7 +209,7 @@ DET_HDWR:;AN000;
 	    MOV    AL,[DI].CURRENT_SCANS     ; copy current scan line setting.. 	 ;AN000;
 	    MOV    MAX_SCANS,AL 	     ; as maximum text mode scan setting.	 ;AN000;
 	    LES    DI,[DI].STATIC_ADDRESS    ; point to static functionality table	 ;AN000;
-	    MOV    AL,ES:[DI].SCAN_TEXT      ; load available scan line flag byte..	 ;AN000;
+	    MOV    AL,[ES:DI].SCAN_TEXT      ; load available scan line flag byte..	 ;AN000;
 	    MOV    SCAN_LINES,AL	     ; and store it in resident data.		 ;AN000;
 	  ; .ELSE; call not supported..try EGA		 ;AN000;
 	    MOV    AH,ALT_SELECT	     ; alternate select call			 ;AN000;
@@ -409,5 +409,5 @@ LOAD_INT2F:;AN000;
 ; ENDP LOAD_INT2F;AN000;
 
 
-CODE	ENDS
+; END SECTION .CODE
 	; END

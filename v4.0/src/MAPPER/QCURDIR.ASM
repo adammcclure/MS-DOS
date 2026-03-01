@@ -33,11 +33,11 @@ SECTION .dosxxx
             %include "macros.inc"
 
 struc str
-old_bp: dw 0
-return: dd 0
-BufferLengthPtr: dd 0; directory path buffer length pointer
-BufferPtr: dd 0; directory path buffer pointer
-Drive: dw 0; driver number
+old_bp: resw 1
+return: resd 1
+BufferLengthPtr: resd 1; directory path buffer length pointer
+BufferPtr: resd 1; directory path buffer pointer
+Drive: resw 1; driver number
 endstruc
 
 
@@ -72,7 +72,7 @@ dosqcurdir:
 
         les     di,[bp].BufferLengthPtr  ; set path buffer lenght pointer
         ; assume  es:nothing
-        mov     cx,es:[di]               ; check for directory path
+        mov     cx,[es:di]               ; check for directory path
                                          ; buffe size
         cmp     cx,dx                    ; compare with needed length
         jnc     HaveThePathLength        ; branch if length is ok
@@ -82,7 +82,7 @@ dosqcurdir:
 
 HaveThePathLength:
         mov     cx,dx
-        mov     es:[di],dx               ; return path length
+        mov     [es:di],dx               ; return path length
 
         les     di,[bp].BufferPtr        ; prepare to move directory path name
                                          ; into return buffer

@@ -30,7 +30,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	NoSetDir,BYTE
 	i_need	Creating,BYTE
@@ -96,7 +96,7 @@ Installed = TRUE
 	LES	DI,[THISCDS]
 	CMP	DI,-1
 	JNZ	TEST_RE_NET
-%if NOT Installed
+%if ~Installed
 	transfer NET_SEQ_SEARCH_FIRST
 %else
 	MOV	AX,(multNET SHL 8) OR 25
@@ -105,9 +105,9 @@ Installed = TRUE
 %endif
 
 TEST_RE_NET:
-	TEST	ES:[DI.curdir_flags],curdir_isnet
+	TEST	[ES:DI+curdir_flags],curdir_isnet
 	JZ	LOCAL_SEARCH_FIRST
-%if NOT Installed
+%if ~Installed
 	transfer NET_SEARCH_FIRST
 %else
 	MOV	AX,(multNET SHL 8) OR 27
@@ -135,7 +135,7 @@ getdone:
 find_no_more:
 	MOV	AX,error_no_more_files
 BadBye:
-	AND	CS:[FastOpenflg],Fast_yes  ;AN000;;FO. reset fastopen
+	AND	[CS:FastOpenflg],Fast_yes  ;AN000;;FO. reset fastopen
 
 	STC
 	LeaveCrit   critDisk
@@ -176,9 +176,9 @@ notfast:
 movmov:
 ; Special E5 code
 	MOVSB
-	CMP	byte ES:[DI-1],5
+	CMP	byte [ES:DI-1],5
 	JNZ	NOTKANJB
-	MOV	byte ES:[DI-1],0E5H
+	MOV	byte [ES:DI-1],0E5H
 NOTKANJB:
 
 	MOV	CX,10
@@ -207,7 +207,7 @@ NOTKANJB:
 
 	; The user has specified the root directory itself, rather than some
 	; contents of it. We can't "find" that.
-	MOV	word ES:[DI-8],-1	; Cause DOS_SEARCH_NEXT to fail by
+	MOV	word [ES:DI-8],-1	; Cause DOS_SEARCH_NEXT to fail by
 					;   stuffing a -1 at Lastent
 	JMP	find_no_more
 
@@ -224,13 +224,13 @@ DOSREL:
 	MOV	AX,DI			; save the 1st byte addr
 	REP	MOVSB
 	MOV	DI,AX			; restore 1st byte addr
-	CMP	byte ES:[DI],05H	; special char check
+	CMP	byte [ES:DI],05H	; special char check
 	JNZ	NO05
-	MOV	byte ES:[DI],0E5H	; convert it back to E5
+	MOV	byte [ES:DI],0E5H	; convert it back to E5
 NO05:
 
 ;;;;; 7/29/86
-	AND	CS:[FastOpenflg],Fast_yes  ;AN000;;FO. reset fastopen
+	AND	[CS:FastOpenflg],Fast_yes  ;AN000;;FO. reset fastopen
 	context DS
 	CLC
 	LeaveCrit   critDisk
@@ -260,10 +260,10 @@ BREAK <DOS_SEARCH_NEXT - scan for subsequent matches>
 	; ASSUME	ES:NOTHING
 
 	LES	DI,[DMAADD]
-	MOV	AL,ES:[DI]
+	MOV	AL,[ES:DI]
 	TEST	AL,80H			; Test for NET
 	JZ	LOCAL_SEARCH_NEXT
-%if NOT Installed
+%if ~Installed
 	transfer NET_SEARCH_NEXT
 %else
 	MOV	AX,(multNET SHL 8) OR 28
@@ -284,10 +284,10 @@ LOCAL_SEARCH_NEXT:
 
 	JC	No_files		; Bogus drive letter
 	LES	DI,[THISCDS]		; Get CDS pointer
-	LES	BP,ES:[DI.curdir_devptr]; Get DPB pointer
+	LES	BP,[ES:DI+curdir_devptr]; Get DPB pointer
 	invoke	GOTDPB			; [THISDPB] = ES:BP
 
-	mov	AL,ES:[BP.dpb_drive]
+	mov	AL,[ES:BP+dpb_drive]
 	mov	ThisDrv,AL
 
 	MOV	word [CREATING],0E500H

@@ -21,8 +21,8 @@ BREAK	<EMM control sector layout>
 struc EMM_REC
 EMM_FLAGS	DW	0
 EMM_SYSTEM	DW	0
-EMM_BASE: dd 0; 24 bit address of start of region
-EMM_KSIZE: dw 0; Size of region in kbytes
+EMM_BASE: resd 1; 24 bit address of start of region
+EMM_KSIZE: resw 1; Size of region in kbytes
 endstruc
 
 ; EMM_FLAGS Bits
@@ -39,13 +39,13 @@ EMM_APPLICATION EQU	3
 ; Layout of EMM control 1024 byte record
 
 struc EMM_CTRL
-EMM_VER: times 50 db 0
-EMM_TOTALK: dw 0; EXCLUDING the 1k of this record
-EMM_AVAILK: dw 0; Amount of above NOT allocated
-		DB	EMM_REC_size DUP(?) ; NULL (0th) RECORD
+EMM_VER: resb 50
+EMM_TOTALK: resw 1; EXCLUDING the 1k of this record
+EMM_AVAILK: resw 1; Amount of above NOT allocated
+		resb 1; NULL (0th) RECORD
 EMM_RECORD	DB	(1024 - 50 - 4 - 10 - (EMM_REC_size)) DUP(?)
 					  ; EMM_REC structures
-EMM_TAIL_SIG: times 10 db 0
+EMM_TAIL_SIG: resb 10
 endstruc
 
 EMM_NUMREC	EQU	(1024 - 50 - 4 - 10 - (EMM_REC_size)) / (EMM_REC_size)

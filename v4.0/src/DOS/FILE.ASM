@@ -45,7 +45,7 @@ SECTION .CODE
 
 	extern DOS_OPEN,DOS_CREATE,DOS_Create_New
 
-%if NOT IBMCOPYRIGHT
+%if ~IBMCOPYRIGHT
 	extern Set_EXT_mode
 %endif
 
@@ -146,7 +146,7 @@ SaveJFN:
 ; reusing the same JFN.
 ;
 	MOV	BX,SFN
-	MOV	ES:[DI],BL		; assign the JFN
+	MOV	[ES:DI],BL		; assign the JFN
 	MOV	SI,DX			; get name in appropriate place
 	MOV	DI,OpenBuf  ; appropriate buffer
 	SaveReg <CX>			; save routine to call
@@ -174,14 +174,14 @@ SetSearch:
 	MOV	CX,sf_no_inherit
 DoOper:
 	MOV	[SI].sf_mode,0		; initialize mode field to 0
-	MOV	[SI.SF_mft],0		; clean out sharing info
+	MOV	[SI+SF_mft],0		; clean out sharing info
 ;
 ;------------------------------------------------------------HKN 8/7/88
 ;	Check if this is an extended open. If so you must set the 
 ;	modes in sf_mode. Call Set_EXT_mode to do all this. See
 ;	Set_EXT_mode in creat.asm
 ;
-%if NOT IBMCOPYRIGHT
+%if ~IBMCOPYRIGHT
 
 	push	es	; set up es:di to point to SFT
 	push	di
@@ -245,7 +245,7 @@ OpenClean:
 	fmt TypSysCall,LevLog,<"Return value from transpath $x\n">,<AX>
 	RestoreReg  <bx>		; clean off stack
 OpenE:
-	MOV	[SI.SF_Ref_Count],0	; release SFT
+	MOV	[SI+SF_Ref_Count],0	; release SFT
 	LDS	SI,pJFN
 	MOV	byte [SI],0FFh	; free the SFN...
 	JMP	SHORT OpenCritLeave
@@ -257,7 +257,7 @@ OpenCritLeave:
 	MOV	SFN,-1			; remove mark.
 	fmt TypSysCall,LevLog,<"Open/CreateXX: error $x\n">,<AX>
 ;; File Tagging DOS 4.00
-	CMP	CS:[EXTERR],error_Code_Page_Mismatched	;AN000;;FT. code page mismatch
+	CMP	[CS:EXTERR],error_Code_Page_Mismatched	;AN000;;FT. code page mismatch
 	JNZ	NORERR					;AN000;;FT. no
 	transfer From_GetSet				;AN000;;FT. yes
 NORERR: 						;AN000;
@@ -325,7 +325,7 @@ ChModGet:
 	invoke	Get_File_Info		; suck out the ol' info
 	JC	ChModE			; error codes are already set for ret
 	invoke	Get_User_stack		; point to user saved vaiables
-	MOV	[SI.User_CX],AX 	; return the attributes
+	MOV	[SI+User_CX],AX 	; return the attributes
 	transfer    Sys_Ret_OK		; say sayonara
 ChModSet:
 	MOV	AX,CX			; get attrs in position
@@ -435,8 +435,8 @@ rnerr:					   ;AN000;
 	ADD	SP,4			   ;AN000;;MS. pop thiscds
 	error	error_current_directory    ;AN000;;MS.
 dorn:					   ;AN000;
-	POP	word SS:[THISCDS+2]    ;AN000;;MS.
-	POP	word SS:[THISCDS]	   ;AN000;;MS.
+	POP	word [SS:THISCDS+2]    ;AN000;;MS.
+	POP	word [SS:THISCDS]	   ;AN000;;MS.
 	Context DS
 	mov	ch,attr_directory+attr_hidden+attr_system; rename appropriate files
 	call	SetAttrib
@@ -552,14 +552,14 @@ OKatts:
 	NEG	CX			; number of bytes remaining in segment
  %if DBCS;AN000;
 Kloop:					;AN000;; 2/13/KK
-	MOV	AL, byte ES:[DI]	;AN000;; 2/13/KK
+	MOV	AL, byte [ES:DI]	;AN000;; 2/13/KK
 	INC	DI			;AN000;; 2/13/KK
 	OR	AL,AL			;AN000;; 2/13/KK
 	JZ	GOTEND			;AN000;; 2/13/KK
 	invoke	testkanj		;AN000;; 2/13/KK
 	jz	Kloop			;AN000;; 2/13/KK
 	inc	di			;AN000;; Skip over second kanji byte 2/13/KK
-	CMP	byte ES:[DI],0	;AN000;; 2/13/KK
+	CMP	byte [ES:DI],0	;AN000;; 2/13/KK
 	JZ	STOREPTH		;AN000; When char before NUL is sec Kanji byte
 					;AN000; do not look for path char. 2/13/KK
 	jmp	Kloop			;AN000; 2/13/KK
@@ -573,7 +573,7 @@ okok:					;AN000;
 	REPNZ	SCASB			;AN000;
  %endif;AN000;
 	DEC	DI			; point back to the null
-	MOV	AL,ES:[DI-1]		; Get char before the NUL
+	MOV	AL,[ES:DI-1]		; Get char before the NUL
 	invoke	PathChrCmp		; Is it a path separator?
 	JZ	SETENDPTR		; Yes
 STOREPTH:
@@ -824,9 +824,9 @@ setXAttr:
 ;	JC	extexit2		;AN000;;EO.
 	invoke	get_user_stack		;AN000;;EO.
 	MOV	AX,[EXTOPEN_FLAG]	;AN000;;EO.
-	MOV	[SI.USER_CX],AX 	;AN000;;EO. set action code for cx
+	MOV	[SI+USER_CX],AX 	;AN000;;EO. set action code for cx
 	POP	AX			;AN000;;EO.
-	MOV	[SI.USER_AX],AX 	;AN000;;EO. set handle for ax
+	MOV	[SI+USER_AX],AX 	;AN000;;EO. set handle for ax
 
 ok_return:				;AN000;
 	transfer SYS_RET_OK		;AN000;;EO.

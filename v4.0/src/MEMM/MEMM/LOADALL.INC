@@ -51,9 +51,9 @@ endstruc
 ;
 struc LoadAllBuf286
 
-ll2_None1: times 6 db 0; temp
+ll2_None1: resb 6; temp
 ll2_MSW 	dw	0000		; MSW
-ll2_None2: times 14 db 0; temp
+ll2_None2: resb 14; temp
 ll2_TR		dw	0000		; TR
 ll2_FLAGS	dw	0000		; FLAGS
 ll2_IP		dw	0000		; IP
@@ -137,21 +137,21 @@ ll3_DR6hi	dw	0000		; high word of DR6
 ll3_DR7 	dw	0000		; low word of DR7
 ll3_DR7hi	dw	0000		; high word of DR7
 ll3_TSSR	dw	0000		; TSSR (TSS selector)
-		dw	0000		;    (padding)
+		resw 1;    (padding)
 ll3_LDTR	dw	0000		; LDTR (LDT selector)
-		dw	0000		;    (padding)
+		resw 1;    (padding)
 ll3_GS		dw	0000		; GS
-		dw	0000		;    (padding)
+		resw 1;    (padding)
 ll3_FS		dw	0000		; FS
-		dw	0000		;    (padding)
+		resw 1;    (padding)
 ll3_DS		dw	0000		; DS
-		dw	0000		;    (padding)
+		resw 1;    (padding)
 ll3_SS		dw	0000		; SS
-		dw	0000		;    (padding)
+		resw 1;    (padding)
 ll3_CS		dw	0000		; CS
-		dw	0000		;    (padding)
+		resw 1;    (padding)
 ll3_ES		dw	0000		; ES
-		dw	0000		;    (padding)
+		resw 1;    (padding)
 ;
 ;  System table and segment descriptor caches
 ;

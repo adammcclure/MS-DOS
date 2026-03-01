@@ -18,10 +18,10 @@ DRVCHAR         EQU     ":"
 FCB     EQU     5CH
 
 struc VARSTRUC
-ISDIR: db 0
-SIZ: db 0
-TTAIL: dw 0
-INFO: db 0
+ISDIR: resb 1
+SIZ: resb 1
+TTAIL: resw 1
+INFO: resb 1
 BUF     DB      DIRSTRLEN + times 20 db 0
 endstruc
 

@@ -74,11 +74,11 @@ N_VALID_KEYS: dw 0;AN000; Valid keys for current input
 						;
 		global N_USER_FUNC, E_ENTER, E_ESCAPE, E_TAB, E_F3, E_SPACE;AN000;
 N_USER_FUNC: dw 0;AN000; Function type entered by user
-E_ENTER 	=	ENTER			      ;AN000; Enter key
-E_ESCAPE	=	ESCAPE			      ;AN000; Escape key
-E_TAB		=	TAB			      ;AN000; Tab key
-E_F3		=	F3*256			      ;AN000; Function key 3  (F3,0)
-E_SPACE 	=	SPACE ;AN000;		      ;
+E_ENTER equ ENTER;AN000; Enter key
+E_ESCAPE equ ESCAPE;AN000; Escape key
+E_TAB equ TAB;AN000; Tab key
+E_F3 equ F3*256;AN000; Function key 3  (F3,0)
+E_SPACE equ SPACE;AN000;		      ;
 						      ;
 		global FK_ENT_F3, FK_ENT_F3_LEN;AN000;
 FK_ENT_F3	DB	ENTER,0,F3		      ;AN000; Enter, F3
@@ -176,8 +176,8 @@ M_ANSI		EQU	$ - P_ANSI		      ;AN000;
 D_ANSI_1	DW	2			      ;AN000;
 		DB	'/X'                          ;AN000;
 F_ANSI: dw 0;AN000; ANSI support required indicator
-E_ANSI_NO	=	E_NO			      ;AN000; ANSI support not required
-E_ANSI_YES	=	E_YES			      ;AN000; include ANSI.SYS command
+E_ANSI_NO equ E_NO;AN000; ANSI support not required
+E_ANSI_YES equ E_YES;AN000; include ANSI.SYS command
 E_ANSI_B	EQU	2			      ;AN000;
 E_ANSI_C	EQU	3			      ;AN000;
 						      ;
@@ -191,8 +191,8 @@ P_APPEND_P	DB	'/E'                          ;AN000; Default parameter          J
 		times 38 db ' ';AN000;                            JW
 M_APPEND_P	EQU	$ - P_APPEND_P		      ;AN000;			   JW
 F_APPEND: dw 0;AN000; APPEND support indicator
-E_APPEND_NO	=	E_NO			      ;AN000; APPEND support not required
-E_APPEND_YES	=	E_YES			      ;AN000; include APPEND command
+E_APPEND_NO equ E_NO;AN000; APPEND support not required
+E_APPEND_YES equ E_YES;AN000; include APPEND command
 						      ;
 		global S_BREAK, M_BREAK, ST_BREAK, MT_BREAK;AN000;
 S_BREAK 	DW	M_BREAK 		      ;AN000; BREAK command
@@ -221,9 +221,9 @@ S_CPSW		DW	M_CPSW			      ;AN000; CPSW command
 P_CPSW: times 3 db 0;AN000;
 M_CPSW		EQU	$ - P_CPSW		      ;AN000;
 F_CPSW: dw 0;AN000; CPSW support indicator
-E_CPSW_NO	=	E_NO			      ;AN000; CPSW support not required
-E_CPSW_YES	=	E_YES			      ;AN000; include CPSW command
-E_CPSW_NA	=	E_NA			      ;AN000; CPSW not available
+E_CPSW_NO equ E_NO;AN000; CPSW support not required
+E_CPSW_YES equ E_YES;AN000; include CPSW command
+E_CPSW_NA equ E_NA;AN000; CPSW not available
 E_CPSW_B	EQU	1			      ;AN000;
 E_CPSW_C	EQU	1			      ;AN000;
 ST_CPSW 	DW	MT_CPSW 		      ;AN000; temp location for CPSW command
@@ -244,8 +244,8 @@ D_FASTOPEN_1	DW	10			      ;AN000;
 D_FASTOPEN_2	DW	12			      ;AN000;
 		DB	'C:=(150,150)'                ;AC078; SEH changed from 200,200 to 150,150 due to expanded mem problems ;AC041; SEH for optimal performance
 F_FASTOPEN: dw 0;AN000; FASTOPEN support indicator
-E_FASTOPEN_NO	=	E_NO			      ;AN000; FASTOPEN support not required
-E_FASTOPEN_YES	=	E_YES			      ;AN000; include FASTOPEN command
+E_FASTOPEN_NO equ E_NO;AN000; FASTOPEN support not required
+E_FASTOPEN_YES equ E_YES;AN000; include FASTOPEN command
 E_FASTOPEN_C	EQU	4			      ;AN000;
 						      ;
 		global S_FCBS, M_FCBS, D_FCBS_1, ST_FCBS, MT_FCBS;AN000;
@@ -276,17 +276,17 @@ S_GRAPHICS	DW	M_GRAPHICS		      ;AN000; GRAPHICS command
 P_GRAPHICS: times 80 db 0;AN000;
 M_GRAPHICS	EQU	$ - P_GRAPHICS		      ;AN000;
 F_GRAPHICS: dw 0;AN000; GRAPHICS support indicator
-E_GRAPHICS_NO	=	E_NO			      ;AN000; GRAPHICS support not required
-E_GRAPHICS_YES	=	E_YES			      ;AN000; include GRAPHICS command
+E_GRAPHICS_NO equ E_NO;AN000; GRAPHICS support not required
+E_GRAPHICS_YES equ E_YES;AN000; include GRAPHICS command
 E_GRAPHICS_B	EQU	4			      ;AN000;
 E_GRAPHICS_C	EQU	6			      ;AN000;
 						      ;
 		global F_GRAFTABL, E_GRAFTABL_YES, E_GRAFTABL_NO, E_GRAFTABL_NA;AN000;
 		global E_GRAFTABL_B, E_GRAFTABL_C;AN000;
 F_GRAFTABL: dw 0;AN000; GRAFTABL support indicator
-E_GRAFTABL_NO	=	E_NO			      ;AN000; GRAFTABL support not required
-E_GRAFTABL_YES	=	E_YES			      ;AN000; include GRAFTABL command
-E_GRAFTABL_NA	=	E_NA			      ;AN000; GRAFTABL not available
+E_GRAFTABL_NO equ E_NO;AN000; GRAFTABL support not required
+E_GRAFTABL_YES equ E_YES;AN000; include GRAFTABL command
+E_GRAFTABL_NA equ E_NA;AN000; GRAFTABL not available
 E_GRAFTABL_B	EQU	3			      ;AN000;
 E_GRAFTABL_C	EQU	5			      ;AN000;
 						      ;
@@ -305,8 +305,8 @@ S_PATH		DW	M_PATH			      ;AN000; PATH command
 P_PATH: times 120 db 0;AN000;
 M_PATH		EQU	$ - P_PATH		      ;AN000;
 F_PATH: dw 0;AN000; PATH support indicator
-E_PATH_NO	=	E_NO			      ;AN000; PATH support not required
-E_PATH_YES	=	E_YES			      ;AN000; include PATH command
+E_PATH_NO equ E_NO;AN000; PATH support not required
+E_PATH_YES equ E_YES;AN000; include PATH command
 						      ;
 		global S_PROMPT,M_PROMPT,F_PROMPT,E_PROMPT_YES,E_PROMPT_NO,D_PROMPT_1;AN000;
 S_PROMPT	DW	M_PROMPT		      ;AN000; PROMPT command
@@ -315,16 +315,16 @@ M_PROMPT	EQU	$ - P_PROMPT		      ;AN000;
 D_PROMPT_1	DW	4			      ;AN000;
 		DB	'$P$G'                        ;AN000;
 F_PROMPT: dw 0;AN000; PROMPT command indicator
-E_PROMPT_NO	=	E_NO			      ;AN000; PROMPT command not to be included
-E_PROMPT_YES	=	E_YES			      ;AN000; include PROMPT command
+E_PROMPT_NO equ E_NO;AN000; PROMPT command not to be included
+E_PROMPT_YES equ E_YES;AN000; include PROMPT command
 						      ;
 		global S_SHARE,M_SHARE,F_SHARE,E_SHARE_YES,E_SHARE_NO,E_SHARE_C;AN000;
 S_SHARE 	DW	M_SHARE 		      ;AN000; SHARE command
 P_SHARE: times 15 db 0;AN000;
 M_SHARE 	EQU	$ - P_SHARE		      ;AN000;
 F_SHARE: dw 0;AN000; SHARE support indicator
-E_SHARE_NO	=	E_NO			      ;AN000; SHARE support not required
-E_SHARE_YES	=	E_YES			      ;AN000; include SHARE command
+E_SHARE_NO equ E_NO;AN000; SHARE support not required
+E_SHARE_YES equ E_YES;AN000; include SHARE command
 E_SHARE_C	EQU	7			      ;AN000;
 						      ;
 		global S_SHELL, M_SHELL, F_SHELL, E_SHELL_YES, E_SHELL_NO;AN000;
@@ -340,10 +340,10 @@ P_SHELL_2	DB	'/TRAN/COLOR/DOS/MENU/MUL'                 ;AC071;SEH ;AC016;SEH  ;
 		DB	'/SND/MEU:SHELL.MEU/CLR:SHELL.CLR/PROMPT/MAINT/EXIT/SWAP/DATE'  ;AC012;SEH  ;AC000;JW
 M_SHELL_2	EQU	$ - P_SHELL_2		      ;AN000;
 F_SHELL: dw 0;AN000; SHELL support indicator
-E_SHELL_NO	=	E_NO			      ;AN000; SHELL support not required
-E_SHELL_YES	=	E_YES			      ;AN000; include SHELL command
-E_SHELL_B	=	5
-E_SHELL_C	=	8
+E_SHELL_NO equ E_NO;AN000; SHELL support not required
+E_SHELL_YES equ E_YES;AN000; include SHELL command
+E_SHELL_B equ 5
+E_SHELL_C equ 8
 						      ;
 		global MACHINE_TYPE, PS2_FLAG, MOD25_OR_MOD30;AN000;JW
 MACHINE_TYPE: db 0;AN000;JW
@@ -363,8 +363,8 @@ S_VDISK 	DW	M_VDISK 		      ;AN000; VDISK command
 P_VDISK: times 20 db 0;AN000;
 M_VDISK 	EQU	$ - P_VDISK		      ;AN000;
 F_VDISK: dw 0;AN000; VDISK support indicator
-E_VDISK_NO	=	E_NO			      ;AN000; VDISK support not required
-E_VDISK_YES	=	E_YES			      ;AN000; include VDISK command
+E_VDISK_NO equ E_NO;AN000; VDISK support not required
+E_VDISK_YES equ E_YES;AN000; include VDISK command
 E_VDISK_B	EQU	6			      ;AN000;
 E_VDISK_C	EQU	9			      ;AN000;
 						      ;
@@ -389,9 +389,9 @@ M_XMA2EMS	EQU	$ - P_XMA2EMS		      ;AN000;
 D_XMA2EMS_1	DW	30			      ;AN000;
 		DB	'FRAME=D000 P254=C000 P255=C400'    ;AC044;SEH ;AC040;SEH ;AN000;JW
 F_XMA: dw 0;AN000; Expanded Memory support indicator
-E_XMA_NO	=	E_NO			      ;AN000; Expanded Memory support not required
-E_XMA_YES	=	E_YES			      ;AN000; include XMAEM, XMA2EMS commands
-E_XMA_NA	=	E_NA			      ;AN000; Expanded memory not available
+E_XMA_NO equ E_NO;AN000; Expanded Memory support not required
+E_XMA_YES equ E_YES;AN000; include XMAEM, XMA2EMS commands
+E_XMA_NA equ E_NA;AN000; Expanded memory not available
 E_XMA_C 	EQU	2			      ;AN000;
 N_XMA: dw 0;AN000; Expanded memory presence indicator
 E_XMA_ABSENT	EQU	0			      ;AN000; expanded memory not present

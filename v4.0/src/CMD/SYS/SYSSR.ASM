@@ -42,7 +42,7 @@ SECTION .CODE
 ; .list
 
 
-false	=	0			;				       ;AN000;
+false equ 0;				       ;AN000;
 
 DateSW	equ	false			;				       ;AN000;
 TimeSW	equ	false			;				       ;AN000;

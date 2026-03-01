@@ -131,14 +131,14 @@ NOOP	EQU	90H			;NO-OPERTION INSTRUCTION, USED TO DELETE     ;AN001;
  extern ASCII_DRV1_ID;40H	SOURCE DRIVE ID IN ASCII
  extern ASCII_DRV2_ID;40H	TARGET DRIVE ID IN ASCII
 
- extern SUBLIST_78	    ;					;AN000;
- extern SUBLIST_11	    ;					;AN000;
- extern SUBLIST_15A	    ;					;AN000;
- extern SUBLIST_15B	    ;					;AN000;
- extern SUBLIST_15C	    ;					;AN000;
- extern SUBLIST_17B	    ;					;AN000;
- extern SUBLIST_17C	    ;					;AN000;
- extern SUBLIST_17D	    ;					;AN000;
+ extern SUBLIST_78;					;AN000;
+ extern SUBLIST_11;					;AN000;
+ extern SUBLIST_15A;					;AN000;
+ extern SUBLIST_15B;					;AN000;
+ extern SUBLIST_15C;					;AN000;
+ extern SUBLIST_17B;					;AN000;
+ extern SUBLIST_17C;					;AN000;
+ extern SUBLIST_17D;					;AN000;
  extern SUBLIST_PARSE;PARSE ERROR XX - %0			     ;AN004;
 
  extern MSGNUM_INVALID_PARM;"INVALID PARAMETER"			;AC000;
@@ -149,53 +149,53 @@ NOOP	EQU	90H			;NO-OPERTION INSTRUCTION, USED TO DELETE     ;AN001;
 ;EXTRN	MSG_INVALID_DOS :BYTE		;MSG FOR DOS1.0 AND 1.1
 ; .LIST
 
- extern TRACK_TO_READ 
+ extern TRACK_TO_READ
  extern SIDE
 
- extern S_DRV_SECT_TRACK ;SECT/TRACK
- extern S_DRV_HEADS ;# OF HEADS
- extern S_DRV_TRACKS ;# OF TRACKS
- extern T_DRV_SECT_TRACK 
- extern T_DRV_HEADS 
- extern T_DRV_TRACKS 
+ extern S_DRV_SECT_TRACK;SECT/TRACK
+ extern S_DRV_HEADS;# OF HEADS
+ extern S_DRV_TRACKS;# OF TRACKS
+ extern T_DRV_SECT_TRACK
+ extern T_DRV_HEADS
+ extern T_DRV_TRACKS
 
- extern COPY_TYPE ;1 = 1-DRIVE COPY  2 = 2-DRIVE COPY
- extern USER_OPTION ;NO OPTION (-1)  /1 (1), INVALID (9)
- extern USER_OPTION_8 ;NO OPTION (-1)  /8 (1), INVALID (9)
- extern BUFFER_BEGIN ;STARTING BUFFER @ FOR LOADING
- extern BUFFER_END ;ENDING BUFFER @ FOR LOADING
- extern START_BUFFER ;START OF BUFFER SPACE
- extern MAIN_EXIT ;EXIT ADDRESS FOR CONTROL-BREAK
+ extern COPY_TYPE;1 = 1-DRIVE COPY  2 = 2-DRIVE COPY
+ extern USER_OPTION;NO OPTION (-1)  /1 (1), INVALID (9)
+ extern USER_OPTION_8;NO OPTION (-1)  /8 (1), INVALID (9)
+ extern BUFFER_BEGIN;STARTING BUFFER @ FOR LOADING
+ extern BUFFER_END;ENDING BUFFER @ FOR LOADING
+ extern START_BUFFER;START OF BUFFER SPACE
+ extern MAIN_EXIT;EXIT ADDRESS FOR CONTROL-BREAK
 
  extern ORG_SOURCE_DRIVE;LOGICAL SOURCE DRIVE NUMBER
  extern ORG_TARGET_DRIVE;	 TARGET
  extern SOURCE_DRIVE;AS SPECIFIED BY USER PARMS, DR NUM	;AN000;
  extern TARGET_DRIVE;AS SPECIFIED BY USER PARMS, DR NUM	;AN000;
 
- extern IO_ERROR 
+ extern IO_ERROR
 
- extern DS_IOCTL_DRV_PARM ;PLACE HOLDER FOR DEFAULT SOURCE DRV PARM
- extern DT_IOCTL_DRV_PARM ;PLACE HOLDER FOR DEFAULT TARGET DRV PARM
- extern DS_specialFunctions ;AND THEIR CONTENTS
- extern DT_specialFunctions 
+ extern DS_IOCTL_DRV_PARM;PLACE HOLDER FOR DEFAULT SOURCE DRV PARM
+ extern DT_IOCTL_DRV_PARM;PLACE HOLDER FOR DEFAULT TARGET DRV PARM
+ extern DS_specialFunctions;AND THEIR CONTENTS
+ extern DT_specialFunctions
  extern DS_deviceType
  extern DT_deviceType
- extern DS_deviceAttributes 
- extern DT_deviceAttributes 
- extern DS_numberOfCylinders 
- extern DT_numberOfCylinders 
- extern DS_mediaType 
- extern DT_mediaType 
- extern DS_BPB_PTR 
- extern DT_BPB_PTR 
+ extern DS_deviceAttributes
+ extern DT_deviceAttributes
+ extern DS_numberOfCylinders
+ extern DT_numberOfCylinders
+ extern DS_mediaType
+ extern DT_mediaType
+ extern DS_BPB_PTR
+ extern DT_BPB_PTR
 
- extern MS_IOCTL_DRV_PARM ;DRIVE PARM FROM SOURCE MEDIUM
- extern MT_IOCTL_DRV_PARM 
+ extern MS_IOCTL_DRV_PARM;DRIVE PARM FROM SOURCE MEDIUM
+ extern MT_IOCTL_DRV_PARM
 
  extern PATCH_386;PATCH AREA, CHANGED TO NOOP IF NOT 386 ;AN001;
 
- extern GENERIC_IOCTL 
- extern SET_LOGICAL_DRIVE 
+ extern GENERIC_IOCTL
+ extern SET_LOGICAL_DRIVE
 ;		       $salut (4,24,28,41)
 struc MY_BPB
 CBYTE_SECT	       DW  0		; 200H	BYTES / SECTOR
@@ -211,17 +211,17 @@ CSECT_TRACK	       DW  0		;
 CHEAD		       DW  0		;
 CHIDDEN_SECT	       DD  0		;
 BIG_TOT_SECT	       DD  0		;
-		       times 6 db 0;
+		       resb 6;
 endstruc
 
 ;USED TO CHECK FOR PRESENCE OF 386 MACHINE:
 struc BIOS_SYSTEM_DESCRIPTOR;SYSTEM TYPE STRUC			;AN001;
-bios_SD_leng: dw 0;VECTOR LENGTH				;AN001;
-bios_SD_modelbyte: db 0;SYSTEM MODEL TYPE			;AN001;
-bios_SD_scnd_modelbyte: db 0;					;AN001;
-		       db 0;					;AN001;
-bios_SD_featurebyte1: db 0;					;AN001;
-		       times 4 db 0;					;AN001;
+bios_SD_leng: resw 1;VECTOR LENGTH				;AN001;
+bios_SD_modelbyte: resb 1;SYSTEM MODEL TYPE			;AN001;
+bios_SD_scnd_modelbyte: resb 1;					;AN001;
+		       resb 1;					;AN001;
+bios_SD_featurebyte1: resb 1;					;AN001;
+		       resb 4;					;AN001;
 endstruc;END OF STRUC				;AN001;
 
 
@@ -563,7 +563,7 @@ PC_386_CHK:;DETERMINE MACHINE TYPE 		;AN001;
 	CMP   AH,0			;IS IT NEW FORMAT FOR CONFIG.		;AN001;
 ;	$IF   NE,OR			;NO, OR...				      ;AN001;
 	JNE $$LL9
-	CMP   ES:[BX].BIOS_SD_MODELBYTE,0F8H ;CHECK MODEL	      ;AN001;
+	CMP   [ES:BX].BIOS_SD_MODELBYTE,0F8H ;CHECK MODEL	      ;AN001;
 ;	$IF   NE			;IF IT IS NOT A 386 MACHINE?		       ;AN001;
 	JE $$IF9
 $$LL9:

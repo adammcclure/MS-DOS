@@ -499,13 +499,13 @@ $$IF19:
 	mov	si,es:DBCS_Vector_Off		;				;AN000;
 ;	$SEARCH 				;Check all the vectors		;AN000;
 $$DO21:
-	   cmp	   word ds:[si],End_Of_Vector ;End of vector table? 	  ;AN000;
+	   cmp	   word [ds:si],End_Of_Vector ;End of vector table? 	  ;AN000;
 ;	$LEAVE	E				;Yes, done			;AN000;
 	JE $$EN21
-	   cmp	   al,ds:[si]			;See if char is in vector	;AN000;
+	   cmp	   al,[ds:si]			;See if char is in vector	;AN000;
 ;	$EXITIF AE,AND				;If >= to lower, ANd		;AN000;
 	JNAE $$IF21
-	   cmp	   al,ds:[si+1] 		; =< thAN higher rANge		;AN000;
+	   cmp	   al,[ds:si+1] 		; =< thAN higher rANge		;AN000;
 ;	$EXITIF BE				; then DBCS charACter		;AN000;
 	JNBE $$IF21
 	   stc					;Set CY to indicate DBCS	;AN000;

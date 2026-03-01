@@ -81,7 +81,7 @@ RR84_Value	equ	0Fh
 FLAGS_IF	equ	0200h
 FLAGS_TF	equ	0100h
 
-RR_MASK equ	NOT	(FLAGS_IF+FLAGS_TF)	; mask off IF and TF bits
+RR_MASK equ	~(FLAGS_IF+FLAGS_TF)	; mask off IF and TF bits
 
 RTC_CMD 	equ	70h	; real time clock command port
 DISABLE_NMI	equ	80h	; cmd to disable NMI
@@ -358,21 +358,21 @@ JumpReal:
 	pop	ds		; set DS= CS = R_CODE
 	; ASSUME	DS:R_CODE
 					; set up return address
-	mov	bx,[bp.VTFOE+VMTF_EIP]	; get return IP
+	mov	bx,[bp+VTFOE+VMTF_EIP]	; get return IP
 	mov	[RR_JOff],bx		; save it
-	mov	bx,[bp.VTFOE+VMTF_CS]	; get return CS
+	mov	bx,[bp+VTFOE+VMTF_CS]	; get return CS
 	mov	[RR_JSeg],bx		; save it
 ;
-	mov	bx,[bp.VTFOE+VMTF_EFLAGS]	; get flags
+	mov	bx,[bp+VTFOE+VMTF_EFLAGS]	; get flags
 	mov	[RR_Flags],bx			; and save
-	and	[bp.VTFOE+VMTF_EFLAGS],RR_MASK	; mask off certain bits
+	and	[bp+VTFOE+VMTF_EFLAGS],RR_MASK	; mask off certain bits
 ;
-	mov	bx,[bp.VTFOE+VMTF_DS]	; get DS
+	mov	bx,[bp+VTFOE+VMTF_DS]	; get DS
 	mov	[RR_DS],bx		; save it
 
-	mov	bx,[bp.VTFOE+VMTF_SS]	; get SS
+	mov	bx,[bp+VTFOE+VMTF_SS]	; get SS
 	mov	[RR_SS],bx		; save it
-	mov	bx,[bp.VTFOE+VMTF_ESP]	; get SP
+	mov	bx,[bp+VTFOE+VMTF_ESP]	; get SP
 	mov	[RR_SP],bx		; save it
 ;
 ; restore regs pushed by VM_Fault entry
@@ -409,10 +409,10 @@ JumpReal:
 					; --- NMI could occur with invalid
 					;     STACK
 
-	mov	ss,CS:[RR_SS]		; restore SS
-	mov	sp,CS:[RR_SP]		; restore SP
+	mov	ss,[CS:RR_SS]		; restore SS
+	mov	sp,[CS:RR_SP]		; restore SP
 	sti				; enable ints
-	jmp	CS:[RR_Jump]		;  and return
+	jmp	[CS:RR_Jump]		;  and return
 
 RR_CLIexit:
 	push	[RR_Flags]		; leave interrupts disabled on return
@@ -427,9 +427,9 @@ RR_CLIexit:
 					; --- NMI could occur with invalid
 					;     STACK
 
-	mov	ss,CS:[RR_SS]		; restore SS
-	mov	sp,CS:[RR_SP]		; restore SP
-	jmp	CS:[RR_Jump]		; far jump for return
+	mov	ss,[CS:RR_SS]		; restore SS
+	mov	sp,[CS:RR_SP]		; restore SP
+	jmp	[CS:RR_Jump]		; far jump for return
 ;
 ; END SECTION .R_CODE; end of segment
 ;

@@ -30,7 +30,7 @@
 %endif
 
 
-DSKADR	= 1Eh * 4		;ROM bios diskette table vector position
+DSKADR equ 1Eh * 4;ROM bios diskette table vector position
 
 SECTION .bootseg
 
@@ -932,16 +932,16 @@ Get_Next_FAT_Entry:
 	add	si, ax				;AN000; si = ax*1.5 = ax+ax/2
 	call	Get_Fat_Sector			;AN000;
 	jne	Ok_cluster			;AN000;
-	mov	al, byte es:[bx]		;AN000;
+	mov	al, byte [es:bx]		;AN000;
 	mov	byte cs:Temp_cluster, al	;AN000;
 	inc	si				;AN000;
 	call	Get_Fat_Sector			;AN000;read next FAT sector
-	mov	al, byte es:[0]		;AN000;
+	mov	al, byte [es:0]		;AN000;
 	mov	byte cs:Temp_cluster+1, al	    ;AN000;
 	mov	ax, cs:Temp_cluster		    ;AN000;
 	jmp	short Even_Odd			;AN000;
 Ok_cluster:					;AN000;
-	mov	ax, es:[bx]			;AN000;
+	mov	ax, [es:bx]			;AN000;
 Even_Odd:					;AN000;
 
 ;	 xor	 bx,bx
@@ -968,7 +968,7 @@ Got_16_Bit:
 	shl	ax,1				;Multiply cluster by 2
 	mov	si,ax				;Get the final buffer offset
 	call	Get_Fat_Sector			;AN000;
-	mov	ax, es:[bx]			;AN000;
+	mov	ax, [es:bx]			;AN000;
 ;	 mov	 ax,[si]+8000h			;Get new cluster
 	cmp	ax,0FFF8h
 	jae	Got_Cluster_Done
@@ -1054,8 +1054,8 @@ Errorout:				;AN000;
 	mov	ds, bx
 	les	bx, dword ds:Org_Rom_DiskTable
 	mov	si, DSKADR
-	mov	word ds:[si], bx	;restore offset
-	mov	word ds:[si+2], es	;restore segment
+	mov	word [ds:si], bx	;restore offset
+	mov	word [ds:si+2], es	;restore segment
 	int	19h			;reboot
 ;SB34LOAD002****************************************************************
 

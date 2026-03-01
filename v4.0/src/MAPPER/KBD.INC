@@ -2,11 +2,11 @@
 
 struc KeyData
 
-Char_Code: db 0
-Scan_Code: db 0
-Status: db 0
-Shift_State: dw 0
-Time: dd 0
+Char_Code: resb 1
+Scan_Code: resb 1
+Status: resb 1
+Shift_State: resw 1
+Time: resd 1
 
 endstruc
 
@@ -14,11 +14,11 @@ endstruc
 
 struc KbdStatus
 
-KS_Length: dw 0
-Bit_mask: dw 0
-Turn_Around_Char: dw 0
-Interim_Char_Flags: dw 0
-Status_Shift_State: dw 0
+KS_Length: resw 1
+Bit_mask: resw 1
+Turn_Around_Char: resw 1
+Interim_Char_Flags: resw 1
+Status_Shift_State: resw 1
 
 endstruc
 

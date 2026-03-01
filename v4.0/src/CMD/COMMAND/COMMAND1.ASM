@@ -399,7 +399,7 @@ SECTION .CODERES;AC000;
 	extern LODCOM1
 
 	ORG	0
-ZERO	=	$
+ZERO equ $
 
 	ORG 80h-1
 	global RESCOM
@@ -561,7 +561,7 @@ ClearBatch:
 	cmp	al,shell_action 		;AN000; does shell want this batch?
 	jz	shell_bat_cont			;AN000; yes - keep it
 
-	MOV	BX,ES:[BATFORPTR]		;G get old FOR segment
+	MOV	BX,[ES:BATFORPTR]		;G get old FOR segment
 	cmp	bx,0				;G is a FOR in progress
 	jz	no_bat_for			;G no - don't deallocate
 	push	es				;G
@@ -571,8 +571,8 @@ ClearBatch:
 	pop	es				;G restore to batch segment
 
 no_bat_for:
-	mov	cl,ES:[batechoflag]		;G get old echo flag
-	MOV	BX,ES:[BATLAST] 		;G get old batch segment
+	mov	cl,[ES:batechoflag]		;G get old echo flag
+	MOV	BX,[ES:BATLAST] 		;G get old batch segment
 	MOV	AH,DEALLOC			; free it up...
 	INT	21H
 	MOV	[BATCH],BX			;G get ready to deallocate next batch

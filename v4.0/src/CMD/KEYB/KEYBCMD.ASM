@@ -496,9 +496,9 @@ INSTALLED_KEYB: 			    ;;
 	MOV   KEYB_INSTALLED,1		    ;;	Set KEYB_INSTALLED flag = YES
 	MOV   word SHARED_AREA_PTR,ES   ;;	Save segment of SHARED_DATA_AREA
 	MOV   word SHARED_AREA_PTR+2,DI ;;	Save offset of SHARED_DATA_AREA
-	MOV   AX,ES:[DI].KEYB_TYPE	    ;;
+	MOV   AX,[ES:DI].KEYB_TYPE	    ;;
 	MOV   HW_TYPE,AX		    ;;
-	MOV   ES:[DI].TABLE_OK,0	    ;;	Do not allow processing
+	MOV   [ES:DI].TABLE_OK,0	    ;;	Do not allow processing
 	PUSH  CS			    ;;		  while building table
 	POP   ES			    ;;	Reset ES until required
 					    ;;
@@ -554,7 +554,7 @@ QUERY:				       ;;
 						     ;;
 	MOV   DI,word SHARED_AREA_PTR+2	     ;; Get offset of
 	MOV   ES,word SHARED_AREA_PTR	     ;; 	 shared area
-	MOV   BX,word ES:[DI].ACTIVE_LANGUAGE    ;; Get active language
+	MOV   BX,word [ES:DI].ACTIVE_LANGUAGE    ;; Get active language
 	CMP   BX,0				     ;; WGR if no language..		 ;AN000
 	JE    I_MESSAGE 			     ;; WGR then id was specified	 ;AN000
 						     ;;
@@ -573,7 +573,7 @@ L_MESSAGE:				   ;;
 	JMP   KEYB_L_FINISHED		   ;;
 					   ;;;;;;;
 I_MESSAGE:					;;
-	MOV   BX,word ES:[DI].INVOKED_KBD_ID;AN000;;; WGR get id code.			;AN000
+	MOV   BX,word [ES:DI].INVOKED_KBD_ID;AN000;;; WGR get id code.			;AN000
 	MOV   NUMBER_HOLDER,BX			;AN000;;; WGR transfer number to temp loc.	;AN000
 	LEA   SI,NUMBER_HOLDER			;AN000;;; WGR sublist points to...		;AN000
 	MOV   PTR_TO_NUMBER,SI			;AN000;;; WGR code page word			;AN000
@@ -597,7 +597,7 @@ QUERY_CONTINUE1:		       ;;
 	JMP   KEYB_CP_FINISHED	       ;AC000;;;
 				       ;;;;;;;;;;;
 KEYB_L_FINISHED:				;;
-	MOV   BX,ES:[DI].INVOKED_CP_TABLE	;; Get invoked code page
+	MOV   BX,[ES:DI].INVOKED_CP_TABLE	;; Get invoked code page
 						;;
 	MOV   NUMBER_HOLDER,BX			;AN000;;; WGR transfer number to temp loc.	;AN000
 	LEA   SI,NUMBER_HOLDER			;AN000;;; WGR sublist points to...		;AN000
@@ -612,7 +612,7 @@ KEYB_L_FINISHED:				;;
 	CMP   ID_DISPLAYED,1			;AN000;;; WGR was id displayed? 		;AN000
 	JE    KEYB_CP_FINISHED			;AN000;;; WGR yes..continue.			;AN000
 						;;
-	MOV   BX,word ES:[DI].INVOKED_KBD_ID;AN000;;; WGR get id code.			;AN000
+	MOV   BX,word [ES:DI].INVOKED_KBD_ID;AN000;;; WGR get id code.			;AN000
 	CMP   BX,0				;AN000;;; WGR no id given..			;AN000
 	JE    KEYB_CP_FINISHED			;AN000;;; WGR					;AN000
 						;;
@@ -1380,7 +1380,7 @@ KEYB_EXIT3:			       ;;;;;;;;;;;
 	MOV   AL,EXIT_RET_CODE			;;
 	MOV   DI,word SHARED_AREA_PTR+2	;; Initialize destination ptr
 	MOV   ES,word SHARED_AREA_PTR	;;
-	MOV   ES:[DI].TABLE_OK,1		;;
+	MOV   [ES:DI].TABLE_OK,1		;;
 	INT   21H		       ;;;;;;;;;;;
 				       ;;
 ; ENDP KEYB_COMMAND;;
@@ -1903,7 +1903,7 @@ COPY_ARGV0:;; WGR					    ;AN000
   ADD	 SI,4			       ;AN000;;; WGR					   ;AN000
   LEA	 DI,FILE_NAME		       ;AN000;;; WGR move string to work area		   ;AN000
   ; .REPEAT;AN000;;; WGR					   ;AN000
-     MOV    AL,ES:[SI]		       ;AN000;;; WGR					   ;AN000
+     MOV    AL,[ES:SI]		       ;AN000;;; WGR					   ;AN000
      MOV    [DI],AL		       ;AN000;;; WGR					   ;AN000
      INC    SI			       ;AN000;;; WGR					   ;AN000
      INC    DI			       ;AN000;;; WGR					   ;AN000
@@ -2064,7 +2064,7 @@ TEMP_SHARED_DATA   SHARED_DATA_STR <>  ;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-CODE	ENDS
+; END SECTION .CODE
 
 %include "msgdcl.inc"
 

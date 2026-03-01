@@ -958,7 +958,7 @@ DSKERR:
        ; ASSUME DS:CodeR,ES:CodeR
 
        mov  si,BADDRVM_PTR		; Fix up Drive ID for FATMES	       ;AC000;
-       add  ds:[si],al			;				       ;AC000;
+       add  [ds:si],al			;				       ;AC000;
        mov  si,ERRMES
        call LISTMES
        test AH,080H
@@ -1302,13 +1302,13 @@ AnotherTry:
 MatchLoop:
 
    lodsb
-   cmp	al,byte es:[di]		; names in queue are all in upper case
+   cmp	al,byte [es:di]		; names in queue are all in upper case
    je	CharMatch
    jmp	AnotherName			; a mismatch, try another name
 
 CharMatch:
 
-   cmp	es:byte es:[di],0		; was this the terminating nul?
+   cmp	es:byte [es:di],0		; was this the terminating nul?
    je	NameFound			; yes we got our file...
    inc	di
    jmp	MatchLoop
@@ -1319,9 +1319,9 @@ AnotherName:
    jne	AnName				; if not then no more work to do
    cmp	al,"?"
    jne	AnName
-   cmp	byte es:[di],"."
+   cmp	byte [es:di],"."
    je	FindPeriod
-   cmp	byte es:[di],0		; if nul then file names match
+   cmp	byte [es:di],0		; if nul then file names match
    jne	CharMatch			;  only if only ?'s are left...
 
 FindNul:
@@ -1347,7 +1347,7 @@ FindPeriod:				; ambigous files always have 8 chars
 AnName:
 
    add	bx,MaxFileLen
-   cmp	byte es:[bx],0		; end of queue?
+   cmp	byte [es:bx],0		; end of queue?
    jne	AnotherTry			; no, continue...
    cmp	[ACanOcrd],1			; yes, was there a file found?
    jne	sk2
@@ -1652,7 +1652,7 @@ $$EN59:
 ;      $endif				;				       ;AC000;
 $$IF58:
 
-       mov  byte es:[di],0		; nul terminate
+       mov  byte [es:di],0		; nul terminate
        pop  ds
 
        ; ASSUME DS:nothing
@@ -1705,9 +1705,9 @@ OkToQueue:
    ; ASSUME ES:CodeR
 
    mov	si,dx				; DS:SI points to submit packet
-   cmp	byte ds:[si],0
+   cmp	byte [ds:si],0
    jnz	IncorrectLevel
-   lds	si,dword ds:[si+1]		; DS:SI points to filename
+   lds	si,dword [ds:si+1]		; DS:SI points to filename
    mov	cx,MaxFileLen			; maximum length of file name
 
 CopyLop:
@@ -1774,7 +1774,7 @@ CopyDone:				;   avoid possible problems...
 					;---------------------------------------
    push ax
    mov	si,dx
-   cmp	byte CS:[SI+1],':'
+   cmp	byte [CS:SI+1],':'
    jz	GotDrive
    pop	ax
    jmp	SHORT	i24bf
@@ -1784,7 +1784,7 @@ GotDrive:
    mov	ah,Get_default_drive		; get current
    call My21
    push ax
-   mov	dl,CS:[SI]			; get drive letter to test
+   mov	dl,[CS:SI]			; get drive letter to test
    or	dl,20h
    sub	dl,'a'
    mov	ah,Set_Default_Drive		; set it
@@ -1879,14 +1879,14 @@ DO_21:
 
    ; ASSUME DS:nothing,ES:nothing
 
-   CMP	byte CS:[INT15FLAG],0
+   CMP	byte [CS:INT15FLAG],0
 
 ;  $if	nz				; if for PRINT			       ;AC000;
    JZ $$IF67
 
        push ds
        push bx
-       lds  bx,cs:[INT15PTR]
+       lds  bx,[cs:INT15PTR]
        inc  byte [bx]
        pop  bx
        pop  ds
@@ -1896,7 +1896,7 @@ DO_21:
        push ds
        push bx
        pushf				; Flags from system call
-       lds  bx,CS:[INT15PTR]
+       lds  bx,[CS:INT15PTR]
        dec  byte [BX]
        popf				;
        pop  bx				;AC000;
@@ -2186,7 +2186,7 @@ OP_CL_OP:
 
    ; ASSUME DS:nothing
 
-   test [SI.SDEVATT],DEVOPCL
+   test [SI+SDEVATT],DEVOPCL
 
 ;  $if	nz				;				       ;AC000;
    JZ $$IF75
@@ -2641,7 +2641,7 @@ nop
        mov  dx,(ignore_cp shl 8) + (failopen shl 4) + openit ; open if exists  ;AC001;
        mov  di,cx			;				       ;AC001;
        dec  di				;				       ;AC001;
-       mov  al,ds:[si]			; recover drive - TO_DOS needs it
+       mov  al,[ds:si]			; recover drive - TO_DOS needs it
        call TO_DOS			; call TO_DOS to open file (SERVER DOS);AC010;
 
 ;      $if  nc,and			; if no error and		       ;AN000;
@@ -2688,7 +2688,7 @@ $$IF84:
 $$IF83:
 
        mov  si,dx
-       mov  al,ds:[si]			; recover drive - TO_DOS needs it
+       mov  al,[ds:si]			; recover drive - TO_DOS needs it
        mov  ah,(open)			; set up for INT 21 - 3D Open	       ;AN000;
        mov  cx,016h			; set up search attribute for Server   ;AN011;
 					;			    DOS Open
@@ -2876,7 +2876,7 @@ LISTNAME		DB   "PRN     " ;Device name
    call My21
    push es
    pop	ds
-   lea	si,es:[bx.SYSI_DEV]
+   lea	si,[es:bx+SYSI_DEV]
 
    ; ASSUME DS:nothing
 
@@ -2890,7 +2890,7 @@ LISTNAME		DB   "PRN     " ;Device name
 ;  $search				;				       ;AN000;
 $$DO92:
 
-       test [si.SDEVATT],DEVTYP 	;
+       test [si+SDEVATT],DEVTYP 	;
 
 ;      $if  nz,and			; if type is character		       ;AN000;
        JZ $$IF93
@@ -2944,7 +2944,7 @@ $$EN93:
    JMP SHORT $$SR92
 $$IF92:
 
-       lds  si,[si.SDEVNEXT]		;
+       lds  si,[si+SDEVNEXT]		;
        cmp  si,-1			;
 
 ;  $endloop z				;				       ;AN000;

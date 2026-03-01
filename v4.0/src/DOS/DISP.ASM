@@ -54,7 +54,7 @@ SECTION .CODE
         I_need  DOS34_FLAG,WORD            ;AN000;
         I_need  ACT_PAGE,WORD              ;AN000;
 
-        %if NOT IBM
+        %if ~IBM
         I_need  OEM_HANDLER,DWORD
         %endif
 
@@ -227,7 +227,7 @@ BADCALL:
 
 entry   COMMAND                         ; Interrupt call entry point (INT 21H)
 
-        %if NOT IBM
+        %if ~IBM
         CMP     AH,SET_OEM_HANDLER
         JB      NOTOEM
         JMP     $SET_OEM_HANDLER
@@ -285,8 +285,8 @@ chkprt:
 ;
         MOV     DS,[CurrentPDB]
 ; ASSUME  DS:NOTHING
-        MOV     word DS:[PDB_User_stack],SP
-        MOV     word DS:[PDB_User_stack+2],SS
+        MOV     word [DS:PDB_User_stack],SP
+        MOV     word [DS:PDB_User_stack+2],SS
 
         MOV     fSharing,0              ; allow redirection
 
@@ -298,8 +298,8 @@ entry   REDISP
         MOV     SP,AUXSTACK ; Enough stack for interrupts
         STI                             ; stack is in our space now...
  %if DBCS;AN000;
-        MOV     BH, byte DS:[PDB_InterCon]  ;AN000;; get interim mode  2/13/KK
-        MOV     SS:[InterCon], BH               ;AN000;; 2/13/KK
+        MOV     BH, byte [DS:PDB_InterCon]  ;AN000;; get interim mode  2/13/KK
+        MOV     [SS:InterCon], BH               ;AN000;; 2/13/KK
  %endif;AN000;
         MOV     BX,CS
         MOV     DS,BX
@@ -385,12 +385,12 @@ DISPCALL:
         MOV     DS,SaveDS
 
 %if BUFFERFLAG
-	mov	cs:[SETVECTFLAG], 0
+	mov	[cs:SETVECTFLAG], 0
 	cmp	ah, 25h
 	jne	saveuser
 	cmp	ah, 35h
 	jne	saveuser
-	mov	cs:[SETVECTFLAG], 1
+	mov	[cs:SETVECTFLAG], 1
 saveuser:
 	invoke	SAVE_USER_MAP		    ;AN000;LB.	save EMS map
 %endif
@@ -409,7 +409,7 @@ saveuser:
         MOV     SS,[user_SS]
         MOV     SP,[user_SP]
         MOV     BP,SP
-        MOV     byte [BP.user_AX],AL
+        MOV     byte [BP+user_AX],AL
         MOV     AX,[NSP]
         MOV     [user_SP],AX
         MOV     AX,[NSS]
@@ -469,9 +469,9 @@ Break	<SAVE_USER_MAP - save map >							;AN000;
 Procedure   SAVE_USER_MAP,NEAR							 ;AN000;
 	; ASSUME	DS:NOTHING,ES:NOTHING;AN000;
 										;AN000;
-	CMP	cs:[BUF_EMS_MODE],-1	  ;LB. EMS support			;AN000;
+	CMP	[cs:BUF_EMS_MODE],-1	  ;LB. EMS support			;AN000;
 	JZ	No_user_save 		  ;LB. no				;AN000;
-	CMP	cs:[SETVECTFLAG], 1
+	CMP	[cs:SETVECTFLAG], 1
 	jz	No_user_save
 ;	MOV	[ACT_PAGE],-1		  ;LB. invalidate active page		;AN000;
 ;	MOV	WORD PTR [LASTBUFFER],-1  ;LB.	and last buffer pointer 	;AN000;
@@ -514,9 +514,9 @@ Break	<RESTORE_USER_MAP- retore map >						;AN000;
 Procedure   RESTORE_USER_MAP,NEAR							 ;AN000;
 	; ASSUME	DS:NOTHING,ES:NOTHING;AN000;
 	
-	CMP	cs:[BUF_EMS_MODE],-1	  ;LB. EMS support			;AN000;
+	CMP	[cs:BUF_EMS_MODE],-1	  ;LB. EMS support			;AN000;
 	JZ	No_user_restore		  ;LB. no				;AN000;
-	CMP	cs:[SETVECTFLAG], 1
+	CMP	[cs:SETVECTFLAG], 1
 	jz	No_user_restore
 	PUSH	AX			  ;LB. save regs			;AN000;
 	PUSH	DS			  ;LB. save regs			;AN000;
@@ -547,7 +547,7 @@ EndProc RESTORE_USER_MAP
         return
 EndProc get_user_stack
 
-        %if NOT IBM
+        %if ~IBM
 BREAK <Set_OEM_Handler -- Set OEM sys call address and handle OEM Calls
 
 $SET_OEM_HANDLER:

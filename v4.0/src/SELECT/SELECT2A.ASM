@@ -377,5 +377,5 @@ GET_PRINTER_TYPE:						;AN000; repeat loop to get printer info
 	   GOTO 		GET_PRINTER_TYPE		;AN000;
 	; .ENDIF;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS							;AN000;
+; END SECTION .SELECT;AN000;
 	; END;AN000;

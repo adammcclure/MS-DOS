@@ -230,18 +230,18 @@ extern EXIT_SELECT;AN111;JW
 
 struc HEADER;AN000;
 	CONTINUE_INFO DB      0 	;AN000;set for filesize bigger then 0FFD0h
-	NEXT_PTR: dw 0;AN000;next buffer ptr in para
-	BEFORE_PTR: dw 0;AN000;before ptr in para
-	DIR_DEPTH: db 0;AN000;same as S_DEPTH
+	NEXT_PTR: resw 1;AN000;next buffer ptr in para
+	BEFORE_PTR: resw 1;AN000;before ptr in para
+	DIR_DEPTH: resb 1;AN000;same as S_DEPTH
 	CX_BYTES DW	 0		;AN000;actual # of bytes in this buffer seg.
-	ATTR_FOUND: db 0;AN000;attribute found
-	FILE_TIME_FOUND: dw 0;AN000;
-	FILE_DATE_FOUND: dw 0;AN000;
-	LOW_SIZE_FOUND: dw 0;AN000;
-	HIGH_SIZE_FOUND: dw 0;AN000;
+	ATTR_FOUND: resb 1;AN000;attribute found
+	FILE_TIME_FOUND: resw 1;AN000;
+	FILE_DATE_FOUND: resw 1;AN000;
+	LOW_SIZE_FOUND: resw 1;AN000;
+	HIGH_SIZE_FOUND: resw 1;AN000;
 	TARGET_DRV_LET DB      " :"     ;AN000;used for writing
-	FILENAME_FOUND: times 13 db 0;AN000; FILENAME
-	ATTRIB_LIST: db 0;AC005;EXTENDED ATTRIBUTE BUFFER
+	FILENAME_FOUND: resb 13;AN000; FILENAME
+	ATTRIB_LIST: resb 1;AC005;EXTENDED ATTRIBUTE BUFFER
 ;-------------------------------------------------------------------
 ;	extended attribute list used by extended open & get extended
 ;-------------------------------------------------------------------
@@ -1118,7 +1118,7 @@ MH_START:	     ;AN000;
 $$IF6:			    ;AN000;
 	MOV	AL, S_DEPTH	       ;AN000;
 	MOV	ES:DIR_DEPTH, AL	;AN000;now save other info's
-	MOV	AL, DS:[BP].DTA_ATTRIBUTE;AN000;
+	MOV	AL, [DS:BP].DTA_ATTRIBUTE;AN000;
 	MOV	ES:ATTR_FOUND, AL	;AN000;in this case, DIR
 	MOV	AL, byte T_DRV;AN000;
 	MOV	ES:TARGET_DRV_LET, AL	;AN000;mov target drive letter

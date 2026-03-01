@@ -8,11 +8,11 @@ BREAK <Memory arena structure>
 ; arena item
 ;
 struc arena
-arena_signature: db 0; 4D for valid item, 5A for last item
-arena_owner: dw 0; owner of arena item
-arena_size: dw 0; size in paragraphs of item
-arena_reserved: times 3 db 0; reserved
-arena_name: times 8 db 0; owner file name
+arena_signature: resb 1; 4D for valid item, 5A for last item
+arena_owner: resw 1; owner of arena item
+arena_size: resw 1; size in paragraphs of item
+arena_reserved: resb 3; reserved
+arena_name: resb 8; owner file name
 endstruc
 
 ;

@@ -157,7 +157,7 @@ REG:
         JNZ     NOTPC
         DEC     DI
         DEC     DI
-        MOV     AX,CS:[DI-2]
+        MOV     AX,[CS:DI-2]
 NOTPC:
         CALL    OUT
         MOV     AL,AH
@@ -219,7 +219,7 @@ NEXFLG:
         CALL    SCANP
         JMP     SHORT GETFLG
 DISPREGLINE:
-        LODS    CS:word [SI]
+        lodsw
         CALL    OUT
         MOV     AL,AH
         CALL    OUT
@@ -254,10 +254,10 @@ DISPFLAGS:
         MOV     CX,16
         MOV     DX,[FSAVE]
 DFLAGS:
-        LODS    CS:word [SI]
+        lodsw
         SHL     DX,1
         JC      FLAGSET
-        MOV     AX,CS:[SI+30]
+        MOV     AX,[CS:SI+30]
 FLAGSET:
         OR      AX,AX
         JZ      NEXTFLG
@@ -320,7 +320,7 @@ COMP:
         CALL    BLANK
         CALL    BLANK
         DEC     DI
-        MOV     AL,ES:[DI]
+        MOV     AL,[ES:DI]
         CALL    HEX
         CALL    BLANK
         CALL    BLANK
@@ -339,7 +339,7 @@ ZTRACE:
         MOV     ES,[CSSAVE]             ; point to instruction to execute
         MOV     DI,[IPSAVE]             ; include offset in segment
         XOR     DX,DX                   ; where to place breakpoint
-        MOV     AL,ES:[DI]              ; get the opcode
+        MOV     AL,[ES:DI]              ; get the opcode
         CMP     AL,11101000B            ; direct intra call
         JZ      ZTrace3                 ; yes, 3 bytes
         CMP     AL,10011010B            ; direct inter call
@@ -359,7 +359,7 @@ ZTRACE:
         AND     AL,11111110B            ; check for rep
         CMP     AL,11110010B            ; perhaps?
         JNZ     Step                    ; can't do anything special, step
-        MOV     AL,ES:[DI+1]            ; next instruction
+        MOV     AL,[ES:DI+1]            ; next instruction
         AND     AL,11111110B            ; ignore w bit
         CMP     AL,10100100B            ; MOVS
         JZ      ZTrace2                 ; two byte
@@ -374,7 +374,7 @@ ZTRACE:
         JMP     Step                    ; bogus, do single step
 
 ZTraceModRM:
-        MOV     AL,ES:[DI+1]            ; get next byte
+        MOV     AL,[ES:DI+1]            ; get next byte
         AND     AL,11111000B            ; get mod and type
         CMP     AL,01010000B            ; indirect intra 8 bit offset?
         JZ      ZTrace3                 ; yes, three byte whammy
@@ -393,9 +393,9 @@ ZTrace1:INC     DX
         ADD     DI,DX                   ; offset to breakpoint instruction
         MOV     word [BPTab],DI     ; save offset
         MOV     word [BPTab+2],ES   ; save segment
-        MOV     AL,ES:[DI]              ; get next opcode byte
+        MOV     AL,[ES:DI]              ; get next opcode byte
         MOV     byte [BPTab+4],AL   ; save it
-        MOV     byte ES:[DI],0CCh   ; break point it
+        MOV     byte [ES:DI],0CCh   ; break point it
         MOV     [BrkCnt],1              ; only this breakpoint
         JMP     DExit                   ; start the operation!
         %endif
@@ -419,7 +419,7 @@ STEP:
         MOV     [BRKCNT],0
         OR      byte [FSAVE+1],1
 DEXIT:
-%if NOT SYSVER
+%if ~SYSVER
         MOV     BX,[USER_PROC_PDB]
         MOV     AH,SET_CURRENT_PDB
         INT     21H
@@ -427,15 +427,15 @@ DEXIT:
         PUSH    DS
         XOR     AX,AX
         MOV     DS,AX
-        MOV     word DS:[12],BREAKFIX ; Set vector 3--breakpoint instruction
-        MOV     word DS:[14],CS
-        MOV     word DS:[4],REENTER   ; Set vector 1--Single step
-        MOV     word DS:[6],CS
+        MOV     word [DS:12],BREAKFIX ; Set vector 3--breakpoint instruction
+        MOV     word [DS:14],CS
+        MOV     word [DS:4],REENTER   ; Set vector 1--Single step
+        MOV     word [DS:6],CS
         CLI
 
         %if SETCNTC
-        MOV     word DS:[8CH],CONTC   ; Set vector 23H (CTRL-C)
-        MOV     word DS:[8EH],CS
+        MOV     word [DS:8CH],CONTC   ; Set vector 23H (CTRL-C)
+        MOV     word [DS:8EH],CS
         %endif
 
         POP     DS
@@ -485,13 +485,13 @@ BREAKFIX:
 ; displayed or modified.
 
 struc Interrupt_Frame
-OldBP: dw 0
-OldIP: dw 0
-OldCS: dw 0
-OldF: dw 0
-OlderIP: dw 0
-OlderCS: dw 0
-OlderF: dw 0
+OldBP: resw 1
+OldIP: resw 1
+OldCS: resw 1
+OldF: resw 1
+OlderIP: resw 1
+OlderCS: resw 1
+OlderF: resw 1
 endstruc
 
 REENTER:
@@ -529,10 +529,10 @@ GoReEnter:
         POP     AX
         POP     BP
 ReEnterReal:
-        MOV     CS:[SPSAVE+SEGDIF],SP
-        MOV     CS:[SSSAVE+SEGDIF],SS
-        MOV     CS:[FSAVE],CS
-        MOV     SS,CS:[FSAVE]
+        MOV     [CS:SPSAVE+SEGDIF],SP
+        MOV     [CS:SSSAVE+SEGDIF],SS
+        MOV     [CS:FSAVE],CS
+        MOV     SS,[CS:FSAVE]
         MOV     SP,RSTACK
         PUSH    ES
         PUSH    DS
@@ -565,14 +565,14 @@ ReEnterReal:
         MOV     DS,AX
 
         %if SETCNTC
-        MOV     word DS:[8CH],DABORT  ; Set Ctrl-C vector
-        MOV     word DS:[8EH],CS
+        MOV     word [DS:8CH],DABORT  ; Set Ctrl-C vector
+        MOV     word [DS:8EH],CS
         %endif
 
         POP     DS
         STI
         CLD
-%if NOT SYSVER
+%if ~SYSVER
         MOV     AH,GET_CURRENT_PDB
         INT     21H
         MOV     [USER_PROC_PDB],BX
@@ -672,7 +672,7 @@ COMTAIL:
         JNZ     COMTAIL
         SUB     DI,82H
         XCHG    AX,DI
-        MOV     ES:(byte [80H]),AL
+        MOV     byte [ES:80H],AL
         POP     SI
         MOV     DI,FCB
         MOV     AX,(PARSE_FILE_DESCRIPTOR SHL 8) OR 01H
@@ -761,7 +761,7 @@ OPEN4:  DEC     SI                      ; POINT BACK TO LAST CHAR
         MOV     BX,EXEC_BLOCK
         XOR     CX,CX
         INT     21H
-        MOV     CS:[HANDLE],AX          ; SAVE ERROR CODE OR HANDLE
+        MOV     [CS:HANDLE],AX          ; SAVE ERROR CODE OR HANDLE
 
 OPNRET: POP     [SI]
 
@@ -825,17 +825,17 @@ IFHEX:
         JZ      BADNAM
         CALL    PARSE_A_FILE
         MOV     BX,[EXTPTR]
-        CMP     word DS:[BX],"EH"   ; "HE"
+        CMP     word [DS:BX],"EH"   ; "HE"
         JNZ     RET6
-        CMP     byte DS:[BX+2],"X"
+        CMP     byte [DS:BX+2],"X"
         RET
 
 IFEXE:
         PUSH    BX
         MOV     BX,[EXTPTR]
-        CMP     word DS:[BX],"XE"   ; "EX"
+        CMP     word [DS:BX],"XE"   ; "EX"
         JNZ     RETIF
-        CMP     byte DS:[BX+2],"E"
+        CMP     byte [DS:BX+2],"E"
 RETIF:  POP     BX
         RET
 
@@ -921,9 +921,9 @@ EXECHK:
 BINFIL:
         CMP     byte [RDFLG],WRITE
         JZ      BINLOAD
-        CMP     word DS:[BX],4F00H + "C"    ; "CO"
+        CMP     word [DS:BX],4F00H + "C"    ; "CO"
         JNZ     BINLOAD
-        CMP     byte DS:[BX+2],"M"
+        CMP     byte [DS:BX+2],"M"
         JNZ     BINLOAD
 EXELJ:
         DEC     SI
@@ -996,7 +996,7 @@ BINLOAD:
         INC     AX
 NOREM:                                  ; AX is number of paras in transfer
         ADD     AX,BX                   ; AX is first seg that need not exist
-        CMP     AX,CS:[PDB_block_len]
+        CMP     AX,[CS:PDB_block_len]
         JA      NO_MEM_ERR
         MOV     CXSAVE,DI
         MOV     BXSAVE,SI
@@ -1137,8 +1137,8 @@ DEBUG_FOUND:
         MOV     [DSSAVE],BX
         MOV     [ESSAVE],BX
         MOV     ES,BX
-        MOV     word ES:[PDB_exit],TERMINATE
-        MOV     word ES:[PDB_exit+2],DS
+        MOV     word [ES:PDB_exit],TERMINATE
+        MOV     word [ES:PDB_exit+2],DS
         LES     DI,[COM_CSIP]
         MOV     [CSSAVE],ES
         MOV     [IPSAVE],DI
@@ -1152,7 +1152,7 @@ DEBUG_FOUND:
         MOV     AH,SET_CURRENT_PDB
         INT     21H
         LES     DI,[COM_SSSP]
-        MOV     AX,ES:[DI]
+        MOV     AX,[ES:DI]
         INC     DI
         INC     DI
         MOV     [AXSAVE],AX

@@ -100,8 +100,8 @@
 		    %endmacro
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 struc VECTOR
-VECOFF: dw 0;OFFSET PORTION OF VECTOR POINTER
-VECSEG: dw 0;SEGMENT PORTION OF VECTOR POINTER
+VECOFF: resw 1;OFFSET PORTION OF VECTOR POINTER
+VECSEG: resw 1;SEGMENT PORTION OF VECTOR POINTER
 endstruc
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 ;		DEFINITION OF FUNCTIONS TO BE REQUESTED OF INT 2FH

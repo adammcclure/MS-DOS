@@ -59,14 +59,14 @@ BREAK   <pJFNFromHandle - return pointer to JFN table entry>
 procedure   pJFNFromHandle,NEAR
 	; ASSUME  CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	MOV     ES,[CurrentPDB]         ; get user process data block
-	CMP     BX,ES:[PDB_JFN_Length]  ; is handle greater than allocated
+	CMP     BX,[ES:PDB_JFN_Length]  ; is handle greater than allocated
 	JB      JFNAdd                  ; no, get offset
 	fmt     TypAccess,LevSFN,<"$p: Illegal JFN %x\n">,<BX>
 	MOV     AL,error_invalid_handle ; appropriate error
 ReturnCarry:
 	STC                             ; signal error
 	return                          ; go back
-JFNAdd: LES     DI,ES:[PDB_JFN_Pointer] ; get pointer to beginning of table
+JFNAdd: LES     DI,[ES:PDB_JFN_Pointer] ; get pointer to beginning of table
 	ADD     DI,BX                   ; add in offset
 ReturnNoCarry:
 	CLC                             ; no holes
@@ -91,14 +91,14 @@ procedure   SFFromHandle,NEAR
 	; ASSUME  CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	CALL    pJFNFromHandle          ; get jfn pointer
 	retc                            ; return if error
-	CMP     byte ES:[DI],-1     ; unused handle
+	CMP     byte [ES:DI],-1     ; unused handle
 	JNZ     GetSF                   ; nope, suck out SF
 	fmt     TypAccess,LevSFN,<"$p: Illegal SFN $x:$x\n">,<ES,DI>
 	MOV     AL,error_invalid_handle ; appropriate error
 	jump    ReturnCarry             ; signal it
 GetSF:
 	SaveReg <BX>                    ; save handle
-	MOV     BL,byte ES:[DI]     ; get SFN
+	MOV     BL,byte [ES:DI]     ; get SFN
 	XOR     BH,BH                   ; ignore upper half
 	CALL    SFFromSFN               ; get real sf spot
 	RestoreReg  <BX>                ; restore
@@ -120,10 +120,10 @@ procedure   SFFromSFN,NEAR
 	; ASSUME  CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	LES     DI,[SFT_Addr]           ; get pointer to beginning of table
 ScanLoop:
-	CMP     BX,ES:[DI].SFCount      ; is handle in this table?
+	CMP     BX,[ES:DI].SFCount      ; is handle in this table?
 	JB      GetOffset               ; yes, go grab it
-	SUB     BX,ES:[DI].SFCount
-	LES     DI,ES:[DI].SFLink       ; get next table segment
+	SUB     BX,[ES:DI].SFCount
+	LES     DI,[ES:DI].SFLink       ; get next table segment
 	CMP     DI,-1                   ; end of tables?
 	JNZ     ScanLoop                ; no, try again
 	STC                             ; error...
@@ -157,7 +157,7 @@ procedure   JFNFree,NEAR
 JFNScan:
 	CALL    pJFNFromHandle          ; get the appropriate handle
 	JC      JFNNone                 ; no more handles
-	CMP     byte ES:[DI],-1     ; free?
+	CMP     byte [ES:DI],-1     ; free?
 	JZ      JFNFound                ; yes, carry is clear
 	INC     BX                      ; no, next handle
 	JMP     JFNScan                 ; and try again
@@ -189,23 +189,23 @@ SFNFreeLoop:
 	MOV     AL,error_too_many_open_files    ; appropriate error
 	JMP     SFNDone
 SFNCheck:
-	CMP     ES:[DI.sf_Ref_Count],0  ; free?
-%if NOT DEBUG
+	CMP     [ES:DI+sf_Ref_Count],0  ; free?
+%if ~DEBUG
 	JZ      SFNGot                  ; yep, got return him
 %else
 	JNZ     NoGot
 	JMP     SFNGot
 NoGot:
 %endif
-	CMP     ES:[DI.sf_ref_count],sf_busy
+	CMP     [ES:DI+sf_ref_count],sf_busy
 	JNZ     SFNNext                 ; not marked busy...
-	fmt     TypAccess,LevSFN,<"$p: SFT $x:$x($x)is busy, owner $x:$x\n">,<ES,DI,BX,ES:[DI].sf_UID,ES:[DI].sf_pid>
+	fmt     TypAccess,LevSFN,<"$p: SFT $x:$x($x)is busy, owner $x:$x\n">,<ES,DI,BX,[ES:DI].sf_UID,[ES:DI].sf_pid>
 	SaveReg <BX>
 	MOV     BX,User_ID
-	CMP     ES:[DI.sf_UID],BX
+	CMP     [ES:DI+sf_UID],BX
 	JNZ     SFNNextP
 	MOV     BX,Proc_ID
-	CMP     ES:[DI.sf_PID],BX
+	CMP     [ES:DI+sf_PID],BX
 	JZ      SFNGotP
 SFNNextP:
 	fmt     TypAccess,LevSFN,<"$p: SFT unusable\n">
@@ -218,11 +218,11 @@ SFNGot:
 SFNGotP:
 	CLC                             ; no error
 	fmt     TypAccess,LevSFN,<"$p: SFT $x:$x($x) marked busy\n">,<ES,DI,BX>
-	MOV     ES:[DI.sf_ref_count],sf_busy    ; make sure that this is allocated
+	MOV     [ES:DI+sf_ref_count],sf_busy    ; make sure that this is allocated
 	MOV     BX,User_ID
-	MOV     ES:[DI.sf_UID],BX
+	MOV     [ES:DI+sf_UID],BX
 	MOV     BX,Proc_ID
-	MOV     ES:[DI.sf_PID],BX
+	MOV     [ES:DI+sf_PID],BX
 	RestoreReg  <BX>
 SFNDone:
 	return                          ; bye

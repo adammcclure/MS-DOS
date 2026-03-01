@@ -1388,23 +1388,23 @@ bootset8:
 ;-------------------------------------------------------------------------------
 
 struc a_PartitionTableEntry
-BootInd: db 0
-BegHead: db 0
-BegSector: db 0
-BegCylinder: db 0
-SysInd: db 0
-EndHead: db 0
-EndSector: db 0
-EndCylinder: db 0
-RelSec: dd 0
-CSec: dd 0
+BootInd: resb 1
+BegHead: resb 1
+BegSector: resb 1
+BegCylinder: resb 1
+SysInd: resb 1
+EndHead: resb 1
+EndSector: resb 1
+EndCylinder: resb 1
+RelSec: resd 1
+CSec: resd 1
 endstruc
 
 ; structure of the IBM hard disk boot sector:
 struc IBMBoot
-	db	512 - (4*a_PartitionTableEntry_size + 2) dup(?)
+	resb 1
 PartitionTable db 4*a_PartitionTableEntry_size dup(?)
-Signature: dw 0
+Signature: resw 1
 endstruc
 
 

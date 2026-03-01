@@ -4,17 +4,17 @@ DEF_ACCESS	EQU	92H
 DEF_LIMIT	EQU	0FFFFH
 
 struc SEGREG_DESCRIPTOR
-SEG_BASE: dw 0
-		db 0
+SEG_BASE: resw 1
+		resb 1
 SEG_ACCESS	DB	DEF_ACCESS
 SEG_LIMIT	DW	DEF_LIMIT
 endstruc
 
 struc DTR_DESCRIPTOR
-DTR_BASE: dw 0
-		db 0
-		DB	0
-DTR_LIMIT: dw 0
+DTR_BASE: resw 1
+		resb 1
+		resb 1
+DTR_LIMIT: resw 1
 endstruc
 ;
 ; 386 Descriptor template
@@ -29,7 +29,7 @@ bas_24_31	db	0		; base bits (24..31)
 endstruc
 
 struc gdt_descriptor
-gdt_limit: dw 0
-gdt_base_0: dw 0
-gdt_base_2: dw 0
+gdt_limit: resw 1
+gdt_base_0: resw 1
+gdt_base_2: resw 1
 endstruc

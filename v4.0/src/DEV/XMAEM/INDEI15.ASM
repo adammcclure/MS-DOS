@@ -166,7 +166,7 @@ INT15:
         MOV     SS:byte [BP+BP_AX+1],86H ; It's 89H.  Sorry we don't support
                                         ;   that function.  Put an 86H return
                                         ;   code in AH.
-        OR      word SS:[BP+BP_FL],1 ; Set the carry flag
+        OR      word [SS:BP+BP_FL],1 ; Set the carry flag
         JMP     POPIO                   ; And return to the V86 task
 
 ; Hey, it's not MY interrupt.
@@ -197,7 +197,7 @@ MOVEBLK:
 
         DATAOV                          ; Purge ESI
         SUB     SI,SI
-        MOV     SI,SS:[BP+BP_SI]        ; Load SI with the user's SI
+        MOV     SI,[SS:BP+BP_SI]        ; Load SI with the user's SI
 
         DATAOV                          ; Purge EBX
         SUB     BX,BX
@@ -207,7 +207,7 @@ MOVEBLK:
 
         DATAOV                          ; Sterilize EAX
         SUB     AX,AX
-        MOV     AX,SS:[BP+BP_VMES]      ; Load AX with the user's ES
+        MOV     AX,[SS:BP+BP_VMES]      ; Load AX with the user's ES
         DATAOV                          ; Shift it left four bits to convert it
         SHL     AX,4                    ;   to an offset
 
@@ -312,7 +312,7 @@ OK1:
 ; Our pointers are all set.  Let's get CX and do the copy for the guy.
 
 OK2:
-        MOV     CX,SS:[BP+BP_CX]        ; Get the user's CX
+        MOV     CX,[SS:BP+BP_CX]        ; Get the user's CX
         TEST    CL,01H                  ; Is this an even number?
         JZ      MOV4                    ; If so, we can make the copy faster
                                         ;   by moving double words
@@ -339,8 +339,8 @@ MOV4:
 
 MOVCOM:
         MOV     SS:byte [BP+BP_AX+1],0    ; Set a zero return code in AH
-        AND     word SS:[BP+BP_FL],0FFFEH ; Reset the carry flag
-        OR      word SS:[BP+BP_FL],40H    ; Set the zero flag
+        AND     word [SS:BP+BP_FL],0FFFEH ; Reset the carry flag
+        OR      word [SS:BP+BP_FL],40H    ; Set the zero flag
 
         JMP     POPIO                   ; Return to the V86 task
 
@@ -353,7 +353,7 @@ DOINT:
         MOV     AX,HUGE_PTR             ; Load ES with a selector that accesses
         MOV     ES,AX                   ;   all of memory as data
         DATAOV                          ; Load EDI with the user's ESP
-        MOV     DI,SS:[BP+BP_SP]
+        MOV     DI,[SS:BP+BP_SP]
 
         SUB     DI,6                    ; Decrement "SP" by six to make room
                                         ;   for our simulated interrupt that
@@ -364,7 +364,7 @@ DOINT:
         MOV     SS:word [BP+BP_SP],DI ; Set the user's new SP
 
         DATAOV                          ; Get the user's SS into our AX
-        MOV     AX,SS:[BP+BP_SS]
+        MOV     AX,[SS:BP+BP_SS]
         DATAOV                          ; Shift "SS" left four bits to convert
         SHL     AX,4                    ;   it to an offset
         DATAOV                          ; Add this to "SP" in DI to make EDI
@@ -376,21 +376,21 @@ DOINT:
 ; and then IP.  This is because we are moving forward through memory (CLD)
 ; whereas the stack grows backwards through memory as things pushed on to it.
 
-        MOV     AX,SS:[BP+BP_IP]        ; Get the user's IP
+        MOV     AX,[SS:BP+BP_IP]        ; Get the user's IP
         ADDROV                          ; And put it on his stack
         STOSW
 
         ADDROV                          ; Intel bug # A0-119
         NOP                             ; Intel bug # A0-119
 
-        MOV     AX,SS:[BP+BP_CS]        ; Get the user's CS
+        MOV     AX,[SS:BP+BP_CS]        ; Get the user's CS
         ADDROV                          ; And put it on his stack
         STOSW
 
         ADDROV                          ; Intel bug # A0-119
         NOP                             ; Intel bug # A0-119
 
-        MOV     AX,SS:[BP+BP_FL]        ; Get the user's flags
+        MOV     AX,[SS:BP+BP_FL]        ; Get the user's flags
         OR      AX,3000H                ; Set the IOPL to 3 so we get fewer
                                         ;   faults
         ADDROV                          ; And put them on his stack
@@ -400,19 +400,19 @@ DOINT:
         NOP                             ; Intel bug # A0-119
 
         AND     AX,3CFFH                ; Clean up the flags for our IRET
-        MOV     word SS:[BP+BP_FL],AX ; Put them on our stack
+        MOV     word [SS:BP+BP_FL],AX ; Put them on our stack
 
-        MOV     SI,SS:[BP+BP_EX]        ; Get the interrupt number
+        MOV     SI,[SS:BP+BP_EX]        ; Get the interrupt number
         SHL     SI,2                    ; Multiply by four 'cause interrupt
                                         ;   vectors are four bytes long
         MOV     AX,HUGE_PTR             ; Load DS with a selector that accesses
         MOV     DS,AX                   ;   all of memory as data
         LODSW                           ; Get the IP of the interrupt vector
                                         ;   from the interrupt vector table
-        MOV     word SS:[BP+BP_IP],AX ; Put it in the IP saved on our stack
+        MOV     word [SS:BP+BP_IP],AX ; Put it in the IP saved on our stack
         LODSW                           ; Get the CS of the interrupt vector
                                         ;   from the interrupt vector table
-        MOV     word SS:[BP+BP_CS],AX ; Put it in the CS saved on our stack
+        MOV     word [SS:BP+BP_CS],AX ; Put it in the CS saved on our stack
 
         JMP     POPREGS                 ; Now when we do an IRET we will    @P2C
                                         ;   actually be giving control to the
@@ -480,12 +480,12 @@ DOINT:
 ; initializing the firs 160 entries in the translate table.                  D1A
 
 TTTABLE:
-        BLOCK = 0             ; Start with block number 0                   @D1A
+        BLOCK equ 0; Start with block number 0                   @D1A
         %rep 20; Do 20 times (20 x 8 = 160)                  @D1A
         DW      BLOCK,BLOCK+1,BLOCK+2,BLOCK+3,BLOCK+4,BLOCK+5,BLOCK+6,BLOCK+7
                               ; Define eight translate table entries        @D1A
                               ;   initialized to the block number            D1A
-        BLOCK = BLOCK + 8     ; Increment the block number to the next set  @D1A
+        BLOCK equ BLOCK + 8; Increment the block number to the next set  @D1A
         %endmacro;   of eight translate table entries          @D1A
 
         DW      96 + 256*times 15 db 0FFFH ; The rest of the translate table    @D1C

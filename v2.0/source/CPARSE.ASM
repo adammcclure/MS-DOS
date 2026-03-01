@@ -99,7 +99,7 @@ moredelim:
 
 SCANCDONE:
 
-        %if NOT KANJI
+        %if ~KANJI
         call    UPCONV
         %endif
 
@@ -202,7 +202,7 @@ notspecial:
 anum_test:
         lodsb
 
-        %if NOT KANJI
+        %if ~KANJI
         call    UPCONV
         %endif
 

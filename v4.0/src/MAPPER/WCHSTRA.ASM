@@ -37,14 +37,14 @@ full_scr_err equ 0001h
 error_bvs_parameter     equ 0002h
 
 struc str
-old_bp: dw 0
-return: dd 0
-handle: dw 0; vio handle
-attr: dd 0; attribute pointer
-column: dw 0; column number
-row: dw 0; starting position for output
-lngth: dw 0; length of the string
-addr: dd 0; string to be written (pointer)
+old_bp: resw 1
+return: resd 1
+handle: resw 1; vio handle
+attr: resd 1; attribute pointer
+column: resw 1; column number
+row: resw 1; starting position for output
+lngth: resw 1; length of the string
+addr: resd 1; string to be written (pointer)
 endstruc
 
 viowrtcharstratt:
@@ -67,7 +67,7 @@ viowrtcharstratt:
 
         popal
         lds     si,[bp].attr             ; Set up attribute in BL
-        mov     bl,byte ds:[si]
+        mov     bl,byte [ds:si]
         lds     si,[bp].addr             ; DS:SI is pointer to string
         mov     di,[bp].lngth
                                          ;  ****************************

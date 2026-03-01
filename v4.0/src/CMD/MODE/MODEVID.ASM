@@ -19,13 +19,13 @@
 SECTION .SIGNITURE
 	ORG	0
 SIGWORD: dw 0;SIGNITURE OF THE EGA IS STORED HERE IF THE CARD IS PRESENT
-SIGNITURE ENDS
+; END SECTION .SIGNITURE
 
 
 SECTION .LOW_MEM
 	ORG	410H
 EQUIP_FLAG EQU	THIS WORD
-LOW_MEM ENDS
+; END SECTION .LOW_MEM
 
 
 ;ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ  M A C R O S  ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»
@@ -193,7 +193,7 @@ struc info_block;layout of info returned by INT 10 AH=1B
    who_cares1	     DB    025H  DUP ("V")
    active_display    DB    "V"
    alternate_display DB    "V"
-   who_cares2: times 6 db "V"
+   who_cares2: resb 6
    misc_state_info   DB    "V"
    who_cares3	     DB    12H	 DUP ("V")
 endstruc

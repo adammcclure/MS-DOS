@@ -143,7 +143,7 @@ COMTAIL:
         JNZ     COMTAIL
         SUB     DI,82H                  ;Figure length
         XCHG    AX,DI
-        MOV     byte ES:[80H],AL
+        MOV     byte [ES:80H],AL
         POP     SI
         MOV     DI,FCB                  ;First param
         MOV     AX,2901H
@@ -168,8 +168,8 @@ EXELOAD:
         MOV     BX,AX
         AND     AX,0FE00H
         AND     BX,0FH
-        MOV     word DS:[FCB+RR],AX         ;Position in file of program
-        MOV     word DS:[FCB+RR+2],BX       ;Record size
+        MOV     word [DS:FCB+RR],AX         ;Position in file of program
+        MOV     word [DS:FCB+RR+2],BX       ;Record size
         MOV     DX,[PAGES]                      ;Size in 512 byte blocks
         DEC     DX
         XCHG    DH,DL
@@ -196,7 +196,7 @@ PARTP:
         XCHG    AX,CX
         MOV     BX,[PROG_AREA]
         ADD     BX,10H
-        MOV     AX,word DS:[2]
+        MOV     AX,word [DS:2]
         SUB     AX,CX
         MOV     DX,TOOBIG
         JB      ERROR
@@ -220,8 +220,8 @@ ERROR:
 
 HAVEXE:
         MOV     AX,[RELTAB]             ;Get position of relocation table
-        MOV     word DS:[FCB+RR],AX
-        MOV     word DS:[FCB+RR+2],0
+        MOV     word [DS:FCB+RR],AX
+        MOV     word [DS:FCB+RR+2],0
         MOV     DX,RELPT      ;Four byte buffer
         MOV     AH,SETDMA
         INT     21H
@@ -238,7 +238,7 @@ RELOC:
         MOV     AX,[RELSEG]     ;pointer segment
         ADD     AX,BP           ;Bias with actual load segment
         MOV     ES,AX
-        ADD     ES:[DI],BP      ;Relocate
+        ADD     [ES:DI],BP      ;Relocate
         DEC     [RELCNT]
         JNZ     RELOC
 
@@ -248,15 +248,15 @@ NOREL:
         JMP     SHORT PROGGO
 
 BINFIL:
-        MOV     word DS:[FCB+RECLEN],1
+        MOV     word [DS:FCB+RECLEN],1
         MOV     SI,-1
         MOV     DI,SI
         CALL    READ
         MOV     ES,[PROG_SA]            ;Prog segment to ES
-        MOV     AX,word ES:[6]
+        MOV     AX,word [ES:6]
         MOV     [PROG_SP],AX            ;Default SP for non EXE files
         DEC     AH
-        MOV     word ES:[6],AX      ;Fix size
+        MOV     word [ES:6],AX      ;Fix size
         
 PROGGO:
         PUSH    DS
@@ -403,7 +403,7 @@ CLK_INTER:
 ;SP->   OLDDX
 
         MOV     BX,SP
-        LES     BX,dword SS:[BX+14]         ;Get CS:IP
+        LES     BX,dword [SS:BX+14]         ;Get CS:IP
         MOV     AX,BX
         MOV     CL,4
         SHR     AX,CL
@@ -468,8 +468,8 @@ SETUP:
 
 OPENOK:
         XOR     BX,BX
-        MOV     word DS:[FCB+RR],BX
-        MOV     word DS:[FCB+RR+2],BX       ;RR to 0
+        MOV     word [DS:FCB+RR],BX
+        MOV     word [DS:FCB+RR+2],BX       ;RR to 0
         MOV     SI,FCB
         MOV     DI,OUT_FCB
         MOV     CX,4
@@ -496,9 +496,9 @@ GETSIZE:                                ;Get bucket size
         JC      GETSIZE         ;Bad number
         MOV     [BUCKET_SIZE],DX
 
-        CMP     word DS:[FCB+9],5800H+"E"           ;"EX"
+        CMP     word [DS:FCB+9],5800H+"E"           ;"EX"
         JNZ     NOTEXE
-        CMP     byte DS:[FCB+11],"E"
+        CMP     byte [DS:FCB+11],"E"
         JNZ     NOTEXE
 
 LOADEXEHEAD:                            ;Load the EXE header
@@ -508,7 +508,7 @@ LOADEXEHEAD:                            ;Load the EXE header
         INT     21H
         MOV     CX,RUNVARSIZ
         MOV     DX,FCB
-        MOV     word DS:[FCB+RECLEN],1
+        MOV     word [DS:FCB+RECLEN],1
         OR      AL,AL
         MOV     AH,BLKRD
         INT     21H
@@ -522,8 +522,8 @@ EXEOK:
         JMP     SHORT SETBUCKET
 
 NOTEXE:
-        MOV     AX,word DS:[FCB+FILELEN]
-        MOV     DX,word DS:[FCB+FILELEN+2]  ;Size of file in bytes DX:AX
+        MOV     AX,word [DS:FCB+FILELEN]
+        MOV     DX,word [DS:FCB+FILELEN+2]  ;Size of file in bytes DX:AX
         ADD     AX,15
         ADC     DX,0                            ;Round to PARA
         MOV     CL,4
@@ -569,7 +569,7 @@ SETBOUNDS:                              ;Set the sample window
 SETDOS:
         XOR     DX,DX
         MOV     ES,DX                   ;look in interrupt area
-        MOV     DX,word ES:[82H]    ;From int #20
+        MOV     DX,word [ES:82H]    ;From int #20
         MOV     [DOS_PA],DX
         PUSH    DS
         POP     ES

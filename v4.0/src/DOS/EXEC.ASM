@@ -233,7 +233,7 @@ exec_check_environ:
 	OR	AX,AX
 	JNZ	exec_scan_env
 	MOV	DS,CurrentPDB
-	MOV	AX,DS:[PDB_environ]
+	MOV	AX,[DS:PDB_environ]
 	MOV	exec_environ,AX
 	OR	AX,AX
 	JZ	exec_read_header
@@ -327,9 +327,9 @@ exec_save_start:
 ; get load address from block
 ;
 	LES	DI,exec_blk
-	MOV	AX,ES:[DI].exec3_load_addr
+	MOV	AX,[ES:DI].exec3_load_addr
 	MOV	exec_dma,AX
-	MOV	AX,ES:[DI].exec3_reloc_fac
+	MOV	AX,[ES:DI].exec3_reloc_fac
 	MOV	exec_rel_fac,AX
 %if DEBUG
 	JMP	exec_find_res
@@ -519,7 +519,7 @@ exec_reloc_one:
 	JE	exec_set_PDBJ
 
 exec_get_addr:
-	LDS	BX,dword ES:[DI]	; Get ra/sa of entry
+	LDS	BX,dword [ES:DI]	; Get ra/sa of entry
 	MOV	AX,DS			; Relocate address of item
 	ADD	AX,SI
 	MOV	DS,AX
@@ -678,14 +678,14 @@ fill8:					;AN000;
 	POP	DX
 
 	PUSH	exec_environ
-	POP	ES:[PDB_environ]
+	POP	[ES:PDB_environ]
 ;
 ; set up proper command line stuff
 ;
 	LDS	SI,exec_blk		; get the block
 	PUSH	DS			; save its location
 	PUSH	SI
-	LDS	SI,[SI.exec0_5C_FCB]	; get the 5c fcb
+	LDS	SI,[SI+exec0_5C_FCB]	; get the 5c fcb
 ;
 ; DS points to user space 5C FCB
 ;
@@ -708,7 +708,7 @@ fill8:					;AN000;
 	POP	DS
 	PUSH	DS			; save (again)
 	PUSH	SI
-	LDS	SI,[SI.exec0_6C_FCB]	; get 6C FCB
+	LDS	SI,[SI+exec0_6C_FCB]	; get 6C FCB
 ;
 ; DS points to user space 6C FCB
 ;
@@ -718,7 +718,7 @@ fill8:					;AN000;
 	STOSW
 	POP	SI			; get block (last time)
 	POP	DS
-	LDS	SI,[SI.exec0_com_line]	; command line
+	LDS	SI,[SI+exec0_com_line]	; command line
 ;
 ; DS points to user space 80 command line
 ;
@@ -743,16 +743,16 @@ exec_BL:
 	MOV	BL,CL
 exec_set_return:
 	invoke	get_user_stack		; get his return address
-	PUSH	[SI.user_CS]		; suck out the CS and IP
-	PUSH	[SI.user_IP]
-	PUSH	[SI.user_CS]		; suck out the CS and IP
-	PUSH	[SI.user_IP]
-	POP	word ES:[PDB_Exit]
-	POP	word ES:[PDB_Exit+2]
+	PUSH	[SI+user_CS]		; suck out the CS and IP
+	PUSH	[SI+user_IP]
+	PUSH	[SI+user_CS]		; suck out the CS and IP
+	PUSH	[SI+user_IP]
+	POP	word [ES:PDB_Exit]
+	POP	word [ES:PDB_Exit+2]
 	XOR	AX,AX
 	MOV	DS,AX
-	POP	DS:[addr_int_terminate] ; save them where we can get them later
-	POP	DS:[addr_int_terminate+2]   ; when the child exits.
+	POP	[DS:addr_int_terminate] ; save them where we can get them later
+	POP	[DS:addr_int_terminate+2]   ; when the child exits.
 	MOV	word DMAADD,80h
 	MOV	DS,CurrentPDB
 	MOV	word DMAADD+2,DS
@@ -761,17 +761,17 @@ exec_set_return:
 
 	LDS	SI,dword exec_init_SP   ; get stack
 	LES	DI,exec_blk		; and block for return
-	MOV	ES:[DI].exec1_SS,DS	; return SS
+	MOV	[ES:DI].exec1_SS,DS	; return SS
 
 	DEC	SI			; 'push' default AX
 	DEC	SI
 	MOV	[SI],BX 		; save default AX reg
-	MOV	ES:[DI].exec1_SP,SI	; return 'SP'
+	MOV	[ES:DI].exec1_SP,SI	; return 'SP'
 
 	LDS	AX,dword exec_init_IP
-	MOV	ES:[DI].exec1_CS,DS	; initial entry stuff
+	MOV	[ES:DI].exec1_CS,DS	; initial entry stuff
 
-	MOV	ES:[DI].exec1_IP,AX
+	MOV	[ES:DI].exec1_IP,AX
 	Leave
 	transfer    SYS_RET_OK
 
@@ -854,7 +854,7 @@ Procedure   ChangeOwner,near
 	DEC	AX
 	PUSH	DS
 	MOV	DS,AX
-	MOV	DS:[arena_owner],BX
+	MOV	[DS:arena_owner],BX
 	POP	DS
 	return
 EndProc ChangeOwner
@@ -882,15 +882,15 @@ EndProc Scan_Execname			;AN000;;MS.
 Procedure    Scan_Special_Entries,near	;AN000;MS.
 
 	DEC    CX			;AN007;MS. cx= name length
-	MOV    DI,CS:[Special_Entries]	;AN007;MS. es:di -> addr of special entries
+	MOV    DI,[CS:Special_Entries]	;AN007;MS. es:di -> addr of special entries
 	CALL   Reset_Version		;AN008;MS.
 	PUSH   CS			;AN007;MS.
 	POP    ES			;AN007;MS.
 Getentries:				;AN007;MS.
-	MOV    AL,ES:[DI]		;AN007;MS. end of list
+	MOV    AL,[ES:DI]		;AN007;MS. end of list
 	OR     AL,AL			;AN007;MS.
 	JZ     end_list 		;AN007;MS. yes
-	MOV    CS:[Temp_Var2],DI	;AN007;MS. save di
+	MOV    [CS:Temp_Var2],DI	;AN007;MS. save di
 	CMP    AL,CL			;AN007;MS. same length ?
 	JNZ    skipone			;AN007;MS. no
 	INC    DI			;AN007;MS. es:di -> special name
@@ -898,10 +898,10 @@ Getentries:				;AN007;MS.
 	PUSH   SI			;AN007;MS.
 	REPZ   CMPSB			;AN007;MS. same name ?
 	JNZ    not_matched		;AN007;MS. no
-	MOV    AX,ES:[DI]		;AN007;MS. get special version
-	MOV    CS:[Special_Version],AX	;AN007;MS. save it
-	MOV    AL,ES:[DI+2]		;AN008;MS. get fake count
-	MOV    CS:[Fake_Count],AL	;AN007;MS. save it
+	MOV    AX,[ES:DI]		;AN007;MS. get special version
+	MOV    [CS:Special_Version],AX	;AN007;MS. save it
+	MOV    AL,[ES:DI+2]		;AN008;MS. get fake count
+	MOV    [CS:Fake_Count],AL	;AN007;MS. save it
 	POP    SI			;AN007;MS.
 	POP    CX			;AN007;MS.
 	JMP    SHORT end_list		;AN007;MS.
@@ -909,7 +909,7 @@ not_matched:				;AN007;MS.
 	POP    SI			;AN007;MS. restore si,cx
 	POP    CX			;AN007;MS.
 skipone:				;AN007;MS.
-	MOV    DI,CS:[Temp_Var2]	;AN007;MS. restore old di
+	MOV    DI,[CS:Temp_Var2]	;AN007;MS. restore old di
 	XOR    AH,AH			;AN007;MS. position to next entry
 	ADD    DI,AX			;AN007;MS.
 	ADD    DI,4			;AN007;MS.
@@ -922,9 +922,9 @@ EndProc Scan_Special_Entries		;AN000;;MS.
 
 Procedure    Reset_Version,near 	;AN008;MS.
 
-	CMP    CS:[Fake_Count],0FFH	;AN008;MS.
+	CMP    [CS:Fake_Count],0FFH	;AN008;MS.
 	JNZ    dont_reset		;AN008;MS.
-	MOV    CS:[Special_Version],0	;AN008;MS. reset to current version
+	MOV    [CS:Special_Version],0	;AN008;MS. reset to current version
 dont_reset:
 	return
 EndProc Reset_Version,near		;AN008;;MS.

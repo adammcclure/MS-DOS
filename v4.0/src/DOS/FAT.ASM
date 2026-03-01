@@ -34,7 +34,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-FastDiv = TRUE
+FastDiv equ TRUE
 
 	i_need	CURBUF,DWORD
 	i_need	CLUSSPLIT,BYTE
@@ -77,7 +77,7 @@ Break <IsEOF - check the quantity in BX for EOF>
 Procedure IsEof,NEAR
 	; ASSUME	SS:DOSGROUP,CS:DOSGROUP,DS:NOTHING,ES:NOTHING
 	Assert	    ISDPB,<ES,BP>,"IsEOF"
-	CMP	ES:[BP.dpb_max_cluster],4096-10 ; is this 16 bit fat?
+	CMP	[ES:BP+dpb_max_cluster],4096-10 ; is this 16 bit fat?
 	JAE	EOF16			; yes, check for eof there
 ;J.K. 8/27/86
 ;Modified to accept 0FF0h as an eof. This is to handle the diskfull case
@@ -110,14 +110,14 @@ Break	<UNPACK -- UNPACK FAT ENTRIES>
 	; ASSUME	ES:NOTHING
 
 	Assert	    ISDPB,<ES,BP>,"Unpack"
-	CMP	BX,ES:[BP.dpb_max_cluster]
+	CMP	BX,[ES:BP+dpb_max_cluster]
 	JA	HURTFAT
 	CALL	MAPCLUSTER
 ; ASSUME	DS:NOTHING
 	jc	DoContext
 	MOV	DI,[DI]
 	JNZ	High12			; MZ if high 12 bits, go get 'em
-	MOV	SI,ES:[BP.dpb_max_cluster]  ; MZ is this 16-bit fat?
+	MOV	SI,[ES:BP+dpb_max_cluster]  ; MZ is this 16-bit fat?
 	CMP	SI,4096-10
 	JB	Unpack12		; MZ No, go 'AND' off bits
 	OR	DI,DI			; MZ set zero condition code, clears carry
@@ -136,7 +136,7 @@ DoContext:
 	return
 
 HURTFAT:
-	MOV	ES:[BP.dpb_free_cnt],-1 ; Err in FAT must force recomp of freespace
+	MOV	[ES:BP+dpb_free_cnt],-1 ; Err in FAT must force recomp of freespace
 	PUSH	AX
 	MOV	AH,allowed_fail + 80h
 	MOV	Allowed,allowed_fail
@@ -183,7 +183,7 @@ Break	<PACK -- PACK FAT ENTRIES>
 	AND	SI,0FH			; leave in original low 4 bits
 	JMP	SHORT PACKIN
 ALIGNED:
-	CMP	ES:[BP.dpb_max_cluster],4096-10 ; MZ 16 bit fats?
+	CMP	[ES:BP+dpb_max_cluster],4096-10 ; MZ 16 bit fats?
 	JAE	Pack16			; MZ yes, go clobber original data
 	AND	SI,0F000H		; MZ leave in upper 4 bits of original
 	AND	DX,0FFFh		; MZ store only 12 bits
@@ -194,10 +194,10 @@ PACKIN:
 	OR	SI,DX
 	MOV	[DI],SI
 	LDS	SI,[CURBUF]
-	TEST	[SI.buf_flags],buf_dirty  ;LB. if already dirty 		;AN000;
+	TEST	[SI+buf_flags],buf_dirty  ;LB. if already dirty 		;AN000;
 	JNZ	yesdirty		  ;LB.	  don't increment dirty count   ;AN000;
 	invoke	INC_DIRTY_COUNT 	  ;LB.					;AN000;
-	OR	[SI.buf_flags],buf_dirty  ;LB.					;AN000;
+	OR	[SI+buf_flags],buf_dirty  ;LB.					;AN000;
 yesdirty:				  ;LB.					;AN000;
 	CMP	byte [CLUSSPLIT],0
 	Context DS
@@ -223,14 +223,14 @@ yesdirty:				  ;LB.					;AN000;
 	JC	POPP_RET
 	LDS	DI,[CURBUF]
 ; ASSUME	DS:NOTHING
-	TEST	[DI.buf_flags],buf_dirty  ;LB. if already dirty 		;AN000;
+	TEST	[DI+buf_flags],buf_dirty  ;LB. if already dirty 		;AN000;
 	JNZ	yesdirty2		  ;LB.	  don't increment dirty count   ;AN000;
 	invoke	INC_DIRTY_COUNT 	  ;LB.					;AN000;
-	OR	[DI.buf_flags],buf_dirty
+	OR	[DI+buf_flags],buf_dirty
 yesdirty2:
 	ADD	DI,BUFINSIZ
 	DEC	DI
-	ADD	DI,ES:[BP.dpb_sector_size]
+	ADD	DI,[ES:BP+dpb_sector_size]
 	MOV	[DI],AL
 	CLC
 POPP_RET:
@@ -267,7 +267,7 @@ Break	<MAPCLUSTER - BUFFER A FAT SECTOR>
 	SaveReg <AX,BX,CX,DX>
 	MOV	AX,BX			; AX = BX
 	MOV	CX,4096-10
-	CMP	ES:[BP.dpb_max_cluster],CX  ; MZ 16 bit fat?
+	CMP	[ES:BP+dpb_max_cluster],CX  ; MZ 16 bit fat?
 	JAE	Map16			; MZ yes, do 16 bit algorithm
 	SHR	AX,1			; AX = BX/2
 Map16:					; MZ skip prev => AX=2*BX
@@ -275,7 +275,7 @@ Map16:					; MZ skip prev => AX=2*BX
 	ADD	AX,BX			; AX = 1.5*fat = byte offset in fat
 	ADC	DI,0			; >32mb     fat 			;AN000;
 DoConvert:
-	MOV	CX,ES:[BP.dpb_sector_size]
+	MOV	CX,[ES:BP+dpb_sector_size]
 %if FastDiv
 ;
 ; Gross hack:  99% of all disks have 512 bytes per sector.  We test for this
@@ -304,7 +304,7 @@ g64k:
 	DIV	CX			; 155 AX is FAT sector # DX is sector index
 %endif
 DivDone:
-	ADD	AX,ES:[BP.dpb_first_FAT]
+	ADD	AX,[ES:BP+dpb_first_FAT]
 	DEC	CX			; CX is sector size - 1
 	SaveReg <AX,DX,CX>
 	MOV	DX,AX
@@ -316,7 +316,7 @@ DivDone:
 	JC	MAP_POP
 	LDS	SI,[CURBUF]
 ; ASSUME	DS:NOTHING
-	LEA	DI,[SI.BufInSiz]
+	LEA	DI,[SI+BufInSiz]
 	ADD	DI,AX
 	CMP	AX,CX
 	JNZ	MAPRET
@@ -334,7 +334,7 @@ DivDone:
 	JC	MAP_POP
 	LDS	SI,[CURBUF]
 ; ASSUME	DS:NOTHING
-	LEA	DI,[SI.BufInSiz]
+	LEA	DI,[SI+BufInSiz]
 	MOV	AL,[DI]
 	Context DS
 	MOV	byte [CLUSSAVE+1],AL
@@ -342,7 +342,7 @@ DivDone:
 MAPRET:
 	RestoreReg  <DX,CX,BX>
 	XOR	AX,AX			; MZ allow shift to clear carry
-	CMP	ES:[BP.dpb_max_cluster],4096-10 ; MZ is this 16-bit fat?
+	CMP	[ES:BP+dpb_max_cluster],4096-10 ; MZ is this 16-bit fat?
 	JAE	MapSet			; MZ no, set flags
 	MOV	AX,BX
 MapSet:
@@ -384,9 +384,9 @@ Break	<FATREAD_SFT/FATREAD_CDS -- CHECK DRIVE GET FAT>
 	DOSAssume   CS,<DS>,"FATRead_SFT"
 	; ASSUME	ES:NOTHING
 
-	LES	BP,ES:[DI.sf_devptr]
+	LES	BP,[ES:DI+sf_devptr]
 	Assert	    ISDPB,<ES,BP>,"FatReadSFT"
-	MOV	AL,ES:[BP.dpb_drive]
+	MOV	AL,[ES:BP+dpb_drive]
 	MOV	[THISDRV],AL
 	invoke	GOTDPB			;Set THISDPB
 	CALL	FAT_GOT_DPB
@@ -413,9 +413,9 @@ EndProc FATREAD_SFT
 
 	PUSH	ES
 	PUSH	DI
-	LES	BP,ES:[DI.curdir_devptr]
+	LES	BP,[ES:DI+curdir_devptr]
 	Assert	ISDPB,<ES,BP>,"FatReadCDS"
-	MOV	AL,ES:[BP.dpb_drive]
+	MOV	AL,[ES:BP+dpb_drive]
 	MOV	[THISDRV],AL
 	invoke	GOTDPB			;Set THISDPB
 	CALL	FAT_GOT_DPB
@@ -431,22 +431,22 @@ MED_CHANGE:
 	PUSH	DS
 	MOV	CL,[CDSCOUNT]
 	XOR	CH,CH			; CX is number of structures
-	LDS	SI,ES:[DI.curdir_devptr] ; Find all CDS with this devptr
+	LDS	SI,[ES:DI+curdir_devptr] ; Find all CDS with this devptr
 ; ASSUME	DS:NOTHING
 	LES	DI,[CDSADDR]		; Start here
 CHECK_CDS:
-	TEST	ES:[DI.curdir_flags],curdir_isnet
+	TEST	[ES:DI+curdir_flags],curdir_isnet
 	JNZ	NEXTCDS 		; Leave NET guys alone!!
 	PUSH	ES
 	PUSH	DI
-	LES	DI,ES:[DI.curdir_devptr]
+	LES	DI,[ES:DI+curdir_devptr]
 	invoke	POINTCOMP
 	POP	DI
 	POP	ES
 	JNZ	NEXTCDS 		; CDS not for this drive
-	TEST	ES:[DI.curdir_ID],AX
+	TEST	[ES:DI+curdir_ID],AX
 	JZ	NEXTCDS 		; If root, leave root
-	MOV	ES:[DI.curdir_ID],AX	; else invalid
+	MOV	[ES:DI+curdir_ID],AX	; else invalid
 NEXTCDS:
 	ADD	DI,curdir_list_size	; Point to next CDS
 	LOOP	CHECK_CDS
@@ -463,7 +463,7 @@ Break	<Fat_Operation - miscellaneous fat stuff>
 	procedure   FAT_operation,NEAR
 FATERR:
 	DOSAssume   CS,<DS>,"FATERR"
-	MOV	ES:[BP.dpb_free_cnt],-1 ; Err in FAT must force recomp of freespace
+	MOV	[ES:BP+dpb_free_cnt],-1 ; Err in FAT must force recomp of freespace
 	AND	DI,STECODE		; Put error code in DI
 	MOV	[ALLOWED],allowed_FAIL + allowed_RETRY
 	MOV	AH,2 + allowed_FAIL + allowed_RETRY ; While trying to read FAT
@@ -478,16 +478,16 @@ FATERR:
 FAT_GOT_DPB:
 	Context DS
 	MOV	AL,DMEDHL
-	MOV	AH,ES:[BP.dpb_UNIT]
+	MOV	AH,[ES:BP+dpb_UNIT]
 	MOV	word [DEVCALL],AX
 	MOV	byte [DEVCALL.REQFUNC],DEVMDCH
 	MOV	[DEVCALL.REQSTAT],0
-	MOV	AL,ES:[BP.dpb_media]
+	MOV	AL,[ES:BP+dpb_media]
 	MOV	byte [CALLMED],AL
 	PUSH	ES
 	PUSH	DS
 	MOV	BX,DEVCALL
-	LDS	SI,ES:[BP.dpb_driver_addr]  ; DS:SI Points to device header
+	LDS	SI,[ES:BP+dpb_driver_addr]  ; DS:SI Points to device header
 ; ASSUME	DS:NOTHING
 	POP	ES			; ES:BX Points to call header
 	invoke	DEVIOCALL2
@@ -497,7 +497,7 @@ FAT_GOT_DPB:
 	TEST	DI,STERR
 	JNZ	FATERR
 	XOR	AH,AH
-	XCHG	AH,ES:[BP.dpb_first_access] ; Reset dpb_first_access
+	XCHG	AH,[ES:BP+dpb_first_access] ; Reset dpb_first_access
 	MOV	AL,byte [THISDRV]	; Use physical unit number
 ; See if we had changed volume id by creating one on the diskette
 	cmp	[VOLCHNG_FLAG],AL
@@ -519,8 +519,8 @@ DISK_CHNG_ERR:
 ; ASSUME	DS:NOTHING
 	PUSH	ES
 	PUSH	BP
-	LES	BP,ES:[BP.dpb_driver_addr]  ; Get device pointer
-	TEST	ES:[BP.SDEVATT],DEVOPCL ; Did it set vol id?
+	LES	BP,[ES:BP+dpb_driver_addr]  ; Get device pointer
+	TEST	[ES:BP+SDEVATT],DEVOPCL ; Did it set vol id?
 	POP	BP
 	POP	ES
 	JZ	FAIL_OPJ2		; Nope, FAIL
@@ -553,15 +553,15 @@ CHKBUFFDIRT:
 	MOV	CX,[BUF_HASH_COUNT]		 ;LB. get Hash entry count	;AN000;
 
 scan_dirty:
-	CMP	[DI.Dirty_Count],0		 ;LB. if not dirty		;AN000;
+	CMP	[DI+Dirty_Count],0		 ;LB. if not dirty		;AN000;
 	JZ	GETNEXT 			 ;LB.	 get next hash entry	;AN000;
 	PUSH	DS				 ;LB. save hash entry addr	;AN000;
 	PUSH	DI				 ;LB.				;AN000;
 	invoke	Map_Entry			 ;LB.				;AN000;
 NBUFFER:				; Look for dirty buffers
-	CMP	AL,[DI.buf_ID]
+	CMP	AL,[DI+buf_ID]
 	JNZ	LFNXT			; Not for this unit
-	TEST	[DI.buf_flags],buf_dirty
+	TEST	[DI+buf_flags],buf_dirty
 	JZ	LFNXT
 	POP	DI				  ;LB. restore regs		 ;AN000;
 	POP	DS				  ;LB.				 ;AN000;
@@ -576,7 +576,7 @@ FAIL_OP:
 
 ; ASSUME	DS:NOTHING
 LFNXT:
-	mov	DI,[DI.buf_next]	    ;; 1/19/88
+	mov	DI,[DI+buf_next]	    ;; 1/19/88
 	CMP	DI,[FIRST_BUFF_ADDR]	    ;; 1/19/88
 	JNZ	NBUFFER
 	POP	DI				  ;LB. restore regs		 ;AN000;
@@ -586,7 +586,7 @@ GETNEXT:
 	LOOP	scan_dirty			  ;LB. scan next entry		 ;AN000;
 ; If no dirty buffers, assume Media changed
 NEWDSK:
-	MOV	ES:[BP.dpb_free_cnt],-1 ; Media changed, must re-compute
+	MOV	[ES:BP+dpb_free_cnt],-1 ; Media changed, must re-compute
 					; NOTE: It is TECHNICALLY more correct
 ; ASSUME DS:NOTHING
 	XOR	DX,DX			;LB.					  ;AN000;
@@ -598,16 +598,16 @@ NxtHash:
 					;  to do this AFTER the check for
 ; ASSUME	DS:NOTHING
 NXBUFFER:
-	CMP	AL,[DI.buf_ID]		; For this drive?
+	CMP	AL,[DI+buf_ID]		; For this drive?
 	JZ	OLDDRV2 		;LB.  yes				  ;AN000;
-	mov	DI,[DI.buf_next]	;LB.  get next buffer  1/19/88		  ;AN000;
+	mov	DI,[DI+buf_next]	;LB.  get next buffer  1/19/88		  ;AN000;
 	JMP	SHORT SKPBUFF		;LB.					  ;AN000;
 OLDDRV2:
-	TEST	[DI.buf_flags],buf_dirty
+	TEST	[DI+buf_flags],buf_dirty
 	JZ	OldDrv
 	JMP	Disk_Chng_Err		; Disk changed but dirty buffers
 OLDDRV:
-	MOV	word [DI.buf_ID],(buf_visit SHL 8) OR 0FFH	; Free up buffer
+	MOV	word [DI+buf_ID],(buf_visit SHL 8) OR 0FFH	; Free up buffer
 	invoke	SCANPLACE
 SKPBUFF:
 	CMP	DI,[FIRST_BUFF_ADDR]	;LB.  end of chain  1/19/88		  ;AN000;
@@ -620,8 +620,8 @@ SKPBUFF:
 	JNZ	GOGETBPB		;LB.  no				  ;AN001;
 	MOV	[CURSC_DRIVE],-1	;LB.  invalidate look ahead buffers	  ;AN000;
 GOGETBPB:
-	LDS	DI,ES:[BP.dpb_driver_addr]
-	TEST	[DI.SDEVATT],ISFATBYDEV
+	LDS	DI,[ES:BP+dpb_driver_addr]
+	TEST	[DI+SDEVATT],ISFATBYDEV
 	JNZ	GETFREEBUF
 	context DS
 	MOV	BX,2
@@ -651,16 +651,16 @@ GOTGETBUF:
 	Context DS
 	MOV	word [CALLXAD],DI
 	MOV	AL,DBPBHL
-	MOV	AH,byte ES:[BP.dpb_UNIT]
+	MOV	AH,byte [ES:BP+dpb_UNIT]
 	MOV	word [DEVCALL],AX
 	MOV	byte [DEVCALL.REQFUNC],DEVBPB
 	MOV	[DEVCALL.REQSTAT],0
-	MOV	AL,byte ES:[BP.dpb_media]
+	MOV	AL,byte [ES:BP+dpb_media]
 	MOV	[CALLMED],AL
 	PUSH	ES
 	PUSH	DS
-	PUSH	word ES:[BP.dpb_driver_addr+2]
-	PUSH	word ES:[BP.dpb_driver_addr]
+	PUSH	word [ES:BP+dpb_driver_addr+2]
+	PUSH	word [ES:BP+dpb_driver_addr]
 	MOV	BX,DEVCALL
 	POP	SI
 	POP	DS			; DS:SI Points to device header
@@ -672,16 +672,16 @@ GOTGETBUF:
 	MOV	DI,[DEVCALL.REQSTAT]
 	TEST	DI,STERR
 	JNZ	FATERRJ
-	MOV	AL,byte ES:[BP.dpb_media]
+	MOV	AL,byte [ES:BP+dpb_media]
 	LDS	SI,[CALLBPB]
 ; ASSUME	DS:NOTHING
-	MOV	ES:[BP].DPB_next_free,0 ; recycle scanning pointer
+	MOV	[ES:BP].DPB_next_free,0 ; recycle scanning pointer
 	invoke	$SETDPB
 	LDS	DI,[CALLXAD]		; Get back buffer pointer
-	MOV	AL,byte ES:[BP.dpb_FAT_count]
-	MOV	[DI.buf_wrtcnt-BUFINSIZ],AL   ;>32mb				;AN000;
-	MOV	AX,ES:[BP.dpb_FAT_size]       ;>32mb				;AC000;
-	MOV	[DI.buf_wrtcntinc-BUFINSIZ],AX	 ;>32mb Correct buffer info	;AC000;
+	MOV	AL,byte [ES:BP+dpb_FAT_count]
+	MOV	[DI+buf_wrtcnt-BUFINSIZ],AL   ;>32mb				;AN000;
+	MOV	AX,[ES:BP+dpb_FAT_size]       ;>32mb				;AC000;
+	MOV	[DI+buf_wrtcntinc-BUFINSIZ],AX	 ;>32mb Correct buffer info	;AC000;
 
 	Context DS
 	XOR	AL,AL			;Media changed (Z), Carry clear

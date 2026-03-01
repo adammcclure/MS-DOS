@@ -26,10 +26,10 @@ SECTION .dosxxx
             %include "macros.inc"
 
 struc str
-old_bp: dw 0
-return: dd 0
-rsrvd: dd 0
-Asciiz: dd 0; new directory name pointer
+old_bp: resw 1
+return: resd 1
+rsrvd: resd 1
+Asciiz: resd 1; new directory name pointer
 endstruc
 
 dosmkdir:

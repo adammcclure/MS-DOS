@@ -509,7 +509,7 @@ EMIN_7:
     ;
     ; store the physical page # of the 1st system page.
     ;
-	mov	cs:[first_sys_ppage],si
+	mov	[cs:first_sys_ppage],si
     ;
     ; setup the segment and the count of pages we have to look for. also
     ; the index into the mappable_segs array
@@ -574,7 +574,7 @@ EMIN_9:
 ; initialize FRS_array
 ;
 	lea	si,FRS_array		; DS:SI <-- FRS_array
-	mov	[si.FRS_alloc], 1	; mark FRS set 0 as allocated
+	mov	[si+FRS_alloc], 1	; mark FRS set 0 as allocated
 	mov	[CurRegSetn], 0		; use FRS set 0
 	mov	[FRS_free], FRS_COUNT-1	; one less FRS set
 	mov	word [CurRegSet], SI; save current FRS pointer
@@ -640,7 +640,7 @@ EMIN_9:
     ;
 	GET_FRS_WINDOW	di	    ; get pointer to FRS area
 
-	mov	bx,cs:[first_sys_ppage]
+	mov	bx,[cs:first_sys_ppage]
 	shl	bx,1
 	add	di,bx		    ;
     ;

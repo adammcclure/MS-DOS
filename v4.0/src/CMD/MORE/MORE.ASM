@@ -14,7 +14,7 @@
 ;******************************************************************************
 
 FALSE	EQU	0
-TRUE	EQU	NOT FALSE
+TRUE	EQU	~FALSE
 
 IBMVER	EQU	TRUE
 IBMJAPVER   EQU FALSE
@@ -62,7 +62,7 @@ struc querylist;AN001; ;query general list
 qea_num     dw	    1			 ;AN001;
 qea_type    db	    EAISBINARY		 ;AN001;
 qea_flags   dw	    EASYSTEM		 ;AN001;
-qea_namelen: db 0;AN001;
+qea_namelen: resb 1;AN001;
 qea_name    db	    "        "           ;AN001;
 endstruc;AN001;
 

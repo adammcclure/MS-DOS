@@ -1,7 +1,7 @@
 ; TITLE   CHKPROC - Procedures called from chkdsk
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 DRVCHAR EQU     ":"
 
@@ -74,7 +74,7 @@ CHKPROC:
 DOTDOTHARDWAY:
         LDS     DI,[THISDPB]
 ; ASSUME  DS:NOTHING
-        MOV     [DI.dpb_current_dir],-1       ;Invalidate path
+        MOV     [DI+dpb_current_dir],-1       ;Invalidate path
         MOV     SI,DI
         ADD     SI,dpb_dir_text
         MOV     CX,SI
@@ -106,28 +106,28 @@ SETCURR:
 
 SETROOT:
 ; ASSUME  DS:NOTHING
-        MOV     [DI.dpb_current_dir],0        ;Set Path to Root
+        MOV     [DI+dpb_current_dir],0        ;Set Path to Root
         JMP     SHORT SETCURR           ;The CHDIR will fail, but who cares
 
 
 ;Structures used by DIRPROC
 
 struc SRCHFCB
-        times 44 db 0
+        resb 44
 endstruc
 SFCBSIZ EQU     SRCHFCB_size
 THISENT EQU     17H                     ;Relative entry number of current entry
 
 struc DIRENT
-        times 7 db 0;Ext FCB junk
-        db 0;Drive
-DIRNAM: times 11 db 0
-DIRATT: db 0
-        times 10 db 0
-DIRTIM: dw 0
-DIRDAT: dw 0
-DIRCLUS: dw 0
-DIRESIZ: dd 0
+        resb 7;Ext FCB junk
+        resb 1;Drive
+DIRNAM: resb 11
+DIRATT: resb 1
+        resb 10
+DIRTIM: resw 1
+DIRDAT: resw 1
+DIRCLUS: resw 1
+DIRESIZ: resd 1
 endstruc
 ENTSIZ  EQU     DIRENT_size
 
@@ -321,7 +321,7 @@ NONULLDERR:
         JMP     NODOT                   ;No .
 DOTOK:
         MOV     SI,DIRBUF
-        MOV     AL,[SI.DIRATT]
+        MOV     AL,[SI+DIRATT]
         TEST    AL,ISDIR
         JNZ     DATTOK
         PUSH    SI                      ;. not a dir?
@@ -329,10 +329,10 @@ DOTOK:
         MOV     DX,BADATT
         CALL    DOTCOMBMES
         POP     SI
-        OR      [SI.DIRATT],ISDIR
+        OR      [SI+DIRATT],ISDIR
         CALL    FIXENT                  ;Fix it
 DATTOK:
-        MOV     AX,[SI.DIRCLUS]
+        MOV     AX,[SI+DIRCLUS]
         CMP     AX,[BP+6]               ;. link = MYSELF?
         JZ      DLINKOK
         PUSH    SI                      ;Link messed up
@@ -341,13 +341,13 @@ DATTOK:
         CALL    DOTCOMBMES
         POP     SI
         MOV     AX,[BP+6]
-        MOV     [SI.DIRCLUS],AX
+        MOV     [SI+DIRCLUS],AX
         CALL    FIXENT                  ;Fix it
 DLINKOK:
-        MOV     AX,word [SI.DIRESIZ]
+        MOV     AX,word [SI+DIRESIZ]
         OR      AX,AX
         JNZ     BADDSIZ
-        MOV     AX,word [SI.DIRESIZ+2]
+        MOV     AX,word [SI+DIRESIZ+2]
         OR      AX,AX
         JZ      DSIZOK
 BADDSIZ:                                ;Size should be zero
@@ -357,8 +357,8 @@ BADDSIZ:                                ;Size should be zero
         CALL    DOTCOMBMES
         POP     SI
         XOR     AX,AX
-        MOV     word [SI.DIRESIZ],AX
-        MOV     word [SI.DIRESIZ+2],AX
+        MOV     word [SI+DIRESIZ],AX
+        MOV     word [SI+DIRESIZ+2],AX
         CALL    FIXENT                  ;Fix it
 DSIZOK:                                 ;Get next (should be ..)
         MOV     DX,BX
@@ -375,7 +375,7 @@ DOTDOTOK:
         REP     CMPSB
         JNZ     NODDOTJ                 ;No ..
         MOV     SI,DIRBUF
-        MOV     AL,[SI.DIRATT]
+        MOV     AL,[SI+DIRATT]
         TEST    AL,ISDIR
         JNZ     DDATTOK                 ;.. must be a dir
         PUSH    SI
@@ -383,11 +383,11 @@ DOTDOTOK:
         MOV     DX,BADATT
         CALL    DOTCOMBMES
         POP     SI
-        OR      [SI.DIRATT],ISDIR
+        OR      [SI+DIRATT],ISDIR
         CALL    FIXENT                  ;Fix it
 DDATTOK:
         PUSH    SI
-        MOV     AX,[SI.DIRCLUS]
+        MOV     AX,[SI+DIRCLUS]
         CMP     AX,[BP+4]               ;.. link must be PARENT
         JZ      DDLINKOK
         MOV     SI,PARSTR
@@ -395,13 +395,13 @@ DDATTOK:
         CALL    DOTCOMBMES
         POP     SI
         MOV     AX,[BP+4]
-        MOV     [SI.DIRCLUS],AX
+        MOV     [SI+DIRCLUS],AX
         CALL    FIXENT                  ;Fix it
 DDLINKOK:
-        MOV     AX,word [SI.DIRESIZ]
+        MOV     AX,word [SI+DIRESIZ]
         OR      AX,AX
         JNZ     BADDDSIZ
-        MOV     AX,word [SI.DIRESIZ+2]
+        MOV     AX,word [SI+DIRESIZ+2]
         OR      AX,AX
         JZ      DDSIZOK
 BADDDSIZ:                               ;.. size should be 0
@@ -411,8 +411,8 @@ BADDDSIZ:                               ;.. size should be 0
         CALL    DOTCOMBMES
         POP     SI
         XOR     AX,AX
-        MOV     word [SI.DIRESIZ],AX
-        MOV     word [SI.DIRESIZ+2],AX
+        MOV     word [SI+DIRESIZ],AX
+        MOV     word [SI+DIRESIZ+2],AX
         CALL    FIXENT                  ;Fix it
 DDSIZOK:
         MOV     DX,BX                   ;Next entry
@@ -443,7 +443,7 @@ DIRDONE:
 
 MOREDIR:
         MOV     SI,DIRBUF
-        TEST    [SI.DIRATT],ISDIR
+        TEST    [SI+DIRATT],ISDIR
         JNZ     NEWDIR                  ;Is a new directory
         CMP     [SECONDPASS],0
         JZ      FPROC1                  ;First pass
@@ -463,9 +463,9 @@ FPROC1:
 NOPRINT2:
         MOV     AL,81H                  ;Head of file
         CALL    MARKFAT
-        TEST    [SI.DIRATT],VOLIDA
+        TEST    [SI+DIRATT],VOLIDA
         JNZ     HIDENFILE               ;VOL ID counts as hidden
-        TEST    [SI.DIRATT],HIDDN
+        TEST    [SI+DIRATT],HIDDN
         JZ      NORMFILE
 HIDENFILE:
         INC     [HIDCNT]
@@ -489,13 +489,13 @@ DPROC1:
         CMP     [ZEROTRUNC],0
         JZ      DPROC2                  ;Dir not truncated
 CONVDIR:
-        AND     [SI.DIRATT],NOT ISDIR   ;Turn into file
+        AND     [SI+DIRATT],NOT ISDIR   ;Turn into file
         CALL    FIXENT
         JMP     DDSIZOK                 ;Next
 DPROC2:
         PUSH    [ERRSUB]
         PUSH    BX                      ;Save my srch FCB pointer
-        PUSH    [SI.DIRCLUS]            ;MYSELF for next directory
+        PUSH    [SI+DIRCLUS]            ;MYSELF for next directory
         PUSH    [BP+6]                  ;His PARENT is me
         ADD     SI,DIRNAM
         MOV     DI,NAMBUF
@@ -548,13 +548,13 @@ PRINTTRMES:
         REP     MOVSB                   ;Transfer entry to DIRBUF
         POP     SI
         PUSH    SI
-        MOV     SI,[SI.DIRCLUS]         ;First cluster
+        MOV     SI,[SI+DIRCLUS]         ;First cluster
         CALL    GETFILSIZ
         POP     SI
         POP     BX
         POP     BP
-        MOV     word [SI.DIRESIZ],AX        ;Fix entry
-        MOV     word [SI.DIRESIZ+2],DX
+        MOV     word [SI+DIRESIZ],AX        ;Fix entry
+        MOV     word [SI+DIRESIZ+2],DX
         JMP     CONVDIR
 
 ; SUBTTL  FAT Look routines
@@ -563,7 +563,7 @@ CROSSLOOK:
 ;Same as MRKFAT only simpler for pass 2
         MOV     [SRFCBPT],BX
         MOV     BX,SI
-        MOV     SI,[BX.DIRCLUS]
+        MOV     SI,[BX+DIRCLUS]
         CALL    CROSSCHK
         JNZ     CROSSLINKJ
 CHLP:
@@ -600,7 +600,7 @@ MARKFAT:
         MOV     [SRFCBPT],BX
         MOV     BX,SI
         XOR     CX,CX
-        MOV     SI,[BX.DIRCLUS]
+        MOV     SI,[BX+DIRCLUS]
         CMP     SI,2
         JB      NOCLUSTERSJ     ;Bad cluster #  or nul file (SI = 0)
         CMP     SI,[MCLUS]
@@ -659,7 +659,7 @@ CROSSLINK:                      ;File is cross linked
         POP     CX
         POP     BX
 CHAINDONE:
-        TEST    [BX.DIRATT],ISDIR
+        TEST    [BX+DIRATT],ISDIR
         JNZ     NOSIZE                  ;Don't size dirs
         CMP     [ISCROSS],0
         JNZ     NOSIZE                  ;Don't size cross linked files
@@ -672,8 +672,8 @@ CHAINDONE:
         MUL     CX
         MOV     DI,DX           ;Save allocation size
         MOV     SI,AX
-        SUB     AX,word [BX.DIRESIZ]
-        SBB     DX,word [BX.DIRESIZ+2]
+        SUB     AX,word [BX+DIRESIZ]
+        SBB     DX,word [BX+DIRESIZ+2]
         JC      BADFSIZ         ;Size to big
         OR      DX,DX
         JNZ     BADFSIZ         ;Size to small
@@ -684,8 +684,8 @@ CHAINDONE:
 BADFSIZ:
         POP     DX
         PUSH    CX              ;Save size of file
-        MOV     word [BX.DIRESIZ],SI
-        MOV     word [BX.DIRESIZ+2],DI
+        MOV     word [BX+DIRESIZ],SI
+        MOV     word [BX+DIRESIZ+2],DI
         CALL    FIXENT2                 ;Fix it
         CALL    PRINTTHISELERR
         MOV     DX,BADCLUS
@@ -707,18 +707,18 @@ ADJUST:
         POP     DX
         CALL    EPRINT
         XOR     SI,SI
-        MOV     [BX.DIRCLUS],SI                 ;Set it to 0
-        MOV     word [BX.DIRESIZ],SI        ;Set size too
-        MOV     word [BX.DIRESIZ+2],SI
+        MOV     [BX+DIRCLUS],SI                 ;Set it to 0
+        MOV     word [BX+DIRESIZ],SI        ;Set size too
+        MOV     word [BX+DIRESIZ+2],SI
         CALL    FIXENT2                         ;Fix it
         INC     [ZEROTRUNC]                     ;Indicate truncation
         JMP     CHAINDONE
 
 CHKSIZ:
         MOV     DX,BADCLUS
-        CMP     word [BX.DIRESIZ],0
+        CMP     word [BX+DIRESIZ],0
         JNZ     ADJUST                          ;Size wrong
-        CMP     word [BX.DIRESIZ+2],0
+        CMP     word [BX+DIRESIZ+2],0
         JNZ     ADJUST                          ;Size wrong
         JMP     CHAINDONE                       ;Size OK
 
@@ -936,7 +936,7 @@ NEXTCLUS2:
 CHAINREC:
         LDS     DI,[THISDPB]
 ; ASSUME  DS:NOTHING
-        MOV     CX,[DI.dpb_root_entries]
+        MOV     CX,[DI+dpb_root_entries]
         PUSH    CS
         POP     DS
 ; ASSUME  DS:DG
@@ -1101,11 +1101,11 @@ AMDONE:
 REWRITE:
         LDS     BX,[THISDPB]
 ; ASSUME  DS:NOTHING
-        MOV     CL,[BX.dpb_FAT_size]          ;Sectors for one fat
+        MOV     CL,[BX+dpb_FAT_size]          ;Sectors for one fat
         XOR     CH,CH
         MOV     DI,CX
-        MOV     CL,[BX.dpb_FAT_count]          ;Number of FATs
-        MOV     DX,[BX.dpb_first_FAT]          ;First sector of FAT
+        MOV     CL,[BX+dpb_FAT_count]          ;Number of FATs
+        MOV     DX,[BX+dpb_first_FAT]          ;First sector of FAT
         PUSH    CS
         POP     DS
 ; ASSUME  DS:DG
@@ -1209,7 +1209,7 @@ GETENT:
 ;ALL registers destroyed (via int 25)
         LDS     DI,[THISDPB]
 ; ASSUME  DS:NOTHING
-        MOV     BX,[DI.dpb_current_dir]
+        MOV     BX,[DI+dpb_current_dir]
         PUSH    CS
         POP     DS
 ; ASSUME  DS:DG
@@ -1269,7 +1269,7 @@ WANTROOT:
         LDS     DI,[THISDPB]
 ; ASSUME  DS:NOTHING
         MOV     DX,AX
-        ADD     DX,[DI.dpb_dir_sector]
+        ADD     DX,[DI+dpb_dir_sector]
         PUSH    CS
         POP     DS
 ; ASSUME  DS:DG
@@ -1324,7 +1324,7 @@ PRINTCURRDIR:
         CALL    PRTCHR
         LDS     SI,[THISDPB]
 ; ASSUME  DS:NOTHING
-        CMP     [SI.dpb_current_dir],0
+        CMP     [SI+dpb_current_dir],0
         JZ      CURISROOT
         MOV     DL,[DIRCHAR]
         CALL    PRTCHR

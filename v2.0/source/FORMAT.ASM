@@ -24,7 +24,7 @@
 ;               5/1/83 ARR Re-do to transfer system on small memory systems
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 IBMJAPVER EQU   FALSE           ; SET ONLY ONE SWITCH TO TRUE!
 IBMVER  EQU     FALSE
@@ -51,14 +51,14 @@ RR      EQU     fcb_RR+7
 ;Per system file data structure
 
 struc FILESTRUC
-FILE_HANDLE: dw 0; Source handle
-FILE_SIZEP: dw 0; File size in para
-FILE_SIZEB: dd 0; File size in bytes
-FILE_OFFSET: dd 0; Offset in file (partial)
-FILE_START: dw 0; Para number of start in buffer
-FILE_DATE: dw 0; Date of file
-FILE_TIME: dw 0; Time of file
-FILE_NAME: db 0; Start of name
+FILE_HANDLE: resw 1; Source handle
+FILE_SIZEP: resw 1; File size in para
+FILE_SIZEB: resd 1; File size in bytes
+FILE_OFFSET: resd 1; Offset in file (partial)
+FILE_START: resw 1; Para number of start in buffer
+FILE_DATE: resw 1; Date of file
+FILE_TIME: resw 1; Time of file
+FILE_NAME: resb 1; Start of name
 endstruc
 
 SECTION .CODE
@@ -112,17 +112,17 @@ OKDOS:
         %if IBMVER; IBM WANTS TO CHECK FOR ASSIGN.COM
         XOR     AX,AX
         MOV     ES,AX
-        MOV     BX,ES:[4*21H]
-        MOV     ES,ES:[4*21H+2]
+        MOV     BX,[ES:4*21H]
+        MOV     ES,[ES:4*21H+2]
         CMP     BX,122H
         JNZ     NO_ASSIGN
-        CMP     ES:[109H],0807H
+        CMP     [ES:109H],0807H
         JNZ     NO_ASSIGN
-        CMP     ES:[103H],0201H
+        CMP     [ES:103H],0201H
         JNZ     RE_ASSIGN
-        CMP     ES:[105H],0403H
+        CMP     [ES:105H],0403H
         JNZ     RE_ASSIGN
-        CMP     ES:[107H],0605H
+        CMP     [ES:107H],0605H
         JZ      NO_ASSIGN
 RE_ASSIGN:
         MOV     DX,ASGERR
@@ -157,7 +157,7 @@ DRVGD:
         INC     AL
 DRVSPEC:
         DEC     AL                      ;Drive designator now correct
-        MOV     byte DS:[DRNUM],AL  ;And updated
+        MOV     byte [DS:DRNUM],AL  ;And updated
         MOV     DRIVE,AL                ;Save copy
         MOV     DX,INT_23
         MOV     AH,SET_INTERRUPT_VECTOR
@@ -1178,7 +1178,7 @@ GOTTARG:
         MOV     BX,[TempHandle]
         MOV     SI,word [IOCNT]
         MOV     DI,word [IOCNT+2]
-        MOV     DS,[BP.FILE_START]
+        MOV     DS,[BP+FILE_START]
 ; ASSUME  DS:NOTHING
         CALL    WRITEFILE               ; Write next part
 ; ASSUME  DS:CODE
@@ -1186,18 +1186,18 @@ GOTTARG:
         RET
 
 TESTDONE:
-        LES     AX,[BP.FILE_OFFSET]
-        CMP     AX,word [BP.FILE_SIZEB]
+        LES     AX,[BP+FILE_OFFSET]
+        CMP     AX,word [BP+FILE_SIZEB]
         JNZ     GETSYS3
         MOV     AX,ES
-        CMP     AX,word [BP.FILE_SIZEB+2]
+        CMP     AX,word [BP+FILE_SIZEB+2]
         JNZ     GETSYS3
         RET                             ; Carry clear from CMP
 
 GETSYS3:
 ;Enter here if none of file is in buffer
         MOV     AX,[MSTART]             ; Furthur IO done starting here
-        MOV     [BP.FILE_START],AX
+        MOV     [BP+FILE_START],AX
         MOV     AL,[SYSDRV]
         CMP     AL,[TARGDRV]
         JNZ     TESTSYS
@@ -1208,14 +1208,14 @@ GSYS:
 TESTSYS:
         CALL    TESTSYSDISK
         JC      GSYS
-        MOV     BX,[BP.FILE_HANDLE]
-        LES     DX,[BP.FILE_OFFSET]
+        MOV     BX,[BP+FILE_HANDLE]
+        LES     DX,[BP+FILE_OFFSET]
         PUSH    DX
         MOV     CX,ES
         MOV     AX,LSEEK SHL 8
         INT     21H
         POP     DX
-        LES     SI,[BP.FILE_SIZEB]
+        LES     SI,[BP+FILE_SIZEB]
         MOV     DI,ES
         SUB     SI,DX
         SBB     DI,CX                   ; DI:SI is #bytes to go
@@ -1247,8 +1247,8 @@ GETOFFS:
         MOV     CX,DX
         MOV     AX,(LSEEK SHL 8) OR 1
         INT     21H
-        MOV     word [BP.FILE_OFFSET],AX
-        MOV     word [BP.FILE_OFFSET+2],DX
+        MOV     word [BP+FILE_OFFSET],AX
+        MOV     word [BP+FILE_OFFSET+2],DX
         CALL    CLSALL
         JMP     IOLOOP
 

@@ -805,5 +805,5 @@ GET_DEVICE_ID:;AN000;
 
 
 
-CODE	      ENDS
+; END SECTION .CODE
 	      ; END

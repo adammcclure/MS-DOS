@@ -109,7 +109,7 @@ print_prompt:
 	push	es
 	invoke	find_prompt			; LOOK FOR PROMPT STRING
 	jc	PP0				; CAN'T FIND ONE
-	cmp	byte es:[di],0
+	cmp	byte [es:di],0
 	jnz	PP1
 PP0:
 	call	print_drive			; USE DEFAULT PROMPT
@@ -118,7 +118,7 @@ PP0:
 	jmp	short PP5
 
 PP1:
-	mov	al,es:[di]			; GET A CHAR
+	mov	al,[es:di]			; GET A CHAR
 	inc	di
 	or	al,al
 	jz	PP5				; NUL TERMINATED
@@ -129,7 +129,7 @@ PPP1:
 	jmp	PP1
 
 PP2:
-	mov	al,es:[di]
+	mov	al,[es:di]
 	inc	di
 	mov	bx,prompt_table-3
 	or	al,al
@@ -237,7 +237,7 @@ build_dir_for_chdir:
 	ret
 
 build_dir_string:
-	mov	dl,ds:[FCB]
+	mov	dl,[ds:FCB]
 	mov	al,DL
 	add	al,'@'
 	cmp	al,'@'
@@ -344,7 +344,7 @@ disppath:
 	return
 
 print_path:
-	cmp	byte es:[di],0
+	cmp	byte [es:di],0
 	jnz	path1
 
 path0:

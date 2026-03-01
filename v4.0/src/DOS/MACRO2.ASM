@@ -104,7 +104,7 @@ SECTION .CODE
 ; .list
 ; .sall
 
-Installed = TRUE
+Installed equ TRUE
 
 	I_need	Splices,BYTE		; TRUE => splices are being done.
 	I_need	WFP_Start,WORD		; pointer to beginning of expansion
@@ -427,7 +427,7 @@ UNCDone:
 
 	MOV	DI,WFP_start		;AN000;; ES:DI points to converted string
 TP_check05:				;AN000;
-	MOV	AL,byte ES:[DI]	;AN000;; Get character from path
+	MOV	AL,byte [ES:DI]	;AN000;; Get character from path
 	OR	AL,AL			;AN000;; End of null terminated path?
 	JZ	TP_end05		;AN000;; Finished, CF =0 from OR (ret success)
 	invoke	testkanj		;AN000;; Kanji lead character?
@@ -437,9 +437,9 @@ TP_check05:				;AN000;
 TP_notK:				;AN000;
 	invoke	PathChrCmp		;AN000;; Is it a path seperator char?
 	JNZ	TP_nxt05		;AN000;; Check next character if not
-	CMP	byte ES:[DI+1],05	;AN000;; 05 following path sep char?
+	CMP	byte [ES:DI+1],05	;AN000;; 05 following path sep char?
 	JNZ	TP_nxt05		;AN000;; Check next character if not
-	MOV	byte ES:[DI+1],0E5h ;AN000;; Convert 05 back to E5
+	MOV	byte [ES:DI+1],0E5h ;AN000;; Convert 05 back to E5
 TP_nxt05:				;AN000;
 	INC	DI			;AN000;; Point to next char in path
 	JMP	TP_check05		;AN000;; Test all chars in path
@@ -458,7 +458,7 @@ CheckDevice:
 ; Check DS:SI for device.  First eat any path stuff
 ;
 	POP	AX			; retrieve drive info
-	CMP	byte DS:[SI],0	; check for null file
+	CMP	byte [DS:SI],0	; check for null file
 	JNZ	CheckPath
 	MOV	AL,error_file_not_found ; bad file error
 	STC				; signal error on null input
@@ -546,7 +546,7 @@ Notkanjf:				;AN000;
 ; Make sure that there is a path char at end.
 ;
 	MOV	AL,'\'
-	CMP	ES:[DI-1],AL
+	CMP	[ES:DI-1],AL
 	JZ	GetOrig
 	STOSB
 ;
@@ -601,7 +601,7 @@ DoCanon:
 ; reconvert if found.
 
 	MOV	DI,WFP_start		;AN000;; ES:DI points to string
-	MOV	AX,word ES:[DI]	;AN000;; Get leading 2 chars from path buffer
+	MOV	AX,word [ES:DI]	;AN000;; Get leading 2 chars from path buffer
 	invoke	PathChrCmp		;AN000;; First char a path char?
 	JNZ	TP_notremote		;AN000;; Not remote if not.
 	invoke	PathChrCmp		;AN000;; Second char a path char?
@@ -648,11 +648,11 @@ ONEINC: 				;AN000;
 	POP	BX			;AN000;
 ;------------------------ End of DBCS 2/13/KK
  %endif;AN000;
-	MOV	AL,DS:[SI-1]		; last char to match
+	MOV	AL,[DS:SI-1]		; last char to match
 	Invoke	PathChrCmp		; did we end on a path char? (root)
 	JZ	DoSplice		; yes, no current dir here.
 Pathline:				; 2/13/KK
-	CMP	byte ES:[DI],0	; end at NUL?
+	CMP	byte [ES:DI],0	; end at NUL?
 	JZ	DoSplice
 	INC	DI			; point to after current path char
 	MOV	Curr_Dir_End,DI 	; point to correct spot
@@ -674,7 +674,7 @@ SkipSplice:
 ;
 	Context DS
 	LES	DI,ThisCDS		; point to correct drive
-	TEST	ES:[DI].curdir_flags,curdir_isnet
+	TEST	[ES:DI].curdir_flags,curdir_isnet
 	retnz				; net, no fatread necessary
 	JCXZ	Done
 	EnterCrit   critDisk
@@ -739,7 +739,7 @@ CanonLoop:
  %if DBCS;AN000;
 	call	chk_last_colon		;AN000; 2/18/KK
  %else;AN000;
-	CMP	byte ES:[DI-1],':'  ;           if (d[-1] == ':')
+	CMP	byte [ES:DI-1],':'  ;           if (d[-1] == ':')
  %endif;AN000;
 	JNZ	DoTerminate
 	MOV	AL,'\'                  ;               *d++ = '\';
@@ -768,10 +768,10 @@ CLC_lop:				;AN000;
 	jb	CLC00			;AN000;
 	jne	CLC09			;AN000;
 CLC01:					;AN000;
-	CMP	byte ES:[DI-1],':'  ;AN000;;           if (d[-1] == ':')
+	CMP	byte [ES:DI-1],':'  ;AN000;;           if (d[-1] == ':')
 	jmp	CLC09			;AN000;
 CLC00:					;AN000;
-	mov	al,es:[si]		;AN000;
+	mov	al,[es:si]		;AN000;
 	inc	si			;AN000;
 	invoke	testkanj		;AN000;
 	je	CLC_lop 		;AN000;
@@ -804,9 +804,9 @@ DoComponent:				;	    }
 ;
 ; We special case the . and .. cases.  These will be backed up.
 ;
-	CMP	word ES:[DI],'.' + (0 SHL 8)
+	CMP	word [ES:DI],'.' + (0 SHL 8)
 	JZ	Skip1
-	CMP	word ES:[DI],'..'
+	CMP	word [ES:DI],'..'
 	JNZ	CanonNormal
 	DEC	DI			;	    d--;
 Skip1:	CALL	SkipBack		;	    SkipBack ();
@@ -910,7 +910,7 @@ NotKanjv:			;AN000;
 	DEC	DI		;AN000;
 	jmp	Skiplp		;AN000;
 SkipOK: 			;AN000;
-	MOV	AL,ES:[DI]	;AN000;; Set output AL
+	MOV	AL,[ES:DI]	;AN000;; Set output AL
 	CLC			;AN000;; return (0);
 	POP	CX		;AN000;
 	POP	SI		;AN000;
@@ -926,7 +926,7 @@ SkipBadP:			;AN000;
 	CMP	DI,BX			;   while (TRUE) {
 	JB	SkipBad 		;	if (d < dlim)
 	DEC	DI			;	    goto err;
-	MOV	AL,ES:[DI]		;	if (pathchr (*--d))
+	MOV	AL,[ES:DI]		;	if (pathchr (*--d))
 	invoke	PathChrCmp		;	    break;
 	JNZ	SkipBack		;	}
 	CLC				;   return (0);
@@ -1061,7 +1061,7 @@ SpliceScan:
 	invoke	GetCDSFromDrv
 	JC	SpliceDone
 	INC	AL
-	TEST	[SI.curdir_flags],curdir_splice
+	TEST	[SI+curdir_flags],curdir_splice
 	JZ	SpliceScan		;	if ( Spliced (i) ) {
 	SaveReg <DI>
 	CALL	PathPref		;	    if (!PathPref (s, d))
@@ -1070,7 +1070,7 @@ SpliceSkip:
 	RestoreReg  <DI>
 	JMP	SpliceScan		;		continue;
 SpliceFound:
-	CMP	byte ES:[DI],0	;	    if (*s || NoSetDir) {
+	CMP	byte [ES:DI],0	;	    if (*s || NoSetDir) {
 	JNZ	SpliceDo
 	TEST	NoSetDir,-1
 	JNZ	SpliceSkip
@@ -1240,7 +1240,7 @@ NotKanj9:				;AN000;
 	Invoke	PathChrCmp		; is it a path char (Root!)
 	JZ	Prefix			; yes, match root (I hope)
 NotSep: 				; 2/13/KK
-	MOV	AL,ES:[DI]		; get next char to match
+	MOV	AL,[ES:DI]		; get next char to match
 	CALL	PathSepGotCh		; was it a pathchar?
 Prefix:
 	RestoreReg  <AX>		; get back original

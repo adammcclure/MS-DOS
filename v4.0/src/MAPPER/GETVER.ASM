@@ -23,9 +23,9 @@ SECTION .dosxxx
 	    %include "macros.inc"
 
 struc str
-old_bp: dw 0
-Return: dd 0
-Data: dd 0; return data area pointer
+old_bp: resw 1
+Return: resd 1
+Data: resd 1; return data area pointer
 endstruc
 
 dosgetversion:

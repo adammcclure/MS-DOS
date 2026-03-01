@@ -69,7 +69,7 @@ OPTION_2      DW   0		  ;AN000;
 OPTION_3      DW   0		  ;AN033;SEH
 FILE_HANDLE   DW   0		  ;AN000;
 
-DATA	 ENDS			  ;AN000;
+; END SECTION .DATA;AN000;
 
 SECTION .CODE_FAR;AN000;
 
@@ -294,6 +294,6 @@ CLOSE_THE_FILE: 				 ;AN000; Close the file
     RET  8					 ;AN000;
 ; ENDP SCAN_INFO_FILE_ROUTINE;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CODE_FAR ENDS					 ;AN000;
+; END SECTION .CODE_FAR;AN000;
 						 ;
 ; END;AN000;

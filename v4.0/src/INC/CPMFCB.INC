@@ -39,28 +39,28 @@
 ;
 
 struc sys_fcb
-fcb_drive: db 0
-fcb_name: times 8 db 0
-fcb_ext: times 3 db 0
-fcb_EXTENT: dw 0
-fcb_RECSIZ: dw 0; Size of record (user settable)
-fcb_FILSIZ: dw 0; Size of file in bytes; used with the
+fcb_drive: resb 1
+fcb_name: resb 8
+fcb_ext: resb 3
+fcb_EXTENT: resw 1
+fcb_RECSIZ: resw 1; Size of record (user settable)
+fcb_FILSIZ: resw 1; Size of file in bytes; used with the
                                         ; following word
-fcb_DRVBP: dw 0; BP for SEARCH FIRST and SEARCH NEXT
-fcb_FDATE: dw 0; Date of last writing
-fcb_FTIME: dw 0; Time of last writing
+fcb_DRVBP: resw 1; BP for SEARCH FIRST and SEARCH NEXT
+fcb_FDATE: resw 1; Date of last writing
+fcb_FTIME: resw 1; Time of last writing
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;                                                                          ;
-fcb_reserved: times 8 db 0; RESERVED
+fcb_reserved: resb 8; RESERVED
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
-fcb_NR: db 0; Next record
-fcb_RR: times 4 db 0; Random record
+fcb_NR: resb 1; Next record
+fcb_RR: resb 4; Random record
 endstruc
 
-FILDIRENT       = fcb_FILSIZ            ; Used only by SEARCH FIRST and SEARCH
+FILDIRENT equ fcb_FILSIZ; Used only by SEARCH FIRST and SEARCH
                                         ; NEXT
 
 fcb_sfn         EQU     byte fcb_reserved

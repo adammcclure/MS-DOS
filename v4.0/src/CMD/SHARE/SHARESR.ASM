@@ -45,7 +45,7 @@ SECTION .Share
 				   ; .list
 
 
-false				   =	0
+false equ 0
 
 DateSW				   equ	false
 TimeSW				   equ	false

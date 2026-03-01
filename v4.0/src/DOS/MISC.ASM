@@ -105,10 +105,10 @@ SET_AL_RET:
 	XOR	AH,AH			; AL has sectors/cluster
 	invoke	get_user_stack
 ; ASSUME	DS:NOTHING
-	MOV	[SI.user_CX],CX
-	MOV	[SI.user_DX],BX
-	MOV	[SI.user_BX],DI
-	MOV	[SI.user_DS],CS 	; stash correct pointer
+	MOV	[SI+user_CX],CX
+	MOV	[SI+user_DX],BX
+	MOV	[SI+user_BX],DI
+	MOV	[SI+user_DS],CS 	; stash correct pointer
 	return
 BADSLDRIVE:
 	transfer    FCB_Ret_ERR
@@ -132,8 +132,8 @@ BREAK <$Get_INDOS_Flag -- Return location of DOS critical-section flag>
 ; ASSUME	DS:NOTHING,ES:NOTHING
 
 	invoke	get_user_stack
-	MOV	[SI.user_BX],INDOS
-	MOV	[SI.user_ES],SS
+	MOV	[SI+user_BX],INDOS
+	MOV	[SI+user_ES],SS
 	return
 EndProc $GET_INDOS_FLAG
 ;									   ;
@@ -149,8 +149,8 @@ BREAK <$Get_IN_VARS -- Return a pointer to DOS variables>
 ; Use at risk.
 	procedure   $GET_IN_VARS,NEAR
 	invoke	get_user_stack
-	MOV	[SI.user_BX],SYSINITVAR
-	MOV	[SI.user_ES],SS
+	MOV	[SI+user_BX],SYSINITVAR
+	MOV	[SI+user_ES],SS
 	return
 EndProc $GET_IN_VARS
 ;									   ;
@@ -183,7 +183,7 @@ BREAK <$Get_Default_DPB,$Get_DPB -- Return pointer to DPB>
 	invoke	GETTHISDRV		; Get CDS structure
 	JC	ISNODRV 		; no valid drive
 	LES	DI,[THISCDS]		; check for net CDS
-	TEST	ES:[DI.curdir_flags],curdir_isnet
+	TEST	[ES:DI+curdir_flags],curdir_isnet
 	JNZ	ISNODRV 		; No DPB to point at on NET stuff
 	EnterCrit CritDisk
 	invoke	FATRead_CDS		; Force Media Check and return DPB
@@ -192,8 +192,8 @@ BREAK <$Get_Default_DPB,$Get_DPB -- Return pointer to DPB>
 					;   have.
 	invoke	get_user_stack
 ; ASSUME	DS:NOTHING
-	MOV	[SI.user_BX],BP
-	MOV	[SI.user_DS],ES
+	MOV	[SI+user_BX],BP
+	MOV	[SI+user_DS],ES
 	XOR	AL,AL
 	return
 
@@ -267,9 +267,9 @@ BREAK <$SetDPB - Create a valid DPB from a user-specified BPB>
 	ADD	DI,2			; Skip over dpb_drive and dpb_UNIT
 	LODSW
 	STOSW				; dpb_sector_size
-	CMP	byte [SI.BPFTCNT-2],0     ; FAT file system drive		;AN000;
+	CMP	byte [SI+BPFTCNT-2],0     ; FAT file system drive		;AN000;
 	JNZ	yesfat			      ; yes				;AN000;
-	MOV	byte ES:[DI.dpb_FAT_count-4],0
+	MOV	byte [ES:DI+dpb_FAT_count-4],0
 	JMP	setend			      ; NO				;AN000;
 yesfat:
 	MOV	DX,AX
@@ -308,19 +308,19 @@ SAVLOG:
 	INC	DI			; Skip dpb_first_sector
 	MOVSW				; Total number of sectors in DSKSIZ (temp as dpb_max_cluster)
 	LODSB
-	MOV	ES:[BP.dpb_media],AL	; Media byte
+	MOV	[ES:BP+dpb_media],AL	; Media byte
 	LODSW				; Number of sectors in a FAT
 	STOSW				;AC000;;>32mb dpb_FAT_size
 	MOV	DL,BH			;AN000;;>32mb
 	XOR	DH,DH			;AN000;;>32mb
 	MUL	DX			;AC000;;>32mb Space occupied by all FATs
-	ADD	AX,ES:[BP.dpb_first_FAT]
+	ADD	AX,[ES:BP+dpb_first_FAT]
 	STOSW				; dpb_dir_sector
 	ADD	AX,CX			; Add number of directory sectors
-	MOV	ES:[BP.dpb_first_sector],AX
+	MOV	[ES:BP+dpb_first_sector],AX
 
 	MOV	CL,BL		       ;F.C. >32mb				;AN000;
-	CMP	word ES:[BP.DSKSIZ],0	;F.C. >32mb			;AN000;
+	CMP	word [ES:BP+DSKSIZ],0	;F.C. >32mb			;AN000;
 	JNZ	normal_dpb	       ;F.C. >32mb				;AN000;
 	XOR	CH,CH		       ;F.C. >32mb				;AN000;
 	MOV	BX,word [SI+BPB_BigTotalSectors-BPB_SectorsPerTrack]	;AN000;
@@ -338,16 +338,16 @@ norot:				       ;AN000;
 	MOV	AX,BX		       ;AN000;;F.C. >32mb
 	JMP	setend		       ;AN000;;F.C. >32mb
 normal_dpb:
-	SUB	AX,ES:[BP.DSKSIZ]
+	SUB	AX,[ES:BP+DSKSIZ]
 	NEG	AX			; Sectors in data area
 ;;	MOV	CL,BL			; dpb_cluster_shift
 	SHR	AX,CL			; Div by sectors/cluster
 setend:
 	INC	AX
-	MOV	ES:[BP.dpb_max_cluster],AX
-	MOV	ES:[BP.dpb_next_free],0 ; Init so first ALLOC starts at
+	MOV	[ES:BP+dpb_max_cluster],AX
+	MOV	[ES:BP+dpb_next_free],0 ; Init so first ALLOC starts at
 					; begining of FAT
-	MOV	ES:[BP.dpb_free_cnt],-1 ; current count is invalid.
+	MOV	[ES:BP+dpb_free_cnt],-1 ; current count is invalid.
 	return
 EndProc $SETDPB
 ;									   ;
@@ -382,8 +382,8 @@ EndProc $Dup_PDB
 ; Called at DOS init
 
 	CALL	get_user_stack
-	MOV	DS,[SI.user_CS]
-	PUSH	DS:[PDB_Block_len]
+	MOV	DS,[SI+user_CS]
+	PUSH	[DS:PDB_Block_len]
 CreateCopy:
 	MOV	ES,DX
 	XOR	SI,SI			; copy all 80h bytes
@@ -395,7 +395,7 @@ CreateCopy:
 	MOV	CX,FilPerProc		; copy handles in case of
 	MOV	DI,PDB_JFN_Table	; Set Handle Count has been issued
 	PUSH	DS
-	LDS	SI,DS:[PDB_JFN_Pointer]
+	LDS	SI,[DS:PDB_JFN_Pointer]
 	REP	MOVSB
 	POP	DS
 
@@ -417,12 +417,12 @@ Create_dup_jfn:
 	invoke	SFFromHandle		; get sf pointer
 	MOV	AL,-1			; unassigned JFN
 	JC	CreateStash		; file was not really open
-	TEST	ES:[DI].sf_flags,sf_no_inherit
+	TEST	[ES:DI].sf_flags,sf_no_inherit
 	JNZ	CreateStash		; if no-inherit bit is set, skip dup.
 ;
 ; We do not inherit network file handles.
 ;
-	MOV	AH,byte ES:[DI].sf_mode
+	MOV	AH,byte [ES:DI].sf_mode
 	AND	AH,sharing_mask
 	CMP	AH,sharing_net_fcb
 	jz	CreateStash
@@ -437,18 +437,18 @@ Create_dup_jfn:
 ; get the old sfn for copy
 ;
 	invoke	pJFNFromHandle		; ES:DI is jfn
-	MOV	AL,ES:[DI]		; get sfn
+	MOV	AL,[ES:DI]		; get sfn
 ;
 ; Take AL (old sfn or -1) and stash it into the new position
 ;
 CreateStash:
 	POP	ES
-	MOV	ES:[BX].PDB_JFN_Table,AL; copy into new place!
+	MOV	[ES:BX].PDB_JFN_Table,AL; copy into new place!
 	INC	BX			; next jfn...
 	LOOP	create_dup_jfn
 
 	MOV	BX,CurrentPDB		; get current process
-	MOV	ES:[PDB_Parent_PID],BX	; stash in child
+	MOV	[ES:PDB_Parent_PID],BX	; stash in child
 	MOV	[CurrentPDB],ES
 	; ASSUME	DS:NOTHING
 	MOV	DS,BX
@@ -487,7 +487,7 @@ Create_PDB_cont:
 	MOV	DI,SAVEXIT
 	MOV	CX,6
 	REP	MOVSW
-	MOV	ES:[2],AX
+	MOV	[ES:2],AX
 	SUB	AX,DX
 	CMP	AX,MAXDIF
 	JBE	HAVDIF
@@ -499,15 +499,15 @@ HAVDIF:
 	MOV	CL,4
 	SHL	AX,CL
 	MOV	DS,DX
-	MOV	word DS:[PDB_CPM_Call+1],AX
-	MOV	word DS:[PDB_CPM_Call+3],BX
-	MOV	DS:[PDB_Exit_Call],(int_abort SHL 8) + mi_INT
-	MOV	byte DS:[PDB_CPM_Call],mi_Long_CALL
-	MOV	word DS:[PDB_Call_System],(int_command SHL 8) + mi_INT
-	MOV	byte DS:[PDB_Call_System+2],mi_Long_RET
-	MOV	word DS:[PDB_JFN_Pointer],PDB_JFN_Table
-	MOV	word DS:[PDB_JFN_Pointer+2],DS
-	MOV	word DS:[PDB_JFN_Length],FilPerProc
+	MOV	word [DS:PDB_CPM_Call+1],AX
+	MOV	word [DS:PDB_CPM_Call+3],BX
+	MOV	[DS:PDB_Exit_Call],(int_abort SHL 8) + mi_INT
+	MOV	byte [DS:PDB_CPM_Call],mi_Long_CALL
+	MOV	word [DS:PDB_Call_System],(int_command SHL 8) + mi_INT
+	MOV	byte [DS:PDB_Call_System+2],mi_Long_RET
+	MOV	word [DS:PDB_JFN_Pointer],PDB_JFN_Table
+	MOV	word [DS:PDB_JFN_Pointer+2],DS
+	MOV	word [DS:PDB_JFN_Length],FilPerProc
 ;
 ; The server runs several PDB's without creating them VIA EXEC.  We need to
 ; enumerate all PDB's at CPS time in order to find all references to a
@@ -515,8 +515,8 @@ HAVDIF:
 ; for us all sub-PDB's that he creates.  The requirement for us, now, is to
 ; initialize this pointer.
 ;
-	MOV	word DS:[PDB_Next_PDB],-1
-	MOV	word DS:[PDB_Next_PDB+2],-1
+	MOV	word [DS:PDB_Next_PDB],-1
+	MOV	word [DS:PDB_Next_PDB+2],-1
 	return
 
 EndProc $CREATE_PROCESS_DATA_BLOCK
@@ -527,7 +527,7 @@ EndProc $CREATE_PROCESS_DATA_BLOCK
 	procedure   FETCHI_CHECK,NEAR
 ; ASSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSHF
-	CMP	CS:[FETCHI_TAG],22642
+	CMP	[CS:FETCHI_TAG],22642
 	JZ	TAG_OK
 	invoke	DOSINIT 	      ; go to hell
 TAG_OK:

@@ -33,14 +33,14 @@ CY      EQU     ONE                     ;
                                         ;
 ID_IOCTL       EQU     5                ; MAJOR FNCT # FOR 'other' DEVICE
                                         ;
-RH      EQU     ES:[DI]                 ; addressability to Request Header
+RH      EQU     [ES:DI]                 ; addressability to Request Header
                                         ;
 struc RHC; fields common to all request types
-         db 0; length of Request Header
-         db 0; unit code (subunit)
-RHC_CMD: db 0; command code
-RHC_STA: dw 0; status
-         dq 0; reserved for DOS
+         resb 1; length of Request Header
+         resb 1; unit code (subunit)
+RHC_CMD: resb 1; command code
+RHC_STA: resw 1; status
+         resq 1; reserved for DOS
 endstruc; end of common portion
                                         ;
 CMD_INPUT EQU   4                       ; RHC_CMD is INPUT request
@@ -54,17 +54,17 @@ STAT_CMDERR EQU 8000H                   ; Error code
 ;      NEXT device header ES:[DI]
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-HP      EQU     DS:[SI]                 ;
-NHD     EQU     ES:[DI]                 ;
+HP      EQU     [DS:SI]                 ;
+NHD     EQU     [ES:DI]                 ;
                                         ;
 NAME_LEN EQU    8                       ;
                                         ;
 struc DHS;
-DH_NEXTO: dw 0; offset of pointer to next header
-DH_NEXTS: dw 0; segment of pointer to next header
-        dw 0; attribute
-DH_STRAO: dw 0; offset to strategy routine
-DH_INTRO: dw 0; offset to interrupt routine
+DH_NEXTO: resw 1; offset of pointer to next header
+DH_NEXTS: resw 1; segment of pointer to next header
+        resw 1; attribute
+DH_STRAO: resw 1; offset to strategy routine
+DH_INTRO: resw 1; offset to interrupt routine
 DH_NAME DB      NAME_LEN DUP(0)         ; device name in this header
 endstruc; end of common portion
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -73,13 +73,13 @@ endstruc; end of common portion
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 struc RH0;
-        DB      (TYPE RHC) DUP (?)      ;
+        resb 1;
                                         ;
-RH0_UNIT: db 0; not used for CHAR devices
-RH0_ENDO: dw 0; offset  of ending address
-RH0_ENDS: dw 0; segment of ending address
-RH0_BPBA: dd 0; POINTER TO BPB FOR CHAR DEVICES
-         db 0;
+RH0_UNIT: resb 1; not used for CHAR devices
+RH0_ENDO: resw 1; offset  of ending address
+RH0_ENDS: resw 1; segment of ending address
+RH0_BPBA: resd 1; POINTER TO BPB FOR CHAR DEVICES
+         resb 1;
 endstruc;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -87,13 +87,13 @@ endstruc;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 struc RH3;
-        DB      (TYPE RHC) DUP (?)      ; common portion
+        resb 1; common portion
                                         ;
                                         ;
-        db 0; media descriptor
-RH3_DTAO: dw 0; offset  of transfer address
-RH3_DTAS: dw 0; segment of transfer address
-RH3_CNT: dw 0; byte count
+        resb 1; media descriptor
+RH3_DTAO: resw 1; offset  of transfer address
+RH3_DTAS: resw 1; segment of transfer address
+RH3_CNT: resw 1; byte count
 endstruc;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -101,12 +101,12 @@ endstruc;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 struc RH_IOCTL;
-STATIC_RH: times 13 db 0; STANDARD STATIC REQUEST HEADER
-MAJOR_F: db 0; MAJOR FUNCTION CALL (SEE DOS 3.30)
-MINOR_F: db 0; MINOR FUNCTION CALL (SEE DOS 3.30)
-CONTENT_SI: dw 0; CONTENTS OF SI
-CONTENT_DI: dw 0; CONTENTS OF DI
-REQUEST_PACKET: dd 0; POINTER TO GENERIC IOCTL REQ. PACKET
+STATIC_RH: resb 13; STANDARD STATIC REQUEST HEADER
+MAJOR_F: resb 1; MAJOR FUNCTION CALL (SEE DOS 3.30)
+MINOR_F: resb 1; MINOR FUNCTION CALL (SEE DOS 3.30)
+CONTENT_SI: resw 1; CONTENTS OF SI
+CONTENT_DI: resw 1; CONTENTS OF DI
+REQUEST_PACKET: resd 1; POINTER TO GENERIC IOCTL REQ. PACKET
 endstruc;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -114,10 +114,10 @@ endstruc;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 struc DESG_BUFFER;
-DESG_CARTRIDGE: dw 0; 0=NO CARTRIDGE, 1=CARTRIDGE
-DESG_LENGTH: dw 0; LENGTH OF REMAINING HEADER
-DESG_N: dw 0; NUMBER OF CP's DESIGNATED
-DESG_CP: dw 0; FIRST CP DESIGNATED
+DESG_CARTRIDGE: resw 1; 0=NO CARTRIDGE, 1=CARTRIDGE
+DESG_LENGTH: resw 1; LENGTH OF REMAINING HEADER
+DESG_N: resw 1; NUMBER OF CP's DESIGNATED
+DESG_CP: resw 1; FIRST CP DESIGNATED
 endstruc;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -125,8 +125,8 @@ endstruc;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 struc INVK_BUFFER;
-INVK_LENGTH: dw 0; LENGTH OF REMAINING HEADER
-INVK_CP: dw 0; CP TO INVOKE
+INVK_LENGTH: resw 1; LENGTH OF REMAINING HEADER
+INVK_CP: resw 1; CP TO INVOKE
 endstruc;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -134,11 +134,11 @@ endstruc;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 struc QLST_BUFFER;
-QLST_LENGTH: dw 0; LENGTH OF REMAINING HEADER
-QLST_N_HDWR: dw 0; NUMBER OF HARDWARE CP's
-QLST_HDWR_CP: dw 0; FIRST HDWR CODE PAGE
-QLST_N_DESG: dw 0; NUMBER OF DESIGNATED CP's
-QLST_DESG_CP: dw 0; DESINATED CODE PAGES
+QLST_LENGTH: resw 1; LENGTH OF REMAINING HEADER
+QLST_N_HDWR: resw 1; NUMBER OF HARDWARE CP's
+QLST_HDWR_CP: resw 1; FIRST HDWR CODE PAGE
+QLST_N_DESG: resw 1; NUMBER OF DESIGNATED CP's
+QLST_DESG_CP: resw 1; DESINATED CODE PAGES
                                         ; ...there is more data to be
                                         ;    filled in by the DRIVER
 endstruc;
@@ -148,13 +148,13 @@ endstruc;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 struc PARSE_TABLE1; [[[ TABLE 1 ]]]
-NUM_DEVICES: dw 0; NUMBER OF DEVICES TO SUPPORT
-DEVICE1_OFFSET: dw 0; (hopefully) CON!!!
+NUM_DEVICES: resw 1; NUMBER OF DEVICES TO SUPPORT
+DEVICE1_OFFSET: resw 1; (hopefully) CON!!!
 endstruc;
                                         ;
 struc PARSE_TABLE2; [[[ TABLE 2 ]]]
-NUM_ITEMS: dw 0; NUMBER OF ITEMS CREATED BY THE
-OFFSET_LIST: dw 0; THE 1ST OFFSET OF [ TABLE 2 ]
+NUM_ITEMS: resw 1; NUMBER OF ITEMS CREATED BY THE
+OFFSET_LIST: resw 1; THE 1ST OFFSET OF [ TABLE 2 ]
 endstruc; PARSER!
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -162,18 +162,18 @@ endstruc; PARSER!
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 struc CP_PNTER_STRUC;
-HDWR_CP_STRUC: dw 0;
-DESG_CP_STRUC: dw 0;
-FONT_CP_STRUC: dw 0;
-WRITE_DATA_STRUC: dw 0;
-FONT_DATA_STRUC: dw 0;
+HDWR_CP_STRUC: resw 1;
+DESG_CP_STRUC: resw 1;
+FONT_CP_STRUC: resw 1;
+WRITE_DATA_STRUC: resw 1;
+FONT_DATA_STRUC: resw 1;
 endstruc;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; CON data structure  CS:[BX]
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-BUF     EQU     CS:[BX]                 ;
+BUF     EQU     [CS:BX]                 ;
                                         ; STATES
 struc BUF_DATA;
 DEV_HDRO DW     -1                      ; device driver header offset
@@ -184,8 +184,8 @@ CON_INTRO DW    -1                      ; dos CON strategy offset
 CON_INTRS DW    -1                      ;
 RH_PTRO DW      -1                      ; request header offset
 RH_PTRS DW      -1                      ; segment
-STATE: dw 0;
-STATUS: dw 0;
+STATE: resw 1;
+STATUS: resw 1;
 endstruc;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -268,15 +268,15 @@ endstruc
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 struc INFO_BLOCK; info block for functionality call    ;AN000;
-STATIC_ADDRESS: dd 0; address of static functionality table;AN000;
-                times 33 db 0; don't care                           ;AN000;
-ACTIVE_DISPLAY: db 0; active display code                  ;AN000;
-ALT_DISPLAY: db 0; alternate display code               ;AN000;
-                times 3 db 0; don't care                           ;AN000;
-CURRENT_SCANS: db 0; current number of scan lines         ;AN000;
-                times 2 db 0; don't care                           ;AN000;
-MISC_INFO: db 0; miscellaneous state information      ;AN000;
-                times 18 db 0; don't care                           ;AN000;
+STATIC_ADDRESS: resd 1; address of static functionality table;AN000;
+                resb 33; don't care                           ;AN000;
+ACTIVE_DISPLAY: resb 1; active display code                  ;AN000;
+ALT_DISPLAY: resb 1; alternate display code               ;AN000;
+                resb 3; don't care                           ;AN000;
+CURRENT_SCANS: resb 1; current number of scan lines         ;AN000;
+                resb 2; don't care                           ;AN000;
+MISC_INFO: resb 1; miscellaneous state information      ;AN000;
+                resb 18; don't care                           ;AN000;
 endstruc;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -284,7 +284,7 @@ endstruc;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 struc SYS_ID; format of return system config data  ;AN000;
-                dw 0; don't care                           ;AN000;
-MODEL_BYTE: db 0; model byte                           ;AN000;
+                resw 1; don't care                           ;AN000;
+MODEL_BYTE: resb 1; model byte                           ;AN000;
 endstruc;                                      ;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

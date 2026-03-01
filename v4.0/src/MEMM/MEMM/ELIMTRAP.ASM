@@ -334,7 +334,7 @@ DMAP_Mode:
 	dw	DMA1_MODE
 	dw	DMA2_MODE
 
-LIMDMAP_CNT	   =	   ($ - DMAP_Page) / 2
+LIMDMAP_CNT equ ($ - DMAP_Page) / 2
 ;
 ;    DMA_Pages - EMM Pages for DMA relocation. Each is an index into pft386.
 ;	To access actual entry in pft386 you need to multiply index by 4.
@@ -1466,20 +1466,20 @@ set_selector:
 	push	GDTD_GSEL
 	pop	es			; ES:DI -> selector entry
 
-	mov	es:[di+2],ax		; low word of base address
+	mov	[es:di+2],ax		; low word of base address
 
 	shr	eax,16			; AX = high word of address
-	mov	es:[di+4],al		; low byte of high word of address
+	mov	[es:di+4],al		; low byte of high word of address
 	xor	al,al			; clear limit/G bit
 	or	al, 1			; set LSB0 i.e. Limit16 bit for 128K Xfer
-	mov	es:[di+6],ax		; set high byte of high word of addr
+	mov	[es:di+6],ax		; set high byte of high word of addr
 					;   and high nibble of limit/G bit
                                         ;   and Limit Bit 16 for 128K transfer
 	mov	ax,0FFFFh
-	mov	es:[di],ax		; set limit bits 0-15
+	mov	[es:di],ax		; set limit bits 0-15
 	
 	mov	al,D_DATA0		; writeable DATA seg / ring 0
-	mov	es:[di+5],al
+	mov	[es:di+5],al
 
 	pop	es	
 	pop	di
@@ -1523,8 +1523,8 @@ _Exchange16K:
 	xor	di,di				; initialize index
 	cld
 sloop:
-	mov	eax,dword es:[di]		; pick a dword at LArg1
-	xchg	eax,dword ds:[di]		; swap with dword at LArg2
+	mov	eax,dword [es:di]		; pick a dword at LArg1
+	xchg	eax,dword [ds:di]		; swap with dword at LArg2
 	stosd					; store new dword at LArg1
 	loop	sloop				
 

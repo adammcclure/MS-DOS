@@ -627,5 +627,5 @@ BOTTOM_BOX:				; The box we want is now at bottom	;AN000;
 ; ENDP PAT2BOX;AN000;
 %include "GRCOMMON.ASM";AN000;
 LEN_OF_BW_MODULES EQU $-PRINT_BW_APA						;AN000;
-CODE	ENDS									;AN000;
+; END SECTION .CODE;AN000;
 	; END;AN000;

@@ -188,23 +188,23 @@ VDM_Init:
 	mov	es,ax			; ES -> TSS
 	xor	di,di			; ES:DI -> TSS
 
-	mov	ES:[di.TSS386_SS0], VDMS_GSEL
-	mov	word ES:[di.TSS386_ESP0lo], kstack_top
-	mov	word ES:[di.TSS386_ESP0hi], 0
+	mov	[ES:di+TSS386_SS0], VDMS_GSEL
+	mov	word [ES:di+TSS386_ESP0lo], kstack_top
+	mov	word [ES:di+TSS386_ESP0hi], 0
 
 ; now set CR3 in the TSS
 
 	db	66h
 	mov	ax,word [Page_Dir]		; EAX = page dir 32 bit addr
 	db	66h
-	mov	word ES:[di.TSS386_CR3],ax	; mov EAX into CR3 spot in TSS
+	mov	word [ES:di+TSS386_CR3],ax	; mov EAX into CR3 spot in TSS
 
 ;	clear the TSS busy flag
 
 	mov	ax,seg GDT
 	mov	es, ax			; DS:0 = ptr to gdt
 
-	and	byte ES:[TSS_GSEL + 5], 11111101B
+	and	byte [ES:TSS_GSEL + 5], 11111101B
 
 ;
 ;  dword align the LL buffer (move foward)

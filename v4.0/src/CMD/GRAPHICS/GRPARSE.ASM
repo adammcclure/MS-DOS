@@ -83,5 +83,5 @@ KeySW	      EQU     0 							;AN000;
        global SYSPARSE;;					;AN000;
        %include "PARSE.ASM";; parser code				;AN000;
 				       ;;					;AN000;
-CODE	ENDS			       ;;					;AN000;
+; END SECTION .CODE;;					;AN000;
 	; END;AN000;

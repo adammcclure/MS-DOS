@@ -50,12 +50,12 @@ GENERIC_IOCTL_P:
 ;³                                                                            ³
 ;ÔÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¾
 
-GIP     EQU     ES:[DI]               ;Pointer to the Generic IOCTL packet @RH6
+GIP     EQU     [ES:DI]               ;Pointer to the Generic IOCTL packet @RH6
 
 struc GEN_IOCTL_PARM;                                    @RH6
-GIO_PLEN: dw 0; Length of the parameter list       @RH6
-GIO_FCNRC: dw 0; Function code on call, ret code on ret
-GIO_WSPP: dw 0; Number of pages to reserve for WSP @RH6
+GIO_PLEN: resw 1; Length of the parameter list       @RH6
+GIO_FCNRC: resw 1; Function code on call, ret code on ret
+GIO_WSPP: resw 1; Number of pages to reserve for WSP @RH6
 endstruc;
 
 GENERIC_IOCTL:                        ;                                    @RH6

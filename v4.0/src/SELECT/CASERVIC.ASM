@@ -201,24 +201,24 @@ GET_SCROLL_CALL:;AN000;
 	       CMP  AX,0		;AN000;check to start list & highlight
 	       JE   GS10		;AN000; at top
 ;					;
-	       MOV  ES:[DI]+SCB_TOPELE,1;AN000;intialize parameters
-	       MOV  ES:[DI]+SCB_CURELE,AX;AN000;
+	       MOV  [ES:DI]+SCB_TOPELE,1;AN000;intialize parameters
+	       MOV  [ES:DI]+SCB_CURELE,AX;AN000;
 ;					;
 ; Locate PCB data and initialize SCB	;
 ;					;
 GS10:	       MOV  BX,QM_ACTIVEPAN	;AN000;get the active panel number
 	       CALL GET_PCB		;AN000;ES:DI address of panel PCB
 					;
-	       PUSH ES:[DI]+PCB_UROW	;AN000;    ;get active panel row
-	       PUSH ES:[DI]+PCB_UCOL	;AN000;    ;get active panel column
-	       PUSH ES:[DI]+PCB_CCBID	;AN000;get active panel color index
+	       PUSH [ES:DI]+PCB_UROW	;AN000;    ;get active panel row
+	       PUSH [ES:DI]+PCB_UCOL	;AN000;    ;get active panel column
+	       PUSH [ES:DI]+PCB_CCBID	;AN000;get active panel color index
 					;
 	       MOV  BX,WR_SCBID 	;AN000;get PCSLCTP field
 	       CALL GET_SCB		;AN000;ES:DI points to SCB
 					;
-	       POP  ES:[DI]+SCB_CCBID	;AN000;get the panel's current color ind
-	       POP  ES:[DI]+SCB_RELCOL	;AN000;set the panel's relative column
-	       POP  ES:[DI]+SCB_RELROW	;AN000;set the panel's relative row
+	       POP  [ES:DI]+SCB_CCBID	;AN000;get the panel's current color ind
+	       POP  [ES:DI]+SCB_RELCOL	;AN000;set the panel's relative column
+	       POP  [ES:DI]+SCB_RELROW	;AN000;set the panel's relative row
 ;
 ; Build actual return string in complete buffer
 ;
@@ -226,22 +226,22 @@ GS10:	       MOV  BX,QM_ACTIVEPAN	;AN000;get the active panel number
 	       CALL SET_NUMKEYS 	     ;AN000;GHG
 
 	       PUSH WR_CRETSEG		     ;AN000;initialize SCB with complete
-	       POP  ES:[DI]+SCB_RLSEG	     ;AN000; return string information
+	       POP  [ES:DI]+SCB_RLSEG	     ;AN000; return string information
 
 	       PUSH WR_CRETOFF		     ;AN000;
-	       POP  ES:[DI]+SCB_RLOFF	     ;AN000;
+	       POP  [ES:DI]+SCB_RLOFF	     ;AN000;
 
 	       PUSH WR_CRETLEN		     ;AN000;
-	       POP  ES:[DI]+SCB_RLLEN	     ;AN000;
+	       POP  [ES:DI]+SCB_RLLEN	     ;AN000;
 ;
 ; Process scroll field
 ;
-	       AND  ES:[DI]+SCB_OPT1,NOT SCB_UKS;AN000;
+	       AND  [ES:DI]+SCB_OPT1,NOT SCB_UKS;AN000;
 					    ;set to not use keystrokes
 	       CALL PCSLCTP_CALL	     ;AN000;display scroll field
 
-	       MOV  BX,ES:[DI]+SCB_CURELE    ;AN000;get last current element
-	       MOV  AX,ES:[DI]+SCB_KS	     ;AN000;get last keystroke
+	       MOV  BX,[ES:DI]+SCB_CURELE    ;AN000;get last current element
+	       MOV  AX,[ES:DI]+SCB_KS	     ;AN000;get last keystroke
 ;
 ;
 ; determine if current element has specific contextual help text
@@ -249,7 +249,7 @@ GS10:	       MOV  BX,QM_ACTIVEPAN	;AN000;get the active panel number
 	       MOV  WR_HLPOPT,HLP_OVER	       ;AN000;GHG position help panel with default
 	       PUSH AX			       ;AN000;GHG
 	       MOV  BX,WR_SCBID 	       ;AN000;GHG
-	       MOV  AX,ES:[DI]+SCB_CURELE      ;AN000;GHG
+	       MOV  AX,[ES:DI]+SCB_CURELE      ;AN000;GHG
 	       CALL ADJUST_DOWN 	       ;AN000;GHG
 	       MOV  CX,AX		       ;AN000;GHG
 	       MOV  AX,2		       ;AN000;GHG
@@ -271,15 +271,15 @@ GS10:	       MOV  BX,QM_ACTIVEPAN	;AN000;get the active panel number
 ;
 ; Exit
 ;
-GS20:	       MOV  BX,ES:[DI]+SCB_CURELE    ;AN000;return current element
+GS20:	       MOV  BX,[ES:DI]+SCB_CURELE    ;AN000;return current element
 ;
 ; display the selected option and exit immediately
 ;
 	       PUSH AX			     ;AN008;JW
 	       PUSH BX			     ;AN008;JW
-	       OR   ES:[DI]+SCB_OPT1,SCB_RD  ;AN008;JW
+	       OR   [ES:DI]+SCB_OPT1,SCB_RD  ;AN008;JW
 	       CALL PCSLCTP_CALL	     ;AN008;JW display scroll field and exit
-	       AND  ES:[DI]+SCB_OPT1,NOT SCB_RD ;AN008;JW
+	       AND  [ES:DI]+SCB_OPT1,NOT SCB_RD ;AN008;JW
 	       POP  BX			     ;AN008;JW
 	       POP  AX			     ;AN008;JW
 
@@ -324,13 +324,13 @@ GET_INPUT_CALL:;AN000;GHG
 GI10:	       CALL SET_RETKEYS 	     ;AN000;GHG create complete return string
 					     ;GHG
 	       PUSH WR_CRETSEG		     ;AN000;GHG initialize SCB with complete
-	       POP  ES:[DI]+ICB_RETSEG	     ;AN000;GHG  return string information
+	       POP  [ES:DI]+ICB_RETSEG	     ;AN000;GHG  return string information
 					     ;GHG
 	       PUSH WR_CRETOFF		     ;AN000;GHG
-	       POP  ES:[DI]+ICB_RETOFF	     ;AN000;GHG
+	       POP  [ES:DI]+ICB_RETOFF	     ;AN000;GHG
 					     ;GHG
 	       PUSH WR_CRETLEN		     ;AN000;GHG
-	       POP  ES:[DI]+ICB_RETLEN	     ;AN000;GHG
+	       POP  [ES:DI]+ICB_RETLEN	     ;AN000;GHG
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Process input field
@@ -339,12 +339,12 @@ GI10:	       CALL SET_RETKEYS 	     ;AN000;GHG create complete return string
 	       CALL PCINPUT_CALL	     ;AN000;GHG display input field
 					     ;GHG
 	       PUSHH   <SI,DI,ES,DS>	     ;AN000;GHG
-	       PUSH	ES:[DI]+ICB_FIELDOFF ;AN000;GHG
-	       PUSH	ES:[DI]+ICB_FIELDSEG ;AN000;GHG
-	       PUSH	ES:[DI]+ICB_DEFOFF   ;AN000;GHG
-	       PUSH	ES:[DI]+ICB_DEFSEG   ;AN000;GHG
+	       PUSH	[ES:DI]+ICB_FIELDOFF ;AN000;GHG
+	       PUSH	[ES:DI]+ICB_FIELDSEG ;AN000;GHG
+	       PUSH	[ES:DI]+ICB_DEFOFF   ;AN000;GHG
+	       PUSH	[ES:DI]+ICB_DEFSEG   ;AN000;GHG
 					     ;GHG
-	       MOV	CX,ES:[DI]+ICB_FIELDLEN;AN000;GHG
+	       MOV	CX,[ES:DI]+ICB_FIELDLEN;AN000;GHG
 	       OR	CX,CX		     ;AN000;GHG
 	       JE	GI_11		     ;AN000;GHG
 					     ;GHG
@@ -355,10 +355,10 @@ GI10:	       CALL SET_RETKEYS 	     ;AN000;GHG create complete return string
 	       CLD			     ;AN000;GHG
 	       REP	MOVSB		     ;AN000;GHG
 GI_11:	       POPP    <DS,ES,DI,SI>	     ;AN000;GHG
-	       PUSH	ES:[DI]+ICB_ENDBYTE  ;AN000;GHG
-	       POP	ES:[DI]+ICB_DEFLEN   ;AN000;GHG
+	       PUSH	[ES:DI]+ICB_ENDBYTE  ;AN000;GHG
+	       POP	[ES:DI]+ICB_DEFLEN   ;AN000;GHG
 					     ;GHG
-	       MOV  AX,ES:[DI]+ICB_KEYRET    ;AN000;GHG get last keystroke
+	       MOV  AX,[ES:DI]+ICB_KEYRET    ;AN000;GHG get last keystroke
 ;					      GHG
 ;
 ; determine if current element has specific contextual help text
@@ -596,19 +596,19 @@ SET_NUMKEYS:;AN000;
 	       MOV  BX,WR_SCBID 	;AN000;get PCSLCTP field
 	       CALL GET_SCB		;AN000;ES:DI points to SCB
 					;
-	       TEST ES:[DI]+SCB_OPT3,SCB_NUMS;AN000;
+	       TEST [ES:DI]+SCB_OPT3,SCB_NUMS;AN000;
 	       JZ   SNK_30		;AN000;
 					;
-	       PUSH ES:[DI]+SCB_SELSEG	;AN000;
-	       PUSH ES:[DI]+SCB_SELOFF	;AN000;
-	       PUSH ES:[DI]+SCB_NUMELE	;AN000;
+	       PUSH [ES:DI]+SCB_SELSEG	;AN000;
+	       PUSH [ES:DI]+SCB_SELOFF	;AN000;
+	       PUSH [ES:DI]+SCB_NUMELE	;AN000;
 	       POP  CX			;AN000;
 	       POP  DI			;AN000;
 	       POP  ES			;AN000;
 	       XOR  AX,AX		;AN000;
 					;
 SNR_10:        MOV  BX,SCB_ACTIVEON	;AN000;
-	       CMP  ES:[DI],BX		;AN000;
+	       CMP  [ES:DI],BX		;AN000;
 	       JNE  SNR_15		;AN000;
 	       INC  AX			;AN000;
 SNR_15:        INC  DI			;AN000;
@@ -727,7 +727,7 @@ CHK_NUMKEYS:;AN000;
 	       PUSH BX				;AN000;
 	       MOV  BX,WR_SCBID 		;AN000;
 	       CALL GET_SCB			;AN000;
-	       TEST ES:[DI]+SCB_OPT3,SCB_NUMS	;AN000;
+	       TEST [ES:DI]+SCB_OPT3,SCB_NUMS	;AN000;
 	       JZ   CNK_20			;AN000;
 	       OR   AH,AH			;AN000;
 	       JNZ  CNK_20			;AN000;
@@ -742,15 +742,15 @@ CHK_NUMKEYS:;AN000;
 	       PUSHH <ES,DI>			;AN000;GHG
 	       PUSHH <WR_CRETSEG,WR_CRETOFF>	;AN000;GHG
 	       POPP  <DI,ES>			;AN000;GHG
-	       MOV  AL,ES:[DI]			;AN000;GHG
+	       MOV  AL,[ES:DI]			;AN000;GHG
 	       POPP  <DI,ES>			;AN000;GHG
 						;				;
-	       MOV  ES:[DI]+SCB_KS,AX		;AN000;
+	       MOV  [ES:DI]+SCB_KS,AX		;AN000;
 	       PUSH AX				;AN000;
 	       MOV  AX,BX			;AN000;get PCSLCTP field
 	       MOV  BX,WR_SCBID 		;AN000;
 	       CALL ADJUST_UP			;AN000;
-	       MOV  ES:[DI]+SCB_CURELE,AX	;AN000;
+	       MOV  [ES:DI]+SCB_CURELE,AX	;AN000;
 	       POP  AX				;AN000;
 						;
 CNK_20:        POP  BX				;AN000;
@@ -1058,7 +1058,7 @@ RH07:	       POP  HRD_BUFLEN		     ;AN000;restore help buffer length
 	       PUSH DI			     ;AN000;GHG
 	       MOV  BX,WR_SCBCONT	     ;AN000;GHG get help scroll ID
 	       CALL GET_SCB		     ;AN000;GHG ES:DI points to SCB
-	       MOV  BX,ES:[DI]+SCB_WIDTH     ;AN000;GHG calculate number of help text
+	       MOV  BX,[ES:DI]+SCB_WIDTH     ;AN000;GHG calculate number of help text
 	       MOV  WWP_WIDTH,BX	     ;AN000;GHG
 	       POP  DI			     ;AN000;GHG
 	       POP  ES			     ;AN000;GHG
@@ -1149,8 +1149,8 @@ RH30:	       TEST WR_HLPPAN,HLP_KEYS	     ;AN000;check if help keys active
 RH40:	       MOV  BX,WR_PCBHPAN	     ;AN000;get help panel ID
 	       CALL GET_PCB		     ;AN000;ES:DI points to PCB
 
-	       PUSH ES:[DI]+PCB_UROW	     ;AN000;get help panel row
-	       PUSH ES:[DI]+PCB_UCOL	     ;AN000;get help panel column
+	       PUSH [ES:DI]+PCB_UROW	     ;AN000;get help panel row
+	       PUSH [ES:DI]+PCB_UCOL	     ;AN000;get help panel column
 ;
 ; Initialize for indexed form of help
 ;
@@ -1171,20 +1171,20 @@ RH40:	       MOV  BX,WR_PCBHPAN	     ;AN000;get help panel ID
 	       MOV  BX,WR_SCBINDX	     ;AN000;get help scroll ID
 	       CALL GET_SCB		     ;AN000;ES:DI points to SCB
 
-	       POP  ES:[DI]+SCB_RELCOL	     ;AN000;set panel's relative column
-	       POP  ES:[DI]+SCB_RELROW	     ;AN000;set panel's relative row
+	       POP  [ES:DI]+SCB_RELCOL	     ;AN000;set panel's relative column
+	       POP  [ES:DI]+SCB_RELROW	     ;AN000;set panel's relative row
 
-	       MOV  ES:[DI]+SCB_TOPELE,1     ;AN000;set top element
-	       MOV  ES:[DI]+SCB_CURELE,1     ;AN000;set current line
-	       MOV  ES:[DI]+SCB_CURCOL,1     ;AN000;display offset into opt strings
+	       MOV  [ES:DI]+SCB_TOPELE,1     ;AN000;set top element
+	       MOV  [ES:DI]+SCB_CURELE,1     ;AN000;set current line
+	       MOV  [ES:DI]+SCB_CURCOL,1     ;AN000;display offset into opt strings
 
 	       ;
 	       ; adjust scrolling field width to be contained within panel
 	       ;
 
 	       MOV  AX,HRD_TOPICLEN	     ;AN000;get topic length
-	       MOV  ES:[DI]+SCB_OASLEN,AX    ;AN000;fixed string length
-	       MOV  ES:[DI]+SCB_NUMCOL,AX    ;AN000;maximum number of cols to scroll
+	       MOV  [ES:DI]+SCB_OASLEN,AX    ;AN000;fixed string length
+	       MOV  [ES:DI]+SCB_NUMCOL,AX    ;AN000;maximum number of cols to scroll
 
 	       ;
 	       ;  adjust scrolling field number of display lines to be
@@ -1192,14 +1192,14 @@ RH40:	       MOV  BX,WR_PCBHPAN	     ;AN000;get help panel ID
 	       ;
 
 	       PUSH HRD_TOPICNUM	     ;AN000;set number of elements
-	       POP  ES:[DI]+SCB_NUMELE	     ;AN000;
+	       POP  [ES:DI]+SCB_NUMELE	     ;AN000;
 
 	       MOV  AX,HRD_TOPICSEG	     ;AN000;set segment of topic vector
-	       MOV  ES:[DI]+SCB_OAPSEG,AX    ;AN000;
-	       MOV  ES:[DI]+SCB_OASSEG,AX    ;AN000;set option array string segment
+	       MOV  [ES:DI]+SCB_OAPSEG,AX    ;AN000;
+	       MOV  [ES:DI]+SCB_OASSEG,AX    ;AN000;set option array string segment
 
 	       PUSH HRD_TOPICOFF	     ;AN000;set offset of topic vector
-	       POP  ES:[DI]+SCB_OAPOFF	     ;AN000;
+	       POP  [ES:DI]+SCB_OAPOFF	     ;AN000;
 
 	       JMP  RHEXIT		     ;AN000;index initialized
 ;
@@ -1211,24 +1211,24 @@ RH50:	       LEA  AX,WR_REFBUF	     ;AN000;get address of refresh table
 	       MOV  BX,WR_SCBCONT	     ;AN000;get help scroll ID
 	       CALL GET_SCB		     ;AN000;ES:DI points to SCB
 ;
-	       POP  ES:[DI]+SCB_RELCOL	     ;AN000;set panel's relative column
-	       POP  ES:[DI]+SCB_RELROW	     ;AN000;set panel's relative row
+	       POP  [ES:DI]+SCB_RELCOL	     ;AN000;set panel's relative column
+	       POP  [ES:DI]+SCB_RELROW	     ;AN000;set panel's relative row
 ;
-	       MOV  ES:[DI]+SCB_TOPELE,1     ;AN000;GHG set top element
-	       MOV  ES:[DI]+SCB_CURELE,1     ;AN000;GHG set current line
-	       MOV  ES:[DI]+SCB_CURCOL,1     ;AN000;display offset into opt strings
+	       MOV  [ES:DI]+SCB_TOPELE,1     ;AN000;GHG set top element
+	       MOV  [ES:DI]+SCB_CURELE,1     ;AN000;GHG set current line
+	       MOV  [ES:DI]+SCB_CURCOL,1     ;AN000;display offset into opt strings
 ;
 	       MOV  AX,WWP_NUMLINES	     ;AN000;GHG Use WordWrap # lines
 	       DEC  AX			     ;AN000;GHG
-	       MOV  ES:[DI]+SCB_NUMELE,AX    ;AN000;initialize number of elements
+	       MOV  [ES:DI]+SCB_NUMELE,AX    ;AN000;initialize number of elements
 
 	       PUSH HRD_TEXTSEG 	     ;AN000;set segment of help text
-	       POP  ES:[DI]+SCB_OAPSEG	     ;AN000;
+	       POP  [ES:DI]+SCB_OAPSEG	     ;AN000;
 
 	       PUSH HRD_TEXTOFF 	     ;AN000;set offset of help text
-	       POP  ES:[DI]+SCB_OAPOFF	     ;AN000;
-	       MOV  BX,ES:[DI]+SCB_WIDTH     ;AN000;GHG  SKIP OVER FIRST ELEMENT
-	       ADD  ES:[DI]+SCB_OAPOFF,BX    ;AN000;GHG
+	       POP  [ES:DI]+SCB_OAPOFF	     ;AN000;
+	       MOV  BX,[ES:DI]+SCB_WIDTH     ;AN000;GHG  SKIP OVER FIRST ELEMENT
+	       ADD  [ES:DI]+SCB_OAPOFF,BX    ;AN000;GHG
 
 RHEXIT:        POP  QM_ACTIVEPAN	     ;AN000;restore current active panel
 	       POP  DI			     ;AN000;restore registers and exit
@@ -1304,17 +1304,17 @@ PH10:	       CALL INIT_HELP_TITLE	;AN000;** GG
 	       CALL SET_RETKEYS 	;AN000;create complete return string
 					;
 	       PUSH WR_CRETSEG		;AN000;initialize SCB with complete
-	       POP  ES:[DI]+SCB_RLSEG	;AN000; return string information
+	       POP  [ES:DI]+SCB_RLSEG	;AN000; return string information
 					;
 	       PUSH WR_CRETOFF		;AN000;
-	       POP  ES:[DI]+SCB_RLOFF	;AN000;
+	       POP  [ES:DI]+SCB_RLOFF	;AN000;
 					;
 	       PUSH WR_CRETLEN		;AN000;
-	       POP  ES:[DI]+SCB_RLLEN	;AN000;
+	       POP  [ES:DI]+SCB_RLLEN	;AN000;
 					;
 	       CALL PCSLCTP_CALL	;AN000;process help text until exit
 					;
-	       MOV  AX,ES:[DI]+SCB_KS	;AN000;get keystroke from PCSLCTP
+	       MOV  AX,[ES:DI]+SCB_KS	;AN000;get keystroke from PCSLCTP
 					;
 	       TEST WR_HLPDIS,HLP_INDX	;AN000;check if index help status is on
 	       JE   PHEXIT		;AN000;
@@ -1322,7 +1322,7 @@ PH10:	       CALL INIT_HELP_TITLE	;AN000;** GG
 	       CMP  AX,WR_KEYSELT	;AN000;check if select key pressed to
 	       JNE  PHEXIT		;AN000; select desired topic
 					;
-	       MOV  BX,ES:[DI]+SCB_CURELE;AN000;get current selected element
+	       MOV  BX,[ES:DI]+SCB_CURELE;AN000;get current selected element
 	       MOV  WR_HCBCONT,BX	;AN000;return new contextual help number
 					; selected from the help index
 	       MOV  AX,WR_KEYHELP	;AN000;return contextual help key requst
@@ -1348,26 +1348,26 @@ INIT_HELP_TITLE:;AN000;
 	MOV	BX,WR_PCBHPAN		;AN000;get help panel ID
 	CALL	GET_PCB 		;AN000;ES:DI points to PCB
 					;
-	PUSH	ES:[DI]+PCB_UROW	;AN000;get help panel row
-	PUSH	ES:[DI]+PCB_UCOL	;AN000;get help panel column
+	PUSH	[ES:DI]+PCB_UROW	;AN000;get help panel row
+	PUSH	[ES:DI]+PCB_UCOL	;AN000;get help panel column
 					;
 	MOV	BX,SCR_TITLE_HLP	;AN000;
 	MOV	WR_SCBID,BX		;AN000;
 	CALL	GET_SCB 		;AN000;
 					;
-	POP	ES:[DI]+SCB_RELCOL	;AN000;
-	POP	ES:[DI]+SCB_RELROW	;AN000;
+	POP	[ES:DI]+SCB_RELCOL	;AN000;
+	POP	[ES:DI]+SCB_RELROW	;AN000;
 					;
 	PUSH	HRD_TEXTSEG		;AN000;
-	POP	ES:[DI]+SCB_OAPSEG	;AN000;
+	POP	[ES:DI]+SCB_OAPSEG	;AN000;
 					;
 	PUSH	HRD_TEXTOFF		;AN000;
-	POP	ES:[DI]+SCB_OAPOFF	;AN000;
+	POP	[ES:DI]+SCB_OAPOFF	;AN000;
 					;
-	PUSH	ES:[DI]+SCB_OPT1	;AN000;
-	OR	ES:[DI]+SCB_OPT1,SCB_RD ;AN000;
+	PUSH	[ES:DI]+SCB_OPT1	;AN000;
+	OR	[ES:DI]+SCB_OPT1,SCB_RD ;AN000;
 	CALL	PCSLCTP_CALL		;AN000;display scroll field
-	POP	ES:[DI]+SCB_OPT1	;AN000;
+	POP	[ES:DI]+SCB_OPT1	;AN000;
 					;
 	POPP   <WR_SCBID,DI,ES,BX,AX>	;AN000;
 	RET				;AN000;
@@ -1445,8 +1445,8 @@ GET_PCB:;AN000;
 	       ADD  AX,VECOFFLEN	     ;AN000; desired vector number in BX
 	       MUL  BX			     ;AN000; to determine offset into PCB vec
 	       ADD  DI,AX		     ;AN000;add offset inside table
-	       MOV  BX,ES:[DI]		     ;AN000;get actual PCB segment
-	       MOV  CX,ES:[DI]+VECSEGLEN     ;AN000;point past PCB seg to get PCB off
+	       MOV  BX,[ES:DI]		     ;AN000;get actual PCB segment
+	       MOV  CX,[ES:DI]+VECSEGLEN     ;AN000;point past PCB seg to get PCB off
 
 	       MOV  ES,BX		     ;AN000;set ES:DI to panel's actual
 	       MOV  DI,CX		     ;AN000; PCB address
@@ -1489,8 +1489,8 @@ GET_SCB:;AN000;
 	       ADD  AX,VECOFFLEN	     ;AN000; desired vector number in BX
 	       MUL  BX			     ;AN000; to determine offset into SCB vec
 	       ADD  DI,AX		     ;AN000;add offset inside table
-	       MOV  BX,ES:[DI]		     ;AN000;get actual SCB segment
-	       MOV  CX,ES:[DI]+VECSEGLEN     ;AN000;point past SCB seg to get SCB off
+	       MOV  BX,[ES:DI]		     ;AN000;get actual SCB segment
+	       MOV  CX,[ES:DI]+VECSEGLEN     ;AN000;point past SCB seg to get SCB off
 ;
 	       MOV  ES,BX		     ;AN000;set ES:DI to scroll's actual
 	       MOV  DI,CX		     ;AN000; SCB address
@@ -1531,8 +1531,8 @@ GET_ICB:;AN000;
 	       ADD  AX,VECOFFLEN	     ;AN000; desired vector number in BX
 	       MUL  BX			     ;AN000; to determine offset into ICB vec
 	       ADD  DI,AX		     ;AN000;add offset inside table
-	       MOV  BX,ES:[DI]		     ;AN000;get actual ICB segment
-	       MOV  CX,ES:[DI]+VECSEGLEN     ;AN000;point past ICB seg to get ICB off
+	       MOV  BX,[ES:DI]		     ;AN000;get actual ICB segment
+	       MOV  CX,[ES:DI]+VECSEGLEN     ;AN000;point past ICB seg to get ICB off
 
 	       MOV  ES,BX		     ;AN000;set ES:DI to field's actual
 	       MOV  DI,CX		     ;AN000; ICB address
@@ -1593,14 +1593,14 @@ RF10:	       PUSH WR_REFOFF		     ;AN000;get address of refresh table
 RF20:	       MOV  DI,WR_REFCNT	     ;AN000;set beginning address of current
 					     ; table record
 
-	       MOV  AX,ES:[DI]+2	     ;AN000;get number of fields in record
+	       MOV  AX,[ES:DI]+2	     ;AN000;get number of fields in record
 	       MOV  BX,4		     ;AN000;4 bytes per field entry *
 	       MUL  BX			     ;AN000; number of fields in this record
 	       ADD  WR_REFCNT,AX	     ;AN000; + 4 bytes for the number of
 	       ADD  WR_REFCNT,4 	     ;AN000; PCB bytes and the number of flds
 
 	       MOV  BX,PM_PANBRKID	     ;AN000;
-	       CMP  BX,ES:[DI]		     ;AN000;check if PCB match to table rec
+	       CMP  BX,[ES:DI]		     ;AN000;check if PCB match to table rec
 	       JE   RF30		     ;AN000;
 
 	       LOOP RF20		     ;AN000;check next table record
@@ -1608,22 +1608,22 @@ RF20:	       MOV  DI,WR_REFCNT	     ;AN000;set beginning address of current
 ;
 ; Match found, refresh all fields
 ;
-RF30:	       MOV  CX,ES:[DI]+2	     ;AN000;get number of fields
+RF30:	       MOV  CX,[ES:DI]+2	     ;AN000;get number of fields
 
 RF40:	       ADD  DI,4		     ;AN000;point to field data
 	       MOV  AX,SCROLLOBJID	     ;AN000;check if scroll field
-	       CMP  AX,ES:[DI]		     ;AN000;
+	       CMP  AX,[ES:DI]		     ;AN000;
 	       JNE  RF50		     ;AN000;
 
-	       MOV  BX,ES:[DI]+2	     ;AN000;get field ID
+	       MOV  BX,[ES:DI]+2	     ;AN000;get field ID
 	       CALL REFRESH_SCB 	     ;AN000;update logical video buffer
 	       JMP  RF60		     ;AN000;get next field entry
 
 RF50:	       MOV  AX,INPUTOBJID	     ;AN000;check if input field
-	       CMP  AX,ES:[DI]		     ;AN000;
+	       CMP  AX,[ES:DI]		     ;AN000;
 	       JNE  RF60		     ;AN000;
 
-	       MOV  BX,ES:[DI]+2	     ;AN000;get field ID
+	       MOV  BX,[ES:DI]+2	     ;AN000;get field ID
 	       CALL REFRESH_ICB 	     ;AN000;update logical video buffer
 
 RF60:	       LOOP RF40		     ;AN000;get next field in same record
@@ -1654,23 +1654,23 @@ REFRESH_SCB:;AN000;
 
 	       CALL GET_SCB		     ;AN000;load SCB address
 
-	       PUSH ES:[DI]+SCB_OPT1	     ;AN000;save options
-	       PUSH ES:[DI]+SCB_OPT3	     ;AN000;
+	       PUSH [ES:DI]+SCB_OPT1	     ;AN000;save options
+	       PUSH [ES:DI]+SCB_OPT3	     ;AN000;
 
-	       OR   ES:[DI]+SCB_OPT1,SCB_RD  ;AN000;set display and exit option
-	       AND  ES:[DI]+SCB_OPT1,NOT SCB_UKS;AN000;
-	       OR   ES:[DI]+SCB_OPT3,SCB_LVBOVR;AN000;
+	       OR   [ES:DI]+SCB_OPT1,SCB_RD  ;AN000;set display and exit option
+	       AND  [ES:DI]+SCB_OPT1,NOT SCB_UKS;AN000;
+	       OR   [ES:DI]+SCB_OPT3,SCB_LVBOVR;AN000;
 
 	       PUSH PM_LVBOFF		     ;AN000;initialize logical video address
-	       POP  ES:[DI]+SCB_LVBOFF	     ;AN000;
+	       POP  [ES:DI]+SCB_LVBOFF	     ;AN000;
 
 	       PUSH PM_LVBSEG		     ;AN000;
-	       POP  ES:[DI]+SCB_LVBSEG	     ;AN000;
+	       POP  [ES:DI]+SCB_LVBSEG	     ;AN000;
 
 	       CALL PCSLCTP_CALL	     ;AN000;refresh logical video buffer
 
-	       POP  ES:[DI]+SCB_OPT3	     ;AN000;restore option
-	       POP  ES:[DI]+SCB_OPT1	     ;AN000;
+	       POP  [ES:DI]+SCB_OPT3	     ;AN000;restore option
+	       POP  [ES:DI]+SCB_OPT1	     ;AN000;
 
 RSEXIT:        POP  DI			     ;AN000;restore registers
 	       POP  ES			     ;AN000;
@@ -1697,16 +1697,16 @@ REFRESH_ICB:;AN000;
 	MOV	IN_ICBID,BX		;AN000;
 	CALL	GET_ICB 		;AN000;load ICB address
 					;
-	CMP	ES:[DI]+ICB_FIELDLEN  ,0;AN000;
-	CMP	ES:[DI]+ICB_FIELDOFF  ,0;AN000;
-	CMP	ES:[DI]+ICB_FIELDSEG  ,0;AN000;
-	CMP	ES:[DI]+ICB_DEFLEN    ,0;AN000;
-	CMP	ES:[DI]+ICB_DEFOFF    ,0;AN000;
-	CMP	ES:[DI]+ICB_DEFSEG    ,0;AN000;
+	CMP	[ES:DI]+ICB_FIELDLEN  ,0;AN000;
+	CMP	[ES:DI]+ICB_FIELDOFF  ,0;AN000;
+	CMP	[ES:DI]+ICB_FIELDSEG  ,0;AN000;
+	CMP	[ES:DI]+ICB_DEFLEN    ,0;AN000;
+	CMP	[ES:DI]+ICB_DEFOFF    ,0;AN000;
+	CMP	[ES:DI]+ICB_DEFSEG    ,0;AN000;
 
 	PUSH	IN_OPT			;AN000;
-	PUSH	ES:[DI]+ICB_OPT1	;AN000;
-	OR	ES:[DI]+ICB_OPT1,ICB_OUT;AN000;
+	PUSH	[ES:DI]+ICB_OPT1	;AN000;
+	OR	[ES:DI]+ICB_OPT1,ICB_OUT;AN000;
 	OR	IN_OPT,IN_LVBOV 	;AN000;
 					;
 	PUSH PM_LVBOFF			;AN000;initialize logical video address
@@ -1717,7 +1717,7 @@ REFRESH_ICB:;AN000;
 					;
 	CALL	PCINPUT_CALL		;AN000;
 					;
-	POP	ES:[DI]+ICB_OPT1	;AN000;
+	POP	[ES:DI]+ICB_OPT1	;AN000;
 	POP	IN_OPT			;AN000;
 	CALL	CURSOROFF		;AN000;
 					;
@@ -1964,19 +1964,19 @@ PCSLCTP_CALL:;AN000;
 	       CALL CLEAR_INBUFF	 ;AN059;
 					 ;
 	       PUSH PM_CCBVECNUM	 ;AN000;set color index number
-	       POP  ES:[DI]+SCB_CCBVECNUM;AN000;
+	       POP  [ES:DI]+SCB_CCBVECNUM;AN000;
 
 	       PUSH CRD_CCBVECOFF	 ;AN000;set color index offset
-	       POP  ES:[DI]+SCB_CCBVECOFF;AN000;
+	       POP  [ES:DI]+SCB_CCBVECOFF;AN000;
 
 	       PUSH CRD_CCBVECSEG	 ;AN000;set color index segment
-	       POP  ES:[DI]+SCB_CCBVECSEG;AN000;
+	       POP  [ES:DI]+SCB_CCBVECSEG;AN000;
 
-	       PUSH ES:[DI]+SCB_OPT1	 ;AN000;
-	       PUSH ES:[DI]+SCB_OPT2	 ;AN000;
-	       PUSH ES:[DI]+SCB_OPT3	 ;AN000;
-	       PUSH ES:[DI]+SCB_NUMLINE  ;AN000;
-	       AND  ES:[DI]+SCB_OPT3,NOT SCB_NUMS;AN000;
+	       PUSH [ES:DI]+SCB_OPT1	 ;AN000;
+	       PUSH [ES:DI]+SCB_OPT2	 ;AN000;
+	       PUSH [ES:DI]+SCB_OPT3	 ;AN000;
+	       PUSH [ES:DI]+SCB_NUMLINE  ;AN000;
+	       AND  [ES:DI]+SCB_OPT3,NOT SCB_NUMS;AN000;
 %if CASRM;AN000;
 	       MOV  AH,00H		     ;AN000;make call to CAS-RM
 	       MOV  BX,SCB_RN		     ;AN000;set CAS routine number
@@ -1984,10 +1984,10 @@ PCSLCTP_CALL:;AN000;
 %else;AN000;
 	       CALL SLCTP		     ;AN000;
 %endif;AN000;
-	       POP  ES:[DI]+SCB_NUMLINE      ;AN000;
-	       POP  ES:[DI]+SCB_OPT3	     ;AN000;
-	       POP  ES:[DI]+SCB_OPT2	     ;AN000;
-	       POP  ES:[DI]+SCB_OPT1	     ;AN000;
+	       POP  [ES:DI]+SCB_NUMLINE      ;AN000;
+	       POP  [ES:DI]+SCB_OPT3	     ;AN000;
+	       POP  [ES:DI]+SCB_OPT2	     ;AN000;
+	       POP  [ES:DI]+SCB_OPT1	     ;AN000;
 	       RET			     ;AN000;
 ; ENDP PCSLCTP_CALL;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2342,11 +2342,11 @@ DONE1:					;AN024;
 	; .IF < GV_VIDMODE eq 7 > or;AN000;
 	; .IF < ACTIVE eq LCD >;AN000;
 	.THEN				;AN000;
-	      MOV  AX,ES:[DI].MONTBL	;AN000;
-	      MOV  BX,ES:[DI].NMONTBL	;AN000;
+	      MOV  AX,[ES:DI].MONTBL	;AN000;
+	      MOV  BX,[ES:DI].NMONTBL	;AN000;
 	; .ELSE;AN000;
-	      MOV  AX,ES:[DI].COLTBL	;AN000;
-	      MOV  BX,ES:[DI].NCOLTBL	;AN000;
+	      MOV  AX,[ES:DI].COLTBL	;AN000;
+	      MOV  BX,[ES:DI].NCOLTBL	;AN000;
 	; .ENDIF;AN000;
 					;AN000;
 	MOV  PM_CCBVECNUM,BX		;AN000;
@@ -2362,10 +2362,10 @@ DONE1:					;AN024;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;
-	MOV  AX,ES:[DI].NPCBS		;AN000;
+	MOV  AX,[ES:DI].NPCBS		;AN000;
 	MOV  QM_PCBVECNUM,AX		;AN000;number of PCB elements in vector
 					;AN000;
-	MOV  AX,ES:[DI].PCBS		;AN000;
+	MOV  AX,[ES:DI].PCBS		;AN000;
 	MOV  QM_PCBVECOFF,AX		;AN000;offset of PCB vector
 					;AN000;
 	MOV  AX,ES			;AN000;
@@ -2377,13 +2377,13 @@ DONE1:					;AN024;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;
-	MOV  SI,ES:[DI].PCBS		;AN000;offset of PCB vector read from
+	MOV  SI,[ES:DI].PCBS		;AN000;offset of PCB vector read from
 	MOV  PM_PCBVECOFF,SI		;AN000; disk
 					;AN000;
 	MOV  AX,ES			;AN000;segment of PCB vector read from
 	MOV  PM_PCBVECSEG,AX		;AN000; disk
 					;AN000;
-	MOV  CX,ES:[DI].NPCBS		;AN000;number of PCB vectors read from
+	MOV  CX,[ES:DI].NPCBS		;AN000;number of PCB vectors read from
 	MOV  PM_PCBVECNUM,CX		;AN000; disk
 					;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -2394,9 +2394,9 @@ DONE1:					;AN024;
 					;
 	ADD  SI,2			;AN000;move to offset
 I_PCB_SEG:				;AN000;
-	MOV  BX,ES:[SI] 		;AN000;
-	MOV  ES:[BX].PCB_EXPANDSEG,AX	;AN000;
-	MOV  ES:[BX].PCB_CHILDSEG,AX	;AN000;
+	MOV  BX,[ES:SI] 		;AN000;
+	MOV  [ES:BX].PCB_EXPANDSEG,AX	;AN000;
+	MOV  [ES:BX].PCB_CHILDSEG,AX	;AN000;
 	ADD  SI,4			;AN000;
 	LOOP I_PCB_SEG			;AN000;
 					;
@@ -2406,10 +2406,10 @@ I_PCB_SEG:				;AN000;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;
-	MOV  CX,ES:[DI].NPCBS		;AN000;number of PCB vectors
-	MOV  SI,ES:[DI].PCBS		;AN000;offset of PCB vectors
+	MOV  CX,[ES:DI].NPCBS		;AN000;number of PCB vectors
+	MOV  SI,[ES:DI].PCBS		;AN000;offset of PCB vectors
 I_PCBVEC_SEG:				;AN000;
-	MOV  ES:[SI],AX 		;AN000;
+	MOV  [ES:SI],AX 		;AN000;
 	ADD  SI,4			;AN000;
 	LOOP I_PCBVEC_SEG		;AN000;
 					;
@@ -2421,9 +2421,9 @@ I_PCBVEC_SEG:				;AN000;
 					;
 	MOV  AX,ES			;AN000;
 	MOV  SRD_SCBVECSEG,AX		;AN000;get beginning SCB vector address
-	MOV  SI,ES:[DI].SCBS		;AN000;
+	MOV  SI,[ES:DI].SCBS		;AN000;
 	MOV  SRD_SCBVECOFF,SI		;AN000;
-	MOV  CX,ES:[DI].NSCBS		;AN000;number of SCB vectors
+	MOV  CX,[ES:DI].NSCBS		;AN000;number of SCB vectors
 					;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -2434,20 +2434,20 @@ I_PCBVEC_SEG:				;AN000;
 	ADD  SI,2			;AN000;move to offset
 					;AN000;
 I_SCB_SEG:				;AN000;
-	MOV  BX,ES:[SI] 		;AN000;
-	MOV  ES:[BX].SCB_UASEG,AX	;AN000;
-	MOV  ES:[BX].SCB_DASEG,AX	;AN000;
-	MOV  ES:[BX].SCB_PUSEG,AX	;AN000;
-	MOV  ES:[BX].SCB_PDSEG,AX	;AN000;
-	MOV  ES:[BX].SCB_PISEG,AX	;AN000;
-	MOV  ES:[BX].SCB_AISEG,AX	;AN000;
-	MOV  ES:[BX].SCB_CISEG,AX	;AN000;
-	MOV  ES:[BX].SCB_UISEG,AX	;AN000;
-	MOV  ES:[BX].SCB_DISEG,AX	;AN000;
-	MOV  ES:[BX].SCB_INDEXSEG,AX	;AN000;
-	MOV  ES:[BX].SCB_SELSEG,AX	;AN000;
-	MOV  ES:[BX].SCB_OAPSEG,AX	;AN000;
-	MOV  ES:[BX].SCB_OASSEG,AX	;AN000;
+	MOV  BX,[ES:SI] 		;AN000;
+	MOV  [ES:BX].SCB_UASEG,AX	;AN000;
+	MOV  [ES:BX].SCB_DASEG,AX	;AN000;
+	MOV  [ES:BX].SCB_PUSEG,AX	;AN000;
+	MOV  [ES:BX].SCB_PDSEG,AX	;AN000;
+	MOV  [ES:BX].SCB_PISEG,AX	;AN000;
+	MOV  [ES:BX].SCB_AISEG,AX	;AN000;
+	MOV  [ES:BX].SCB_CISEG,AX	;AN000;
+	MOV  [ES:BX].SCB_UISEG,AX	;AN000;
+	MOV  [ES:BX].SCB_DISEG,AX	;AN000;
+	MOV  [ES:BX].SCB_INDEXSEG,AX	;AN000;
+	MOV  [ES:BX].SCB_SELSEG,AX	;AN000;
+	MOV  [ES:BX].SCB_OAPSEG,AX	;AN000;
+	MOV  [ES:BX].SCB_OASSEG,AX	;AN000;
 	ADD  SI,4			;AN000;
 	LOOP I_SCB_SEG			;AN000;
 					;
@@ -2457,10 +2457,10 @@ I_SCB_SEG:				;AN000;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;
-	MOV  CX,ES:[DI].NSCBS		;AN000;number of SCB vectors
-	MOV  SI,ES:[DI].SCBS		;AN000;offset of SCB vectors
+	MOV  CX,[ES:DI].NSCBS		;AN000;number of SCB vectors
+	MOV  SI,[ES:DI].SCBS		;AN000;offset of SCB vectors
 I_SCBVEC_SEG:				;AN000;
-	MOV  ES:[SI],AX 		;AN000;
+	MOV  [ES:SI],AX 		;AN000;
 	ADD  SI,4			;AN000;
 	LOOP I_SCBVEC_SEG		;AN000;
 					;

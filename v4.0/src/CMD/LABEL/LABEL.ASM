@@ -639,7 +639,7 @@ Chk_DBCS_Blank:;AN000;D
 ;  $if	e			   ;AN000;K Yes, change to 2 SBCS blanks
    JNE $$IF33
 ;		 Convert_DBCS_Blank: ;AN000;D
-       mov  word es:[si]-1,SBCSBLANKS ;AN000;D Fill it up with blank-blank
+       mov  word [es:si]-1,SBCSBLANKS ;AN000;D Fill it up with blank-blank
        mov  al,BLANK		   ;AN000;K pretend this char is a blank
 ;  $endif			   ;AN000;K
 $$IF33:

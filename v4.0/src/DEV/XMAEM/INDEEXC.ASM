@@ -236,8 +236,8 @@ ERROR:
         MOV     ES,AX                   ;   accesses all of memory as data  @D1A
                                         ;                                    D1A
         MOV     DI,4F2H                 ; Put our 0DEADH marker at the      @D1A
-        MOV     word ES:[DI],0DEADH ;   fixed location 0:4F2.            D1A
-        MOV     word SS:[BP+BP_EX],2; Put a 2, the NMI interrupt number,@D1A
+        MOV     word [ES:DI],0DEADH ;   fixed location 0:4F2.            D1A
+        MOV     word [SS:BP+BP_EX],2; Put a 2, the NMI interrupt number,@D1A
                                         ;   in the exception field.  The     D1A
                                         ;   code after LONGWAY4 will use     D1A
                                         ;   this number to get the interrupt D1A
@@ -273,7 +273,7 @@ DODISP:
         MOV     SI,REG_TABLE ; DS:SI now points to the reg table
         SUB     AX,AX             ; Clear AH
         MOV     AL,XMATID         ; Load AL with the current XMA bank ID
-        MOV     word SS:[BP+BP_PSP2],AX  ; The bank ID gets displayed as
+        MOV     word [SS:BP+BP_PSP2],AX  ; The bank ID gets displayed as
                                              ;   the task ID
 
 ; Display one register
@@ -355,10 +355,10 @@ LOOPREG:
         MOV     DS,AX                   ;   all of memory as data
         DATAOV
         SUB     SI,SI                   ; Clear all 32 bits of ESI
-        MOV     SI,SS:[BP+BP_SP]        ; Load SI wiht the V86 task's SP
+        MOV     SI,[SS:BP+BP_SP]        ; Load SI wiht the V86 task's SP
         DATAOV
         SUB     AX,AX                   ; Clear all 32 bits of EAX
-        MOV     AX,SS:[BP+BP_SS]        ; Get the V86 task's SS
+        MOV     AX,[SS:BP+BP_SS]        ; Get the V86 task's SS
         DATAOV                          ; Shift it left 4 bits to convert it
         SHL     AX,4                    ;   to an offset
         DATAOV                          ; Add it on to SP.  Now SI contains
@@ -567,7 +567,7 @@ LONGWAY4:
         MOV     ES,AX                   ;   all of memory as data
         DATAOV
         SUB     DI,DI                   ; Clear all 32 bits of EDI
-        MOV     DI,SS:[BP+BP_SP]        ; Load DI with the V86 task's SP
+        MOV     DI,[SS:BP+BP_SP]        ; Load DI with the V86 task's SP
         SUB     DI,6                    ; Decrement "SP" to make room for the
                                         ;   push of IP, CS and the flags.
                                         ; Note that this assumes there are at
@@ -576,7 +576,7 @@ LONGWAY4:
                                           ;   save area
         DATAOV
         SUB     AX,AX                   ; Clear all 32 bits of EAX
-        MOV     AX,SS:[BP+BP_SS]        ; Load AX with the V86 task's SS
+        MOV     AX,[SS:BP+BP_SS]        ; Load AX with the V86 task's SS
         DATAOV                          ; Shift it left four bits to convert
         SHL     AX,4                    ;   it to an offset
         DATAOV                          ; Add it on to SP.  Now DI contains
@@ -586,35 +586,35 @@ LONGWAY4:
 ; reverse order because the stack grows down, but we are going up as we put
 ; the stuff on the stack.
 
-        MOV     AX,SS:[BP+BP_IP]        ; Get the V86 task's IP
+        MOV     AX,[SS:BP+BP_IP]        ; Get the V86 task's IP
         ADDROV
         STOSW                           ; Put it on his stack
         ADDROV                          ; Intel bug # A0-119
         NOP                             ; Intel bug # A0-119
 
-        MOV     AX,SS:[BP+BP_CS]        ; Get the V86 task's CS
+        MOV     AX,[SS:BP+BP_CS]        ; Get the V86 task's CS
         ADDROV
         STOSW                           ; Put it on his stack
         ADDROV                          ; Intel bug # A0-119
         NOP                             ; Intel bug # A0-119
 
-        MOV     AX,SS:[BP+BP_FL]        ; Get the V86 task's flags
+        MOV     AX,[SS:BP+BP_FL]        ; Get the V86 task's flags
         ADDROV
         STOSW                           ; Put them on his stack
         ADDROV                          ; Intel bug # A0-119
         NOP                             ; Intel bug # A0-119
         AND     AX,3CFFH                ; Clean up the flags for our IRET
-        MOV     word SS:[BP+BP_FL],AX
+        MOV     word [SS:BP+BP_FL],AX
 
-        MOV     SI,SS:[BP+BP_EX]        ; Get the interrupt vector
+        MOV     SI,[SS:BP+BP_EX]        ; Get the interrupt vector
         SHL     SI,2                    ; Multiply by four because interrupt
                                         ;   vectorsare four bytes long
         MOV     AX,HUGE_PTR             ; Load DS with a selector that accesses
         MOV     DS,AX                   ;   all of memory as data
         LODSW                           ; Get the IP for the interrupt
-        MOV     word SS:[BP+BP_IP],AX ; Store it in the V86 task's IP
+        MOV     word [SS:BP+BP_IP],AX ; Store it in the V86 task's IP
         LODSW                           ; Get the CS for the interrupt
-        MOV     word SS:[BP+BP_CS],AX ; Store it in the V86 task's CS
+        MOV     word [SS:BP+BP_CS],AX ; Store it in the V86 task's CS
 
 ; PAGE
 POPREGS:                                ;                                   @P1C

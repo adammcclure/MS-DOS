@@ -72,7 +72,7 @@ SECTION .TRANCODE
         %endif
 
         ORG     0
-ZERO    =       $
+ZERO equ $
 
         ORG     100H                    ; Allow for 100H parameter area
 
@@ -237,7 +237,7 @@ GETENV1:
         JZ      GETENV2
         CMP     AL,"%"
         JNZ     GETENV1
-        MOV     byte ES:[DI-1],"="
+        MOV     byte [ES:DI-1],"="
 GETENV2:
         MOV     SI,ID
         PUSH    CS
@@ -305,7 +305,7 @@ PAROK:
         DEC     CX
         REPNZ   SCASB
         ADD     DI,SI
-        MOV     SI,ES:[DI]
+        MOV     SI,[ES:DI]
         POP     DI
         POP     ES
         CMP     SI,-1                   ; Check if parameter exists
@@ -379,7 +379,7 @@ SAVBATBYT:
         JNZ     RDBAT
         SUB     DI,COMBUF+3
         MOV     AX,DI
-        MOV     ES:[COMBUF+1],AL        ; Set length of line
+        MOV     [ES:COMBUF+1],AL        ; Set length of line
         CALL    GETBATBYT               ; Eat linefeed
         CALL    BATCLOSE
         TEST    [ECHOFLAG],-1
@@ -431,7 +431,7 @@ COMTAIL:
         CMP     AL,13
         LOOPNZ  COMTAIL
         NOT     CL
-        MOV     byte DS:[80H],CL
+        MOV     byte [DS:80H],CL
         POP     SI
 ; If the command has 0 parameters must check here for
 ; any switches that might be present.
@@ -692,7 +692,7 @@ BADCOMJ:
         JMP     BADCOM
 
 LASTPATH:
-        MOV     byte ES:[DI-1],';'  ; Fix up the NUL in EXECPATH
+        MOV     byte [ES:DI-1],';'  ; Fix up the NUL in EXECPATH
         DEC     SI                      ; Point to the NUL in PATHSTRING
         MOV     BL,[SI-1]               ; Change substi char to char before NUL
 
@@ -771,7 +771,7 @@ CHAINBAT:
         REPNZ   SCASB           ; Find the NUL
         DEC     DI              ; Point at the NUL
         MOV     AL,[DIRCHAR]
-        CMP     AL,ES:[DI-1]
+        CMP     AL,[ES:DI-1]
         JZ      NOPUTSLASH
         STOSB
 NOPUTSLASH:
@@ -794,7 +794,7 @@ EACHPARM:
         JCXZ    MOVPARM                 ; Only first 10 parms get pointers
         PUSH    ES
         MOV     ES,[BATCH]
-        MOV     ES:[BX],DI              ; Set pointer table to point to actual parameter
+        MOV     [ES:BX],DI              ; Set pointer table to point to actual parameter
         POP     ES
         INC     BX
         INC     BX
@@ -925,7 +925,7 @@ MESSAGE:
         MOV     DX,DIRMES_POST
         CALL    PRINT
         MOV     AH,GET_DRIVE_FREESPACE
-        MOV     DL,byte DS:[FCB]
+        MOV     DL,byte [DS:FCB]
         INT     int_command
         CMP     AX,-1
         retz
@@ -1015,8 +1015,8 @@ PIPEERRJ:
         JC    PIPEERR         ; Lost the pipe file
         MOV     BX,AX
         MOV     AL,0FFH
-        XCHG    AL,[BX.PDB_JFN_Table]
-        MOV     DS:[PDB_JFN_Table],AL   ; Redirect
+        XCHG    AL,[BX+PDB_JFN_Table]
+        MOV     [DS:PDB_JFN_Table],AL   ; Redirect
 FIRSTPIPE:
         MOV     DI,COMBUF + 2
         XOR     CX,CX
@@ -1045,7 +1045,7 @@ NOTKANJ5:
         INC     CX
         CMP     AL,'|'
         JNZ     PIPECOMLP
-        MOV     byte ES:[DI-1],0DH
+        MOV     byte [ES:DI-1],0DH
         DEC     CX
         MOV     [COMBUF+1],CL
         DEC     SI
@@ -1059,8 +1059,8 @@ NOTKANJ5:
         JC      PIPEERRJ                ; Lost the file
         MOV     BX,AX
         MOV     AL,0FFH
-        XCHG    AL,[BX.PDB_JFN_Table]
-        MOV     DS:[PDB_JFN_Table+1],AL
+        XCHG    AL,[BX+PDB_JFN_Table]
+        MOV     [DS:PDB_JFN_Table+1],AL
         XCHG    DX,[INPIPEPTR]          ; Swap for next element of pipe
         MOV     [OUTPIPEPTR],DX
         JMP     SHORT PIPECOM

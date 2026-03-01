@@ -21,7 +21,7 @@ extern fnm, rsc, rmn, cps, ofl, sle, interr
 
 AsmVars 			   <IBM, Installed>
 
-Installed			   =	TRUE ; for installed version
+Installed equ TRUE; for installed version
 
 %macro OFF 2
 				   %if installed
@@ -88,7 +88,7 @@ SECTION .DATA
 ;   MSDOS code segment otherwise, define our own code segment
 
 	; .sall
-	%if NOT INSTALLED
+	%if ~INSTALLED
 SECTION .CODE
 	    ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 	%else
@@ -116,10 +116,10 @@ ONE	EQU	1
 
 struc FRAME
 
-SavedBP: dw 0
-RetOFF: dw 0
-Parm_1: dw 0
-Parm_2: dw 0
+SavedBP: resw 1
+RetOFF: resw 1
+Parm_1: resw 1
+Parm_2: resw 1
 
 endstruc
 
@@ -265,7 +265,7 @@ ent9: pop ds
 
    DOSAssume SS,<DS>,"MFTClose entry"
    ; ASSUME ES:NOTHING
-   mov	ax,es:[di].sf_MFT
+   mov	ax,[es:di].sf_MFT
 
    fmt	TypShare,LevShEntry,<"MFTClose by $x:$x of $x:$x ($x)\n">,<User_ID,Proc_id,ES,DI,AX>
 
@@ -278,7 +278,7 @@ ent9: pop ds
 
    ; ASSUME DS:NOTHING
 
-   mov	ax,es:[di].sf_ref_count 	; (ax) = ref count
+   mov	ax,[es:di].sf_ref_count 	; (ax) = ref count
 ;
 ; We need to release information in one of two spots.  First, when the SFT has
 ; a ref count of 0.  Here, there are no more referents and, thus, no sharing
@@ -425,8 +425,8 @@ mcl10:
    ; ASSUME SS:DOSGROUP,ES:NOTHING,DS:NOTHING
 
    EnterCrit critShare
-   MOV	DX,[SI.DPL_DX]
-   MOV	DS,[SI.DPL_DS]
+   MOV	DX,[SI+DPL_DX]
+   MOV	DS,[SI+DPL_DS]
    mov	si,dx				; (DS:SI) = fwa name
    sub	al,al				; don't create if not found
    push ds
@@ -440,7 +440,7 @@ mcl10:
 mclo1: les di,[bx].mft_sptr		; (ES:DI) = SFT address
    mov	word ThisSFT,di
    mov	word ThisSFT+2,es		; point to SFT
-   cmp	es:[di].sf_ref_count,1
+   cmp	[es:di].sf_ref_count,1
    jnz	mclo15
    call CPS
 mclo15:
@@ -854,7 +854,7 @@ lock_all equ 0h
 ;; $IF	AE,AND				; IF A VALID COUNT
 ;  $IF	E,AND				; IF A VALID COUNT		       ;AC006;
    JNE $$IF6
-   cmp	es:[di].sf_mft,0		; is this SFT shared?		       ;AN000;
+   cmp	[es:di].sf_mft,0		; is this SFT shared?		       ;AN000;
 ;  $IF	NE				; AND IF FILE IS 'SHARED' THEN
    JE $$IF6
 
@@ -1170,7 +1170,7 @@ $$IF9:
    push bp				; preserve (bp) 		       ;AN000;
    push ds				; preserve (ds)
 ;; push bx				; preserve (bx) 		       ;AN000;
-   cmp	es:[di].sf_mft,ZERO
+   cmp	[es:di].sf_mft,ZERO
 ;  $if	nz,and				; if file is SHARED and 	       ;AC000;
    JZ $$IF11
    push di
@@ -1314,7 +1314,7 @@ $$EN11:
    Context DS
    push ds
 ;; push bx				; save type of operation	       ;AN000;
-   cmp	es:[di].sf_mft,ZERO
+   cmp	[es:di].sf_mft,ZERO
 
 ;  $if	nz,and				; if file is SHARED and 	       ;AC000;
    JZ $$IF14
@@ -1493,7 +1493,7 @@ $$LL19:
        pop  ds
 ;   (es:di) is sft
        push si
-       mov  si,es:[di].sf_mft
+       mov  si,[es:di].sf_mft
        push si
        mov  di,1			; Find own locks
        call SLE
@@ -1611,14 +1611,14 @@ lock_all equ 0h 			; lock all specified		       ;AN000;
    PUSH DI
    PUSH CX
    PUSH DS
-   cmp	es:[di].sf_mft,0
+   cmp	[es:di].sf_mft,0
 
 ;  $if	nz,and				; if the file is SHARED and	       ;AC000;
    JZ $$IF22
 
    push cs
    pop	ds
-   mov	si,es:[di].sf_MFT		; (DS:SI) = address of MFT record
+   mov	si,[es:di].sf_MFT		; (DS:SI) = address of MFT record
    test [si].mft_lptr,-1
 
 ;  $if	nz,and				; if there are locks on this file and  ;AC000;
@@ -1727,8 +1727,8 @@ $$IF22:
    ; ASSUME DS:NOTHING,ES:NOTHING
 
    EnterCrit critShare
-   MOV	BX,[SI.DPL_BX]
-   MOV	CX,[SI.DPL_CX]
+   MOV	BX,[SI+DPL_BX]
+   MOV	CX,[SI+DPL_CX]
    Context ES
    MOV	DI,OpenBuf
 
@@ -1980,14 +1980,14 @@ bcs2: les di,[si].mft_sptr		; got name record - get first SFT
 
 bcs3: or di,di
    jz	bcs1$5				; at end of SFT chain
-   cmp	ax,es:[di].sf_UID
+   cmp	ax,[es:di].sf_UID
    jnz	bcs4				; not a match
-   mov	cx,es:[di].sf_PID
+   mov	cx,[es:di].sf_PID
    and	cx,bx				; apply mask
    cmp	cx,dx
    jz	bcs51				; got a match
 bcs4:
-   les	di,es:[di].sf_chain
+   les	di,[es:di].sf_chain
    JMP	bcs3				; chain to next SFT
 
 
@@ -2000,13 +2000,13 @@ bcs4:
 ;	(bx) = PID mask
 ;	(dx) = PID value
 
-bcs51: mov es:[di].sf_ref_count,1
+bcs51: mov [es:di].sf_ref_count,1
    push ax
    push bx
    push dx				; save ID values (ax,bx,dx) and mask
    push ds
    push si				; save name record address (ds:si)
-   mov	si,word es:[di].sf_chain
+   mov	si,word [es:di].sf_chain
    or	si,si
    jnz	bcs7				; isnt last sft, MFT will remain
 
@@ -2032,7 +2032,7 @@ bcs6: add si,[si].mft_len		; go to next guy
 
 bcs7: mov word ThisSFT,di
    mov	word ThisSFT+2,es
-   mov	es,word es:[di].sf_chain+2
+   mov	es,word [es:di].sf_chain+2
    SaveReg <es,si>
    call CPS				; clear JFN
    Context DS
@@ -2076,7 +2076,7 @@ bcs9: clc
 
    Procedure CSL,NEAR
 
-   mov	si,es:[di].sf_MFT
+   mov	si,[es:di].sf_MFT
    push cs
    pop	ds
    lea	bx,[si].mft_lptr		; (DS:BX) = addr of lock ptr
@@ -2251,7 +2251,7 @@ cuc1: or si,si
 ;	Both the old and the new guy are SH_COMP mode.	If the UIDs match,
 ;	step onward.  If they don't match do normal share check.
 
-   mov	bp,es:[di].sf_UID
+   mov	bp,[es:di].sf_UID
    cmp	bp,[si].sf_UID
    jz	cuc20				; equal => next sft to check
 

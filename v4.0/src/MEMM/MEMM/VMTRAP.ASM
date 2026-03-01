@@ -159,7 +159,7 @@ VmTrap:
 vm_trap00:
 	PUSH_EBP
 	mov	bp,sp
-	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
+	test	[bp+VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
 	jz	vmt0_dexit		;   N: exit to debugger
 	push	0000			;   Y: interrupt 00
 	jmp	hw_int			; reflect it to virtual mode
@@ -182,7 +182,7 @@ vmt0_dexit:
 vm_trap01:
 	PUSH_EBP
 	mov	bp,sp
-	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
+	test	[bp+VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
 	jz	vmt1_dexit		;   N: exit to debugger
 	push	0001			;   Y: interrupt 01
 	jmp	hw_int			; reflect it to virtual mode
@@ -208,7 +208,7 @@ vm_trap02:
 
 	call	DisableNMI
 
-	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
+	test	[bp+VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
 	jz	vmt2_parity		;     N: error/debug trap
 					;     Y: reflect it/debugger
 	push	02			; reflect it
@@ -260,7 +260,7 @@ vm_trap04:
 vm_trap05:
 	PUSH_EBP
 	mov	bp,sp
-	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
+	test	[bp+VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
 	jz	vmt5_dexit		;   N: exit to debugger
 	push	0005			;   Y: interrupt 01
 	jmp	hw_int			; reflect it to virtual mode
@@ -285,7 +285,7 @@ vm_trap06:
 	push	0			;  for VmFault
 	PUSH_EBP
 	mov	bp,sp
-	test	[bp.VTFOE+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
+	test	[bp+VTFOE+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
 	jz	vmt6_dexit		;   N: exit to debugger
 	jmp	VmFault 		;   Y: enter VM 06 Invalid handler
 
@@ -305,7 +305,7 @@ vmt6_dexit:
 vm_trap07:
 	PUSH_EBP
 	mov	bp,sp
-	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
+	test	[bp+VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
 	jz	vmt7_dexit		;   N: exit to debugger
 	push	0007			;   Y: interrupt 07
 	jmp	hw_int			; reflect it to virtual mode
@@ -384,7 +384,7 @@ vm_trap0A:
 vm_trap0B:
 	PUSH_EBP
 	mov	bp,sp
-	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
+	test	[bp+VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
 	jz	vmtB_dexit		;   N: exit to debugger
 	push	000Bh			;   Y: interrupt 0B
 	jmp	hw_int			; reflect it to virtual mode
@@ -405,7 +405,7 @@ vmtB_dexit:
 vm_trap0C:
 	PUSH_EBP
 	mov	bp,sp
-	test	[bp.VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
+	test	[bp+VTFO+VMTF_EFLAGShi],2 ; Q: client in Virtual Mode ?
 	jz	vmtC_dexit		;   N: exit to debugger
 	push	000Ch			;   Y: interrupt 0C
 	jmp	hw_int			; reflect it to virtual mode
@@ -709,13 +709,13 @@ vm_trap77:
 hw_int:
 	push	bx
 	push	si			;
-	mov	si,[bp.VTFO+VMTF_EFLAGS] ; SI = saved low word of EFLAGS
+	mov	si,[bp+VTFO+VMTF_EFLAGS] ; SI = saved low word of EFLAGS
 ;
 ; *** clear IF bit and Trace Flag on flags for reflect, but leave them
 ;	unchanged for the flags on the IRET stack we build on the
 ;	client's stack.
 ;
-	and	[bp.VTFO+VMTF_EFLAGS],not 300h	; clear IF and TF
+	and	[bp+VTFO+VMTF_EFLAGS],not 300h	; clear IF and TF
 reflect_common:
 ;
 ;   Build a selector (VM1_GSEL) to client's stack.  VM1_GSEL is already set
@@ -724,30 +724,30 @@ reflect_common:
 	HwTabUnlock			; disable HW protection on high ram
 	mov	bx,GDTD_GSEL		; get GDT data alias
 	mov	ds,bx			; DS -> GDT
-	mov	bx,[bp.VTFO+VMTF_SS]	; BX = VM SS (segment form)
+	mov	bx,[bp+VTFO+VMTF_SS]	; BX = VM SS (segment form)
 	shl	bx,4			; BX = low 16 bits of base
-	mov	ds:[VM1_GSEL+2],bx	; place in descriptor
-	mov	bx,[bp.VTFO+VMTF_SS]	; BX = VM SS (again)
+	mov	[ds:VM1_GSEL+2],bx	; place in descriptor
+	mov	bx,[bp+VTFO+VMTF_SS]	; BX = VM SS (again)
 	shr	bx,4			; BH = high 8 bits of base
-	mov	ds:[VM1_GSEL+4],bh	; place in descriptor
+	mov	[ds:VM1_GSEL+4],bh	; place in descriptor
 ;
 ;   Adjust client's SP to make room for building his IRET frame
 ;
-	sub	word [bp.VTFO+VMTF_ESP],6	; adjust client's SP
+	sub	word [bp+VTFO+VMTF_ESP],6	; adjust client's SP
 	mov	bx, VM1_GSEL
 	mov	ds, bx			; DS = VM stack segment
 ;
 	mov	bx,si			; BX = low word of client's EFLAGS
 ;
-	mov	si,[bp.VTFO+VMTF_ESP]	; DS:SI = pointer to client's frame
+	mov	si,[bp+VTFO+VMTF_ESP]	; DS:SI = pointer to client's frame
 ;
 ;   Move low 16 bits of Flags, CS, and EIP from IRET frame to client stack frame
 ;
-	mov	ds:[si.4],bx		; to client's flags
-	mov	bx,[bp.VTFO+VMTF_CS]	;
-	mov	ds:[si.2],bx		; to client's CS
-	mov	bx,[bp.VTFO+VMTF_EIP]	; low word of EIP
-	mov	ds:[si.0],bx		; to client's IP
+	mov	[ds:si+4],bx		; to client's flags
+	mov	bx,[bp+VTFO+VMTF_CS]	;
+	mov	[ds:si+2],bx		; to client's CS
+	mov	bx,[bp+VTFO+VMTF_EIP]	; low word of EIP
+	mov	[ds:si+0],bx		; to client's IP
 ;
 ;   Replace low 16 bits of IRET frame CS:EIP with vector from real mode IDT
 ;
@@ -755,10 +755,10 @@ reflect_common:
 	shl	bx,2			; BX = BX * 4 (vector table index)
 	mov	si,RM_IDT_GSEL		; get real mode IDT alias
 	mov	ds,si			; DS -> Real Mode IDT
-	mov	si,ds:[bx]		;
-	mov	[bp.VTFO+VMTF_EIP],si	; move the IP
-	mov	si,ds:[bx+2]		;
-	mov	[bp.VTFO+VMTF_CS],si	; move the CS
+	mov	si,[ds:bx]		;
+	mov	[bp+VTFO+VMTF_EIP],si	; move the IP
+	mov	si,[ds:bx+2]		;
+	mov	[bp+VTFO+VMTF_CS],si	; move the CS
 ;
 ;   32-bit IRET back to client
 ;
@@ -780,7 +780,7 @@ reflect_common:
 emul_reflect:
 	push	bx			; local registers
 	push	si			;
-	mov	si,[bp.VTFO+VMTF_EFLAGS] ; SI = saved low word of EFLAGS
+	mov	si,[bp+VTFO+VMTF_EFLAGS] ; SI = saved low word of EFLAGS
 	jmp	reflect_common
 
 

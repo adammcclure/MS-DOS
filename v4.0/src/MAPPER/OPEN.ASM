@@ -73,16 +73,16 @@ ACT_FileCreated 	equ	2
 
 
 struc str
-old_bp: dw 0
-return: dd 0
-resrv34: dd 0; reserved
-OpenMode: dw 0; open mode
-OpenFlag: dw 0; open function type (1=Open only if already exist)
-OpenFileAttr: dw 0; file attribute
-FileSize: dd 0; file allocation size
-acttak34: dd 0; action taken
-FileHandlePtr: dd 0; New file handler
-FileNamePtr: dd 0; file name pointer
+old_bp: resw 1
+return: resd 1
+resrv34: resd 1; reserved
+OpenMode: resw 1; open mode
+OpenFlag: resw 1; open function type (1=Open only if already exist)
+OpenFileAttr: resw 1; file attribute
+FileSize: resd 1; file allocation size
+acttak34: resd 1; action taken
+FileHandlePtr: resd 1; New file handler
+FileNamePtr: resd 1; file name pointer
 endstruc
 
 ;
@@ -99,7 +99,7 @@ SaveArea	equ	-2
 	jz	FileOpenRequest        ; branch if file open
 
 	lds	si,[bp].FileNamePtr    ; convert device name to upper case
-	mov	al,ds:[si]
+	mov	al,[ds:si]
 	cmp	al,'a'
 	jc	NoFold
 	cmp	al,'z'+1
@@ -120,7 +120,7 @@ NoFold:
 	neg	ax		       ;		   -2 to -27
 
 	lds	si,[bp].FileHandlePtr
-	mov	ds:[si],ax	       ; save dasd dummy device handle
+	mov	[ds:si],ax	       ; save dasd dummy device handle
 	jmp	GoodExit	       ; in return data area and return
 
 BadDASDName:

@@ -35,7 +35,7 @@ AsmVar  var
 
 %macro AsmVar 1
 %ifndef var
-var = FALSE
+var equ FALSE
 %endif
 %endmacro
 
@@ -187,14 +187,14 @@ GRMODE  DB      00,00000000B,00000111B
 ;
 ;       Device entry point
 ;
-CMDLEN  =       0       ;LENGTH OF THIS COMMAND
-UNIT    =       1       ;SUB UNIT SPECIFIER
-CMD     =       2       ;COMMAND CODE
-STATUS  =       3       ;STATUS
-MEDIA   =       13      ;MEDIA DESCRIPTOR
-TRANS   =       14      ;TRANSFER ADDRESS
-COUNT   =       18      ;COUNT OF BLOCKS OR CHARACTERS
-START   =       20      ;FIRST BLOCK TO TRANSFER
+CMDLEN equ 0;LENGTH OF THIS COMMAND
+UNIT equ 1;SUB UNIT SPECIFIER
+CMD equ 2;COMMAND CODE
+STATUS equ 3;STATUS
+MEDIA equ 13;MEDIA DESCRIPTOR
+TRANS equ 14;TRANSFER ADDRESS
+COUNT equ 18;COUNT OF BLOCKS OR CHARACTERS
+START equ 20;FIRST BLOCK TO TRANSFER
 
 PTRSAV  DD      0
 
@@ -203,8 +203,8 @@ BUF1:      BUF_DATA <>                  ; WGR Next CON Buffer area              
 STRATP:
 
 STRATEGY:
-        MOV     word CS:[PTRSAV],BX
-        MOV     word CS:[PTRSAV+2],ES
+        MOV     word [CS:PTRSAV],BX
+        MOV     word [CS:PTRSAV+2],ES
         RET
 
 ; ENDP STRATP
@@ -281,11 +281,11 @@ L3:                                     ; WGR                                   
         JMP     L1                      ; WGR                                            ;AN000;
 L4:                                     ; WGR                                            ;AN000;
 
-        LDS     BX,CS:[PTRSAV]     ;GET PONTER TO I/O PACKET
+        LDS     BX,[CS:PTRSAV]     ;GET PONTER TO I/O PACKET
 
-        MOV     CX,word DS:[BX].COUNT    ;CX = COUNT
+        MOV     CX,word [DS:BX].COUNT    ;CX = COUNT
 
-        MOV     AL,byte DS:[BX].CMD
+        MOV     AL,byte [DS:BX].CMD
         CBW
         MOV     SI,CONTBL
         ADD     SI,AX
@@ -293,7 +293,7 @@ L4:                                     ; WGR                                   
         CMP     AL,MAX_CMD              ; WGR not a call for ANSI...chain to lower device;AC000;
         JA      NO_OPERATION
 
-        LES     DI,dword DS:[BX].TRANS
+        LES     DI,dword [DS:BX].TRANS
 
         PUSH    CS
         POP     DS
@@ -326,7 +326,7 @@ ERR$EXIT:
 EXITP:
 
 EXIT:   MOV     AH,00000001B
-ERR1:   LDS     BX,CS:[PTRSAV]
+ERR1:   LDS     BX,[CS:PTRSAV]
         MOV     word [BX].STATUS,AX      ;MARK OPERATION COMPLETE
 ERR2:
         POP     BX                      ; WGR                                            ;AN000;
@@ -350,9 +350,9 @@ ERR2:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; WGR                                            ;AN000;
 PASS_CONTROL:; WGR                                            ;AN000;
         LEA     SI,BUF1                 ; WGR                                            ;AN000;
-        LES     BX,CS:[PTRSAV]          ; WGR pass the request header to the             ;AN000;
-        CALL    dword CS:[SI].CON_STRAO ; CON strategy routine.                      ;AN000;
-        CALL    dword CS:[SI].CON_INTRO ; WGR interrupt the CON                      ;AN000;
+        LES     BX,[CS:PTRSAV]          ; WGR pass the request header to the             ;AN000;
+        CALL    dword [CS:SI].CON_STRAO ; CON strategy routine.                      ;AN000;
+        CALL    dword [CS:SI].CON_INTRO ; WGR interrupt the CON                      ;AN000;
         RET                             ; WGR                                            ;AN000;
 ; ENDP PASS_CONTROL; WGR                                            ;AN000;
 ;-----------------------------------------------                                         ;AN000;
@@ -533,7 +533,7 @@ myscroll:
         mov     ds,ax
         xor     di,di
         cld
-        cmp     cs:[base],0b800h
+        cmp     [cs:base],0b800h
         jz      colorcard
 
         rep     movsw
@@ -553,7 +553,7 @@ colorcard:
         mov     ax,8000H + CritDevice     ; Enter Device critical section
         int     int_IBM
 
-        cmp     cs:[Hdwr_Flag], MCGA_ACTIVE ;AN006;AN007;above CGA level?
+        cmp     [cs:Hdwr_Flag], MCGA_ACTIVE ;AN006;AN007;above CGA level?
         jae     Skip_Video_Off            ;AN006;AN007;
 
         mov     dx,3dah
@@ -568,7 +568,7 @@ Skip_Video_Off:                           ;AN006;
         mov     ax,bx
         mov     cx,bp
         rep     stosw
-        cmp     cs:[Hdwr_Flag], MCGA_ACTIVE ;AN006;AN007;
+        cmp     [cs:Hdwr_Flag], MCGA_ACTIVE ;AN006;AN007;
         jae     Skip_Video_On             ;AN006;AN007;
         mov     al,29h
         mov     dx,3d8h
@@ -764,7 +764,7 @@ FlushDone:
 CON$WRIT:
         JCXZ    EXVEC
 
-CON$LP: MOV     AL,ES:[DI]      ;GET CHAR
+CON$LP: MOV     AL,[ES:DI]      ;GET CHAR
         INC     DI
         CALL    OUTC            ;OUTPUT CHAR
         LOOP    CON$LP          ;REPEAT UNTIL ALL THROUGH
@@ -791,20 +791,20 @@ OUTC:   PUSH    AX
         XCHG    AX,SI                   ; SAVE CHARACTER TO STUFF
         MOV     AX,40H                  ; POINT TO ROS BIOS
         MOV     DS,AX
-        MOV     AX,DS:[49H]             ; AL=MODE, AH=MAX COL
+        MOV     AX,[DS:49H]             ; AL=MODE, AH=MAX COL
         DEC     AH                      ; ANSI NEEDS 0-79 OR 0-39
-        MOV     word CS:[MODE],AX   ; SAVE MODE AND MAX COL
+        MOV     word [CS:MODE],AX   ; SAVE MODE AND MAX COL
         CMP     AL,7
         JNZ     NOT_BW
-        MOV     word CS:[BASE],0B000H
-NOT_BW: MOV     AL,DS:[62H]             ; GET ACTIVE PAGE
-        MOV     CS:[BPAGE],AL
+        MOV     word [CS:BASE],0B000H
+NOT_BW: MOV     AL,[DS:62H]             ; GET ACTIVE PAGE
+        MOV     [CS:BPAGE],AL
         CBW
         ADD     AX,AX
         MOV     BX,AX
-        MOV     AX,DS:[BX+50H]          ; AL=COL, AH=ROW
-        MOV     word CS:[COL],AX    ; SAVE ROW AND COLUMN
-        MOV     AX,DS:[4EH]             ; GET START OF SCREEN SEG
+        MOV     AX,[DS:BX+50H]          ; AL=COL, AH=ROW
+        MOV     word [CS:COL],AX    ; SAVE ROW AND COLUMN
+        MOV     AX,[DS:4EH]             ; GET START OF SCREEN SEG
         MOV     CL,4
         SHR     AX,CL                   ; CONVERT TO A SEGMENT
         PUSH    CS
@@ -1072,10 +1072,10 @@ SM1:    MOV     AL,DL
             PUSH   AX                 ;; WGR save mode                                   ;AN000;
             MOV    AX,ROM_BIOS        ;; WGR                                             ;AN000;
             MOV    DS,AX              ;; WGR get equipment status flag..                 ;AN000;
-            MOV    AX,DS:[EQUIP_FLAG] ;; WGR                                             ;AN000;
+            MOV    AX,[DS:EQUIP_FLAG] ;; WGR                                             ;AN000;
             AND    AX,INIT_VID_MASK   ;; WGR clear initial video bits..                  ;AN000;
             OR     AX,LCD_COLOR_MODE  ;; WGR .....set bits as color                      ;AN000;
-            MOV    DS:[EQUIP_FLAG],AX ;; WGR replace updated flag.                       ;AN000;
+            MOV    [DS:EQUIP_FLAG],AX ;; WGR replace updated flag.                       ;AN000;
             POP    AX                 ;; WGR restore mode.                               ;AN000;
             POP    DS                 ;; WGR                                             ;AN000;
           ; .ENDIF;; WGR                                             ;AN000;
@@ -1165,5 +1165,5 @@ CHECK_FOR_REMAP:; WGR                                                      ;AN00
 BUF     DB      4,00,72H,16,0
         DB      ASNMAX+8-times 5 db 0
 
-CODE    ENDS
+; END SECTION .CODE
         ; END

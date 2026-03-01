@@ -33,46 +33,46 @@ SECTION .dosxxx
 
 
 struc str
-old_bp: dw 0
-return: dd 0
-ReturnLength: dd 0
-BufferPtr: dd 0
-CountryCodePtr: dd 0
-BufferLength: dw 0
+old_bp: resw 1
+return: resd 1
+ReturnLength: resd 1
+BufferPtr: resd 1
+CountryCodePtr: resd 1
+BufferLength: resw 1
 endstruc
 
 
 struc cntry;country info. sturctrue
-ctry_code: dw 0
-code_page: dw 0
-dformat: dw 0
-curr_sym: times 5 db 0
-thous_sep: dw 0
-decimal_sep: dw 0
-date_sep: dw 0
-time_sep: dw 0
-bit_field: db 0
-curr_cents: db 0
-tformat: db 0
-map_call: dd 0
-data_sep: dw 0
-ra: times 5 db 0
+ctry_code: resw 1
+code_page: resw 1
+dformat: resw 1
+curr_sym: resb 5
+thous_sep: resw 1
+decimal_sep: resw 1
+date_sep: resw 1
+time_sep: resw 1
+bit_field: resb 1
+curr_cents: resb 1
+tformat: resb 1
+map_call: resd 1
+data_sep: resw 1
+ra: resb 5
 endstruc
 
 
 struc Doscntry;country info. sturctrue
- Ddformat: dw 0
- Dcurr_sym: times 5 db 0
- Dthous_sep: dw 0
- Ddecimal_sep: dw 0
- Ddate_sep: dw 0
- Dtime_sep: dw 0
- Dbit_field: db 0
- Dsig_digit: db 0
- Dtformat: db 0
- Dmap_call: dd 0
- Ddata_sep: dw 0
- DResv: times 5 db 0
+ Ddformat: resw 1
+ Dcurr_sym: resb 5
+ Dthous_sep: resw 1
+ Ddecimal_sep: resw 1
+ Ddate_sep: resw 1
+ Dtime_sep: resw 1
+ Dbit_field: resb 1
+ Dsig_digit: resb 1
+ Dtformat: resb 1
+ Dmap_call: resd 1
+ Ddata_sep: resw 1
+ DResv: resb 5
 endstruc
 
 
@@ -81,7 +81,7 @@ dosgetctryinfo:
         Enter   Dosgetcntryinfo       ; save registers
 
         lds     si,[bp].CountryCodePtr
-        mov     ax,ds:[si]            ; get country code pointer
+        mov     ax,[ds:si]            ; get country code pointer
 
         cmp     ax,256                ; 16 bit country code
         jc      getinfo
@@ -103,13 +103,13 @@ getinfo:
         les     di,[bp].BufferPtr                ;pointer to return data area
 
         mov     ax,[si].ddformat                 ;copy date format
-        mov     es:[di].dformat,ax
+        mov     [es:di].dformat,ax
         mov     ax,[si].ddate_sep                ;copy date seperator
-        mov     es:[di].date_sep,ax
+        mov     [es:di].date_sep,ax
         mov     ax,[si].dtime_sep                ;copy time separator
-        mov     es:[di].time_sep,ax
+        mov     [es:di].time_sep,ax
         mov     al,[si].dtformat                 ;copy time format
-        mov     es:[di].tformat,al
+        mov     [es:di].tformat,al
 
         mov     cx,[bp].BufferLength  ;was buffer larger than pc-dos gave us?
         sub     cx,34

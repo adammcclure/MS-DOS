@@ -8,8 +8,8 @@ struc for_info
     FOR_EXPAND      DW          (?)                     ; * or ? item in <list>?
     FOR_MINARG      DW          (?)                     ; beginning of <list>
     FOR_MAXARG      DW          (?)                     ; end of <list>
-    forbuf: times 64 dw 0; temporary buffer
-    fordma: times 64 dw 0; FindFirst/Next buffer
+    forbuf: resb 128; temporary buffer
+    fordma: resb 128; FindFirst/Next buffer
     FOR_VAR         DB          (?)                     ; loop control variable
 endstruc
 

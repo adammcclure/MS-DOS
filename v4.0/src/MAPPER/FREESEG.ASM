@@ -36,9 +36,9 @@ invalid_selector equ 0006h
 
 
 struc str
-Old_bp: dw 0
-Return: dd 0
-Selector: dw 0; selector of the segment to be freed
+Old_bp: resw 1
+Return: resd 1
+Selector: resw 1; selector of the segment to be freed
 endstruc
 
 dosfreeseg:

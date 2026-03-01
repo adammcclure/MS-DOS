@@ -182,5 +182,5 @@ DATE_TIME_LOOP: 						;AN000;
 								;
 	GOTO			FORMAT_DISK_SCREEN		;AN000; goto next screen (FORMAT_DISK)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS							;AN000;
+; END SECTION .SELECT;AN000;
 	; END;AN000;

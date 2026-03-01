@@ -58,8 +58,8 @@ DOSSIZE EQU	0A000H
 	%include "DEVMARK.inc"
 ; .list
 
-	%if NOT IBM
-	%if NOT IBMJAPVER
+	%if ~IBM
+	%if ~IBMJAPVER
 	extern RE_INIT
 	%endif
 	%endif
@@ -441,12 +441,12 @@ FINDCOM:
 	SAHF
 	LODSB				;Get indicator letter
 	JNZ	FINDCOM
-	cmp	byte es:[di], CR	;AN011;The next char might be CR,LF
+	cmp	byte [es:di], CR	;AN011;The next char might be CR,LF
 	je	GotCom0 		;AN011; such as in "REM",CR,LF case.
-	cmp	byte es:[di], LF	;AN011;
+	cmp	byte [es:di], LF	;AN011;
 	je	GotCom0 		;AN011;
 	push	ax			;AN010;
-	mov	al, byte es:[di]	;AN010;Now the next char. should be a delim.
+	mov	al, byte [es:di]	;AN010;Now the next char. should be a delim.
 	call	delim			;AN010;
 	pop	ax			;AN010;
 	jnz	findcom 		;AN010;
@@ -568,17 +568,17 @@ Get_Cmt_End:				;AN000;
 End_Commd_Line_Brdg: jmp End_Commd_Line ;AN000; else jmp to End_Commd_Line
 
 Org_Put_Zero:				;AN000; Make the filename in front of
-	mov	byte es:[di], 0	;AN000;  the comment string to be an asciiz.
+	mov	byte [es:di], 0	;AN000;  the comment string to be an asciiz.
 	inc	di			;AN000;
 	jmp	End_Commd_Line		;AN000;  (Maybe null if device=/*)
 End_file_slash: 			;AN000; AL = "/" option char.
-	mov	byte es:[di],0	;AN000; make a filename an asciiz
+	mov	byte [es:di],0	;AN000; make a filename an asciiz
 	inc	di			;AN000; and
 	stosb				;AN000; store "/" after that.
 	jmp	Org5			;AN000; continue with the rest of the line
 
 End_Copy_File:				;AN000;
-	mov	byte es:[di-1], 0	;AN000; make it an asciiz and handle the next char.
+	mov	byte [es:di-1], 0	;AN000; make it an asciiz and handle the next char.
 	cmp	al, LF			;AN000;
 	je	End_Commd_Line_brdg	;AN000;
 	jmp	Org5			;AN000;
@@ -633,7 +633,7 @@ Up_Level:				;AN000;
 
 GET2:
 	JCXZ	NOGET
-	MOV	AL,ES:[SI]
+	MOV	AL,[ES:SI]
 	INC	SI
 	DEC	CX
 	return
@@ -662,17 +662,17 @@ Skip_Comment:
 
 	cmp	CMMT, 1 	;AN000;
 	jb	No_Commt	;AN000;
-	mov	al, es:[si]	;AN000;
+	mov	al, [es:si]	;AN000;
 	cmp	CMMT1, al	;AN000;
 	jne	No_Commt	;AN000;
 	cmp	CMMT, 2 	;AN000;
 	jne	Skip_Cmmt	;AN000;
-	mov	al, es:[si+1]	;AN000;
+	mov	al, [es:si+1]	;AN000;
 	cmp	CMMT2, al	;AN000;
 	jne	No_Commt	;AN000;
 Skip_Cmmt:			;AN000;
 	jcxz	NoGet		;AN000; get out of Organize routine.
-	mov	al, es:[si]	;AN000;
+	mov	al, [es:si]	;AN000;
 	inc	si		;AN000;
 	dec	cx		;AN000;
 	cmp	al, LF		;AN000; line feed?
@@ -840,16 +840,16 @@ ROUND:
 	mov	ax,memhi		; ax = new memhi
 	CMP	AX,[ALLOCLIM]		; if new memhi >= alloclim, error
 	JAE	MEM_ERR
-	test	cs:[SetDevMarkFlag], FOR_DEVMARK	    ;AN005;
+	test	[cs:SetDevMarkFlag], FOR_DEVMARK	    ;AN005;
 	jz	Skip_Set_DEVMARKSIZE			;AN005;
 	push	es					;AN005;
 	push	si					;AN005;
-	mov	si, cs:[DevMark_Addr]			;AN005;
+	mov	si, [cs:DevMark_Addr]			;AN005;
 	mov	es, si					;AN005;
 	sub	ax, si					;AN005;
 	dec	ax					;AN005;
-	mov	es:[DEVMARK_SIZE], ax			;AN005; Paragraph
-	and	cs:[SetDevMarkFlag], NOT_FOR_DEVMARK	    ;AN005;
+	mov	[es:DEVMARK_SIZE], ax			;AN005; Paragraph
+	and	[cs:SetDevMarkFlag], NOT_FOR_DEVMARK	    ;AN005;
 	pop	si					;AN005;
 	pop	es					;AN005;
 Skip_Set_DEVMARKSIZE:					;AN005;
@@ -864,14 +864,14 @@ MEM_ERR:
 	CALL	PRINT
 	JMP	STALL
 
-CALLDEV:MOV	DS,word CS:[ENTRY_POINT+2]
-	ADD	BX,word CS:[ENTRY_POINT]	;Do a little relocation
-	MOV	AX,DS:[BX]
-	PUSH	word CS:[ENTRY_POINT]
-	MOV	word CS:[ENTRY_POINT],AX
+CALLDEV:MOV	DS,word [CS:ENTRY_POINT+2]
+	ADD	BX,word [CS:ENTRY_POINT]	;Do a little relocation
+	MOV	AX,[DS:BX]
+	PUSH	word [CS:ENTRY_POINT]
+	MOV	word [CS:ENTRY_POINT],AX
 	MOV	BX,PACKET
 	CALL	[ENTRY_POINT]
-	POP	word CS:[ENTRY_POINT]
+	POP	word [CS:ENTRY_POINT]
 	return
 
 BADNUM:
@@ -994,15 +994,15 @@ SetDOSCountryInfo:
 	jnz	SetDOSData_fail 	;signature mismatch
 
 	add	si, 18			;SI -> county info type
-	cmp	byte ds:[si], 1	;Only accept type 1 (Currently only 1 header type)
+	cmp	byte [ds:si], 1	;Only accept type 1 (Currently only 1 header type)
 	jne	SetDOSData_fail 	;cannot proceed. error return
 	inc	si			;SI -> file offset
-	mov	dx, word ds:[si]	;Get the INFO file offset.
-	mov	cx, word ds:[si+2]
+	mov	dx, word [ds:si]	;Get the INFO file offset.
+	mov	cx, word [ds:si+2]
 	mov	ax, 1024		;read 1024 bytes.
 	call	ReadInControlBuffer	;Read INFO
 	jc	SetDOSData_fail
-	mov	cx, word ds:[si]	;get the # of country, codepage combination entries
+	mov	cx, word [ds:si]	;get the # of country, codepage combination entries
 	cmp	cx, 72			;cannot handle more than 72 entries.
 	ja	SetDOSData_fail
 	inc	si
@@ -1012,14 +1012,14 @@ SetDOSCountryInfo:
 	pop	di
 
 SetDOSCntry_find:			;Search for desired country_id,codepage_id.
-	cmp	ax, word ds:[si+2]	;compare country_id
+	cmp	ax, word [ds:si+2]	;compare country_id
 	jne	SetDOSCntry_next
 	cmp	dx, 0			;No user specified code page ?
 	je	SetDOSCntry_any_codepage;then no need to match code page id.
-	cmp	dx, word ds:[si+4]	;compare code page id
+	cmp	dx, word [ds:si+4]	;compare code page id
 	je	SetDOSCntry_got_it
 SetDOSCntry_next:
-	add	si, word ds:[si]	;next entry
+	add	si, word [ds:si]	;next entry
 	inc	si
 	inc	si			;take a word for size of entry itself
 	loop	SetDOSCntry_find
@@ -1035,15 +1035,15 @@ SetDOSData_fail:
 	jmp	short	SetDOSCntry_fail
 
 SetDOSCntry_any_CodePage:		;use the code_page_id of the country_id found.
-	mov	dx, word ds:[si+4]
+	mov	dx, word [ds:si+4]
 SetDOSCntry_got_it:			;found the matching entry
 	mov	cs:CntryCodePage_Id, dx ;save code page ID for this country.
-	mov	dx, word ds:[si+10] ;get the file offset of country data
-	mov	cx, word ds:[si+12]
+	mov	dx, word [ds:si+10] ;get the file offset of country data
+	mov	cx, word [ds:si+12]
 	mov	ax, 512 		;read 512 bytes
 	call	ReadInControlBuffer
 	jc	SetDOSCntry_fail
-	mov	cx, word ds:[si]	;get the number of entries to handle.
+	mov	cx, word [ds:si]	;get the number of entries to handle.
 	inc	si
 	inc	si			;SI -> first entry
 
@@ -1052,13 +1052,13 @@ SetDOSCntry_data:
 	push	cx			;save # of entry left
 	push	si			;si -> current entry in Control buffer
 
-	mov	al, byte ds:[si+2]	;get data entry id
+	mov	al, byte [ds:si+2]	;get data entry id
 	call	GetCountryDestination	;get the address of destination in ES:DI
 	jc	SetDOSCntry_data_next	;No matching data entry id in DOS
 
 
-	mov	dx, word ds:[si+4]	;get offset of data
-	mov	cx, word ds:[si+6]
+	mov	dx, word [ds:si+4]	;get offset of data
+	mov	cx, word [ds:si+6]
 	mov	ax, 4200h
 	stc
 	int	21h			;move pointer
@@ -1074,8 +1074,8 @@ SetDOSCntry_data:
 	cmp	ax, cx
 	jne	SetDOSData_fail
 
-	mov	dx, word ds:[si+4]	;AN008;get offset of data again.
-	mov	cx, word ds:[si+6]	;AN008;
+	mov	dx, word [ds:si+4]	;AN008;get offset of data again.
+	mov	cx, word [ds:si+6]	;AN008;
 	mov	ax, 4200h		;AN008;
 	stc				;AN008;
 	int	21h			;AN008;move pointer back again
@@ -1083,7 +1083,7 @@ SetDOSCntry_data:
 
 	push	si			;AN008;
 	mov	si, (512+8)		;AN008;get length of the data from the file
-	mov	cx, word ds:[si]	;AN008;
+	mov	cx, word [ds:si]	;AN008;
 	pop	si			;AN008;
 	mov	dx, 512 		;AN008;start of data buffer
 	add	cx, 10			;AN008;Signature + A word for the length itself
@@ -1094,22 +1094,22 @@ SetDOSCntry_data:
 	cmp	ax, cx			;AN008;
 	jne	SetDOSData_fail 	;AN008;
 
-	mov	al, byte ds:[si+2]	;save Data id for future use.
+	mov	al, byte [ds:si+2]	;save Data id for future use.
 	mov	si, (512+8)		;SI-> data buffer + id tag field
-	mov	cx, word ds:[si]	;get the length of the file
+	mov	cx, word [ds:si]	;get the length of the file
 	inc	cx			;Take care of a word for lenght of tab
 	inc	cx			;itself.
 	cmp	cx, (2048 - 512 - 8)	;Fit into the buffer?
 	ja	SetDOSData_fail
 	cmp	al, SetCountryInfo	;is the data for SetCountryInfo table?
 	jne	SetDOSCntry_Mov 	;no, don't worry
-	push	word es:[di+ccMono_Ptr-ccCountryInfoLen]	;AN009;Cannot destroy ccMono_ptr address. Save them.
-	push	word es:[di+ccMono_Ptr-ccCountryInfoLen+2]	;AN009;At this time DI -> ccCountryInfoLen
+	push	word [es:di+ccMono_Ptr-ccCountryInfoLen]	;AN009;Cannot destroy ccMono_ptr address. Save them.
+	push	word [es:di+ccMono_Ptr-ccCountryInfoLen+2]	;AN009;At this time DI -> ccCountryInfoLen
 	push	di			;save DI
 
 	push	ax
 	mov	ax,cs:CntryCodePage_Id	;Do not use the Code Page info in Country_Info
-	mov	ds:[si+4], ax		;Use the saved one for this !!!!
+	mov	[ds:si+4], ax		;Use the saved one for this !!!!
 	pop	ax
 
 SetDOSCntry_Mov:
@@ -1117,14 +1117,14 @@ SetDOSCntry_Mov:
 	cmp	al, SetCountryInfo	;was the ccMono_ptr saved?
 	jne	SetDOSCntry_data_next
 	pop	di			;restore DI
-	pop	word es:[di+ccMono_Ptr-ccCountryInfoLen+2]	 ;AN009;restore
-	pop	word es:[di+ccMono_Ptr-ccCountryInfoLen]	 ;AN009;
+	pop	word [es:di+ccMono_Ptr-ccCountryInfoLen+2]	 ;AN009;restore
+	pop	word [es:di+ccMono_Ptr-ccCountryInfoLen]	 ;AN009;
 
 SetDOSCntry_data_next:
 	pop	si			;restore control buffer pointer
 	pop	cx			;restore # of entries left
 	pop	di			;restore pointer to DSO_COUNTRY_CDPG
-	add	si, word ds:[si]	;try to get the next entry
+	add	si, word [ds:si]	;try to get the next entry
 	inc	si
 	inc	si			;take a word of entry length itself
 ;	 loop	 SetDOSCntry_data
@@ -1147,13 +1147,13 @@ GetCountryDestination:
 
 	push	cx
 	add	di, ccNumber_of_entries ;skip the reserved area, syscodepage etc.
-	mov	cx, word es:[di]	;get the number of entries
+	mov	cx, word [es:di]	;get the number of entries
 	inc	di
 	inc	di			;SI -> the first start entry id
 GetCntryDest:
-	cmp	byte es:[di], al
+	cmp	byte [es:di], al
 	je	GetCntryDest_OK
-	cmp	byte es:[di], SetCountryInfo ;was it SetCountryInfo entry?
+	cmp	byte [es:di], SetCountryInfo ;was it SetCountryInfo entry?
 	je	GetCntryDest_1
 	add	di, 5			;next data id
 	jmp	short GetCntryDest_loop
@@ -1169,7 +1169,7 @@ GetCntryDest_OK:
 	inc	di			;now DI -> ccCountryInfoLen
 	jmp	short	GetCntryDest_exit
 GetCntryDest_OK1:
-	les	di, dword es:[di+1] ;get the destination in ES:DI
+	les	di, dword [es:di+1] ;get the destination in ES:DI
 GetCntryDest_Exit:
 	pop	cx
 	ret
@@ -1221,7 +1221,7 @@ SET_COUNTRY_PATH:
 
 	call	chk_drive_letter	;current DS:[SI] is a drive letter?
 	jc	SCP_Default_drv 	;no, use current default drive.
-	mov	al, byte DS:[SI]
+	mov	al, byte [DS:SI]
 	inc	si
 	inc	si			;SI -> next char after ":"
 	jmp	short SCP_SetDrv
@@ -1232,7 +1232,7 @@ SCP_Default_drv:
 SCP_SetDrv:
 	mov	cs:CNTRY_DRV, al	;set the drive letter.
 	mov	di, CNTRY_PATH
-	mov	al, byte DS:[SI]
+	mov	al, byte [DS:SI]
 	cmp	al, "\"
 	je	SCP_Root_Dir
 	cmp	al, cs:SWTCHR		;let's accept "/" as an directory delim
@@ -1259,11 +1259,11 @@ CHK_DRIVE_LETTER:
 ;Carry set if not.
 ;
 	push	ax
-	cmp	byte ds:[si], "A"
+	cmp	byte [ds:si], "A"
 	jb	CDLetter_NO
-	cmp	byte ds:[si], "Z"
+	cmp	byte [ds:si], "Z"
 	ja	CDLetter_NO
-	cmp	byte ds:[si+1], ":"
+	cmp	byte [ds:si+1], ":"
 	jne	CDLetter_NO
 	jmp	short CDLetter_exit
 CDLetter_NO:
@@ -1280,7 +1280,7 @@ MOVE_ASCIIZ:
 ;Assumes there exists a 0.
 MASCIIZ_loop:
 	movsb
-	cmp	byte DS:[SI-1], 0	;Was it 0?
+	cmp	byte [DS:SI-1], 0	;Was it 0?
 	jne	MASCIIZ_loop
 	ret
 ; ENDP MOVE_ASCIIZ
@@ -1304,7 +1304,7 @@ PRNERR:
 	PUSH	CS
 	POP	DS
 	call	Print
-PRN1:	MOV	DL,ES:[SI]
+PRN1:	MOV	DL,[ES:SI]
 	OR	DL,DL
 	JZ	PRN2
 	MOV	AH,STD_CON_OUTPUT

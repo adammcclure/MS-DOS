@@ -16,7 +16,7 @@
 
 ;Use the following booleans to set assembly flags
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 IBMVER  EQU     FALSE   ;Switch to build IBM version of Command
 MSVER   EQU     TRUE    ;Switch to build MS-DOS version of Command
@@ -97,7 +97,7 @@ SECTION .TRANSPACE
 
 SECTION .DATARES
         ORG     0
-ZERO    =       $
+ZERO equ $
 MESBAS  DW      ERR0
         DW      ERR2
         DW      ERR4
@@ -210,7 +210,7 @@ TRANDATASIZE    EQU     $-ZERO
 ;Uninitialized transient data
 SECTION .TRANSPACE
         ORG     0
-ZERO    =       $
+ZERO equ $
         times 128 db 0
 TPA: times 1 dw 0
 RESSEG: times 1 dw 0
@@ -282,7 +282,7 @@ TRANSPACESIZE   EQU     $-ZERO
 SECTION .CODERES
 ; ASSUME  CS:RESGROUP,DS:RESGROUP,ES:RESGROUP,SS:RESGROUP
         ORG     0
-ZERO    =       $
+ZERO equ $
 PARMBUF:
 
         ORG     100H
@@ -344,17 +344,17 @@ HAVCOM:
         MOVSW           ;Move TPA segment to transient storage
         MOVSW           ;Move resident segment too
         MOV     AX,[MEMSIZ]
-        MOV     word ES:[2],AX
+        MOV     word [ES:2],AX
         JMP     dword [TRANS]
 
 RESIDENT:
         ADD     DX,15
         MOV     CL,4
         SHR     DX,CL           ;Number of paragraphs of new addition
-        ADD     CS:[LTPA],DX
+        ADD     [CS:LTPA],DX
         XOR     AX,AX
         MOV     DS,AX
-        JMP     dword DS:[80H]              ;Pretend user executed INT 20H
+        JMP     dword [DS:80H]              ;Pretend user executed INT 20H
 
 DSKERR:
         ;******************************************************
@@ -519,14 +519,14 @@ RESCODESIZE     EQU     $-ZERO
 SECTION .INIT
 
         ORG     0
-ZERO    =       $
+ZERO equ $
 CONPROC:
         MOV     SP,RSTACK
 
         %if HIGHMEM
-        MOV     AX,word DS:[2]
+        MOV     AX,word [DS:2]
         SUB     AX,((RESCODESIZE+RESDATASIZE)+15)/16            ;Subtract size of resident
-        MOV     word DS:[2],AX
+        MOV     word [DS:2],AX
         MOV     ES,AX
         MOV     SI,100H
         MOV     DI,SI
@@ -536,11 +536,11 @@ CONPROC:
         MOV     [LTPA],CS
         %endif
 
-        %if NOT HIGHMEM
+        %if ~HIGHMEM
         MOV     AX,CS
         ADD     AX,((RESCODESIZE+RESDATASIZE)+15)/16            ;Compute segment of TPA
         MOV     [LTPA],AX
-        MOV     AX,word DS:[2]
+        MOV     AX,word [DS:2]
         %endif
 
         MOV     [MYSEG],DS
@@ -577,7 +577,7 @@ CONPROC:
         MOV     word[INITADD],AX
         MOV     AX,[TRNSEG]
         MOV     word[INITADD+2],AX
-        CALL    dword DS:[INITADD]
+        CALL    dword [DS:INITADD]
 
         %if IBMVER
         MOV     DX,HEADER
@@ -630,7 +630,7 @@ ASWITCH EQU     8               ;ASCII mode during COPY
 BSWITCH EQU     10H             ;Binary mode during COPY
 
         ORG     0
-ZERO    =       $
+ZERO equ $
 
         ORG     100H            ;Allow for 100H parameter area
 
@@ -741,7 +741,7 @@ SAVBATBYT:
         JNZ     RDBAT
         SUB     DI,COMBUF+3
         MOV     AX,DI
-        MOV     ES:[COMBUF+1],AL        ;Set length of line
+        MOV     [ES:COMBUF+1],AL        ;Set length of line
         CALL    GETBATBYT       ;Eat linefeed
         PUSH    CS
         POP     DS              ;Go back to local segment
@@ -778,7 +778,7 @@ COMTAIL:
         CMP     AL,13
         LOOPNZ  COMTAIL
         NOT     CL
-        MOV     byte DS:[80H],CL
+        MOV     byte [DS:80H],CL
         POP     SI
 ;If the command has 0 parameters must check here for
 ;any switches that might be present.
@@ -917,7 +917,7 @@ EACHPARM:
         CALL    SCANOFF
         CMP     AL,0DH
         JZ      HAVPARM
-        MOV     ES:[BX],DI              ;Set pointer table to point to actual parameter
+        MOV     [ES:BX],DI              ;Set pointer table to point to actual parameter
         INC     BX
         INC     BX
 MOVPARM:
@@ -1265,12 +1265,12 @@ ASKAGN:
 NOPRMPT:
         MOV     AH,DELETE
         MOV     BX,NOTFND
-        CMP     byte DS:[FCB+1]," " ;Check if parameter exists
+        CMP     byte [DS:FCB+1]," " ;Check if parameter exists
         JMP     SHORT OPFILE
 RENAME:
         MOV     AH,RENAM
         MOV     BX,RENERR
-        CMP     byte DS:[FCB+16+1]," "  ;Check if parameter exists
+        CMP     byte [DS:FCB+16+1]," "  ;Check if parameter exists
 OPFILE:
         MOV     DX,MISNAM
         JZ      ERRJ            ;Error if missing parameter
@@ -1295,10 +1295,10 @@ TYPEFIL:
         MOV     DX,NOTFND
         JNZ     ERRJ
         XOR     AX,AX
-        MOV     word DS:[FCB+RR],AX ;Set RR field
-        MOV     word DS:[FCB+RR+2],AX
+        MOV     word [DS:FCB+RR],AX ;Set RR field
+        MOV     word [DS:FCB+RR+2],AX
         INC     AX
-        MOV     word DS:[FCB+RECLEN],AX     ;Set record length
+        MOV     word [DS:FCB+RECLEN],AX     ;Set record length
         MOV     ES,[TPA]
 TYPELP:
         MOV     DX,FCB
@@ -1308,7 +1308,7 @@ TYPELP:
         JCXZ    RET30
         XOR     SI,SI           ;Start at 0 in TPA
 OUTLP:
-        LODS    byte ES:[SI]                ;In TPA segment
+        LODS    byte [ES:SI]                ;In TPA segment
         CMP     AL,1AH
         JZ      RET30
         MOV     AH,OUTCH
@@ -1793,7 +1793,7 @@ DATINIT:
         MOV     AX,CS           ;Set up the appropriate segment registers
         MOV     ES,AX
         MOV     DS,AX
-        MOV     word DS:[81H],13    ;Want to prompt for date during initialization
+        MOV     word [DS:81H],13    ;Want to prompt for date during initialization
         CALL    DATE
         CALL    TIME
         POP     DS
@@ -2118,7 +2118,7 @@ RELOC:
         MOV     AX,[RELSEG]     ;Get segment
         ADD     AX,BP           ;Bias segment with actual load segment
         MOV     ES,AX
-        ADD     word ES:[DI],BP             ;Relocate
+        ADD     word [ES:DI],BP             ;Relocate
         DEC     [RELCNT]        ;Count off
         JNZ     RELOC
 ;Set up exit conditions
@@ -2135,27 +2135,27 @@ NOREL:
         MOV     ES,AX
         MOV     DS,AX           ;Set segment registers to point to it
         CALL    SETUP
-        JMP     dword CS:[INITIP]   ;Long jump to program
+        JMP     dword [CS:INITIP]   ;Long jump to program
 
 SETUP:
         AND     CL,0F0H         ;Adjust to even paragraph boundary
-        MOV     AX,word DS:[6]              ;Get current memory size
+        MOV     AX,word [DS:6]              ;Get current memory size
         SUB     AX,CX           ;Find out how much we're changing it
-        MOV     word DS:[6],CX
+        MOV     word [DS:6],CX
         MOV     CL,4
         SAR     AX,CL           ;Convert to a segment address
-        ADD     word DS:[8],AX              ;Adjust long jump to go to same place
+        ADD     word [DS:8],AX              ;Adjust long jump to go to same place
         MOV     DX,80H
         MOV     AH,SETDMA
         INT     33              ;Set default disk transfer address
-        MOV     AX,word CS:[PARM1]  ;Pass on info about FCBs
+        MOV     AX,word [CS:PARM1]  ;Pass on info about FCBs
         XOR     CX,CX
         MOV     DX,CX           ;Assume no batch file
 ; ASSUME  CS:RESGROUP
-        TEST    CS:[BATCH],-1   ;Batch file in progress?
+        TEST    [CS:BATCH],-1   ;Batch file in progress?
 ; ASSUME  CS:TRANGROUP
         JZ      RET120          ;If not, all set up
-        MOV     CX,CS:[RESSEG]
+        MOV     CX,[CS:RESSEG]
         MOV     DX,BATFCB       ;CX:DX points to batch FCB
 RET120: RET
 TRANCODESIZE    EQU     $-ZERO

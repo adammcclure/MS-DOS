@@ -536,10 +536,10 @@ endstruc
 struc parms_def;AN000;
 
 parmsx_ptr	  DW	  bogus 	  ;AN000;changed as the possibilities for parms following are determined
-		  DB	  1		  ;AN000;have extra delimiter list
+		  resb 1;AN000;have extra delimiter list
 seperators_len	  DB	  1		  ;AN000;length of extra delimiter list
 seperators	  DB	  ";"             ;AC003;EXTRA DELIMITER LIST
-		  times 8 db " ";AC003; extra blanks for adding more delimeters (. " \ [ ] : + =)
+		  resb 8;AC003; extra blanks for adding more delimeters (. " \ [ ] : + =)
 
 endstruc;AN000;
 
@@ -4335,7 +4335,7 @@ DW    delete_case	  ;AN000;
       ADD   DI,seperators       ;ES:DI=>seperator list
       REPNE SCASB
       DEC   DI			       ;AN000;DI=>char to be deleted
-      MOV   ES:[DI],byte blank		;duplicate but harmless blank
+      MOV   [ES:DI],byte blank		;duplicate but harmless blank
 
       POP   DI
 
@@ -4406,7 +4406,7 @@ keywords:
 ;	    use result.synonym to find the the keyword to delete
 
 	    MOV   SI,parm_list[current_parm_DI].keyword_switch_ptr	;SI=>the keyword string to be deleted
-	    MOV   byte ES:[SI],deleted	  ;AN000;zilch out first byte of the keyword string
+	    MOV   byte [ES:SI],deleted	  ;AN000;zilch out first byte of the keyword string
 
 
    RET

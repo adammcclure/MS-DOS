@@ -10,9 +10,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;
 %macro $M_DECLARE 1;
-   $M_DCOUNT = 0		       ;
+   $M_DCOUNT equ 0;
    %rep numcls;
-     $M_DCOUNT =  $M_DCOUNT + 1        ;
+     $M_DCOUNT equ $M_DCOUNT + 1;
      $M_DECLARE2  %$M_DCOUNT	       ;
    %endmacro;
 
@@ -37,8 +37,8 @@
 %endmacro;
 				       ;
 %macro $M_DECLARE2 1;
-  %if NOT COMR; IF Not resident COMMAND.COM
-    %if NOT COMT; IF Not transient COMMAND.COM
+  %if ~COMR; IF Not resident COMMAND.COM
+    %if ~COMT; IF Not transient COMMAND.COM
       IFNDEF  $M_CLS_&innum		 ; IF class is not in this assembly,
 	%if FARmsg;
 	  extern $M_CLS_&innum;    Must be external

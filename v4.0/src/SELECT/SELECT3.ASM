@@ -282,5 +282,5 @@ REVIEW_DISKETTE_SCREEN: 					;AN000;
 	   GOTO 		PROCESS_ESC_F3			;AN000; user entered ESC or E3, take action
 	; .ENDIF;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS							;AN000;
+; END SECTION .SELECT;AN000;
 	; END;AN000;

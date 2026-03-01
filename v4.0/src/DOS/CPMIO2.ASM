@@ -133,7 +133,7 @@ OUTSKIP:
 	MOV	BX,1
 	invoke	GET_IO_SFT
 	JC	TRIPOPJ
-	MOV	BX,[SI.sf_flags]
+	MOV	BX,[SI+sf_flags]
 	TEST	BX,sf_isnet			; output to NET?
 	JNZ	TRIPOPJ 			; if so, no echo
 	TEST	BX,devid_device 		; output to file?
@@ -141,7 +141,7 @@ OUTSKIP:
 	MOV	BX,4
 	invoke	GET_IO_SFT
 	JC	TRIPOPJ
-	TEST	[SI.sf_flags],sf_net_spool	; StdPrn redirected?
+	TEST	[SI+sf_flags],sf_net_spool	; StdPrn redirected?
 	JZ	LISSTRT2J			; No, OK to echo
 	MOV	byte [PFLAG],0		; If a spool, NEVER echo
 TRIPOPJ:

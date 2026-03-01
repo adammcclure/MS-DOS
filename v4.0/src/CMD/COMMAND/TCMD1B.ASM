@@ -411,9 +411,9 @@ typecont:
 ; ASSUME	DS:NOTHING
 
 typelp:
-	cmp	cs:[zflag],0			;AC050; Is the ^Z flag set?
+	cmp	[cs:zflag],0			;AC050; Is the ^Z flag set?
 	retnz					; Yes, return
-	mov	cx,cs:[bytcnt]			;AC056; No, continue
+	mov	cx,[cs:bytcnt]			;AC056; No, continue
 	mov	ah,read
 	int	int_command
 	jc	typerr				;AN022; Exit if error
@@ -540,7 +540,7 @@ OKVOLARG:
 ; Print volume ID info
 
 	push	ax				;AC000; AX return from SEARCH_FIRST for VOL ID
-	mov	al,DS:[FCB]			;AC000; get drive letter
+	mov	al,[DS:FCB]			;AC000; get drive letter
 	add	al,'@'
 	cmp	al,'@'
 	jnz	drvok
@@ -574,7 +574,7 @@ PRINT_SERIAL:
 
 	push	dx				;AN000; save message offset
 	mov	ax,(GetSetMediaID SHL 8)	;AC036; Get the volume serial info
-	mov	bl,DS:[FCB]			;AN000; get drive number from FCB
+	mov	bl,[DS:FCB]			;AN000; get drive number from FCB
 	mov	dx,vol_ioctl_buf ;AN000;target buffer
 	int	int_command			;AN000; do the call
 	pop	dx				;AN000; get message offset back

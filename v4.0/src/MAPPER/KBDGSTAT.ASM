@@ -36,10 +36,10 @@ SECTION .kbdxxx
 	global kbdgetstatus
 
 struc str
-old_bp: dw 0
-return: dd 0
-handle: dw 0; kbd handle
-data: dd 0; data area pointer
+old_bp: resw 1
+return: resd 1
+handle: resw 1; kbd handle
+data: resd 1; data area pointer
 endstruc
 
 kbdgetstatus:
@@ -53,19 +53,19 @@ kbdgetstatus:
 	; assume	ds:kbddata
 
 	mov	ax,KbdBitMask			 ; save kbd bit mask in
-	mov	es:[di].Bit_Mask,ax		 ; return data area
+	mov	[es:di].Bit_Mask,ax		 ; return data area
 
 	mov	ax,KbdTurnAroundCharacter	 ; save turn around character
-	mov	es:[di].Turn_Around_Char,ax
+	mov	[es:di].Turn_Around_Char,ax
 
 	mov	ax,KbdInterimCharFlags		 ; save interim character flag
-	mov	es:[di].Interim_Char_Flags,ax
+	mov	[es:di].Interim_Char_Flags,ax
 
 	mov	ah,2
 	int	16h				 ; get kbd shift status
 
 	xor	ah,ah
-	mov	es:[di].Status_Shift_State,ax	 ; save it in return data
+	mov	[es:di].Status_Shift_State,ax	 ; save it in return data
 						 ; area
 	Mexit					 ; restore registers
 

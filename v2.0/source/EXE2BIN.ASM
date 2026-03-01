@@ -21,7 +21,7 @@
 ;    10/27/82   Added the DOS version check
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 OLDLINK EQU     0                  ;1 to enable, 0 to disable
 
@@ -157,13 +157,13 @@ sj0:
         je      sj2
         cmp     al,'.'                  ;an extension separator found?
         jne     sj1
-        mov     es:[per1],-1
+        mov     [es:per1],-1
 sj1:
         stosb
         jmp     short sj0
 sj2:
         dec     si
-        mov     byte es:[di],00h    ;nul terminate the filename
+        mov     byte [es:di],00h    ;nul terminate the filename
         call    kill_bl
         jc      no_second
 
@@ -177,12 +177,12 @@ sj3:
         je      sj5
         cmp     al,'.'                  ;an extension separator found?
         jne     sj4
-        mov     es:[per2],-1
+        mov     [es:per2],-1
 sj4:
         stosb
         jmp     short sj3
 sj5:
-        mov     byte es:[di],00h     ;nul terminate
+        mov     byte [es:di],00h     ;nul terminate
         jmp     short check_ext
 
 ;----- Copy file1 to file2
@@ -470,7 +470,7 @@ RDCMP:
         MOV     AX,[RELSEG]             ;Get segment
         ADD     AX,BX                   ;Bias segment with actual load segment
         MOV     ES,AX
-        ADD     ES:[DI],BP              ;Relocate
+        ADD     [ES:DI],BP              ;Relocate
         DEC     [RELCNT]                ;Count off
         JNZ     RELOC
 STORE:

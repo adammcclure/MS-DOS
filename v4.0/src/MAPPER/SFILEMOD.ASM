@@ -31,11 +31,11 @@ SECTION .dosxxx
 
 
 struc str
-old_bp: dw 0
-return: dd 0
-Rsrvd: dd 0; reserved
-Attrib: dw 0; file attribute
-Path: dd 0; path name pointer  pointer
+old_bp: resw 1
+return: resd 1
+Rsrvd: resd 1; reserved
+Attrib: resw 1; file attribute
+Path: resd 1; path name pointer  pointer
 endstruc
 
 dossetfilemode:

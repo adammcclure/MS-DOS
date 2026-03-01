@@ -92,7 +92,7 @@
 
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 KANJI   EQU     FALSE
 
@@ -435,7 +435,7 @@ not_root:
         int     21h
         mov     [user_drive],al
 
-        mov     dl,byte ds:[fcb]    ;get specified drive if any
+        mov     dl,byte [ds:fcb]    ;get specified drive if any
         or      dl,dl                   ;default disk?
         jz      same_drive
         dec     dl                      ;adjust to real drive (a=0,b=1,...)
@@ -458,7 +458,7 @@ same_drive:
         jmp     xerror
 
 drvisok:
-        cmp     [bx.dpb_current_dir],0
+        cmp     [bx+dpb_current_dir],0
         je      curr_is_root
         mov     si,bx
         add     si,dpb_dir_text
@@ -518,7 +518,7 @@ same_dir:
         jz      sj4
         jmp     xerror
 sj4:
-        CMP     byte DS:[FCB+1]," "
+        CMP     byte [DS:FCB+1]," "
         jnz     sj5
         jmp     noname
 sj5:
@@ -585,18 +585,18 @@ NOTBAK:
         JMP     xERROR
 SETUP:
         XOR     AX,AX
-        MOV     word DS:[FCB+fcb_RR],AX         ;Set RR field to zero
-        MOV     word DS:[FCB+fcb_RR+2],AX
+        MOV     word [DS:FCB+fcb_RR],AX         ;Set RR field to zero
+        MOV     word [DS:FCB+fcb_RR+2],AX
         MOV     word [FCB2+fcb_RR],AX
         MOV     word [FCB2+fcb_RR+2],AX
         INC     AX
-        MOV     word DS:[FCB+fcb_RECSIZ],AX         ;Set record length to 1
+        MOV     word [DS:FCB+fcb_RECSIZ],AX         ;Set record length to 1
         MOV     word [FCB2+fcb_RECSIZ],AX
         MOV     DX,START
         MOV     DI,DX
         MOV     AH,SET_DMA
         INT     21H
-        MOV     CX,DS:[6]
+        MOV     CX,[DS:6]
         DEC     CX
         MOV     [LAST],CX
         TEST    byte [HAVEOF],-1
@@ -1017,8 +1017,8 @@ FULLN:
         SUB     CX,DI
         XCHG    DI,[ENDTXT]
         ADD     DI,CX                           ;Amount of file read but not used
-        SUB     word DS:[FCB+fcb_RR],DI         ;Adjust RR field in case end of file
-        SBB     word DS:[FCB+fcb_RR+2],0           ;   was not reached
+        SUB     word [DS:FCB+fcb_RR],DI         ;Adjust RR field in case end of file
+        SBB     word [DS:FCB+fcb_RR+2],0           ;   was not reached
         CMP     BX,DX
         JNZ     EOFCHK
         MOV     byte [HAVEOF],0
@@ -1650,10 +1650,10 @@ MRG:
         MOV     AH,SET_DMA
         INT     21H
         XOR     AX,AX
-        MOV     word DS:[FCB3+fcb_RR],AX
-        MOV     word DS:[FCB3+fcb_RR+2],AX
+        MOV     word [DS:FCB3+fcb_RR],AX
+        MOV     word [DS:FCB3+fcb_RR+2],AX
         INC     AX
-        MOV     word DS:[FCB3+fcb_RECSIZ],AX
+        MOV     word [DS:FCB3+fcb_RECSIZ],AX
         MOV     DX,FCB3
         MOV     CX,[ENDTXT]
         SUB     CX,[POINTER]

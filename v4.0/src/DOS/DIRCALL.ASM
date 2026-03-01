@@ -31,7 +31,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	THISSFT,DWORD
 	i_need	THISCDS,DWORD
@@ -82,7 +82,7 @@ BREAK <DOS_MkDir - Make a directory entry>
 
 	Invoke	TestNet
 	JNC	local_mkdir
-%if NOT Installed
+%if ~Installed
 	transfer NET_MKDIR
 %else
 	MOV	AX,(multNET SHL 8) OR 3
@@ -124,9 +124,9 @@ LOCAL_MKDIR:
 ; ASSUME	DS:NOTHING
 	SUB	SI,DI
 	PUSH	SI		; Pointer to dir_first
-	PUSH	word [DI.buf_sector+2]	    ;F.C. >32mb
+	PUSH	word [DI+buf_sector+2]	    ;F.C. >32mb
 
-	PUSH	word [DI.buf_sector] ; Sector of new node
+	PUSH	word [DI+buf_sector] ; Sector of new node
 	context DS
 	PUSH	[DIRSTART]	; Parent for .. entry
 	XOR	AX,AX
@@ -137,10 +137,10 @@ LOCAL_MKDIR:
 	JC	NODEEXISTSPOPDEL    ; Screw up
 	LES	DI,[CURBUF]
 
-	TEST	ES:[DI.buf_flags],buf_dirty  ;LB. if already dirty		;AN000;
+	TEST	[ES:DI+buf_flags],buf_dirty  ;LB. if already dirty		;AN000;
 	JNZ	yesdirty		  ;LB.	  don't increment dirty count   ;AN000;
 	invoke	INC_DIRTY_COUNT 	  ;LB.					;AN000;
-	OR	ES:[DI.buf_flags],buf_dirty
+	OR	[ES:DI+buf_flags],buf_dirty
 yesdirty:
 	ADD	DI,BUFINSIZ	; Point at buffer
 	MOV	AX,202EH	; ". "
@@ -160,7 +160,7 @@ yesdirty:
 	MOV	DX,[DIRSTART]
 	LDS	DI,[CURBUF]
 ; ASSUME	DS:NOTHING
-	OR	[DI.buf_flags],buf_isDIR
+	OR	[DI+buf_flags],buf_isDIR
 	POP	SI		; dir_first pointer
 	ADD	SI,DI
 	MOV	[SI],DX
@@ -168,13 +168,13 @@ yesdirty:
 	MOV	[SI+2],DX	; Zero size
 	MOV	[SI+4],DX
 DIRUP:
-	TEST	[DI.buf_flags],buf_dirty  ;LB. if already dirty 		;AN000;
+	TEST	[DI+buf_flags],buf_dirty  ;LB. if already dirty 		;AN000;
 	JNZ	yesdirty2		  ;LB.	  don't increment dirty count   ;AN000;
 	invoke	INC_DIRTY_COUNT 	  ;LB.					;AN000;
-	OR	[DI.buf_flags],buf_dirty	; Dirty buffer
+	OR	[DI+buf_flags],buf_dirty	; Dirty buffer
 yesdirty2:
 	context DS
-	MOV	AL,ES:[BP.dpb_drive]
+	MOV	AL,[ES:BP+dpb_drive]
 	invoke	FLUSHBUF
 	MOV	AX,error_access_denied
 	LeaveCrit   critDisk
@@ -192,7 +192,7 @@ NODEEXISTSPOPDEL:
 	JC	NODEEXISTSP
 	LDS	DI,[CURBUF]
 ; ASSUME	DS:NOTHING
-	OR	[DI.buf_flags],buf_isDIR
+	OR	[DI+buf_flags],buf_isDIR
 	POP	SI		; dir_first pointer
 	ADD	SI,DI
 	SUB	SI,dir_first	;Point back to start of dir entry
@@ -238,7 +238,7 @@ BREAK <DOS_ChDir -- Verify a directory>
 
 	Invoke	TestNet
 	JNC	LOCAL_CHDIR
-%if NOT Installed
+%if ~Installed
 	transfer NET_CHDIR
 %else
 	MOV	AX,(multNET SHL 8) OR 5
@@ -248,9 +248,9 @@ BREAK <DOS_ChDir -- Verify a directory>
 
 LOCAL_CHDIR:
 	EnterCrit   critDisk
-	TEST	ES:[DI.curdir_flags],curdir_splice ;PTM.
+	TEST	[ES:DI+curdir_flags],curdir_splice ;PTM.
 	JZ	nojoin				   ;PTM.
-	MOV	ES:[DI.curdir_ID],0FFFFH	   ;PTM.
+	MOV	[ES:DI+curdir_ID],0FFFFH	   ;PTM.
 nojoin:
 	MOV	[NoSetDir],FALSE
 	MOV	[SATTRIB],attr_directory+attr_system+attr_hidden
@@ -309,7 +309,7 @@ BREAK <DOS_RmDir -- Remove a directory>
 
 	Invoke	TestNet
 	JNC	Local_RmDIR
-%if NOT Installed
+%if ~Installed
 	transfer NET_RMDIR
 %else
 	MOV	AX,(multNET SHL 8) OR 1
@@ -347,8 +347,8 @@ rmdir_get_buf:
 ; ASSUME	DS:NOTHING
 	SUB	BX,DI		; Compute true offset
 	PUSH	BX		; Save entry pointer
-	PUSH	word [DI.buf_sector+2] ;F.C. >32mb
-	PUSH	word [DI.buf_sector] ; Save sector number
+	PUSH	word [DI+buf_sector+2] ;F.C. >32mb
+	PUSH	word [DI+buf_sector] ; Save sector number
 	context DS
 	context ES
 	MOV	DI,NAME1
@@ -395,7 +395,7 @@ rmdir_get_buf:
 	JC	NOTDIRPATHPOP2		; Screw up
 	LDS	DI,[CURBUF]
 ; ASSUME	DS:NOTHING
-	OR	[DI.buf_flags],buf_isDIR
+	OR	[DI+buf_flags],buf_isDIR
 	POP	BX			; Pointer to start of entry
 	ADD	BX,DI			; Corrected
 	MOV	byte [BX],0E5H	; Free the entry

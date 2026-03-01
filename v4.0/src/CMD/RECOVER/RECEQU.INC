@@ -110,8 +110,8 @@ endstruc
 struc Media_ID;AN000;
 Media_ID_Info_Level dw 0							;AN000;
 Media_ID_Serial_Number dd 0							;AN000;
-Media_ID_Volume_Label: times 11 db " ";AN000;
-Media_ID_File_System: times 8 db " ";AN000;
+Media_ID_Volume_Label: resb 11;AN000;
+Media_ID_File_System: resb 8;AN000;
 endstruc;AN000;
 
 ;-------------------------------------------------------------------------------
@@ -119,24 +119,24 @@ endstruc;AN000;
 ;-------------------------------------------------------------------------------
 struc A_DeviceParameters
 
-SpecialFunctions: db 0
-DeviceType: db 0
-DeviceAttributes: dw 0
-NumberOfCylinders: dw 0
-MediaType: db 0
-BytePerSector: dw 0
-SectorsPerCluster: db 0
-ReservedSectors: dw 0
-NumberOfFATs: db 0
-RootEntries: dw 0
-TotalSectors: dw 0
-MediaDescriptor: db 0
-SectorsPerFAT: dw 0
-SectorsPerTrack: dw 0
-Heads: dw 0
-HiddenSectors: dd 0
-Ext_Total_Sectors: dd 0
-Reserved_Area: times 6 db 0
+SpecialFunctions: resb 1
+DeviceType: resb 1
+DeviceAttributes: resw 1
+NumberOfCylinders: resw 1
+MediaType: resb 1
+BytePerSector: resw 1
+SectorsPerCluster: resb 1
+ReservedSectors: resw 1
+NumberOfFATs: resb 1
+RootEntries: resw 1
+TotalSectors: resw 1
+MediaDescriptor: resb 1
+SectorsPerFAT: resw 1
+SectorsPerTrack: resw 1
+Heads: resw 1
+HiddenSectors: resd 1
+Ext_Total_Sectors: resd 1
+Reserved_Area: resb 6
 
 endstruc
 
@@ -148,11 +148,11 @@ endstruc
 ;-------------------------------------------------------------------------------
 struc Relative_Sector_Buffer;				;AN000;
 
-Start_Sector_Low: dw 0;Low word of RBA sector 	;AN000;
-Start_Sector_High: dw 0;High word of RBA sector	;AN000;
-Number_Sectors: dw 0;Number of sectors		;AN000;
-Buffer_Offset: dw 0;Address of data buffer 	;AN000;
-Buffer_Segment: dw 0;				;AN000;
+Start_Sector_Low: resw 1;Low word of RBA sector 	;AN000;
+Start_Sector_High: resw 1;High word of RBA sector	;AN000;
+Number_Sectors: resw 1;Number of sectors		;AN000;
+Buffer_Offset: resw 1;Address of data buffer 	;AN000;
+Buffer_Segment: resw 1;				;AN000;
 
 endstruc;				;AN000;
 
@@ -162,10 +162,10 @@ endstruc;				;AN000;
 ;-------------------------------------------------------------------------------
 struc XAL;AN000;
 
-XAL_Tsize: dw 0;AN000;
-XAL_TCount: dw 0;AN000;
-XAL_LSize: dw 0;AN000;
-XAL_LCount: dw 0;AN000;
+XAL_Tsize: resw 1;AN000;
+XAL_TCount: resw 1;AN000;
+XAL_LSize: resw 1;AN000;
+XAL_LCount: resw 1;AN000;
 XAL_Data	db	512-times 8 db 0						;AN000;
 
 endstruc;AN000;

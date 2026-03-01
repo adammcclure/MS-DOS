@@ -255,16 +255,16 @@ DMAIN:
         JNE     GETWORDREAL             ; Yes.  Then go get a word.
 
         IN      AL,DX                   ; Else we'll just get a byte
-        MOV     byte SS:[BP+BP_AX],AL ; And put it into the user's AL reg.
+        MOV     byte [SS:BP+BP_AX],AL ; And put it into the user's AL reg.
         JMP     INEXIT                  ; Go return to the user
 
 GETWORDREAL:
         IN      AX,DX                   ; Get a word from the port
-        MOV     word SS:[BP+BP_AX],AX ; Put it into the user's AX register
+        MOV     word [SS:BP+BP_AX],AX ; Put it into the user's AX register
         MOV     WORD_FLAG,0             ; Reset the word flag
 
 INEXIT:
-        ADD     word SS:[BP+BP_IP],1 ; Step IP past the instruction, or past
+        ADD     word [SS:BP+BP_IP],1 ; Step IP past the instruction, or past
                                         ;   the port value in the case of I/O
                                         ;   with an immediate port value
         JMP     POPIO                   ; Return to the V86 task
@@ -342,7 +342,7 @@ SET_CHN_3:
 ; we will signal an error.
 
 CHNCOM:
-        MOV     AL,byte SS:[BP+BP_AX] ; Get the value that is to be written
+        MOV     AL,byte [SS:BP+BP_AX] ; Get the value that is to be written
                                         ;   to the page port
         CMP     AL,10H                  ; Is it 10H or greater?
         JB      CHNCONT                 ; Nope.  We're still OK.
@@ -391,19 +391,19 @@ DOOUT:
         CMP     WORD_FLAG,0             ; Is this an "OUT" for a word?
         JNE     PUTWORDREAL             ; Aye.  Go put out a word.
 
-        MOV     AL,byte SS:[BP+BP_AX] ; Nay.  It is for a byte.  Get the
+        MOV     AL,byte [SS:BP+BP_AX] ; Nay.  It is for a byte.  Get the
                                         ;   byte from the user's AL register
         OUT     DX,AL                   ; And send it out to the port
         JMP     OUTEXITDMA              ; Time to leave
 
 PUTWORDREAL:
-        MOV     AX,word SS:[BP+BP_AX] ; Get the word form the user's AX
+        MOV     AX,word [SS:BP+BP_AX] ; Get the word form the user's AX
         OUT     DX,AX                   ; And thrust it out to the port
         MOV     WORD_FLAG,0             ; Reset the word flag
 
 OUTEXITDMA:
 
-        ADD     word SS:[BP+BP_IP],1 ; Step IP past the instruction, or past
+        ADD     word [SS:BP+BP_IP],1 ; Step IP past the instruction, or past
                                         ;   the port value in the case of I/O
                                         ;   with an immediate port value
         JMP     POPIO                   ; Return to the V86 task
@@ -499,7 +499,7 @@ CHN_3:
                                         ;   channel 3
 
 MOVBYTE:
-        MOV     AL,byte SS:[BP+BP_AX] ; Get the byte from the user's AL
+        MOV     AL,byte [SS:BP+BP_AX] ; Get the byte from the user's AL
         XOR     DMABYTE,1               ; Toggle the DMABYTE flag
         JZ      MOVMSB                  ; Was the flag set to 1?  If so, go
                                         ;   put the byte to the MSB
@@ -521,7 +521,7 @@ MOVMSB:
 ; inhibit the setting of the base register.
 
 CHK_FUNCTION:
-        MOV     AL,byte SS:[BP+BP_AX] ; Get the value to be "OUT"ed to 18H
+        MOV     AL,byte [SS:BP+BP_AX] ; Get the value to be "OUT"ed to 18H
         SHR     AL,4                    ; Shift the function number into AL
         CMP     AL,2                    ; Is this the function to set the base
                                         ;   register?
@@ -530,7 +530,7 @@ CHK_FUNCTION:
         JMP     DOOUT                   ; Send the "OUT" to the real port
 
 SAVE_CHN:
-        MOV     AL,byte SS:[BP+BP_AX] ; Get the value in AL again
+        MOV     AL,byte [SS:BP+BP_AX] ; Get the value in AL again
         AND     AL,07H                  ; Mask off the function number leaving
                                         ;   the channel number
         MOV     DMA_ADV_CHN,AL          ; And save it
@@ -555,7 +555,7 @@ CHK_BASE_REG:
         SUB     AX,AX                   ; Purge AX
         MOV     AL,DMABYTE              ; Get the byte flag
         ADD     BX,AX                   ; And add it on to BX
-        MOV     CL,byte SS:[BP+BP_AX] ; Get the out value into CL
+        MOV     CL,byte [SS:BP+BP_AX] ; Get the out value into CL
 
 ; Now put it in the control block.  Notice that BX is the base of the control
 ; block plus the byte flag.  Now we add on the offset for the LSB entry.  A

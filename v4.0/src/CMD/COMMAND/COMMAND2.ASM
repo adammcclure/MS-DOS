@@ -12,7 +12,7 @@
 ; .LIST
 ; .CREF
 
-tokenized = FALSE
+tokenized equ FALSE
 
 SECTION .CODERES;AC000;
 ; END SECTION .CODERES
@@ -156,11 +156,11 @@ FATALRET2:
 	JNZ	RET_2E			; must be INT_2E
 	invoke	reset_msg_pointers	;AN000; reset critical & parse error messages
 	MOV	AX,[PARENT]
-	MOV	word CS:[PDB_Parent_PID],AX
+	MOV	word [CS:PDB_Parent_PID],AX
 	MOV	AX,word OldTerm
-	MOV	word CS:[PDB_Exit],AX
+	MOV	word [CS:PDB_Exit],AX
 	MOV	AX,word OldTerm+2
-	MOV	word CS:[PDB_Exit+2],AX
+	MOV	word [CS:PDB_Exit+2],AX
 	MOV	AX,(EXIT SHL 8) 	; Return to lower level
 	INT	int_command
 
@@ -303,7 +303,7 @@ USESLASH:
 	SUB	CX,SI
 	REP	MOVSB			; Transfer INFO to transient
 	MOV	AX,[MEMSIZ]
-	MOV	word DS:[PDB_block_len],AX	; Adjust my own header
+	MOV	word [DS:PDB_block_len],AX	; Adjust my own header
 
 ; Just a public label so this spot can be found easily.
 tjmp:
@@ -346,19 +346,19 @@ HEADFIX:
 	CALL	SETVECT
 	XOR	BX,BX			; Clean up header
 	MOV	CX,[IO_SAVE]
-	MOV	DX,word DS:[PDB_JFN_Table]
+	MOV	DX,word [DS:PDB_JFN_Table]
 	CMP	CL,DL
 	JZ	CHK1			; Stdin matches
 	MOV	AH,CLOSE
 	INT	int_command
-	MOV	DS:[PDB_JFN_Table],CL	; Restore stdin
+	MOV	[DS:PDB_JFN_Table],CL	; Restore stdin
 CHK1:
 	INC	BX
 	CMP	CH,DH			; Stdout matches
 	JZ	CHKOTHERHAND
 	MOV	AH,CLOSE
 	INT	int_command
-	MOV	DS:[PDB_JFN_Table+1],CH ; Restore stdout
+	MOV	[DS:PDB_JFN_Table+1],CH ; Restore stdout
 CHKOTHERHAND:
 	ADD	BX,4			; Skip 2,3,4
 	MOV	CX,FilPerProc - 5	; Already done 0,1,2,3,4
@@ -397,12 +397,12 @@ SAVHAND:
 	MOV	AH,GET_CURRENT_PDB
 	INT	int_command		; Get user's header
 	MOV	DS,BX
-	LDS	BX,DS:[PDB_JFN_POINTER] ; get pointer to JFN table...
-	MOV	AX,word DS:[BX]
+	LDS	BX,[DS:PDB_JFN_POINTER] ; get pointer to JFN table...
+	MOV	AX,word [DS:BX]
 	MOV	[HANDLE01],AX		; Save user's stdin, stdout
-	MOV	AL,CS:[PDB_JFN_Table+2] ; get COMMAND stderr
+	MOV	AL,[CS:PDB_JFN_Table+2] ; get COMMAND stderr
 	MOV	AH,AL
-	MOV	word DS:[BX],AX	; Dup stderr
+	MOV	word [DS:BX],AX	; Dup stderr
 	POP	AX
 	POP	BX
 	POP	DS
@@ -422,8 +422,8 @@ RESTHAND:
 	MOV	AX,[HANDLE01]
 	MOV	DS,BX
 ; ASSUME DS:NOTHING
-	LDS	BX,DS:[PDB_JFN_POINTER] ; get pointer to JFN table...
-	MOV	word DS:[BX],AX	; Stuff his old 0 and 1
+	LDS	BX,[DS:PDB_JFN_POINTER] ; get pointer to JFN table...
+	MOV	word [DS:BX],AX	; Stuff his old 0 and 1
 	POP	AX
 	POP	BX
 	POP	DS
@@ -544,8 +544,8 @@ CHK:
 SETVECT:				; Set useful vectors
 	MOV	DX,LODCOM
 	MOV	AX,(SET_INTERRUPT_VECTOR SHL 8) OR 22H
-	MOV	word DS:[PDB_EXIT],DX
-	MOV	word DS:[PDB_EXIT+2],DS
+	MOV	word [DS:PDB_EXIT],DX
+	MOV	word [DS:PDB_EXIT+2],DS
 	INT	int_command
 	MOV	DX,CONTC
 	INC	AL
@@ -571,7 +571,7 @@ ENDINIT:
 	mov	es,envirseg		;g get target environment segment
 
 	; ASSUME	ES:NOTHING
-	mov	DS:[PDB_environ],es	;g put new environment in my header	   ;AM067;
+	mov	[DS:PDB_environ],es	;g put new environment in my header	   ;AM067;
 	mov	ds,oldenv		;g source environment segment		   ;AM067;
 	; ASSUME	DS:NOTHING;AM067;
 	xor	si,si			;g set up offsets to start of segments	   ;AM067;

@@ -83,18 +83,18 @@ fReset: dw 0
 ;  	Equates
 ;******************************************************************************
 ;					   
-MASTER   	=	0A1H		; Master interrupt i/o port
-SLAVE        	=	021H		; Slave interrupt i/o port
-NMI     	=	070H		; Non-Maskable interrupt i/o port
-DIS_MSTSLV  	=	00H		; Value to write to disable master/slave
-DIS_NMI         =	080H		; Value to write to disable NMI
-ENA_NMI		=	008H		; Value to write to enable NMI
-B		=	48 		; make code for B
-C		=	46 		; make code for C
-ENTER		=	28 		; make code for enter key
-ATTR		=	07		; attribute for write string
-WRSTR		=	1301h		; write string function code (format 1)
-CPOSN		=	5*256+0		; cursor position to write
+MASTER equ 0A1H; Master interrupt i/o port
+SLAVE equ 021H; Slave interrupt i/o port
+NMI equ 070H; Non-Maskable interrupt i/o port
+DIS_MSTSLV equ 00H; Value to write to disable master/slave
+DIS_NMI equ 080H; Value to write to disable NMI
+ENA_NMI equ 008H; Value to write to enable NMI
+B equ 48; make code for B
+C equ 46; make code for C
+ENTER equ 28; make code for enter key
+ATTR equ 07; attribute for write string
+WRSTR equ 1301h; write string function code (format 1)
+CPOSN equ 5*256+0; cursor position to write
 ;
 ;
 ;******************************************************************************
@@ -142,11 +142,11 @@ ErrHndlr:
 	push	ds
 	push	VDMD_GSEL
 	pop	ds
-	mov	eax, dword [bp.VTFO]		; error code
+	mov	eax, dword [bp+VTFO]		; error code
 	mov	[GPsavERR], ax
-	mov	eax, dword [bp.VTFOE+VMTF_EIP]	; EIP
+	mov	eax, dword [bp+VTFOE+VMTF_EIP]	; EIP
 	mov	[GPsavEIP], eax
-	mov	ax, word [bp.VTFOE+VMTF_CS]		; CS
+	mov	ax, word [bp+VTFOE+VMTF_CS]		; CS
 	mov	[GPsavCS], ax
 	pop	ds
 	pop	eax
@@ -318,7 +318,7 @@ b2_ascii:
 	mov	bl,1			; leading zeroes on
 ;
 b2_make_strg:
-	mov	ds:[di],al		; put ascii number into string
+	mov	[ds:di],al		; put ascii number into string
 	xchg	ax,dx
 	inc	di			; increment buffer string pointer
 	dec	si			; decrement power of 10 pointer
@@ -368,7 +368,7 @@ b2asc16_loop:
 	jbe	b2asc16_skip
 	add	bl,'A'-'9'-1
 b2asc16_skip:
-	mov	ds:[di],bl
+	mov	[ds:di],bl
 	shl	ax,4
 	inc	di
 	loop	b2asc16_loop

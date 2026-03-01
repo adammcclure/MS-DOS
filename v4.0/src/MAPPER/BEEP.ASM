@@ -28,10 +28,10 @@ SECTION .dosxxx
 inv_parm equ    0002h         ;invalid parameter return code
 
 struc str
-old_bp: dw 0
-return: dd 0
-duratn: dw 0; duration
-frqncy: dw 0; frequency
+old_bp: resw 1
+return: resd 1
+duratn: resw 1; duration
+frqncy: resw 1; frequency
 endstruc
 
 dosbeep:

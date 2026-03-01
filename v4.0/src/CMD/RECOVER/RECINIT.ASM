@@ -176,7 +176,7 @@ Procedure get_psp			;;AN000;
 	mov	cx,128			; do for 128 bytes
 	rep	movsb			; mov 1 byte until cx=0
 ; get the drive number of the target from the psp (0=default, a=1, b=2, c=3) ;AN000;bgb
-	mov	bl,ds:[FCB1]	    ;Get target drive from FCB -74	    ;AN000;
+	mov	bl,[ds:FCB1]	    ;Get target drive from FCB -74	    ;AN000;
 	Set_Data_Segment	    ;Set DS,ES to Data segment		    ;AN000;bgb
 	call	get_drive
 	ret

@@ -90,7 +90,7 @@ GetDst:
 	RestoreReg  <DI,ES>		; get real destination
 	JC	CurdirErr
 	ADD	SI,curdir_text
-	ADD	SI,[SI.curdir_END]
+	ADD	SI,[SI+curdir_END]
 	CMP	byte [SI],'\'       ; root or subdirs present?
 	JNZ	CurrentCopy
 	INC	SI
@@ -243,7 +243,7 @@ ChDirCrack:
 ; not network).  If one was seen, all we need to do is copy in the text
 ;
 	LES	DI,ThisCDS
-	TEST	ES:[DI].curdir_flags,curdir_splice
+	TEST	[ES:DI].curdir_flags,curdir_splice
 	JZ	GotCDS
 ;
 ; The CDS was joined.  Let's go back and grab the logical CDS.
@@ -251,8 +251,8 @@ ChDirCrack:
 	SaveReg <ES,DI,CX>		; save CDS and cluster...
 	Invoke	Get_User_Stack		; get original text
 	; ASSUME	DS:NOTHING
-	MOV	DI,[SI.User_DX]
-	MOV	DS,[SI.User_DS]
+	MOV	DI,[SI+User_DX]
+	MOV	DS,[SI+User_DS]
 	MOV	SI,OpenBuf  ; spot for translated name
 	XCHG	SI,DI
 	XOR	AL,AL			; do no splicing
@@ -269,7 +269,7 @@ ChDirCrack:
 SkipErr:
 %endif
 	LES	DI,ThisCDS		; get new CDS
-	MOV	ES:[DI].curdir_ID,-1	; no valid cluster here...
+	MOV	[ES:DI].curdir_ID,-1	; no valid cluster here...
 	RestoreReg  <CX,DI,ES>
 ;
 ; ES:DI point to the physical CDS, CX is the ID (local only)
@@ -280,13 +280,13 @@ GotCDS:
 ;
 	CALL	Check_PathLen		;PTM.					;AN000;
 	JA	ChDirErrP
-	TEST	ES:[DI].curdir_flags,curdir_isnet
+	TEST	[ES:DI].curdir_flags,curdir_isnet
 	JNZ	SkipRecency
-	TEST	ES:[DI].curdir_flags,curdir_splice   ;PTM. for Join and Subst	;AN000;
+	TEST	[ES:DI].curdir_flags,curdir_splice   ;PTM. for Join and Subst	;AN000;
 	JZ	setdirclus			     ;PTM.			;AN000;
 	MOV	CX,-1				     ;PTM.			;AN000;
 setdirclus:
-	MOV	ES:[DI].curdir_id,CX
+	MOV	[ES:DI].curdir_id,CX
 	LES	DI,ThisCDS		; get logical CDS
 SkipRecency:
 	invoke	FStrCpy

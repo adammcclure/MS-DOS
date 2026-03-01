@@ -130,7 +130,7 @@ SECTION .zseg
 BUF: times 512 db 0;DEFAULT BUFFER AREA
 	       global buf;not referenced, just shows up on mapf buf
 END_OF_BUF     EQU   $
-zseg	       ends
+; END SECTION .zseg
 
 RESPONSE_LIST:;WHERE TO PUT THE RESULTS OF QUERY prepareS
 RES_NUM_ENTRIES EQU  12 	     ;NUMBER ENTRIES IN EACH HARDWARE AND prepare LISTS
@@ -442,7 +442,7 @@ global DO_prepare
     MOV   BUF_SEG,AX	       ;REMEMBER WHERE BUFFER IS
     lea   dx,BUF        ;buf is at end of allocated memory
     mov   BUF_OFF,dx
-    mov   ax,ds:[6]	       ;get number bytes in this segment
+    mov   ax,[ds:6]	       ;get number bytes in this segment
     sub   ax,dx 	       ;get size of buf to segment end
     mov   cl,4		       ;shift count
     shr   ax,cl 	       ;convert buf size to para size
@@ -1274,6 +1274,6 @@ RET
 ; ENDP setup_packet_for_DBCS
 
 
-PRINTF_CODE ENDS	       ;END OF MODECP.SAL MODULE
+; END SECTION .PRINTF_CODE;END OF MODECP.SAL MODULE
 ; END
 

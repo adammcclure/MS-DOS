@@ -76,67 +76,67 @@ DIVIDE_SIGN         EQU   37           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
 
-UNKNOWN = 255
+UNKNOWN equ 255
 
 %macro FIND_FLAG 1
        %ifidn <FLAG_MASK>,<SCAN_MATCH>
-          FLAG_ID = EXT_KB_FLAG_ID
+          FLAG_ID equ EXT_KB_FLAG_ID
        %else
        %ifidn <FLAG_MASK>,<EITHER_SHIFT>
-          FLAG_ID = EXT_KB_FLAG_ID
+          FLAG_ID equ EXT_KB_FLAG_ID
        %else
        %ifidn <FLAG_MASK>,<CAPS_STATE>
-          FLAG_ID = KB_FLAG_ID
+          FLAG_ID equ KB_FLAG_ID
        %else
        %ifidn <FLAG_MASK>,<NUM_STATE>
-          FLAG_ID = KB_FLAG_ID
+          FLAG_ID equ KB_FLAG_ID
        %else
        %ifidn <FLAG_MASK>,<EITHER_CTL>
-          FLAG_ID = EXT_KB_FLAG_ID
+          FLAG_ID equ EXT_KB_FLAG_ID
        %else
        %ifidn <FLAG_MASK>,<EITHER_ALT>
-          FLAG_ID = EXT_KB_FLAG_ID
+          FLAG_ID equ EXT_KB_FLAG_ID
        %else
        %ifidn <FLAG_MASK>,<LEFT_SHIFT>
-          FLAG_ID = KB_FLAG_ID
+          FLAG_ID equ KB_FLAG_ID
        %else
        %ifidn <FLAG_MASK>,<RIGHT_SHIFT>
-          FLAG_ID = KB_FLAG_ID
+          FLAG_ID equ KB_FLAG_ID
        %else
        %ifidn <FLAG_MASK>,<ALT_SHIFT>
-          FLAG_ID = KB_FLAG_ID
+          FLAG_ID equ KB_FLAG_ID
        %else
        %ifidn <FLAG_MASK>,<CTL_SHIFT>
-          FLAG_ID = KB_FLAG_ID
+          FLAG_ID equ KB_FLAG_ID
        %else
        %ifidn <FLAG_MASK>,<R_ALT_SHIFT>
-          FLAG_ID = KB_FLAG_3_ID
+          FLAG_ID equ KB_FLAG_3_ID
        %else
        %ifidn <FLAG_MASK>,<R_CTL_SHIFT>
-          FLAG_ID = KB_FLAG_3_ID
+          FLAG_ID equ KB_FLAG_3_ID
        %else
        %ifidn <FLAG_MASK>,<TILDE>
-          FLAG_ID = NLS_FLAG_1_ID
+          FLAG_ID equ NLS_FLAG_1_ID
        %else
        %ifidn <FLAG_MASK>,<ACUTE>
-          FLAG_ID = NLS_FLAG_1_ID
+          FLAG_ID equ NLS_FLAG_1_ID
        %else
        %ifidn <FLAG_MASK>,<GRAVE>
-          FLAG_ID = NLS_FLAG_1_ID
+          FLAG_ID equ NLS_FLAG_1_ID
        %else
        %ifidn <FLAG_MASK>,<DIARESIS>
-          FLAG_ID = NLS_FLAG_1_ID
+          FLAG_ID equ NLS_FLAG_1_ID
        %else
        %ifidn <FLAG_MASK>,<CEDILLA>
-          FLAG_ID = NLS_FLAG_1_ID
+          FLAG_ID equ NLS_FLAG_1_ID
        %else
        %ifidn <FLAG_MASK>,<CIRCUMFLEX>
-          FLAG_ID = NLS_FLAG_1_ID
+          FLAG_ID equ NLS_FLAG_1_ID
        %else
        %ifidn <FLAG_MASK>,<LC_E0>
-          FLAG_ID = KB_FLAG_3_ID
+          FLAG_ID equ KB_FLAG_3_ID
        %else
-          FLAG_ID = UNKNOWN
+          FLAG_ID equ UNKNOWN
        %endif
        %endif
        %endif
@@ -173,14 +173,14 @@ UNKNOWN = 255
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 %macro IFF 2
-    MAC_OK = 1
+    MAC_OK equ 1
     %if 0  ; IFB <MASK_TYPE>
-         NOT_BIT = 00000000B
+         NOT_BIT equ 00000000B
     %else
          %ifidn <MASK_TYPE>,<NOT>
-             NOT_BIT = 00001000B
+             NOT_BIT equ 00001000B
          %else
-             MAC_OK = 0
+             MAC_OK equ 0
              %if 1  ; IF2 - pass-specific
                  %warning Unknown parameter MASK_TYPE on IFF MACRO
              %endif
@@ -207,14 +207,14 @@ UNKNOWN = 255
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 %macro ANDF 2
-    MAC_OK = 1
+    MAC_OK equ 1
     %if 0  ; IFB <MASK_TYPE>
-         NOT_BIT = 00000000B
+         NOT_BIT equ 00000000B
     %else
          %ifidn <MASK_TYPE>,<NOT>
-             NOT_BIT = 00001000B
+             NOT_BIT equ 00001000B
          %else
-             MAC_OK = 0
+             MAC_OK equ 0
              %if 1  ; IF2 - pass-specific
                  %warning Unknown parameter MASK_TYPE on ANDF MACRO
              %endif
@@ -257,14 +257,14 @@ UNKNOWN = 255
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 %macro OPTION 2
-    MAC_OK = 1
+    MAC_OK equ 1
     %if 0  ; IFB <MASK_TYPE>
-         NOT_BIT = 00000000B
+         NOT_BIT equ 00000000B
     %else
          %ifidn <MASK_TYPE>,<NOT>
-             NOT_BIT = 00001000B
+             NOT_BIT equ 00001000B
          %else
-             MAC_OK = 0
+             MAC_OK equ 0
              %if 1  ; IF2 - pass-specific
                  %warning Unknown parameter MASK_TYPE on OPTION MACRO
              %endif

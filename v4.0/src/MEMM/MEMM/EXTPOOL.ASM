@@ -115,18 +115,18 @@ Pool_Initialise:
 	mov	cx,1024
 	mul	cx	    ; dx:ax size in bytes offset from 1M
 ;
-	add	ax,cs:[ext_start]    ; add it to 1M
-	adc	dx,cs:[ext_start+2]  ;
+	add	ax,[cs:ext_start]    ; add it to 1M
+	adc	dx,[cs:ext_start+2]  ;
 ;
-	mov	cs:[ext_start],ax    ;
-	mov	cs:[ext_start+2],dx  ;
+	mov	[cs:ext_start],ax    ;
+	mov	[cs:ext_start+2],dx  ;
 ;
 	pop	ax		    ; get size into ax
 	xor	dx,dx		    ;
 	mul	cx
 ;
-	mov	cs:[ext_size],ax
-	mov	cs:[ext_size+2],dx
+	mov	[cs:ext_size],ax
+	mov	[cs:ext_size+2],dx
 ;
 	pop	ax
 	pop	cx
@@ -157,21 +157,21 @@ Get_Buffer:
     ;
     ; assume that the memory is present, put start address in dx:ax
     ;
-	mov	dx,cs:[ext_start+2]
-	mov	ax,cs:[ext_start]
+	mov	dx,[cs:ext_start+2]
+	mov	ax,[cs:ext_start]
     ;
     ; then proceed to determine if it really exists
     ;
 	push	eax
 	xor	eax,eax
 	mov	ax,cx
-	cmp	eax, dword cs:[ext_size]
+	cmp	eax, dword [cs:ext_size]
 	ja	no_mem
     ;
     ; it does exist, adjust the size and the start address
     ;
-	sub	dword cs:[ext_size],eax
-	add	dword cs:[ext_start],eax
+	sub	dword [cs:ext_size],eax
+	add	dword [cs:ext_start],eax
 ;
 	pop	eax
 	clc

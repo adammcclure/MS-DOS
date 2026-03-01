@@ -1064,8 +1064,8 @@ CHK_EX_MEM_ROUTINE:;AN000;
 	 MOV  BX, 0				;AN000;JW not a model 80
     ; .ELSE near;AN000;
 	 ; .IF < AH ne 086H >;AN000;If not an old XT or AT
-	      MOV  AH, byte ES:[BX]+2	;AN000; Get the model byte
-	      MOV  AL, byte ES:[BX]+3	;AN000; Get the sub-model byte
+	      MOV  AH, byte [ES:BX]+2	;AN000; Get the model byte
+	      MOV  AL, byte [ES:BX]+3	;AN000; Get the sub-model byte
 	 ; .ENDIF;AN000;
 	 ; .IF < AH eq 0F8H>;AN000; Is this a model 80?
 	      MOV  SI, 1			;AN000; Yes! Expanded memory supported
@@ -1622,5 +1622,5 @@ HOOK_INT_2F_FORMAT:;AN111;JW
 ; ENDP HOOK_INT_2F_FORMAT;AN111;JW
 ;****************************************************************************
 
-CODE_FAR    ENDS				;AN000;
+; END SECTION .CODE_FAR;AN000;
 	    ; END;AN000;

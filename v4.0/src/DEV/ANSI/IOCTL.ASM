@@ -167,11 +167,11 @@ ANSI_SetMode_Call_Flag   db     0              ;AN008;Ansi is issuing INT10,AH=0
 GENERIC_IOCTL:                                 ;                                                   ;AN000;
         LES     BX,[PTRSAV]                    ; establish addressability to request header        ;AN000;
         .SELECT                                ; check for get or set subfunction                  ;AN000;
-          .WHEN <ES:[BX].MIN_FUNC EQ GET_FUNC> ; is this the get subfunction?                      ;AN000;
-            LES     DI,ES:[BX].REQ_PCKT_PTR    ; point to request packet                           ;AN000;
+          .WHEN <[ES:BX].MIN_FUNC EQ GET_FUNC> ; is this the get subfunction?                      ;AN000;
+            LES     DI,[ES:BX].REQ_PCKT_PTR    ; point to request packet                           ;AN000;
             CALL    GET_IOCTL                  ; yes...execute routine                             ;AN000;
-          .WHEN <ES:[BX].MIN_FUNC EQ SET_FUNC> ; is this the set subfunction?                      ;AN000;
-            LES     DI,ES:[BX].REQ_PCKT_PTR    ; point to request packet                           ;AN000;
+          .WHEN <[ES:BX].MIN_FUNC EQ SET_FUNC> ; is this the set subfunction?                      ;AN000;
+            LES     DI,[ES:BX].REQ_PCKT_PTR    ; point to request packet                           ;AN000;
             CALL    SET_IOCTL                  ; yes....execute routine                            ;AN000;
           .OTHERWISE                           ; not for us....so..                                ;AN000;
             JMP     NO_OPERATION               ; call lower CON device                             ;AN000;
@@ -205,7 +205,7 @@ GET_IOCTL:;AN000;
        MOV    AX,INVALID_FUNC                    ; not valid...unsupported                         ;AN000;
        STC                                       ; function..set error flag and                    ;AN000;
      ; .ELSE;                                                 ;AN000;
-       MOV     ES:[DI].INFO_LEVEL+1,0            ; set reserved byte to 0.                         ;AN000;
+       MOV     [ES:DI].INFO_LEVEL+1,0            ; set reserved byte to 0.                         ;AN000;
        MOV     AH,REQ_VID_MODE                   ; request current video mode                      ;AN000;
        INT     10H                               ;                                                 ;AN000;
        AND     AL,VIDEO_MASK                     ;                                                 ;AN000;
@@ -215,13 +215,13 @@ GET_IOCTL:;AN000;
          MOV     AX,NOT_SUPPORTED                ; no....load unsupported function                 ;AN000;
        ; .ELSE;                                                 ;AN000;
          push    di                              ;AN001;AN003;Save Request Buffer pointer
-         MOV     word ES:[DI].DATA_LENGTH,(TYPE MODE_TABLE)+1 ;length of data is struc size    ;AN000;
+         MOV     word [ES:DI].DATA_LENGTH,(TYPE MODE_TABLE)+1 ;length of data is struc size    ;AN000;
          INC     SI                              ; skip mode value                                 ;AN000;
          ADD     DI,RP_FLAGS                     ; point to flag word                              ;AN000;
          ; .IF <HDWR_FLAG GE MCGA_ACTIVE>; if we have an EGA or better                     ;AN000;
            CALL    CTL_FLAG                      ; then ..process control flag                     ;AN000;
          ; .ELSE; else...                                         ;AN000;
-           MOV     word ES:[DI],OFF          ; we always have blink.                           ;AN000;
+           MOV     word [ES:DI],OFF          ; we always have blink.                           ;AN000;
          ; .ENDIF;                                                 ;AN000;
          INC     DI                              ; point to next field..                           ;AN000;
          INC     DI                              ; ..(display mode)                                ;AN000;
@@ -235,10 +235,10 @@ GET_IOCTL:;AN000;
            PUSH   DS                             ;                                                 ;AN000;
            MOV    AX,ROM_BIOS                    ; load ROM BIOS data area segment                 ;AN000;
            MOV    DS,AX                          ;                                                 ;AN000;
-           MOV    AL,byte DS:[NUM_ROWS]      ; load current number of rows                     ;AN000;
+           MOV    AL,byte [DS:NUM_ROWS]      ; load current number of rows                     ;AN000;
            CBW                                   ;                                                 ;AN000;
            INC    AX                             ; add 1 to row count                              ;AN000;
-           MOV    word ES:[DI],AX            ; and copy to request packet                      ;AN000;
+           MOV    word [ES:DI],AX            ; and copy to request packet                      ;AN000;
            POP    DS                             ;                                                 ;AN000;
          ; .ENDIF;                                                 ;AN000;
          XOR    AX,AX                            ; no errors                                       ;AN000;
@@ -273,7 +273,7 @@ SET_IOCTL:;AN000;
      MOV    ERROR_FLAG,OFF                     ; clear any errors                                  ;AN000;
     ; .IF <ES:[DI].INFO_LEVEL NE 0> OR; check for valid info level                        ;AN000;
     ; .IF <ES:[DI].DATA_LENGTH NE <TYPE MODE_TABLE+1>> OR; and buffer size.                         ;AN000;
-     MOV    AX,ES:[DI].RP_FLAGS                ; test for invalid flags.                           ;AN000;
+     MOV    AX,[ES:DI].RP_FLAGS                ; test for invalid flags.                           ;AN000;
     ; .IF <BIT AX AND INVALID_FLAGS> OR;                                                   ;AN000;
     ; .IF <BIT ES:[DI].RP_FLAGS AND ON> AND; if intensity is requested and..                   ;AN000;
     ; .IF <HDWR_FLAG LT MCGA_ACTIVE>; hardware does not support it then..               ;AN000;
@@ -287,7 +287,7 @@ SET_IOCTL:;AN000;
        ; .ELSE;                                                   ;AN000;
          ; .IF <[SI].D_MODE EQ TEXT_MODE>; is a text mode being requested?                   ;AN000;
             PUSH   REQ_TXT_LENGTH              ; save old value in case of error                   ;AN000;
-            MOV    AX,ES:[DI].RP_ROWS          ; save new requested value.                         ;AN000;
+            MOV    AX,[ES:DI].RP_ROWS          ; save new requested value.                         ;AN000;
             MOV    REQ_TXT_LENGTH,AX           ;                                                   ;AN000;
 ;           .IF <[SI].SCR_ROWS NE UNOCCUPIED>   ; yes...check for VGA support..                     ;AN000;
 ;             CALL   PROCESS_NORMAL             ; no..process other adapters..                      ;AN000;
@@ -526,7 +526,7 @@ CTL_FLAG:;AN000;
             MOV     AH,FUNC_CALL                  ; load function number                           ;AN000;
             XOR     BX,BX                         ; implementation type 0                          ;AN000;
             INT     10H                           ;                                                ;AN000;
-            MOV     AL,ES:[DI].MISC_INFO          ; load misc info byte                            ;AN000;
+            MOV     AL,[ES:DI].MISC_INFO          ; load misc info byte                            ;AN000;
             ; .IF <BIT AL AND INT_BIT>; is blink bit set?                              ;AN000;
               AND    INTENSITY_FLAG,NOT ON        ; yes....turn off intensity flag                 ;AN000;
             ; .ELSE; no...                                          ;AN000;
@@ -536,7 +536,7 @@ CTL_FLAG:;AN000;
             POP     ES                            ;                                                ;AN000;
           ; .ENDIF;                                                ;AN000;
           MOV     AX,INTENSITY_FLAG               ; write the control flag..                       ;AN000;
-          MOV     ES:[DI],AX                      ; to the request packet                          ;AN000;
+          MOV     [ES:DI],AX                      ; to the request packet                          ;AN000;
           RET                                     ;                                                ;AN000;
 ; ENDP CTL_FLAG;AN000;
 
@@ -608,21 +608,21 @@ SET_SEARCH:;AN000;
                add si, type MODE_TABLE              ;AN006; then, this is not the correct entry.
                dec cx                               ;AN006;Let's find the next entry.
             ; .else;AN006; Else, continue...
-               MOV    AL,ES:[DI].RP_MODE             ; load register for compare.                   ;AN000;
+               MOV    AL,[ES:DI].RP_MODE             ; load register for compare.                   ;AN000;
               ; .IF <[SI].D_MODE EQ AL>; match?......                                 ;AN000;
-                 MOV    AX,ES:[DI].RP_COLORS         ; yes...prepare next field                     ;AN000;
+                 MOV    AX,[ES:DI].RP_COLORS         ; yes...prepare next field                     ;AN000;
                 ; .IF <[SI].COLORS EQ AX>; match?...                                    ;AN000;
                   ; .IF <ES:[DI].RESERVED2 EQ 0>; yes...ensure reserved byte is 0              ;AN000;
                     ; .IF <ES:[DI].RP_MODE EQ GRAPHICS_MODE>; for graphics mode..check the following;AN000;.
-                       MOV    AX,ES:[DI].RP_WIDTH    ; screen width.                                ;AN000;
+                       MOV    AX,[ES:DI].RP_WIDTH    ; screen width.                                ;AN000;
                       ; .IF <[SI].SCR_WIDTH EQ AX>;                                              ;AN000;
-                         MOV    AX,ES:[DI].RP_LENGTH ; screen length                                ;AN000;
+                         MOV    AX,[ES:DI].RP_LENGTH ; screen length                                ;AN000;
                         ; .IF <[SI].SCR_LENGTH EQ AX>; (ignore #rows and #columns                   ;AN000;
                            MOV    BP,FOUND           ; found...set flag                             ;AN000;
                         ; .ENDIF;                                              ;AN000;
                       ; .ENDIF;                                              ;AN000;
                     ; .ELSE; and for text check the columns..             ;AN000;
-                       MOV    AX,ES:[DI].RP_COLS     ; the rows are matched in the main routine.    ;AN000;
+                       MOV    AX,[ES:DI].RP_COLS     ; the rows are matched in the main routine.    ;AN000;
                       ; .IF <[SI].SCR_COLS EQ AX>;                                              ;AN000;
                          MOV    BP,FOUND             ; found...set flag                             ;AN000;
                       ; .ENDIF;                                              ;AN000;
@@ -932,7 +932,7 @@ INT2F_COM:;AN000;
                      ; .if <cs:ANSI_SetMode_Call_Flag NE 1> OR;AN008; if not originated by ANSI thru. AH=0, INT10,
                      ; .if <cs:Display_Loaded_Before_me NE 1>;AN008;  or Display.sys not loaded before ANSI,
                          MOV    BX,REQ_TXT_LENGTH    ; then use REQ_TXT_LENGTH instead..           ;AN000;
-                         MOV    ES:[DI].RP_ROWS,BX   ;
+                         MOV    [ES:DI].RP_ROWS,BX   ;
                      ; .endif
                       CLC                         ;                                                  ;AN000;
                    ; .ENDIF;                                                  ;AN000;
@@ -951,8 +951,8 @@ INT2F_COM:;AN000;
                    ; .ENDIF;AN004;
                  ; .ELSE
                    ; .IF <ES:[DI].DA_INFO_LEVEL EQ 1>;AN011; 1 = DA_OPTION_L_STATE query
-                        mov al, cs:[Switch_L]              ;AN011;
-                        mov es:[di].DA_OPTION_L_STATE, al  ;AN011;
+                        mov al, [cs:Switch_L]              ;AN011;
+                        mov [es:di].DA_OPTION_L_STATE, al  ;AN011;
                    ; .ENDIF
                  ; .ENDIF;AN004;
                   clc                           ;AN004;clear carry. There is no Error in DOS 4.00 for this call.
@@ -1041,7 +1041,7 @@ SET_VIDEO_MODE:;AN000;
                  MOV    BL,AL                    ; save mode                                       ;AN000;
                  MOV    AX,ROM_BIOS              ;                                                 ;AN000;
                  MOV    DS,AX                    ; get equipment status flag..                     ;AN000;
-                 MOV    AX,DS:[EQUIP_FLAG]       ;                                                 ;AN000;
+                 MOV    AX,[DS:EQUIP_FLAG]       ;                                                 ;AN000;
                  AND    AX,INIT_VID_MASK         ; clear initial video bits..                      ;AN000;
                  ; .IF <BL EQ MODE7> OR; are we setting mono?                            ;AN000;
                  ; .IF <BL EQ MODE15>;                                                 ;AN000;
@@ -1049,7 +1049,7 @@ SET_VIDEO_MODE:;AN000;
                  ; .ELSE;                                                 ;AN000;
                    OR    AX,LCD_COLOR_MODE       ; no...set bits as color                          ;AN000;
                  ; .ENDIF;                                                 ;AN000;
-                 MOV    DS:[EQUIP_FLAG],AX       ; replace updated flag.                           ;AN000;
+                 MOV    [DS:EQUIP_FLAG],AX       ; replace updated flag.                           ;AN000;
                  MOV    AL,BL                    ; restore mode.                                   ;AN000;
                  POP    DS                       ;                                                 ;AN000;
                ; .ENDIF;                                                 ;AN000;
@@ -1122,5 +1122,5 @@ CHECK_FOR_DISPLAY:;AN000;
                RET                             ;                                                   ;AN000;
 ; ENDP CHECK_FOR_DISPLAY
 
-CODE        ENDS
+; END SECTION .CODE
             ; END

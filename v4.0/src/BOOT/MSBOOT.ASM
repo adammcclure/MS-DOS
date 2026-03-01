@@ -85,7 +85,7 @@ SECTION .CODE
 
 	ORG	ORIGIN
 
-DSKADR	=	1EH*4			;POINTER TO DRIVE PARAMETERS
+DSKADR equ 1EH*4;POINTER TO DRIVE PARAMETERS
 
 global $START
 $START:
@@ -165,7 +165,7 @@ START:
 ;by FORMAT.
 
 	MOV	BX,DSKADR
-	LDS	SI,dword SS:[BX]	; get address of disk table
+	LDS	SI,dword [SS:BX]	; get address of disk table
 	PUSH	DS			; save original vector for possible
 	PUSH	SI			; restore
 	PUSH	SS

@@ -1,7 +1,7 @@
 ; TITLE   BIOS SYSTEM INITIALIZATION
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 IBMVER     EQU     FALSE
 IBM        EQU     IBMVER
@@ -26,24 +26,24 @@ DOSSIZE EQU     5000H
 ; Internal DOS data returned by DOSINIT
 
 struc SYSINITVAR
-DPBHEAD: dd 0; Pointer to head of DPB-FAT list
-sft_addr: dd 0; Pointer to first FCB table
+DPBHEAD: resd 1; Pointer to head of DPB-FAT list
+sft_addr: resd 1; Pointer to first FCB table
 ; The following address points to the CLOCK device
-BCLOCK: dd 0
+BCLOCK: resd 1
 ; The following address is used by DISKSTATCHK it is always
 ; points to the console input device header
-BCON: dd 0; Console device entry points
+BCON: resd 1; Console device entry points
 NUMIO       DB      0                   ; Number of disk tables
 MAXSEC      DW      0                   ; Maximum allowed sector size
-BUFFHEAD: dd 0; Head of buffer queue
-DEVHEAD: dd 0
+BUFFHEAD: resd 1; Head of buffer queue
+DEVHEAD: resd 1
 endstruc
 
         %include "DOSSYM.ASM"
         %include "DEVSYM.ASM"
 
-        %if NOT IBM
-        %if NOT IBMJAPVER
+        %if ~IBM
+        %if ~IBMJAPVER
         extern RE_INIT
         %endif
         %endif
@@ -95,7 +95,7 @@ COMMAND_LINE            DB      2,0,"P" ; Default Command.com Args
                         times 29 db 0
 ZERO                    DB      0
 
-        %if NOT NOEXEC
+        %if ~NOEXEC
 COMEXE  EXEC0 <0,COMMAND_LINE,DEFAULT_DRIVE,ZERO>
         %endif
 
@@ -155,7 +155,7 @@ NOSCAN:
 
         %if HIGHMEM
         SUB     CX,(DOSSIZE / 16)       ; Leave room for DOS
-        SUB     CX,CS:[DPBBUF_SIZ]      ; Allow OEM to tune
+        SUB     CX,[CS:DPBBUF_SIZ]      ; Allow OEM to tune
         %endif
 
         MOV     AX,SYSSIZE + 15
@@ -207,7 +207,7 @@ SYSIN:
 
         ; ASSUME  SS:SYSINITSEG
 
-        %if NOT ALTVECT
+        %if ~ALTVECT
         STI                             ; Leave INTs disabled for ALTVECT
         %endif
 LOCSTACK:
@@ -216,8 +216,8 @@ LOCSTACK:
         MOV     word [DOSINFO+2],ES ; SAVE POINTER TO DOS INFO
         MOV     word [DOSINFO],DI
 
-        %if NOT IBM
-        %if NOT IBMJAPVER
+        %if ~IBM
+        %if ~IBMJAPVER
         CALL    RE_INIT                 ; Re-call the BIOS
         %endif
         %endif
@@ -335,7 +335,7 @@ THIRDRELOC:
         MOV     AH,SET_CURRENT_PDB
         INT     21H
 
-        MOV     ES:[PDB_PARENT_PID],ES  ; WE ARE THE ROOT
+        MOV     [ES:PDB_PARENT_PID],ES  ; WE ARE THE ROOT
         %endif
 
         PUSH    CS
@@ -408,9 +408,9 @@ COMTRANLP:                              ; FIND LENGTH OF COMMAND LINE
         STOSB
 
         %if NOEXEC
-        MOV     ES:[80H],CL
+        MOV     [ES:80H],CL
         MOV     AL,[DEFAULT_DRIVE]
-        MOV     ES:[5CH],AL
+        MOV     [ES:5CH],AL
         %else
         MOV     [COMMAND_LINE],CL       ; Count
         %endif
@@ -447,9 +447,9 @@ CCC:
 
         %else
         MOV     BX,COMEXE
-        MOV     word [BX.EXEC0_COM_LINE+2],CS
-        MOV     word [BX.EXEC0_5C_FCB+2],CS
-        MOV     word [BX.EXEC0_6C_FCB+2],CS
+        MOV     word [BX+EXEC0_COM_LINE+2],CS
+        MOV     word [BX+EXEC0_5C_FCB+2],CS
+        MOV     word [BX+EXEC0_6C_FCB+2],CS
 
         XOR     AX,AX
         MOV     AH,EXEC
@@ -521,8 +521,8 @@ ENDFILE:
         PUSH    CS
         POP     DS
         LES     DI,dword [MEMLO]    ; POINT TO NEW SFT
-        MOV     word ES:[DI+SFT_LINK],-1
-        MOV     ES:[DI+SFT_COUNT],AX
+        MOV     word [ES:DI+SFT_LINK],-1
+        MOV     [ES:DI+SFT_COUNT],AX
         MOV     BL,SF_ENTRY_size
         MUL     BL                      ; AX = NUMBER OF BYTES TO CLEAR
         MOV     CX,AX
@@ -549,27 +549,27 @@ DOBUFF: CALL    ROUND
         LDS     BX,DOSINFO
 
         %if HIGHMEM
-        MOV     AX,[BX.MAXSEC]
+        MOV     AX,[BX+MAXSEC]
         ADD     AX,BUFINSIZ + 15
         MOV     CL,4
         SHR     AX,CL
-        SUB     CS:[MEMHI],AX
-        MOV     ES,CS:[MEMHI]
+        SUB     [CS:MEMHI],AX
+        MOV     ES,[CS:MEMHI]
         %endif
 
-        MOV     AX,word [BX.BUFFHEAD]
-        MOV     word ES:[DI.NEXTBUF],AX
-        MOV     AX,word [BX.BUFFHEAD+2]
-        MOV     word ES:[DI.NEXTBUF+2],AX
+        MOV     AX,word [BX+BUFFHEAD]
+        MOV     word [ES:DI+NEXTBUF],AX
+        MOV     AX,word [BX+BUFFHEAD+2]
+        MOV     word [ES:DI+NEXTBUF+2],AX
 
-        MOV     word [BX.BUFFHEAD],DI
-        MOV     word [BX.BUFFHEAD+2],ES
+        MOV     word [BX+BUFFHEAD],DI
+        MOV     word [BX+BUFFHEAD+2],ES
 
-        MOV     word ES:[DI.BUFDRV],00FFH   ; NEW BUFFER FREE
-        MOV     BX,[BX.MAXSEC]
+        MOV     word [ES:DI+BUFDRV],00FFH   ; NEW BUFFER FREE
+        MOV     BX,[BX+MAXSEC]
         POP     DS
 
-        %if NOT HIGHMEM
+        %if ~HIGHMEM
         ADD     BX,BUFINSIZ
         ADD     [MEMLO],BX
         %endif
@@ -590,12 +590,12 @@ BUF1:   CALL    ROUND
         MOV     AH,SETBLOCK
         INT     21H                     ; GIVE THE REST BACK
 
-        %if NOT HIGHMEM
+        %if ~HIGHMEM
         PUSH    ES
         MOV     AX,ES
         DEC     AX
         MOV     ES,AX
-        MOV     ES:[arena_owner],8      ; Set impossible owner
+        MOV     [ES:arena_owner],8      ; Set impossible owner
         POP     ES
         %endif
 
@@ -609,10 +609,10 @@ BUF1:   CALL    ROUND
         PUSH    ES
         DEC     AX
         MOV     ES,AX
-        MOV     ES:[arena_owner],8      ; Set impossible owner
+        MOV     [ES:arena_owner],8      ; Set impossible owner
         POP     ES
 
-        %if NOT NOEXEC
+        %if ~NOEXEC
         MOV     ES,[AREA]
         MOV     AH,DEALLOC
         INT     21H
@@ -780,7 +780,7 @@ SIZEOK:
         MOV     word [ENTRY_POINT+2],AX ; SET ENTRY POINT
 
 
-        %if NOT NOEXEC
+        %if ~NOEXEC
         MOV     [LDOFF],AX              ; SET LOAD OFFSET
         %endif
 
@@ -789,7 +789,7 @@ SIZEOK:
         MOV     DX,SI                   ; DS:DX POINTS TO FILE NAME
 
         %if NOEXEC
-        LES     BX,dword CS:[MEMLO]
+        LES     BX,dword [CS:MEMLO]
         CALL    LDFIL                   ; LOAD IN THE DEVICE DRIVER
         %else
         MOV     ES,BX
@@ -821,7 +821,7 @@ GOODLD: PUSH    ES                      ; INITIALIZE THE DEVICE
         PUSH    CS
         POP     DS
 
-        %if NOT HIGHMEM
+        %if ~HIGHMEM
         MOV     AX,word [BREAK_ADDR+2]  ; REMOVE THE INIT CODE
         CMP     AX,[MEMORY_SIZE]
         JB      BREAKOK
@@ -838,29 +838,29 @@ BREAKOK:
         LDS     DX,[ENTRY_POINT]        ; SET DS:DX TO HEADER
         MOV     SI,DX
         ADD     SI,SDEVATT              ; DS:SI POINTS TO ATTRIBUTES
-        LES     DI,CS:[DOSINFO]         ; ES:DI POINT TO DOS INFO
-        MOV     AX,DS:[SI]              ; GET ATTRIBUTES
+        LES     DI,[CS:DOSINFO]         ; ES:DI POINT TO DOS INFO
+        MOV     AX,[DS:SI]              ; GET ATTRIBUTES
         TEST    AX,DEVTYP               ; TEST IF BLOCK DEV
         JZ      ISBLOCK
 
         TEST    AX,ISCIN                ; IS IT A CONSOLE IN?
         JZ      TRYCLK
-        MOV     word ES:[DI.BCON],DX
-        MOV     word ES:[DI.BCON+2],DS
+        MOV     word [ES:DI+BCON],DX
+        MOV     word [ES:DI+BCON+2],DS
 
 TRYCLK: TEST    AX,ISCLOCK              ; IS IT A CLOCK DEVICE?
         JZ      GOLINK
-        MOV     word ES:[DI+BCLOCK],DX
-        MOV     word ES:[DI+BCLOCK+2],DS
+        MOV     word [ES:DI+BCLOCK],DX
+        MOV     word [ES:DI+BCLOCK+2],DS
 GOLINK: JMP     LINKIT
 
 ISBLOCK:
-        MOV     AL,CS:[UNITCOUNT]       ; IF NO UNITS FOUND....
+        MOV     AL,[CS:UNITCOUNT]       ; IF NO UNITS FOUND....
         OR      AL,AL
         JNZ     PERDRV
 
-        %if NOT HIGHMEM
-        MOV     CS:[MEMLO],0            ; ...ERASE THE DEVICE
+        %if ~HIGHMEM
+        MOV     [CS:MEMLO],0            ; ...ERASE THE DEVICE
         %endif
 
         MOV     AX,-1
@@ -870,48 +870,48 @@ PERDRV:
         CBW
         MOV     CX,AX
         MOV     DH,AH
-        MOV     DL,ES:[DI.NUMIO]        ; GET NUMBER OF DEVICES
-        ADD     ES:[DI.NUMIO],AL        ; UPDATE THE AMOUNT
+        MOV     DL,[ES:DI+NUMIO]        ; GET NUMBER OF DEVICES
+        ADD     [ES:DI+NUMIO],AL        ; UPDATE THE AMOUNT
 
-        LDS     BX,CS:[BPB_ADDR]        ; POINT TO BPB ARRAY
+        LDS     BX,[CS:BPB_ADDR]        ; POINT TO BPB ARRAY
 PERUNIT:
-        LES     BP,CS:[DOSINFO]
-        LES     BP,dword ES:[BP.DPBHEAD]; GET FIRST DPB
+        LES     BP,[CS:DOSINFO]
+        LES     BP,dword [ES:BP+DPBHEAD]; GET FIRST DPB
 
-SCANDPB:CMP     word ES:[BP.DPB_NEXT_DPB],-1
+SCANDPB:CMP     word [ES:BP+DPB_NEXT_DPB],-1
         JZ      FOUNDPB
-        LES     BP,ES:[BP.DPB_NEXT_DPB]
+        LES     BP,[ES:BP+DPB_NEXT_DPB]
         JMP     SCANDPB
 FOUNDPB:
-        MOV     AX,CS:[MEMLO]
-        MOV     word ES:[BP.DPB_NEXT_DPB],AX
+        MOV     AX,[CS:MEMLO]
+        MOV     word [ES:BP+DPB_NEXT_DPB],AX
 
         %if HIGHMEM
         MOV     AX,(DPBSIZ + 15) / 16
-        SUB     CS:[MEMHI],AX
+        SUB     [CS:MEMHI],AX
         %endif
 
-        MOV     AX,CS:[MEMHI]
-        MOV     word ES:[BP.DPB_NEXT_DPB+2],AX
-        LES     BP,dword CS:[MEMLO]
+        MOV     AX,[CS:MEMHI]
+        MOV     word [ES:BP+DPB_NEXT_DPB+2],AX
+        LES     BP,dword [CS:MEMLO]
 
-        %if NOT HIGHMEM
-        ADD     word CS:[MEMLO],DPBSIZ
+        %if ~HIGHMEM
+        ADD     word [CS:MEMLO],DPBSIZ
         %endif
 
-        MOV     word ES:[BP.DPB_NEXT_DPB],-1
-        MOV     ES:[BP.DPB_FIRST_ACCESS],-1
+        MOV     word [ES:BP+DPB_NEXT_DPB],-1
+        MOV     [ES:BP+DPB_FIRST_ACCESS],-1
 
         MOV     SI,[BX]                 ; DS:SI POINTS TO BPB
         INC     BX
         INC     BX                      ; POINT TO NEXT GUY
-        MOV     word ES:[BP.DPB_DRIVE],DX
+        MOV     word [ES:BP+DPB_DRIVE],DX
         MOV     AH,SETDPB               ; HIDDEN SYSTEM CALL
         INT     21H
-        MOV     AX,ES:[BP.DPB_SECTOR_SIZE]
+        MOV     AX,[ES:BP+DPB_SECTOR_SIZE]
         PUSH    ES
-        LES     DI,CS:[DOSINFO]         ; ES:DI POINT TO DOS INFO
-        CMP     AX,ES:[DI.MAXSEC]
+        LES     DI,[CS:DOSINFO]         ; ES:DI POINT TO DOS INFO
+        CMP     AX,[ES:DI+MAXSEC]
         POP     ES
         JBE     NOTMAX
         POP     SI
@@ -923,9 +923,9 @@ FOUNDPB:
 
 NOTMAX: PUSH    DS
         PUSH    DX
-        LDS     DX,CS:[ENTRY_POINT]
-        MOV     word ES:[BP.DPB_DRIVER_ADDR],DX
-        MOV     word ES:[BP.DPB_DRIVER_ADDR+2],DS
+        LDS     DX,[CS:ENTRY_POINT]
+        MOV     word [ES:BP+DPB_DRIVER_ADDR],DX
+        MOV     word [ES:BP+DPB_DRIVER_ADDR+2],DS
         POP     DX
         POP     DS
         INC     DX
@@ -933,18 +933,18 @@ NOTMAX: PUSH    DS
         LOOP    PERUNIT
 
 LINKIT:
-        LES     DI,CS:[DOSINFO]         ; ES:DI = DOS TABLE
-        MOV     CX,word ES:[DI.DEVHEAD] ; DX:CX = HEAD OF LIST
-        MOV     DX,word ES:[DI.DEVHEAD+2]
+        LES     DI,[CS:DOSINFO]         ; ES:DI = DOS TABLE
+        MOV     CX,word [ES:DI+DEVHEAD] ; DX:CX = HEAD OF LIST
+        MOV     DX,word [ES:DI+DEVHEAD+2]
 
-        LDS     SI,CS:[ENTRY_POINT]     ; DS:SI = DEVICE LOCATION
-        MOV     word ES:[DI.DEVHEAD],SI ; SET HEAD OF LIST IN DOS
-        MOV     word ES:[DI.DEVHEAD+2],DS
-        MOV     AX,DS:[SI]              ; GET POINTER TO NEXT DEVICE
-        MOV     word CS:[ENTRY_POINT],AX; AND SAVE IT
+        LDS     SI,[CS:ENTRY_POINT]     ; DS:SI = DEVICE LOCATION
+        MOV     word [ES:DI+DEVHEAD],SI ; SET HEAD OF LIST IN DOS
+        MOV     word [ES:DI+DEVHEAD+2],DS
+        MOV     AX,[DS:SI]              ; GET POINTER TO NEXT DEVICE
+        MOV     word [CS:ENTRY_POINT],AX; AND SAVE IT
 
-        MOV     word DS:[SI],CX     ; LINK IN THE DRIVER
-        MOV     word DS:[SI+2],DX
+        MOV     word [DS:SI],CX     ; LINK IN THE DRIVER
+        MOV     word [DS:SI+2],DX
 ENDDEV:
         POP     SI
         POP     ES
@@ -1037,7 +1037,7 @@ PARMLOOP:
 GETCHR: MOV     CX,COUNT
         JCXZ    NOCHAR
         MOV     SI,CHRPTR
-        MOV     AL,ES:[SI]
+        MOV     AL,[ES:SI]
         DEC     COUNT
         INC     CHRPTR
         CLC
@@ -1100,7 +1100,7 @@ ORG4:   CALL    GET2
         CMP     AL,10
         JZ      ORG1
 
-        MOV     byte ES:[DI-1],0
+        MOV     byte [ES:DI-1],0
 ORG5:   CALL    GET2
         STOSB
         CMP     AL,10
@@ -1109,13 +1109,13 @@ ORG5:   CALL    GET2
 
 GET2:
         JCXZ    NOGET
-        MOV     AL,ES:[SI]
+        MOV     AL,[ES:SI]
         INC     SI
         DEC     CX
         RET
 
 GET:    JCXZ    NOGET
-        MOV     AL,ES:[SI]
+        MOV     AL,[ES:SI]
         INC     SI
         DEC     CX
         CALL    DELIM
@@ -1212,7 +1212,7 @@ ISLEAD:
 
 ROUND:  MOV     AX,[MEMLO]
 
-        %if NOT HIGHMEM
+        %if ~HIGHMEM
         ADD     AX,15
         %endif
 
@@ -1225,14 +1225,14 @@ ROUND:  MOV     AX,[MEMLO]
         MOV     [MEMLO],AX
         RET
 
-CALLDEV:MOV     DS,word CS:[ENTRY_POINT+2]
-        ADD     BX,word CS:[ENTRY_POINT]; Do a little relocation
-        MOV     AX,DS:[BX]
-        PUSH    word CS:[ENTRY_POINT]
-        MOV     word CS:[ENTRY_POINT],AX
+CALLDEV:MOV     DS,word [CS:ENTRY_POINT+2]
+        ADD     BX,word [CS:ENTRY_POINT]; Do a little relocation
+        MOV     AX,[DS:BX]
+        PUSH    word [CS:ENTRY_POINT]
+        MOV     word [CS:ENTRY_POINT],AX
         MOV     BX,PACKET
         CALL    [ENTRY_POINT]
-        POP     word CS:[ENTRY_POINT]
+        POP     word [CS:ENTRY_POINT]
         RET
 
 BADNUM: POP     AX                      ; POP RETURN ADDRESS
@@ -1285,7 +1285,7 @@ PRNERR:
         POP     DS
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
-PRN1:   MOV     DL,ES:[SI]
+PRN1:   MOV     DL,[ES:SI]
         OR      DL,DL
         JZ      PRN2
         MOV     AH,STD_CON_OUTPUT

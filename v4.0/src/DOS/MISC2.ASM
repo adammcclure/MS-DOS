@@ -94,7 +94,7 @@ notkanj1:				;AN000;; 2/13/KK
 	CALL	uCase			; convert to upper case
 	Invoke	PathChrCmp		; convert / to \
 	MOV	AH,AL
-	MOV	AL,ES:[DI]
+	MOV	AL,[ES:DI]
 	INC	DI
 	CALL	uCase			; convert to upper case
 	Invoke	PathChrCmp		; convert / to \
@@ -258,12 +258,12 @@ Break	<TableDispatch - dispatch to a table>
 ;   Registers modified: none.
 
 struc TableFrame
-OldBP: dw 0
-OldRet: dw 0
-Index: db 0
-Pad: db 0
-Tab: dw 0
-NewRet: dw 0
+OldBP: resw 1
+OldRet: resw 1
+Index: resb 1
+Pad: resb 1
+Tab: resw 1
+NewRet: resw 1
 endstruc
 
 procedure   TableDispatch,NEAR
@@ -271,17 +271,17 @@ procedure   TableDispatch,NEAR
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	BX			; save BX
-	MOV	BX,[BP.Tab]		; get pointer to table
-	MOV	BL,CS:[BX]		; maximum index
-	CMP	[BP.Index],BL		; table error?
+	MOV	BX,[BP+Tab]		; get pointer to table
+	MOV	BL,[CS:BX]		; maximum index
+	CMP	[BP+Index],BL		; table error?
 	JAE	TableError		; yes
-	MOV	BL,[BP.Index]		; get desired table index
+	MOV	BL,[BP+Index]		; get desired table index
 	XOR	BH,BH			; convert to word
 	SHL	BX,1			; convert to word pointer
 	INC	BX			; point past first length byte
-	ADD	BX,[BP.Tab]		; get real offset
-	MOV	BX,CS:[BX]		; get contents of table entry
-	MOV	[BP.Tab],BX		; put table entry into return address
+	ADD	BX,[BP+Tab]		; get real offset
+	MOV	BX,[CS:BX]		; get contents of table entry
+	MOV	[BP+Tab],BX		; put table entry into return address
 	POP	BX			; restore BX
 	POP	BP			; restore BP
 	ADD	SP,4			; clean off Index and our return addr
@@ -309,7 +309,7 @@ Procedure   TestNet,NEAR
 	LES	DI,ThisCDS
 	CMP	DI,-1
 	JZ	CMCRet			; UNC? carry is clear
-	TEST	ES:[DI].curdir_flags,curdir_isnet
+	TEST	[ES:DI].curdir_flags,curdir_isnet
 	JNZ	CMCret			; jump has carry clear
 	return				; carry is clear
 CMCRet: CMC
@@ -331,7 +331,7 @@ Break	<IsSFTNet - see if an sft is for the network>
 
 Procedure   IsSFTNet,NEAR
 	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
-	TEST	ES:[DI].sf_flags,sf_isnet
+	TEST	[ES:DI].sf_flags,sf_isnet
 	return
 EndProc IsSFTNet
 
@@ -358,7 +358,7 @@ Procedure   FastInit,NEAR				      ;AN000;
 	SHL	BX,1		  ;AN000;FO.;; times 4 , each entry is DWORD
 	SHL	BX,1		  ;AN000;FO.
 	ADD	DI,BX		  ;AN000;FO. index to the entry
-	MOV	AX,word CS:[DI+2] ;AN000;FO. get entry segment
+	MOV	AX,word [CS:DI+2] ;AN000;FO. get entry segment
 fcheck: 			      ;AN000;
 	MOV	CX,CS		  ;AN000;FO.;; get DOS segment
 	CMP	AX,CX		  ;AN000;FO.;; first time installed ?
@@ -372,11 +372,11 @@ ok_install:			      ;AN000;
 	JZ	FSret		      ;AN000;FO.;  yes
 	MOV	CX,DS		      ;AN000;FO.;  get FASTXXX entry segment
 	MOV	CX,DS		      ;AN000;FO.;;  get FASTXXX entry segment
-	MOV	word CS:[DI+2],CX ;AN000;FO.;;  initialize routine entry
-	MOV	word CS:[DI],SI   ;AN000;FO.;;  initialize routine offset
+	MOV	word [CS:DI+2],CX ;AN000;FO.;;  initialize routine entry
+	MOV	word [CS:DI],SI   ;AN000;FO.;;  initialize routine offset
 	MOV	DI,FastFlg ;AN000;FO.; get addr of FASTXXX flags
 	ADD	DI,DX			   ;AN000;FO.;	index to a FASTXXX flag
-	OR	byte CS:[DI],Fast_yes  ;AN000;FO.;	indicate installed
+	OR	byte [CS:DI],Fast_yes  ;AN000;FO.;	indicate installed
 
 FSret:					     ;AN000;
 	return				     ;AN000;FO.
@@ -478,10 +478,10 @@ Procedure   GetDevList,NEAR
 	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 
 	MOV	SI,SysInitTable
-	LDS	SI,CS:[SI.SYSI_InitVars]
+	LDS	SI,[CS:SI+SYSI_InitVars]
 
-	MOV	AX,word DS:[SI.SYSI_DEV]
-	MOV	BX,word DS:[SI.SYSI_DEV+2]
+	MOV	AX,word [DS:SI+SYSI_DEV]
+	MOV	BX,word [DS:SI+SYSI_DEV+2]
 
 	RET
 EndProc GetDevList
@@ -520,7 +520,7 @@ Break	<NLS_GETEXT- get extended error for NLSFUNC>
 Procedure   NLS_GETEXT,NEAR
 	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	MOV	AX,CS:[EXTERR]	 ; return extended error
+	MOV	AX,[CS:EXTERR]	 ; return extended error
 	RET
 EndProc NLS_GETEXT
 
@@ -558,11 +558,11 @@ toget:				    ;AN000;
 	ADD	SI,AX		    ;AN000;;MS. position to the entry
 	TEST	DL,1		    ;AN000;;MS. get ?
 	JZ	getget			     ;AN000;;MS. yes
-	MOV	word CS:[SI],DI    ;AN000;;MS. set MSG
-	MOV	word CS:[SI+2],ES  ;AN000;;MS. address to ES:DI
+	MOV	word [CS:SI],DI    ;AN000;;MS. set MSG
+	MOV	word [CS:SI+2],ES  ;AN000;;MS. address to ES:DI
 	JMP	SHORT MSGret		     ;AN000;;MS. exit
 getget: 				     ;AN000;
-	LES	DI,dword CS:[SI]	     ;AN000;;MS. get msg addr
+	LES	DI,dword [CS:SI]	     ;AN000;;MS. get msg addr
 MSGret: 				     ;AN000;
 	POP	SI			     ;AN000;;MS.
 	POP	AX			     ;AN000;;MS.

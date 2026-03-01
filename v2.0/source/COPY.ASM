@@ -188,31 +188,31 @@ ACOUNTOK:
         mov     al,[CURDRV]             ; Dest is default drive:*.*
         add     al,'A'
         mov     ah,':'
-        mov     [bp.SIZ],2
+        mov     [bp+SIZ],2
         mov     di,DESTBUF
         stosw
         mov     [DESTSWITCH],0          ; no switches on dest
-        mov     [bp.INFO],2             ; Flag dest is ambig
-        mov     [bp.ISDIR],0            ; Know destination specs file
+        mov     [bp+INFO],2             ; Flag dest is ambig
+        mov     [bp+ISDIR],0            ; Know destination specs file
         call    SETSTARS
 GOT2ARGS:
-        cmp     [bp.SIZ],2
+        cmp     [bp+SIZ],2
         jnz     NOTSHORTDEST
         cmp     [DESTBUF+1],':'
         jnz     NOTSHORTDEST            ; Two char file name
-        or      [bp.INFO],2             ; Know dest is d:
+        or      [bp+INFO],2             ; Know dest is d:
         mov     di,DESTBUF + 2
-        mov     [bp.ISDIR],0            ; Know destination specs file
+        mov     [bp+ISDIR],0            ; Know destination specs file
         call    SETSTARS
 NOTSHORTDEST:
-        mov     di,[bp.TTAIL]
+        mov     di,[bp+TTAIL]
         cmp     byte [DI],0
         jnz     CHKSWTCHES
         mov     dx,BADCD
         cmp     byte [DI-2],':'
         jnz     CERROR4J               ; Trailing '/' error
-        mov     [bp.ISDIR],2           ; Know destination is d:/
-        or      [bp.INFO],6
+        mov     [bp+ISDIR],2           ; Know destination is d:/
+        or      [bp+INFO],6
         call    SETSTARS
 CHKSWTCHES:
         mov     dx,BADSWT
@@ -351,7 +351,7 @@ FIRSTENT:
         mov     al,'@'
 DRVSPEC1:
         sub     al,'@'
-        mov     ds:[FCB],al
+        mov     [ds:FCB],al
         mov     ah,DIR_SEARCH_FIRST
         call    SEARCH
         pushf                           ; Save result of search
@@ -412,7 +412,7 @@ NEXTSRCJ:
 
 
 BUILDPATH:
-        test    [BP.INFO],2
+        test    [BP+INFO],2
         jnz     NOTPFILE                ; If ambig don't bother with open
         mov     dx,bp
         add     dx,BUF                  ; Set DX to spec
@@ -426,10 +426,10 @@ BUILDPATH:
         INT     int_command
         test    dl,devid_ISDEV
         jnz     ISADEV                  ; If device, done
-        test    [BP.INFO],4
+        test    [BP+INFO],4
         jz      ISSIMPFILE              ; If no path seps, done
 NOTPFILE:
-        mov     dx,word [BP.BUF]
+        mov     dx,word [BP+BUF]
         cmp     dh,':'
         jz      DRVSPEC5
         mov     dl,'@'
@@ -438,18 +438,18 @@ DRVSPEC5:
         call    SAVUDIR1
         mov     dx,bp
         add     dx,BUF                  ; Set DX for upcomming CHDIRs
-        mov     bh,[BP.INFO]
+        mov     bh,[BP+INFO]
         and     bh,6
         cmp     bh,6                    ; Ambig and path ?
         jnz     CHECKAMB                ; jmp if no
-        mov     si,[BP.TTAIL]
+        mov     si,[BP+TTAIL]
         cmp     byte [si-2],':'
         jnz     KNOWNOTSPEC
-        mov     [BP.ISDIR],2            ; Know is d:/file
+        mov     [BP+ISDIR],2            ; Know is d:/file
         jmp     short DOPCDJ
 
 KNOWNOTSPEC:
-        mov     [BP.ISDIR],1            ; Know is path/file
+        mov     [BP+ISDIR],1            ; Know is path/file
         dec     si                      ; Point to the /
 DOPCDJ:
         jmp     short DOPCD
@@ -459,7 +459,7 @@ CHECKAMB:
         jnz     CHECKCD
 ISSIMPFILE:
 ISADEV:
-        mov     [BP.ISDIR],0            ; Know is file since ambig but no path
+        mov     [BP+ISDIR],0            ; Know is file since ambig but no path
         return
 
 CHECKCD:
@@ -474,31 +474,31 @@ CHECKCD:
         repne   scasb
         dec     di
         mov     al,[DIRCHAR]
-        mov     [bp.ISDIR],2            ; assume d:/file
+        mov     [bp+ISDIR],2            ; assume d:/file
         cmp     al,[di-1]
         jz      GOTSRCSLSH
         stosb
-        mov     [bp.ISDIR],1            ; know path/file
+        mov     [bp+ISDIR],1            ; know path/file
 GOTSRCSLSH:
-        or      [bp.INFO],6
+        or      [bp+INFO],6
         call    SETSTARS
         return
 
 
 NOTPDIR:
-        mov     [bp.ISDIR],0            ; assume pure file
-        mov     bh,[bp.INFO]
+        mov     [bp+ISDIR],0            ; assume pure file
+        mov     bh,[bp+INFO]
         test    bh,4
         retz                            ; Know pure file, no path seps
-        mov     [bp.ISDIR],2            ; assume d:/file
-        mov     si,[bp.TTAIL]
+        mov     [bp+ISDIR],2            ; assume d:/file
+        mov     si,[bp+TTAIL]
         cmp     byte [si],0
         jz      BADCDERRJ2              ; Trailing '/'
         cmp     byte [si],'.'
         jz      BADCDERRJ2              ; If . or .. pure cd should have worked
         cmp     byte [si-2],':'
         jz      DOPCD                   ; Know d:/file
-        mov     [bp.ISDIR],1            ; Know path/file
+        mov     [bp+ISDIR],1            ; Know path/file
         dec     si                      ; Point at last '/'
 DOPCD:
         xor     bl,bl
@@ -512,8 +512,8 @@ BADCDERRJ2:
         JMP     BADCDERR
 
 SETSTARS:
-        mov     [bp.TTAIL],DI
-        add     [bp.SIZ],12
+        mov     [bp+TTAIL],DI
+        add     [bp+SIZ],12
         mov     ax,('.' SHL 8) OR '?'
         mov     cx,8
         rep     stosb

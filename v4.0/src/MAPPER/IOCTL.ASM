@@ -32,13 +32,13 @@ SECTION .dosxxx
             ; .list
 
 struc str
-Old_bp: dw 0
-Return: dd 0
-Handle: dw 0; handle
-Category: dw 0; device category
-Function: dw 0; device function
-Parmlist: dd 0; command arguments
-Data: dd 0; data area
+Old_bp: resw 1
+Return: resd 1
+Handle: resw 1; handle
+Category: resw 1; device category
+Function: resw 1; device function
+Parmlist: resd 1; command arguments
+Data: resd 1; data area
 endstruc
 
 dosdevioctl:

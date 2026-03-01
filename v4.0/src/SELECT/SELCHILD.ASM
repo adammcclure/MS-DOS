@@ -35,16 +35,16 @@ HANDLE_CHILDREN:;AN000;
 	MOV	BX,QM_ACTIVEPAN 	;AN000;
 	CALL	GET_PCB 		;AN000; get panel control block
 					; for active parent panel
-	MOV	CX,ES:[DI]+PCB_CHILDNUM ;AN000;
+	MOV	CX,[ES:DI]+PCB_CHILDNUM ;AN000;
 	OR	CX,CX			;AN000;
 	JZ	HC_1			;AN000;
 					;
-	PUSH	ES:[DI]+PCB_CHILDSEG	;AN000; get address of first child panel
-	PUSH	ES:[DI]+PCB_CHILDOFF	;AN000;
+	PUSH	[ES:DI]+PCB_CHILDSEG	;AN000; get address of first child panel
+	PUSH	[ES:DI]+PCB_CHILDOFF	;AN000;
 	POP	DI			;AN000;
 	POP	ES			;AN000;
 					;
-HC_0:	MOV	AX,ES:[DI]+CHD_PCB	;AN000;
+HC_0:	MOV	AX,[ES:DI]+CHD_PCB	;AN000;
 	MOV	QM_ID,AX		;AN000;
 	PUSHH	<ES,DI> 		;AN000;
 	CALL	PCDISPQ_CALL		;AN000; push next child on the stack

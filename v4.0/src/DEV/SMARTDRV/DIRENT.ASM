@@ -24,14 +24,14 @@ Break <Directory entry>
 ;
 
 struc dir_entry
-dir_name: times 11 db 0; file name
-dir_attr: db 0; attribute bits
-dir_pad: times 10 db 0; reserved for expansion
-dir_time: dw 0; time of last write
-dir_date: dw 0; date of last write
-dir_first: dw 0; first allocation unit of file
-dir_size_l: dw 0; low 16 bits of file size
-dir_size_h: dw 0; high 16 bits of file size
+dir_name: resb 11; file name
+dir_attr: resb 1; attribute bits
+dir_pad: resb 10; reserved for expansion
+dir_time: resw 1; time of last write
+dir_date: resw 1; date of last write
+dir_first: resw 1; first allocation unit of file
+dir_size_l: resw 1; low 16 bits of file size
+dir_size_h: resw 1; high 16 bits of file size
 endstruc
 
 attr_read_only	    EQU      1h

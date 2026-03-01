@@ -5,17 +5,17 @@
         %endif
 
 struc FileFindBuf
-Create_Date: dw 0
-Create_Time: dw 0
-Access_Date: dw 0
-Access_Time: dw 0
-Write_Date: dw 0
-Write_Time: dw 0
-File_Size: dd 0
-FAlloc_Size: dd 0
-Attributes: dw 0
-String_Len: db 0
-File_Name: times 12 db 0
+Create_Date: resw 1
+Create_Time: resw 1
+Access_Date: resw 1
+Access_Time: resw 1
+Write_Date: resw 1
+Write_Time: resw 1
+File_Size: resd 1
+FAlloc_Size: resd 1
+Attributes: resw 1
+String_Len: resb 1
+File_Name: resb 12
 endstruc
 
 ;
@@ -23,12 +23,12 @@ endstruc
 ;
 
 struc dtastr
-                times 21 db 0
-DTAFileAttrib: db 0
-DTAFileTime: dw 0
-DTAFileDate: dw 0
-DTAFileSize: dd 0
-DTAFileName: times 13 db 0
+                resb 21
+DTAFileAttrib: resb 1
+DTAFileTime: resw 1
+DTAFileDate: resw 1
+DTAFileSize: resd 1
+DTAFileName: resb 13
 endstruc
 
 MaxFinds        equ     8

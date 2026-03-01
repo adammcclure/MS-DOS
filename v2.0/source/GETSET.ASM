@@ -89,9 +89,9 @@ BREAK <$Get_Version -- Return MSDOS version number>
         MOV     AX,[MSVERS]
         invoke  get_user_stack
 ; ASSUME  DS:NOTHING
-        MOV     [SI.user_BX],BX
-        MOV     [SI.user_CX],CX
-        MOV     [SI.user_AX],AX  ; Really only sets AH
+        MOV     [SI+user_BX],BX
+        MOV     [SI+user_CX],CX
+        MOV     [SI+user_AX],AX  ; Really only sets AH
         return
 ; ENDP $GET_VERSION
 
@@ -160,7 +160,7 @@ international_copy:
         PUSH    DI
         REP     MOVSB
         POP     DI
-        MOV     word ES:[DI.MAP_CALL + 2],CS   ; Set segment for case map call
+        MOV     word [ES:DI+MAP_CALL + 2],CS   ; Set segment for case map call
 international_ok:
         XOR     AX,AX
         MOV     AL,BL           ; Return country code in AX
@@ -224,7 +224,7 @@ BREAK <$Set_CTRL_C_Trapping -- En/Disable ^C check in dispatcher>
         JNZ     CTRL_C_set
         invoke  get_user_stack
         MOV     AL,[CNTCFLAG]
-        MOV     byte [SI.user_DX],AL
+        MOV     byte [SI+user_DX],AL
         return
 CTRL_C_set:
         DEC     AL
@@ -249,8 +249,8 @@ BREAK <$Get_INDOS_Flag -- Return location of DOS critical-section flag>
 ;       Flag location in ES:BX
 
         invoke  get_user_stack
-        MOV     [SI.user_BX],INDOS
-        MOV     [SI.user_ES],SS
+        MOV     [SI+user_BX],INDOS
+        MOV     [SI+user_ES],SS
         return
 ; ENDP $GET_INDOS_FLAG
 
@@ -262,8 +262,8 @@ BREAK <$Get_INDOS_Flag -- Return location of DOS critical-section flag>
 ; dependent and is subject to change without notice in future versions.
 ; Use at risk.
         invoke  get_user_stack
-        MOV     [SI.user_BX],SYSINITVAR
-        MOV     [SI.user_ES],SS
+        MOV     [SI+user_BX],SYSINITVAR
+        MOV     [SI+user_ES],SS
         return
 ; ENDP $GET_IN_VARS
 ;                                                                          ;
@@ -297,7 +297,7 @@ BREAK <$Get_Drive_Freespace -- Return bytes of free disk space on a drive>
         invoke  FATREAD
         XOR     DX,DX
         MOV     BX,2
-        MOV     CX,ES:[BP.dpb_max_cluster]
+        MOV     CX,[ES:BP+dpb_max_cluster]
         DEC     CX
         PUSH    CX              ; Save Total
 SCANFREE:
@@ -308,17 +308,17 @@ NOTFREECLUS:
         INC     BX
         LOOP    SCANFREE
         POP     BX              ; Remember Total
-        MOV     AL,ES:[BP.dpb_cluster_mask]
+        MOV     AL,[ES:BP+dpb_cluster_mask]
         INC     AL
         XOR     AH,AH
-        MOV     CX,ES:[BP.dpb_sector_size]
+        MOV     CX,[ES:BP+dpb_sector_size]
 BADFRDRIVE:
         invoke  get_user_stack
 ; ASSUME  DS:NOTHING
         MOV     [SI. user_CX],CX
-        MOV     [SI.user_DX],BX
-        MOV     [SI.user_BX],DX
-        MOV     [SI.user_AX],AX
+        MOV     [SI+user_DX],BX
+        MOV     [SI+user_BX],DX
+        MOV     [SI+user_AX],AX
         return
 
 ; ENDP $GET_DRIVE_FREESPACE
@@ -337,8 +337,8 @@ BREAK <$Get_DMA, $Set_DMA -- Get/Set current DMA address>
         MOV     BX,word [DMAADD]
         MOV     CX,word [DMAADD+2]
         invoke  get_user_stack
-        MOV     [SI.user_BX],BX
-        MOV     [SI.user_ES],CX
+        MOV     [SI+user_BX],BX
+        MOV     [SI+user_ES],CX
         return
 ; ENDP $GET_DMA
 
@@ -383,8 +383,8 @@ BREAK <$Get_Default_DPB,$Get_DPB -- Return pointer to DPB>
         invoke  FATREAD
         invoke  get_user_stack
 ; ASSUME  DS:NOTHING
-        MOV     [SI.user_BX],BP
-        MOV     [SI.user_DS],ES
+        MOV     [SI+user_BX],BP
+        MOV     [SI+user_DS],ES
         XOR     AL,AL
         return
 
@@ -442,10 +442,10 @@ BREAK <$Get_Interrupt_Vector - Get/Set interrupt vectors>
 ;       ES:BX is current interrupt vector
 
         CALL    RECSET
-        LES     BX,dword ES:[BX]
+        LES     BX,dword [ES:BX]
         invoke  get_user_stack
-        MOV     [SI.user_BX],BX
-        MOV     [SI.user_ES],ES
+        MOV     [SI+user_BX],BX
+        MOV     [SI+user_ES],ES
         return
 ; ENDP $GET_INTERRUPT_VECTOR
 
@@ -461,8 +461,8 @@ BREAK <$Get_Interrupt_Vector - Get/Set interrupt vectors>
 ;       None
 
         CALL    RECSET
-        MOV     ES:[BX],DX
-        MOV     ES:[BX+2],DS
+        MOV     [ES:BX],DX
+        MOV     [ES:BX+2],DS
         return
 ; ENDP $SET_INTERRUPT_VECTOR
 
@@ -481,7 +481,7 @@ VECOUT: ; GET MAPPED VECTOR
         DB      int_spooler
 LSTVEC2: db 0; Map to itself
 
-NUMVEC  =       VECOUT-VECIN
+NUMVEC equ VECOUT-VECIN
         %endif
 
 procedure   RECSET,NEAR
@@ -494,7 +494,7 @@ procedure   RECSET,NEAR
         MOV     CX,NUMVEC       ; Number of possible translations
         MOV     DI,VECIN ; Point to vectors
         REPNE   SCASB
-        MOV     AL,ES:[DI+NUMVEC-1] ; Get translation
+        MOV     AL,[ES:DI+NUMVEC-1] ; Get translation
         %endif
 
         XOR     BX,BX
@@ -545,7 +545,7 @@ char_oper_bad_ret:
         return
 char_oper_ret:
         invoke  get_user_stack
-        MOV     [SI.user_DX],DX
+        MOV     [SI+user_DX],DX
         return
 ; ENDP $CHAR_OPER
 
@@ -599,21 +599,21 @@ SAVLOG:
         INC     DI                      ; Skip dpb_first_sector
         MOVSW                           ; Total number of sectors in DSKSIZ (temp as dpb_max_cluster)
         LODSB
-        MOV     ES:[BP.dpb_media],AL    ; Media byte
+        MOV     [ES:BP+dpb_media],AL    ; Media byte
         LODSW                           ; Number of sectors in a FAT
         STOSB                           ; dpb_FAT_size
         MUL     BH                      ; Space occupied by all FATs
-        ADD     AX,ES:[BP.dpb_first_FAT]
+        ADD     AX,[ES:BP+dpb_first_FAT]
         STOSW                           ; dpb_dir_sector
         ADD     AX,CX                   ; Add number of directory sectors
-        MOV     ES:[BP.dpb_first_sector],AX
-        SUB     AX,ES:[BP.DSKSIZ]
+        MOV     [ES:BP+dpb_first_sector],AX
+        SUB     AX,[ES:BP+DSKSIZ]
         NEG     AX                      ; Sectors in data area
         MOV     CL,BL                   ; dpb_cluster_shift
         SHR     AX,CL                   ; Div by sectors/cluster
         INC     AX
-        MOV     ES:[BP.dpb_max_cluster],AX
-        MOV     ES:[BP.dpb_current_dir],0     ; Current directory is root
+        MOV     [ES:BP+dpb_max_cluster],AX
+        MOV     [ES:BP+dpb_current_dir],0     ; Current directory is root
         return
 ; ENDP $SETDPB
 ;                                                                          ;

@@ -222,7 +222,7 @@ LOOK_SING:
 					; Attributes to search through Dirs
 	LES	DI,[THISCDS]
 	MOV	AX,-1
-	MOV	BX,ES:[DI.curdir_ID]
+	MOV	BX,[ES:DI+curdir_ID]
 	MOV	SI,[CURR_DIR_END]
 ;
 ; AX = -1
@@ -254,7 +254,7 @@ LOOK_SING:
 	MOV	AL,FONC_look_up
 	PUSH	DS
 	POP	ES
-	CALL	dword [BX.FASTOPEN_NAME_CACHING]
+	CALL	dword [BX+FASTOPEN_NAME_CACHING]
 	JC	GO_Chk_end1			;fastopen not installed, or wrong drive. Go to Got_Srch_cluster
 	CMP	byte [SI],0 		;fastopen has current dir info?
 	JE	GO_Chk_end			;yes. Go to got_serch_cluster
@@ -447,7 +447,7 @@ Break	<ROOTPATH, FINDPATH -- PARSE A PATH>
 	CMP	DI,[CURR_DIR_END]
 	JNZ	NOIDS			; Not to current dir end yet
 	LES	DI,[THISCDS]
-	MOV	ES:[DI.curdir_ID],CX	; Set current directory currency
+	MOV	[ES:DI+curdir_ID],CX	; Set current directory currency
 NOIDS:
 ;
 ; Parse the name off of DS:SI into NAME1.  AL = 1 if there was a meta
@@ -666,8 +666,8 @@ DO_NORMAL:
 	PUSH	AX
 	PUSH	SI
 	PUSH	CX
-	PUSH	word [DI.buf_sector]     ;AN000;>32mb
-	PUSH	word [DI.buf_sector+2]   ;AN000;>32mb
+	PUSH	word [DI+buf_sector]     ;AN000;>32mb
+	PUSH	word [DI+buf_sector+2]   ;AN000;>32mb
 	MOV	BX,DX
 	context DS
 	invoke	SETDIRSRCH		; This uses UNPACK which might blow
@@ -848,7 +848,7 @@ NOKTR:
 	MOV	SI,NULDEV
 LOOKIO:
 ; ASSUME	DS:NOTHING
-	TEST	[SI.SDEVATT],DEVTYP
+	TEST	[SI+SDEVATT],DEVTYP
 	JZ	SKIPDEV 		; Skip block devices (NET and LOCAL)
 	MOV	AX,SI
 	ADD	SI,SDEVNAME
@@ -875,7 +875,7 @@ RETNV:	MOV	CX,SS
 IOCHK:
 ; ASSUME	DS:NOTHING
 	MOV	word [DEVPT+2],DS	; Save pointer to device
-	MOV	BH,byte [SI.SDEVATT]
+	MOV	BH,byte [SI+SDEVATT]
 	OR	BH,0C0H
 	AND	BH,NOT 020H		; Clears Carry
 	MOV	word [DEVPT],SI
@@ -1213,7 +1213,7 @@ FASTINST:
 	MOV	AL,FONC_look_up 		    ; al = 1
 	PUSH	DS
 	POP	ES
-	CALL	dword [BX.FASTOPEN_NAME_CACHING] ;call fastopen
+	CALL	dword [BX+FASTOPEN_NAME_CACHING] ;call fastopen
 	JC	NOTFOUND			    ; fastopen not in memory
 
 	LEA	BX,[SI-2]
@@ -1226,7 +1226,7 @@ FASTINST:
 	MOV	CL,Attrib			    ;AN000;FO.;
 	MOV	CH,Sattrib			    ;AN000;FO.; attrib=sattrib
 	MOV	Attrib,CH			    ;AN000;FO.;
-	MOV	CH,ES:[DI.dir_attr]		    ;AN000;FO.;
+	MOV	CH,[ES:DI+dir_attr]		    ;AN000;FO.;
 	invoke	Matchattributes 		    ;AN000;FO.;
 ;;;	MOV	Attrib,CL			    ;AN001;FO.; retore attrib
 	POP	CX				    ;AN000;FO.;
@@ -1234,21 +1234,21 @@ FASTINST:
 parfnd:
 	MOV	[Next_Element_Start],SI 		   ; save si
 	MOV	BX,CX
-	MOV	AX,[BX.FEI_lastent]		    ;AN000;;FO. restore lastentry
+	MOV	AX,[BX+FEI_lastent]		    ;AN000;;FO. restore lastentry
 	MOV	[LASTENT],AX			    ;AN000;;FO.
-	MOV	AX,[BX.FEI_dirstart]		    ;AN001;;FO. restore dirstart
+	MOV	AX,[BX+FEI_dirstart]		    ;AN001;;FO. restore dirstart
 	MOV	[DIRSTART],AX			    ;AN001;;FO.
-	MOV	AX,[BX.FEI_clusnum]		    ; restore next cluster num
+	MOV	AX,[BX+FEI_clusnum]		    ; restore next cluster num
 	MOV	[CLUSNUM],AX			    ;
 
 	PUSH	ES				    ; save ES
 	LES	BX,[THISDPB]			    ; put drive id
-	MOV	AH,ES:[BX.dpb_drive]		    ; in AH for DOOPEN
+	MOV	AH,[ES:BX+dpb_drive]		    ; in AH for DOOPEN
 	POP	ES				    ; pop ES
 
 	MOV	word [CURBUF+2],ES		    ; [curbuf+2].bx points to
 	MOV	BX,DI				    ; start of entry
-	LEA	SI,[DI.dir_first]		    ; [curbuf+2]:si points to
+	LEA	SI,[DI+dir_first]		    ; [curbuf+2]:si points to
 						    ; dir_first field in the
 						    ; dir entry
 	OR	[FastOpenFlg],Lookup_Success + set_for_search
@@ -1297,17 +1297,17 @@ INSERT_DIR_INFO:			      ; save registers
 	LDS    DI,[CURBUF]		; DS:DI -> buffer header
 ; ASSUME DS:NOTHING
 	MOV    SI,FastOpen_Ext_Info
-	MOV    AX,word [DI.buf_sector]  ; get directory sector
-	MOV    word CS:[SI.FEI_dirsec],AX ;AN000; >32mb save dir sector
-	MOV    AX,word [DI.buf_sector+2]  ;AN000; >32mb
+	MOV    AX,word [DI+buf_sector]  ; get directory sector
+	MOV    word [CS:SI+FEI_dirsec],AX ;AN000; >32mb save dir sector
+	MOV    AX,word [DI+buf_sector+2]  ;AN000; >32mb
 	context DS
-	MOV    word [SI.FEI_dirsec+2],AX  ;AN000;>32mb save high dir sector
+	MOV    word [SI+FEI_dirsec+2],AX  ;AN000;>32mb save high dir sector
 	MOV    AX,[CLUSNUM]		; save next cluster number
-	MOV    [SI.FEI_clusnum],AX
+	MOV    [SI+FEI_clusnum],AX
 	MOV    AX,[LASTENT]		;AN000;FO. save lastentry for search first
-	MOV    [SI.FEI_lastent],AX	;AN000;FO.
+	MOV    [SI+FEI_lastent],AX	;AN000;FO.
 	MOV    AX,[DIRSTART]		;AN001;FO. save  for search first
-	MOV    [SI.FEI_dirstart],AX	;AN001;FO.
+	MOV    [SI+FEI_dirstart],AX	;AN001;FO.
 
 	MOV    AX,BX
 	ADD    DI,BUFINSIZ		; DS:DI -> start of data in buffer
@@ -1315,7 +1315,7 @@ INSERT_DIR_INFO:			      ; save registers
 	MOV    CL,dir_entry_size
 ;invoke debug_DOS
 	DIV    CL
-	MOV    [SI.FEI_dirpos],AL	; save directory entry # in buffer
+	MOV    [SI+FEI_dirpos],AL	; save directory entry # in buffer
 
 	PUSH   DS
 	POP    ES
@@ -1323,7 +1323,7 @@ INSERT_DIR_INFO:			      ; save registers
 	MOV    DS,word [CURBUF+2]
 	MOV    DI,BX			; DS:DI -> dir entry info
 ; ASSUME DS:NOTHING
-	CMP    DS:[DI.dir_first],0	; never insert info when file is empty
+	CMP    [DS:DI+dir_first],0	; never insert info when file is empty
 	JZ     SKIP_INSERT		; e.g. newly created file
 
 	PUSH   SI			; ES:BX -> extended info
@@ -1331,7 +1331,7 @@ INSERT_DIR_INFO:			      ; save registers
 
 	MOV    AL,FONC_insert		; call fastopen insert operation
 	MOV    SI,FastOpenTable
-	CALL   dword ES:[SI.FASTOPEN_NAME_CACHING]
+	CALL   dword [ES:SI+FASTOPEN_NAME_CACHING]
 
 	CLC
 SKIP_INSERT:

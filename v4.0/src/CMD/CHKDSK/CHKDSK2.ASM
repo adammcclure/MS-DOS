@@ -142,7 +142,7 @@ FCB_TO_ASCZ:				;Convert DS:SI to ASCIZ ES:DI
 	REP	MOVSB			; Move all of it
 main_kill_tail:
 ; delete trailing spaces in name
-	CMP	byte ES:[DI-1]," "	;was the last char in name a space?
+	CMP	byte [ES:DI-1]," "	;was the last char in name a space?
 	JNZ	find_check_dot
 	DEC	DI			; Back up over trailing space
 	INC	CX
@@ -163,7 +163,7 @@ got_ext:
 	REP	MOVSB
 ext_kill_tail:
 ;delete trailing blanks
-	CMP	byte ES:[DI-1]," "	;
+	CMP	byte [ES:DI-1]," "	;
 	JNZ	find_done		;
 	DEC	DI			; Back up over trailing space
 	JMP	ext_kill_tail		;
@@ -337,7 +337,7 @@ ramcarv:
 ;	$IF	NC			; ram carving exists if no carry	;AC000; 				;AN000;
 	JC $$IF22
 	   xor	   ax,ax		; zero out ax
-	   mov	   al,byte es:[0]	; pointer to # of 1k blocks of RAM Carve;AN000;
+	   mov	   al,byte [es:0]	; pointer to # of 1k blocks of RAM Carve;AN000;
 	   mov	   dx,64		; convert 1k blocks to paras		;AN000;
 	   mul	   dx								   ;AN000;
 	   mov	   bx,ax		   ; save value in BX			   ;AN000;

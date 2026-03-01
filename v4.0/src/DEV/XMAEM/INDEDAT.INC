@@ -53,25 +53,25 @@ struc BPSTACK
 
 BP_ES   DW      0             ; Interrptee's ES
 BP_DI   DW      0             ; Interruptee's EDI (32 bit DI)
-        DW      0             ;
+        resw 1;
 BP_SI   DW      0             ; Interruptee's ESI (32 bit SI)
-        DW      0             ;
+        resw 1;
 BP_BP   DW      0             ; Interruptee's EBP (32 bit BP)
-        DW      0             ;
+        resw 1;
 BP_PASP DW      0             ; Interruptee's ESP (32 bit SP)
 BP_PSP2 DW      0             ;   (ESP as it was before the PUSHA)
 BP_BX   DW      0             ; Interruptee's EBX (32 bit BX)
-        DW      0             ;
+        resw 1;
 BP_DX   DW      0             ; Interruptee's EDX (32 bit DX)
-        DW      0             ;
+        resw 1;
 BP_CX   DW      0             ; Interruptee's ECX (32 bit CX)
-        DW      0             ;
+        resw 1;
 BP_AX   DW      0             ; Interruptee's EAX (32 bit AX)
-        DW      0             ;
+        resw 1;
 BP_DS   DW      0             ; Interruptee's DS
 BP_EX   DW      0             ; Exception ID
 BP_EC   DW      0             ; Error Code
-        DW      0
+        resw 1
 
 ; The following values are placed on our stack by the 80386
 
@@ -88,11 +88,11 @@ BP_SS2  DW      0             ;   interrupt
 BP_VMES DW      0             ; Virtual mode ES
 BP_VME2 DW      0
 BP_VMDS DW      0             ; Virtual mode DS
-        DW      0
+        resw 1
 BP_VMFS DW      0             ; Virtual mode FS
-        DW      0
+        resw 1
 BP_VMGS DW      0             ; Virtual mode GS
-        DW      0
+        resw 1
 BP_STK  DW      0             ; The rest of the stack
 
 endstruc
@@ -108,21 +108,21 @@ BP_START EQU    0             ; Offset from BP of the start of the stack info
 ;*************************************************
 
 struc TSS386
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_BACK_LINK  DW      0     ; Back link to previous TSS
 ETSS_SP0        DW      0     ; ESP for privilege level 0
-                DW      0
+                resw 1
 ETSS_SS0        DW      0     ; SS for privilege level 0
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_SP1        DD      0     ; ESP for privilege level 1
 ETSS_SS1        DW      0     ; SS for privilege level 1
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_SP2        DD      0     ; ESP for privilege level 2
 ETSS_SS2        DW      0     ; SS for privilege level 2
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_CR3        DD      0     ; CR3 - Page directory base register
 ETSS_IP         DW      0     ; Task's EIP
-                DW      0
+                resw 1
 ETSS_FL         DW      0     ; Task's Eflags
 ETSS_FL2        DW      0
 ETSS_AX         DD      0     ; Task's EAX
@@ -130,24 +130,24 @@ ETSS_CX         DD      0     ; Task's ECX
 ETSS_DX         DD      0     ; Task's EDX
 ETSS_BX         DD      0     ; Task's EBX
 ETSS_SP         DW      0     ; Task's ESP
-                DW      0
+                resw 1
 ETSS_BP         DD      0     ; Task's EBP
 ETSS_SI         DD      0     ; Task's ESI
 ETSS_DI         DD      0     ; Task's EDI
 ETSS_ES         DW      0     ; Task's ES
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_CS         DW      0     ; Task's CS
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_SS         DW      0     ; Task's SS
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_DS         DW      0     ; Task's DS
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_FS         DW      0     ; Task's FS
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_GS         DW      0     ; Task's GS
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_LDT        DW      0     ; Selector for task's LDT
-                DW      0     ; Intel reserved
+                resw 1; Intel reserved
 ETSS_TRAP       DW      0     ; Trap bit - bit 0 (IBM bit 15)
 ETSS_BM_OFFSET  DW      0     ; I/O bit map base
 ETSS_AVL        DD      0
@@ -216,23 +216,23 @@ MON_TR_OI       DQ      0             ;  "      "       "    "  control-break
 
 KBD_OWNER_SDA   DQ      0             ; Fast path to keyboard owner's SDA
 
-VTIMER_VECTOR: times 16 db 8 DUP(0; 16 VM timer-related descriptors
+VTIMER_VECTOR: resb 16; 16 VM timer-related descriptors
 
 ;       Below are the 32 system exception service routine descriptors.
 
-SEX_TSS: times 32 db 8 DUP(0
+SEX_TSS: resb 32
 
 ;       Below are the 16 hardware interrupt service routine TSS descriptor
 ;       pairs.  The first is suitable for TR loading (i.e. target selector
 ;       in the corresponding task gate) and the other is a TSS-as-data
 ;       descriptor.
 
-HWI_TSS: times 16 db 16 DUP(0
+HWI_TSS: resb 16
 
 ;       This is the descriptor pair for the dispatcher (same format as HWI).
 
 DISPATCH_TASK   DQ      0
-                DQ      0
+                resq 1
 
 HWI_LDT         DQ      0
 
@@ -247,12 +247,12 @@ BIOSS_SEG       DQ      0             ; BIOS's segment (F000)
 ;
 
 RSVD_GDT        DQ      0
-                DB     (GDT_LEN - (RSVD_GDT + 8) - (18 * 32)) DUP (0)
+                resb 1
 
                                       ; The above leaves space for the
                                       ; descriptors needed for 18 VMs
 
-PM_VM: times 32 db 0; Program Manager's virtual machine
+PM_VM: resb 32; Program Manager's virtual machine
                                       ; entries.  This will function as
                                       ; the highest priority machine.
 USER_CS         DQ      0             ; Debugee's code segment
@@ -264,9 +264,9 @@ USER_TSS_DAT    DQ      0             ; Debugee's TSS as a data segment
 USER_LDT        DQ      0             ; Debugee's LDT definition
 USER_LDT_DAT    DQ      0             ; Debugee's LDT as a data segment
 
-USER_VMS: times 14 db 32 DUP(0; 16 user VMs
+USER_VMS: resb 14; 16 user VMs
 
-SCRUBBER: times 32 db 0; RAM scrubber - dispatched when no other
+SCRUBBER: resb 32; RAM scrubber - dispatched when no other
                                       ; machine has work to do
 last_gdt_byte   db     0              ; marker for last GDT byte + 1
 endstruc

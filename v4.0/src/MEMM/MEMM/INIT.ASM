@@ -287,11 +287,11 @@ Init_MEMM386:
 ;
 ;	initialize break address to not install
 ;
-	mov	word ES:[bx.BRK_OFF],0000	; set it
+	mov	word [ES:bx+BRK_OFF],0000	; set it
 	mov	ax,seg R_CODE		; get brk addr segment
 	inc	ax			; reserve dos link pointer
-	mov	ES:[bx.BRK_SEG],ax	; break addr = cs - don't install
-	mov	byte es:[bx.NUM_UNITS],0	; 0 - don't install
+	mov	[ES:bx+BRK_SEG],ax	; break addr = cs - don't install
+	mov	byte [es:bx+NUM_UNITS],0	; 0 - don't install
 ;
 ;	verify that MEMM is not already installed
 ;
@@ -343,7 +343,7 @@ IE_dos_err:
 ;	(4) Driver exit mode (virtual or real)
 ;
 IE_parse:
-	les	di,ES:[bx.ARG_PTR]	; ES:DI pts to config.sys command
+	les	di,[ES:bx+ARG_PTR]	; ES:DI pts to config.sys command
 					;	line parameters
 	call	parser			; parse the parameters
 	test	[msg_flag],KILLER_MSG	;Q: any killer messages?
@@ -432,9 +432,9 @@ IE_setbrk:
 	mov	es,bx
 	mov	bx,[bp+10]		; ES:BX pts to req hdr
 	mov	ax,[driver_end] 	; get brk addr offset
-	mov	ES:[bx.BRK_OFF],ax	; set it
+	mov	[ES:bx+BRK_OFF],ax	; set it
 	mov	ax,[driver_end+2]	; get brk addr segment
-	mov	ES:[bx.BRK_SEG],ax	; set it
+	mov	[ES:bx+BRK_SEG],ax	; set it
 ;
 ;   check exit status of VDM/MEMM  (now with lim 4.0) exit must be ON
 ;
@@ -502,7 +502,7 @@ IE_Install:
 m_loop:
 	test	[msg_flag],01		; q:is this one set?
 	jz	m_inc_ptr		; n: increment table pointer
-	mov	dx,cs:[si]		; y: display message
+	mov	dx,[cs:si]		; y: display message
 	PRINT_MSG
 	cmp	cx,KILL_MSG		; q: is this one a killer?
 	jbe	m_inc_ptr		; n: continue
@@ -540,7 +540,7 @@ base_loop:
 	add	ax,'A'-':'
 skip_dig_adj:
 	add	ax,'0'			; make it ascii
-	mov	CS:[di],al		; store in message
+	mov	[CS:di],al		; store in message
 	dec	di			; update pointer
 	pop	ax			; get all digits back
 					; shift right for next digit
@@ -655,7 +655,7 @@ parser:
 ;	Skip past MEMM.EXE in command line
 ;
 parm1_loop:				; find 1st parameter
-	mov	al,es:[di]
+	mov	al,[es:di]
 	cmp	al,' '			; q: find end of MEMM.exe?
 	jbe	ploop1			; y: start parsing
 	inc	di			; n: try next one
@@ -1096,7 +1096,7 @@ b2_ascii:
 	mov	bl,1			; leading zeroes on
 ;
 b2_make_strg:
-	mov	CS:[di],al		; put ascii number into string
+	mov	[CS:di],al		; put ascii number into string
 	xchg	ax,dx
 	inc	di			; increment buffer string pointer
 	dec	si			; decrement power of 10 pointer

@@ -17,15 +17,15 @@ TEMPLEN 	EQU	DIRSTRLEN*2
 
 struc curdir_list
 curdir_text	DB	DIRSTRLEN DUP (?)   ; text of assignment and curdir
-curdir_flags: dw 0; various flags
-curdir_devptr: dd 0; local pointer to DPB or net device
-curdir_ID: dw 0; cluster of current dir (net ID)
-		dw 0
-curdir_user_word: dw 0
-curdir_end: dw 0; end of assignment
-curdir_type: db 0; IFS drive (2=ifs, 4=netuse)
-curdir_ifs_hdr: dd 0; Ptr to File System Header
-curdir_fsda: times 2 db 0; File System Dependent Data Area
+curdir_flags: resw 1; various flags
+curdir_devptr: resd 1; local pointer to DPB or net device
+curdir_ID: resw 1; cluster of current dir (net ID)
+		resw 1
+curdir_user_word: resw 1
+curdir_end: resw 1; end of assignment
+curdir_type: resb 1; IFS drive (2=ifs, 4=netuse)
+curdir_ifs_hdr: resd 1; Ptr to File System Header
+curdir_fsda: resb 2; File System Dependent Data Area
 endstruc
 
 curdirLen	EQU	curdir_list_size	; Needed for screwed up

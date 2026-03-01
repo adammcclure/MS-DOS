@@ -114,7 +114,7 @@ FmtUPID:
 	SaveReg <DS>
 	MOV     BX,0
 	MOV     DS,BX
-	MOV     DS,DS:[82h]
+	MOV     DS,[DS:82h]
 	; ASSUME  DS:DOSGroup
 	MOV     BX,User_ID
 	CALL    MNUM

@@ -47,14 +47,14 @@ BREAK  <Bios Parameter Block>
 ; This structure is used to build a full DPB
 
 struc BPBLOCK
-BPSECSZ: dw 0; Size in bytes of physical sector
-BPCLUS: db 0; Sectors/Alloc unit
-BPRES: dw 0; Number of reserved sectors
-BPFTCNT: db 0; Number of FATs
-BPDRCNT: dw 0; Number of directory entries
-BPSCCNT: dw 0; Total number of sectors
-BPMEDIA: db 0; Media descriptor byte
-BPFTSEC: dw 0; Number of sectors taken up by one FAT
+BPSECSZ: resw 1; Size in bytes of physical sector
+BPCLUS: resb 1; Sectors/Alloc unit
+BPRES: resw 1; Number of reserved sectors
+BPFTCNT: resb 1; Number of FATs
+BPDRCNT: resw 1; Number of directory entries
+BPSCCNT: resw 1; Total number of sectors
+BPMEDIA: resb 1; Media descriptor byte
+BPFTSEC: resw 1; Number of sectors taken up by one FAT
 endstruc
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
@@ -68,17 +68,17 @@ BREAK <Disk I/O Buffer Header>
 ; Field definition for I/O buffer information
 
 struc BUFFINFO
-NEXTBUF: dd 0; Pointer to next buffer in list
+NEXTBUF: resd 1; Pointer to next buffer in list
 ; The next two items are often refed as a word
-BUFDRV: db 0; Logical drive # assoc with buffer FF = free
-BUFDIRTY: db 0; Dirty flag
-BUFPRI: db 0; Buffer selection priority (see EQUs below)
-VISIT: db 0; Visit flag for buffer pool scans
-BUFSECNO: dw 0; Sector number of buffer
+BUFDRV: resb 1; Logical drive # assoc with buffer FF = free
+BUFDIRTY: resb 1; Dirty flag
+BUFPRI: resb 1; Buffer selection priority (see EQUs below)
+VISIT: resb 1; Visit flag for buffer pool scans
+BUFSECNO: resw 1; Sector number of buffer
 ; The next two items are often refed as a word
-BUFWRTCNT: db 0; For FAT sectors, # times sector written out
-BUFWRTINC: db 0; "   "     "   , # sectors between each write
-BUFDRVDP: dd 0; Pointer to drive parameters
+BUFWRTCNT: resb 1; For FAT sectors, # times sector written out
+BUFWRTINC: resb 1; "   "     "   , # sectors between each write
+BUFDRVDP: resd 1; Pointer to drive parameters
 endstruc
 
 BUFINSIZ        EQU     BUFFINFO_size
@@ -99,18 +99,18 @@ BREAK <User stack inside of system call>
 ; Location of user registers relative user stack pointer
 
 struc user_environ
-user_AX: dw 0
-user_BX: dw 0
-user_CX: dw 0
-user_DX: dw 0
-user_SI: dw 0
-user_DI: dw 0
-user_BP: dw 0
-user_DS: dw 0
-user_ES: dw 0
-user_IP: dw 0
-user_CS: dw 0
-user_F: dw 0
+user_AX: resw 1
+user_BX: resw 1
+user_CX: resw 1
+user_DX: resw 1
+user_SI: resw 1
+user_DI: resw 1
+user_BP: resw 1
+user_DS: resw 1
+user_ES: resw 1
+user_IP: resw 1
+user_CS: resw 1
+user_F: resw 1
 endstruc
 
 BREAK <interrupt definitions>
@@ -127,7 +127,7 @@ ALTBASE EQU     4 * ALTTAB
 ;
 ; interrupt assignments
 ;
-        %if NOT ALTVECT
+        %if ~ALTVECT
 int_abort           EQU     INTTAB          ; abort process
 int_command         EQU     int_abort+1     ; call MSDOS
 int_terminate       EQU     int_abort+2     ; int to terminate address
@@ -227,14 +227,14 @@ BREAK <Directory entry>
 ;   Date:   Bits 0-4=day, bits 5-8=month, bits 9-15=year-1980
 ;
 struc dir_entry
-dir_name: times 11 db 0; file name
-dir_attr: db 0; attribute bits
-dir_pad: times 10 db 0; reserved for expansion
-dir_time: dw 0; time of last write
-dir_date: dw 0; date of last write
-dir_first: dw 0; first allocation unit of file
-dir_size_l: dw 0; low 16 bits of file size
-dir_size_h: dw 0; high 16 bits of file size
+dir_name: resb 11; file name
+dir_attr: resb 1; attribute bits
+dir_pad: resb 10; reserved for expansion
+dir_time: resw 1; time of last write
+dir_date: resw 1; date of last write
+dir_first: resw 1; first allocation unit of file
+dir_size_l: resw 1; low 16 bits of file size
+dir_size_h: resw 1; high 16 bits of file size
 endstruc
 
 attr_read_only      EQU      1h
@@ -283,24 +283,24 @@ BREAK <DPB structure>
 DIRSTRLEN       EQU     64      ; Max length in bytes of directory strings
 
 struc dpb
-dpb_drive: db 0; Logical drive # assoc with DPB (A=0,B=1,...)
-dpb_UNIT: db 0; Driver unit number of DPB
-dpb_sector_size: dw 0; Size of physical sector in bytes
-dpb_cluster_mask: db 0; Sectors/cluster - 1
-dpb_cluster_shift: db 0; Log2 of sectors/cluster
-dpb_first_FAT: dw 0; Starting record of FATs
-dpb_FAT_count: db 0; Number of FATs for this drive
-dpb_root_entries: dw 0; Number of directory entries
-dpb_first_sector: dw 0; First sector of first cluster
-dpb_max_cluster: dw 0; Number of clusters on drive + 1
-dpb_FAT_size: db 0; Number of records occupied by FAT
-dpb_dir_sector: dw 0; Starting record of directory
-dpb_driver_addr: dd 0; Pointer to driver
-dpb_media: db 0; Media byte
-dpb_first_access: db 0; This is initialized to -1 to force a media
+dpb_drive: resb 1; Logical drive # assoc with DPB (A=0,B=1,...)
+dpb_UNIT: resb 1; Driver unit number of DPB
+dpb_sector_size: resw 1; Size of physical sector in bytes
+dpb_cluster_mask: resb 1; Sectors/cluster - 1
+dpb_cluster_shift: resb 1; Log2 of sectors/cluster
+dpb_first_FAT: resw 1; Starting record of FATs
+dpb_FAT_count: resb 1; Number of FATs for this drive
+dpb_root_entries: resw 1; Number of directory entries
+dpb_first_sector: resw 1; First sector of first cluster
+dpb_max_cluster: resw 1; Number of clusters on drive + 1
+dpb_FAT_size: resb 1; Number of records occupied by FAT
+dpb_dir_sector: resw 1; Starting record of directory
+dpb_driver_addr: resd 1; Pointer to driver
+dpb_media: resb 1; Media byte
+dpb_first_access: resb 1; This is initialized to -1 to force a media
                                 ; check the first time this DPB is used
-dpb_next_dpb: dd 0; Pointer to next Drive parameter block
-dpb_current_dir: dw 0; Cluster number of start of current directory
+dpb_next_dpb: resd 1; Pointer to next Drive parameter block
+dpb_current_dir: resw 1; Cluster number of start of current directory
                                 ; 0 indicates root, -1 indicates invalid
                                 ; (disk ? changed)
 dpb_dir_text        DB      DIRSTRLEN DUP(?)
@@ -309,7 +309,7 @@ endstruc
 
 DPBSIZ  EQU     dpb_size        ; Size of the structure in bytes
 
-DSKSIZ  =       dpb_max_cluster ; Size of disk (temp used during init only)
+DSKSIZ equ dpb_max_cluster; Size of disk (temp used during init only)
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
@@ -362,20 +362,20 @@ BREAK <File Control Block definition>
 ;
 
 struc sys_fcb
-fcb_drive: db 0
-fcb_name: times 8 db 0
-fcb_ext: times 3 db 0
-fcb_EXTENT: dw 0
-fcb_RECSIZ: dw 0; Size of record (user settable)
-fcb_FILSIZ: dw 0; Size of file in bytes; used with the following
+fcb_drive: resb 1
+fcb_name: resb 8
+fcb_ext: resb 3
+fcb_EXTENT: resw 1
+fcb_RECSIZ: resw 1; Size of record (user settable)
+fcb_FILSIZ: resw 1; Size of file in bytes; used with the following
                             ; word
-fcb_DRVBP: dw 0; BP for SEARCH FIRST and SEARCH NEXT
-fcb_FDATE: dw 0; Date of last writing
-fcb_FTIME: dw 0; Time of last writing
+fcb_DRVBP: resw 1; BP for SEARCH FIRST and SEARCH NEXT
+fcb_FDATE: resw 1; Date of last writing
+fcb_FTIME: resw 1; Time of last writing
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;                                                                          ;
-fcb_DEVID: db 0; Device ID number, bits 0-5 if file.
+fcb_DEVID: resb 1; Device ID number, bits 0-5 if file.
                             ; bit 7=0 for file, bit 7=1 for I/O device
                             ; If file, bit 6=0 if dirty
                             ; If I/O device, bit 6=0 if EOF (input)
@@ -384,18 +384,18 @@ fcb_DEVID: db 0; Device ID number, bits 0-5 if file.
                             ;               Bit 1=1 if console output device
                             ;               Bit 2=1 if null device
                             ;               Bit 3=1 if clock device
-fcb_FIRCLUS: dw 0; First cluster of file
-fcb_CLUSPOS: dw 0; Position of last cluster accessed
-fcb_LSTCLUS: dw 0; Last cluster accessed and directory
-            db 0; pack 2 12 bit numbers into 24 bits...
+fcb_FIRCLUS: resw 1; First cluster of file
+fcb_CLUSPOS: resw 1; Position of last cluster accessed
+fcb_LSTCLUS: resw 1; Last cluster accessed and directory
+            resb 1; pack 2 12 bit numbers into 24 bits...
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
-fcb_NR: db 0; Next record
-fcb_RR: times 4 db 0; Random record
+fcb_NR: resb 1; Next record
+fcb_RR: resb 4; Random record
 endstruc
 
-FILDIRENT       = fcb_FILSIZ            ; Used only by SEARCH FIRST and
+FILDIRENT equ fcb_FILSIZ; Used only by SEARCH FIRST and
                                         ; SEARCH NEXT
 
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
@@ -457,22 +457,22 @@ devid_block_dev EQU     1Fh             ; mask for block device number
 ; find first/next buffer
 ;
 struc find_buf
-find_buf_sattr: db 0; attribute of search
-find_buf_drive: db 0; drive of search
-find_buf_name: times 11 db 0; formatted name
-find_buf_LastEnt: dw 0; LastEnt
-find_buf_ThisDPB: dd 0; This DPB
-find_buf_DirStart: dw 0; DirStart
+find_buf_sattr: resb 1; attribute of search
+find_buf_drive: resb 1; drive of search
+find_buf_name: resb 11; formatted name
+find_buf_LastEnt: resw 1; LastEnt
+find_buf_ThisDPB: resd 1; This DPB
+find_buf_DirStart: resw 1; DirStart
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 
-find_buf_attr: db 0; attribute found
-find_buf_time: dw 0; time
-find_buf_date: dw 0; date
-find_buf_size_l: dw 0; low(size)
-find_buf_size_h: dw 0; high(size)
-find_buf_pname: times 13 db 0; packed name
+find_buf_attr: resb 1; attribute found
+find_buf_time: resw 1; time
+find_buf_date: resw 1; date
+find_buf_size_l: resw 1; low(size)
+find_buf_size_h: resw 1; high(size)
+find_buf_pname: resb 13; packed name
 endstruc
 
 BREAK <Process data block>
@@ -483,32 +483,32 @@ BREAK <Process data block>
 FilPerProc          EQU     20
 
 struc Process_data_block
-PDB_Exit_Call: dw 0; INT int_abort system terminate
-PDB_block_len: dw 0; size of execution block
-                    db 0
-PDB_CPM_Call: times 5 db 0; ancient call to system
-PDB_Exit: dd 0; pointer to exit routine
-PDB_Ctrl_C: dd 0; pointer to ^C routine
-PDB_Fatal_abort: dd 0; pointer to fatal error
+PDB_Exit_Call: resw 1; INT int_abort system terminate
+PDB_block_len: resw 1; size of execution block
+                    resb 1
+PDB_CPM_Call: resb 5; ancient call to system
+PDB_Exit: resd 1; pointer to exit routine
+PDB_Ctrl_C: resd 1; pointer to ^C routine
+PDB_Fatal_abort: resd 1; pointer to fatal error
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;                                                                          ;
-PDB_Parent_PID: dw 0; PID of parent (terminate PID)
+PDB_Parent_PID: resw 1; PID of parent (terminate PID)
 PDB_JFN_Table       DB  FilPerProc DUP (?)
                                         ; indices into system table
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
-PDB_environ: dw 0; seg addr of environment
+PDB_environ: resw 1; seg addr of environment
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;                                                                          ;
-PDB_User_stack: dd 0; stack of self during system calls
+PDB_User_stack: resd 1; stack of self during system calls
 PDB_PAD1            DB      1Eh DUP (?)
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
-PDB_Call_system: times 5 db 0; portable method of system call
+PDB_Call_system: resb 5; portable method of system call
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;                                                                          ;
@@ -532,26 +532,26 @@ exec_func_no_execute    EQU 1           ; no execute bit
 exec_func_overlay       EQU 2           ; overlay bit
 
 struc Exec0
-Exec0_environ: dw 0; seg addr of environment
-Exec0_com_line: dd 0; pointer to asciz command line
-Exec0_5C_FCB: dd 0; default fcb at 5C
-Exec0_6C_FCB: dd 0; default fcb at 6C
+Exec0_environ: resw 1; seg addr of environment
+Exec0_com_line: resd 1; pointer to asciz command line
+Exec0_5C_FCB: resd 1; default fcb at 5C
+Exec0_6C_FCB: resd 1; default fcb at 6C
 endstruc
 
 struc Exec1
-Exec1_environ: dw 0; seg addr of environment
-Exec1_com_line: dd 0; pointer to asciz command line
-Exec1_5C_FCB: dd 0; default fcb at 5C
-Exec1_6C_FCB: dd 0; default fcb at 6C
-Exec1_SP: dw 0; stack pointer of program
-Exec1_SS: dw 0; stack seg register of program
-Exec1_IP: dw 0; entry point IP
-Exec1_CS: dw 0; entry point CS
+Exec1_environ: resw 1; seg addr of environment
+Exec1_com_line: resd 1; pointer to asciz command line
+Exec1_5C_FCB: resd 1; default fcb at 5C
+Exec1_6C_FCB: resd 1; default fcb at 6C
+Exec1_SP: resw 1; stack pointer of program
+Exec1_SS: resw 1; stack seg register of program
+Exec1_IP: resw 1; entry point IP
+Exec1_CS: resw 1; entry point CS
 endstruc
 
 struc Exec3
-Exec3_load_addr: dw 0; seg address of load point
-Exec3_reloc_fac: dw 0; relocation factor
+Exec3_load_addr: resw 1; seg address of load point
+Exec3_reloc_fac: resw 1; relocation factor
 endstruc
 
 ;
@@ -568,31 +568,31 @@ Exit_Keep_process   EQU     3
 ;
 
 struc EXE_file
-exe_signature: dw 0; must contain 4D5A  (yay zibo!)
-exe_len_mod_512: dw 0; low 9 bits of length
-exe_pages: dw 0; number of 512b pages in file
-exe_rle_count: dw 0; count of reloc entries
-exe_par_dir: dw 0; number of paragraphs before image
-exe_min_BSS: dw 0; minimum number of para of BSS
-exe_max_BSS: dw 0; max number of para of BSS
-exe_SS: dw 0; stack of image
-exe_SP: dw 0; SP of image
-exe_chksum: dw 0; checksum  of file (ignored)
-exe_IP: dw 0; IP of entry
-exe_CS: dw 0; CS of entry
-exe_rle_table: dw 0; byte offset of reloc table
-exe_iov: dw 0; overlay number (0 for root)
-exe_sym_tab: dd 0; offset of symbol table in file
+exe_signature: resw 1; must contain 4D5A  (yay zibo!)
+exe_len_mod_512: resw 1; low 9 bits of length
+exe_pages: resw 1; number of 512b pages in file
+exe_rle_count: resw 1; count of reloc entries
+exe_par_dir: resw 1; number of paragraphs before image
+exe_min_BSS: resw 1; minimum number of para of BSS
+exe_max_BSS: resw 1; max number of para of BSS
+exe_SS: resw 1; stack of image
+exe_SP: resw 1; SP of image
+exe_chksum: resw 1; checksum  of file (ignored)
+exe_IP: resw 1; IP of entry
+exe_CS: resw 1; CS of entry
+exe_rle_table: resw 1; byte offset of reloc table
+exe_iov: resw 1; overlay number (0 for root)
+exe_sym_tab: resd 1; offset of symbol table in file
 endstruc
 
 exe_valid_signature     EQU 5A4Dh
 exe_valid_old_signature EQU 4D5Ah
 
 struc symbol_entry
-sym_value: dd 0
-sym_type: dw 0
-sym_len: db 0
-sym_name: times 255 db 0
+sym_value: resd 1
+sym_type: resw 1
+sym_len: resb 1
+sym_name: resb 255
 endstruc
 
 BREAK <Internal system file table format>
@@ -604,9 +604,9 @@ BREAK <Internal system file table format>
 ;
 
 struc sft
-sft_link: dd 0
-sft_count: dw 0; number of entries
-sft_table: dw 0; beginning of array of the following
+sft_link: resd 1
+sft_count: resw 1; number of entries
+sft_table: resw 1; beginning of array of the following
 endstruc
 
 ;
@@ -614,9 +614,9 @@ endstruc
 ;
 
 struc sf_entry
-sf_ref_count: db 0; number of processes sharing fcb
-sf_mode: db 0; mode of access
-sf_attr: db 0; attribute of file
+sf_ref_count: resb 1; number of processes sharing fcb
+sf_mode: resb 1; mode of access
+sf_attr: resb 1; attribute of file
 sf_fcb          DB      (sys_fcb_size) DUP (?)
                                         ; actual FCB
 endstruc
@@ -634,9 +634,9 @@ BREAK <Memory arena structure>
 ; arena item
 ;
 struc arena
-arena_signature: db 0; 4D for valid item, 5A for last item
-arena_owner: dw 0; owner of arena item
-arena_size: dw 0; size in paragraphs of item
+arena_signature: resb 1; 4D for valid item, 5A for last item
+arena_owner: resw 1; owner of arena item
+arena_size: resw 1; size in paragraphs of item
 endstruc
 
 arena_owner_system  EQU 0               ; free block indication

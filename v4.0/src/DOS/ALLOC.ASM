@@ -64,12 +64,12 @@ arena_free_process_loop:
 	retc
 	PUSH    ES
 	POP     DS
-	CMP     DS:[arena_owner],BX     ; is block owned by pid?
+	CMP     [DS:arena_owner],BX     ; is block owned by pid?
 	JNZ     arena_free_next         ; no, skip to next
-	MOV     DS:[arena_owner],DI     ; yes... free him
+	MOV     [DS:arena_owner],DI     ; yes... free him
 
 arena_free_next:
-	CMP     byte DS:[DI],arena_signature_end
+	CMP     byte [DS:DI],arena_signature_end
 					; end of road, Jack?
 	retz                            ; never come back no more
 	CALL    arena_next              ; next item in ES/AX carry set if trash
@@ -86,7 +86,7 @@ EndProc arena_free_process
 	procedure   arena_next,NEAR
 	; ASSUME  DS:NOTHING,ES:NOTHING
 	MOV     AX,DS                   ; AX <- current block
-	ADD     AX,DS:[arena_size]      ; AX <- AX + current block length
+	ADD     AX,[DS:arena_size]      ; AX <- AX + current block length
 	INC     AX                      ; remember that header!
 ;
 ;       fall into check_signature and return
@@ -103,10 +103,10 @@ EndProc arena_next
 	procedure   check_signature,NEAR
 	; ASSUME  DS:NOTHING,ES:NOTHING
 	MOV     ES,AX                   ; ES <- AX
-	CMP     byte ES:[DI],arena_signature_normal
+	CMP     byte [ES:DI],arena_signature_normal
 					; IF next signature = not_end THEN
 	retz                            ;   GOTO ok
-	CMP     byte ES:[DI],arena_signature_end
+	CMP     byte [ES:DI],arena_signature_end
 					; IF next signature = end then
 	retz                            ;   GOTO ok
 	STC                             ; set error
@@ -122,20 +122,20 @@ EndProc Check_signature
 ;
 	procedure   Coalesce,NEAR
 	; ASSUME  DS:NOTHING,ES:NOTHING
-	CMP     byte DS:[DI],arena_signature_end
+	CMP     byte [DS:DI],arena_signature_end
 					; IF current signature = END THEN
 	retz                            ;   GOTO ok
 	CALL    arena_next              ; ES, AX <- next block, Carry set if error
 	retc                            ; IF no error THEN GOTO check
 
 coalesce_check:
-	CMP     ES:[arena_owner],DI
+	CMP     [ES:arena_owner],DI
 	retnz                           ; IF next block isnt free THEN return
-	MOV     CX,ES:[arena_size]      ; CX <- next block size
+	MOV     CX,[ES:arena_size]      ; CX <- next block size
 	INC     CX                      ; CX <- CX + 1 (for header size)
-	ADD     DS:[arena_size],CX      ; current size <- current size + CX
-	MOV     CL,ES:[DI]              ; move up signature
-	MOV     DS:[DI],CL
+	ADD     [DS:arena_size],CX      ; current size <- current size + CX
+	MOV     CL,[ES:DI]              ; move up signature
+	MOV     [DS:DI],CL
 	JMP     coalesce                ; try again
 EndProc Coalesce
 
@@ -176,11 +176,11 @@ EndProc Coalesce
 alloc_scan:
 	PUSH    ES
 	POP     DS                      ; DS <- ES
-	CMP     DS:[arena_owner],DI
+	CMP     [DS:arena_owner],DI
 	JZ      alloc_free              ; IF current block is free THEN examine
 
 alloc_next:
-	CMP     byte DS:[DI],arena_signature_end
+	CMP     byte [DS:DI],arena_signature_end
 					; IF current block is last THEN
 	JZ      alloc_end               ;   GOTO end
 	CALL    arena_next              ; AX, ES <- next block, Carry set if error
@@ -207,7 +207,7 @@ alloc_fail:
 alloc_free:
 	CALL    coalesce                ; add following free block to current
 	JC      alloc_err               ; IF error THEN GOTO err
-	MOV     CX,DS:[arena_size]
+	MOV     CX,[DS:arena_size]
 
 	POP     DX                      ; check for max found size
 	CMP     CX,DX
@@ -227,7 +227,7 @@ alloc_best:
 	JZ      alloc_make_best         ; initial best
 	PUSH    ES
 	MOV     ES,[BestArena]
-	CMP     ES:[arena_size],CX      ; is size of best larger than found?
+	CMP     [ES:arena_size],CX      ; is size of best larger than found?
 	POP     ES
 	JBE     alloc_last
 alloc_make_best:
@@ -241,7 +241,7 @@ alloc_last:
 ;
 alloc_do_split_high:
 	MOV     DS,[LastArena]
-	MOV     CX,DS:[arena_size]
+	MOV     CX,[DS:arena_size]
 	SUB     CX,BX
 	MOV     DX,DS
 	JE      alloc_set_owner         ; sizes are equal, no split
@@ -263,7 +263,7 @@ alloc_do_split:
 	JB      alloc_get_size
 	MOV     DS,[BestArena]
 alloc_get_size:
-	MOV     CX,DS:[arena_size]
+	MOV     CX,[DS:arena_size]
 	SUB     CX,BX                   ; get room left over
 	MOV     AX,DS
 	MOV     DX,AX                   ; save for owner setting
@@ -273,17 +273,17 @@ alloc_get_size:
 	MOV     ES,AX                   ; ES <- DS + BX (new header location)
 	DEC     CX                      ; CX <- size of split block
 alloc_set_sizes:
-	MOV     DS:[arena_size],BX      ; current size <- BX
-	MOV     ES:[arena_size],CX      ; split size <- CX
+	MOV     [DS:arena_size],BX      ; current size <- BX
+	MOV     [ES:arena_size],CX      ; split size <- CX
 	MOV     BL,arena_signature_normal
-	XCHG    BL,DS:[DI]              ; current signature <- 4D
-	MOV     ES:[DI],BL              ; new block sig <- old block sig
-	MOV     ES:[arena_owner],DI
+	XCHG    BL,[DS:DI]              ; current signature <- 4D
+	MOV     [ES:DI],BL              ; new block sig <- old block sig
+	MOV     [ES:arena_owner],DI
 
 alloc_set_owner:
 	MOV     DS,DX
 	MOV     AX,[CurrentPDB]
-	MOV     DS:[arena_owner],AX
+	MOV     [DS:arena_owner],AX
 	MOV     AX,DS
 	INC     AX
 	POP     BX
@@ -324,7 +324,7 @@ setblock_grab:
 	MOV     DS,AX
 	CALL    coalesce
 	JC      setblock_bad
-	MOV     CX,DS:[arena_size]
+	MOV     CX,[DS:arena_size]
 	PUSH    CX
 	CMP     BX,CX
 	JBE     alloc_get_size
@@ -351,7 +351,7 @@ EndProc $setblock
 	DEC     AX
 	CALL    check_signature
 	JC      dealloc_err
-	MOV     ES:[arena_owner],DI
+	MOV     [ES:arena_owner],DI
 	LeaveCrit   critMem
 	transfer    SYS_RET_OK
 

@@ -47,8 +47,8 @@ ext_nexists_create  EQU 10H
 
 
 struc ext_open_parm
-ext_set_list: dd 0
-ext_num_of_parm: dw 0
+ext_set_list: resd 1
+ext_num_of_parm: resw 1
 endstruc
 
 

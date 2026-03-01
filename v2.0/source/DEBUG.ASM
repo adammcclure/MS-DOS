@@ -34,17 +34,17 @@
 ; Structure for system call 72
 
 struc SYSINITVAR
-DPBHEAD: dd 0; Pointer to head of DPB-FAT list
-sft_addr: dd 0; Pointer to first FCB table
+DPBHEAD: resd 1; Pointer to head of DPB-FAT list
+sft_addr: resd 1; Pointer to first FCB table
 ; The following address points to the CLOCK device
-BCLOCK: dd 0
+BCLOCK: resd 1
 ; The following address is used by DISKSTATCHK it is always
 ; points to the console input device header
-BCON: dd 0; Console device entry points
+BCON: resd 1; Console device entry points
 NUMIO       DB      0                   ; Number of disk tables
 MAXSEC      DW      0                   ; Maximum allowed sector size
-BUFFHEAD: dd 0
-DEVHEAD: dd 0
+BUFFHEAD: resd 1
+DEVHEAD: resd 1
 endstruc
 
         %endif
@@ -141,11 +141,11 @@ OKDOS:
 
 
         %if SYSVER
-        LDS     SI,ES:[BX.BCON]
-        MOV     word CS:[CIN+2],DS
-        MOV     word CS:[CIN],SI
-        MOV     word CS:[COUT+2],DS
-        MOV     word CS:[COUT],SI
+        LDS     SI,[ES:BX+BCON]
+        MOV     word [CS:CIN+2],DS
+        MOV     word [CS:CIN],SI
+        MOV     word [CS:COUT+2],DS
+        MOV     word [CS:COUT],SI
         PUSH    CS
         POP     DS
         MOV     DX,CONFCB
@@ -184,9 +184,9 @@ LONGRET:RET
 GOTLIST:
         %if SYSVER
         MOV     SI,DX
-        LDS     SI,dword DS:[SI.fcb_FIRCLUS]
-        MOV     word CS:[POUT+2],DS
-        MOV     word CS:[POUT],SI
+        LDS     SI,dword [DS:SI+fcb_FIRCLUS]
+        MOV     word [CS:POUT+2],DS
+        MOV     word [CS:POUT],SI
         %endif
 NOLIST:
         MOV     AX,CS
@@ -233,13 +233,13 @@ NOLIST:
         MOV     DX,80H
         MOV     AH,SET_DMA
         INT     21H                     ; Set default DMA address to 80H
-        MOV     AX,word DS:[6]
+        MOV     AX,word [DS:6]
         MOV     BX,AX
         CMP     AX,0FFF0H
         PUSH    CS
         POP     DS
         JAE     SAVSTK
-        MOV     AX,word DS:[6]
+        MOV     AX,word [DS:6]
         PUSH    BX
         MOV     BX,DATAEND + 15
         AND     BX,0FFF0H               ; Size of DEBUG in bytes (rounded up to PARA)
@@ -283,14 +283,14 @@ PARSCHK:
         POP     ES
 FILECHK:
         MOV     DI,80H
-        CMP     byte ES:[DI],0      ; ANY STUFF FOUND?
+        CMP     byte [ES:DI],0      ; ANY STUFF FOUND?
         JZ      COMMAND                 ; NOPE
 FILOOP: INC     DI
-        CMP     byte ES:[DI],13     ; COMMAND LINE JUST SPACES?
+        CMP     byte [ES:DI],13     ; COMMAND LINE JUST SPACES?
         JZ      COMMAND
-        CMP     byte ES:[DI]," "
+        CMP     byte [ES:DI]," "
         JZ      FILOOP
-        CMP     byte ES:[DI],9
+        CMP     byte [ES:DI],9
         JZ      FILOOP
 
         CALL    DEFIO                   ; WELL READ IT IN
@@ -331,7 +331,7 @@ GoPrompt:
         SHL     AL,1                    ; Times two
         CBW                             ; Now a 16-bit quantity
         XCHG    BX,AX                   ; In BX we can address with it
-        CALL    CS:[BX+COMTAB]          ; Execute command
+        CALL    [CS:BX+COMTAB]          ; Execute command
         JMP     SHORT COMMAND           ; Get next command
 ERR1:   JMP     PERR
 
@@ -342,10 +342,10 @@ SET_TERMINATE_VECTOR:
         RET
 
 TERMINATE:
-        CMP     byte CS:[QFLAG],0
+        CMP     byte [CS:QFLAG],0
         JNZ     QUITING
-        MOV     CS:[USER_PROC_PDB],CS
-        CMP     byte CS:[NEWEXEC],0
+        MOV     [CS:USER_PROC_PDB],CS
+        CMP     byte [CS:NEWEXEC],0
         JZ      NORMTERM
         MOV     AX,CS
         MOV     DS,AX
@@ -387,13 +387,13 @@ USERDEV:
         OR      AL,AL
         JNZ     OPENERR
         MOV     SI,DX
-        TEST    byte [SI.fcb_DEVID],080H    ; Device?
+        TEST    byte [SI+fcb_DEVID],080H    ; Device?
         JZ      OPENERR                 ; NO
         LDS     SI,dword [CONFCB.fcb_FIRCLUS]
-        MOV     word CS:[CIN],SI
-        MOV     word CS:[CIN+2],DS
-        MOV     word CS:[COUT],SI
-        MOV     word CS:[COUT+2],DS
+        MOV     word [CS:CIN],SI
+        MOV     word [CS:CIN+2],DS
+        MOV     word [CS:COUT],SI
+        MOV     word [CS:COUT+2],DS
         PUSH    CS
         POP     DS
         RET
@@ -456,7 +456,7 @@ BACKUP:
 ; Print ASCII message. Last char has bit 7 set
 
 PRINTMES:
-        LODS    CS:byte [SI]        ; Get char to print
+        lodsb        ; Get char to print
         CALL    OUT
         SHL     AL,1                    ; High bit set?
         JNC     PRINTMES
@@ -577,16 +577,16 @@ NOTDEL:
         CALL    DOCONOUT
         MOV     AL,8
         CALL    DOCONOUT
-        CMP     byte CS:[COLPOS],0
+        CMP     byte [CS:COLPOS],0
         JZ      NOTINC
-        DEC     byte CS:[COLPOS]
+        DEC     byte [CS:COLPOS]
         JMP     NOTINC
 ZEROPOS:
-        MOV     byte CS:[COLPOS],0FFH
+        MOV     byte [CS:COLPOS],0FFH
 OOKRET:
-        INC     byte CS:[COLPOS]
+        INC     byte [CS:COLPOS]
 NOTINC:
-        TEST    byte CS:[PFLAG],1
+        TEST    byte [CS:PFLAG],1
         JZ      POPRET
         CALL    LISTOUT
 POPRET:
@@ -594,7 +594,7 @@ POPRET:
         RET
 
 TABDO:
-        MOV     AL,CS:[COLPOS]
+        MOV     AL,[CS:COLPOS]
         OR      AL,0F8H
         NEG     AL
         PUSH    CX
@@ -616,10 +616,10 @@ DOCONOUT:
         PUSH    SI
         PUSH    AX
 CONOWAIT:
-        LDS     SI,CS:[COUT]
+        LDS     SI,[CS:COUT]
         MOV     AH,10
         CALL    DEVIOCALL
-        MOV     AX,CS:[IOSTAT]
+        MOV     AX,[CS:IOSTAT]
         AND     AX,200H
         JNZ     CONOWAIT
         POP     AX
@@ -637,10 +637,10 @@ LISTOUT:
         PUSH    SI
         PUSH    AX
 LISTWAIT:
-        LDS     SI,CS:[POUT]
+        LDS     SI,[CS:POUT]
         MOV     AH,10
         CALL    DEVIOCALL
-        MOV     AX,CS:[IOSTAT]
+        MOV     AX,[CS:IOSTAT]
         AND     AX,200H
         JNZ     LISTWAIT
         POP     AX
@@ -658,18 +658,18 @@ DEVIOCALL:
         PUSH    CS
         POP     ES
         MOV     BX,IOCALL
-        MOV     CS:[IOCOM],AH
-        MOV     word CS:[IOSTAT],0
-        MOV     word CS:[IOCNT],1
-        MOV     CS:[IOBUFF],AL
-        MOV     word CS:[IOADDR+2],DS
+        MOV     [CS:IOCOM],AH
+        MOV     word [CS:IOSTAT],0
+        MOV     word [CS:IOCNT],1
+        MOV     [CS:IOBUFF],AL
+        MOV     word [CS:IOADDR+2],DS
         MOV     AX,[SI+6]
-        MOV     word CS:[IOADDR],AX
-        CALL    dword CS:[IOADDR]
+        MOV     word [CS:IOADDR],AX
+        CALL    dword [CS:IOADDR]
         MOV     AX,[SI+8]
-        MOV     word CS:[IOADDR],AX
-        CALL    dword CS:[IOADDR]
-        MOV     AL,CS:[IOBUFF]
+        MOV     word [CS:IOADDR],AX
+        CALL    dword [CS:IOADDR]
+        MOV     AL,[CS:IOBUFF]
         POP     BX
         POP     ES
         RET
@@ -825,7 +825,7 @@ QUIT:
         INC     byte [QFLAG]
         MOV     BX,[USER_PROC_PDB]
 FIND_DEBUG:
-%if NOT SYSVER
+%if ~SYSVER
         MOV     AH,SET_CURRENT_PDB
         INT     21H
 %endif

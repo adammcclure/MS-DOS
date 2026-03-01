@@ -148,14 +148,14 @@ endstruc;AN000;
 struc IOCTL0C_def;AN000;
 															   ;AN000;
 info_level  DB	  0	;return code: 0 on input, 1 ?, 2 or 3 as returns						   ;AN000;
-	    DB	  0	;reserved											   ;AN000;
+	    resb 1;reserved											   ;AN000;
 data_length DW	  14	;length of the data block not including this field						   ;AN000;
 flags	    DW	  0	;filled with intense or blink									   ;AN000;
 mode	    DB	  text	;filled with text, may be returned as 2 which means APA 					   ;AN000;
-	    DB	  0	;reserved											   ;AN000;
+	    resb 1;reserved											   ;AN000;
 colors	    DW	  16	;0 means monochrome										   ;AN000;
-	    DW	  bogus ;width in pixels for APA modes									   ;AN000;
-	    DW	  bogus ;length in pixels for APA modes 								   ;AN000;
+	    resw 1;width in pixels for APA modes									   ;AN000;
+	    resw 1;length in pixels for APA modes 								   ;AN000;
 cols	    DW	  bogus ;nubmer of text columns 									   ;AN000;
 rows	    DW	  bogus ;number of text rows										   ;AN000;
 															   ;AN000;
@@ -1123,7 +1123,7 @@ global old_initialize_printer_port_case
 
       ; .IF <parm_list_BX[DI].item_tag NE unspecified> THEN;IF chars per line specified THEN	      ;AN000;
 	 MOV   SI,parm_list_BX[DI].value1	  ;SI=>"6" or "8"                                         ;AN000;
-	 MOV   AL,byte DS:[SI]										     ;AN000;
+	 MOV   AL,byte [DS:SI]										     ;AN000;
 	 MOV   parm2,AL 		      ;parm2="6" or "8"                                                 ;AN000;
       ; .ENDIF;otherwise leave parm2=0FFH (unspecified)  ;AN000;
 
@@ -1157,7 +1157,7 @@ global old_initialize_printer_port_case
 		  ; .IF <parm_list_BX[DI].keyword_switch_ptr EQ <OFFSET LINES_equal>> THEN;AN000;
 															   ;AN000;
 	       MOV   SI,parm_list_BX[DI].value1 	;SI=>"6" or "8"                                                    ;AN000;
-	       MOV   AL,byte DS:[SI]										   ;AN000;
+	       MOV   AL,byte [DS:SI]										   ;AN000;
 	       MOV   parm2,AL				;parm2="6" or "8"                                                  ;AN000;
 	       BREAK 4													   ;AN000;
 															   ;AN000;

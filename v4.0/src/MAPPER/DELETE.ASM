@@ -42,10 +42,10 @@ SECTION .dosxxx
 	; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-dtrm12: dd 0; reserved, always 0
-asc012: dd 0; file name path pointer
+old_bp: resw 1
+return: resd 1
+dtrm12: resd 1; reserved, always 0
+asc012: resd 1; file name path pointer
 endstruc
 
 DosDelete:

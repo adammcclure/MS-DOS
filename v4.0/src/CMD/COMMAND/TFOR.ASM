@@ -298,11 +298,11 @@ no_crlf_pr:
 	push	di
 	invoke	PRINT_PROMPT			;G Prompt the user
 	pop	di
-	mov	byte ES:[DI-1],0		; yeah, PRINT it out...
+	mov	byte [ES:DI-1],0		; yeah, PRINT it out...
 	mov	string_ptr_2,COMBUF+2
 	mov	dx,string_buf_ptr
 	invoke	std_printf
-	mov	byte ES:[DI-1], 0DH
+	mov	byte [ES:DI-1], 0DH
 	jmp	DoCom
 noecho3:					; run silent, run deep...
 	; assume	DS:resgroup

@@ -61,17 +61,17 @@ MASTER_IMR	equ	21h		; mask port for master 8259
 ; this structure is passed to Debug_Entry.
 ;
 struc DebugInit
-	CSseg: dw 0;Real mode code segment
-	DSseg: dw 0;Real mode data segment
-	CSsel: dw 0;Prot mode code selector
-	DSsel: dw 0;Prot mode data selector
-	SpareSel1: dw 0;Prot mode alias selector 1
-	SpareSel2: dw 0;Prot mode alias selector 2
-	GDTalias: dw 0;Prot mode GDT r/w alias
-	ProtIDTaddr: dq 0;Prot mode IDT base & limit
-	RealIDTaddr: dq 0;Real mode IDT base & limit
-	BrkFlag: db 0;TRUE if break to debugger
-	ComFlag: db 0;TRUE if com1, FALSE if com2
+	CSseg: resw 1;Real mode code segment
+	DSseg: resw 1;Real mode data segment
+	CSsel: resw 1;Prot mode code selector
+	DSsel: resw 1;Prot mode data selector
+	SpareSel1: resw 1;Prot mode alias selector 1
+	SpareSel2: resw 1;Prot mode alias selector 2
+	GDTalias: resw 1;Prot mode GDT r/w alias
+	ProtIDTaddr: resq 1;Prot mode IDT base & limit
+	RealIDTaddr: resq 1;Real mode IDT base & limit
+	BrkFlag: resb 1;TRUE if break to debugger
+	ComFlag: resb 1;TRUE if com1, FALSE if com2
 endstruc
 
 
@@ -153,7 +153,7 @@ InitDeb:
 	mov	ax, [GDT_Seg]
 	mov	ds, ax
 
-	lgdt	qword ds:[GDTD_GSEL]
+	lgdt	qword [ds:GDTD_GSEL]
 
 	mov	si, IDTD_GSEL
 	mov	cx, 6

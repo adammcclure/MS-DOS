@@ -16,7 +16,7 @@ SECTION .CODE
 
 AsmVars <IBM, Installed>
 
-Installed = True
+Installed equ True
 
 	i_need  THISDPB,DWORD
 	i_need  EXTERR,WORD
@@ -78,7 +78,7 @@ EndProc SHARE_CHECK
 	LES     BP,[THISDPB]
 	MOV     DI,1                            ; Fake some registers
 	MOV     CX,DI
-	MOV     DX,ES:[BP.dpb_dir_sector]
+	MOV     DX,[ES:BP+dpb_dir_sector]
 	invoke  HARDERR
 	POP     DI
 	POP     ES
@@ -133,7 +133,7 @@ retry:
 attempt:
 	les     di,ThisSFT              ; grab sft
 	XOR     AX,AX
-	MOV     ES:[DI.sf_MFT],AX       ; indicate free SFT
+	MOV     [ES:DI+sf_MFT],AX       ; indicate free SFT
 	SaveReg <CX>
 	call    Share_Check             ; attempt to enter into the sharing set
 	RestoreReg  <CX>

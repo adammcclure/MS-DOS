@@ -122,7 +122,7 @@ PUTNEW:
         OR      DH,DH
         JZ      OLDBAK          ;No chars in line, do nothing to line
         CALL    BACKUP          ;Do the backup
-        MOV     AL,ES:[DI]      ;Get the deleted char
+        MOV     AL,[ES:DI]      ;Get the deleted char
         CMP     AL," "
         JAE     OLDBAK          ;Was a normal char
         CMP     AL,c_HT
@@ -150,7 +150,7 @@ BAKTAB:
 FNDPOS:
         SCASB                   ;Look back
         JNA     CHKCNT
-        CMP     byte ES:[DI+1],9
+        CMP     byte [ES:DI+1],9
         JZ      HAVTAB          ;Found a tab
         DEC     BL              ;Back one char if non tab control char
 CHKCNT:

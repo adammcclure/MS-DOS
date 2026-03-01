@@ -134,9 +134,9 @@ NORMFCB2:
 	STOSB
  %if DBCS;AN000;
 	MOVSW				; 2/13/KK				;AN000;
-	CMP	byte ES:[DI-2],5	; 2/13/KK				;AN000;
+	CMP	byte [ES:DI-2],5	; 2/13/KK				;AN000;
 	JNZ	NOTKTRAN		; 2/13/KK				;AN000;
-	MOV	byte ES:[DI-2],0E5H ; 2/13/KK				;AN000;
+	MOV	byte [ES:DI-2],0E5H ; 2/13/KK				;AN000;
 NOTKTRAN:				; 2/13/KK				;AN000;
 	MOV	CX,15			; 2/13/KK				;AN000;
  %else;AN000;
@@ -194,7 +194,7 @@ SearchNoMore:
 	ADD	DI,7			; Point past the extension
 NORMFCB8:
 	RestoreReg <BX> 		; Get original drive byte
-	MOV	ES:[DI],BL		; Store the correct "user" drive byte
+	MOV	[ES:DI],BL		; Store the correct "user" drive byte
 					;  at the right spot
 ;
 ; error code is in AX
@@ -240,7 +240,7 @@ FindSet:
 	MOV	CX,21
 	REP	MOVSB
 	PUSH	SI			; Save pointer to start of entry
-	MOV	AL,[SI.dir_attr]
+	MOV	AL,[SI+dir_attr]
 	STOSB
 	ADD	SI,dir_time
 	MOVSW				; dir_time
@@ -254,9 +254,9 @@ FindSet:
 	PUSH	DI			; XXXX save dest name 2/13/KK		;AN000;
 	CALL	PackName							;AN000;
 	POP	DI			; XXXX Recover dest name 2/13/KK	;AN000;
-	CMP	byte ES:[DI],05H	; XXXX Need fix?	 2/13/KK	;AN000;
+	CMP	byte [ES:DI],05H	; XXXX Need fix?	 2/13/KK	;AN000;
 	JNZ	FNXXX			; XXXX No		 2/13/KK	;AN000;
-	MOV	byte ES:[DI],0E5H	; XXXX Yes, Fix 	 2/13/KK	;AN000;
+	MOV	byte [ES:DI],0E5H	; XXXX Yes, Fix 	 2/13/KK	;AN000;
 FNXXX:					; 2/13/KK				;AN000;
  %else;AN000;
 	CALL	PackName
@@ -307,7 +307,7 @@ Break	<PackName - convert file names from FCB to ASCIZ>
 	MOV	CX,8			; Pack the name
 	REP	MOVSB			; Move all of it
 main_kill_tail:
-	CMP	byte ES:[DI-1]," "
+	CMP	byte [ES:DI-1]," "
 	JNZ	find_check_dot
 	DEC	DI			; Back up over trailing space
 	INC	CX
@@ -324,7 +324,7 @@ got_ext:
 	MOV	CX,3
 	REP	MOVSB
 ext_kill_tail:
-	CMP	byte ES:[DI-1]," "
+	CMP	byte [ES:DI-1]," "
 	JNZ	find_done
 	DEC	DI			; Back up over trailing space
 	JMP	ext_kill_tail

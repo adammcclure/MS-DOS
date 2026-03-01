@@ -236,8 +236,8 @@ $$DO7:
 	       mov   si,psp_par	;point to DOS command line parms in psp
 ;	       $DO
 $$DO10:
-		   mov	 al,es:[si]	;move bytes to stack
-		   mov	 ss:[di],al
+		   mov	 al,[es:si]	;move bytes to stack
+		   mov	 [ss:di],al
 		   inc	 si
 		   inc	 di
 ;	       $ENDDO LOOP
@@ -245,7 +245,7 @@ $$DO10:
 ;	   $ENDIF			;bytes to move?
 $$IF9:
 	   xor	 ax,ax
-	   mov	 ss:[di],al		;store null byte
+	   mov	 [ss:di],al		;store null byte
 	   mov	 ax,ss
 	   mov	 ds,ax			;es, ds, and ss are all equal
 	   ; assume ds:DGroup
@@ -296,10 +296,10 @@ XCEXIT:
 %macro CENTER 1
 	   PUSH  BP			; SAVE CURRENT BP
 	   MOV	 BP,SP			; POINT AT STACK WITH BP
-WORKOFS    =	 0
+WORKOFS equ 0
 	   ; IRP	 ANAME,<NAMELIST>; FOR EACH WORKING VARIABLE
 	   %if 1  ; IFNB <&ANAME>
-WORKOFS        =     WORKOFS-2		;  WE WILL ALLOCATE ONE
+WORKOFS equ WORKOFS-2;  WE WILL ALLOCATE ONE
 	       DOEQU &ANAME,%WORKOFS	;   WORD ON THE STACK THAT
 	   %endif
 	   %endmacro;    IS UNDER SS,BP
@@ -322,16 +322,16 @@ WORKOFS        =     WORKOFS-2		;  WE WILL ALLOCATE ONE
 
 struc PARMS
 
-OLD_BP: dw 0; SAVED BP
-RETADD: dw 0; RETURN ADDRESS
-PARM_1: dw 0
-PARM_2: dw 0
-PARM_3: dw 0
-PARM_4: dw 0
-PARM_5: dw 0
-PARM_6: dw 0
-PARM_7: dw 0
-PARM_8: dw 0
+OLD_BP: resw 1; SAVED BP
+RETADD: resw 1; RETURN ADDRESS
+PARM_1: resw 1
+PARM_2: resw 1
+PARM_3: resw 1
+PARM_4: resw 1
+PARM_5: resw 1
+PARM_6: resw 1
+PARM_7: resw 1
+PARM_8: resw 1
 
 endstruc
 

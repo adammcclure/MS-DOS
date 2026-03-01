@@ -43,7 +43,7 @@
 ;--------------------------------------------------------------------;
 
 FALSE   equ     0
-TRUE    equ     NOT FALSE
+TRUE    equ     ~FALSE
 
 KANJI   equ     FALSE                   ;set to true is kanji vers.
 

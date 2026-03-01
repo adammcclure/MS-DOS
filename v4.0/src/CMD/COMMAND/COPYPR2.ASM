@@ -220,7 +220,7 @@ ENDDEST:
 	return
 
 BUILDPATH:
-	test	[BP.INFO],2
+	test	[BP+INFO],2
 	jnz	NOTPFILE			; If ambig don't bother with open
 	mov	dx,bp
 	add	dx,BUF				; Set DX to spec
@@ -252,11 +252,11 @@ pure_file:
 	INT	int_command
 	test	dl,devid_ISDEV
 	jnz	ISADEV				; If device, done
-	test	[BP.INFO],4
+	test	[BP+INFO],4
 	jz	ISSIMPFILE			; If no path seps, done
 
 NOTPFILE:
-	mov	dx,word [BP.BUF]
+	mov	dx,word [BP+BUF]
 	cmp	dl,0				;AN034; If no drive specified, get
 	jz	set_drive_spec			;AN034;    default drive dir
 	cmp	dh,':'
@@ -276,19 +276,19 @@ DRVSPEC5:
 curdir_ok:					;AN022;
 	mov	dx,bp
 	add	dx,BUF				; Set DX for upcomming CHDIRs
-	mov	bh,[BP.INFO]
+	mov	bh,[BP+INFO]
 	and	bh,6
 	cmp	bh,6				; Ambig and path ?
 	jnz	CHECKAMB			; jmp if no
-	mov	si,[BP.TTAIL]
+	mov	si,[BP+TTAIL]
 	mov	bl,':'
 	cmp	byte [si-2],bl
 	jnz	KNOWNOTSPEC
-	mov	[BP.ISDIR],2			; Know is d:/file
+	mov	[BP+ISDIR],2			; Know is d:/file
 	jmp	short DOPCDJ
 
 KNOWNOTSPEC:
-	mov	[BP.ISDIR],1			; Know is path/file
+	mov	[BP+ISDIR],1			; Know is path/file
 	dec	si				; Point to the /
 
 DOPCDJ:
@@ -300,7 +300,7 @@ CHECKAMB:
 
 ISSIMPFILE:
 ISADEV:
-	mov	[BP.ISDIR],0			; Know is file since ambig but no path
+	mov	[BP+ISDIR],0			; Know is file since ambig but no path
 	return
 
 CHECKCD:
@@ -314,7 +314,7 @@ CHECKCD:
 	dec	cx
 
 Kloop:						;AN000;  3/3/KK
-	MOV	AL,ES:[DI]			;AN000;  3/3/KK
+	MOV	AL,[ES:DI]			;AN000;  3/3/KK
 	INC	DI				;AN000;  3/3/KK
 	OR	AL,AL				;AN000;  3/3/KK
 	JZ	Done				;AN000;  3/3/KK
@@ -328,7 +328,7 @@ Kloop:						;AN000;  3/3/KK
 Done:						;AN000;  3/3/KK
 	dec	di
 	mov	al,[DIRCHAR]
-	mov	[bp.ISDIR],2			; assume d:/file
+	mov	[bp+ISDIR],2			; assume d:/file
 	OR	AH, AH				;AN000; 3/3/KK
 	JNZ	Store_pchar			;AN000; 3/3/KK	 this is the trailing byte of ECS code
 	cmp	al,[di-1]
@@ -336,10 +336,10 @@ Done:						;AN000;  3/3/KK
 
 Store_pchar:					;AN000; 3/3/KK
 	stosb
-	mov	[bp.ISDIR],1			; know path/file
+	mov	[bp+ISDIR],1			; know path/file
 
 GOTSRCSLSH:
-	or	[bp.INFO],6
+	or	[bp+INFO],6
 	call	SETSTARS
 	return
 
@@ -352,12 +352,12 @@ NOTPDIR:
 	jnz	extend_setupj			;AN022; otherwise - exit error
 
 notpdir_try:					;AN022;
-	mov	[bp.ISDIR],0			; assume pure file
-	mov	bh,[bp.INFO]
+	mov	[bp+ISDIR],0			; assume pure file
+	mov	bh,[bp+INFO]
 	test	bh,4
 	retz					; Know pure file, no path seps
-	mov	[bp.ISDIR],2			; assume d:/file
-	mov	si,[bp.TTAIL]
+	mov	[bp+ISDIR],2			; assume d:/file
+	mov	si,[bp+TTAIL]
 	cmp	byte [si],0
 	jz	BADCDERRJ2			; Trailing '/'
 	mov	bl,dot_chr
@@ -366,7 +366,7 @@ notpdir_try:					;AN022;
 	mov	bl,':'
 	cmp	byte [si-2],bl
 	jz	DOPCD				; Know d:/file
-	mov	[bp.ISDIR],1			; Know path/file
+	mov	[bp+ISDIR],1			; Know path/file
 	dec	si				; Point at last '/'
 
 DOPCD:
@@ -415,8 +415,8 @@ BADCDERRJ2:
 	jmp	badpath_err			;AC022; go issue path not found message
 
 SETSTARS:
-	mov	[bp.TTAIL],DI
-	add	[bp.SIZ],12
+	mov	[bp+TTAIL],DI
+	add	[bp+SIZ],12
 	mov	ax,dot_qmark
 	mov	cx,8
 	rep	stosb

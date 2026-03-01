@@ -21,7 +21,7 @@
 
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 IBM     EQU     TRUE
 IBMVER  EQU     IBM
@@ -333,7 +333,7 @@ DOINT:
         MOV     SI,[CURRFIL]
         INC     SI
         INC     SI
-        CMP     byte CS:[SI],-1
+        CMP     byte [CS:SI],-1
         POP     SI
         JNZ     GOAHEAD
         JMP     SPRET           ;Nothing to do
@@ -684,7 +684,7 @@ LOOKMATCH:
         PUSH    CX
         MOV     CX,11
 NXTCHAR:
-        MOV     AL,ES:[DI]
+        MOV     AL,[ES:DI]
         INC     DI
         CALL    UPCONV
         MOV     AH,AL
@@ -754,7 +754,7 @@ REQUEUE:
         JMP     SHORT NEXTFC
 
 DELALL:
-        CMP     byte CS:[SI+2],-1   ;Examine current file
+        CMP     byte [CS:SI+2],-1   ;Examine current file
 DELALL2:
         MOV     byte [SI+2],-1      ;Zap it
         MOV     SI,[SI]
@@ -973,7 +973,7 @@ INT_17:
         MOV     SI,[CURRFIL]
         INC     SI
         INC     SI
-        CMP     byte CS:[SI],-1
+        CMP     byte [CS:SI],-1
         POP     SI
         JZ      DO_INT_17               ;Nothing pending, so OK
         CMP     DX,[INT_17_NUM]
@@ -996,7 +996,7 @@ INT_14:
         MOV     SI,[CURRFIL]
         INC     SI
         INC     SI
-        CMP     byte CS:[SI],-1
+        CMP     byte [CS:SI],-1
         POP     SI
         JZ      DO_INT_14               ;Nothing pending, so OK
         CMP     DX,[INT_14_NUM]
@@ -1023,7 +1023,7 @@ INT_5:
         MOV     SI,[CURRFIL]
         INC     SI
         INC     SI
-        CMP     byte CS:[SI],-1
+        CMP     byte [CS:SI],-1
         POP     SI
         JZ      DO_INT_5                ;Nothing pending, so OK
         CMP     [INT_17_NUM],0
@@ -1371,7 +1371,7 @@ PROCESS:
         CMP     [ARGSETUP],0
         JZ      RET14                   ;Nothing to process
 NORMPROC:
-        MOV     AL,byte DS:[FCB+1]
+        MOV     AL,byte [DS:FCB+1]
         CMP     AL," "
         JZ      SRCHBADJ
         MOV     DX,FCB
@@ -1487,7 +1487,7 @@ CNTOK:
         DEC     CX
         JCXZ    RET12
 FILOOP:
-        MOV     DI,ES:[DI]
+        MOV     DI,[ES:DI]
         PUSH    DI
         INC     DI
         INC     DI

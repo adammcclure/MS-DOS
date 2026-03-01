@@ -238,14 +238,14 @@ EMS_CODEA4 EQU	0A4h			; Access to this function denied
 ;³	 all Request Headers.					       ³
 ;³								       ³
 ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-RH	EQU	DS:[BX] 		;addressability to Request Header structure
+RH	EQU	[DS:BX] 		;addressability to Request Header structure
 
 struc RHC;fields common to all request types
-	db 0;length of Request Header (including data)
-	db 0;unit code (subunit)
-RHC_CMD: db 0;command code
-RHC_STA: dw 0;status
-	dq 0;reserved for DOS
+	resb 1;length of Request Header (including data)
+	resb 1;unit code (subunit)
+RHC_CMD: resb 1;command code
+RHC_STA: resw 1;status
+	resq 1;reserved for DOS
 endstruc;end of common portion
 
 CMD_INPUT EQU	4			;RHC_CMD is INPUT request
@@ -269,16 +269,16 @@ BUSY_MASK     EQU 00000010B		;busy bit (9) BUSY mask (high order byte)
 ;³								       ³
 ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 struc RH0
-	DB	(TYPE RHC) DUP (?)	;common portion
+	resb 1;common portion
 
-RH0_NUN: db 0;number of units
+RH0_NUN: resb 1;number of units
 					;set to 1 if installation succeeds,
 					;set to 0 to cause installation failure
-RH0_ENDO: dw 0;offset  of ending address
-RH0_ENDS: dw 0;segment of ending address
-RH0_BPBO: dw 0;offset  of BPB array address
-RH0_BPBS: dw 0;segment of BPB array address
-RH0_DRIV: db 0;drive code (DOS 3 only)
+RH0_ENDO: resw 1;offset  of ending address
+RH0_ENDS: resw 1;segment of ending address
+RH0_BPBO: resw 1;offset  of BPB array address
+RH0_BPBS: resw 1;segment of BPB array address
+RH0_DRIV: resb 1;drive code (DOS 3 only)
 RH0_ERR  DW	0			; error flag used by DOS - gga
 endstruc
 
@@ -292,7 +292,7 @@ RH0_BPBA EQU	dword RH0_BPBO	;OFFSET/SEGMENT OF BPB
 ;³	 Output Status command. 				       ³
 ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 struc RH10
-	DB	(TYPE RHC) DUP (?)	;common portion
+	resb 1;common portion
 endstruc
 
 
@@ -301,13 +301,13 @@ endstruc
 ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 
 struc RH19
-	    DB	 (TYPE RHC) DUP (?)	; Reserve space for the header	   @RH6
+	    resb 1; Reserve space for the header	   @RH6
 
-RH19_MAJF: db 0; Major function			   @RH6
-RH19_MINF: db 0; Minor function			   @RH6
-RH19_SI: dw 0; Contents of SI			   @RH6
-RH19_DI: dw 0; Contents of DI			   @RH6
-RH19_RQPK: dd 0; Pointer to Generic IOCTL request packet  @RH6
+RH19_MAJF: resb 1; Major function			   @RH6
+RH19_MINF: resb 1; Minor function			   @RH6
+RH19_SI: resw 1; Contents of SI			   @RH6
+RH19_DI: resw 1; Contents of DI			   @RH6
+RH19_RQPK: resd 1; Pointer to Generic IOCTL request packet  @RH6
 endstruc
 
 
@@ -404,7 +404,7 @@ struc H_LOOKUP_STRUC;Structure for Handle lookup table @RH1
 H_PAGES 	DW	REUSABLE_HANDLE ;If handle is active, # of owned   @RH8
 					; pages.  Init to reusable handle   RH8
 H_PAL_PTR	DW	PAL_NULL	;Head ptr for owned pages in PAL   @RH8
-H_NAME: times 8 db 0;Name - new for LIM 4.0 	   @GGA
+H_NAME: resb 8;Name - new for LIM 4.0 	   @GGA
 H_BANK		DB	0		;If virtual, this handle's bank    @RH6
 xref_pages	dw	0		;temp to compile
 xref_index	dw	0		;temp to compile
@@ -455,8 +455,8 @@ page_alloc_table: times 1024 db unallocated;temp for assemble
 ;	save area will contain a value indicating it's reusable.        ;
 ;-----------------------------------------------------------------------;
 struc H_SAVEA_ENTRY;This is an overlay for one page's @RH5
-HSA_HNDL: dw 0; entry in the handle save area.   @RH5
-HSA_LP: dw 0; It is used to clear the save	   @RH5
+HSA_HNDL: resw 1; entry in the handle save area.   @RH5
+HSA_LP: resw 1; It is used to clear the save	   @RH5
 endstruc; area after a restore.  While not @RH5
 					; directly used by the structure   @RH5
 					; below, its size should match	   @RH5
@@ -492,10 +492,10 @@ H_SAVE_ENTRY	  EQU	word[DI + HANDLE_SAVE_AREA]	     ;	   @RH1
 ;-------------------------------------------------------------------
 
 struc mappable_phys_page_struct; define the structure
-  phys_page_segment: dw 0; segment
-  phys_page_number: dw 0; page ID
-  ppm_handle: dw 0; handle, -1 means unused
-  ppm_log_page: dw 0; logical page, -1 means unused
+  phys_page_segment: resw 1; segment
+  phys_page_number: resw 1; page ID
+  ppm_handle: resw 1; handle, -1 means unused
+  ppm_log_page: resw 1; logical page, -1 means unused
 endstruc
 
 ;	allocate the storage
@@ -550,9 +550,9 @@ segment_error	dw	0		; segment error flag = 0 means all OK
 
 struc MEM_CARD_STRUC;Structure for the memory cards    @RH5
 CARD_ID 	DW	NO_CARD 	;Card ID from ports 100 and 101    @RH5
-CARD_SLOT: db 0;Physical slot of card (0 based)   @RH5
-START_PG_NUM: dw 0;Starting and ending #s of the	   @RH5
-END_PG_NUM: dw 0; pages this card has within the   @RH5
+CARD_SLOT: resb 1;Physical slot of card (0 based)   @RH5
+START_PG_NUM: resw 1;Starting and ending #s of the	   @RH5
+END_PG_NUM: resw 1; pages this card has within the   @RH5
 endstruc; total EMS page pool (0 based)    @RH5
 
 					;Memory Card Table - entries are   @RH5
@@ -585,8 +585,8 @@ WTT_CARD_SLOT: db 0;Slot # of the memory card being   @RH2
 
 
 struc Instance_Entry_Struc;required  data in first 2 entries	;an000; dms;
-	IE_Alloc_Byte: db 0;instance allocated byte		;an000; dms;
-	IE_Saved_DI_Reg: dw 0;saved di register			;an000; dms;
+	IE_Alloc_Byte: resb 1;instance allocated byte		;an000; dms;
+	IE_Saved_DI_Reg: resw 1;saved di register			;an000; dms;
 endstruc;end struc				;an000; dms;
 
 ;-----------------------------------------------------------------------;
@@ -889,7 +889,7 @@ EMS_INT67:
 	call	Set_Instance		;set BP to proper instance entry	;an000; dms;
 	jc	INT67_Instance_Exit	;not enough instances			;an000; dms;
 
-	mov	cs:[bp].IE_Saved_DI_Reg,di ;save reg in instance table		   ;an000; dms;
+	mov	[cs:bp].IE_Saved_DI_Reg,di ;save reg in instance table		   ;an000; dms;
 
 
 	SUB	AH,40H			;adjust to range of fcn table
@@ -920,7 +920,7 @@ $$IF1:
 
 INT67_EXIT:
 
-	mov	di,cs:[bp].IE_Saved_DI_Reg ;save reg in instance table		   ;an000; dms;
+	mov	di,[cs:bp].IE_Saved_DI_Reg ;save reg in instance table		   ;an000; dms;
 	call	Reset_Instance		;deallocte instance entry		;an000; dms;
 
 INT67_Instance_Exit:
@@ -981,15 +981,15 @@ Q_PAGE_FRAME:
 	mov	cx,4h				;loop only 4 times		;an000; dms;
 	xor	ax,ax				;page number reference		;an000; dms;
 	mov	si,Map_Table		;point to map table		;an000; dms;
-	mov	bx,cs:[si].Phys_Page_Segment	;set start segment value	;an000; dms;
+	mov	bx,[cs:si].Phys_Page_Segment	;set start segment value	;an000; dms;
 	mov	dx,bx				;segment reference		;an000; dms;
 
 Q_Page_Frame_Loop:
 
-	cmp	cs:[si].Phys_Page_Number,ax	;page matches reference?	;an000; dms;
+	cmp	[cs:si].Phys_Page_Number,ax	;page matches reference?	;an000; dms;
 	jne	Q_Page_Frame_Error_Exit 	;no - exit with error		;an000; dms;
 
-	cmp	cs:[si].Phys_Page_Segment,dx	;page frame match reference	;an000; dms;
+	cmp	[cs:si].Phys_Page_Segment,dx	;page frame match reference	;an000; dms;
 	jne	Q_Page_Frame_Error_Exit 	;no - exit with error		;an000; dms;
 
 	add	si,Type Mappable_Phys_Page_Struct;adjust pointer		;an000; dms;
@@ -2142,7 +2142,7 @@ Q_OPEN_ALL:
 	PUSH	CS			;get this segment
 	POP	DS			;into ds
 
-	MOV	DI,cs:[bp].IE_Saved_DI_Reg ;restore di to its value on	- gga P1501 ;an004;
+	MOV	DI,[cs:bp].IE_Saved_DI_Reg ;restore di to its value on	- gga P1501 ;an004;
 					;entry
 
 	XOR	BX,BX			;Init number of active handles	   @RH1
@@ -2193,7 +2193,7 @@ MAX_SUBFCN EQU	($-SUBFCN_TABLE)/2	;maximum allowable subfunction number
 	DW	SIZE_SUBFCN	;3 - Return storage requirements of the
 					;Get and Set subfunctions
 GET_SET_MAP:
-	MOV	DI,cs:[bp].IE_Saved_DI_Reg ;restore di to its value on
+	MOV	DI,[cs:bp].IE_Saved_DI_Reg ;restore di to its value on
 	PUSH	BX			;save bx
 	CMP	AL,MAX_SUBFCN		;is subfunctiion number within range?
 ;	$IF	BE			;do if yes...
@@ -2278,7 +2278,7 @@ GET_SET_SUBFCN:
 	PUSH	DI
 	PUSH	SI
 
-	MOV	DI,cs:[bp].IE_Saved_DI_Reg	    ;restore di to its value on
+	MOV	DI,[cs:bp].IE_Saved_DI_Reg	    ;restore di to its value on
 					;entry into irpt handler
 
 	CALL	SAVE_PGFRM_MAP		;save page frame map to ES:DI
@@ -2327,7 +2327,7 @@ Set_Instance:;set the instance table 	;an000; dms;
 
 Set_Instance_Loop:
 
-	cmp	cs:[bp].IE_Alloc_Byte,Unallocated;unallocated entry?		 ;an000; dms;
+	cmp	[cs:bp].IE_Alloc_Byte,Unallocated;unallocated entry?		 ;an000; dms;
 	je	Set_Instance_Found		;open entry			;an000; dms;
 	add	bp,Instance_Size		;next instance			;an000; dms;
 	loop	Set_Instance_Loop		;continue			;an000; dms;
@@ -2338,7 +2338,7 @@ Set_Instance_Loop:
 
 Set_Instance_Found:
 
-	mov	cs:[bp].IE_Alloc_Byte,Allocated ;instance allocated		;an000; dms;
+	mov	[cs:bp].IE_Alloc_Byte,Allocated ;instance allocated		;an000; dms;
 	clc					;signal good exit		;an000; dms;
 
 Set_Instance_Exit:
@@ -2361,7 +2361,7 @@ Set_Instance_Exit:
 Reset_Instance:
 
 	cli					;turn off interrupts		;an000; dms;
-	mov	cs:[bp].IE_Alloc_Byte,Unallocated;deallocate instance		 ;an000; dms;
+	mov	[cs:bp].IE_Alloc_Byte,Unallocated;deallocate instance		 ;an000; dms;
 	sti					;set interrupts 		;an000; dms;
 
 	ret					;return 			;an000; dms;

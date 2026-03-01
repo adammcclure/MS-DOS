@@ -25,7 +25,7 @@ SECTION .CODE
 
 AsmVars <IBM, Installed>
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	THISSFT,DWORD
 	i_need	THISDPB,DWORD
@@ -118,11 +118,11 @@ old_33:
 ;;	MOV	DX,[Temp_Var]		;AN000;;MS. retore DX  (P5013) 6/5/88
 
 	MOV	BP, Lock_Buffer ;AN000;;MS. get DOS LOCK buffer
-	MOV	word [BP.Lock_position],DX	;AN000;;MS. set low offset
-	MOV	word [BP.Lock_position+2],CX;AN000;;MS. set high offset
+	MOV	word [BP+Lock_position],DX	;AN000;;MS. set low offset
+	MOV	word [BP+Lock_position+2],CX;AN000;;MS. set high offset
 	POP	CX				;AN000;;MS. get low length
-	MOV	word [BP.Lock_length],CX	;AN000;;MS. set low length
-	MOV	word [BP.Lock_length+2],SI	;AN000;;MS. set high length
+	MOV	word [BP+Lock_length],CX	;AN000;;MS. set low length
+	MOV	word [BP+Lock_length+2],SI	;AN000;;MS. set high length
 	MOV	CX,1				;AN000;;MS. one range
 	PUSH	CS				;AN000;;MS.
 	POP	DS				;AN000;;MS. DS:DX points to
@@ -182,7 +182,7 @@ old_33:
 ;	JMP	WriteUnlock			 ;AN000;;MS. do write unlock
 						 ;AN000;;MS.
 DOS_Unlock:
-	TEST	ES:[DI.sf_flags],sf_isnet
+	TEST	[ES:DI+sf_flags],sf_isnet
 	JZ	LOCAL_UNLOCK
 ;;	invoke	OWN_SHARE			 ;AN000;;MS. IFS owns share ?
 ;;	JNZ	LOCAL_UNLOCK			 ;AN000;;MS. no
@@ -203,7 +203,7 @@ Lock_OK:
 	MOV	AX,[Temp_VAR]			 ;AN000;;MS. AX= number of bytes
 	transfer SYS_Ret_OK
 DOS_Lock:
-	TEST	ES:[DI.sf_flags],sf_isnet
+	TEST	[ES:DI+sf_flags],sf_isnet
 	JZ	LOCAL_LOCK
 ;;	invoke	OWN_SHARE			 ;AN000;;MS. IFS owns share ?
 ;;	JNZ	LOCAL_LOCK			 ;AN000;;MS. no
@@ -344,7 +344,7 @@ EndProc LOCK_CHECK
 	LES	BP,[THISDPB]
 	MOV	DI,1				; Fake some registers
 	MOV	CX,DI
-	MOV	DX,ES:[BP.dpb_first_sector]
+	MOV	DX,[ES:BP+dpb_first_sector]
 	invoke	HARDERR
 	POP	CX
 	POP	DI

@@ -34,7 +34,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	NoSetDir,BYTE
 	i_need	THISSFT,DWORD
@@ -119,7 +119,7 @@ Break	<DOS_Open - internal file access>
 	LES	DI,[THISSFT]
 	XOR	AH,AH
 ; sleaze! move only access/sharing mode in.  Leave sf_isFCB unchanged
-	MOV	byte ES:[DI.sf_mode],AL ; For moment do this on FCBs too
+	MOV	byte [ES:DI+sf_mode],AL ; For moment do this on FCBs too
 	PUSH	ES
 	LES	SI,[THISCDS]
 	CMP	SI,-1
@@ -142,7 +142,7 @@ NOEXTOP:
 ;Extended open hooks
 
 
-%if NOT Installed
+%if ~Installed
 	transfer NET_SEQ_OPEN
 %else
 	PUSH	AX
@@ -153,7 +153,7 @@ NOEXTOP:
 %endif
 
 TEST_RE_NET:
-	TEST	ES:[SI.curdir_flags],curdir_isnet
+	TEST	[ES:SI+curdir_flags],curdir_isnet
 	POP	ES
 	JZ	LOCAL_OPEN
 ;	CALL	IFS_SHARE_CHECK 	;IFS. check IFS share,may create share	;AN000;
@@ -164,7 +164,7 @@ TEST_RE_NET:
 	JNZ	IFS_extopen		    ;FT. isuue extended open		;AN000;
 ;Extended open hooks
 
-%if NOT Installed
+%if ~Installed
 	transfer NET_OPEN
 %else
 	PUSH	AX
@@ -202,7 +202,7 @@ LOCAL_OPEN:
 OpenFNF:
 	MOV	AX,error_file_not_found
 OpenBadRet:
-	AND	byte CS:[FastOpenFlg],Fast_yes    ;; DOS 3.3
+	AND	byte [CS:FastOpenFlg],Fast_yes    ;; DOS 3.3
 	STC
 	LeaveCrit   critDisk
 	JMP	Clear_FastOpen
@@ -220,7 +220,7 @@ Open_found:
 	OR	AH,AH
 	JS	open_ok 		; Devices don't have attributes
 	MOV	ES,word [CURBUF+2]	; get buffer location
-	MOV	AL,ES:[BX].dir_attr
+	MOV	AL,[ES:BX].dir_attr
 	TEST	AL,attr_volume_id	; can't open volume ids
 	JNZ	open_bad_access
 	TEST	AL,attr_read_only	; check write on read only
@@ -287,7 +287,7 @@ NORM0:
 
 ;;; File Tagging DOS 4.00
 	invoke	DOOPEN			; Fill in SFT
-	AND	byte CS:[FastOpenFlg],Fast_yes    ;; DOS 3.3
+	AND	byte [CS:FastOpenFlg],Fast_yes    ;; DOS 3.3
 	CALL	DO_SHARE_CHECK		;
 	JNC	Share_Ok
 	LeaveCrit   critDisk
@@ -303,11 +303,11 @@ SHARE_OK:
 %endif
 ;; DOS 4.00 10/27/86
 	LES	DI,ThisSFT			   ; if this is a newly 	;AN000;
-	CMP	ES:[DI.sf_firclus],0		   ; created file then		;AN000;
+	CMP	[ES:DI+sf_firclus],0		   ; created file then		;AN000;
 	JZ	no_fastseek			   ; do nothing 		;AN000;
-	MOV	CX,ES:[DI.sf_firclus]		   ; first cluster #		;AN000;
-	LES	DI,ES:[DI.sf_devptr]		   ; pointer to DPB		;AN000;
-	MOV	DL,ES:[DI.dpb_drive]		   ; drive #			;AN000;
+	MOV	CX,[ES:DI+sf_firclus]		   ; first cluster #		;AN000;
+	LES	DI,[ES:DI+sf_devptr]		   ; pointer to DPB		;AN000;
+	MOV	DL,[ES:DI+dpb_drive]		   ; drive #			;AN000;
 	invoke	FastSeek_Open			   ; call fastseek		;AN000;
 no_fastseek:
 
@@ -331,10 +331,10 @@ no_fastseek:
 
 	LES	DI,ThisSFT
 	invoke	DEV_OPEN_SFT
-	TEST	ES:[DI.sf_mode],sf_isfcb; Clears carry
+	TEST	[ES:DI+sf_mode],sf_isfcb; Clears carry
 	retz				; sf_mode correct
 	MOV	AX,[CurrentPDB]
-	MOV	ES:[DI.sf_PID],AX	; For FCB sf_PID=PID
+	MOV	[ES:DI+sf_PID],AX	; For FCB sf_PID=PID
 
 Clear_FastOpen:
 	return			       ;;;;; DOS 3.3
@@ -350,9 +350,9 @@ EndProc DOS_Open
 procedure SHARE_ERROR,NEAR
 	DOSAssume   CS,<DS>,"Share_Error"
 	; ASSUME	ES:NOTHING
-	TEST	ES:[DI.sf_mode],sf_isfcb
+	TEST	[ES:DI+sf_mode],sf_isfcb
 	JNZ	HARD_ERR
-	MOV	CL,byte ES:[DI.sf_mode]
+	MOV	CL,byte [ES:DI+sf_mode]
 	AND	CL,sharing_mask
 	CMP	CL,sharing_compat
 	JNE	NO_HARD_ERR

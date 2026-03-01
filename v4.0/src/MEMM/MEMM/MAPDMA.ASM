@@ -269,7 +269,7 @@ in_PF:
 	and	ax,3fffh		; get lower 14 bits
 	push	ax			; save lower 14 bits of starting addr
 	op32
-	mov	ax,es:[di]		; get page table entry
+	mov	ax,[es:di]		; get page table entry
 	and	ax,0f000h		; get rid of lower 12 bits
 	push_eax			; save physical address
 ;
@@ -285,7 +285,7 @@ c_chk:
 	add     ax,4000h		; next physically contiguous window
 	les	di,_page_frame_base[bx]	; es:di = page table pointer for window bx
 	op32
-	mov	dx,es:[di]		; get page table entry
+	mov	dx,[es:di]		; get page table entry
 	and	dx,0f000h		; get rid of lower 12 bits
 	op32
 	cmp	ax,dx			; q: contiguous?
@@ -412,9 +412,9 @@ no_dup:
 	xor	di,di				; initialize index
 sloop:
 	op32
-	mov	ax,es:[di]			; get a word from dest.
+	mov	ax,[es:di]			; get a word from dest.
 	op32
-	xchg	ax,ds:[di]			; swap with source
+	xchg	ax,[ds:di]			; swap with source
 	op32
 	stosw					; store in dest.
 	loop	sloop				; do the next one
@@ -535,7 +535,7 @@ DMA_excp:
 isMapped:
 	les	di,_page_frame_base[si]	; es:di = addr of page table entry
 	op32
-	mov	bx,es:[di]		; ebx = page table entry for window
+	mov	bx,[es:di]		; ebx = page table entry for window
 	and	bx,0f000h		; mask off low order 12 bits
 	op32
 	cmp	bx,dx			; q: is it mapped to itself (unmapped)?
@@ -606,19 +606,19 @@ set_selector:
 	push	GDTD_GSEL
 	pop	es			; ES:DI -> selector entry
 ;
-	mov	es:[di+2],ax		; low word of base address
+	mov	[es:di+2],ax		; low word of base address
 	OP32
 	shr	ax,16			; AX = high word of address
-	mov	es:[di+4],al		; low byte of high word of address
+	mov	[es:di+4],al		; low byte of high word of address
 	xor	al,al			; clear limit/G bit
-	mov	es:[di+6],ax		; set high byte of high word of addr
+	mov	[es:di+6],ax		; set high byte of high word of addr
 					;   and high nibble of limit/G bit
 ;
 	mov	ax,0FFFFh
-	mov	es:[di],ax		; set limit to 64k
+	mov	[es:di],ax		; set limit to 64k
 ;
 	mov	al,D_DATA0		; writeable DATA seg / ring 0
-	mov	es:[di+5],al
+	mov	[es:di+5],al
 ;
 	pop	es	
 	pop	di

@@ -17,7 +17,7 @@ initInit    equ     01h 		; initialization in progress
 initSpecial equ     02h 		; in initialization time/date routine
 initCtrlC   equ     04h 		; already in ^C handler
 
-Tokenized = FALSE
+Tokenized equ FALSE
 
 SECTION .CODERES;AC000;
 	global RSTACK

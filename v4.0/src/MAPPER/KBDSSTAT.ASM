@@ -42,10 +42,10 @@ SECTION .kbdxxx
         global kbdsetstatus
 
 struc str
-old_bp: dw 0
-return: dd 0
-handle: dw 0; kbd handle
-data: dd 0; kbd data strructure pointer
+old_bp: resw 1
+return: resd 1
+handle: resw 1; kbd handle
+data: resd 1; kbd data strructure pointer
 endstruc
 
 kbdsetstatus:
@@ -57,20 +57,20 @@ kbdsetstatus:
         mov     ds,ax
         ; assume  ds:kbddata
 
-        mov     ax,es:[di].Bit_Mask     ; get bit mask
+        mov     ax,[es:di].Bit_Mask     ; get bit mask
 
 CheckTurnAround:
         test    ax,040h                 ; define turnaround character ??
         jz      CheckInterimFlags       ; jump if not
 
-        mov     bx,es:[di].Turn_Around_Char  ; else, save turnaround character
+        mov     bx,[es:di].Turn_Around_Char  ; else, save turnaround character
         mov     KbdTurnAroundCharacter,bx
 
 CheckInterimFlags:
         test    ax,020h                 ; check for interim character flag ??
         jz      CheckShiftState         ; if not jump
 
-        mov     bx,es:[di].Interim_Char_Flags   ; save interim character flag
+        mov     bx,[es:di].Interim_Char_Flags   ; save interim character flag
         mov     KbdInterimCharFlags,bx
 
 CheckShiftState:
@@ -82,7 +82,7 @@ CheckShiftState:
         mov     ds,bx
         ; assume  ds:nothing
 
-        mov     bx,es:[di].Status_Shift_State   ; save shift state data
+        mov     bx,[es:di].Status_Shift_State   ; save shift state data
         mov     ds:018h,bl
 
         pop     ds

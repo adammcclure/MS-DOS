@@ -45,17 +45,17 @@ DEFAULT:
 	       PUSH DI
 	       PUSH SI
 ;
-	       MOV  DX,ES:[SI]+ICB_FIELDLEN  ;save for later				 ;=W
-	       MOV  BX,ES:[SI]+ICB_DEFLEN    ;save for later				 ;=W
+	       MOV  DX,[ES:SI]+ICB_FIELDLEN  ;save for later				 ;=W
+	       MOV  BX,[ES:SI]+ICB_DEFLEN    ;save for later				 ;=W
 ;
-	       MOV  AX,ES:[SI]+ICB_DEFSEG    ;get source string segment 		 ;=W
+	       MOV  AX,[ES:SI]+ICB_DEFSEG    ;get source string segment 		 ;=W
 	       MOV  DS,AX								 ;=W
 ;
-	       MOV  AX,ES:[SI]+ICB_FIELDOFF  ;get destination offset			 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDOFF  ;get destination offset			 ;=W
 	       MOV  DI,AX								 ;=W
 ;
-	       MOV  AX,ES:[SI]+ICB_FIELDSEG  ;get destination segment			 ;=W
-	       MOV  CX,ES:[SI]+ICB_DEFOFF    ;get source string offset			 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDSEG  ;get destination segment			 ;=W
+	       MOV  CX,[ES:SI]+ICB_DEFOFF    ;get source string offset			 ;=W
 	       MOV  SI,CX								 ;=W
 	       MOV  ES,AX								 ;=W
 ;
@@ -84,15 +84,15 @@ DEF10:
 	       POP  DS
 	       POP  ES
 ;
-	       OR   ES:[SI]+ICB_STATUS,BP    ;save error status
+	       OR   [ES:SI]+ICB_STATUS,BP    ;save error status
 	       POP  BP
 ;
 ; Calculate row and column of input field and set the desired display attribute
 ;
-	       MOV  AX,ES:[SI]+ICB_ROW	     ;get input field row
+	       MOV  AX,[ES:SI]+ICB_ROW	     ;get input field row
 	       MOV  [DI]+CR_ROW,AX
 ;
-	       MOV  AX,ES:[SI]+ICB_COL	     ;get input field column
+	       MOV  AX,[ES:SI]+ICB_COL	     ;get input field column
 	       MOV  [DI]+CR_COL,AX
 ;
 	       CALL PCROWCL_CALL	     ;calculate row and column info
@@ -102,16 +102,16 @@ DEF10:
 ;
 ; Initialize variables for left justified field
 ;
-	       TEST ES:[SI]+ICB_OPT1,ICB_RJU ;check if right justified
+	       TEST [ES:SI]+ICB_OPT1,ICB_RJU ;check if right justified
 	       JNE  DEF20
 ;
 	       MOV  [DI]+WR_LEFTCHAR,1	     ;set left character marker to
 					     ;beginning of input field
-	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;get max field length			 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;get max field length			 ;=W
 ;
-	       TEST ES:[SI]+ICB_OPT3,ICB_HOR ;check if horizontal scrolling		 ;=W
+	       TEST [ES:SI]+ICB_OPT3,ICB_HOR ;check if horizontal scrolling		 ;=W
 	       JE   DEF15		     ;no					 ;=W
-	       MOV  AX,ES:[SI]+ICB_WIDTH     ;get field width for horizontal scrolling	 ;=W
+	       MOV  AX,[ES:SI]+ICB_WIDTH     ;get field width for horizontal scrolling	 ;=W
 					     ;because we only show a windowful of field  ;=W
 DEF15:											 ;=W
 	       MOV  [DI]+WR_RIGHTCHAR,AX     ;set ptr to rightmost character		 ;=W
@@ -126,26 +126,26 @@ DEF20:	       ;
 ;
 ; Display default even if password option is active
 ;
-DEF30:	       PUSH ES:[SI]+ICB_OPT1	     ;save option word
+DEF30:	       PUSH [ES:SI]+ICB_OPT1	     ;save option word
 ;
-	       TEST ES:[SI]+ICB_OPT1,ICB_PSW ;check if password option active
+	       TEST [ES:SI]+ICB_OPT1,ICB_PSW ;check if password option active
 	       JE   DEF40
 ;
-	       AND  ES:[SI]+ICB_OPT1,NOT ICB_PSW
+	       AND  [ES:SI]+ICB_OPT1,NOT ICB_PSW
 					     ;set option word to force disp
 					     ; of default value
 DEF40:
 	       MOV  AX,2		     ;set option to actually display
 	       CALL word [DI]+WR_DISPLAY ; default value in proper
 					     ; justification
-	       POP  ES:[SI]+ICB_OPT1	     ;restore original password
+	       POP  [ES:SI]+ICB_OPT1	     ;restore original password
 ;
 ; Display initial cursor in proper size and location
 ;
 	       MOV  AX,[DI]+IN_CURNOR	     ;set cursor size for replace
 	       MOV  [DI]+WR_CURSIZE,AX
 ;
-	       TEST ES:[SI]+ICB_STATUS,ICB_SINS
+	       TEST [ES:SI]+ICB_STATUS,ICB_SINS
 	       JE   DEF45		     ;check if insert is active
 ;
 	       MOV  AX,[DI]+IN_CURINS	     ;set cursor size for insert
@@ -166,14 +166,14 @@ DEF45:
 	       MOV  BX,ES		     ;set segment of ICB
 	       MOV  DX,SI		     ;set offset of ICB
 ;
-	       MOV  CX,ES:[SI]+ICB_FIELDLEN  ;get field length
+	       MOV  CX,[ES:SI]+ICB_FIELDLEN  ;get field length
 ;
-	       PUSH ES:[SI]+ICB_FIELDOFF     ;get field offset
-	       PUSH ES:[SI]+ICB_FIELDSEG     ;get field segment
+	       PUSH [ES:SI]+ICB_FIELDOFF     ;get field offset
+	       PUSH [ES:SI]+ICB_FIELDSEG     ;get field segment
 	       POP  ES
 	       POP  SI
 ;
-DEF50:	       MOV  AL,ES:[SI]		     ;get character from input buffer
+DEF50:	       MOV  AL,[ES:SI]		     ;get character from input buffer
 	       MOV  [DI]+DBC_KS,AL	     ; and set to PCINDBC PB
 ;
 	       INC  SI			     ;point to next byte
@@ -187,7 +187,7 @@ DEF50:	       MOV  AL,ES:[SI]		     ;get character from input buffer
 	       JBE  DEF60		     ; and is missing trailing byte
 					     ; then, consider a single byte
 ;
-	       MOV  AH,ES:[SI]		     ;get character from input buffer
+	       MOV  AH,[ES:SI]		     ;get character from input buffer
 	       MOV  [DI]+DBC_KS,AH	     ; and set to PCINDBC PB
 	       INC  SI			     ;point to next byte
 	       DEC  CX			     ;adjust loop pointer for additial
@@ -215,30 +215,30 @@ DEF60:	       PUSH ES			     ;save registers
 DEF65:											 ;=W
 	       MOV  AX,01		     ;assume "[ ]" as delimiters                 ;=W
 ;											 ;=W
-	       TEST ES:[SI]+ICB_OPT1,ICB_BEN ;display entry delimiters			 ;=W
+	       TEST [ES:SI]+ICB_OPT1,ICB_BEN ;display entry delimiters			 ;=W
 	       JE   DEF100		     ;no, leave 				 ;=W
 ;											 ;=W
-	       TEST ES:[SI]+ICB_OPT3,ICB_WIN ;does field use windowing			 ;=W
+	       TEST [ES:SI]+ICB_OPT3,ICB_WIN ;does field use windowing			 ;=W
 	       JE   DEF70		     ;no, check others				 ;=W
 ;											 ;=W
-	       TEST ES:[SI]+ICB_OPT1,ICB_BOX ;check if delimiter = box			 ;=W
+	       TEST [ES:SI]+ICB_OPT1,ICB_BOX ;check if delimiter = box			 ;=W
 	       JE   DEF90		     ;no, display normal delimiters		 ;=W
 ;											 ;=W
 	       MOV  AX,06		     ;display box				 ;=W
 	       JMP  DEF90		     ;done with delimiters			 ;=W
 DEF70:											 ;=W
-	       TEST ES:[SI]+ICB_OPT3,ICB_HOR ;does field use horiz. window		 ;=W
+	       TEST [ES:SI]+ICB_OPT3,ICB_HOR ;does field use horiz. window		 ;=W
 	       JE   DEF80								 ;=W
 ;											 ;=W
 	       MOV  AX,03		     ;display "[ >"                              ;=W
-	       CMP  ES:[SI]+ICB_HRSTART,01H  ;are we at beginning of window ?		 ;=W
+	       CMP  [ES:SI]+ICB_HRSTART,01H  ;are we at beginning of window ?		 ;=W
 	       JLE  DEF80		     ;yes					 ;=W
 ;
 	       MOV  AX,04		     ;no, display "< >"                          ;=W
 DEF80:											 ;=W
 	       CALL DELIMITER		     ;do it					 ;=W
 ;
-	       TEST ES:[SI]+ICB_OPT1,ICB_BOX ;check if also need box			 ;=W
+	       TEST [ES:SI]+ICB_OPT1,ICB_BOX ;check if also need box			 ;=W
 	       JE   DEF100								 ;=W
 ;											 ;=W
 	       MOV  AX,06		     ;display box				 ;=W
@@ -248,12 +248,12 @@ DEF90:											 ;=W
 ; Display minus or plus sign if active
 ;
 DEF100:
-	       TEST ES:[SI]+ICB_OPT1,ICB_MUS ;Check if minus/plus sign
+	       TEST [ES:SI]+ICB_OPT1,ICB_MUS ;Check if minus/plus sign
 	       JE   DEFEXIT		     ; display option is active
 ;
 	       MOV  [DI]+WR_KEYCONF,0	     ;initialize to plus sign key
 ;
-	       TEST ES:[SI]+ICB_OPT1,ICB_SMU ;Check if default is negative
+	       TEST [ES:SI]+ICB_OPT1,ICB_SMU ;Check if default is negative
 	       JE   DEF110
 ;
 	       OR   [DI]+WR_KEYCONF,WR_MUS   ;initialize to minus sign key
@@ -314,7 +314,7 @@ PRE_EXIT:
 ;
 ; Calculate color attribute of exit colors
 ;
-	       TEST ES:[SI]+ICB_OPT1,ICB_XCL ;check if option to use exit
+	       TEST [ES:SI]+ICB_OPT1,ICB_XCL ;check if option to use exit
 	       JE   PRE10		     ; colors is active
 ;
 	       MOV  AL,[DI]+WR_XATTR	     ;set the exit attribute to the
@@ -323,11 +323,11 @@ PRE_EXIT:
 ; Display default value of input buffer in proper justification
 ;
 PRE10:	       MOV  [DI]+WR_LEFTCHAR,1	     ;set left character
-	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;set right marker
+	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;set right marker
 ;
-	       TEST ES:[SI]+ICB_OPT3,ICB_HOR ;horizontal scrolling mode ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT3,ICB_HOR ;horizontal scrolling mode ?		 ;=W
 	       JE   PRE15		     ;no, display all buffer			 ;=W
-	       MOV  AX,ES:[SI]+ICB_WIDTH     ;use width instead of all buffer		 ;=W
+	       MOV  AX,[ES:SI]+ICB_WIDTH     ;use width instead of all buffer		 ;=W
 PRE15:
 	       MOV  [DI]+WR_RIGHTCHAR,AX
 ;
@@ -336,17 +336,17 @@ PRE15:
 ;					     ; justification
 ; Process minus/plus key options
 ;
-	       TEST ES:[SI]+ICB_OPT1,ICB_MUS ;Check if minus/plus sign
+	       TEST [ES:SI]+ICB_OPT1,ICB_MUS ;Check if minus/plus sign
 	       JE   PRE40		     ; display option is active
 ;
 	       MOV [DI]+WR_KEYCONF,0	     ;initialize to plus sign
 ;
-	       TEST ES:[SI]+ICB_STATUS,ICB_SMUS
+	       TEST [ES:SI]+ICB_STATUS,ICB_SMUS
 	       JE   PRE20		     ;Check if sign is negative
 ;
 	       OR   [DI]+WR_KEYCONF,WR_MUS   ;initialize to minus sign key
 ;
-PRE20:	       TEST ES:[SI]+ICB_STATUS,ICB_SPUS
+PRE20:	       TEST [ES:SI]+ICB_STATUS,ICB_SPUS
 	       JE   PRE30		     ;Check if sign is positive
 ;
 	       OR   [DI]+WR_KEYCONF,WR_PUS   ;initialize to plus sign key
@@ -356,13 +356,13 @@ PRE30:	       CALL PLUS_MINUS		     ;display plus or minus sign
 ;
 ; Replace field entry delimiters with exit delimiters
 ;
-PRE40:	       TEST ES:[SI]+ICB_OPT1,ICB_BEX ;check if field delimiters
+PRE40:	       TEST [ES:SI]+ICB_OPT1,ICB_BEX ;check if field delimiters
 	       JE   PRE60		     ; should be displayed on exit
 ;
 	       MOV  AX,2		     ;option to remove delimiters
 	       CALL DELIMITER		     ;display delimiters
 ;
-	       TEST ES:[SI]+ICB_OPT1,ICB_BOX ;check if box around field
+	       TEST [ES:SI]+ICB_OPT1,ICB_BOX ;check if box around field
 	       JE   PRE60		     ; should be displayed
 ;
 	       MOV  AX,7		     ;set option to remove box
@@ -375,19 +375,19 @@ PRE60:	       PUSH DS			     ;save registers
 	       PUSH ES
 	       PUSH DI
 ;
-	       MOV  CX,ES:[SI]+ICB_DEFLEN    ;initialize to default length
-	       CMP  CX,ES:[SI]+ICB_FIELDLEN  ;check if default length is less
+	       MOV  CX,[ES:SI]+ICB_DEFLEN    ;initialize to default length
+	       CMP  CX,[ES:SI]+ICB_FIELDLEN  ;check if default length is less
 	       JBE  PRE70		     ; than field length
 ;
-	       MOV  CX,ES:[SI]+ICB_FIELDLEN  ;initialize to field length
+	       MOV  CX,[ES:SI]+ICB_FIELDLEN  ;initialize to field length
 ;
-PRE70:	       MOV  AX,ES:[SI]+ICB_DEFSEG    ;compare default string to 		 ;=W
+PRE70:	       MOV  AX,[ES:SI]+ICB_DEFSEG    ;compare default string to 		 ;=W
 	       MOV  DS,AX								 ;=W
-	       MOV  AX,ES:[SI]+ICB_FIELDOFF						 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDOFF						 ;=W
 	       MOV  DI,AX								 ;=W
 ;
-	       MOV  AX,ES:[SI]+ICB_DEFOFF    ;	current input string			 ;=W
-	       MOV  BX,ES:[SI]+ICB_FIELDSEG						 ;=W
+	       MOV  AX,[ES:SI]+ICB_DEFOFF    ;	current input string			 ;=W
+	       MOV  BX,[ES:SI]+ICB_FIELDSEG						 ;=W
 	       MOV  ES,BX								 ;=W
 	       MOV  SI,AX								 ;=W
 ;
@@ -401,7 +401,7 @@ PRE70:	       MOV  AX,ES:[SI]+ICB_DEFSEG    ;compare default string to 		 ;=W
 	       CMP  CX,0		     ;are we done ?				 ;=W
 	       JE   PRE80		     ;check if strings compared
 ;
-	       OR   ES:[SI]+ICB_STATUS,ICB_SDEF
+	       OR   [ES:SI]+ICB_STATUS,ICB_SDEF
 					     ;set flag that default changed
 ;
 ; Check if entry is within specified numeric range, if not set flag
@@ -419,16 +419,16 @@ PRE90:	       ;
 ; Restore original cursor position and size
 ;
 PRE95:
-	       TEST ES:[SI]+ICB_STATUS,ICB_CUR_ON  ;is cursor on ?
+	       TEST [ES:SI]+ICB_STATUS,ICB_CUR_ON  ;is cursor on ?
 	       JE   PRE100			   ;no, quit
 	       CALL CURSOR		     ;erase the graphics cursor
 PRE100:
-	       OR   ES:[SI]+ICB_STATUS,ICB_DONE ;exit condition found, exit		 ;=W
+	       OR   [ES:SI]+ICB_STATUS,ICB_DONE ;exit condition found, exit		 ;=W
 ;											 ;=W
 ; Check if ICB_SAV option selected. If selected, then save contents of the		 ;=W
 ; input buffer to the default buffer.							 ;=W
 ;											 ;=W
-	       TEST ES:[SI]+ICB_OPT4,ICB_SAV ;check ?					 ;=W
+	       TEST [ES:SI]+ICB_OPT4,ICB_SAV ;check ?					 ;=W
 	       JE   PRE200		     ;no, exit now				 ;=W
 ;											 ;=W
 	       PUSH ES			     ;save registers				 ;=W
@@ -436,18 +436,18 @@ PRE100:
 	       PUSH DI									 ;=W
 	       PUSH SI									 ;=W
 ;											 ;=W
-	       MOV  CX,ES:[SI]+ICB_ENDBYTE   ;# of bytes to copy from input		 ;=W
+	       MOV  CX,[ES:SI]+ICB_ENDBYTE   ;# of bytes to copy from input		 ;=W
 					     ; buffer to default buffer 		 ;=W
-	       MOV  ES:[SI]+ICB_DEFLEN,CX    ;reset default length
+	       MOV  [ES:SI]+ICB_DEFLEN,CX    ;reset default length
 ;
-	       MOV  AX,ES:[SI]+ICB_FIELDSEG  ;get destination segment			 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDSEG  ;get destination segment			 ;=W
 	       MOV  DS,AX								 ;=W
 ;											 ;=W
-	       MOV  AX,ES:[SI]+ICB_DEFOFF    ;get source string offset			 ;=W
+	       MOV  AX,[ES:SI]+ICB_DEFOFF    ;get source string offset			 ;=W
 	       MOV  DI,AX								 ;=W
 ;											 ;=W
-	       MOV  AX,ES:[SI]+ICB_DEFSEG    ;get source string segment 		 ;=W
-	       MOV  BX,ES:[SI]+ICB_FIELDOFF  ;get destination offset			 ;=W
+	       MOV  AX,[ES:SI]+ICB_DEFSEG    ;get source string segment 		 ;=W
+	       MOV  BX,[ES:SI]+ICB_FIELDOFF  ;get destination offset			 ;=W
 	       MOV  SI,BX								 ;=W
 	       MOV  ES,AX								 ;=W
 ;											 ;=W
@@ -645,7 +645,7 @@ LHJ5:	       TEST [DI]+WR_KEYCONF,WR_HOM   ;check if home key pressed 		 ;=W
 	       ; add ICB_WHM option to process window home key movement 		 ;=W
 	       ;									 ;=W
 ;											 ;=W
-	       MOV  ES:[SI]+ICB_CURCHAR,1    ;initialize cursor to 1st byte		 ;=W
+	       MOV  [ES:SI]+ICB_CURCHAR,1    ;initialize cursor to 1st byte		 ;=W
 					     ; position, assuming no windowing		 ;=W
 					     ; wrap is occurring			 ;=W
 	       MOV  [DI]+WR_HRCHAR,1	     ;reset the horiz. window			 ;=W
@@ -668,38 +668,38 @@ LHJ12:											 ;=W
 	       CALL CAL_COORS		     ;get current end of field info		 ;=W
 	       MOV  AX,[DI]+WR_ENCHAR	     ;adjust one past end buffer charac 	 ;=W
 	       INC  AX									 ;=W
-	       MOV  ES:[SI]+ICB_CURCHAR,AX   ;set current cursor position to		 ;=W
+	       MOV  [ES:SI]+ICB_CURCHAR,AX   ;set current cursor position to		 ;=W
 	       CALL CAL_COORS		     ;get cursor position			 ;=W
 	       MOV  AX,4		     ;display delimiters "< >"                   ;=W
 	       CMP  [DI]+WR_FIELDEND,0	     ;check if cursor past end of field 	 ;=W
 	       JE   LHJ17		     ;no					 ;=W
 	       MOV  AX,5		     ;display delimiters "< ]"                   ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LHJ15
-	       MOV  ES:[SI]+ICB_CURCHAR,1    ;wrap to first character position
+	       MOV  [ES:SI]+ICB_CURCHAR,1    ;wrap to first character position
 	       MOV  [DI]+WR_HRCHAR,1	     ;reset the horiz. window			 ;=W
 	       MOV  AX,3		     ;display delimiters "[ >"                   ;=W
 	       JMP  LHJ19		     ;exit
 LHJ15:
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
 	       JE   LHJ16		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;yes, set autoexit flag			 ;=W
 LHJ16:											 ;=W
-	       MOV  BX,ES:[SI]+ICB_FIELDLEN  ;adjust horizontal window			 ;=W
-	       SUB  BX,ES:[SI]+ICB_WIDTH     ;(below this line may not work for 	 ;=W
+	       MOV  BX,[ES:SI]+ICB_FIELDLEN  ;adjust horizontal window			 ;=W
+	       SUB  BX,[ES:SI]+ICB_WIDTH     ;(below this line may not work for 	 ;=W
 	       INC  BX			     ; DBCS support)				 ;=W
 	       MOV  [DI]+WR_HRCHAR,BX							 ;=W
 	       JMP  LHJ19								 ;=W
 LHJ17:											 ;=W
 	       MOV  CX,[DI]+WR_CUBYTE	     ;check if need to adjust horz.		 ;=W
-	       CMP  CX,ES:[SI]+ICB_WIDTH     ; window					 ;=W
+	       CMP  CX,[ES:SI]+ICB_WIDTH     ; window					 ;=W
 	       JA   LHJ18								 ;=W
 	       MOV  [DI]+WR_HRCHAR,1							 ;=W
 	       MOV  AX,3		     ;display delimiters "[ >"                   ;=W
 	       JMP  LHJ19								 ;=W
 LHJ18:											 ;=W
 	       MOV  BX,[DI]+WR_ENBYTE	     ;yes, adjust it				 ;=W
-	       SUB  BX,ES:[SI]+ICB_WIDTH						 ;=W
+	       SUB  BX,[ES:SI]+ICB_WIDTH						 ;=W
 	       ADD  BX,2								 ;=W
 	       MOV  [DI]+WR_HRCHAR,BX							 ;=W
 LHJ19:											 ;=W
@@ -720,14 +720,14 @@ LHJ20:	       TEST [DI]+WR_KEYCONF,WR_LFT   ;check if left arrow key pressed		 ;
 	       ; add ICB_WAR option to wrap cursor on same row end to end		 ;=W
 	       ;									 ;=W
 ;											 ;=W
-	       MOV  BX,ES:[SI]+ICB_CURCHAR   ;get cursor position			 ;=W
+	       MOV  BX,[ES:SI]+ICB_CURCHAR   ;get cursor position			 ;=W
 	       CMP  BX,1		     ;is cursor in first position ?		 ;=W
 	       JA   LHJ30		     ;no					 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LHJ23
-	       MOV  BX,ES:[SI]+ICB_FIELDLEN  ;adjust horizontal window			 ;=W
-	       MOV  ES:[SI]+ICB_CURCHAR,BX   ;wrap to first character position
-	       SUB  BX,ES:[SI]+ICB_WIDTH     ;(below this line may not work for 	 ;=W
+	       MOV  BX,[ES:SI]+ICB_FIELDLEN  ;adjust horizontal window			 ;=W
+	       MOV  [ES:SI]+ICB_CURCHAR,BX   ;wrap to first character position
+	       SUB  BX,[ES:SI]+ICB_WIDTH     ;(below this line may not work for 	 ;=W
 	       INC  BX			     ; DBCS support)				 ;=W
 	       MOV  [DI]+WR_HRCHAR,BX							 ;=W
 ;
@@ -737,7 +737,7 @@ LHJ20:	       TEST [DI]+WR_KEYCONF,WR_LFT   ;check if left arrow key pressed		 ;
 LHJ23:
 	       MOV  AX,3		     ;display delimiters "[ >"                   ;=W
 	       CALL DELIMITER		     ;display delimiter 			 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
 	       JE   LHJ25		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;yes, set autoexit flag			 ;=W
 	       JMP  LHJ400								 ;=W
@@ -745,7 +745,7 @@ LHJ25:											 ;=W
 	       CALL PCMBEEP_CALL	     ;error beep				 ;=W
 	       JMP  LHJEXIT		     ;exit					 ;=W
 LHJ30:											 ;=W
-	       DEC  ES:[SI]+ICB_CURCHAR      ;adjust cursor to one position		 ;=W
+	       DEC  [ES:SI]+ICB_CURCHAR      ;adjust cursor to one position		 ;=W
 ;
 	       CMP  BX,[DI]+WR_HRCHAR	     ;is cursor to the left of horz.wind. ?	 ;=W
 	       JG   LHJ32		     ;no					 ;=W
@@ -775,11 +775,11 @@ LHJ40:	       TEST [DI]+WR_KEYCONF,WR_RGT   ;check if left arrow key pressed		 ;
 	       CALL PCMBEEP_CALL	     ;error beep				 ;=W
 	       JMP  LHJEXIT		     ;exit					 ;=W
 ;											 ;=W
-LHJ50:	       INC  ES:[SI]+ICB_CURCHAR      ;adjust cursor to one position		 ;=W
+LHJ50:	       INC  [ES:SI]+ICB_CURCHAR      ;adjust cursor to one position		 ;=W
 					     ; towards the right			 ;=W
 	       MOV  BX,[DI]+WR_HRCHAR	     ;get begin. of horiz. wondow		 ;=W
-	       ADD  BX,ES:[SI]+ICB_WIDTH     ;add width to get end of window		 ;=W
-	       CMP  BX,ES:[SI]+ICB_CURCHAR   ;is cursor past end of window ?		 ;=W
+	       ADD  BX,[ES:SI]+ICB_WIDTH     ;add width to get end of window		 ;=W
+	       CMP  BX,[ES:SI]+ICB_CURCHAR   ;is cursor past end of window ?		 ;=W
 	       JG   LHJ52		     ;no					 ;=W
 	       INC  [DI]+WR_HRCHAR	     ;yes, adjust the horiz. window		 ;=W
 	       MOV  AX,4		     ;display delimiters "< >"                   ;=W
@@ -788,9 +788,9 @@ LHJ52:											 ;=W
 	       CALL CAL_COORS		     ;calculate cursor position 		 ;=W
 	       CMP  [DI]+WR_FIELDEND,0	     ;check if cursor past end of field 	 ;=W
 	       JE   LHJ55		     ;no					 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LHJ53
-	       MOV  ES:[SI]+ICB_CURCHAR,1    ;wrap to first character position
+	       MOV  [ES:SI]+ICB_CURCHAR,1    ;wrap to first character position
 	       MOV  [DI]+WR_HRCHAR,1	     ;reset the horiz. window			 ;=W
 	       MOV  AX,3		     ;display delimiters "[ >"                   ;=W
 	       CALL DELIMITER		     ;display delimiter 			 ;=W
@@ -799,7 +799,7 @@ LHJ53:
 	       DEC  [DI]+WR_HRCHAR	     ;yes, adjust wind back one position	 ;=W
 	       MOV  AX,5		     ;display delimiters "< ]"                   ;=W
 	       CALL DELIMITER		     ;display delimiter 			 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
 	       JE   LHJ55		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;set autoexit flag 			 ;=W
 LHJ55:											 ;=W
@@ -871,15 +871,15 @@ LHJ110:        CALL PCMBEEP_CALL	     ;error beep				 ;=W
 LHJ130:        TEST [DI]+WR_KEYCONF,WR_BCK   ;check if backspace key pressed		 ;=W
 	       JE   LHJ160								 ;=W
 ;											 ;=W
-	       MOV  BX,ES:[SI]+ICB_CURCHAR   ;get cursor position			 ;=W
+	       MOV  BX,[ES:SI]+ICB_CURCHAR   ;get cursor position			 ;=W
 	       CMP  BX,1		     ;check if cursor is at first		 ;=W
 	       JA   LHJ140		     ; field position				 ;=W
 ;
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LHJ133
-	       MOV  BX,ES:[SI]+ICB_FIELDLEN  ;adjust horizontal window			 ;=W
-	       MOV  ES:[SI]+ICB_CURCHAR,BX   ;wrap to first character position
-	       SUB  BX,ES:[SI]+ICB_WIDTH     ;(below this line may not work for 	 ;=W
+	       MOV  BX,[ES:SI]+ICB_FIELDLEN  ;adjust horizontal window			 ;=W
+	       MOV  [ES:SI]+ICB_CURCHAR,BX   ;wrap to first character position
+	       SUB  BX,[ES:SI]+ICB_WIDTH     ;(below this line may not work for 	 ;=W
 	       INC  BX			     ; DBCS support)				 ;=W
 	       MOV  [DI]+WR_HRCHAR,BX							 ;=W
 ;
@@ -888,7 +888,7 @@ LHJ130:        TEST [DI]+WR_KEYCONF,WR_BCK   ;check if backspace key pressed		 ;
 	       JMP  LHJ145		     ;exit
 LHJ133:
 	       MOV  AX,3		     ;display delimiters "[ >"                   ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
 	       JE   LHJ135		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;yes, set autoexit flag			 ;=W
 	       CALL DELIMITER		     ;display delimiter 			 ;=W
@@ -898,7 +898,7 @@ LHJ135: 										 ;=W
 	       CALL PCMBEEP_CALL	     ;error beep				 ;=W
 	       JMP  LHJEXIT		     ;exit					 ;=W
 LHJ140: 										 ;=W
-	       DEC  ES:[SI]+ICB_CURCHAR      ;adjust cursor to one position
+	       DEC  [ES:SI]+ICB_CURCHAR      ;adjust cursor to one position
 					     ; towards the left 			 ;=W
 	       CMP  BX,[DI]+WR_HRCHAR	     ;is cursor in front of the wind. ? 	 ;=W
 	       JG   LHJ142		     ;no					 ;=W
@@ -919,19 +919,19 @@ LHJ145: 										 ;=W
 LHJ160:        TEST [DI]+WR_KEYCONF,WR_INS   ;check if insert key pressed		 ;=W
 	       JE   LHJ180		     ; if not, continue 			 ;=W
 ;											 ;=W
-	       TEST ES:[SI]+ICB_STATUS,ICB_SINS  ;check if in insert mode ?		 ;=W
+	       TEST [ES:SI]+ICB_STATUS,ICB_SINS  ;check if in insert mode ?		 ;=W
 	       JE   LHJ165		     ;no, put in insert mode			 ;=W
 ;											 ;=W
 	       MOV  BX,[DI]+IN_CURNOR	     ;set cursor size for normal		 ;=W
 	       MOV  [DI]+WR_CURSIZE,BX	     ; cursor					 ;=W
 ;											 ;=W
-	       AND  ES:[SI]+ICB_STATUS,NOT ICB_SINS					 ;=W
+	       AND  [ES:SI]+ICB_STATUS,NOT ICB_SINS					 ;=W
 	       JMP  LHJ170		     ;turn insert mode off			 ;=W
 ;											 ;=W
 LHJ165:        MOV  BX,[DI]+IN_CURINS	     ;set cursor size for insert		 ;=W
 	       MOV  [DI]+WR_CURSIZE,BX	     ; cursor					 ;=W
 ;											 ;=W
-	       OR   ES:[SI]+ICB_STATUS,ICB_SINS 					 ;=W
+	       OR   [ES:SI]+ICB_STATUS,ICB_SINS 					 ;=W
 					     ;turn insert mode on			 ;=W
 ;											 ;=W
 LHJ170: 										 ;=W
@@ -946,7 +946,7 @@ LHJ170: 										 ;=W
 ;											 ;=W
 	       AND  AX,NOT WR_INSSTATE	     ;set BIOS insert active flag off		 ;=W
 ;											 ;=W
-	       TEST ES:[SI]+ICB_STATUS,ICB_SINS 					 ;=W
+	       TEST [ES:SI]+ICB_STATUS,ICB_SINS 					 ;=W
 	       JE   LHJ175		     ;check if insert should be set on		 ;=W
 ;											 ;=W
 	       OR   AX,WR_INSSTATE	     ;set BIOS insert active flag on		 ;=W
@@ -982,7 +982,7 @@ LHJ190:        TEST [DI]+WR_KEYCONF,WR_ALL   ;check if allow key pressed		 ;=W
 	       CALL PCMBEEP_CALL	     ;error beep key not defined		 ;=W
 	       JMP  LHJEXIT		     ;exit					 ;=W
 ;											 ;=W
-LHJ195:        TEST ES:[SI]+ICB_STATUS,ICB_SINS 					 ;=W
+LHJ195:        TEST [ES:SI]+ICB_STATUS,ICB_SINS 					 ;=W
 	       JE   LHJ198		     ;check if insert is active 		 ;=W
 ;											 ;=W
 	       JMP  LHJ270		     ;do insert display 			 ;=W
@@ -1000,8 +1000,8 @@ LHJ198: 										 ;=W
 LHJ200:        PUSH ES			     ;save registers				 ;=W
 	       PUSH SI									 ;=W
 ;											 ;=W
-	       PUSH ES:[SI]+ICB_FIELDSEG     ;get segment of input buffer		 ;=W
-	       PUSH ES:[SI]+ICB_FIELDOFF     ;get offset of input buffer		 ;=W
+	       PUSH [ES:SI]+ICB_FIELDSEG     ;get segment of input buffer		 ;=W
+	       PUSH [ES:SI]+ICB_FIELDOFF     ;get offset of input buffer		 ;=W
 	       POP  SI									 ;=W
 	       POP  ES									 ;=W
 ;											 ;=W
@@ -1011,7 +1011,7 @@ LHJ200:        PUSH ES			     ;save registers				 ;=W
 	       MOV  CX,ES		     ;save offset of character to		 ;=W
 	       MOV  DX,SI		     ; replace					 ;=W
 ;											 ;=W
-	       MOV  AL,ES:[SI]		     ;get byte that cursor is pointing		 ;=W
+	       MOV  AL,[ES:SI]		     ;get byte that cursor is pointing		 ;=W
 	       MOV  [DI]+DBC_KS,AL	     ; to check if DBCS 			 ;=W
 	       CALL PCINDBC_CALL	     ;call routine to check if char		 ;=W
 					     ; is lead double byte char 		 ;=W
@@ -1035,7 +1035,7 @@ LHJ200:        PUSH ES			     ;save registers				 ;=W
 ;											 ;=W
 	       MOV  ES,CX		     ;save offset of character to		 ;=W
 	       MOV  SI,DX		     ; replace					 ;=W
-	       MOV  ES:[SI],AX		     ;replace double byte			 ;=W
+	       MOV  [ES:SI],AX		     ;replace double byte			 ;=W
 ;											 ;=W
 	       POP  SI			     ;restore registers 			 ;=W
 	       POP  ES									 ;=W
@@ -1052,12 +1052,12 @@ LHJ210:        MOV  AX,[DI]+INC_KS	     ;get keystroke and replace double		 ;=W
 ;											 ;=W
 	       MOV  ES,CX		     ;save offset of character to		 ;=W
 	       MOV  SI,DX		     ; replace single byte			 ;=W
-	       MOV  ES:[SI],AL								 ;=W
+	       MOV  [ES:SI],AL								 ;=W
 ;											 ;=W
 	       POP  SI			     ;restore registers 			 ;=W
 	       POP  ES									 ;=W
 ;											 ;=W
-	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;set ending byte				 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;set ending byte				 ;=W
 	       MOV  [DI]+WR_RIGHTBYTE,AX						 ;=W
 ;											 ;=W
 	       MOV  AX,[DI]+WR_CUBYTE	     ;set markers for shift to remove		 ;=W
@@ -1081,7 +1081,7 @@ LHJ220:        TEST [DI]+WR_KEYCONF2,WR_DBC  ;check if double byte character		 ;
 ;											 ;=W
 	       MOV  ES,CX		     ;save offset of character to		 ;=W
 	       MOV  SI,DX		     ; replace single byte			 ;=W
-	       MOV  ES:[SI],AL								 ;=W
+	       MOV  [ES:SI],AL								 ;=W
 ;											 ;=W
 	       POP  SI			     ;restore registers 			 ;=W
 	       POP  ES									 ;=W
@@ -1094,12 +1094,12 @@ LHJ230: 										 ;=W
 	       CALL CAL_COORS		     ;calculate cursor position 		 ;=W
 	       MOV  BX,[DI]+WR_ENBYTE	     ;get end byte of input field		 ;=W
 	       MOV  AX,[DI]+WR_ENCHAR	     ;get end character of field		 ;=W
-	       CMP  AX,ES:[SI]+ICB_CURCHAR   ;is cursor past end character		 ;=W
+	       CMP  AX,[ES:SI]+ICB_CURCHAR   ;is cursor past end character		 ;=W
 	       JA   LHJ240								 ;=W
 ;											 ;=W
 	       MOV  BX,[DI]+WR_CUBYTE	     ;set cursor character position		 ;=W
 LHJ240: 										 ;=W
-	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;get end of field position 		 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;get end of field position 		 ;=W
 	       SUB  AX,BX		     ;subtract to get the remaining space	 ;=W
 	       CMP  AX,1		     ;will byte fit ?				 ;=W
 	       JGE  LHJ250		     ;yes					 ;=W
@@ -1107,7 +1107,7 @@ LHJ240: 										 ;=W
 	       CALL PCMBEEP_CALL	     ;error beep because replace char		 ;=W
 	       JMP  LHJEXIT		     ; will not fit and exit			 ;=W
 ;											 ;=W
-LHJ250:        MOV  BX,ES:[SI]+ICB_FIELDLEN  ;set ending byte				 ;=W
+LHJ250:        MOV  BX,[ES:SI]+ICB_FIELDLEN  ;set ending byte				 ;=W
 	       MOV  [DI]+WR_RIGHTBYTE,BX						 ;=W
 ;											 ;=W
 	       MOV  BX,[DI]+WR_CUBYTE	     ;set markers for shift to remove		 ;=W
@@ -1125,7 +1125,7 @@ LHJ250:        MOV  BX,ES:[SI]+ICB_FIELDLEN  ;set ending byte				 ;=W
 ;											 ;=W
 	       MOV  ES,CX		     ;save offset of character to		 ;=W
 	       MOV  SI,DX		     ; replace double byte			 ;=W
-	       MOV  ES:[SI],AX								 ;=W
+	       MOV  [ES:SI],AX								 ;=W
 ;											 ;=W
 	       POP  SI			     ;restore registers 			 ;=W
 	       POP  ES									 ;=W
@@ -1134,10 +1134,10 @@ LHJ250:        MOV  BX,ES:[SI]+ICB_FIELDLEN  ;set ending byte				 ;=W
 ;											 ;=W
 LHJ260: 										 ;=W
 	       CALL CAL_COORS		     ;calculate cursor position 		 ;=W
-	       INC  ES:[SI]+ICB_CURCHAR      ;point to next char			 ;=W
+	       INC  [ES:SI]+ICB_CURCHAR      ;point to next char			 ;=W
 	       MOV  BX,[DI]+WR_HRCHAR	     ;get begin. of horiz. wondow		 ;=W
-	       ADD  BX,ES:[SI]+ICB_WIDTH     ;add width to get end of window		 ;=W
-	       CMP  BX,ES:[SI]+ICB_CURCHAR   ;is cursor past end of window ?		 ;=W
+	       ADD  BX,[ES:SI]+ICB_WIDTH     ;add width to get end of window		 ;=W
+	       CMP  BX,[ES:SI]+ICB_CURCHAR   ;is cursor past end of window ?		 ;=W
 	       JG   LHJ265		     ;no					 ;=W
 	       INC  [DI]+WR_HRCHAR	     ;yes, adjust the horiz. window		 ;=W
 	       MOV  AX,4		     ;display delimiters "< >"                   ;=W
@@ -1146,9 +1146,9 @@ LHJ265: 										 ;=W
 	       CALL CAL_COORS		     ;calculate cursor position 		 ;=W
 	       CMP  [DI]+WR_FIELDEND,0	     ;check if cursor past end of field 	 ;=W
 	       JE   LHJ267		     ;no					 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LHJ266
-	       MOV  ES:[SI]+ICB_CURCHAR,1    ;wrap to first character position
+	       MOV  [ES:SI]+ICB_CURCHAR,1    ;wrap to first character position
 	       MOV  [DI]+WR_HRCHAR,1	     ;reset the horiz. window			 ;=W
 	       MOV  AX,3		     ;display delimiters "[ >"                   ;=W
 	       CALL DELIMITER		     ;display delimiter 			 ;=W
@@ -1158,7 +1158,7 @@ LHJ266:
 	       DEC  [DI]+WR_HRCHAR	     ;yes, adjust wind back one position	 ;=W
 	       MOV  AX,5		     ;display delimiters "< ]"                   ;=W
 	       CALL DELIMITER		     ;display delimiter 			 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXD ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXD ;is autoexit option set ?			 ;=W
 	       JE   LHJ267		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;set autoexit flag 			 ;=W
 LHJ267: 										 ;=W
@@ -1178,8 +1178,8 @@ LHJ270: 										 ;=W
 ; Check if enough room available to insert single or double byte character		 ;=W
 ;											 ;=W
 LHJ280: 										 ;=W
-	       MOV  CX,ES:[SI]+ICB_FIELDSEG  ;get segment of input buffer		 ;=W
-	       MOV  DX,ES:[SI]+ICB_FIELDOFF  ;get offset of input buffer		 ;=W
+	       MOV  CX,[ES:SI]+ICB_FIELDSEG  ;get segment of input buffer		 ;=W
+	       MOV  DX,[ES:SI]+ICB_FIELDOFF  ;get offset of input buffer		 ;=W
 ;											 ;=W
 	       ADD  DX,[DI]+WR_CUBYTE	     ;add cursor offset into buffer		 ;=W
 	       DEC  DX			     ;make zero based				 ;=W
@@ -1195,12 +1195,12 @@ LHJ290: 										 ;=W
 	       CALL CAL_COORS		     ;calculate cursor position 		 ;=W
 	       MOV  BX,[DI]+WR_ENBYTE	     ;get end byte of input field		 ;=W
 	       MOV  AX,[DI]+WR_ENCHAR	     ;get end character of field		 ;=W
-	       CMP  AX,ES:[SI]+ICB_CURCHAR   ;is cursor past end character		 ;=W
+	       CMP  AX,[ES:SI]+ICB_CURCHAR   ;is cursor past end character		 ;=W
 	       JA   LHJ300								 ;=W
 ;											 ;=W
 	       MOV  BX,[DI]+WR_CUBYTE	     ;set cursor character position		 ;=W
 LHJ300: 										 ;=W
-	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;get end of field position 		 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;get end of field position 		 ;=W
 	       SUB  AX,BX		     ;subtract to get the remaining space	 ;=W
 	       POP  BX									 ;=W
 	       CMP  AX,BX		     ;will byte fit ?				 ;=W
@@ -1211,7 +1211,7 @@ LHJ300: 										 ;=W
 ;											 ;=W
 ; Shift to insert single or double byte character, BX= # bytes to shift 		 ;=W
 ;											 ;=W
-LHJ310:        MOV  AX,ES:[SI]+ICB_FIELDLEN  ;set ending byte to make room in		 ;=W
+LHJ310:        MOV  AX,[ES:SI]+ICB_FIELDLEN  ;set ending byte to make room in		 ;=W
 	       MOV  [DI]+WR_RIGHTBYTE,AX     ; buffer by shifting characters		 ;=W
 ;											 ;=W
 	       MOV  AX,[DI]+WR_CUBYTE	     ;set markers for shift to remove		 ;=W
@@ -1233,7 +1233,7 @@ LHJ310:        MOV  AX,ES:[SI]+ICB_FIELDLEN  ;set ending byte to make room in		 
 ;											 ;=W
 	       MOV  ES,CX		     ;save offset of character to		 ;=W
 	       MOV  SI,DX		     ; replace single byte			 ;=W
-	       MOV  ES:[SI],AL		     ;insert single byte character		 ;=W
+	       MOV  [ES:SI],AL		     ;insert single byte character		 ;=W
 ;											 ;=W
 	       POP  SI			     ;restore registers 			 ;=W
 	       POP  ES									 ;=W
@@ -1247,7 +1247,7 @@ LHJ320:        PUSH ES									 ;=W
 ;											 ;=W
 	       MOV  ES,CX		     ;save offset of character to		 ;=W
 	       MOV  SI,DX		     ; replace					 ;=W
-	       MOV  ES:[SI],AX		     ;insert double byte character		 ;=W
+	       MOV  [ES:SI],AX		     ;insert double byte character		 ;=W
 ;											 ;=W
 	       POP  SI			     ;restore registers 			 ;=W
 	       POP  ES									 ;=W
@@ -1257,10 +1257,10 @@ LHJ320:        PUSH ES									 ;=W
 LHJ330: 										 ;=W
 	       CALL CAL_COORS		     ;get new end coordinates			 ;=W
 ;											 ;=W
-	       INC  ES:[SI]+ICB_CURCHAR      ;point to next char			 ;=W
+	       INC  [ES:SI]+ICB_CURCHAR      ;point to next char			 ;=W
 	       MOV  BX,[DI]+WR_HRCHAR	     ;get begin. of horiz. wondow		 ;=W
-	       ADD  BX,ES:[SI]+ICB_WIDTH     ;add width to get end of window		 ;=W
-	       CMP  BX,ES:[SI]+ICB_CURCHAR   ;is cursor past end of window ?		 ;=W
+	       ADD  BX,[ES:SI]+ICB_WIDTH     ;add width to get end of window		 ;=W
+	       CMP  BX,[ES:SI]+ICB_CURCHAR   ;is cursor past end of window ?		 ;=W
 	       JG   LHJ332		     ;no					 ;=W
 	       INC  [DI]+WR_HRCHAR	     ;yes, adjust the horiz. window		 ;=W
 	       MOV  AX,4		     ;display delimiters "< >"                   ;=W
@@ -1269,9 +1269,9 @@ LHJ332: 										 ;=W
 	       CALL CAL_COORS		     ;calculate cursor position
 	       CMP  [DI]+WR_FIELDEND,0	     ;check if cursor past end of field 	 ;=W
 	       JE   LHJ335		     ;no					 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LHJ333
-	       MOV  ES:[SI]+ICB_CURCHAR,1    ;wrap to first character position
+	       MOV  [ES:SI]+ICB_CURCHAR,1    ;wrap to first character position
 	       MOV  [DI]+WR_HRCHAR,1	     ;reset the horiz. window			 ;=W
 	       MOV  AX,3		     ;display delimiters "[ >"                   ;=W
 	       CALL DELIMITER		     ;display delimiter 			 ;=W
@@ -1280,7 +1280,7 @@ LHJ333:
 	       DEC  [DI]+WR_HRCHAR	     ;yes, adjust wind back one position	 ;=W
 	       MOV  AX,5		     ;display delimiters "< ]"                   ;=W
 	       CALL DELIMITER		     ;display delimiter 			 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXD ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXD ;is autoexit option set ?			 ;=W
 	       JE   LHJ335		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;set autoexit flag 			 ;=W
 LHJ335:
@@ -1296,7 +1296,7 @@ LHJ400:
 LHJEXIT:										 ;=W
 	       CALL word [DI]+WR_DISPLAY ;display current input buffer		 ;=W
 					     ; in left justified field			 ;=W
-	       TEST ES:[SI]+ICB_STATUS,ICB_CUR_ON ;is cursor on ?
+	       TEST [ES:SI]+ICB_STATUS,ICB_CUR_ON ;is cursor on ?
 	       JNE  LHJCUR			  ;cursor is already on, don't turn it on ;=W
 	       CALL CURSOR		     ;display cursor				 ;=W
 LHJCUR:
@@ -1428,7 +1428,7 @@ LEFT_JUST:
 	       MOV  [DI]+WR_LEFTCHAR,1	     ;set left character to beginning
 					     ; of field
 ;
-	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;set right marker past end of
+	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;set right marker past end of
 	       INC  AX			     ; field
 	       MOV  [DI]+WR_RIGHTCHAR,AX
 ;
@@ -1446,7 +1446,7 @@ LJ5:	       TEST [DI]+WR_KEYCONF,WR_HOM   ;check if home key pressed
 	       ; add ICB_WHM option to process window home key movement
 	       ;
 ;
-	       MOV  ES:[SI]+ICB_CURCHAR,1    ;initialize cursor to 1st byte
+	       MOV  [ES:SI]+ICB_CURCHAR,1    ;initialize cursor to 1st byte
 					     ; position, assuming no windowing
 					     ; wrap is occurring
 	       CALL CAL_COORS		     ;get cursor position			 ;=W
@@ -1466,18 +1466,18 @@ LJ10:	       TEST [DI]+WR_KEYCONF,WR_END   ;check if home key pressed
 ;
 	       MOV  AX,[DI]+WR_ENCHAR	     ;adjust one past end buffer charac
 	       INC  AX
-	       MOV  ES:[SI]+ICB_CURCHAR,AX   ;set current cursor position to
+	       MOV  [ES:SI]+ICB_CURCHAR,AX   ;set current cursor position to
 					     ; end of field
 	       CALL CAL_COORS		     ;get cursor position			 ;=W
 	       CMP  [DI]+WR_FIELDEND,0	     ;check if cursor past end of field 	 ;=W
 	       JE   LJ17		     ;no					 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LJ16
-	       MOV  ES:[SI]+ICB_CURCHAR,1    ;wrap to first character position
+	       MOV  [ES:SI]+ICB_CURCHAR,1    ;wrap to first character position
 	       CALL CAL_COORS		     ;get cursor position
 	       JMP  LJEXIT		     ;exit
 LJ16:
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
 	       JE   LJ17		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;yes, set autoexit flag			 ;=W
 LJ17:											 ;=W
@@ -1492,25 +1492,25 @@ LJ20:	       TEST [DI]+WR_KEYCONF,WR_LFT   ;check if left arrow key pressed
 	       ; add ICB_WAR option to wrap cursor on same row end to end
 	       ;
 ;
-	       CMP  ES:[SI]+ICB_CURCHAR,1    ;check if cursor is at first
+	       CMP  [ES:SI]+ICB_CURCHAR,1    ;check if cursor is at first
 	       JA   LJ30		     ; field position
 ;
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
 	       JE   LJ25		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;yes, set autoexit flag			 ;=W
 	       JMP  LJCUR								 ;=W
 LJ25:											 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LJ27
-	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;get last position
-	       MOV  ES:[SI]+ICB_CURCHAR,AX   ;put as current position
+	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;get last position
+	       MOV  [ES:SI]+ICB_CURCHAR,AX   ;put as current position
 	       CALL CAL_COORS
 	       JMP  LJEXIT
 LJ27:
 	       CALL PCMBEEP_CALL	     ;error beep
 	       JMP  LJEXIT		     ;exit
 ;
-LJ30:	       DEC  ES:[SI]+ICB_CURCHAR      ;adjust cursor to one position
+LJ30:	       DEC  [ES:SI]+ICB_CURCHAR      ;adjust cursor to one position
 					     ; towards the left
 	       CALL CAL_COORS		     ;get cursor position			 ;=W
 	       JMP  LJEXIT		     ;exit
@@ -1539,18 +1539,18 @@ LJ40:	       TEST [DI]+WR_KEYCONF,WR_RGT   ;check if left arrow key pressed
 	       CALL PCMBEEP_CALL	     ;error beep
 	       JMP  LJEXIT		     ;exit
 ;
-LJ50:	       INC  ES:[SI]+ICB_CURCHAR      ;adjust cursor to one position
+LJ50:	       INC  [ES:SI]+ICB_CURCHAR      ;adjust cursor to one position
 					     ; towards the left
 	       CALL CAL_COORS		     ;get cursor position			 ;=W
 	       CMP  [DI]+WR_FIELDEND,0	     ;check if cursor past end of field 	 ;=W
 	       JE   LJ55		     ;no					 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LJ52
-	       MOV  ES:[SI]+ICB_CURCHAR,1    ;wrap to first character position
+	       MOV  [ES:SI]+ICB_CURCHAR,1    ;wrap to first character position
 	       CALL CAL_COORS		     ;get cursor position
 	       JMP  LJEXIT		     ;exit
 LJ52:
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
 	       JE   LJ55		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;set autoexit flag 			 ;=W
 LJ55:											 ;=W
@@ -1590,7 +1590,7 @@ LJ80:	       TEST [DI]+WR_KEYCONF,WR_CED   ;check if control+end key pressed
 ;
 LJ90:	       CALL CAL_COORS		     ;get current end of field info		 ;=W
 ;
-	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;set rightmost area to refresh on
+	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;set rightmost area to refresh on
 	       MOV  [DI]+WR_RIGHTDISP,AX     ; display to entire field
 ;
 	       MOV  BX,[DI]+WR_CUBYTE	     ;delete from current byte position
@@ -1624,25 +1624,25 @@ LJ110:	       CALL PCMBEEP_CALL	     ;error beep
 LJ130:	       TEST [DI]+WR_KEYCONF,WR_BCK   ;check if backspace key pressed
 	       JE   LJ160
 ;
-	       CMP  ES:[SI]+ICB_CURCHAR,1    ;check if cursor is at first
+	       CMP  [ES:SI]+ICB_CURCHAR,1    ;check if cursor is at first
 	       JA   LJ140		     ; field position
 ;
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXC ;is autoexit option set ?			 ;=W
 	       JE   LJ135		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;yes, set autoexit flag			 ;=W
 	       JMP  LJCUR								 ;=W
 LJ135:											 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LJ137
-	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;get last position
-	       MOV  ES:[SI]+ICB_CURCHAR,AX   ;put as current position
+	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;get last position
+	       MOV  [ES:SI]+ICB_CURCHAR,AX   ;put as current position
 	       CALL CAL_COORS
 	       JMP  LJEXIT
 LJ137:
 	       CALL PCMBEEP_CALL	     ;error beep
 	       JMP  LJEXIT		     ;exit
 ;
-LJ140:	       DEC  ES:[SI]+ICB_CURCHAR      ;adjust cursor to one position
+LJ140:	       DEC  [ES:SI]+ICB_CURCHAR      ;adjust cursor to one position
 					     ; towards the left
 	       CALL CAL_COORS		     ;get cursor position			 ;=W
 	       CALL REMOVE_CHAR 	     ;remove character at current offst
@@ -1656,19 +1656,19 @@ LJ140:	       DEC  ES:[SI]+ICB_CURCHAR      ;adjust cursor to one position
 LJ160:	       TEST [DI]+WR_KEYCONF,WR_INS   ;check if insert key pressed
 	       JE   LJ180		     ; if not, continue
 ;
-	       TEST ES:[SI]+ICB_STATUS,ICB_SINS  ;check if in insert mode ?
+	       TEST [ES:SI]+ICB_STATUS,ICB_SINS  ;check if in insert mode ?
 	       JE   LJ165		     ;no, put in insert mode
 ;
 	       MOV  BX,[DI]+IN_CURNOR	     ;set cursor size for normal
 	       MOV  [DI]+WR_CURSIZE,BX	     ; cursor
 ;
-	       AND  ES:[SI]+ICB_STATUS,NOT ICB_SINS
+	       AND  [ES:SI]+ICB_STATUS,NOT ICB_SINS
 	       JMP  LJ170		     ;turn insert mode off
 ;
 LJ165:	       MOV  BX,[DI]+IN_CURINS	     ;set cursor size for insert
 	       MOV  [DI]+WR_CURSIZE,BX	     ; cursor
 ;
-	       OR   ES:[SI]+ICB_STATUS,ICB_SINS
+	       OR   [ES:SI]+ICB_STATUS,ICB_SINS
 					     ;turn insert mode on
 ;
 LJ170:
@@ -1683,7 +1683,7 @@ LJ170:
 ;
 	       AND  AX,NOT WR_INSSTATE	     ;set BIOS insert active flag off
 ;
-	       TEST ES:[SI]+ICB_STATUS,ICB_SINS
+	       TEST [ES:SI]+ICB_STATUS,ICB_SINS
 	       JE   LJ175		     ;check if insert should be set on
 ;
 	       OR   AX,WR_INSSTATE	     ;set BIOS insert active flag on
@@ -1719,7 +1719,7 @@ LJ190:	       TEST [DI]+WR_KEYCONF,WR_ALL   ;check if allow key pressed
 	       CALL PCMBEEP_CALL	     ;error beep key not defined
 	       JMP  LJEXIT		     ;exit
 ;
-LJ195:	       TEST ES:[SI]+ICB_STATUS,ICB_SINS
+LJ195:	       TEST [ES:SI]+ICB_STATUS,ICB_SINS
 	       JE   LJ198		     ;check if insert is active
 ;
 	       JMP  LJ270		     ;do insert display
@@ -1737,8 +1737,8 @@ LJ198:
 LJ200:	       PUSH ES			     ;save registers
 	       PUSH SI
 ;
-	       PUSH ES:[SI]+ICB_FIELDSEG     ;get segment of input buffer
-	       PUSH ES:[SI]+ICB_FIELDOFF     ;get offset of input buffer
+	       PUSH [ES:SI]+ICB_FIELDSEG     ;get segment of input buffer
+	       PUSH [ES:SI]+ICB_FIELDOFF     ;get offset of input buffer
 	       POP  SI
 	       POP  ES
 ;
@@ -1748,7 +1748,7 @@ LJ200:	       PUSH ES			     ;save registers
 	       MOV  CX,ES		     ;save offset of character to
 	       MOV  DX,SI		     ; replace
 ;
-	       MOV  AL,ES:[SI]		     ;get byte that cursor is pointing
+	       MOV  AL,[ES:SI]		     ;get byte that cursor is pointing
 	       MOV  [DI]+DBC_KS,AL	     ; to check if DBCS
 	       CALL PCINDBC_CALL	     ;call routine to check if char
 					     ; is lead double byte char
@@ -1772,7 +1772,7 @@ LJ200:	       PUSH ES			     ;save registers
 ;
 	       MOV  ES,CX		     ;save offset of character to
 	       MOV  SI,DX		     ; replace
-	       MOV  ES:[SI],AX		     ;replace double byte
+	       MOV  [ES:SI],AX		     ;replace double byte
 ;
 	       POP  SI			     ;restore registers
 	       POP  ES
@@ -1789,12 +1789,12 @@ LJ210:	       MOV  AX,[DI]+INC_KS	     ;get keystroke and replace double
 ;
 	       MOV  ES,CX		     ;save offset of character to
 	       MOV  SI,DX		     ; replace single byte
-	       MOV  ES:[SI],AL
+	       MOV  [ES:SI],AL
 ;
 	       POP  SI			     ;restore registers
 	       POP  ES
 ;
-	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;set ending byte
+	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;set ending byte
 	       MOV  [DI]+WR_RIGHTBYTE,AX
 ;
 	       MOV  AX,[DI]+WR_CUBYTE	     ;set markers for shift to remove
@@ -1818,7 +1818,7 @@ LJ220:	       TEST [DI]+WR_KEYCONF2,WR_DBC  ;check if double byte character
 ;
 	       MOV  ES,CX		     ;save offset of character to
 	       MOV  SI,DX		     ; replace single byte
-	       MOV  ES:[SI],AL
+	       MOV  [ES:SI],AL
 ;
 	       POP  SI			     ;restore registers
 	       POP  ES
@@ -1827,16 +1827,16 @@ LJ220:	       TEST [DI]+WR_KEYCONF2,WR_DBC  ;check if double byte character
 ;
 ; Replace single byte character with double byte character
 ;
-LJ230:	       MOV  BX,ES:[SI]+ICB_CURCHAR   ;set cursor character position
+LJ230:	       MOV  BX,[ES:SI]+ICB_CURCHAR   ;set cursor character position
 	       MOV  [DI]+WR_LEFTCHAR,BX      ; to left marker
 ;
 	       CALL CAL_COORS		     ;get the current end of field		 ;=W
 					     ; coordinates
 	       MOV  AX,[DI]+WR_ENCHAR	     ;get end character of field
-	       CMP  AX,ES:[SI]+ICB_CURCHAR   ;is cursor past end character
+	       CMP  AX,[ES:SI]+ICB_CURCHAR   ;is cursor past end character
 	       JA   LJ240
 ;
-	       MOV  AX,ES:[SI]+ICB_CURCHAR   ;cursor is past last char
+	       MOV  AX,[ES:SI]+ICB_CURCHAR   ;cursor is past last char
 ;
 LJ240:	       MOV  [DI]+WR_RIGHTCHAR,AX     ;set right marker
 ;
@@ -1851,7 +1851,7 @@ LJ240:	       MOV  [DI]+WR_RIGHTCHAR,AX     ;set right marker
 	       CALL PCMBEEP_CALL	     ;error beep because replace char
 	       JMP  LJEXIT		     ; will not fit and exit
 ;
-LJ250:	       MOV  BX,ES:[SI]+ICB_FIELDLEN  ;set ending byte
+LJ250:	       MOV  BX,[ES:SI]+ICB_FIELDLEN  ;set ending byte
 	       MOV  [DI]+WR_RIGHTBYTE,BX
 ;
 	       MOV  BX,[DI]+WR_CUBYTE	     ;set markers for shift to remove
@@ -1869,7 +1869,7 @@ LJ250:	       MOV  BX,ES:[SI]+ICB_FIELDLEN  ;set ending byte
 ;
 	       MOV  ES,CX		     ;save offset of character to
 	       MOV  SI,DX		     ; replace double byte
-	       MOV  ES:[SI],AX
+	       MOV  [ES:SI],AX
 ;
 	       POP  SI			     ;restore registers
 	       POP  ES
@@ -1886,17 +1886,17 @@ LJ260:
 LJ261:					     ;set rightmost area to refresh on		 ;=W
 	       MOV  [DI]+WR_RIGHTDISP,BX     ; display to new ending character
 
-	       INC  ES:[SI]+ICB_CURCHAR      ;point to next char
+	       INC  [ES:SI]+ICB_CURCHAR      ;point to next char
 
 	       CALL CAL_COORS		     ;get cursor position			 ;=W
 	       CMP  [DI]+WR_FIELDEND,0	     ;check if cursor past end of field 	 ;=W
 	       JE   LJ265		     ;no					 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LJ262
-	       MOV  ES:[SI]+ICB_CURCHAR,1    ;wrap to first character position
+	       MOV  [ES:SI]+ICB_CURCHAR,1    ;wrap to first character position
 	       JMP  LJ340		     ;display field, set cursor, exit
 LJ262:
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXD ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXD ;is autoexit option set ?			 ;=W
 	       JE   LJ265		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;set autoexit flag 			 ;=W
 LJ265:											 ;=W
@@ -1915,8 +1915,8 @@ LJ270:
 ; Check if enough room available to insert single or double byte character
 ;
 LJ280:
-	       MOV  CX,ES:[SI]+ICB_FIELDSEG  ;get segment of input buffer
-	       MOV  DX,ES:[SI]+ICB_FIELDOFF  ;get offset of input buffer
+	       MOV  CX,[ES:SI]+ICB_FIELDSEG  ;get segment of input buffer
+	       MOV  DX,[ES:SI]+ICB_FIELDOFF  ;get offset of input buffer
 ;
 	       ADD  DX,[DI]+WR_CUBYTE	     ;add cursor offset into buffer
 	       DEC  DX			     ;make zero based
@@ -1928,17 +1928,17 @@ LJ280:
 ;
 	       MOV  BX,2		     ;reset to double byte character
 ;
-LJ290:	       MOV  AX,ES:[SI]+ICB_CURCHAR   ;set cursor character position
+LJ290:	       MOV  AX,[ES:SI]+ICB_CURCHAR   ;set cursor character position
 	       MOV  [DI]+WR_LEFTCHAR,AX      ; to left marker
 ;
 	       CALL CAL_COORS		     ;get the current end of field		 ;=W
 					     ; coordinates
 	       MOV  AX,[DI]+WR_ENCHAR	     ;get end character of field
 ;
-	       CMP  AX,ES:[SI]+ICB_CURCHAR   ;is cursor past end character
+	       CMP  AX,[ES:SI]+ICB_CURCHAR   ;is cursor past end character
 	       JA   LJ300
 ;
-	       MOV  AX,ES:[SI]+ICB_CURCHAR   ;cursor is past last char
+	       MOV  AX,[ES:SI]+ICB_CURCHAR   ;cursor is past last char
 	       DEC  AX
 ;
 LJ300:	       MOV  [DI]+WR_RIGHTCHAR,AX     ;set right marker
@@ -1955,7 +1955,7 @@ LJ300:	       MOV  [DI]+WR_RIGHTCHAR,AX     ;set right marker
 ;
 ; Shift to insert single or double byte character, BX= # bytes to shift
 ;
-LJ310:	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;set ending byte to make room in
+LJ310:	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;set ending byte to make room in
 	       MOV  [DI]+WR_RIGHTBYTE,AX     ; buffer by shifting characters
 ;
 	       MOV  AX,[DI]+WR_CUBYTE	     ;set markers for shift to remove
@@ -1977,7 +1977,7 @@ LJ310:	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;set ending byte to make room in
 ;
 	       MOV  ES,CX		     ;save offset of character to
 	       MOV  SI,DX		     ; replace single byte
-	       MOV  ES:[SI],AL		     ;insert single byte character
+	       MOV  [ES:SI],AL		     ;insert single byte character
 ;
 	       POP  SI			     ;restore registers
 	       POP  ES
@@ -1991,7 +1991,7 @@ LJ320:	       PUSH ES
 ;
 	       MOV  ES,CX		     ;save offset of character to
 	       MOV  SI,DX		     ; replace
-	       MOV  ES:[SI],AX		     ;insert double byte character
+	       MOV  [ES:SI],AX		     ;insert double byte character
 ;
 	       POP  SI			     ;restore registers
 	       POP  ES
@@ -2004,24 +2004,24 @@ LJ330:
 	       MOV  AX,[DI]+WR_ENCHAR	     ;set rightmost area to refresh on
 	       MOV  [DI]+WR_RIGHTDISP,AX     ; display to old ending character
 ;
-	       INC  ES:[SI]+ICB_CURCHAR      ;point to next char
+	       INC  [ES:SI]+ICB_CURCHAR      ;point to next char
 ;
 	       CALL CAL_COORS		     ;get cursor position			 ;=W
 	       CMP  [DI]+WR_FIELDEND,0	     ;check if cursor past end of field 	 ;=W
 	       JE   LJ340		     ;no					 ;=W
-	       TEST ES:[SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_CSW ;is cursor wrap option on ?		 ;=W
 	       JE   LJ335
-	       MOV  ES:[SI]+ICB_CURCHAR,1    ;wrap to first character position
+	       MOV  [ES:SI]+ICB_CURCHAR,1    ;wrap to first character position
 	       JMP  LJ340		     ;display field, set cursor, exit
 LJ335:
-	       TEST ES:[SI]+ICB_OPT2,ICB_AXD ;is autoexit option set ?			 ;=W
+	       TEST [ES:SI]+ICB_OPT2,ICB_AXD ;is autoexit option set ?			 ;=W
 	       JE   LJ340		     ;no					 ;=W
 	       OR   [DI]+WR_KEYCONF2,WR_RET  ;set autoexit flag 			 ;=W
 ;
 ; Display field
 ;
 LJ340:
-	       MOV  AX,ES:[SI]+ICB_CURCHAR   ;set left character to cursor
+	       MOV  AX,[ES:SI]+ICB_CURCHAR   ;set left character to cursor
 	       DEC  AX			     ; last cursor position
 	       MOV  [DI]+WR_LEFTCHAR,AX
 ;
@@ -2038,7 +2038,7 @@ LJ340:
 ; Exit
 ;
 LJEXIT: 					  ;continue
-	       TEST ES:[SI]+ICB_STATUS,ICB_CUR_ON ;is cursor on ?
+	       TEST [ES:SI]+ICB_STATUS,ICB_CUR_ON ;is cursor on ?
 	       JNE  LJCUR			  ;cursor is already on, don't turn it on ;=W
 	       CALL CURSOR			  ;display cursor			      ;=W
 LJCUR:
@@ -2199,13 +2199,13 @@ CAL_COORS:
 ;
 	       MOV  [DI]+WR_FIELDEND,0	     ;initialize boolean flag that		 ;=W
 					     ;cursor is not past end of field		 ;=W
-	       MOV  AX,ES:[SI]+ICB_CURCHAR   ;get current char. offset			 ;=W
+	       MOV  AX,[ES:SI]+ICB_CURCHAR   ;get current char. offset			 ;=W
 	       MOV  [DI]+WR_CUCHAR,AX	     ;save it					 ;=W
 ;
-	       MOV  AX,ES:[SI]+ICB_ROW	     ;initialize row offset of field		 ;=W
+	       MOV  AX,[ES:SI]+ICB_ROW	     ;initialize row offset of field		 ;=W
 	       DEC  AX									 ;=W
 	       MOV  [DI]+WR_CURROW,AX	     ;char row offset inot video buf		 ;=W
-	       MOV  AX,ES:[SI]+ICB_COL	     ;initialize col offset of field		 ;=W
+	       MOV  AX,[ES:SI]+ICB_COL	     ;initialize col offset of field		 ;=W
 	       DEC  AX									 ;=W
 	       MOV  [DI]+WR_CURCOL,AX	     ;char col offset into video buf		 ;=W
 ;
@@ -2225,12 +2225,12 @@ CAL_COORS:
 ;
 ; Determine display format of field
 ;
-	       TEST ES:[SI]+ICB_OPT3,ICB_WIN ;check if windowing option on
+	       TEST [ES:SI]+ICB_OPT3,ICB_WIN ;check if windowing option on
 	       JE   CC10
 ;
 	       JMP  CC200		     ;process window option
 ;
-CC10:	       TEST ES:[SI]+ICB_OPT3,ICB_HOR ;check if horizontal scroll option
+CC10:	       TEST [ES:SI]+ICB_OPT3,ICB_HOR ;check if horizontal scroll option
 	       JE   CC20		     ; on
 ;
 	       JMP  CC100		     ;process horizontal scroll
@@ -2242,7 +2242,7 @@ CC20:											 ;=W
 ;
 ; Examine the next byte in the input buffer
 ;
-CC30:	       CMP  CX,ES:[SI]+ICB_FIELDLEN  ;check if entire field has been
+CC30:	       CMP  CX,[ES:SI]+ICB_FIELDLEN  ;check if entire field has been
 	       JBE  CC35		     ; scanned and exit
 ;
 	       CMP  BP,0		     ;found current char yet ?			 ;=W
@@ -2252,15 +2252,15 @@ CC30:	       CMP  CX,ES:[SI]+ICB_FIELDLEN  ;check if entire field has been
 CC35:	       PUSH ES			     ;save registers
 	       PUSH SI
 ;
-	       PUSH ES:[SI]+ICB_FIELDSEG     ;get segment of input buffer
-	       PUSH ES:[SI]+ICB_FIELDOFF     ;get offset of input buffer
+	       PUSH [ES:SI]+ICB_FIELDSEG     ;get segment of input buffer
+	       PUSH [ES:SI]+ICB_FIELDOFF     ;get offset of input buffer
 	       POP  SI
 	       POP  ES
 ;
 	       DEC  CX			     ;make byte count zero based
 	       ADD  SI,CX		     ;add byte count to input fld offst
 	       INC  CX			     ;make byte count one based
-	       MOV  AL,ES:[SI]		     ;get byte in input buffer to
+	       MOV  AL,[ES:SI]		     ;get byte in input buffer to
 	       MOV  [DI]+DBC_KS,AL	     ; check if DBCS
 	       CALL PCINDBC_CALL	     ;call routine to check if char
 					     ; is lead double byte char
@@ -2318,7 +2318,7 @@ CC100:
 ;
 ; Examine the next byte in the input buffer
 ;
-CC120:	       CMP  CX,ES:[SI]+ICB_FIELDLEN  ;check if entire field has been
+CC120:	       CMP  CX,[ES:SI]+ICB_FIELDLEN  ;check if entire field has been
 	       JBE  CC122		     ; scanned and exit 			 ;=W
 ;
 	       CMP  BP,0		     ;found current char yet ?			 ;=W
@@ -2329,15 +2329,15 @@ CC122:											 ;=W
 	       PUSH ES			     ;save registers
 	       PUSH SI
 ;
-	       PUSH ES:[SI]+ICB_FIELDSEG     ;get segment of input buffer
-	       PUSH ES:[SI]+ICB_FIELDOFF     ;get offset of input buffer
+	       PUSH [ES:SI]+ICB_FIELDSEG     ;get segment of input buffer
+	       PUSH [ES:SI]+ICB_FIELDOFF     ;get offset of input buffer
 	       POP  SI
 	       POP  ES
 ;
 	       DEC  CX			     ;make byte count zero based
 	       ADD  SI,CX		     ;add byte count to input fld offst
 	       INC  CX			     ;make byte count one based
-	       MOV  AL,ES:[SI]		     ;get byte in input buffer to
+	       MOV  AL,[ES:SI]		     ;get byte in input buffer to
 	       MOV  [DI]+DBC_KS,AL	     ; check if DBCS
 	       CALL PCINDBC_CALL	     ;call routine to check if char
 					     ; is lead double byte char
@@ -2399,7 +2399,7 @@ CC200:											 ;=W
 ;
 ; Examine the next byte in the input buffer						 ;=W
 ;
-	       CMP  CX,ES:[SI]+ICB_FIELDLEN  ;check if entire field has been		 ;=W
+	       CMP  CX,[ES:SI]+ICB_FIELDLEN  ;check if entire field has been		 ;=W
 	       JBE  CC235		     ; scanned and exit 			 ;=W
 ;
 	       CMP  BP,0		     ;found current char yet ?			 ;=W
@@ -2410,15 +2410,15 @@ CC200:											 ;=W
 CC235:	       PUSH ES			     ;save registers				 ;=W
 	       PUSH SI									 ;=W
 ;
-	       PUSH ES:[SI]+ICB_FIELDSEG     ;get segment of input buffer		 ;=W
-	       PUSH ES:[SI]+ICB_FIELDOFF     ;get offset of input buffer		 ;=W
+	       PUSH [ES:SI]+ICB_FIELDSEG     ;get segment of input buffer		 ;=W
+	       PUSH [ES:SI]+ICB_FIELDOFF     ;get offset of input buffer		 ;=W
 	       POP  SI									 ;=W
 	       POP  ES									 ;=W
 ;
 	       DEC  CX			     ;make byte count zero based		 ;=W
 	       ADD  SI,CX		     ;add byte count to input fld offst 	 ;=W
 	       INC  CX			     ;make byte count one based 		 ;=W
-	       MOV  AL,ES:[SI]		     ;get byte in input buffer to		 ;=W
+	       MOV  AL,[ES:SI]		     ;get byte in input buffer to		 ;=W
 	       MOV  [DI]+DBC_KS,AL	     ; check if DBCS				 ;=W
 	       CALL PCINDBC_CALL	     ;call routine to check if char		 ;=W
 					     ; is lead double byte char 		 ;=W
@@ -2448,19 +2448,19 @@ CC240:
 	       MOV  AX,CX		     ;get current cursor pos. in field		 ;=W
 	       DEC  AX			     ;make it zero based for divide		 ;=W
 ;
-	       CMP  CX,ES:[SI]+ICB_FIELDLEN  ;are we past end of field ?		 ;=W
+	       CMP  CX,[ES:SI]+ICB_FIELDLEN  ;are we past end of field ?		 ;=W
 	       JLE  CC241		     ;no					 ;=W
 	       MOV  [DI]+WR_FIELDEND,1	     ;yes, set boolean flag			 ;=W
 	       DEC  AX			     ;make cursor pos. be inside field		 ;=W
 					     ; for division				 ;=W
 	       CWD			     ;calculate current row,column		 ;=W
-	       IDIV ES:[SI]+ICB_WIDTH	     ; row = cur_byte / width-1 		 ;=W
+	       IDIV [ES:SI]+ICB_WIDTH	     ; row = cur_byte / width-1 		 ;=W
 					     ; col = cur_byte mod width-1		 ;=W
 	       INC  DX			     ;reposition cursor in correct pos. 	 ;=W
 	       JMP  CC244								 ;=W
 CC241:											 ;=W
 	       CWD			     ;calculate current row,column for		 ;=W
-	       IDIV ES:[SI]+ICB_WIDTH	     ; cursor positions inside the field	 ;=W
+	       IDIV [ES:SI]+ICB_WIDTH	     ; cursor positions inside the field	 ;=W
 					     ; row = cur_byte / width of field		 ;=W
 					     ; col = cur_byte mod width of field	 ;=W
 CC244:											 ;=W
@@ -2471,7 +2471,7 @@ CC244:											 ;=W
 CC245:	       DEC  BX			     ;get the correct cur_byte			 ;=W
 	       MOV  AX,BX		     ;cur_byte/width				 ;=W
 	       CWD									 ;=W
-	       IDIV ES:[SI]+ICB_WIDTH							 ;=W
+	       IDIV [ES:SI]+ICB_WIDTH							 ;=W
 	       CMP  DX,0		     ;is the remainder zero ?			 ;=W
 	       JNE  CC245		     ;no, not at beginning of row, do again	 ;=W
 ;
@@ -2495,16 +2495,16 @@ CC260:
 ;
 CCEXIT: 										 ;=W
 	       MOV  AX,[DI]+WR_CUBYTE	     ;is cursor past end of field		 ;=W
-	       CMP  AX,ES:[SI]+ICB_FIELDLEN  ;??					 ;=W
+	       CMP  AX,[ES:SI]+ICB_FIELDLEN  ;??					 ;=W
 	       JLE  CCBYE		     ;no					 ;=W
 ;
 	       MOV  [DI]+WR_FIELDEND,1	     ;yes, set boolean flag			 ;=W
 CCBYE:
 	       MOV  AX,[DI]+WR_ENBYTE	     ;set ICB_ENDBYTE				 ;=W
-	       MOV  ES:[SI]+ICB_ENDBYTE,AX						 ;=W
+	       MOV  [ES:SI]+ICB_ENDBYTE,AX						 ;=W
 ;
 	       MOV  AX,[DI]+WR_HRBYTE	     ;set ICB_HRSTART				 ;=W
-	       MOV  ES:[SI]+ICB_HRSTART,AX						 ;=W
+	       MOV  [ES:SI]+ICB_HRSTART,AX						 ;=W
 ;
 	       POP  BP
 	       POP  SI			     ;restore registers
@@ -2570,12 +2570,12 @@ SET_DISP_ADDR:;=W
 	       PUSH AX									 ;=W
 	       PUSH BX									 ;=W
 ;
-	       TEST ES:[SI]+ICB_OPT1,ICB_RJU ;check if field right just 		 ;=W
+	       TEST [ES:SI]+ICB_OPT1,ICB_RJU ;check if field right just 		 ;=W
 	       JNE  SD20		     ;if yes, jump				 ;=W
 ;
 ; Display value of input buffer left justified						 ;=W
 ;
-	       TEST ES:[SI]+ICB_OPT3,ICB_HOR ;check if field is in horizontial		 ;=W
+	       TEST [ES:SI]+ICB_OPT3,ICB_HOR ;check if field is in horizontial		 ;=W
 	       JE   SD10		     ;no,  windowing mode			 ;=W
 ;
 	       MOV  AX,LEFT_H_DISP						 ;=W
@@ -2586,7 +2586,7 @@ SD10:											 ;=W
 	       MOV  AX,LEFT_DISP 						 ;=W
 	       MOV  BX,LEFT_JUST 						 ;=W
 ;
-	       TEST DS:[DI]+IN_OPT,IN_ADBCS  ;check if double byte is active		 ;=W
+	       TEST [DS:DI]+IN_OPT,IN_ADBCS  ;check if double byte is active		 ;=W
 	       JNE  SDEXIT		     ;yes					 ;=W
 	       MOV  AX,LEFTS_DISP     ;no, single byte only			 ;=W
 	       JMP  SDEXIT								 ;=W
@@ -2594,7 +2594,7 @@ SD10:											 ;=W
 ; Display default value of input buffer right justified 				 ;=W
 ;
 SD20:											 ;=W
-	       TEST ES:[SI]+ICB_OPT3,ICB_HOR ;check if field is in horizontial		 ;=W
+	       TEST [ES:SI]+ICB_OPT3,ICB_HOR ;check if field is in horizontial		 ;=W
 	       JE   SD30		     ;no,  windowing mode			 ;=W
 ;
 	       MOV  AX,RIGHT_H_DISP						 ;=W
@@ -2605,13 +2605,13 @@ SD30:											 ;=W
 	       MOV  AX,RIGHT_DISP						 ;=W
 	       MOV  BX,RIGHT_DISP						 ;=W
 ;
-	       TEST DS:[DI]+IN_OPT,IN_ADBCS  ;check if double byte is active		 ;=W
+	       TEST [DS:DI]+IN_OPT,IN_ADBCS  ;check if double byte is active		 ;=W
 	       JNE  SDEXIT		     ;yes					 ;=W
 	       MOV  AX,RIGHTS_DISP    ;no, single byte only			 ;=W
 ;
 SDEXIT: 										 ;=W
-	       MOV  DS:[DI]+WR_DISPLAY,AX    ;save addr of routine to call		 ;=W
-	       MOV  DS:[DI]+WR_JUSTIFY,BX    ;save addr of routine to call		 ;=W
+	       MOV  [DS:DI]+WR_DISPLAY,AX    ;save addr of routine to call		 ;=W
+	       MOV  [DS:DI]+WR_JUSTIFY,BX    ;save addr of routine to call		 ;=W
 ;
 	       POP  BX									 ;=W
 	       POP  AX									 ;=W
@@ -2750,16 +2750,16 @@ LEFT_H_DISP:;=W
 ;											 ;=W
 ; Initialize MOVEG parm block								 ;=W
 ;
-	       MOV  AX,ES:[SI]+ICB_FIELDOFF  ;get offset of the input buffer		 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDOFF  ;get offset of the input buffer		 ;=W
 	       MOV  [DI]+WR_FIELDOFF,AX 						 ;=W
 											 ;=W
-	       MOV  AX,ES:[SI]+ICB_FIELDSEG  ;get segment of the input buffer		 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDSEG  ;get segment of the input buffer		 ;=W
 	       MOV  [DI]+MG_TEXTSEG,AX							 ;=W
 											 ;=W
-	       MOV  AX,ES:[SI]+ICB_ATTROFF   ;get offset of color attribute buffer	 ;=W
+	       MOV  AX,[ES:SI]+ICB_ATTROFF   ;get offset of color attribute buffer	 ;=W
 	       MOV  [DI]+MG_ATTOFF,AX							 ;=W
 											 ;=W
-	       MOV  AX,ES:[SI]+ICB_ATTRSEG   ;get segment of color attribute		 ;=W
+	       MOV  AX,[ES:SI]+ICB_ATTRSEG   ;get segment of color attribute		 ;=W
 	       MOV  [DI]+MG_ATTSEG,AX	     ;buffer					 ;=W
 											 ;=W
 	       MOV  AX,[DI]+IN_LVBSEG	     ;get segment of the LVB			 ;=W
@@ -2771,7 +2771,7 @@ LEFT_H_DISP:;=W
 ; Display all characters in input buffer starting with WR_HRCHAR			 ;=W
 ; and continuing until ICB_WIDTH-1 number of characters has been displayed.		 ;=W
 ;
-	       MOV  AX,ES:[SI]+ICB_FIELDOFF  ;calcuate beginning character		 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDOFF  ;calcuate beginning character		 ;=W
 	       ADD  AX,[DI]+WR_HRBYTE	     ;to display				 ;=W
 	       DEC  AX									 ;=W
 	       MOV  [DI]+WR_FIELDOFF,AX      ;save it					 ;=W
@@ -2780,12 +2780,12 @@ LEFT_H_DISP:;=W
 	       MOV  [DI]+MG_OPT,MG_WA+MG_SC+MG_UA					 ;=W
 					     ;set write attribute option		 ;=W
 					     ;set use logical attribute option		 ;=W
-	       TEST ES:[SI]+ICB_OPT1,ICB_PSW ;check if password option active		 ;=W
+	       TEST [ES:SI]+ICB_OPT1,ICB_PSW ;check if password option active		 ;=W
 	       JNE  LHD10								 ;=W
 ;
 	       OR   [DI]+MG_OPT,MG_WC	     ;set write character option		 ;=W
 LHD10:											 ;=W
-	       MOV  AX,ES:[SI]+ICB_WIDTH     ;get field width				 ;=W
+	       MOV  AX,[ES:SI]+ICB_WIDTH     ;get field width				 ;=W
 	       MOV  [DI]+MG_NUM,AX	     ;number of words to move into the		 ;=W
 					     ; LVB					 ;=W
 ;
@@ -2800,14 +2800,14 @@ LHD10:											 ;=W
 	       PUSH ES									 ;=W
 	       PUSH SI									 ;=W
 ;
-	       MOV  AX,ES:[SI]+ICB_FIELDSEG ;get input buffer segment			 ;=W
-	       MOV  BX,ES:[SI]+ICB_FIELDOFF ;get input buffer offset			 ;=W
+	       MOV  AX,[ES:SI]+ICB_FIELDSEG ;get input buffer segment			 ;=W
+	       MOV  BX,[ES:SI]+ICB_FIELDOFF ;get input buffer offset			 ;=W
 	       ADD  BX,[DI]+WR_HRBYTE	    ;add offset of beginning of window		 ;=W
-	       ADD  BX,ES:[SI]+ICB_WIDTH    ;add width to get last character		 ;=W
+	       ADD  BX,[ES:SI]+ICB_WIDTH    ;add width to get last character		 ;=W
 	       SUB  BX,2		    ;subtract to get correct byte		 ;=W
 	       MOV  ES,AX								 ;=W
 	       MOV  SI,BX								 ;=W
-	       MOV  AL,ES:[SI]		    ;get the character				 ;=W
+	       MOV  AL,[ES:SI]		    ;get the character				 ;=W
 ;
 	       POP  SI									 ;=W
 	       POP  ES									 ;=W
@@ -2827,7 +2827,7 @@ LHD30:											 ;=W
 	       MOV  [DI]+MG_OPT,MG_WA+MG_SC+MG_UA					 ;=W
 					     ;set write attribute option		 ;=W
 					     ;set use logical attribute option		 ;=W
-	       TEST ES:[SI]+ICB_OPT1,ICB_PSW ;check if password option active		 ;=W
+	       TEST [ES:SI]+ICB_OPT1,ICB_PSW ;check if password option active		 ;=W
 	       JNE  LHD40								 ;=W
 ;
 	       OR   [DI]+MG_OPT,MG_WC+MG_UC  ;set write character option		 ;=W
@@ -2836,7 +2836,7 @@ LHD40:											 ;=W
 	       MOV  [DI]+MG_NUM,1	     ;number of words to move into the		 ;=W
 					     ; LVB					 ;=W
 ;
-	       MOV  AX,ES:[SI]+ICB_WIDTH     ;add width to get last character		 ;=W
+	       MOV  AX,[ES:SI]+ICB_WIDTH     ;add width to get last character		 ;=W
 	       MOV  BX,2								 ;=W
 	       MUL  BX			     ;x2 to account for attr. bytes		 ;=W
 	       ADD  AX,[DI]+IN_LVBOFF	     ;set the actual LVB offset of		 ;=W
@@ -2967,15 +2967,15 @@ LEFT_DISP:
 ;
 LF10:	       MOV  AX,[DI]+CR_RCOFF	     ;set ptr into LVB to next row.
 	       ADD  AX,[DI]+CR_SCRWIDTH      ; Start with current position in
-	       SUB  AX,ES:[SI]+ICB_WIDTH     ; LVB, add screen width in text
-	       SUB  AX,ES:[SI]+ICB_WIDTH     ; and attributes, then subtract
+	       SUB  AX,[ES:SI]+ICB_WIDTH     ; LVB, add screen width in text
+	       SUB  AX,[ES:SI]+ICB_WIDTH     ; and attributes, then subtract
 	       MOV  [DI]+CR_RCOFF,AX	     ; the length of the input field
 					     ; twice since length is just in
 					     ; text chars
 ;
 ; Do not start new row
 ;
-LF20:	       MOV  AX,ES:[SI]+ICB_WIDTH     ;counter contains number of bytes
+LF20:	       MOV  AX,[ES:SI]+ICB_WIDTH     ;counter contains number of bytes
 	       MOV  [DI]+WR_CNTR2,AX	     ; available in current row of
 					     ; input field
 ;
@@ -2990,7 +2990,7 @@ LF30:	       MOV  AX,[DI]+WR_CNTR3	     ;check if last character has been
 ;
 ; Check if end of field on display has been reached
 ;
-LF40:	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;loop if number chars moved is
+LF40:	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;loop if number chars moved is
 	       CMP  [DI]+WR_CNTR1,AX	     ; less than input buffer length
 	       JLE  LF50		     ;
 ;
@@ -3030,12 +3030,12 @@ LF60:	       MOV  BX,[DI]+WR_FIELDOFF      ;get the current byte in the
 	       PUSH ES			     ;save registers
 	       PUSH SI
 ;
-	       PUSH ES:[SI]+ICB_FIELDSEG     ; input field buffer
+	       PUSH [ES:SI]+ICB_FIELDSEG     ; input field buffer
 	       PUSH [DI]+WR_FIELDOFF	     ;get the current byte in the
 	       POP  SI
 	       POP  ES
 ;
-	       MOV  AL,ES:[SI]		     ;get character in input buffer
+	       MOV  AL,[ES:SI]		     ;get character in input buffer
 ;
 	       POP  SI			     ;restore registers
 	       POP  ES
@@ -3075,12 +3075,12 @@ LF80:	       CMP  [DI]+WR_MOVE,2	     ;check if option to actually
 ;
 	       MOV  [DI]+MG_OPT,MG_WA+MG_SC  ;set write attribute option
 ;
-	       TEST ES:[SI]+ICB_OPT1,ICB_USC ;use attribute string
+	       TEST [ES:SI]+ICB_OPT1,ICB_USC ;use attribute string
 	       JNE  LF84
 ;
 	       OR   [DI]+MG_OPT,MG_UA	     ;set use logical attribute option
 ;
-LF84:	       TEST ES:[SI]+ICB_OPT1,ICB_PSW ;is option for password write
+LF84:	       TEST [ES:SI]+ICB_OPT1,ICB_PSW ;is option for password write
 	       JNE  LF85		     ; active
 ;
 	       OR   [DI]+MG_OPT,MG_WC	     ;set write character option
@@ -3142,12 +3142,12 @@ LF110:	       CMP  [DI]+WR_MOVE,2	     ;check if option to update display
 ;
 	       MOV  [DI]+MG_OPT,MG_WA+MG_SC+MG_UC
 					     ;set write attr, char and syn chk
-	       TEST ES:[SI]+ICB_OPT1,ICB_USC
+	       TEST [ES:SI]+ICB_OPT1,ICB_USC
 	       JNE  LF114		     ;use attribute string
 ;
 	       OR   [DI]+MG_OPT,MG_UA	     ;set use logical attribute option
 ;
-LF114:	       TEST ES:[SI]+ICB_OPT1,ICB_PSW ;check if password option active
+LF114:	       TEST [ES:SI]+ICB_OPT1,ICB_PSW ;check if password option active
 	       JNE  LF115
 ;
 	       OR   [DI]+MG_OPT,MG_WC	     ;set write character option
@@ -3187,7 +3187,7 @@ LF130:	       CMP  [DI]+WR_MOVE,2	     ;check if option to update display
 	       MOV  [DI]+MG_OPT,MG_WA+MG_SC+MG_UA
 					     ;set write attribute option
 					     ;set use logical attribute option
-	       TEST ES:[SI]+ICB_OPT1,ICB_PSW ;check if password option active
+	       TEST [ES:SI]+ICB_OPT1,ICB_PSW ;check if password option active
 	       JNE  LF135
 ;
 	       OR   [DI]+MG_OPT,MG_WC	     ;set write character option
@@ -3252,7 +3252,7 @@ LF160:	       CMP  [DI]+WR_MOVE,1	     ;Check if option to calculate
 	       CMP  [DI]+WR_INSDONE,1	     ;see if insert has been done
 	       JE   LF170		     ;if yes set up return values
 ;
-	       MOV  BX,ES:[SI]+ICB_FIELDLEN  ;if no, then insert is at end of
+	       MOV  BX,[ES:SI]+ICB_FIELDLEN  ;if no, then insert is at end of
 	       SUB  BX,[DI]+WR_CNTR1	     ; line i.e. past right char
 	       INC  BX			     ;see if there is enough room left
 	       CMP  BX,[DI]+WR_BYTESINST     ; to display char being inserted
@@ -3384,15 +3384,15 @@ LEFTS_DISP:;=W
 ;											 ;=W
 LS10:	       MOV  AX,[DI]+CR_RCOFF	     ;set ptr into LVB to next row.		 ;=W
 	       ADD  AX,[DI]+CR_SCRWIDTH      ; Start with current position in		 ;=W
-	       SUB  AX,ES:[SI]+ICB_WIDTH     ; LVB, add screen width in text		 ;=W
-	       SUB  AX,ES:[SI]+ICB_WIDTH     ; and attributes, then subtract		 ;=W
+	       SUB  AX,[ES:SI]+ICB_WIDTH     ; LVB, add screen width in text		 ;=W
+	       SUB  AX,[ES:SI]+ICB_WIDTH     ; and attributes, then subtract		 ;=W
 	       MOV  [DI]+CR_RCOFF,AX	     ; the length of the input field		 ;=W
 					     ; twice since length is just in		 ;=W
 					     ; text chars				 ;=W
 ;											 ;=W
 ; Do not start new row									 ;=W
 ;											 ;=W
-LS20:	       MOV  AX,ES:[SI]+ICB_WIDTH     ;counter contains number of bytes		 ;=W
+LS20:	       MOV  AX,[ES:SI]+ICB_WIDTH     ;counter contains number of bytes		 ;=W
 	       MOV  [DI]+WR_CNTR2,AX	     ; available in current row of		 ;=W
 					     ; input field				 ;=W
 ;											 ;=W
@@ -3407,7 +3407,7 @@ LS30:	       MOV  AX,[DI]+WR_CNTR3	     ;check if last character has been		 ;=W
 ;											 ;=W
 ; Check if end of field on display has been reached					 ;=W
 ;											 ;=W
-LS40:	       MOV  AX,ES:[SI]+ICB_FIELDLEN  ;loop if number chars moved is		 ;=W
+LS40:	       MOV  AX,[ES:SI]+ICB_FIELDLEN  ;loop if number chars moved is		 ;=W
 	       CMP  [DI]+WR_CNTR1,AX	     ; less than input buffer length		 ;=W
 	       JLE  LS50		     ;						 ;=W
 ;
@@ -3459,7 +3459,7 @@ LS130:	       CMP  [DI]+WR_MOVE,2	     ;check if option to update display 	 ;=W
 	       MOV  [DI]+MG_OPT,MG_WA+MG_SC+MG_UA					 ;=W
 					     ;set write attribute option		 ;=W
 					     ;set use logical attribute option		 ;=W
-	       TEST ES:[SI]+ICB_OPT1,ICB_PSW ;check if password option active		 ;=W
+	       TEST [ES:SI]+ICB_OPT1,ICB_PSW ;check if password option active		 ;=W
 	       JNE  LS135								 ;=W
 ;
 	       OR   [DI]+MG_OPT,MG_WC	     ;set write character option		 ;=W
@@ -3523,7 +3523,7 @@ LS160:	       CMP  [DI]+WR_MOVE,1	     ;Check if option to calculate		 ;=W
 	       CMP  [DI]+WR_INSDONE,1	     ;see if insert has been done		 ;=W
 	       JE   LS170		     ;if yes set up return values		 ;=W
 ;
-	       MOV  BX,ES:[SI]+ICB_FIELDLEN  ;if no, then insert is at end of		 ;=W
+	       MOV  BX,[ES:SI]+ICB_FIELDLEN  ;if no, then insert is at end of		 ;=W
 	       SUB  BX,[DI]+WR_CNTR1	     ; line i.e. past right char		 ;=W
 	       INC  BX			     ;see if there is enough room left		 ;=W
 	       CMP  BX,[DI]+WR_BYTESINST     ; to display char being inserted		 ;=W
@@ -3644,8 +3644,8 @@ DD60:											 ;=W
 	       MOV  AL,g_bit_mask	       ;bit mask index				 ;=W
 	       OUT  DX,AX		       ;set bit mask				 ;=W
 ;
-	       MOV  AL,ES:[DI]		       ;latch data				 ;=W
-	       MOV  ES:[DI],BH		       ;set the dot				 ;=W
+	       MOV  AL,[ES:DI]		       ;latch data				 ;=W
+	       MOV  [ES:DI],BH		       ;set the dot				 ;=W
 ;
 	       LODSB			       ;foreground				 ;=W
 	       XCHG AL,AH								 ;=W
@@ -3653,8 +3653,8 @@ DD60:											 ;=W
 	       MOV  AL,g_bit_mask	       ;bit mask index				 ;=W
 	       OUT  DX,AX		       ;set bit mask				 ;=W
 ;
-	       MOV  AL,ES:[DI]		       ;latch data				 ;=W
-	       MOV  ES:[DI],BL		       ;set the dot				 ;=W
+	       MOV  AL,[ES:DI]		       ;latch data				 ;=W
+	       MOV  [ES:DI],BL		       ;set the dot				 ;=W
 ;
 	       INC  DI									 ;=W
 	       LOOP DD60								 ;=W
@@ -3679,7 +3679,7 @@ DD110:	       PUSH CX
 DD120:	       LODSB			     ;get icon row
 ;
 DD130:	       XOR  AL,0FFH
-	       MOV  ES:[DI],AL		     ;set the dot
+	       MOV  [ES:DI],AL		     ;set the dot
 	       INC  DI
 	       LOOP DD120
 ;
@@ -3772,18 +3772,18 @@ GET_DBCS:;=W
 					     ; in ES:DI
 	       POP  SI			     ;ptr, SI -> IN_PB
 	       INC  DI			     ;skip over id byte returned
-	       MOV  AX,word ES:[DI]      ;get offset of DBCS table
+	       MOV  AX,word [ES:DI]      ;get offset of DBCS table
 	       MOV  [DI]+IN_DBCSOFF,AX	     ;save it
 ;
 	       ADD  DI,2		     ;skip over offset to get segment
-	       MOV  BX,word ES:[DI]      ;get segment of DBCS table
+	       MOV  BX,word [ES:DI]      ;get segment of DBCS table
 	       MOV  [DI]+IN_DBCSSEG,BX	     ;save it
 ;
 	       POP  DI
 ;
 	       MOV  SI,AX		     ;Point to DBCS table to get length
 	       MOV  ES,BX
-	       MOV  AX,word ES:[SI]
+	       MOV  AX,word [ES:SI]
 	       MOV  [DI]+IN_DBCSLEN,AX
 	       ADD  [DI]+IN_DBCSOFF,2	     ;change offset to point to table
 ;

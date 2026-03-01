@@ -109,9 +109,9 @@ sector_count		db   1
 
 struc FRAME
 
-p_cluster: dw 0; current cluster for DIR search
-s_offset: dw 0; current sector in present_cluster
-e_number: db 0; DIR entry in current sector
+p_cluster: resw 1; current cluster for DIR search
+s_offset: resw 1; current sector in present_cluster
+e_number: resb 1; DIR entry in current sector
 
 endstruc
 
@@ -221,21 +221,21 @@ BUF:; beginning of area for file reads
 
    ; ASSUME ds:nothing
 
-   mov	ax,[bx.dpb_sector_size] 	;				       ;AN004;
+   mov	ax,[bx+dpb_sector_size] 	;				       ;AN004;
    mov	[SSIZE],ax			;Sector size in bytes		       ;AN004;
 
    xor	ax,ax				;				       ;AN004;
-   mov	al,[bx.dpb_cluster_mask]	;				       ;AN004;
+   mov	al,[bx+dpb_cluster_mask]	;				       ;AN004;
    inc	al				;				       ;AN004;
    mov	[CSIZE],ax			;Sectros per cluster		       ;AN004;
 
-   mov	ax,[BX.dpb_first_FAT]		;First sector of FAT		       ;AN004;
+   mov	ax,[BX+dpb_first_FAT]		;First sector of FAT		       ;AN004;
    mov	[first_FAT],ax			;				       ;AN004;
 
-   mov	al,[BX.dpb_FAT_count]		;Number of FATs 		       ;AN004;
+   mov	al,[BX+dpb_FAT_count]		;Number of FATs 		       ;AN004;
    mov	[num_of_FATS],al		;				       ;AN004;
 
-   mov	ax,[bx.dpb_max_cluster] 	;				       ;AN004;
+   mov	ax,[bx+dpb_max_cluster] 	;				       ;AN004;
    mov	[MCLUS],ax			;Bound for FAT searching	       ;AN004;
 
    cmp	ax,4096-10			;Big or little FAT?		       ;AN004;
@@ -253,7 +253,7 @@ $$IF1:
 					; calculate # of dir sectors and
 					;    initalize last_dir_sector
 					;--------------------------------------
-   mov	ax,[bx.dpb_root_entries]	; max # of entries in the root	       ;AN004;
+   mov	ax,[bx+dpb_root_entries]	; max # of entries in the root	       ;AN004;
    mov	cx,dir_entry_size		; size of each entry		       ;AN004;
    mul	cx				; size of root directory in bytes      ;AN004;
 					; in AX:DX			       ;AN004;
@@ -267,7 +267,7 @@ $$IF1:
 $$IF3:
    mov	[first_dir_sector],ax		; save for last directory sector calc. ;AN004;
 
-   mov	ax,[bx.dpb_FAT_size]		;Sectors for one fat		       ;AN004;
+   mov	ax,[bx+dpb_FAT_size]		;Sectors for one fat		       ;AN004;
    cmp	DOS_VER,0			; running on current version?	       ;AN019;
 
 ;  $if	ne				; BANG! - we'er running on DOS 3.3     ;AN019;
@@ -300,7 +300,7 @@ $$IF7:
 					; initalize first_dir_sector
 					;	and current_dir_sector
 					;--------------------------------------
-   mov	ax,[bx.dpb_dir_sector]		; first dir sector		       ;AN004;
+   mov	ax,[bx+dpb_dir_sector]		; first dir sector		       ;AN004;
    mov	[current_dir_sector],ax 	; save it for later		       ;AN004;
    xchg [first_dir_sector],ax		; save it and recover # of dir sectors ;AN004;
 
@@ -422,7 +422,7 @@ $$IF10:
        JC $$IF14
 	   mov	si,[source_ptr] 	; recover source pointer	       ;AN004;
 	   mov	byte [si],deleted	; delete entry being processed	       ;AN004;
-	   mov	byte [si.dir_first],0 ; null out cluster #		       ;AN004;
+	   mov	byte [si+dir_first],0 ; null out cluster #		       ;AN004;
 	   cmp	si,DIR_SECTOR	;  are we at the first entry ?	       ;AN010;
 ;	   $if	e,and			; if so -			       ;AN010;
 	   JNE $$IF15
@@ -1137,7 +1137,7 @@ $$EN88:
 
        ; ASSUME ds:nothing,es:DATA
 
-       mov  [bx.dpb_next_free],2	;				       ;AN004;
+       mov  [bx+dpb_next_free],2	;				       ;AN004;
        mov  ax,es			;				       ;AN004;
        mov  ds,ax			;				       ;AN004;
        pop  es				;				       ;AN004;
@@ -1308,7 +1308,7 @@ $$SR97:
        JE $$IF103
 	   mov	[DIR_cluster],ax	; save the new cluster		       ;AN007;
 	   lea	bx,BUF			;				       ;AN007;
-	   mov	[bx.dir_first],ax	; update the '.' entry start cluster   ;AN007;
+	   mov	[bx+dir_first],ax	; update the '.' entry start cluster   ;AN007;
 ;      $endif				;				       ;AN007;
 $$IF103:
        call cluster_2_sector		; conver to logical sector	       ;AN004;
@@ -1494,18 +1494,18 @@ $$XL2:
 					;  current_cluster to this SubDIRs first
 					;  cluster
 
-	       mov  ax,[bx.dir_first]	; get starting cluster for where we    ;AN007;
+	       mov  ax,[bx+dir_first]	; get starting cluster for where we    ;AN007;
 					;  want to go
 	       mov  bx,[present_cluster] ; get [present_cluster] for frame     ;AN004;
 					;  (where we were)
 	       mov  [present_cluster],ax ;  [present_cluster] for next pass    ;AN007;
 	       xchg ax,bx		; recover old [present_cluster]        ;AN007;
 	       mov  bx,[FRAME_ptr]	; get FRAME pointer		       ;AN004;
-	       mov  [bx.p_cluster],ax	; save [present_cluster] in frame      ;AN004;
+	       mov  [bx+p_cluster],ax	; save [present_cluster] in frame      ;AN004;
 	       mov  ax,[sector_offset]	; save [sector_offset]in frame	       ;AC015;
-	       mov  [bx.s_offset],ax	;				       ;AC015;
+	       mov  [bx+s_offset],ax	;				       ;AC015;
 	       mov  al,[entry_number]	; save [entry_number] in frame	       ;AN004;
-	       mov  [bx.e_number],al	;				       ;AN004;
+	       mov  [bx+e_number],al	;				       ;AN004;
 	       xor  ax,ax		; reset -			       ;AN007;
 	       mov  [sector_offset],ax	;	  [sector_offset]	       ;AC015;
 	       mov  [entry_number],al	;	  [entry_number]	       ;AN007;
@@ -1539,11 +1539,11 @@ next_level_down:			;				       ;AN004;
 	       cmp  ax,bx		;				       ;AN004;
 ;	       $if  be			; as long as there are still FRAMEs    ;AC007;
 	       JNBE $$IF114
-		   mov	ax,[bx.p_cluster] ; get [present_cluster] from frame   ;AN004;
+		   mov	ax,[bx+p_cluster] ; get [present_cluster] from frame   ;AN004;
 		   mov	[present_cluster],ax ;				       ;AN004;
-		   mov	ax,[bx.s_offset] ; recover [sector_offset] from frame  ;AC015;
+		   mov	ax,[bx+s_offset] ; recover [sector_offset] from frame  ;AC015;
 		   mov	[sector_offset],ax ;				       ;AC015;
-		   mov	al,[bx.e_number] ; recover [entry_number] from frame   ;AN004;
+		   mov	al,[bx+e_number] ; recover [entry_number] from frame   ;AN004;
 		   mov	[entry_number],al ;				       ;AN004;
 		   mov	[FRAME_ptr],bx	;				       ;AN004;
 
@@ -1775,11 +1775,11 @@ $$DO142:
 ;	       $if  e			; if it is not -		       ;AN019;
 	       JNE $$IF143
 		   xor	ax,ax		;				       ;AN019:
-		   mov	[bx.dir_first],ax ; zap the starting cluster	       ;AN019;
-		   mov	[bx.dir_attr],al ;  zap the attribute		       ;AN019;
+		   mov	[bx+dir_first],ax ; zap the starting cluster	       ;AN019;
+		   mov	[bx+dir_attr],al ;  zap the attribute		       ;AN019;
 ;	       $endif			;				       ;AN019;
 $$IF143:
-	       mov  ax,[bx.dir_first]	;				       ;AN004;
+	       mov  ax,[bx+dir_first]	;				       ;AN004;
 	       cmp  ax,[current_cluster] ;				       ;AN004;
 ;	   $exitif e,and,long		; starting cluster = [current_cluster] ;AN004;
 	   JE $$XL4
@@ -1795,7 +1795,7 @@ $$XL5:
 	   JNE $$XL6
 	   JMP $$IF142
 $$XL6:
-	       test [bx.dir_attr],attr_directory ; is it a subdir ?	       ;AN007;
+	       test [bx+dir_attr],attr_directory ; is it a subdir ?	       ;AN007;
 ;	       $if  nz			;if entry is a subdirectory	       ;AN007;
 	       JZ $$IF146
 		   inc	[DIR_cluster]	; signal special processing	       ;AN007;
@@ -1858,7 +1858,7 @@ $$IF148:
 	       JC $$IF153
 		   mov	ax,[empty_cluster] ; update dir_first_clust	       ;AN004;
 		   mov	bx,[source_ptr] ; recover pointer		       ;AN004;
-		   mov	[bx.dir_first],ax ;				       ;AN004;
+		   mov	[bx+dir_first],ax ;				       ;AN004;
 		   mov	[packet_sectors],1 ; set size back		       ;AN004;
 		   mov	[packet_buffer],DIR_SECTOR ;		       ;AN004;
 		   mov	ax,[dir_sector_low] ; reset DIR sector		       ;AN007;
@@ -1898,7 +1898,7 @@ $$IF154:
 
 		       ; ASSUME ds:nothing,es:DATA
 
-		       mov  [bx.dpb_next_free],2 ;			       ;AN004;
+		       mov  [bx+dpb_next_free],2 ;			       ;AN004;
 		       mov  ax,es	;				       ;AN004;
 		       mov  ds,ax	;				       ;AN004;
 		       pop  es		;				       ;AN004;
@@ -1917,7 +1917,7 @@ $$IF142:
 ;	   $leave e			;   then no point in continuing        ;AN007;
 	   JE $$EN142
 	       dec  ax			; get ready in case we fail	       ;AN004;
-	       test [bx.dir_attr],attr_directory ; is it a subdir ?	       ;AN004;
+	       test [bx+dir_attr],attr_directory ; is it a subdir ?	       ;AN004;
 ;	   $leave nz, and		;if entry is a subdirectory (ah = ffh) ;AN004;
 	   JZ $$LL161
 	       cmp  byte [bx],dot	; but not a DOT 		       ;AN007;
@@ -2191,7 +2191,7 @@ $$DO188:
 		   cmp	byte [bx],deleted ; deleted entry (E5)?	       ;AN007;
 ;		   $if	ne,and		; if entry is not deleted and	       ;AN007;
 		   JE $$IF190
-		   test [bx.dir_attr],attr_directory ; is it a subdir ?        ;AN007;
+		   test [bx+dir_attr],attr_directory ; is it a subdir ?        ;AN007;
 ;		   $if	nz,and		; if this entry is a subdir and        ;AN007;
 		   JZ $$IF190
 		   cmp	byte [bx],dot ; dot entry (2E)?		       ;AN007;
@@ -2201,7 +2201,7 @@ $$DO188:
 		   mov	[dir_sector_low],ax ;				       ;AN007;
 		   mov	ax,[packet+2]	;				       ;AN007;
 		   mov	[dir_sector_hi],ax ;				       ;AN007;
-		   mov	ax,[bx.dir_first] ; get start cluster		       ;AN007;
+		   mov	ax,[bx+dir_first] ; get start cluster		       ;AN007;
 		   call cluster_2_sector ; convert to sector		       ;AN007;
 		   mov	[packet],ax	; update packet 		       ;AN007;
 		   mov	[packet+2],dx	;				       ;AN007;

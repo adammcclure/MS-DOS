@@ -259,7 +259,7 @@ INWIMMED:
 
 INIMMED:
 
-        ADD     word SS:[BP+BP_IP],1 ; Step IP past the "IN" instruction
+        ADD     word [SS:BP+BP_IP],1 ; Step IP past the "IN" instruction
 
 ; Get the port address from the instruction.  The port address is in the byte
 ; immediately following the "IN" op-code.  We will load the port address into
@@ -273,9 +273,9 @@ INIMMED:
         MOV     SS:word [BP+BP_CS2],0 ;   task's CS and IP
 
         DATAOV                          ; Load ESI (32 bit SI) with the V86
-        MOV     SI,SS:[BP+BP_IP]        ;   task's IP
+        MOV     SI,[SS:BP+BP_IP]        ;   task's IP
         DATAOV
-        MOV     AX,SS:[BP+BP_CS]        ; Load EAX with the V86 task's CS
+        MOV     AX,[SS:BP+BP_CS]        ; Load EAX with the V86 task's CS
         DATAOV                          ;   and then shift left four bits to
         SHL     AX,4                    ;   convert it to an offset
         DATAOV                          ; Add the CS offset to "IP" in SI
@@ -317,7 +317,7 @@ XMAIN:
         JNE     GETWORD                 ; Yes.  Then go get a word.
 
         LODSB                           ; Else get a byte from the "port"
-        MOV     byte SS:[BP+BP_AX],AL ; Put it in the V86 task's AL register
+        MOV     byte [SS:BP+BP_AX],AL ; Put it in the V86 task's AL register
         JMP     INEXIT                  ; Th-th-that's all folks!
 
 ; For non-XMA ports we just pass the "IN" on to INDEDMA
@@ -329,7 +329,7 @@ NOTXMAIN:
 
 GETWORD:
         LODSW                           ; Get a word from the "port"
-        MOV     word SS:[BP+BP_AX],AX ; Put it in the V86 task's AX register
+        MOV     word [SS:BP+BP_AX],AX ; Put it in the V86 task's AX register
 
         MOV     WORD_FLAG,0             ; Reset the word flag
 
@@ -342,7 +342,7 @@ GETWORD:
         CALL    TTARCHANGED             ;   table index and call TTARCHANGED
                                         ;   to update the status of the "card"
 INEXIT:
-        ADD     word SS:[BP+BP_IP],1 ; Step IP past the instruction (past
+        ADD     word [SS:BP+BP_IP],1 ; Step IP past the instruction (past
                                         ;   the port value for immediate insts.)
         JMP     POPIO                   ; Go return to the V86 task
 
@@ -367,7 +367,7 @@ OUTWIMMED:
 
 XMAOUTIMMED:
 
-        ADD     word SS:[BP+BP_IP],1 ; Step IP past the "OUT" instruction
+        ADD     word [SS:BP+BP_IP],1 ; Step IP past the "OUT" instruction
 
 ; Get the port address from the instruction.  The port address is in the byte
 ; immediately following the "OUT" op-code.  We will load the port address into
@@ -381,9 +381,9 @@ XMAOUTIMMED:
         MOV     SS:word [BP+BP_CS2],0 ;   task's CS and IP
 
         DATAOV                          ; Load ESI (32 bit SI) with the V86
-        MOV     SI,SS:[BP+BP_IP]        ;   task's IP
+        MOV     SI,[SS:BP+BP_IP]        ;   task's IP
         DATAOV
-        MOV     AX,SS:[BP+BP_CS]        ; Load EAX with the V86 task's CS
+        MOV     AX,[SS:BP+BP_CS]        ; Load EAX with the V86 task's CS
         DATAOV                          ;   and then shift left four bits to
         SHL     AX,4                    ;   convert it to an offset
         DATAOV                          ; Add the CS offset to "IP" in SI
@@ -418,7 +418,7 @@ XMAOUT:
         CMP     WORD_FLAG,0             ; Is this a word operation?
         JNE     PUTWORD                 ; Yes.  Then go put a word.
 
-        MOV     AL,byte SS:[BP+BP_AX] ; Put the value in the V86 task's AL
+        MOV     AL,byte [SS:BP+BP_AX] ; Put the value in the V86 task's AL
         STOSB                           ;   register into the "port"
 
         CMP     DX,31A6H                ; Is this "OUT" to the bank ID port?
@@ -436,7 +436,7 @@ XMAOUT:
 ; The "OUT" is for a word
 
 PUTWORD:
-        MOV     AX,word SS:[BP+BP_AX] ; Put the value in the V86 task's AX
+        MOV     AX,word [SS:BP+BP_AX] ; Put the value in the V86 task's AX
         STOSW                           ;   register into the "port"
 
         MOV     WORD_FLAG,0             ; Reset the word flag
@@ -532,7 +532,7 @@ OUTEXIT:
         NOP                             ; 386 errata B0-110
 
 OUTEXITDMA:
-        ADD     word SS:[BP+BP_IP],1 ; Step IP past the "OUT" instruction
+        ADD     word [SS:BP+BP_IP],1 ; Step IP past the "OUT" instruction
         JMP     POPIO                   ; Return to the V86 task
 
 ; PAGE

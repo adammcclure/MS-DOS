@@ -29,9 +29,9 @@ SECTION .dosxxx
 error_ts_datetime equ 0002h
 
 struc str
-old_bp: dw 0
-return: dd 0
-Data: dd 0; TOD data pointer
+old_bp: resw 1
+return: resd 1
+Data: resd 1; TOD data pointer
 endstruc
 
 dossetdatetime:

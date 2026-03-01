@@ -154,7 +154,7 @@ msg_sublist       dw    0         ;POINTER TO SUBLIST (TO SI)                   
 msg_count         dw    0         ;SUBSTITUTION COUNT (TO CX)                   ;AN000;
 msg_class         dw    CLASS_A shl 8 ;MESSAGE CLASS (IN HIGH BYTE, TO DH)      ;AN000;
                                   ;LOW BYTE HAS 0 (FUNCTION "NO INPUT", TO DL)  ;AN000;
-msg_input: dw 0;######EXTRA WORD - ONLY FOR MESSAGES WITH BUFFERED INPUT        ;AN000;
+msg_input: resw 1;######EXTRA WORD - ONLY FOR MESSAGES WITH BUFFERED INPUT        ;AN000;
                                   ;######OTHERWISE THIS WORD IS NOT VALID AS PART OF THE STRUCT    ;AN000;
                                   ;POINTER TO INPUT BUFFER                      ;AN000;
 endstruc;AN000;

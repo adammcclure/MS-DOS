@@ -35,11 +35,11 @@ SECTION .dosxxx
 	; .list
 ;
 struc str
-old_bp: dw 0
-return: dd 0
-ShareIndicator: dw 0; whether segment will be shared
-SelectorPtr: dd 0; selector allocated
-SegmentSize: dw 0; number of bytes requested
+old_bp: resw 1
+return: resd 1
+ShareIndicator: resw 1; whether segment will be shared
+SelectorPtr: resd 1; selector allocated
+SegmentSize: resw 1; number of bytes requested
 endstruc
 
 dosallocseg:
@@ -72,7 +72,7 @@ HaveSize:
 	jc	ErrorExit		 ; jump if error
 
 	lds	si,[bp].SelectorPtr	 ; get selector address
-	mov	ds:[si],ax		 ; save allocated memory block
+	mov	[ds:si],ax		 ; save allocated memory block
 
 AllocDone:
 	sub	ax,ax			 ; set good return code

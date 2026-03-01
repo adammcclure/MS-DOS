@@ -30,12 +30,12 @@ SECTION .dosxxx
             ; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-Written: dd 0; number of bytes actually read
-Bufflng: dw 0; number of bytes to be read
-Buffer: dd 0; read buffer
-Handle: dw 0; handle
+old_bp: resw 1
+return: resd 1
+Written: resd 1; number of bytes actually read
+Bufflng: resw 1; number of bytes to be read
+Buffer: resd 1; read buffer
+Handle: resw 1; handle
 endstruc
 
 dosread:

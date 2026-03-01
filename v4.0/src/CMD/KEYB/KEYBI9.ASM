@@ -199,7 +199,7 @@ COPY_FLAGS:                            ;;
         MOV    DI,0                    ;; create shadow copies
 MOVE_NEXT_FLAG:                        ;;
         MOV    BX,KB_FLAG_PTRS[SI]     ;; pointer to next flag
-        MOV    AL,ES:[BX]              ;; flag in AL
+        MOV    AL,[ES:BX]              ;; flag in AL
         MOV    KB_SHADOW_FLAGS[DI],AL  ;; save it in the shadow table
         INC    DI                      ;;
         INC    SI                      ;;

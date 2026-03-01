@@ -81,13 +81,13 @@ SECTION .LAST
 ;  	Equates
 ;******************************************************************************
 ;					   
-FIRST_ROM	=	0C800H		; Segment address of first option ROM.
-LAST_ROM	=	0EF80H		; Segment address of last option ROM.
-FIRST_VDU_ROM	=	0C000H		; Seg address of first VDU option ROM.
-LAST_VDU_ROM	=	0C780H		; Seg address of last VDU option ROM.
-FIRST_RAM	=	0C000H		; Seg address of 1st possible RAM addr
-LAST_RAM	=	0EF80H		; Seg addr of last possible RAM addr
-NOT_FOUND_INCR  =	0800H		; Amount to skip if no ROM found.
+FIRST_ROM equ 0C800H; Segment address of first option ROM.
+LAST_ROM equ 0EF80H; Segment address of last option ROM.
+FIRST_VDU_ROM equ 0C000H; Seg address of first VDU option ROM.
+LAST_VDU_ROM equ 0C780H; Seg address of last VDU option ROM.
+FIRST_RAM equ 0C000H; Seg address of 1st possible RAM addr
+LAST_RAM equ 0EF80H; Seg addr of last possible RAM addr
+NOT_FOUND_INCR equ 0800H; Amount to skip if no ROM found.
 ;
 	%include "emmdef.inc"
 	%include "vdmseg.inc"
@@ -190,14 +190,14 @@ opt_rom:
 ;
 	mov	ds,ax			; DS=ROM segment address.
 	xor	bx,bx			; Index uses less code than absolute.
-	cmp	[bx.ROM_RECOGNITION],0AA55H ;Q: Looks like a ROM?
+	cmp	[bx+ROM_RECOGNITION],0AA55H ;Q: Looks like a ROM?
 	jne	rs_3			;  No, Skip down
 ;
 ;	Compute checksum over ROM.
 ;
 	xor	si,si			; DS:SI=ROM Pointer; Start at beg.
 	xor	cx,cx			; Prepare to accept byte into word.
-	mov	ch,[bx.ROM_LEN]		; CH=byte count/512 (CX=byte count/2)
+	mov	ch,[bx+ROM_LEN]		; CH=byte count/512 (CX=byte count/2)
 	shl	cx,1			; CX=adjusted byte count.
 	mov	dx,cx			; Extract size.
 rs_2:

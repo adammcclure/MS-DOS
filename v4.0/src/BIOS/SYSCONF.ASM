@@ -72,7 +72,7 @@ NOT_IFS 	      equ   11111110b
 ;EA_DEVICE_DRIVER	 equ	 6	 ;AN009;
 ;EA_IFS_DRIVER		 equ	 7	 ;AN009;
 
-DEFAULT_FILENUM = 8
+DEFAULT_FILENUM equ 8
 ;
 	%if IBMJAPVER
 NOEXEC	EQU	TRUE
@@ -94,7 +94,7 @@ DOSSIZE EQU	0A000H
 	%include "version.inc"
 ; .list
 
-	%if NOT IBMJAPVER
+	%if ~IBMJAPVER
 	extern RE_INIT
 	%endif
 
@@ -764,7 +764,7 @@ CONFLP: JC	ENDCONV
 	call	Reset_DOS_Version	;AN024;AN026; Still need to reset version even IBMDOS handles this through
 					; function 4Bh call, since IBMDOS does not know when Load/Overlay call finishes.
 
-%if NOT BUFFERFLAG
+%if ~BUFFERFLAG
 	call	EMS_Stub_handler	;AN030;
 %endif
 
@@ -820,7 +820,7 @@ Multi_Try_XMAEM:				;AN029;
 	jne	Multi_Try_Buff			;AN029; no skip it.
 	call	Chk_XMAEM			;AN029; is it for XMAEM.SYS?
 	jnz	Multi_Pass_FIlter		;AN029; no skip it.
-	mov	byte es:[si-1], 0FFh	;AN029; mark this command as a Null command for the next pass.
+	mov	byte [es:si-1], 0FFh	;AN029; mark this command as a Null command for the next pass.
 	jmp	TryDJ				;AN029; execute this command.
 Multi_Try_Buff: 				;AN030;
 	cmp	ah, 'B' 			;AN030; Buffers= command?
@@ -1279,7 +1279,7 @@ TRYDJ:
 	jz	GOTJ
 	JMP	TRYQ
 GOTJ:					;AN000; IFS= command.
-	or	cs:[IFS_Flag], IS_IFS	;AN000; set the flag.
+	or	[cs:IFS_Flag], IS_IFS	;AN000; set the flag.
 	cmp	Multi_Pass_Id, 2	;second pass?
 	je	GOTDJ			;then proceed
 	jmp	Coff			;else ignore this until the second pass.
@@ -1315,7 +1315,7 @@ GOTDJ:
 	MOV	AX,[MEMHI]
 	MOV	word [ENTRY_POINT+2],AX	;SET ENTRY POINT
 
-	%if NOT NOEXEC
+	%if ~NOEXEC
 	MOV	[LDOFF],AX		;SET LOAD OFFSET
 	%endif
 
@@ -1325,7 +1325,7 @@ GOTDJ:
 	MOV	DX,SI			;DS:DX POINTS TO FILE NAME
 
 	%if NOEXEC
-	LES	BX,dword CS:[MEMLO]
+	LES	BX,dword [CS:MEMLO]
 	CALL	LDFIL			;LOAD IN THE DEVICE DRIVER
 	%else
 ; We are going to open the cdevice driver and size it as is done
@@ -1384,7 +1384,7 @@ GO_AHEAD_LOAD:
 	MOV	CX,ES			; CX:0 is xaddr
 	ADD	CX,AX			; New device will take up to here
 	JC	MEM_ERRJY		; WOW!!!!
-	CMP	CX,CS:[ALLOCLIM]
+	CMP	CX,[CS:ALLOCLIM]
 	JB	OKLDX
 MEM_ERRJY:
 	JMP	MEM_ERR
@@ -1410,11 +1410,11 @@ BADLDRESET:
 ; ASSUME	DS:SYSINITSEG
 	JNC	GOODLD
 BADBRK:
-	test	cs:[SetDevMarkFlag],SETBRKDONE ;AN004;If already Set_Break is done,
+	test	[cs:SetDevMarkFlag],SETBRKDONE ;AN004;If already Set_Break is done,
 	jnz	Skip0_ResetMEMHI	;AN004; then do not
-	dec	cs:[MEMHI]		   ;AN004;Adjust MEMHI by a paragrah of DEVMARK.
+	dec	[cs:MEMHI]		   ;AN004;Adjust MEMHI by a paragrah of DEVMARK.
 Skip0_ResetMEMHI:
-	cmp	byte es:[si], CR	;file name is CR? (Somebody entered "device=" without filename)
+	cmp	byte [es:si], CR	;file name is CR? (Somebody entered "device=" without filename)
 	jne	BADBRK_1
 	jmp	BADOP			;show "Unrecognized command in CONFIG.SYS"
 BADBRK_1:
@@ -1423,35 +1423,35 @@ BADBRK_1:
 
 GOODLD:
 ;J.K. If it is IFS=, then we should set IFS_DOSCALL@ field in IFSHEADER.
-	test	cs:[IFS_Flag], IS_IFS		;AN000;
+	test	[cs:IFS_Flag], IS_IFS		;AN000;
 	jz	Skip_IFSHEADER_Set		;AN000;
 	push	es				;AN000;
 	push	di				;AN000;
 	push	ds				;AN000;
-	mov	bx, word cs:[ENTRY_POINT+2] ;AN000;
+	mov	bx, word [cs:ENTRY_POINT+2] ;AN000;
 	mov	ds, bx				;AN000; DS:0 will be the header
-	les	di, cs:[DosInfo]		;AN000;
-	mov	bx, word es:[di.SYSI_IFS_DOSCALL@]	 ;AN000;
-	mov	word ds:[IFS_DOSCALL@], bx		 ;AN000;
-	mov	bx, word es:[di.SYSI_IFS_DOSCALL@]+2 ;AN000;
-	mov	word ds:[IFS_DOSCALL@]+2, bx	 ;AN000;
+	les	di, [cs:DosInfo]		;AN000;
+	mov	bx, word [es:di+SYSI_IFS_DOSCALL@]	 ;AN000;
+	mov	word [ds:IFS_DOSCALL@], bx		 ;AN000;
+	mov	bx, word [es:di+SYSI_IFS_DOSCALL@]+2 ;AN000;
+	mov	word [ds:IFS_DOSCALL@]+2, bx	 ;AN000;
 	pop	ds				;AN000;
 	pop	di				;AN000;
 	pop	es				;AN000;
 Skip_IFSHEADER_Set:				;AN000;
 	SaveReg <ES,SI> 		;INITIALIZE THE DEVICE
 ;	 call	 Chk_IBMCACHE		 ;AN024 IBMCACHE.SYS problem.;AN026;IBMDOS will handles this thru 4Bh call.
-Restore:MOV	BL,ES:[SI]		;   while ((c=*p) != 0)
+Restore:MOV	BL,[ES:SI]		;   while ((c=*p) != 0)
 	OR	BL,BL
 	JZ	Got
 	INC	SI			;	p++;
 	JMP	Restore
-Got:	MOV	byte ES:[SI],' '	;   *p = ' ';
+Got:	MOV	byte [ES:SI],' '	;   *p = ' ';
 	SaveReg <ES,SI>
 	PUSH	CS
 	POP	ES
 
-	test	cs:[IFS_Flag], IS_IFS	;AN000;
+	test	[cs:IFS_Flag], IS_IFS	;AN000;
 	jz	Got_Device_Com		;AN000;
 	mov	bx, IFS_CALL@		;AN000; offset from the start of IFSHEADER
 	call	CallIFS 		;AN000;
@@ -1459,11 +1459,11 @@ Got:	MOV	byte ES:[SI],' '	;   *p = ' ';
 Got_Device_Com:
 	push	ds			;AN017;
 	push	si			;AN017;
-	lds	si, cs:[ENTRY_POINT]	;AN017; Peeks the header attribute
-	test	word ds:[si.SDEVATT], DEVTYP  ;AN017;Block device driver?
+	lds	si, [cs:ENTRY_POINT]	;AN017; Peeks the header attribute
+	test	word [ds:si+SDEVATT], DEVTYP  ;AN017;Block device driver?
 	jnz	Got_Device_Com_Cont		  ;AN017;No.
-	lds	si, cs:[DOSINFO]	;AN017; DS:SI -> SYS_VAR
-	cmp	ds:[si.SYSI_NUMIO], 26	;AN017; No more than 26 drive number
+	lds	si, [cs:DOSINFO]	;AN017; DS:SI -> SYS_VAR
+	cmp	[ds:si+SYSI_NUMIO], 26	;AN017; No more than 26 drive number
 	jb	Got_Device_Com_Cont	;AN017;
 	pop	si			;AN017;
 	pop	ds			;AN017;
@@ -1494,20 +1494,20 @@ End_Init_Call:
 	add	ax, word [ifs_rh.IFSR_RESSIZE] ;AN000;
 	mov	word [Break_addr], 0	   ;AN000;
 	mov	word [Break_addr+2], ax	   ;AN000;
-	or	cs:[SetDevMarkFlag], FOR_DEVMARK       ;AN004;
+	or	[cs:SetDevMarkFlag], FOR_DEVMARK       ;AN004;
 	invoke	Set_Break		;AN000; Will also check the memory size too.
 	push	es			;AN000; Save it again, in case, for Erase_Dev_Do.
 	push	si			;AN000;
 	jc	Erase_Dev_do		;AN000;
 Link_IFS:				;AN000;
-	les	di, cs:[dosinfo]	;AN000;
-	mov	cx, word es:[di.SYSI_IFS]	;AN000; save old pointer
-	mov	dx, word es:[di.SYSI_IFS+2] ;AN000;
-	lds	si, cs:[Entry_Point]		;AN000;
-	mov	word es:[di.SYSI_IFS],si	;AN000;
-	mov	word es:[di.SYSI_IFS+2], ds ;AN000;
-	mov	word ds:[si], cx		;AN000; We don't permit multiple IFSs.
-	mov	word ds:[si+2], dx		;AN000;
+	les	di, [cs:dosinfo]	;AN000;
+	mov	cx, word [es:di+SYSI_IFS]	;AN000; save old pointer
+	mov	dx, word [es:di+SYSI_IFS+2] ;AN000;
+	lds	si, [cs:Entry_Point]		;AN000;
+	mov	word [es:di+SYSI_IFS],si	;AN000;
+	mov	word [es:di+SYSI_IFS+2], ds ;AN000;
+	mov	word [ds:si], cx		;AN000; We don't permit multiple IFSs.
+	mov	word [ds:si+2], dx		;AN000;
 	pop	si			;AN000; Restore es:si for the next command.
 	pop	es			;AN000;
 ;	 mov	 cs:[IFS_Flag], HAD_IFS  ;AN014; Set the flag.
@@ -1541,26 +1541,26 @@ BREAKOK:
 	LDS	DX,[ENTRY_POINT]	;SET DS:DX TO HEADER
 	MOV	SI,DX
 	ADD	SI,SDEVATT		;DS:SI POINTS TO ATTRIBUTES
-	LES	DI,CS:[DOSINFO] 	;ES:DI POINT TO DOS INFO
-	MOV	AX,DS:[SI]		;GET ATTRIBUTES
+	LES	DI,[CS:DOSINFO] 	;ES:DI POINT TO DOS INFO
+	MOV	AX,[DS:SI]		;GET ATTRIBUTES
 	TEST	AX,DEVTYP		;TEST IF BLOCK DEV
 	JZ	ISBLOCK
-	or	cs:[SetDevMarkFlag],FOR_DEVMARK ;AN004;
+	or	[cs:SetDevMarkFlag],FOR_DEVMARK ;AN004;
 	invoke	Set_Break		; Go ahead and alloc mem for device
 	jc	Erase_Dev_do		;device driver's Init routien failed.
 	TEST	AX,ISCIN		;IS IT A CONSOLE IN?
 	JZ	TRYCLK
-	MOV	word ES:[DI.SYSI_CON],DX
-	MOV	word ES:[DI.SYSI_CON+2],DS
+	MOV	word [ES:DI+SYSI_CON],DX
+	MOV	word [ES:DI+SYSI_CON+2],DS
 
 TRYCLK: TEST	AX,ISCLOCK		;IS IT A CLOCK DEVICE?
 	JZ	GOLINK
-	MOV	word ES:[DI+SYSI_CLOCK],DX
-	MOV	word ES:[DI+SYSI_CLOCK+2],DS
+	MOV	word [ES:DI+SYSI_CLOCK],DX
+	MOV	word [ES:DI+SYSI_CLOCK+2],DS
 GOLINK: JMP	LINKIT
 
 ISBLOCK:
-	MOV	AL,CS:[UNITCOUNT]	;IF NO UNITS FOUND, erase the device
+	MOV	AL,[CS:UNITCOUNT]	;IF NO UNITS FOUND, erase the device
 	OR	AL,AL
 	jz	Erase_Dev_do
 ;	 JNZ	 PERDRV
@@ -1571,7 +1571,7 @@ PERDRV:
 	CBW				; WARNING NO DEVICE > 127 UNITS
 	MOV	CX,AX
 	MOV	DH,AH
-	MOV	DL,ES:[DI.SYSI_NUMIO]	;GET NUMBER OF DEVICES
+	MOV	DL,[ES:DI+SYSI_NUMIO]	;GET NUMBER OF DEVICES
 	MOV	AH,DL
 	ADD	AH,AL			; Check for too many devices
 	CMP	AH,26			; 'A' - 'Z' is 26 devices
@@ -1584,48 +1584,48 @@ BadNumBlock:				;AN017;
 	JMP	ERASE_DEV_do
 
 OK_BLOCK:
-	or	cs:[SetDevMarkFlag],FOR_DEVMARK ;AN004;
+	or	[cs:SetDevMarkFlag],FOR_DEVMARK ;AN004;
 	invoke	SET_BREAK		; Alloc the device
-	ADD	ES:[DI.SYSI_NUMIO],AL	;UPDATE THE AMOUNT
+	ADD	[ES:DI+SYSI_NUMIO],AL	;UPDATE THE AMOUNT
 	ADD	CS:DriveNumber,AL	; remember amount for next device
-	LDS	BX,CS:[BPB_ADDR]	;POINT TO BPB ARRAY
+	LDS	BX,[CS:BPB_ADDR]	;POINT TO BPB ARRAY
 PERUNIT:
-	LES	BP,CS:[DOSINFO]
-	LES	BP,dword ES:[BP.SYSI_DPB]	;GET FIRST DPB
+	LES	BP,[CS:DOSINFO]
+	LES	BP,dword [ES:BP+SYSI_DPB]	;GET FIRST DPB
 
-SCANDPB:CMP	word ES:[BP.DPB_NEXT_DPB],-1
+SCANDPB:CMP	word [ES:BP+DPB_NEXT_DPB],-1
 	JZ	FOUNDPB
-	LES	BP,ES:[BP.DPB_NEXT_DPB]
+	LES	BP,[ES:BP+DPB_NEXT_DPB]
 	JMP	SCANDPB
 FOUNDPB:
-	MOV	AX,CS:[MEMLO]
-	MOV	word ES:[BP.DPB_NEXT_DPB],AX
-	MOV	AX,CS:[MEMHI]
-	MOV	word ES:[BP.DPB_NEXT_DPB+2],AX
-	LES	BP,dword CS:[MEMLO]
-	ADD	word CS:[MEMLO],DPBSIZ
-	or	cs:[SetDevMarkFlag], FOR_DEVMARK       ;AN004;Add DPB area for this unit
+	MOV	AX,[CS:MEMLO]
+	MOV	word [ES:BP+DPB_NEXT_DPB],AX
+	MOV	AX,[CS:MEMHI]
+	MOV	word [ES:BP+DPB_NEXT_DPB+2],AX
+	LES	BP,dword [CS:MEMLO]
+	ADD	word [CS:MEMLO],DPBSIZ
+	or	[cs:SetDevMarkFlag], FOR_DEVMARK       ;AN004;Add DPB area for this unit
 	CALL	ROUND			;Check for alloc error
-	MOV	word ES:[BP.DPB_NEXT_DPB],-1
-	MOV	ES:[BP.DPB_FIRST_ACCESS],-1
+	MOV	word [ES:BP+DPB_NEXT_DPB],-1
+	MOV	[ES:BP+DPB_FIRST_ACCESS],-1
 
 	MOV	SI,[BX] 		;DS:SI POINTS TO BPB
 	INC	BX
 	INC	BX			;POINT TO NEXT GUY
-	MOV	word ES:[BP.DPB_DRIVE],DX
+	MOV	word [ES:BP+DPB_DRIVE],DX
 	MOV	AH,SETDPB		;HIDDEN SYSTEM CALL
 	INT	21H
-	MOV	AX,ES:[BP.DPB_SECTOR_SIZE]
+	MOV	AX,[ES:BP+DPB_SECTOR_SIZE]
 	PUSH	ES
-	LES	DI,CS:[DOSINFO] 	;ES:DI POINT TO DOS INFO
-	CMP	AX,ES:[DI.SYSI_MAXSEC]
+	LES	DI,[CS:DOSINFO] 	;ES:DI POINT TO DOS INFO
+	CMP	AX,[ES:DI+SYSI_MAXSEC]
 	POP	ES
 	ja	Bad_BPB_Size_Sector
 	PUSH	DS
 	PUSH	DX
-	LDS	DX,CS:[ENTRY_POINT]
-	MOV	word ES:[BP.DPB_DRIVER_ADDR],DX
-	MOV	word ES:[BP.DPB_DRIVER_ADDR+2],DS
+	LDS	DX,[CS:ENTRY_POINT]
+	MOV	word [ES:BP+DPB_DRIVER_ADDR],DX
+	MOV	word [ES:BP+DPB_DRIVER_ADDR+2],DS
 	POP	DX
 	POP	DS
 	INC	DX
@@ -1636,18 +1636,18 @@ FOUNDPB:
 	CALL	TEMPCDS 		; Set CDS for new drives
 
 LINKIT:
-	LES	DI,CS:[DOSINFO] 	;ES:DI = DOS TABLE
-	MOV	CX,word ES:[DI.SYSI_DEV]	;DX:CX = HEAD OF LIST
-	MOV	DX,word ES:[DI.SYSI_DEV+2]
+	LES	DI,[CS:DOSINFO] 	;ES:DI = DOS TABLE
+	MOV	CX,word [ES:DI+SYSI_DEV]	;DX:CX = HEAD OF LIST
+	MOV	DX,word [ES:DI+SYSI_DEV+2]
 
-	LDS	SI,CS:[ENTRY_POINT]	;DS:SI = DEVICE LOCATION
-	MOV	word ES:[DI.SYSI_DEV],SI	;SET HEAD OF LIST IN DOS
-	MOV	word ES:[DI.SYSI_DEV+2],DS
-	MOV	AX,DS:[SI]		;GET POINTER TO NEXT DEVICE
-	MOV	word CS:[ENTRY_POINT],AX	;AND SAVE IT
+	LDS	SI,[CS:ENTRY_POINT]	;DS:SI = DEVICE LOCATION
+	MOV	word [ES:DI+SYSI_DEV],SI	;SET HEAD OF LIST IN DOS
+	MOV	word [ES:DI+SYSI_DEV+2],DS
+	MOV	AX,[DS:SI]		;GET POINTER TO NEXT DEVICE
+	MOV	word [CS:ENTRY_POINT],AX	;AND SAVE IT
 
-	MOV	word DS:[SI],CX	;LINK IN THE DRIVER
-	MOV	word DS:[SI+2],DX
+	MOV	word [DS:SI],CX	;LINK IN THE DRIVER
+	MOV	word [DS:SI+2],DX
 ENDDEV:
 	POP	SI
 	POP	ES
@@ -1855,9 +1855,9 @@ TryQ_Openit:
 	mov	ax, cs:P_Cntry_Code	   ;AN000;
 	mov	dx, cs:P_Code_Page	   ;AN000; Now, AX=country id, bx=filehandle
 ;	 xchg	 ax, bx 		 ;now, AX = country id, BX = file handle
-	mov	cx, cs:[MEMHI]
+	mov	cx, [cs:MEMHI]
 	add	cx, 128 		;I need 2K buffer to handle COUNTRY.SYS
-	cmp	cx, cs:[ALLOCLIM]
+	cmp	cx, [cs:ALLOCLIM]
 	ja	TryQMemory		;cannot allocate the buffer for country.sys
 
 	mov	si, CNTRY_DRV	;DS:SI -> CNTRY_DRV
@@ -1871,7 +1871,7 @@ TRYQ_Set_for_DOS:
 	add	di, ccPath_CountrySys
 	call	MOVE_ASCIIZ		;Set the path to COUNTRY.SYS in DOS.
 	pop	di			;ES:DI -> country info tab again.
-	mov	cx, cs:[MEMHI]
+	mov	cx, [cs:MEMHI]
 	mov	ds, cx
 	xor	si, si			;DS:SI -> 2K buffer to be used.
 	call	SetDOSCountryInfo	;now do the job!!!
@@ -1895,13 +1895,13 @@ TryQDefBad:				;Default file has been used.
 	mov	si, CNTRY_ROOT	;ES:SI -> \COUNTRY.SYS in SYSINIT_SEG
 TryQBADLOAD:
 	call	BADLOAD 		;DS will be restored to SYSINIT_SEG
-	mov	cx, cs:[CONFBOT]
+	mov	cx, [cs:CONFBOT]
 	mov	es, cx			;Restore ES -> CONFBOT.
 	jmp	short CoffJ4
 TryQMemory:
 	MOV	DX,INSUFMEMORY
 TryQChkErr:
-	mov	cx, cs:[CONFBOT]
+	mov	cx, [cs:CONFBOT]
 	mov	es, cx			;restore ES -> CONFBOT seg
 	push	cs
 	pop	ds			;retore DS to SYSINIT_SEG
@@ -2547,7 +2547,7 @@ GETCHR:
 	MOV	CX,COUNT
 	JCXZ	NOCHAR
 	MOV	SI,CHRPTR
-	MOV	AL,ES:[SI]
+	MOV	AL,[ES:SI]
 	DEC	COUNT
 	INC	CHRPTR
 	CLC
@@ -2635,14 +2635,14 @@ CallIFS:;AN000;
 ; Output:   Nothing							       *
 ;*******************************************************************************
 	push	ax				;AN000;
-	mov	ds, word cs:[Entry_Point+2] ;AN000;
-	add	bx, word cs:[Entry_Point]	;AN000; DS:[BX] = Real IFS_CALL@ addr.
-	mov	ax, ds:[bx]			;AN000; save it
-	push	word cs:[Entry_Point]	;AN000; save Entry point offset
-	mov	word cs:[Entry_Point], ax	;AN000; set for the call
+	mov	ds, word [cs:Entry_Point+2] ;AN000;
+	add	bx, word [cs:Entry_Point]	;AN000; DS:[BX] = Real IFS_CALL@ addr.
+	mov	ax, [ds:bx]			;AN000; save it
+	push	word [cs:Entry_Point]	;AN000; save Entry point offset
+	mov	word [cs:Entry_Point], ax	;AN000; set for the call
 	mov	bx, IFS_RH		;AN000; Now, ES:BX -> Request packet
-	call	cs:[Entry_Point]		;AN000; Far call
-	pop	word cs:[Entry_Point]	;AN000; Restore Entry point offset
+	call	[cs:Entry_Point]		;AN000; Far call
+	pop	word [cs:Entry_Point]	;AN000; Restore Entry point offset
 	pop	ax				;AN000;
 	ret					;AN000;
 ; ENDP CallIFS;AN000;
@@ -2672,7 +2672,7 @@ Set_DevMark:;AN004;
 	push	es			;AN004;
 	push	di			;AN004;
 
-	mov	di, cs:[MEMHI]		;AN004;
+	mov	di, [cs:MEMHI]		;AN004;
 	mov	ds, di			;AN004;
 	; assume	ds:nothing;AN004;
 	mov	[DevMark_Addr], di	;AN004; save the DEVMARK address for the future.
@@ -2683,9 +2683,9 @@ Set_DevMark:;AN004;
 SDVMK_IFS:
 	mov	al, DEVMARK_IFS 	;AN004; ='I'
 SDVMK_ID:				;AN004;
-	mov	ds:[DEVMARK_ID], al	;AN004;
+	mov	[ds:DEVMARK_ID], al	;AN004;
 	inc	di			;AN008;
-	mov	ds:[DEVMARK_SEG], di	;AN008;
+	mov	[ds:DEVMARK_SEG], di	;AN008;
 	xor	al,al			;AN004;
 	push	si			;AN004;
 	pop	di			;AN004; now es:si = es:di = [path]filename,0
@@ -2693,7 +2693,7 @@ SDVMK_ID:				;AN004;
 	repnz	scasb			;AN004; find 0
 	dec	di			;AN020; Now es:di-> 0
 SDVMK_Backward: 			;AN004; find the pointer to the start of the filename.
-	mov	al, byte es:[di]	;AN004;;AN020;We do this by check es:di backward until
+	mov	al, byte [es:di]	;AN004;;AN020;We do this by check es:di backward until
 	cmp	al, '\' 		;AN004;;AN020; DI = SI or DI -> '\' or DI -> ':'.
 	je	SDVMK_GotFile		;AN004;;AN020;
 	cmp	al, ':' 		;AN004;
@@ -2746,15 +2746,15 @@ Chk_XMAEM:;AN029;
 	push	cx			;AN029;
 	mov	di, si			;AN029;save current starting pointer
 CX_Cmp: 				;AN029;
-	cmp	byte es:[si], 0	;AN029;
+	cmp	byte [es:si], 0	;AN029;
 	je	CX_Endfile		;AN029;
 	inc	si			;AN029;
 	jmp	CX_Cmp			;AN029;
 CX_Endfile:				;AN029;
 	dec	si			;AN029;
-	cmp	byte es:[si], '\'	;AN029;
+	cmp	byte [es:si], '\'	;AN029;
 	je	CX_Got_Tail		;AN029;
-	cmp	byte es:[si], ':'	;AN029;
+	cmp	byte [es:si], ':'	;AN029;
 	je	CX_Got_Tail		;AN029;
 	cmp	di, si			;AN029;
 	je	CX_Got_Tail0		;AN029;
@@ -2946,11 +2946,11 @@ st_flag:
 	cmp	di,0feh 		;AN030;;VDISK or FASTOPEN request?	       ;an000; dms;
 	jne	Int_2F_5800_Buff_Ck	;AN030;;no - check for buffers		       ;an000; dms;
 
-	cmp	word cs:[si],0ffffh  ;AN030;;valid entry?				;an000; dms;
+	cmp	word [cs:si],0ffffh  ;AN030;;valid entry?				;an000; dms;
 	je	Int_2F_5800_Err_Exit	;AN030;;no - exit			       ;an000; dms;
 
-	mov	es,word cs:[si]	;AN030;;get segment value		       ;an000; dms;
-	mov	di,word cs:[si+2]	;AN030;;get physical page value 	       ;an000; dms;
+	mov	es,word [cs:si]	;AN030;;get segment value		       ;an000; dms;
+	mov	di,word [cs:si+2]	;AN030;;get physical page value 	       ;an000; dms;
 	jmp	Int_2F_5800_Good_Exit	;AN030;;exit routine			       ;an000; dms;
 
 Int_2F_5800_Buff_Ck:			;AN030;
@@ -2960,11 +2960,11 @@ Int_2F_5800_Buff_Ck:			;AN030;
 
 	add	si,4			;AN030;;point to second element in array       ;an000; dms;
 
-	cmp	word cs:[si],0ffffh  ;AN034;;valid entry?				;an000; dms;
+	cmp	word [cs:si],0ffffh  ;AN034;;valid entry?				;an000; dms;
 	je	Int_2F_5800_Err_Exit	;AN034;;no - exit			       ;an000; dms;
 
-	mov	es,word cs:[si]	;AN030;;get segment value		       ;an000; dms;
-	mov	di,word cs:[si+2]	;AN030;;get physical page value 	       ;an000; dms;
+	mov	es,word [cs:si]	;AN030;;get segment value		       ;an000; dms;
+	mov	di,word [cs:si+2]	;AN030;;get physical page value 	       ;an000; dms;
 
 %endif
 
@@ -2980,7 +2980,7 @@ Int_2F_5800_Err_Exit:			;AN030;
 Int_2F_Exit:				;AN030;
 
 
-%if NOT BUFFERFLAG
+%if ~BUFFERFLAG
 	pop	si			;AN030;;restore regs			       ;an000; dms;
 %endif
 	iret				;AN030;;return to caller		       ;an000; dms;
@@ -3002,7 +3002,7 @@ Int_2F_Exit:				;AN030;
 ;	5/10/88 for DOS 4.0.
 ;-------------------------------------------------------------------
 
-%if NOT BUFFERFLAG
+%if ~BUFFERFLAG
 
 GetMappableArray equ	58h		; INT 67 function code for Get Mappable Array
 GetPageFrame	equ	41h		; function code for getting the page frame address
@@ -3095,7 +3095,7 @@ PassThru:
 EMS_STUB_END:;AN030;
 ;-------------------------------------------------------------------
 
-%if NOT BUFFERFLAG
+%if ~BUFFERFLAG
 ;-------------------------------------------------------------------
 ;
 ;	Int67FilterInit - This routine is called to initialize the INT 67
@@ -3164,14 +3164,14 @@ GetHighestPage:
 	push	di			;AN030;; save pointer
 
 PageScanLoop:				;AN030;
-	cmp	ax,ES:[di+2]		;AN030;; get phys_page_number
+	cmp	ax,[ES:di+2]		;AN030;; get phys_page_number
 	ja	LookAtNextPage		;AN030;; this one is lower than the one we are holding
 
-	cmp	es:[di], 0a000h 	; Only reserve pages in memory above 640K..
+	cmp	[es:di], 0a000h 	; Only reserve pages in memory above 640K..
 	jb	LookAtNextPage		; fix for ps2emm and m20emm with motherboard
 					; disabled. 7/25/88. HKN.
 
-	mov	ax,ES:[di+2]		;AN030;; this one is higher, make it new candidate
+	mov	ax,[ES:di+2]		;AN030;; this one is higher, make it new candidate
 	mov	bx,di			;AN030;; pointer to new candidate page, used to zero
 					; it later so we don't get the same one again
 	mov	dx,cx			;AN030;; save count where we found candidate
@@ -3228,16 +3228,16 @@ Notframe:				;AN030;
 
 	mov	di,bx			;AN030;; make ES:DI point to highest page table entry
 
-	mov	bx,ES:[di]		;AN030;; get segment address of page
+	mov	bx,[ES:di]		;AN030;; get segment address of page
 
 	mov	cx,dx			;AN030;; get count from candidate page
 
 	push ax 			;AN030;
 PackLoop:				;AN030;
-	mov	ax, es:[di+4]		;AN030;
-	mov	es:[di+0], ax		;AN030;
-	mov	ax, es:[di+6]		;AN030;
-	mov	es:[di+2], ax		;AN030;
+	mov	ax, [es:di+4]		;AN030;
+	mov	[es:di+0], ax		;AN030;
+	mov	ax, [es:di+6]		;AN030;
+	mov	[es:di+2], ax		;AN030;
 	add	di, 4			;AN030;
 	loop	PackLoop		;AN030;; do it until done
 	pop  ax 			;AN030;
@@ -3333,17 +3333,17 @@ EMS_Stub_Do:
 	push	es			;AN030;
 	xor	ax,ax			;AN030;save current Int 2fh, 67h vectors.
 	mov	es, ax			;AN030;
-	mov	ax, word es:[2fh*4] ;AN030;
+	mov	ax, word [es:2fh*4] ;AN030;
 	mov	IntV2FO, ax		;AN030;
-	mov	ax, word es:[2fh*4+2]	;AN030;
+	mov	ax, word [es:2fh*4+2]	;AN030;
 	mov	IntV2FS, ax			;AN030;
-	mov	ax, word es:[67h*4] 	;AN030;
-	mov	word cs:[OldInt67], ax	;AN030;
-	mov	ax, word es:[67h*4+2]	;AN030;
-	mov	word cs:[OldInt67+2], ax	;AN030;
+	mov	ax, word [es:67h*4] 	;AN030;
+	mov	word [cs:OldInt67], ax	;AN030;
+	mov	ax, word [es:67h*4+2]	;AN030;
+	mov	word [cs:OldInt67+2], ax	;AN030;
 	pop	es				;AN030;
 
-%if NOT BUFFERFLAG
+%if ~BUFFERFLAG
 ;initalize tables in INT 67h handler
 	call	Int67FilterInit 		;AN030;
 	cmp	ax, 0ffffh			; if the page found was part of a lim 4.0 page frame
@@ -3370,10 +3370,10 @@ EMS_Stub_Do:
 	xor	ax, ax				;AN030;
 	mov	ds, ax				;AN030;
 	cli					;AN030;
-	mov	word ds:[2Fh*4],NEWEMS2F_OFF;AN030;set the new int 2fh, 67h vectors.
-	mov	word ds:[2Fh*4+2], es	;AN030;
-	mov	word ds:[67h*4],NEW67_OFFSET;AN030;
-	mov	word ds:[67h*4+2], es	;AN030;
+	mov	word [ds:2Fh*4],NEWEMS2F_OFF;AN030;set the new int 2fh, 67h vectors.
+	mov	word [ds:2Fh*4+2], es	;AN030;
+	mov	word [ds:67h*4],NEW67_OFFSET;AN030;
+	mov	word [ds:67h*4+2], es	;AN030;
 	sti					;AN030;
 EMS_SH_Ret:					;AN030;
 	pop	cx				;AN030;

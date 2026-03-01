@@ -50,11 +50,11 @@ JMP   ENDCASE_&destination	 ;AN001;
 ;º											  º
 
 AT_or_XT286_or_PS2_50_or_PS2_60  EQU   0FCH  ;AN000;primary model byte for all 286 based machines
-BIOS_date			 EQU   ES:[DI]	   ;used for accessing parts of the BIOS date ;AN001;
+BIOS_date			 EQU   [ES:DI]	   ;used for accessing parts of the BIOS date ;AN001;
 INTCONV 			 EQU   48	   ;CONVERT ASCII TO NUMERIC
 model_byte_AH			 EQU   AH
 return_system_configuration	 EQU   0C0H	   ;INT 15H subfunction
-system_descriptor_table 	 EQU   ES:[BX]
+system_descriptor_table 	 EQU   [ES:BX]
 system_services 		 EQU   15H	   ;ROM BIOS call
 XT2				 EQU   0FBH  ;AN000;model byte for 2nd release of XT
 
@@ -68,11 +68,11 @@ XT2				 EQU   0FBH  ;AN000;model byte for 2nd release of XT
 ;º											  º
 
 struc BIOS_date_struc;in form mm/dd/yy  ;AN001;
-   month: dw 0;AN001;
-   slash1: db 0;AN001;
-   day: dw 0;AN001;
-   slash2: db 0;AN001;
-   year: dw 0;AN001;
+   month: resw 1;AN001;
+   slash1: resb 1;AN001;
+   day: resw 1;AN001;
+   slash2: resb 1;AN001;
+   year: resw 1;AN001;
 endstruc;AN001;
 
 
@@ -130,18 +130,18 @@ MODELENG:
 ;
     MOV    BL,0 		  ;INIT BL TO 0
 ;   IF THIS PARAMETER IS A THREE DIGIT NUMBER,
-    CMP    byte DS:[BP]+2,0 ;LOOK AT THIRD DIGIT
+    CMP    byte [DS:BP]+2,0 ;LOOK AT THIRD DIGIT
     JE	   ENDIF01
-    CMP    byte DS:[BP]+2,20H		;see if third char is a blank
+    CMP    byte [DS:BP]+2,20H		;see if third char is a blank
     JE	   ENDIF01		;IF there is a third digit THEN
 ;
-      MOV    AL,DS:[BP]     ;GET FIRST DIGIT
+      MOV    AL,[DS:BP]     ;GET FIRST DIGIT
       SUB    AL,INTCONV     ;CONVERT TO INT
       MUL    HUNDRED	    ;HUNDREDTHS PLACE
       ADD    BL,AL	    ;ADD TO BL
       INC    BP 	    ;BUMP TO NEXT DIGIT
     ENDIF01:	;ENDIF THIS PARAMETER IS A THREE DIGIT NUMBER
-    MOV    AL,DS:[BP]	    ;GET NEXT DIGIT
+    MOV    AL,[DS:BP]	    ;GET NEXT DIGIT
     SUB    AL,INTCONV	    ;CONVERT TO INT
        JNC    ENDIF02
        MOV     BL,0FFH	  ;encountered an error so put a bogus number in the sum
@@ -149,7 +149,7 @@ MODELENG:
     MUL    TEN		    ;TENS PLACE
     ADD    BL,AL	    ;ADD TO BL
     INC    BP		    ;GO TO NEXT DIGIT
-    MOV    AL,DS:[BP]	    ;GET NEXT DIGIT
+    MOV    AL,[DS:BP]	    ;GET NEXT DIGIT
     SUB    AL,INTCONV	    ;CONVERT TO INT
     ADD    BL,AL	    ;ADD TO BL
     RET

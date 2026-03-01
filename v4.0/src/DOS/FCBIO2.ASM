@@ -84,9 +84,9 @@ SECTION .CODE
 
 ; Defintions for FCBOp flags
 
-Random	=   2				; random operation
-FCBRead =   4				; doing a read
-Block	=   8				; doing a block I/O
+Random equ 2; random operation
+FCBRead equ 4; doing a read
+Block equ 8; doing a block I/O
 
 Break <GetRR - return the random record field in DX:AX>
 
@@ -101,8 +101,8 @@ Break <GetRR - return the random record field in DX:AX>
 
 Procedure   GetRR,NEAR
 	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
-	MOV	AX,word [SI.FCB_RR] ; get low order part
-	MOV	DX,word [SI.FCB_RR+2]   ; get high order part
+	MOV	AX,word [SI+FCB_RR] ; get low order part
+	MOV	DX,word [SI+FCB_RR+2]   ; get high order part
 	CMP	BX,64			; ignore MSB of RR if recsiz > 64
 	JB	GetRRBye
 	XOR	DH,DH
@@ -122,8 +122,8 @@ Break <GetExtent - retrieve next location for sequential IO>
 
 Procedure   GetExtent,NEAR
 	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
-	MOV	AL,[SI.fcb_NR]		; get low order piece
-	MOV	DX,[SI.fcb_EXTENT]	; get high order piece
+	MOV	AL,[SI+fcb_NR]		; get low order piece
+	MOV	DX,[SI+fcb_EXTENT]	; get high order piece
 	SHL	AL,1
 	SHR	DX,1
 	RCR	AL,1			; move low order bit of DL to high order of AH
@@ -149,13 +149,13 @@ Procedure SetExtent,NEAR
 	SaveReg <AX,DX>
 	MOV	CX,AX
 	AND	AL,7FH			; next rec field
-	MOV	[SI.fcb_NR],AL
+	MOV	[SI+fcb_NR],AL
 	AND	CL,80H			; save upper bit
 	SHL	CX,1
 	RCL	DX,1			; move high bit of CX to low bit of DX
 	MOV	AL,CH
 	MOV	AH,DL
-	MOV	[SI.fcb_EXTENT],AX	; all done
+	MOV	[SI+fcb_EXTENT],AX	; all done
 	RestoreReg  <DX,AX>
 	return
 EndProc SetExtent
@@ -173,7 +173,7 @@ Break <GetExtended - find FCB in potential extended fcb>
 Procedure   GetExtended,NEAR
 	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 	MOV	SI,DX			; point to Something
-	CMP	byte DS:[SI],-1	; look for extention
+	CMP	byte [DS:SI],-1	; look for extention
 	JNZ	GetBye			; not there
 	ADD	SI,7			; point to FCB
 GetBye:
@@ -192,11 +192,11 @@ Break <GetRecSize - return in BX the FCB record size>
 
 Procedure   GetRecSize,NEAR
 	; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:DOSGroup
-	MOV	BX,[SI.fcb_RECSIZ]	; get his record size
+	MOV	BX,[SI+fcb_RECSIZ]	; get his record size
 	OR	BX,BX			; is it nul?
 	retnz
 	MOV	BX,128			; use default size
-	MOV	[SI.fcb_RECSIZ],BX	; stuff it back
+	MOV	[SI+fcb_RECSIZ],BX	; stuff it back
 	return
 EndProc GetRecSize
 
@@ -297,13 +297,13 @@ FCBDeath:
 ContinueOp:
 	Assert	ISSFT,<ES,DI>,"ContinueOP"
 	MOV	AX,word [SI].fcb_filsiz
-	MOV	word ES:[DI].sf_size,AX
+	MOV	word [ES:DI].sf_size,AX
 	MOV	AX,word [SI].fcb_filsiz+2
-	MOV	word ES:[DI].sf_size+2,AX
+	MOV	word [ES:DI].sf_size+2,AX
 	MOV	AX,bPosL
 	MOV	DX,bPosH
-	MOV	word ES:[DI.sf_position],AX
-	XCHG	word ES:[DI.sf_position+2],DX
+	MOV	word [ES:DI+sf_position],AX
+	XCHG	word [ES:DI+sf_position+2],DX
 	PUSH	DX			; save away Open age.
 	MOV	CX,cByte		;	cResult =
 
@@ -326,17 +326,17 @@ DoContext:
 	push	ax
 	push	bx
 
-	cmp	cs:[BUF_EMS_MODE], -1
+	cmp	[cs:BUF_EMS_MODE], -1
 	jz	dos_fcb_call_done
 	call	restore_user_map
-	mov	ax, word cs:[BUF_EMS_LAST_PAGE]
-	cmp	cs:[BUF_EMS_PFRAME], ax
+	mov	ax, word [cs:BUF_EMS_LAST_PAGE]
+	cmp	[cs:BUF_EMS_PFRAME], ax
 	je	dos_fcb_call_done
-	mov	word cs:[LASTBUFFER], -1
-	mov	cs:[BUF_EMS_PFRAME], ax
-	mov	ax, word cs:[BUF_EMS_LAST_PAGE+2]
-	mov	cs:[BUF_EMS_PAGE_FRAME], ax
-	mov	cs:[BUF_EMS_SAFE_FLAG], 1
+	mov	word [cs:LASTBUFFER], -1
+	mov	[cs:BUF_EMS_PFRAME], ax
+	mov	ax, word [cs:BUF_EMS_LAST_PAGE+2]
+	mov	[cs:BUF_EMS_PAGE_FRAME], ax
+	mov	[cs:BUF_EMS_SAFE_FLAG], 1
 	call	Setup_EMS_Buffers
 
 dos_fcb_call_done:
@@ -357,10 +357,10 @@ NODSKFULL:
 	invoke	SaveFCBInfo		;	SaveFCBInfo (FCB);
 	Assert	ISSFT,<ES,DI>,"FCBIO/SaveFCBInfo"
 %warning WARNING!!! Make sure sf_position+2 is OpenAGE
-	POP	word ES:[DI].sf_Position+2	; restore open age
-	MOV	AX,word ES:[DI].sf_size
+	POP	word [ES:DI].sf_Position+2	; restore open age
+	MOV	AX,word [ES:DI].sf_size
 	MOV	word [SI].fcb_filsiz,AX
-	MOV	AX,word ES:[DI].sf_size+2
+	MOV	AX,word [ES:DI].sf_size+2
 	MOV	word [SI].fcb_filsiz+2,AX
 					;	}
 SkipOp:
@@ -380,7 +380,7 @@ SkipOp:
 	JZ	TryBlank
 	TEST	FCBOp,FCBRead		;	if (OP&FCBRead || !DEVICE)
 	JNZ	SetEOF
-	TEST	ES:[DI].sf_flags,devid_device
+	TEST	[ES:DI].sf_flags,devid_device
 	JNZ	TryBlank
 SetEOF:
 	MOV	FCBErr,FEOF		;	FCBErr = FEOF;
@@ -411,9 +411,9 @@ DoSetExt:
 TrySetRR:
 	TEST	FCBOp,BLOCK		;   if ((op&BLOCK) <> 0)
 	JZ	TryReturn
-	MOV	word [SI.FCB_RR],AX ;	FCB->RR = RecPos;
-	MOV	byte [SI.FCB_RR+2],DL
-	CMP	[SI.fcb_RECSIZ],64
+	MOV	word [SI+FCB_RR],AX ;	FCB->RR = RecPos;
+	MOV	byte [SI+FCB_RR+2],DL
+	CMP	[SI+fcb_RECSIZ],64
 	JAE	TryReturn
 	MOV	[SI+fcb_RR+2+1],DH	; Set 4th byte only if record size < 64
 TryReturn:
@@ -429,7 +429,7 @@ FCBSave:
 	JZ	DoReturn
 	MOV	CX,cRecRes		;	user_CX = cRecRes;
 	invoke	Get_User_Stack
-	MOV	[SI.User_CX],CX
+	MOV	[SI+User_CX],CX
 DoReturn:
 	MOV	AL,FCBErr		;   return (FCBERR);
 	Leave
@@ -479,7 +479,7 @@ FindFCB:
 ;	MessageNum  DI
 ;	Message 1,<13,10>
 
-	MOV	ES:[DI].sf_mode,sf_ISFCB
+	MOV	[ES:DI].sf_mode,sf_ISFCB
 	SaveReg <DS,SI,BX>		; save fcb pointer
 	MOV	SI,CX
 	Context DS			; let DOS_Open see variables
@@ -509,32 +509,32 @@ FCBOK:
 	JNZ	FCBOK2			       ;AN007;F.C. >32mb  yes
 	invoke	CheckShare		       ;AN000;F.C. >32mb  share around?
 	JNZ	FCBOK2			       ;AN000;F.C. >32mb  yes
-	CMP	word ES:[DI].sf_dirsec+2,0 ;AN000;F.C. >32mb  if dirsec >32mb
+	CMP	word [ES:DI].sf_dirsec+2,0 ;AN000;F.C. >32mb  if dirsec >32mb
 	JZ	FCBOK2			       ;AN000;F.C. >32mb    then error
 	MOV	AX,error_sys_comp_not_loaded   ;AN000;F.C. >32mb
 	JMP	failopen		       ;AN000;F.C. >32mb
 FCBOK2:
 
-	INC	ES:[DI].sf_ref_count	; increment reference count
+	INC	[ES:DI].sf_ref_count	; increment reference count
 	invoke	SaveFCBInfo
 	Assert	ISSFT,<ES,DI>,"FCBOK"
 	invoke	SetOpenAge
 	Assert	ISSFT,<ES,DI>,"FCBOK/SetOpenAge"
-	TEST	ES:[DI].sf_flags,devid_device
+	TEST	[ES:DI].sf_flags,devid_device
 	JNZ	FCBNoDrive		; do not munge drive on devices
-	MOV	AL,DS:[SI]		; get drive byte
+	MOV	AL,[DS:SI]		; get drive byte
 	invoke	GetThisDrv		; convert
 	INC	AL
-	MOV	DS:[SI],AL		; stash in good drive letter
+	MOV	[DS:SI],AL		; stash in good drive letter
 FCBNoDrive:
 	MOV	[SI].FCB_RecSiz,80h	; stuff in default record size
-	MOV	AX,ES:[DI].SF_Time	; set time
+	MOV	AX,[ES:DI].SF_Time	; set time
 	MOV	[SI].FCB_FTime,AX
-	MOV	AX,ES:[DI].SF_Date	; set date
+	MOV	AX,[ES:DI].SF_Date	; set date
 	MOV	[SI].FCB_FDate,AX
-	MOV	AX,word ES:[DI].SF_Size ; set sizes
+	MOV	AX,word [ES:DI].SF_Size ; set sizes
 	MOV	[SI].FCB_FILSIZ,AX
-	MOV	AX,word ES:[DI].SF_Size+2
+	MOV	AX,word [ES:DI].SF_Size+2
 	MOV	[SI].FCB_FILSIZ+2,AX
 	XOR	AX,AX			; convenient zero
 	MOV	[SI].FCB_Extent,AX	; point to beginning of file
@@ -543,7 +543,7 @@ FCBNoDrive:
 ; one.	We cheat and use CheckFCB to match the FCBs.
 ;
 	LES	DI,SFTFCB		; get the pointer to head of the list
-	MOV	AH,byte ES:[DI].sfCount ; get number of SFTs to scan
+	MOV	AH,byte [ES:DI].sfCount ; get number of SFTs to scan
 OpenScan:
 	CMP	AL,[SI].fcb_sfn 	; don't compare ourselves
 	JZ	SkipCheck
@@ -580,16 +580,16 @@ OpenDone:
 ;
 OpenFound:
 	MOV	[SI].fcb_SFN,AL 	; assign with this
-	INC	ES:[DI].sf_ref_count	; remember this new invocation
+	INC	[ES:DI].sf_ref_count	; remember this new invocation
 	MOV	AX,FCBLRU		; update LRU counts
-	MOV	ES:[DI].sf_LRU,AX
+	MOV	[ES:DI].sf_LRU,AX
 ;
 ; We have an FCB sft that is now of no use.  We release sharing info and then
 ; blast it to prevent other reuse.
 ;
 	context DS
 	LES	DI,ThisSFT
-	DEC	ES:[DI].sf_ref_count	; free the newly allocated SFT
+	DEC	[ES:DI].sf_ref_count	; free the newly allocated SFT
 	invoke	ShareEnd
 	Assert	ISSFT,<ES,DI>,"Open blasting"
 	MOV	AL,'C'

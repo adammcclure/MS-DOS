@@ -38,9 +38,9 @@ SECTION .dosxxx
 	; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-FileHandle: dw 0; file or device handle
+old_bp: resw 1
+return: resd 1
+FileHandle: resw 1; file or device handle
 endstruc
 
 

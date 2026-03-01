@@ -83,13 +83,13 @@ BREAK   <MFT Definitions>
 
 struc MFT_entry
 
-mft_flag: db 0; flag/len field
-mft_len: dw 0
-mft_sum: db 0; string sum word
-mft_lptr: dw 0; LCK pointer
-mft_sptr: dd 0; sft pointer
-mft_serl: dw 0; serial number
-mft_name: db 0; offset to start of name
+mft_flag: resb 1; flag/len field
+mft_len: resw 1
+mft_sum: resb 1; string sum word
+mft_lptr: resw 1; LCK pointer
+mft_sptr: resd 1; sft pointer
+mft_serl: resw 1; serial number
+mft_name: resb 1; offset to start of name
 
 endstruc
 
@@ -112,14 +112,14 @@ MFLG_END        EQU     -1              ; end record
 
 struc RLR_entry
 
-rlr_next: dw 0; chain to next RLR, 0 if end
-rlr_fba: dw 0; first byte addr (offset) of reigion
-                dw 0
-rlr_lba: dw 0; last byte addr of region
-                dw 0
-rlr_sptr: dd 0; SFT pointer
-rlr_pid: dw 0; process id of issuer
-rlr_type: dw 0; lock type
+rlr_next: resw 1; chain to next RLR, 0 if end
+rlr_fba: resw 1; first byte addr (offset) of reigion
+                resw 1
+rlr_lba: resw 1; last byte addr of region
+                resw 1
+rlr_sptr: resd 1; SFT pointer
+rlr_pid: resw 1; process id of issuer
+rlr_type: resw 1; lock type
 endstruc
 
 rlr_lall        equ     00h            ; lock all ops

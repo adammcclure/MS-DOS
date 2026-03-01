@@ -4,8 +4,8 @@ struc DEVMARK
 DEVMARK_ID	  db	  0
 DEVMARK_SEG	  dw	  0
 DEVMARK_SIZE	  dw	  0
-DEVMARK_DUM: times 3 db 0
-DEVMARK_FILENAME: times 8 db ' '
+DEVMARK_DUM: resb 3
+DEVMARK_FILENAME: resb 8
 endstruc
 
 DEVMARK_STK	equ	'S'

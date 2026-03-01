@@ -750,12 +750,12 @@ $$IF8:
 ;	$endif
 $$EN8:
 
-	MOV	CX,es:[SI]			;an005; get contents of fat cell
+	MOV	CX,[es:SI]			;an005; get contents of fat cell
 	AND	CX,AX				;an005; make it 12 or 16 bit
 						;	depending on value in AX
 	NOT	AX				;an005; set AX to 0
-	AND	es:[SI],AX			;an005; clear FAT entry
-	OR	es:[SI],DX			;an005; flag it a bad cluster
+	AND	[es:SI],AX			;an005; clear FAT entry
+	OR	[es:SI],DX			;an005; flag it a bad cluster
 	CMP	DX,CX				;   return op == badval;
 
 	pop	es
@@ -802,8 +802,8 @@ FATWRT:
 	INT	21H
 	CMP	AL,-1
 	JZ	LOUSEP				;Something BAD has happened
-	MOV	[BX.dpb_next_free],0		; Reset allocation to start of disk
-	MOV	[BX.dpb_free_cnt],-1		; Force free space to be computed
+	MOV	[BX+dpb_next_free],0		; Reset allocation to start of disk
+	MOV	[BX+dpb_free_cnt],-1		; Force free space to be computed
 	POP	DS
 	TEST	SWITCHMAP,SWITCH_S		;System desired
 	JZ	STATUS
@@ -1129,7 +1129,7 @@ READDOS:
 
 	mov	ah,Get_In_Vars			;Find out boot drive		;an025; dms;
 	int	21h				;				;an025; dms;
-	mov	al,byte es:[bx].SysI_Boot_Drive ;get 1 based drive ID	;an025; dms;
+	mov	al,byte [es:bx].SysI_Boot_Drive ;get 1 based drive ID	;an025; dms;
 	add	al,40h				;Make it ASCII			;an025; dms;
 	mov	[BiosFile],al			;Stuff it in file specs.	;an025; dms;
 	mov	[DosFile],al			;				;an025; dms;
@@ -1559,7 +1559,7 @@ GOTTARG:
 	MOV	SI,word [IOCNT]
 	MOV	DI,word [IOCNT+2]
 	push	ds
-	MOV	DS,ds:[BP.fileStartSegment]
+	MOV	DS,[ds:BP+fileStartSegment]
 	; assume	ds:nothing
 	CALL	WRITEFILE			; Write next part
 	pop	ds
@@ -1567,11 +1567,11 @@ GOTTARG:
 	retc
 
 	push	es
-	LES	AX,ds:[BP.fileOffset]
-	CMP	AX,word ds:[BP.fileSizeInBytes]
+	LES	AX,[ds:BP+fileOffset]
+	CMP	AX,word [ds:BP+fileSizeInBytes]
 	JNZ	GETSYS3
 	MOV	AX,ES
-	CMP	AX,word ds:[BP.fileSizeInBytes+2]
+	CMP	AX,word [ds:BP+fileSizeInBytes+2]
 	JNZ	GETSYS3
 	pop	es
 	return					; Carry clear from CMP
@@ -1582,7 +1582,7 @@ GETSYS3:
 	MOV	AH,DISK_RESET
 	INT	21H
 	MOV	AX,[MSTART]			;Furthur IO done starting here
-	MOV	ds:[BP.fileStartSegment],AX	;point to start of buffer
+	MOV	[ds:BP+fileStartSegment],AX	;point to start of buffer
 	MOV	AL,[systemDriveLetter]		;see if we have system disk
 	CMP	AL,[DriveLetter]
 	JNZ	TESTSYS
@@ -1593,9 +1593,9 @@ GSYS:
 TESTSYS:
 ;	CALL	TESTSYSDISK			; dcl 8/23/86
 	JC	GSYS
-	MOV	BX,word DS:[BP.fileHandle]	; CS over ARR 2.30
+	MOV	BX,word [DS:BP+fileHandle]	; CS over ARR 2.30
 	push	es
-	LES	DX,dword DS:[BP.fileOffset] ; CS over ARR 2.30
+	LES	DX,dword [DS:BP+fileOffset] ; CS over ARR 2.30
 	MOV	CX,ES
 	pop	es
 	PUSH	DX
@@ -1603,7 +1603,7 @@ TESTSYS:
 	INT	21H
 	POP	DX
 	push	es
-	LES	SI,dword DS:[BP.fileSizeInBytes] ; CS over ARR 2.30
+	LES	SI,dword [DS:BP+fileSizeInBytes] ; CS over ARR 2.30
 	MOV	DI,ES				;put high word in di
 	pop	es
 	SUB	SI,DX				;get low word value
@@ -1638,8 +1638,8 @@ GETOFFS:
 	MOV	CX,DX				;clear cx
 	MOV	AX,(LSEEK SHL 8) OR 1
 	INT	21H
-	MOV	word DS:[BP.fileOffset],AX	; CS over ARR 2.30
-	MOV	word DS:[BP.fileOffset+2],DX ; CS over ARR 2.30
+	MOV	word [DS:BP+fileOffset],AX	; CS over ARR 2.30
+	MOV	word [DS:BP+fileOffset+2],DX ; CS over ARR 2.30
 ;;;;;;	CALL	CLSALL
 	JMP	IOLOOP
 
@@ -2171,7 +2171,7 @@ NotBigTotalSectors:
 	jne	StickE5
 	mov	al, 0e5H
 StickE5:
-	mov	es:[bx], al
+	mov	[es:bx], al
 	add	bx, dir_entry_size
 	loop	stickE5
 
@@ -2270,7 +2270,7 @@ NotBig: stosw
 	jmp	FormatDone			;FormatDone is to far away
 
 Keep_Going:
-foofoo	=	INSTALL_FAKE_BPB or TRACKLAYOUT_IS_GOOD
+foofoo equ INSTALL_FAKE_BPB or TRACKLAYOUT_IS_GOOD
 	mov	deviceParameters.DP_SpecialFunctions, foofoo
 	lea	dx, deviceParameters
 
@@ -3367,9 +3367,9 @@ Procedure Set_BPB_Info								;an012; dms;calc new BPB
 ;	$if	e								;an012; dms;yes, 0 FATS specified
 	JNE $$IF101
 		call	Scan_Disk_Table 					;an012; dms;access disk table
-		mov	bl,byte ds:[si+8]					;an012; dms;get FAT type
-		mov	cx,word ds:[si+4]					;an012; dms;get sectors/cluster
-		mov	dx,word ds:[si+6]					;an012; dms;number of entries for the root DIR
+		mov	bl,byte [ds:si+8]					;an012; dms;get FAT type
+		mov	cx,word [ds:si+4]					;an012; dms;get sectors/cluster
+		mov	dx,word [ds:si+6]					;an012; dms;number of entries for the root DIR
 
 		mov	DeviceParameters.DP_BPB.BPB_RootEntries,dx		;an012; dms;save root entries
 		mov	DeviceParameters.DP_BPB.BPB_SectorsPerCluster,ch	;an012; dms;save sectors/cluster
@@ -3425,10 +3425,10 @@ $$EN106:
 	mov	si,DiskTable						;an012; dms;point to disk data
 Scan:
 
-	cmp	dx,word ds:[si]						;an012; dms;below?
+	cmp	dx,word [ds:si]						;an012; dms;below?
 	jb	Scan_Disk_Table_Exit						;an012; dms;yes, exit
 	ja	Scan_Next							;an012; dms;no, continue
-	cmp	ax,word ds:[si+2]						;an012; dms;below or equal?
+	cmp	ax,word [ds:si+2]						;an012; dms;below or equal?
 	jbe	Scan_Disk_Table_Exit						;an012; dms;yes, exit
 
 Scan_Next:

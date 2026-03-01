@@ -191,7 +191,7 @@ RESRET:
 	MOV	DS,[RESSEG]
 ; ASSUME	DS:RESGROUP
 	PUSH	DS
-	MOV	AX,word DS:[PDB_JFN_Table]	; Get new 0 and 1
+	MOV	AX,word [DS:PDB_JFN_Table]	; Get new 0 and 1
 	MOV	[IO_SAVE],AX
 	MOV	AX,LODCOM1
 	PUSH	AX
@@ -456,11 +456,11 @@ no_reset:					;AN045;
 ; assume	es:resgroup
 
 	MOV	AX,[PARENT]
-	MOV	word ES:[PDB_Parent_PID],AX
+	MOV	word [ES:PDB_Parent_PID],AX
 	MOV	AX,word OldTerm
-	MOV	word ES:[PDB_Exit],AX
+	MOV	word [ES:PDB_Exit],AX
 	MOV	AX,word OldTerm+2
-	MOV	word ES:[PDB_Exit+2],AX
+	MOV	word [ES:PDB_Exit+2],AX
 
 	PUSH	ES
 	MOV	ES,[TRAN_TPA]

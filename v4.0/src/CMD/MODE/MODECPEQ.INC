@@ -254,17 +254,17 @@ SET_BREAK_STATE     EQU  1
 BREAK_OFF	    EQU  0
 BREAK_ON	    EQU  1
 
-DBCS_header	    EQU  ES:[DI]    ;used to address DBCS_head
-DBCS_table	    EQU  DS:[SI]    ;used to address the DBCS vector table
+DBCS_header	    EQU  [ES:DI]    ;used to address DBCS_head
+DBCS_table	    EQU  [DS:SI]    ;used to address the DBCS vector table
 
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 ;	       DEFINITIONS OF CONTROL BLOCKS
 
 struc FON;CODEPAGE FONT FILE CONTENTS
 FONTAG		    DB	 0FFH,"FONT   " ;FILE TAG
-		    times 8 db 0;RESERVED
-FONPTCT: dw 0;COUNT OF POINTERS IN HEADER
-FONPT: db 0;START OF ARRAY OF POINTERS
+		    resb 8;RESERVED
+FONPTCT: resw 1;COUNT OF POINTERS IN HEADER
+FONPT: resb 1;START OF ARRAY OF POINTERS
 endstruc
 
 ;		THIS STRUC MAPS AN AREA POINTED TO BY "CP_CB", AN EXTRN
@@ -284,29 +284,29 @@ struc PACKET;USED BY MINOR CODES: 6AH,4AH,4DH (SELECT, QUERY SELECTED, PREPARE E
 PACKLEN 	    DW	 2     ;LENGTH OF PACKET IN BYTES, FOR DBCS COUNTRIES, LENGTH OF DBCS TABLE (IF NON-ZERO) WILL be added
 PACKCPID	    DW	 0     ;CODE PAGE ID
 PACKVECTOR1	    DB	 0     ;start of vector list if included							    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0     ; holders for maximum possible number of 						    ;AN000;
-		    DB	 0     ; DBCS vector pairs									    ;AN000;
-		    DB	 0     ;											    ;AN000;
-		    DB	 0     ;											    ;AN000;
-		    DB	 0     ;											    ;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1; holders for maximum possible number of 						    ;AN000;
+		    resb 1; DBCS vector pairs									    ;AN000;
+		    resb 1;											    ;AN000;
+		    resb 1;											    ;AN000;
+		    resb 1;											    ;AN000;
 PACKVECTOR12	    DB	 0     ;											    ;AN000;
-		    DB	 0     ;											    ;AN000;
+		    resb 1;											    ;AN000;
 endstruc;AN000;
 															    ;AN000;
 struc DBCS_head;return from function 6507, pointed to by ES:DI, addressed via "DBCS_header"                 ;AN000;
@@ -317,42 +317,42 @@ endstruc
 struc DBCS_tabl;map of DBCS table, addressed via DBCS_table						    ;AN000;
 table_len	    DW	 6     ;length in bytes of the list of vectors							    ;AN000;
 vector1 	    DB	 0     ;start of vector list									    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0     ;each vector is two bytes, a start value and an						    ;AN000;
-		    DB	 0     ;end value										    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
-		    DB	 0												    ;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;each vector is two bytes, a start value and an						    ;AN000;
+		    resb 1;end value										    ;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
+		    resb 1;AN000;
 endstruc
 
 
 ;		"DES_STRT_PACKET" POINTED TO BY DS:DX
 struc DES_STRT_PACKET
-DES_STRT_PKFL: dw 0;FLAGS (DEFINED BELOW STRUC DEFINITION)
-DES_STRT_PKLEN: dw 0;BYTE LENGTH OF REST OF THE PACKET,
+DES_STRT_PKFL: resw 1;FLAGS (DEFINED BELOW STRUC DEFINITION)
+DES_STRT_PKLEN: resw 1;BYTE LENGTH OF REST OF THE PACKET,
 			       ; NOT INCLUDING THIS LENGTH FIELD
-DES_STRT_PKNUM: dw 0;NUMBER OF CODEPAGES IN FOLLOWING LIST
-DES_STRT_PKCP1: dw 0;CODE PAGE ONE
-DES_STRT_PKCP2: dw 0;CODE PAGE TWO
+DES_STRT_PKNUM: resw 1;NUMBER OF CODEPAGES IN FOLLOWING LIST
+DES_STRT_PKCP1: resw 1;CODE PAGE ONE
+DES_STRT_PKCP2: resw 1;CODE PAGE TWO
 ;   :		    :	 :	  :
-DES_STRT_PKCPN: dw 0;CODE PAGE n
+DES_STRT_PKCPN: resw 1;CODE PAGE n
 ;NOTE: THESE n CODEPAGES MAY HAVE A -1 VALUE, WHICH IS TREATED AS A PLACEHOLDER
 ; TO ALLOW POSITION CONTROL FOR EACH CODEPAGE VALUE IN THE LIST.
 endstruc

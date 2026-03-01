@@ -77,8 +77,8 @@ Procedure   GETBATBYT,NEAR
 	PUSH	ES
 	MOV	ES,Batch
 	; ASSUME	ES:NOTHING
-	ADD	word ES:[BatSeek],1
-	ADC	word ES:[BatSeek+2],0
+	ADD	word [ES:BatSeek],1
+	ADC	word [ES:BatSeek+2],0
 	POP	ES
 ;
 ; See if we have bytes buffered...
@@ -210,7 +210,7 @@ IFCOMP:
 
 FIRSTCOMP:
 	LODSB
-	MOV	AH,ES:[DI]
+	MOV	AH,[ES:DI]
 	INC	DI
 	CMP	AL,AH
 	JZ	IFLP
@@ -378,8 +378,8 @@ IFTRUE:
 	invoke	SCANOFF
 	MOV	CX,SI
 	SUB	CX,81H
-	SUB	DS:[80H],CL
-	MOV	CL,DS:[80H]
+	SUB	[DS:80H],CL
+	MOV	CL,[DS:80H]
 	MOV	[COMBUF+1],CL
 	MOV	DI,COMBUF+2
 	CLD
@@ -575,8 +575,8 @@ GOTO:
 	XOR	DX,DX
 	PUSH	DS
 	MOV	DS,Batch
-	MOV	word DS:[BatSeek],DX	; Back to start
-	MOV	word DS:[BatSeek+2],DX	; Back to start
+	MOV	word [DS:BatSeek],DX	; Back to start
+	MOV	word [DS:BatSeek+2],DX	; Back to start
 	POP	DS
 
 GotoOpen:
@@ -642,7 +642,7 @@ NEXTCHRLP:
 GotByte:
 	INVOKE	TESTKANJ			;AN000;  3/3/KK
 	JZ	NOTKANJ1			;AN000;  3/3/KK
-	CMP	AL, ES:[DI]			;AN000;  3/3/KK
+	CMP	AL, [ES:DI]			;AN000;  3/3/KK
 	JNZ	LABLKTST			;AN000;  3/3/KK
 	INC	DI				;AN000;  3/3/KK
 	DEC	CX				;AN000;  3/3/KK
@@ -650,18 +650,18 @@ GotByte:
 	PUSH	CX				;AN000;  3/3/KK
 	CALL	GETBATBYT			;AN000;  3/3/KK
 	POP	CX				;AN000;  3/3/KK
-	CMP	AL, ES:[DI]			;AN000;  3/3/KK
+	CMP	AL, [ES:DI]			;AN000;  3/3/KK
 	JMP	SHORT KNEXTLABCHR		;AN000;  3/3/KK
 
 NOTKANJ1:					;AN000;  3/3/KK
 	OR	AL,20H
-	CMP	AL,ES:[DI]
+	CMP	AL,[ES:DI]
 	JNZ	TRYUPPER
 	JMP	SHORT NEXTLABCHR
 
 TRYUPPER:
 	SUB	AL,20H
-	CMP	AL,ES:[DI]
+	CMP	AL,[ES:DI]
 
 KNEXTLABCHR:					;AN000;  3/3/KK
 	JNZ	LABLKTST
@@ -692,7 +692,7 @@ SKIPLFEED:
 
 Procedure   BatClose,NEAR
 
-	MOV	BX,CS:[BATHAND]
+	MOV	BX,[CS:BATHAND]
 	CMP	BX,5
 	JB	CloseReturn
 	MOV	AH,CLOSE
@@ -721,8 +721,8 @@ Procedure   BatOpen,NEAR
 	MOV	AX,OPEN SHL 8
 	INT	int_command			; Open the batch file
 	JC	SETERRDL
-	MOV	DX,word DS:[BatSeek]
-	MOV	CX,word DS:[BatSeek+2]
+	MOV	DX,word [DS:BatSeek]
+	MOV	CX,word [DS:BatSeek+2]
 	POP	DS
 ; ASSUME	DS:RESGROUP
 

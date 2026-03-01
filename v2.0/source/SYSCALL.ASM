@@ -56,9 +56,9 @@ SECTION .CODE
         MOV     BX,word [DAY]
         invoke  get_user_stack           ;Get pointer to user registers
 ; ASSUME  DS:NOTHING
-        MOV     [SI.user_DX],BX  ;DH=month, DL=day
+        MOV     [SI+user_DX],BX  ;DH=month, DL=day
         ADD     AX,1980         ;Put bias back
-        MOV     [SI.user_CX],AX  ;CX=year
+        MOV     [SI+user_CX],AX  ;CX=year
         MOV     AL,byte [WEEKDAY]
         RET
 ; ENDP $GET_DATE
@@ -106,8 +106,8 @@ RET24:  RET
 ; ASSUME  DS:DOSGROUP
         invoke  READTIME
         invoke  get_user_stack           ;Get pointer to user registers
-        MOV     [SI.user_DX],DX
-        MOV     [SI.user_CX],CX
+        MOV     [SI+user_DX],DX
+        MOV     [SI+user_CX],CX
         XOR     AL,AL
 RET26:  RET
 ; ENDP $GET_TIME
@@ -275,27 +275,27 @@ FINSEQ:
         invoke  STORE
 FINBLK:
         invoke  get_user_stack
-        MOV     [SI.user_CX],CX
+        MOV     [SI+user_CX],CX
         entry   FINNOSAV
         JCXZ    FINRND
         ADD     AX,1
         ADC     DX,0
 FINRND:
-        MOV     word ES:[DI.fcb_RR],AX
-        MOV     ES:[DI.fcb_RR+2],DL
+        MOV     word [ES:DI+fcb_RR],AX
+        MOV     [ES:DI+fcb_RR+2],DL
         OR      DH,DH
         JZ      SETNREX
-        MOV     ES:[DI.fcb_RR+3],DH ; Save 4 byte of RECPOS only if significant
+        MOV     [ES:DI+fcb_RR+3],DH ; Save 4 byte of RECPOS only if significant
 SETNREX:
         MOV     CX,AX
         AND     AL,7FH
-        MOV     ES:[DI.fcb_NR],AL
+        MOV     [ES:DI+fcb_NR],AL
         AND     CL,80H
         SHL     CX,1
         RCL     DX,1
         MOV     AL,CH
         MOV     AH,DL
-        MOV     ES:[DI.fcb_EXTENT],AX
+        MOV     [ES:DI+fcb_EXTENT],AX
         MOV     AL,byte [DSKERR]
 RET4:
         RET
@@ -345,20 +345,20 @@ DELFILE:
 ; ASSUME  DS:NOTHING
         TEST    [Attrib],attr_read_only ; are we deleting RO files too?
         JNZ     DoDelete            ; yes
-        TEST    DS:[BX.dir_attr],attr_read_only
+        TEST    [DS:BX+dir_attr],attr_read_only
         JZ      DoDelete            ; not read only
         POP     DS
         JMP     SHORT DelNxt
 DoDelete:
         MOV     byte [FoundDel],0
-        MOV     [DI.BUFDIRTY],1
+        MOV     [DI+BUFDIRTY],1
         MOV     byte [BX],AH
         MOV     BX,[SI]
         POP     DS
 ; ASSUME  DS:DOSGROUP
         OR      BX,BX
         JZ      DELNXT
-        CMP     BX,ES:[BP.dpb_max_cluster]
+        CMP     BX,[ES:BP+dpb_max_cluster]
         JA      DELNXT
         invoke  RELEASE
 DELNXT:
@@ -436,7 +436,7 @@ NOCHG:
         MOV     CX,11
         REP     MOVSB                   ; Replace old name with new one
         MOV     DI,word [CURBUF]
-        MOV     ES:[DI.BUFDIRTY],1      ; Directory changed
+        MOV     [ES:DI+BUFDIRTY],1      ; Directory changed
         PUSH    SS
         POP     ES
         MOV     SI,NAME3
@@ -543,7 +543,7 @@ SAVDEVPT:
         LDS     AX,[DEVPT]
 ; ASSUME  DS:NOTHING
         STOSW
-        MOV     ES:[DI],DS
+        MOV     [ES:DI],DS
         JMP     SHORT OPEN_RET
 ; ENDP $FCB_OPEN
 
@@ -564,7 +564,7 @@ SAVDEVPT:
         JNZ     NORMFCB3
         ADD     DI,7
 NORMFCB3:
-        TEST    [DI.fcb_DEVID],devid_file_clean+devid_device
+        TEST    [DI+fcb_DEVID],devid_file_clean+devid_device
                                         ; Allow only dirty files
         JNZ     OKRET1                  ; can't close I/O device or not written
         invoke  MOVNAMENOSET
@@ -573,7 +573,7 @@ NORMFCB3:
         PUSH    DX
         PUSH    DS
         MOV     SI,DX
-        MOV     BX,[SI.fcb_LSTCLUS+1]
+        MOV     BX,[SI+fcb_LSTCLUS+1]
         MOV     CL,4
         SHR     BX,CL
         PUSH    BX
@@ -593,23 +593,23 @@ NORMFCB3:
         ; note that SI points to dir_first...
 
         OR      byte [SI-dir_first+dir_attr],attr_archive
-        MOV     CX,ES:[DI.fcb_FIRCLUS]
+        MOV     CX,[ES:DI+fcb_FIRCLUS]
         MOV     [SI-dir_first+dir_first],CX
-        MOV     DX,ES:word [DI.fcb_FILSIZ]
+        MOV     DX,ES:word [DI+fcb_FILSIZ]
         MOV     [SI-dir_first+dir_size_l],DX
-        MOV     DX,ES:word [DI.fcb_FILSIZ+2]
+        MOV     DX,ES:word [DI+fcb_FILSIZ+2]
         MOV     [SI-dir_first+dir_size_h],DX
-        MOV     DX,ES:[DI.fcb_FDATE]
+        MOV     DX,[ES:DI+fcb_FDATE]
         MOV     [SI-dir_first+dir_date],DX
-        MOV     DX,ES:[DI.fcb_FTIME]
+        MOV     DX,[ES:DI+fcb_FTIME]
         MOV     [SI-dir_first+dir_time],DX
-        MOV     [BX.BUFDIRTY],1
+        MOV     [BX+BUFDIRTY],1
         PUSH    SS
         POP     DS
 ; ASSUME  DS:DOSGROUP
 FLUSHRET1:
         LES     BP,[THISDPB]
-        MOV     AL,ES:[BP.dpb_drive]
+        MOV     AL,[ES:BP+dpb_drive]
         invoke  FLUSHBUF
 OKRET1:
         XOR     AL,AL
@@ -679,11 +679,11 @@ EXISTENT:
         LDS     DI,[CURBUF]
 ; ASSUME  DS:NOTHING
         MOV     CX,[SI]         ; Get pointer to clusters
-        MOV     SI,[DI.BUFSECNO]
+        MOV     SI,[DI+BUFSECNO]
         POP     DS
 ; ASSUME  DS:DOSGROUP
         JCXZ    FREESPOT
-        CMP     CX,ES:[BP.dpb_max_cluster]
+        CMP     CX,[ES:BP+dpb_max_cluster]
         JA      FREESPOT
         SUB     BX,DI
         PUSH    BX
@@ -723,9 +723,9 @@ NOTVOLID:
         STOSW
         STOSW
         MOV     SI,word [CURBUF]
-        MOV     ES:[SI.BUFDIRTY],1
+        MOV     [ES:SI+BUFDIRTY],1
         LES     BP,[THISDPB]
-        MOV     AL,ES:[BP.dpb_drive]
+        MOV     AL,[ES:BP+dpb_drive]
         PUSH    AX
         PUSH    BX
         invoke  FLUSHBUF

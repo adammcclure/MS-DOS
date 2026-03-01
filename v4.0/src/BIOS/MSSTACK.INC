@@ -133,7 +133,7 @@ Keyboard_lbl:
 	push	es
 	mov	ax,0f000h
 	mov	es,ax
-	cmp	byte es:[0fffeh],mdl_convert	;check if convertible
+	cmp	byte [es:0fffeh],mdl_convert	;check if convertible
 	pop	es
 	jne	Normal&aa
 
@@ -153,7 +153,7 @@ Normal&aa:
 
 	push	bp
 	push	es
-	mov	es, cs:[STACKS+2]	; Get segment of stacks
+	mov	es, [cs:STACKS+2]	; Get segment of stacks
 
 	mov	bp,NextEntry		; get most likely candidate
 	mov	al,Allocated
@@ -171,7 +171,7 @@ Found&aa:
 	mov	ax,bp			; temp save of table offset
 
 	mov	bp,NewSP		; get new SP value
-	cmp	es:[bp],ax		; check for offset into table
+	cmp	[es:bp],ax		; check for offset into table
 	jne	FoundBad&aa
 
 	mov	ax,es			; point ss,sp to the new stack
@@ -182,7 +182,7 @@ Found&aa:
 	call	dword old&aa	;  which will iret back to here
 
 	mov	bp,sp			; retrieve the table offset for us
-	mov	bp,es:[bp]		   ;  but leave it on the stack
+	mov	bp,[es:bp]		   ;  but leave it on the stack
 	mov	ss,SavedSS	     ; get old stack back
 	mov	sp,SavedSP
 

@@ -169,9 +169,9 @@ GET_PSP equ	62h			; get program segment prefix
 NULL		EQU		0FFFFH			;Null address pointer
 
 struc dospsp_str
-		db	80h dup (?)
-cmd_len: db 0; length of command line
-cmd_line: db 0; commande line
+		resb 1
+cmd_len: resb 1; length of command line
+cmd_line: resb 1; commande line
 endstruc
 
 ;******************************************************************************
@@ -278,8 +278,8 @@ ReqSeg		dw	0	; saved segment of Request Header
 ;
 ;******************************************************************************
 Strategy:
-	mov		CS:[ReqOff],bx 	;Save header offset
-	mov		CS:[ReqSeg],es 	;Save header segment
+	mov		[CS:ReqOff],bx 	;Save header offset
+	mov		[CS:ReqSeg],es 	;Save header segment
 	ret
 ; ENDP Strategy
 
@@ -303,23 +303,23 @@ Interrupt:
 	push	ds
 	push	es
 	cld					;All strings forward
-	lds	bx,CS:[ReqPtr]	 		;DS:BX pts to Request Header
-	mov	al,[bx.COMMAND_CODE]		;Get the command code
+	lds	bx,[CS:ReqPtr]	 		;DS:BX pts to Request Header
+	mov	al,[bx+COMMAND_CODE]		;Get the command code
 	cmp	al,TBL_LENGTH			;Check for validity
 	jae	Invalid 			;Jump if command invalid
 	cbw					;Command to a full word
 	shl	ax,1				;Compute dispatch index
 	mov	si,Cmd_Table		;Point to dispatch table
 	add	si,ax				;Index based on command
-	call	CS:[si] 			;Call correct routine
+	call	[CS:si] 			;Call correct routine
 
 ;
 ;   ENTRY:	AX = Status field for Request Header
 ;
 Finish:
-	lds	bx,CS:[ReqPtr] 	;Get request header ptr.
+	lds	bx,[CS:ReqPtr] 	;Get request header ptr.
 	or	ah,DON			;Set done bit in status
-	mov	DS:[bx.STATUS_WORD],ax	;Save status in header
+	mov	[DS:bx+STATUS_WORD],ax	;Save status in header
 	pop	es			;Restore the ES register
 	pop	ds
 	pop	di
@@ -451,8 +451,8 @@ ELIM_EXE:
 	mov	bx,seg rh
 	mov	es,bx
 	mov	bx,rh
-	mov	dx,es:[bx+16]
-	sub	dx,es:[bx+20]
+	mov	dx,[es:bx+16]
+	sub	dx,[es:bx+20]
 	mov	ah,31h
 	int	21h
 ;
@@ -522,9 +522,9 @@ Inst_chk:
 	repe	cmpsb			; q: is the memm386 signature out there?
 	jne	not_inst		; n: return zero
 	inc	ax  			; y: return one
-	mov	word CS:[FarLink+2],es	; set segment of far call
-	mov	cx,ES:[MEMM_Entry]		; get offset for far call
-	mov	word CS:[FarLink],cx	; set offset of far call
+	mov	word [CS:FarLink+2],es	; set segment of far call
+	mov	cx,[ES:MEMM_Entry]		; get offset for far call
+	mov	word [CS:FarLink],cx	; set offset of far call
 not_inst:
 
 	; ASSUME	DS:_TEXT, ES:_TEXT
@@ -550,7 +550,7 @@ not_inst:
 ;
 ;******************************************************************************
 ELIM_link:
-	call	CS:[FarLink]
+	call	[CS:FarLink]
 	ret
 ; ENDP ELIM_link
 

@@ -150,7 +150,7 @@ NOSTOP:
 	JZ	INCHKJ			      ; no
 	return
 check_next:
-	%if NOT TOGLPRN
+	%if ~TOGLPRN
 	CMP	AL,"N"-"@"
 	JZ	INCHKJ
 	%endif
@@ -221,7 +221,7 @@ PRINTON:
 	PUSH	DS
 	POP	ES
 	MOV	DI,SI			; ES:DI -> SFT
-	TEST	ES:[DI.sf_flags],sf_net_spool
+	TEST	[ES:DI+sf_flags],sf_net_spool
 	JZ	NORM_PR 		; Not redirected, echo is OK
 	Callinstall NetSpoolEchoCheck,MultNet,38,<AX>,<AX> ; See if allowed
 	JNC	NORM_PR 		; Echo is OK
@@ -263,7 +263,7 @@ INCHK:
 
 NOPRINT:
 ;;;;;  7/14/86	ALT_Q key fix
-	%if NOT TOGLPRN
+	%if ~TOGLPRN
 	CMP	AL,"N"-"@"
 	JZ	PRINTOFF
 	%endif
@@ -426,28 +426,28 @@ EndProc CHARHARD
 	CMP	DI,error_I24_write_protect ; Write Protect Error?
 	JNZ	NOSETWRPERR
 	PUSH	AX
-	MOV	AL,ES:[BP.dpb_drive]
+	MOV	AL,[ES:BP+dpb_drive]
 	MOV	byte [WPERR],AL	; Flag drive with WP error
 	POP	AX
 NOSETWRPERR:
 	SUB	AX,CX			; Number of sectors successfully transferred
 	ADD	DX,AX			; First sector number to retry
 	PUSH	DX
-	MUL	ES:[BP.dpb_sector_size] ; Number of bytes transferred
+	MUL	[ES:BP+dpb_sector_size] ; Number of bytes transferred
 	POP	DX
 	ADD	BX,AX			; First address for retry
 	XOR	AH,AH			; Flag disk section in error
-	CMP	DX,ES:[BP.dpb_first_FAT]    ; In reserved area?
+	CMP	DX,[ES:BP+dpb_first_FAT]    ; In reserved area?
 	JB	ERRINT
 	INC	AH			; Flag for FAT
-	CMP	DX,ES:[BP.dpb_dir_sector]   ; In FAT?
+	CMP	DX,[ES:BP+dpb_dir_sector]   ; In FAT?
 	JAE	TESTDIR 		; No
-	MOV	ES:[BP.dpb_free_cnt],-1 ; Err in FAT must force recomp of freespace
+	MOV	[ES:BP+dpb_free_cnt],-1 ; Err in FAT must force recomp of freespace
 	JMP	SHORT ERRINT
 
 TESTDIR:
 	INC	AH
-	CMP	DX,ES:[BP.dpb_first_sector] ; In directory?
+	CMP	DX,[ES:BP+dpb_first_sector] ; In directory?
 	JB	ERRINT
 	INC	AH			; Must be in data area
 ERRINT:
@@ -463,11 +463,11 @@ ERRINT:
 Not_Crit:
 	OR	AH,[ALLOWED]		; Set the allowed_ bits
 	entry	FATAL
-	MOV	AL,ES:[BP.dpb_drive]	; Get drive number
+	MOV	AL,[ES:BP+dpb_drive]	; Get drive number
 	entry	FATAL1
 	MOV	word [EXITHOLD+2],ES
 	MOV	word [EXITHOLD],BP	; The only things we preserve
-	LES	SI,ES:[BP.dpb_driver_addr]
+	LES	SI,[ES:BP+dpb_driver_addr]
 	MOV	BP,ES			; BP:SI points to the device involved
 ;
 ; DI has the INT-24-style extended error.  We now map the error code for this
@@ -530,10 +530,10 @@ i24yes: 				      ;AN000;
 ;; Extended Open hooks
 	MOV	SS,[user_SS]
 ; ASSUME	SS:NOTHING
-	MOV	SP,ES:[user_SP] 	; User stack pointer restored
+	MOV	SP,[ES:user_SP] 	; User stack pointer restored
 	INT	int_fatal_abort 	; Fatal error interrupt vector, must preserve ES
-	MOV	ES:[user_SP],SP 	; restore our stack
-	MOV	ES:[user_SS],SS
+	MOV	[ES:user_SP],SP 	; restore our stack
+	MOV	[ES:user_SS],SS
 	MOV	BP,ES
 	MOV	SS,BP
 ; ASSUME	SS:DOSGROUP
@@ -657,7 +657,7 @@ NOSWAP2:
 
 	MOV	BX,[CurrentPDB] 	; get currentPDB
 	MOV	DS,BX
-	MOV	AX,DS:[PDB_Parent_PID]	; get parentPDB
+	MOV	AX,[DS:PDB_Parent_PID]	; get parentPDB
 
 ;
 ; AX = parentPDB, BX = CurrentPDB, CX = ThisPDB
@@ -716,8 +716,8 @@ reset_return:				; come here for normal return
 ;
 	MOV	DS,[CurrentPDB]
 	; ASSUME	DS:NOTHING
-	MOV	SS,word DS:[PDB_user_stack+2]
-	MOV	SP,word DS:[PDB_user_stack]
+	MOV	SS,word [DS:PDB_user_stack+2]
+	MOV	SP,word [DS:PDB_user_stack]
 
 	; ASSUME	SS:NOTHING
 	invoke	restore_world

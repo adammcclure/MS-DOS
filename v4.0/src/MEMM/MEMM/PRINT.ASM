@@ -131,7 +131,7 @@ kp11:
 	push	dx				; save this segment for later
 
 	mov	ds, dx				; DS -> data segment
-	mov	dx, ds:[RowCol] 		; DX = current row/col
+	mov	dx, [ds:RowCol] 		; DX = current row/col
 
 	cmp	al, CR				; is character a CR?
 	jne	kp1
@@ -180,7 +180,7 @@ kp6:
 kp7:
 	mov	es, ax			; ES -> screen
 
-	pop	es:[bx] 		; write character
+	pop	[es:bx] 		; write character
 	inc	dl			; update column
 kp3:
 ;	Common code, first check for line wrap:
@@ -227,7 +227,7 @@ kp9:
 	mov	dh, 24			; new row
 kp5:
 	pop	ds			; set DS to data again
-	mov	ds:[RowCol], dx 	; update row/col
+	mov	[ds:RowCol], dx 	; update row/col
 
 ;	call	SetCursor
 
@@ -275,24 +275,24 @@ SetCursor:
 
 ;	Save new position in BIOS data area
 
-	mov	ds:[CURSOR_POSN], dx
+	mov	[ds:CURSOR_POSN], dx
 
 ;	Calculate offset on screen
 
 	mov	al, dh				; row
-	mul	byte ds:[CRT_COLS]		; row * cols
+	mul	byte [ds:CRT_COLS]		; row * cols
 	mov	bl, dl				; bl = column
 	mov	bh, 0				; bx = column
 	add	ax, bx				; ax = offset in screen
 	sal	ax, 1				; double for attribute bytes
-	mov	cx, ds:[CRT_START]		; cx = start point of screen
+	mov	cx, [ds:CRT_START]		; cx = start point of screen
 	add	cx, ax				; cx = offset of cursor
 	sar	cx, 1				; convert to char count only
 
 ;	Now program 6845
 
 	mov	al, 14				; 6845 register
-	mov	dx, ds:[ADDR_6845]		; base port #
+	mov	dx, [ds:ADDR_6845]		; base port #
 	out	dx, al
 	inc	dx
 	jmp	short $+2

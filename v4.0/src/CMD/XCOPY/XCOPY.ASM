@@ -247,19 +247,19 @@ MSG_UTILNAME <XCOPY>			;AN000;
 
 struc HEADER
 	CONTINUE_INFO DB      0 	;set for filesize bigger then 0FFD0h
-	NEXT_PTR: dw 0;next buffer ptr in para
-	BEFORE_PTR: dw 0;before ptr in para
-	DIR_DEPTH: db 0;same as S_DEPTH
+	NEXT_PTR: resw 1;next buffer ptr in para
+	BEFORE_PTR: resw 1;before ptr in para
+	DIR_DEPTH: resb 1;same as S_DEPTH
 	CX_BYTES DW	 0		;actual # of bytes in this buffer seg.
-	ATTR_FOUND: db 0;attribute found
-	FILE_TIME_FOUND: dw 0
-	FILE_DATE_FOUND: dw 0
-	LOW_SIZE_FOUND: dw 0
-	HIGH_SIZE_FOUND: dw 0
+	ATTR_FOUND: resb 1;attribute found
+	FILE_TIME_FOUND: resw 1
+	FILE_DATE_FOUND: resw 1
+	LOW_SIZE_FOUND: resw 1
+	HIGH_SIZE_FOUND: resw 1
 	TARGET_DRV_LET DB      " :"	;used for writing
-	FILENAME_FOUND: times 13 db 0;AC015; FILENAME
-	TERMINATE_STRING: times 16 db 0;AC015;TERM FILENAME STRING FOR DOS
-	ATTRIB_LIST: dw 0;AC005;EXTENDED ATTRIBUTE BUFFER
+	FILENAME_FOUND: resb 13;AC015; FILENAME
+	TERMINATE_STRING: resb 16;AC015;TERM FILENAME STRING FOR DOS
+	ATTRIB_LIST: resw 1;AC005;EXTENDED ATTRIBUTE BUFFER
 ;-------------------------------------------------------------------
 ;	extended attribute list used by extended open & get extended
 ;-------------------------------------------------------------------
@@ -305,8 +305,8 @@ struc HEADER
 endstruc
 
 struc SUB_LIST
-	DB	11			;AN000;
-	DB	0			;AN000;
+	resb 1;AN000;
+	resb 1;AN000;
 DATA_OFF DW	0			;AN000; offset of data to be inserted
 DATA_SEG DW	0			;AN000; offset of data to be inserted
 MSG_ID	DB	0			;AN000; n of %n
@@ -937,7 +937,7 @@ P_cut_display_path:
 	    CALL    CHK_DRV_LETTER
 ;	    $IF     NC
 	    JC $$IF32
-		MOV	byte DS:[SI], 0
+		MOV	byte [DS:SI], 0
 ;	    $ELSE
 	    JMP SHORT $$EN32
 $$IF32:
@@ -1193,7 +1193,7 @@ MH_START:
 $$IF45:
 	MOV	AL, S_DEPTH
 	MOV	ES:DIR_DEPTH, AL	;now save other info's
-	MOV	AL, DS:[BP].DTA_ATTRIBUTE
+	MOV	AL, [DS:BP].DTA_ATTRIBUTE
 	MOV	ES:ATTR_FOUND, AL	;in this case, DIR
 	MOV	AL, byte T_DRV
 	MOV	ES:TARGET_DRV_LET, AL	;mov target drive letter
@@ -1448,10 +1448,10 @@ $$EN62:
 ;	$ORELSE 			;otherwise found a file
 	JMP SHORT $$SR61
 $$IF61:
-	    CMP     DS:[BP].DTA_ATTRIBUTE, Is_subdirectory ; directory?
+	    CMP     [DS:BP].DTA_ATTRIBUTE, Is_subdirectory ; directory?
 ;	    $IF     E,AND
 	    JNE $$IF67
-	    CMP     DS:[BP].DTA_FILENAME, A_dot ;starts with . ?
+	    CMP     [DS:BP].DTA_FILENAME, A_dot ;starts with . ?
 ;	    $IF     NE			;if not, then desired subdir
 	    JE $$IF67
 		OR	MY_FLAG, FOUND_FLAG ;found
@@ -2213,7 +2213,7 @@ CUT_DISPLAY_PATH:
 		CALL	CHK_DRV_LETTER	;drive letter?
 ;		$IF	NC		;yes. "D:filename",0 case
 		JC $$IF133
-		    MOV     byte DS:[SI], 0 ;make it "D:",0 since SI now points to the next chr
+		    MOV     byte [DS:SI], 0 ;make it "D:",0 since SI now points to the next chr
 ;		$ELSE			;no. "filename",0 case
 		JMP SHORT $$EN133
 $$IF133:
@@ -3053,7 +3053,7 @@ $$EN176:
 ;	$ELSE
 	JMP SHORT $$EN184
 $$IF184:
-	    MOV     byte ES:[SI], 0 ;Yes, replace "\" with 0. Seg override to get default DI seg.
+	    MOV     byte [ES:SI], 0 ;Yes, replace "\" with 0. Seg override to get default DI seg.
 	    MOV     AX, SI
 	    INC     AX			;let AX have the last dir offset value.
 	    CLC 			;clear carry

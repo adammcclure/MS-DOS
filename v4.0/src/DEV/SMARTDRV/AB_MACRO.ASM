@@ -25,7 +25,7 @@
 ;	set up emm registers and execute call to save mapping context
 ;
 save_agn_m:
-	mov	dx,cs:[above_pid]		; get emm handle
+	mov	dx,[cs:above_pid]		; get emm handle
 	mov	ah,above_save_map_pid	; save map call
 	int	67h			; call the manager
 	or	ah,ah			; is there an error?
@@ -76,7 +76,7 @@ save_exit_m:
 	pushf
 ;
 rest_agn_m:
-	mov	dx,cs:[above_pid]	; get emm handle
+	mov	dx,[cs:above_pid]	; get emm handle
 	mov	ah,above_restore_map_pid ; restore map call
 	int	67h			; call manager
 	or	ah,ah			; is there any error
@@ -121,7 +121,7 @@ rest_exit_m:
 ; LOCAL map_agn_m,map_exit_m,map_fin_m
 ;
 	mov	ah,above_map	; function map page
-	mov	dx,cs:[above_pid]	; get emm handle
+	mov	dx,[cs:above_pid]	; get emm handle
 ;
 	push	ax
 ;

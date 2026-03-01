@@ -100,7 +100,7 @@ SECTION .TRANCODE;AC000;
 	%endif
 
 	ORG	0
-ZERO	=	$
+ZERO equ $
 
 	ORG	100H				; Allow for 100H parameter area
 
@@ -464,7 +464,7 @@ COMTAIL:
 	DEC	DI
 	MOV	BP,DI
 	NOT	CL
-	MOV	byte DS:[80H],CL
+	MOV	byte [DS:80H],CL
 	POP	SI
 
 ;-----

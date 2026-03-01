@@ -1,7 +1,7 @@
 
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 KANJI   EQU     FALSE
 

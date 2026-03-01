@@ -41,8 +41,8 @@ SECTION .CODE
         PUSH    AX
         XOR     AX,AX
 SETLOOP:
-        MOV     [DI.VISIT],AL
-        LDS     DI,[DI.NEXTBUF]
+        MOV     [DI+VISIT],AL
+        LDS     DI,[DI+NEXTBUF]
         CMP     DI,-1
         JNZ     SETLOOP
         LDS     DI,[BUFFHEAD]
@@ -63,9 +63,9 @@ SETLOOP:
 
         CMP     DI,-1
         retz
-        CMP     [DI.VISIT],1
+        CMP     [DI+VISIT],1
         retnz
-        LDS     DI,[DI.NEXTBUF]
+        LDS     DI,[DI+NEXTBUF]
         JMP     SHORT SKIPVISIT
         return
 ; ENDP SetVisit
@@ -85,7 +85,7 @@ SETLOOP:
 ; SI destroyed, other registers unchanged
 
         PUSH    ES
-        LES     SI,[DI.NEXTBUF]         ; Save scan location
+        LES     SI,[DI+NEXTBUF]         ; Save scan location
         CALL    PLACEBUF
         PUSH    ES
         POP     DS                      ; Restore scan location
@@ -115,10 +115,10 @@ NRETJ:  JMP     SHORT NRET
 ; AH    -- Removed, Buf has been removed
 
         %if IBM
-        %if NOT IBM
+        %if ~IBM
         invoke  save_world
         XOR     AX,AX           ; Inserted = Removed = FALSE
-        LES     CX,[DI.NEXTBUF]
+        LES     CX,[DI+NEXTBUF]
         MOV     BP,ES           ; Pointsave = Buf.nextbuf
         MOV     SI,DS
         MOV     ES,SI           ; Buf is ES:DI
@@ -133,12 +133,12 @@ NRETJ:  JMP     SHORT NRET
         MOV     DS,BP
         MOV     SI,CX           ; Curbuf = HEAD
 TNEWHEAD:
-        MOV     BL,ES:[DI.BUFPRI]
-        CMP     BL,[SI.BUFPRI]
+        MOV     BL,[ES:DI+BUFPRI]
+        CMP     BL,[SI+BUFPRI]
         JGE     BUFLOOP
 NEWHEAD:                        ; If Buf.pri < HEAD.pri
-        MOV     word ES:[DI.NEXTBUF],SI
-        MOV     word ES:[DI.NEXTBUF+2],DS   ; Buf.nextbuf = HEAD
+        MOV     word [ES:DI+NEXTBUF],SI
+        MOV     word [ES:DI+NEXTBUF+2],DS   ; Buf.nextbuf = HEAD
         MOV     word [BUFFHEAD],DI
         MOV     word [BUFFHEAD+2],ES        ; HEAD = Buf
         INC     AL                              ; Inserted = TRUE
@@ -147,13 +147,13 @@ NEWHEAD:                        ; If Buf.pri < HEAD.pri
 BUFLOOP:
         PUSH    DS
         PUSH    SI
-        LDS     SI,[SI.NEXTBUF]
+        LDS     SI,[SI+NEXTBUF]
         CALL    POINTCOMP
         POP     SI
         POP     DS
         JNZ     TESTINS
-        MOV     word [SI.NEXTBUF],CX        ; If Curbuf.nextbuf == buf
-        MOV     word [SI.NEXTBUF+2],BP      ; Curbuf.nextbuf = Pointsave
+        MOV     word [SI+NEXTBUF],CX        ; If Curbuf.nextbuf == buf
+        MOV     word [SI+NEXTBUF+2],BP      ; Curbuf.nextbuf = Pointsave
         INC     AH              ; Removed = TRUE
         OR      AL,AL
         JNZ     SHUFFLE         ; If Inserted == TRUE
@@ -161,32 +161,32 @@ TESTINS:
         OR      AL,AL
         JNZ     LOOKBUF
         PUSH    CX              ; If NOT Inserted
-        MOV     CL,ES:[DI.BUFPRI]
-        CMP     CL,[SI.BUFPRI]
+        MOV     CL,[ES:DI+BUFPRI]
+        CMP     CL,[SI+BUFPRI]
         POP     CX
         JGE     LOOKBUF
         PUSH    DS              ; If Buf.pri < Curbuf.pri
         MOV     DS,DX
-        MOV     word [BX.NEXTBUF],DI
-        MOV     word [BX.NEXTBUF+2],ES      ; Lastbuf.nextbuf = Buf
+        MOV     word [BX+NEXTBUF],DI
+        MOV     word [BX+NEXTBUF+2],ES      ; Lastbuf.nextbuf = Buf
         POP     DS
-        MOV     word ES:[DI.NEXTBUF],SI
-        MOV     word ES:[DI.NEXTBUF+2],DS   ; Buf.nextbuf = Curbuf
+        MOV     word [ES:DI+NEXTBUF],SI
+        MOV     word [ES:DI+NEXTBUF+2],DS   ; Buf.nextbuf = Curbuf
         INC     AL              ; Inserted = TRUE
         OR      AH,AH
         JNZ     SHUFFLE         ; If Removed == TRUE
 LOOKBUF:
         MOV     BX,SI
         MOV     DX,DS           ; Lastbuf = Curbuf
-        CMP     word [SI.NEXTBUF],-1
+        CMP     word [SI+NEXTBUF],-1
         JZ      ISLAST
-        LDS     SI,[SI.NEXTBUF] ; Curbuf = Curbuf.nextbuf
+        LDS     SI,[SI+NEXTBUF] ; Curbuf = Curbuf.nextbuf
         JMP     SHORT BUFLOOP
 ISLAST:                 ; If Curbuf is LAST
-        MOV     word [SI.NEXTBUF],DI
-        MOV     word [SI.NEXTBUF+2],ES      ; Curbuf.nextbuf = Buf
-        MOV     word ES:[DI.NEXTBUF],-1
-        MOV     word ES:[DI.NEXTBUF+2],-1      ; Buf is LAST
+        MOV     word [SI+NEXTBUF],DI
+        MOV     word [SI+NEXTBUF+2],ES      ; Curbuf.nextbuf = Buf
+        MOV     word [ES:DI+NEXTBUF],-1
+        MOV     word [ES:DI+NEXTBUF+2],-1      ; Buf is LAST
 NRET:
         invoke  restore_world
         return
@@ -194,11 +194,11 @@ NRET:
 SHUFFLE:
         LDS     DI,[BUFFHEAD]
 DECLOOP:
-        CMP     [DI.BUFPRI],FREEPRI
+        CMP     [DI+BUFPRI],FREEPRI
         JZ      NODEC
-        DEC     [DI.BUFPRI]
+        DEC     [DI+BUFPRI]
 NODEC:
-        LDS     DI,[DI.NEXTBUF]
+        LDS     DI,[DI+NEXTBUF]
         CMP     DI,-1
         JNZ     DECLOOP
         JMP     SHORT NRET
@@ -206,7 +206,7 @@ NODEC:
         %endif
 
         invoke  save_world
-        LES     CX,[DI.NEXTBUF]
+        LES     CX,[DI+NEXTBUF]
         CMP     CX,-1           ; Buf is LAST?
         JZ      NRET            ; Buffer already last
         MOV     BP,ES           ; Pointsave = Buf.nextbuf
@@ -222,7 +222,7 @@ NODEC:
 BUFLOOP:
         PUSH    DS
         PUSH    SI
-        LDS     SI,[SI.NEXTBUF]
+        LDS     SI,[SI+NEXTBUF]
         CALL    POINTCOMP
         JZ      GOTTHEBUF
         POP     AX
@@ -232,12 +232,12 @@ BUFLOOP:
 GOTTHEBUF:
         POP     SI
         POP     DS
-        MOV     word [SI.NEXTBUF],CX        ; If Curbuf.nextbuf == buf
-        MOV     word [SI.NEXTBUF+2],BP      ; Curbuf.nextbuf = Pointsave
+        MOV     word [SI+NEXTBUF],CX        ; If Curbuf.nextbuf == buf
+        MOV     word [SI+NEXTBUF+2],BP      ; Curbuf.nextbuf = Pointsave
 LOOKEND:
         PUSH    DS
         PUSH    SI
-        LDS     SI,[SI.NEXTBUF]
+        LDS     SI,[SI+NEXTBUF]
         CMP     SI,-1
         JZ      GOTHEEND
         POP     AX
@@ -247,10 +247,10 @@ LOOKEND:
 GOTHEEND:
         POP     SI
         POP     DS
-        MOV     word [SI.NEXTBUF],DI
-        MOV     word [SI.NEXTBUF+2],ES      ; Curbuf.nextbuf = Buf
-        MOV     word ES:[DI.NEXTBUF],-1
-        MOV     word ES:[DI.NEXTBUF+2],-1      ; Buf is LAST
+        MOV     word [SI+NEXTBUF],DI
+        MOV     word [SI+NEXTBUF+2],ES      ; Curbuf.nextbuf = Buf
+        MOV     word [ES:DI+NEXTBUF],-1
+        MOV     word [ES:DI+NEXTBUF+2],-1      ; Buf is LAST
 NRET:
         invoke  restore_world
         return
@@ -268,12 +268,12 @@ NRET:
         LDS     SI,[BUFFHEAD]
         MOV     word [BUFFHEAD],DI
         MOV     word [BUFFHEAD+2],ES
-        MOV     word ES:[DI.NEXTBUF],SI
-        MOV     word ES:[DI.NEXTBUF+2],DS
+        MOV     word [ES:DI+NEXTBUF],SI
+        MOV     word [ES:DI+NEXTBUF+2],DS
 LOOKEND2:
         PUSH    DS
         PUSH    SI
-        LDS     SI,[SI.NEXTBUF]
+        LDS     SI,[SI+NEXTBUF]
         CALL    POINTCOMP
         JZ      GOTHEEND2
         POP     AX
@@ -283,8 +283,8 @@ LOOKEND2:
 GOTHEEND2:
         POP     SI
         POP     DS
-        MOV     word [SI.NEXTBUF],-1
-        MOV     word [SI.NEXTBUF+2],-1      ; Buf is LAST
+        MOV     word [SI+NEXTBUF],-1
+        MOV     word [SI+NEXTBUF+2],-1      ; Buf is LAST
         JMP     SHORT NRET
 
 ; ENDP PLACEHEAD
@@ -331,26 +331,26 @@ GOTHEEND2:
         XOR     SI,SI
         entry   GETBUFFRB
         MOV     [PREREAD],AX
-        MOV     AL,ES:[BP.dpb_drive]
+        MOV     AL,[ES:BP+dpb_drive]
         LDS     DI,[LASTBUFFER]
 ; ASSUME  DS:NOTHING
         CMP     DI,-1                           ; Recency pointer valid?
         JZ      SKBUF                           ; No
-        CMP     DX,[DI.BUFSECNO]
+        CMP     DX,[DI+BUFSECNO]
         JNZ     SKBUF                           ; Wrong sector
-        CMP     AL,[DI.BUFDRV]
+        CMP     AL,[DI+BUFDRV]
         JNZ     SKBUF                           ; Wrong Drive
         JMP     SHORT JUSTBUF                   ; Just asked for same buffer
 SKBUF:
         LDS     DI,[BUFFHEAD]
 NXTBFF:
-        CMP     DX,[DI.BUFSECNO]
+        CMP     DX,[DI+BUFSECNO]
         JNZ     BUMP
-        CMP     AL,[DI.BUFDRV]
+        CMP     AL,[DI+BUFDRV]
         JNZ     BUMP
         JMP     SHORT SETINF
 BUMP:
-        LDS     DI,[DI.NEXTBUF]
+        LDS     DI,[DI+NEXTBUF]
         CMP     DI,-1
         JNZ     NXTBFF
         LDS     DI,[BUFFHEAD]
@@ -366,7 +366,7 @@ BUMP:
 RDSEC:                          ; Read in the new sector
         TEST    byte [PREREAD],-1
         JNZ     SETBUF
-        LEA     BX,[DI.BufInSiz]        ; Point at buffer
+        LEA     BX,[DI+BufInSiz]        ; Point at buffer
         MOV     CX,1
         PUSH    SI
         PUSH    DI
@@ -382,20 +382,20 @@ GOTTHESEC:
         POP     DI
         POP     SI
 SETBUF:
-        MOV     [DI.BUFSECNO],DX
-        MOV     word [DI.BUFDRVDP],BP
-        MOV     word [DI.BUFDRVDP+2],ES
+        MOV     [DI+BUFSECNO],DX
+        MOV     word [DI+BUFDRVDP],BP
+        MOV     word [DI+BUFDRVDP+2],ES
         XOR     AH,AH
-        MOV     AL,ES:[BP.dpb_drive]
-        MOV     word [DI.BUFDRV],AX
+        MOV     AL,[ES:BP+dpb_drive]
+        MOV     word [DI+BUFDRV],AX
 SETINF:
         MOV     AX,1                            ; Default to not a FAT sector
         OR      SI,SI
         JZ      SETSTUFFOK
-        MOV     AL,ES:[BP.dpb_FAT_count]
-        MOV     AH,ES:[BP.dpb_FAT_size]
+        MOV     AL,[ES:BP+dpb_FAT_count]
+        MOV     AH,[ES:BP+dpb_FAT_size]
 SETSTUFFOK:
-        MOV     word [DI.BUFWRTCNT],AX
+        MOV     word [DI+BUFWRTCNT],AX
         CALL    PLACEBUF
 JUSTBUF:
         MOV     word [CURBUF+2],DS
@@ -426,17 +426,17 @@ JUSTBUF:
 ; ASSUME  DS:NOTHING
         MOV     AH,-1
 NXTBUFF:
-        CMP     [DI.BUFDRV],AH
+        CMP     [DI+BUFDRV],AH
         JZ      SKIPBFF                 ; Skip free buffers
         CMP     AH,AL
         JZ      DOBUFFER                ; Do all dirty buffers
-        CMP     AL,[DI.BUFDRV]
+        CMP     AL,[DI+BUFDRV]
         JNZ     SKIPBFF                 ; Buffer not for this unit
 DOBUFFER:
-        CMP     byte [DI.BUFDIRTY],0
+        CMP     byte [DI+BUFDIRTY],0
         JZ      SKIPBFF                 ; Buffer not dirty
         PUSH    AX
-        PUSH    word [DI.BUFDRV]
+        PUSH    word [DI+BUFDRV]
         CALL    BUFWRITE
         POP     AX
         XOR     AH,AH                   ; Buffer is clean
@@ -444,10 +444,10 @@ DOBUFFER:
         JNZ     NOZAP
         MOV     AL,0FFH                 ; Invalidate buffer, it is inconsistent
 NOZAP:
-        MOV     word [DI.BUFDRV],AX
+        MOV     word [DI+BUFDRV],AX
         POP     AX                      ; Search info
 SKIPBFF:
-        LDS     DI,[DI.NEXTBUF]
+        LDS     DI,[DI+NEXTBUF]
         CMP     DI,-1
         JNZ     NXTBUFF
         PUSH    SS
@@ -470,17 +470,17 @@ SKIPBFF:
 ; DS:DI Preserved, ALL others destroyed (ES too)
 
         MOV     AX,00FFH
-        XCHG    AX,word [DI.BUFDRV] ; Free, in case write barfs
+        XCHG    AX,word [DI+BUFDRV] ; Free, in case write barfs
         CMP     AL,0FFH
         retz                            ; Buffer is free.
         OR      AH,AH
         retz                            ; Buffer is clean.
         CMP     AL,byte [WPERR]
         retz                            ; If in WP error zap buffer
-        LES     BP,[DI.BUFDRVDP]
-        LEA     BX,[DI.BufInSiz]        ; Point at buffer
-        MOV     DX,[DI.BUFSECNO]
-        MOV     CX,word [DI.BUFWRTCNT]
+        LES     BP,[DI+BUFDRVDP]
+        LEA     BX,[DI+BufInSiz]        ; Point at buffer
+        MOV     DX,[DI+BUFSECNO]
+        MOV     CX,word [DI+BUFWRTCNT]
         MOV     AL,CH                   ; [DI.BUFWRTINC]
         XOR     CH,CH
         MOV     AH,CH

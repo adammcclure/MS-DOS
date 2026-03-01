@@ -171,7 +171,7 @@ HANDLE_ERROR_CALL:;AN000;
 					;
 	MOV	BX,ERR_BORDER		;AN000;DT current active parent panel
 	CALL	GET_PCB 		;AN000;DT get the PCB for this
-	MOV	ES:[DI].PCB_CHILDNUM,CX ;AN000;DT set the number of children
+	MOV	[ES:DI].PCB_CHILDNUM,CX ;AN000;DT set the number of children
 					;
 	CALL	CURSOROFF		;AN000;
 					;
@@ -309,5 +309,5 @@ HANDLE_KEYSTROKE:;AN000;
 ;	End of program code
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS		;AN000;
+; END SECTION .SELECT;AN000;
 	; END;AN000;

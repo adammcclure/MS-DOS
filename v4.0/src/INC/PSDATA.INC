@@ -107,12 +107,12 @@ $P_CDI_1000	   db	0,0		;AN000;
 $P_CDI_Dec	   db	0,0		;AN000;
 $P_CDI_DateS	   db	0,0		;AN000;
 $P_CDI_TimeS	   db	0,0		;AN000;
-		   db	0		;AN000;
-		   db	0		;AN000;
+		   resb 1;AN000;
+		   resb 1;AN000;
 $P_CDI_TimeF	   db	0		;AN000;
-		   dw	0,0		;AN000;
-		   db	0,0		;AN000;
-		   times 5 dw 0;AN000;
+		   resw 1;AN000;
+		   resb 1;AN000;
+		   resb 10;AN000;
 endstruc;AN000;
 
 $P_Date_MDY	   equ	0		;AN000;

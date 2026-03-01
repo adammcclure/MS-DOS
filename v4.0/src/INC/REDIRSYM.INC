@@ -67,15 +67,15 @@
 
    ifsr_fcn_def    EXECAPI		 ;AN000;
    ifsr_api_def    OPENFILE		 ;AN000;
-IFSR_OPENNAME@	=  IFSR_NAME@		 ;AN000;
+IFSR_OPENNAME@ equ IFSR_NAME@;AN000;
    ifsr_api_def    SEARCHFILE		 ;AN000;
-IFSR_SRCHNAME@	=  IFSR_NAME@		 ;AN000;
+IFSR_SRCHNAME@ equ IFSR_NAME@;AN000;
    ifsr_api_def    MKDIR		 ;AN000;
-IFSR_DIRNAME@	=  IFSR_NAME@		 ;AN000;
+IFSR_DIRNAME@ equ IFSR_NAME@;AN000;
    ifsr_api_def    DELFILE		 ;AN000;
-IFSR_DELNAME@	=  IFSR_NAME@		 ;AN000;
+IFSR_DELNAME@ equ IFSR_NAME@;AN000;
    ifsr_api_def    FILEATTR		 ;AN000;
-IFSR_ATTRNAME@	=  IFSR_NAME@		 ;AN000;
+IFSR_ATTRNAME@ equ IFSR_NAME@;AN000;
 
 ; - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ;  Redirector Equates
@@ -87,8 +87,8 @@ Deallocate_memory    EQU     49H      ;AN000;
 
 GET_SYS_CONFIG	     EQU     0C000H   ;AN000; INT 15H to get configuration
 struc CONFIG_STRUC;AN001;
-   LENGTH: dw 0;AN001;
-   MODEL_BYTE: db 0;AN001;
+   LENGTH: resw 1;AN001;
+   MODEL_BYTE: resb 1;AN001;
 endstruc;AN001;
 
 LOWEST_386_MODEL     EQU     0F8H     ;AN001;
@@ -103,7 +103,7 @@ INSUFFICENT_MEM      EQU     76       ;AN001; Extended Error
 
 ONE_REPLACE	     EQU     1	      ;AN000;
 SINGLE_COUNT	     EQU     1	      ;AN000;
-TESTDIALECT	     =	     0	      ;AN001;
+TESTDIALECT equ 0;AN001;
 
 REDIR_INSTALLED      EQU     -1       ;AN000;
 REDIR_SYS_INSTALL    EQU     0BF80H   ;AN000; REDIR.SYS 2FH Function number
@@ -138,37 +138,37 @@ HI_BIT_SHARING_MASK  EQU     1111111101111111b ;AN001; Turns off Hi bit in nibbl
 
 ; NETFILE
 
-attr_read_only	       = 00000001b
+attr_read_only equ 00000001b
 
 ; NETINIT
 
-IFSR_INVALID_CMD	=   -1							      ;AN000;
+IFSR_INVALID_CMD equ -1;AN000;
 
 ; NETUTIL
 
-MACRO_4 	=	4
-DATE_TIME	=	0
+MACRO_4 equ 4
+DATE_TIME equ 0
 
 
 ; NETHAND
 
-LOCK_ALL_OPERS	   =	   0
-POS_LEN_PTR_SIZE   =	   8		  ;AN001; 8 bytes for position/length
+LOCK_ALL_OPERS equ 0
+POS_LEN_PTR_SIZE equ 8;AN001; 8 bytes for position/length
 
 struc FIND_BUF
 
-find_buf_drive: db 0; drive of search
-find_buf_name: times 11 db 0; formatted name
-find_buf_sattr: db 0; attribute of search
-find_buf_LastEnt: dw 0; LastEnt
-find_buf_DirStart: dw 0; DirStart
-find_buf_NetID: times 4 db 0; Reserved for NET
-find_buf_attr: db 0; attribute found
-find_buf_time: dw 0; time
-find_buf_date: dw 0; date
-find_buf_size_l: dw 0; low(size)
-find_buf_size_h: dw 0; high(size)
-find_buf_pname: times 13 db 0; packed name
+find_buf_drive: resb 1; drive of search
+find_buf_name: resb 11; formatted name
+find_buf_sattr: resb 1; attribute of search
+find_buf_LastEnt: resw 1; LastEnt
+find_buf_DirStart: resw 1; DirStart
+find_buf_NetID: resb 4; Reserved for NET
+find_buf_attr: resb 1; attribute found
+find_buf_time: resw 1; time
+find_buf_date: resw 1; date
+find_buf_size_l: resw 1; low(size)
+find_buf_size_h: resw 1; high(size)
+find_buf_pname: resb 13; packed name
 
 endstruc
 

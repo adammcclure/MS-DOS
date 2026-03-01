@@ -289,7 +289,7 @@ DISPATCH:
         short_addr  $FCB_RANDOM_WRITE               ; 34     22
         short_addr  $GET_FCB_FILE_LENGTH            ; 35     23
         short_addr  $GET_FCB_POSITION               ; 36     24
-VAL1    =       ($-DISPATCH)/2 - 1
+VAL1 equ ($-DISPATCH)/2 - 1
 
 ; Extended Functions
         short_addr  $SET_INTERRUPT_VECTOR           ; 37     25
@@ -406,7 +406,7 @@ VAL1    =       ($-DISPATCH)/2 - 1
         short_addr  $IFS_IOCTL                      ; 107    6B   ;AN000;
         short_addr  $Extended_Open                  ; 108    6C   ;AN000;
 ;
-VAL2    =       ($-DISPATCH)/2 - 1
+VAL2 equ ($-DISPATCH)/2 - 1
 
 
         %if Installed
@@ -502,7 +502,7 @@ Header:
         DB      (MINOR_VERSION MOD 10) + "0"
         %endif
 
-        %if NOT IBM
+        %if ~IBM
         DB      13,10,"MS-DOS version "
         DB      MAJOR_VERSION + "0"
         DB      "."

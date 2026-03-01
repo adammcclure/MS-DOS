@@ -81,19 +81,19 @@ TimeToTicks	dw	Time_To_Ticks
 	global TIM$WRIT
 TIM$WRIT:
 	; ASSUME	DS:CODE
-	mov	AX,word ES:[DI]
+	mov	AX,word [ES:DI]
 	push	AX		;DAYCNT. We need to set this at the very
 				;  end to avoid tick windows.
 ;;Rev 3.30 Modification
 	cmp	HaveCMOSClock, 0
 	je	No_CMOS_1
-	mov	al,es:[di+3]		;get binary hours
+	mov	al,[es:di+3]		;get binary hours
 	call	BinToBCD		;convert to BCD
 	mov	ch,al			;CH = BCD hours
-	mov	al,es:[di+2]		;get binary minutes
+	mov	al,[es:di+2]		;get binary minutes
 	call	BinToBCD		;convert to BCD
 	mov	cl,al			;CL = BCD minutes
-	mov	al,es:[di+5]		;get binary seconds
+	mov	al,[es:di+5]		;get binary seconds
 	call	BinToBCD		;convert to BCD
 	mov	dh,al			;DH = BCD seconds
 	mov	dl,0			;DL = 0 (ST) or 1 (DST)
@@ -104,8 +104,8 @@ TIM$WRIT:
 
 ;;End of Modification
 No_CMOS_1:
-	mov	CX,word ES:[DI+2]
-	mov	DX,word ES:[DI+4]
+	mov	CX,word [ES:DI+2]
+	mov	DX,word [ES:DI+4]
 ;;Rev 3.30 Modification
 	call	time_to_ticks	; convert time to ticks
 				;CX:DX now has time in ticks

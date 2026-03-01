@@ -859,6 +859,6 @@ CREATE_SHELL_BAT:;AN000;DT
 ; ENDP CREATE_SHELL_BAT;AN000;DT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-SELECT	 ENDS							;AN000;
+; END SECTION .SELECT;AN000;
 	 ; END;AN000;
 

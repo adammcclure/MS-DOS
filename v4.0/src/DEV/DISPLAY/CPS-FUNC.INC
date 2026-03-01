@@ -343,7 +343,7 @@ DB_6:   MOV     [SI],DI                 ;
         OR      AL,AL                   ; TEST FOR FONT_VALUE=0
         JNZ     DB_8                    ;
         CALL    ASK_BIOS_FONT_SIZE      ; GET BIOS TO INDICATE FONT_SIZE
-DB_8:   MOV     CS:[DI],AL              ; PUT ACTIVE FONT RESOLUTION INTO 1ST!
+DB_8:   MOV     [CS:DI],AL              ; PUT ACTIVE FONT RESOLUTION INTO 1ST!
         INC     DI                      ; ADVANCE POINTER TO NEXT POSITION
         DEC     CX                      ; SUBTRACT ONE FONT RESOLUTION...
         JZ      DB_A                    ; IF THERE WAS ONLY 1 FONT...THEN DONE
@@ -372,14 +372,14 @@ DB_8A:  PUSH    CX                      ;
         JNC     DB_9                    ;
         MOV     AL,CS:CHAR_HEIGHT[SI]   ;
                                         ;
-DB_8C:  CMP     AL,CS:[DI]              ;
+DB_8C:  CMP     AL,[CS:DI]              ;
         JE      DB_9                    ; IF EQUAL, THEN ALREADY IN TABLE
         INC     DI                      ; OTHERWISE, TAKE THIS MODES FONT RES
         LOOP    DB_8C                   ; AND COMPARE AGAINST NEXT PRIOR.VALUE
                                         ;
         POP     DI                      ; NEW RESOLUTION FOUND...ADD TO LIST
         POP     CX                      ;
-        MOV     CS:[DI],AL              ; PUT NEW VALUE IN THE TABLE
+        MOV     [CS:DI],AL              ; PUT NEW VALUE IN THE TABLE
         INC     DI                      ; AND ADVANCE FOR NEXT FONT RESOLUTION
         JUMP    DB_9A                   ; LOOP WILL DECREMENT #FONTS TO FIND
 DB_9:   POP     DI                      ;

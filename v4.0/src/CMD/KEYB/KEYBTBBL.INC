@@ -23,11 +23,11 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					       ;;
-	extern TABLE_BUILD   ;;
-	extern FIND_CP_TABLE ;;
+	extern TABLE_BUILD;;
+	extern FIND_CP_TABLE;;
 					       ;;
-	extern CPN_INVALID   ;;
-	extern SD_LENGTH     ;;
+	extern CPN_INVALID;;
+	extern SD_LENGTH;;
 					       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; .LIST

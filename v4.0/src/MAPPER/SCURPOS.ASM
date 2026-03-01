@@ -33,11 +33,11 @@ SECTION .vioxxx
 error_bvs_parameter equ    0002h
 
 struc str
-old_bp: dw 0
-return: dd 0
-handle: dw 0; vio handle
-column: dw 0; column value
-row: dw 0; row value
+old_bp: resw 1
+return: resd 1
+handle: resw 1; vio handle
+column: resw 1; column value
+row: resw 1; row value
 endstruc
 
 viosetcurpos:

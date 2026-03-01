@@ -52,9 +52,9 @@ SECTION .FindSegment
         ; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-DirHandle: dw 0; dirctory search handle
+old_bp: resw 1
+return: resd 1
+DirHandle: resw 1; dirctory search handle
 endstruc
 
 
@@ -83,14 +83,14 @@ DosFindClose:
         mov     si,FindHandles
 
 CheckForClose:
-        test    ds:[si],OpenedHandle       ; handle is open ??
+        test    [ds:si],OpenedHandle       ; handle is open ??
         jnz     OkToClose                  ; go and close if it is open
 
         mov     ax,6                       ; else load error code
         jmp     ErrorExit                  ; return
 
 OkToClose:
-        and     ds:[si],not OpenedHandle   ; set close flag
+        and     [ds:si],not OpenedHandle   ; set close flag
         xor     ax,ax                      ; set good return code
 
 ErrorExit:

@@ -3,7 +3,7 @@
 	%include "version.inc"
 	; page	80,132
 
-false	= 0
+false equ 0
 
 SECTION .DATA
 
@@ -211,12 +211,12 @@ BIOSEntFree		DB   1
 
 struc Xfer_data
 
-InFH: dw 0; file handle of source
-LenLow: dw 0; 32-bit length of source
-LenHigh: dw 0
-FTime: dw 0; place to store time of write
-FDate: dw 0; place to store date of write
-OutFH: dw 0; fh of destination
+InFH: resw 1; file handle of source
+LenLow: resw 1; 32-bit length of source
+LenHigh: resw 1
+FTime: resw 1; place to store time of write
+FDate: resw 1; place to store date of write
+OutFH: resw 1; fh of destination
 
 endstruc
 
@@ -812,7 +812,7 @@ $$SR35:
    Get_Error:
 
    lea	bx,Parse_Ret_Code		; error - make sure it makes sense     ;AN000;
-   xlat cs:[bx] 			;				       ;AN000;
+   xlat [cs:bx] 			;				       ;AN000;
    mov	ah,parse_error			; indicate parse error CLASS	       ;AN000;
    stc					; set fail flag 		       ;AN000;
    ret					;				       ;AN021;
@@ -1290,9 +1290,9 @@ $$DO62:
 
 ;      $if  nc,and			; if found and.....................    ;AC000;
        JC $$IF63
-       mov  ax,ds:[si].find_buf_size_l	; move size (low and high)	       ;AC000;
+       mov  ax,[ds:si].find_buf_size_l	; move size (low and high)	       ;AC000;
        mov  word NEWBIO_SIZE_LOW,AX ;     from DTA
-       mov  ax,ds:[si].find_buf_size_h	;	to			       ;AC000;
+       mov  ax,[ds:si].find_buf_size_h	;	to			       ;AC000;
        mov  word NEWBIO_SIZE_HIGH,AX ;	  SYS data space
        mov  dx,SourceBIOSName	; point to source name
        mov  di,BIOSInFH		; pointer to block of data
@@ -1310,9 +1310,9 @@ $$DO62:
 ;      $if  nc,and			; if found and.......................  ;AC000;
        JC $$IF63
 
-       mov  ax,ds:[si].find_buf_size_l	; move size (low and high)	       ;AC000;
+       mov  ax,[ds:si].find_buf_size_l	; move size (low and high)	       ;AC000;
        mov  word NEWDOS_SIZE_LOW,AX ;   from DTA
-       mov  ax,ds:[si].find_buf_size_h	;	to			       ;AC000;
+       mov  ax,[ds:si].find_buf_size_h	;	to			       ;AC000;
        mov  word NEWDOS_SIZE_HIGH,AX ;	   SYS data space
        mov  dx,SourceDOSName	; pointer to source of DOS
        mov  di,DOSInFH		; pointer to block of data
@@ -1610,22 +1610,22 @@ global open_file
 ;  $if	nc				; no error			       ;AC000;
    JC $$IF87
 
-       mov  es:[di].InFH,ax		; save file handle		       ;AC000;
+       mov  [es:di].InFH,ax		; save file handle		       ;AC000;
        mov  bx,ax			; get ready for seeks
        mov  ax,(LSeek SHL 8) + LSeek_EOF ; seek relative to eof
        xor  cx,cx			; zero offset
        xor  dx,dx			; zero offset
        INT  21h 			; find End Of File to get offsets
 					;	LSeak + LSeek_EOF <4202>
-       mov  es:[di].LenLow,ax		; save low part of size 	       ;AC000;
-       mov  es:[di].LenHigh,dx		; save high part of size	       ;AC000;
+       mov  [es:di].LenLow,ax		; save low part of size 	       ;AC000;
+       mov  [es:di].LenHigh,dx		; save high part of size	       ;AC000;
        xor  dx,dx			; zero offset
        mov  ax,(LSeek SHL 8) + LSeek_Start ; seek relative to beginning
        INT  21h 			;	 LSeak + LSeek_Start <4200>
        mov  ax,(File_Times SHL 8) + 0	; find last write time
        INT  21h 			;	 File_Times + not_used <5700>
-       mov  es:[di].FTime,cx		; save time			       ;AC000;
-       mov  es:[di].FDate,dx		; save date			       ;AC000;
+       mov  [es:di].FTime,cx		; save time			       ;AC000;
+       mov  [es:di].FDate,dx		; save date			       ;AC000;
 
 ;  $else				;				       ;AC000;
    JMP SHORT $$EN87
@@ -2004,7 +2004,7 @@ $$IF105:
 ;	   $if	e,and			; if it did and............	       ;AN000;
 	   JNE $$IF110
 
-	   cmp	byte ds:[si-1],"6"	; was it a 6 ?		  :	       ;AN000;
+	   cmp	byte [ds:si-1],"6"	; was it a 6 ?		  :	       ;AN000;
 
 ;	   $if	e			; if it was...............:	       ;AN000;
 	   JNE $$IF110
@@ -2247,11 +2247,11 @@ $$IF118:
 
 	   dec	BIOSEntFree		; indicate we found IBMBIO ( = 0)
 	   mov	si,bp
-	   mov	ax,word ds:[si].dir_size_l ; Get the size of IBMBIO        ;AC000;
+	   mov	ax,word [ds:si].dir_size_l ; Get the size of IBMBIO        ;AC000;
 	   mov	word IBMBIO_Low,ax
-	   mov	ax,word ds:[si].dir_size_h ;			       ;AC000;
+	   mov	ax,word [ds:si].dir_size_h ;			       ;AC000;
 	   mov	word IBMBIO_High,ax
-	   cmp	ds:[si].dir_first,2	; does IBMBIO own Clust 2?	       ;AC005;
+	   cmp	[ds:si].dir_first,2	; does IBMBIO own Clust 2?	       ;AC005;
 ;	   $if	e			; if so 			       ;AC005;
 	   JNE $$IF121
 	       inc  [bio_owns_it]	;     - keep track		       ;AC005;
@@ -2343,9 +2343,9 @@ $$IF131:
 	       JNE $$IF133
 
 		   dec	DOSEntFree	; indicate we found IBMDOS
-		   mov	ax,word ds:[si].dir_size_l ; Get the size of       ;AC000;
+		   mov	ax,word [ds:si].dir_size_l ; Get the size of       ;AC000;
 		   mov	word IBMDOS_Low,ax ;	   file for IBMDOS
-		   mov	ax,word ds:[si].dir_size_h ;		       ;AC000;
+		   mov	ax,word [ds:si].dir_size_h ;		       ;AC000;
 		   mov	word IBMDOS_High,ax
 		   clc			; reset fail flag		       ;AN000;
 
@@ -2614,7 +2614,7 @@ $$IF143:
 
        push ds
        lds  bx,THIS_DPB 		; set up pointer to DPB 	       ;AC000;
-       mov  [bx.dpb_next_free],2	; reset Allocation to start of disk    ;AC000;
+       mov  [bx+dpb_next_free],2	; reset Allocation to start of disk    ;AC000;
        pop  ds				;  so BIOS goes in right place!
 
 ;      $search				;				       ;AC000;
@@ -3584,7 +3584,7 @@ $$EN201:
 
        push cs				; set up for insert		       ;AN024;
        pop  [insert_ptr_seg]		;   (offset set by parse routine)      ;AN024;
-       mov  cs:[si],dl			; make it an ASCIIZ string	       ;AN024;
+       mov  [cs:si],dl			; make it an ASCIIZ string	       ;AN024;
        mov  insert_number,dl		; zero out for %0
        mov  insert_max,030h		; set length to something reasonable   ;AN024;
        inc  cx				; there's an insert                    ;AC024;

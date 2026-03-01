@@ -135,16 +135,16 @@ TEMPDPT 	DD	-1
 	global GENERIC$IOCTL
 GENERIC$IOCTL:
 	MESSAGE FTESTDISK,<"GENERIC IOCTL",CR,LF>
-	LES	BX,CS:[PTRSAV]		; ES:BX POINTS TO REQUEST HEADER.
+	LES	BX,[CS:PTRSAV]		; ES:BX POINTS TO REQUEST HEADER.
 	CALL	SETDRIVE		; DS:DI POINTS TO BDS FOR DRIVE.
 ;
 ; AT THIS POINT:
 ;    ES:BX - POINTS TO THE REQUEST HEADER
 ;    DS:DI POINTS TO THE BDS FOR THE DRIVE
 ;
-	CMP	ES:[BX].MAJORFUNCTION, RAWIO
+	CMP	[ES:BX].MAJORFUNCTION, RAWIO
 	JNE	IOCTL_FUNC_ERR
-	MOV	AL, ES:[BX].MINORFUNCTION
+	MOV	AL, [ES:BX].MINORFUNCTION
 	MOV	SI, IOREADJUMPTABLE
 	TEST	AL, GEN_IOCTL_FN_TST			; TEST OF REQ. FUNCTION
 	JNZ	NOTGENERICIOCTLWRITE			;   FUNCTION IS A READ.
@@ -152,14 +152,14 @@ GENERIC$IOCTL:
 NOTGENERICIOCTLWRITE:
 ;	 AND	 AL, 0FH
 	and	al, 9fH 			;AN000; Try to check other than 6x, 4x.
-	CMP	AL, CS:[SI]
+	CMP	AL, [CS:SI]
 	JA	IOCTL_FUNC_ERR
 	CBW
 	SHL	AX, 1
 	INC	SI
 	ADD	SI,AX
-	LES	BX, ES:[BX].GENERICIOCTL_PACKET
-	CALL	CS:[SI]
+	LES	BX, [ES:BX].GENERICIOCTL_PACKET
+	CALL	[CS:SI]
 	JC	FAILGENERIC$IOCTL
 	JMP	EXIT
 
@@ -181,21 +181,21 @@ Cmd_Err_Proc:					;AN012;
 	 global GETDEVICEPARAMETERS
 GETDEVICEPARAMETERS:
 ; COPY INFO FROM BDS TO THE DEVICE PARAMETERS PACKET
-	MOV	AL, byte DS:[DI].FORMFACTOR
-	MOV	byte ES:[BX].DP_DEVICETYPE, AL
-	MOV	AX, word DS:[DI].FLAGS
+	MOV	AL, byte [DS:DI].FORMFACTOR
+	MOV	byte [ES:BX].DP_DEVICETYPE, AL
+	MOV	AX, word [DS:DI].FLAGS
 	AND	AX,FNON_REMOVABLE+FCHANGELINE	; MASK OFF OTHER BITS
-	MOV	word ES:[BX].DP_DEVICEATTRIBUTES, AX
-	MOV	AX, word DS:[DI].CCYLN
-	MOV	word ES:[BX].DP_CYLINDERS, AX
+	MOV	word [ES:BX].DP_DEVICEATTRIBUTES, AX
+	MOV	AX, word [DS:DI].CCYLN
+	MOV	word [ES:BX].DP_CYLINDERS, AX
 
 ; SET MEDIA TYPE TO DEFAULT
 	XOR	AL, AL
-	MOV	byte ES:[BX].DP_MEDIATYPE, AL
+	MOV	byte [ES:BX].DP_MEDIATYPE, AL
 
 ; COPY RECOMMENDED BPB
 	LEA	SI, byte [DI].RBYTEPERSEC
-	TEST	byte ES:[BX].DP_SPECIALFUNCTIONS, BUILD_DEVICE_BPB
+	TEST	byte [ES:BX].DP_SPECIALFUNCTIONS, BUILD_DEVICE_BPB
 	JZ	USE_BPB_PRESENT
 ; GET THE CORRECT DISK IN THE DRIVE
 	CALL	CHECKSINGLE
@@ -222,53 +222,53 @@ GET_PARM_RET:
 SETDEVICEPARAMETERS:
 ; MAKE SURE THE FCHANGED_BY_FORMAT FLAG GETS SET TO KICK DOS INTO LOOKING AT
 ; THE BPB
-	OR	word DS:[DI].FLAGS, FCHANGED_BY_FORMAT OR FCHANGED
-	TEST	byte ES:[BX].DP_SPECIALFUNCTIONS, ONLY_SET_TRACKLAYOUT
+	OR	word [DS:DI].FLAGS, FCHANGED_BY_FORMAT OR FCHANGED
+	TEST	byte [ES:BX].DP_SPECIALFUNCTIONS, ONLY_SET_TRACKLAYOUT
 	JZ	SHORT SETDEVPARM_1
 	JMP	SETTRACKTABLE			; ORIGINALLY TRACKLAYOUT
 
 SETDEVPARM_1:
 ; COPY INFO FROM THE DEVICE PARAMETERS PACKET TO BDS
-	MOV	AL, byte ES:[BX].DP_DEVICETYPE
-	MOV	byte DS:[DI].FORMFACTOR, AL
+	MOV	AL, byte [ES:BX].DP_DEVICETYPE
+	MOV	byte [DS:DI].FORMFACTOR, AL
 
-	MOV	AX, word ES:[BX].DP_CYLINDERS
-	MOV	word DS:[DI].CCYLN, AX
+	MOV	AX, word [ES:BX].DP_CYLINDERS
+	MOV	word [DS:DI].CCYLN, AX
 
 ; IF CHANGE LINE IS NOT LOADED THEN IGNORE CHANGELING FLAG
-	MOV	AX, word ES:[BX].DP_DEVICEATTRIBUTES
-	CMP	CS:[FHAVE96],0
+	MOV	AX, word [ES:BX].DP_DEVICEATTRIBUTES
+	CMP	[CS:FHAVE96],0
 	JNZ	HAVE_CHANGE
 	AND	AX,NOT FCHANGELINE
 HAVE_CHANGE:
 ; IGNORE ALL BITS EXCEPT NON_REMOVABLE AND CHANGELINE
 	AND	AX,FNON_REMOVABLE OR FCHANGELINE
-	MOV	CX, word DS:[DI].FLAGS
+	MOV	CX, word [DS:DI].FLAGS
 ;	 AND	 CX, NOT (FNON_REMOVABLE OR FCHANGELINE OR GOOD_TRACKLAYOUT)
 	AND	CX, NOT (FNON_REMOVABLE OR FCHANGELINE OR GOOD_TRACKLAYOUT or UNFORMATTED_MEDIA) ;AN004;AN005;AN007;
 	OR	AX, CX
-	MOV	word DS:[DI].FLAGS, AX
+	MOV	word [DS:DI].FLAGS, AX
 
 ; SET MEDIA TYPE
-	MOV	AL, byte ES:[BX].DP_MEDIATYPE
+	MOV	AL, byte [ES:BX].DP_MEDIATYPE
 	MOV	CS:MEDIATYPE, AL
 ; THE MEDIA CHANGED (MAYBE) SO WE WILL HAVE TO DO A SETDASD THE NEXT TIME
 ; WE FORMAT A TRACK
-	OR	word DS:[DI].FLAGS, SET_DASD_TRUE
+	OR	word [DS:DI].FLAGS, SET_DASD_TRUE
 
 	SAVEREG <DS,DI,ES,BX>
 ; FIGURE OUT WHAT WE ARE SUPPOSED TO DO WITH THE BPB
 
 ; WERE WE ASKED TO INSTALL A FAKE BPB?
-	TEST	byte ES:[BX].DP_SPECIALFUNCTIONS, INSTALL_FAKE_BPB
+	TEST	byte [ES:BX].DP_SPECIALFUNCTIONS, INSTALL_FAKE_BPB
 	JNZ	SHORT INSTALLFAKEBPB
 
 ; WERE WE RETURNING A FAKE BPB WHEN ASKED TO BUILD A BPB?
-	TEST	word DS:[DI].FLAGS, RETURN_FAKE_BPB
+	TEST	word [DS:DI].FLAGS, RETURN_FAKE_BPB
 	JZ	SHORT INSTALLRECOMMENDEDBPB
 
 ; WE WERE RETURNING A FAKE BPB BUT WE CAN STOP NOW
-	AND	word DS:[DI].FLAGS, NOT RETURN_FAKE_BPB
+	AND	word [DS:DI].FLAGS, NOT RETURN_FAKE_BPB
 ;	 JMP	 DONEWITHBPBSTUFF		;AN008; Comment out this instruction.
 
 INSTALLRECOMMENDEDBPB:
@@ -277,7 +277,7 @@ INSTALLRECOMMENDEDBPB:
 	JMP	SHORT COPYTHEBPB
 
 INSTALLFAKEBPB:
-	or	word ds:[di].flags, return_fake_bpb ;AN000; Problem
+	or	word [ds:di].flags, return_fake_bpb ;AN000; Problem
 							;reported by WHS.
 	MOV	CX, BPB_TYPE_size    ; MOVE 'SMALLER' BPB
 	LEA	DI, byte [DI].BYTEPERSEC
@@ -297,19 +297,19 @@ DONEWITHBPBSTUFF:
 
 ; SET UP TRACK TABLE (IF NECCESSARY)
 SETTRACKTABLE:
-	MOV	CX, word ES:[BX].DP_TRACKTABLEENTRIES
+	MOV	CX, word [ES:BX].DP_TRACKTABLEENTRIES
 	MOV	CS:SECTORSPERTRACK, CX
-	AND	word DS:[DI].FLAGS, NOT GOOD_TRACKLAYOUT
-	TEST	byte ES:[BX].DP_SPECIALFUNCTIONS, TRACKLAYOUT_IS_GOOD
+	AND	word [DS:DI].FLAGS, NOT GOOD_TRACKLAYOUT
+	TEST	byte [ES:BX].DP_SPECIALFUNCTIONS, TRACKLAYOUT_IS_GOOD
 	JZ	UGLYTRACKLAYOUT
-	OR	word DS:[DI].FLAGS, GOOD_TRACKLAYOUT
+	OR	word [DS:DI].FLAGS, GOOD_TRACKLAYOUT
 
 UGLYTRACKLAYOUT:
 	CMP	CX, MAX_SECTORS_IN_TRACK
 	JA	TOOMANYSECTORSPERTRACK
 	JCXZ	SECTORINFOSAVED
 	MOV	DI, TRACKTABLE
-	LEA	SI, ES:[BX].DP_SECTORTABLE
+	LEA	SI, [ES:BX].DP_SECTORTABLE
 	PUSH	ES
 	POP	DS
 	PUSH	CS
@@ -358,37 +358,37 @@ TOOMANYSECTORSPERTRACK:
 SET_MEDIA_FOR_FORMAT:
 	SAVEREG <CX,DX>
 	XOR	AX,AX
-	cmp	cs:[Had_Format_Error],1 ;Did we have a format error before?
+	cmp	[cs:Had_Format_Error],1 ;Did we have a format error before?
 	jne	No_Form_Err		;AN001;
 	call	ResetDisk
 No_Form_Err:				;AN001;
-	CMP	byte CS:[MEDIA_SET_FOR_FORMAT],1
+	CMP	byte [CS:MEDIA_SET_FOR_FORMAT],1
 	jnz	Do_Set_Media_for_Format
 	jmp	SET_MED_RET		; MEDIA ALREADY SET
 Do_Set_Media_for_Format:
 	SAVEREG <DS,SI>
 	MOV	DS,AX
-	LDS	SI,dword DS:[DSKADR]	; GET POINTER TO DISK BASE TABLE
-	MOV	word CS:[DPT],SI
-	MOV	word CS:[DPT+2],DS		; SAVE POINTER TO TABLE
+	LDS	SI,dword [DS:DSKADR]	; GET POINTER TO DISK BASE TABLE
+	MOV	word [CS:DPT],SI
+	MOV	word [CS:DPT+2],DS		; SAVE POINTER TO TABLE
 ;SB34IOCTL000******************************************************************
 ;SB	Initialise the head settle time to 0fh.  See the offsets given in
 ;SB	DSKPRM.INC.  1 LOC.
 
-	mov	ds:[si].DISK_HEAD_STTL, 0Fh
+	mov	[ds:si].DISK_HEAD_STTL, 0Fh
 ;SB34IOCTL000******************************************************************
 	RESTOREREG <SI,DS>
-	mov	cs:[New_Rom], 1 	;assume a new ROM.
+	mov	[cs:New_Rom], 1 	;assume a new ROM.
 	XOR	AL,AL
 ;SB33031****************************************************************
-	mov	cx,ds:[di.ccyln]	;get number of cylinders     ;SB  ;3.30*
+	mov	cx,[ds:di+ccyln]	;get number of cylinders     ;SB  ;3.30*
 	dec	cx			;cylinder must be zero based ;SB  ;3.30*
 	and	ch,03h			; blank out unnecessary bits
 	ror	ch,1			;put in int form	     ;SB  ;3.30*
 	ror	ch,1			;			     ;SB  ;3.30*
 	xchg	ch,cl			;			     ;SB  ;3.30*
-	or	cl,byte ds:[di.seclim] ;get number of sectors    ;SB  ;3.30*
-	mov	dl,ds:[di.drivenum]	;get drive number	     ;SB  ;3.30*
+	or	cl,byte [ds:di+seclim] ;get number of sectors    ;SB  ;3.30*
+	mov	dl,[ds:di+drivenum]	;get drive number	     ;SB  ;3.30*
 	mov	ah,18h			;set media for format	     ;SB  ;3.30*
 	SAVEREG <ES,DS,SI,DI>
 	int	13h			;call rom bios		     ;SB  ;3.30*
@@ -397,15 +397,15 @@ Do_Set_Media_for_Format:
 ; ES:DI POINTS TO A DISK BASE TABLE FOR THIS COMBINATION FOR THIS DRIVE.
 	XOR	CX,CX
 	MOV	DS,CX				; HAVE DS -> SEGMENT 0
-	LDS	SI,dword DS:[DSKADR]	; GET CURRENT DISK BASE TABLE
-	MOV	word CS:[TEMPDPT],SI
-	MOV	word CS:[TEMPDPT+2],DS	; SAVE IT
-	MOV	word DS:[DSKADR],DI
-	MOV	word DS:[DSKADR+2],ES	; REPLACE WITH ONE RETURNED BY ROM
-	MOV	byte CS:[MEDIA_SET_FOR_FORMAT],1
+	LDS	SI,dword [DS:DSKADR]	; GET CURRENT DISK BASE TABLE
+	MOV	word [CS:TEMPDPT],SI
+	MOV	word [CS:TEMPDPT+2],DS	; SAVE IT
+	MOV	word [DS:DSKADR],DI
+	MOV	word [DS:DSKADR+2],ES	; REPLACE WITH ONE RETURNED BY ROM
+	MOV	byte [CS:MEDIA_SET_FOR_FORMAT],1
 Skip_Disk_Base_setting:
 	XOR	AL,AL			; LEGAL COMBINATION + ROM SUPPORT CODE
-	mov	cs:[Had_Format_Error],al ;reset the flag
+	mov	[cs:Had_Format_Error],al ;reset the flag
 	JMP	SHORT POP_STAT_RET
 
 FORMAT_STAT_ERR:
@@ -414,7 +414,7 @@ FORMAT_STAT_ERR:
 	cmp	ah, Dsk_Time_Out_Err		;J.K. = 80h
 	je	Format_stat_Time_out
 	mov	al, 1				;Function not supported.
-	mov	cs:[New_Rom], 0 		;So, it is an old rom.
+	mov	[cs:New_Rom], 0 		;So, it is an old rom.
 	jmp	short Pop_stat_ret
 Format_stat_illegal_comb:			;J.K. Function supported, but
 	MOV	AL,2				;J.K. illegal sect/trk, trk combination.
@@ -452,16 +452,16 @@ SET_MED_RET:
 ;
 	global FORMATTRACK
 FORMATTRACK:
-	TEST	byte ES:[BX].DP_SPECIALFUNCTIONS,STATUS_FOR_FORMAT
+	TEST	byte [ES:BX].DP_SPECIALFUNCTIONS,STATUS_FOR_FORMAT
 	JZ	DO_FORMAT_TRACK
 	CALL	SET_MEDIA_FOR_FORMAT	; ALSO MOVES CURRENT DPT TO TEMPDPT
 STAT_RET:
-	MOV	byte ES:[BX].DP_SPECIALFUNCTIONS,AL
+	MOV	byte [ES:BX].DP_SPECIALFUNCTIONS,AL
 	CLC
 	RET
 
 DO_FORMAT_TRACK:
-	CMP	byte DS:[DI].FORMFACTOR, DEV_HARDDISK
+	CMP	byte [DS:DI].FORMFACTOR, DEV_HARDDISK
 	jne	Do_Format_Diskette
 	jmp	DoVerifyTrack
 Do_Format_Diskette:
@@ -473,7 +473,7 @@ Do_Format_Diskette:
 ;SB	the code at DO_MAP_IT to map the error.  This is because we cannot
 ;SB	allow multitrack format on floppies - 5 LOCS
 
-	test	byte es:[bx].FP_SPECIALFUNCTIONS,DO_FAST_FORMAT
+	test	byte [es:bx].FP_SPECIALFUNCTIONS,DO_FAST_FORMAT
 	jz	NO_FAST_FORMAT
 	mov	ah, 1
 	jmp	DO_MAP_IT
@@ -500,10 +500,10 @@ NO_SET_DASD:
 ; CHECK TO ENSURE CORRECT DISK IS IN DRIVE
 	CALL	CHECKSINGLE
 
-	MOV	AX, word ES:[BX].FP_CYLINDER
-	MOV	word CS:[TRKNUM],AX
-	MOV	CX, word ES:[BX].FP_HEAD
-	MOV	byte CS:[HDNUM],CL
+	MOV	AX, word [ES:BX].FP_CYLINDER
+	MOV	word [CS:TRKNUM],AX
+	MOV	CX, word [ES:BX].FP_HEAD
+	MOV	byte [CS:HDNUM],CL
 	MOV	AH,CL
 
 	PUSH	DI					; SAVE PTR TO BDS
@@ -530,7 +530,7 @@ FORMATRETRY:
 	POP	CX
 	JNC	FORMATOK
 	call	resetdisk
-	mov	cs:[Had_Format_Error],1
+	mov	[cs:Had_Format_Error],1
 	push	ax
 	push	cx
 	push	dx
@@ -545,7 +545,7 @@ While_Err:
 	LOOP	FORMATRETRY
 ;SB33106*******************************************************************
 Format_Failed:
-	mov	cs:[Had_Format_Error], 1	;set the format error flag.
+	mov	[cs:Had_Format_Error], 1	;set the format error flag.
 	cmp	ah, Dsk_Change_Line_Err 	;=06h. Convert change line
 	jne	Do_Map_it			;error to Time Out error.
 	mov	ah, Dsk_Time_Out_Err		;=80h
@@ -556,7 +556,7 @@ Do_Map_it:
 	RET
 
 FORMATOK:
-	mov	cs:[Had_Format_Error],0 	;reset the format error flag.
+	mov	[cs:Had_Format_Error],0 	;reset the format error flag.
 	RESTOREREG <BX,ES,DI,DS>
 
 DOVERIFYTRACK:
@@ -579,9 +579,9 @@ VerifyTrack_Err:				;AN006;
 	global VERIFYTRACK
 VERIFYTRACK:
 	MOV	CS:RFLAG, ROMVERIFY
-	MOV	AX, word ES:[BX].VP_CYLINDER
+	MOV	AX, word [ES:BX].VP_CYLINDER
 	MOV	CS:CURTRK, AX
-	MOV	AX, word ES:[BX].VP_HEAD
+	MOV	AX, word [ES:BX].VP_HEAD
 
 ;	****** ASSUMPTION ******
 ;	WE ASSUME THAT WE HAVE LESS THAN 256 HEADS, AND THAT THE REQUEST
@@ -601,9 +601,9 @@ VERIFYTRACK:
 ;SB	is okay we initalise cx to the total sectors. use ax as a temporary
 ;SB	register.  9 LOCS
 
-	test	byte es:[bx].FP_SPECIALFUNCTIONS,DO_FAST_FORMAT
+	test	byte [es:bx].FP_SPECIALFUNCTIONS,DO_FAST_FORMAT
 	jz	Norm_VerifyTrack
-	mov	ax,es:[bx].FP_TRACKCOUNT	;ax <- tracks to be verify
+	mov	ax,[es:bx].FP_TRACKCOUNT	;ax <- tracks to be verify
 	cmp	ax,0FFh
 	ja	VerifyTrack_Err 		;#tracks > 255
 	mul	cl
@@ -659,17 +659,17 @@ WRITETRACK:
 ;
 	global READWRITETRACK
 READWRITETRACK:
-	MOV	AX, word ES:[BX].TRWP_CYLINDER
+	MOV	AX, word [ES:BX].TRWP_CYLINDER
 	MOV	CS:CURTRK, AX
-	MOV	AX, word ES:[BX].TRWP_HEAD
+	MOV	AX, word [ES:BX].TRWP_HEAD
 
 ;	****** ASSUMPTION ******
 ;	WE ASSUME THAT WE HAVE LESS THAN 256 HEADS, AND THAT THE REQUEST
 ;	HEADER DATA STRUCTURE IS UNNECCESSARILY BIG
 	MOV	CS:CURHD, AL
-	MOV	AX, word ES:[BX].TRWP_FIRSTSECTOR
-	MOV	CX, word ES:[BX].TRWP_SECTORSTOREADWRITE
-	LES	BX, ES:[BX].TRWP_TRANSFERADDRESS
+	MOV	AX, word [ES:BX].TRWP_FIRSTSECTOR
+	MOV	CX, word [ES:BX].TRWP_SECTORSTOREADWRITE
+	LES	BX, [ES:BX].TRWP_TRANSFERADDRESS
 	CALL	TRACKIO
 	RET
 ; ENDP READWRITETRACK
@@ -697,7 +697,7 @@ TRACKIO:
 ; ENSURE CORRECT DISK IS IN DRIVE
 	CALL	CHECKSINGLE
 ; SEE IF WE HAVE ALREADY SET THE DISK BASE TABLE
-	CMP	byte CS:[MEDIA_SET_FOR_FORMAT],1
+	CMP	byte [CS:MEDIA_SET_FOR_FORMAT],1
 	JZ	DPTALREADYSET
 ;
 ; SET UP TABLES AND VARIABLES FOR I/O
@@ -718,7 +718,7 @@ DPTALREADYSET:
 ;    CX TO BE THE NUMBER OF TIMES WE HAVE TO LOOP
 ;    DX TO BE THE NUMBER OF SECTORS WE READ ON EACH ITERATION
 	MOV	DX, 1
-	TEST	word DS:[DI].FLAGS, GOOD_TRACKLAYOUT
+	TEST	word [DS:DI].FLAGS, GOOD_TRACKLAYOUT
 	JZ	IONEXTSECTOR
 
 ; HEY! WE CAN READ ALL THE SECTORS IN ONE BLOW
@@ -731,7 +731,7 @@ IONEXTSECTOR:
 	INC	SI
 	INC	SI
 ; GET SECTOR ID FROM TRACK TABLE
-	LODS	byte CS:[SI]
+	LODS	byte [CS:SI]
 	MOV	CS:CURSEC, AL
 ;*** For a Fixed disk multi-track disk I/O - J.K. 4/14/86
 ;Assumptions: 1). In the input CX (# of sectors to go) to TRACKIO, only CL is
@@ -741,7 +741,7 @@ IONEXTSECTOR:
 	jz	IOREMOVABLE				;no -J.K.
 	test	cs:MulTrk_Flag, MULTRK_ON		;AN002; Allow multi-track operation?
 	jz	IORemovable				;AN002; No, don't do that.
-	mov	cs:[seccnt], dx 			;# of sectors to I/O -J.K.
+	mov	[cs:seccnt], dx 			;# of sectors to I/O -J.K.
 	mov	ax, dx					;J.K.
 	call	disk					;J.K.
 	pop	dx					;J.K.
@@ -750,19 +750,19 @@ IONEXTSECTOR:
 	ret						;J.K.
 IOREMOVABLE:						;J.K.
 ; GET SECTOR SIZE INDEX FROM TRACK TABLE AND SAVE IT
-	LODS	byte CS:[SI]
+	LODS	byte [CS:SI]
 	PUSH	AX
 ; PATCH SECTOR SIZE IN DPT
 	PUSH	SI
 	PUSH	DS
 	LDS	SI, CS:DPT
-	MOV	byte DS:[SI].DISK_SECTOR_SIZ,AL
-	MOV	AL,CS:[EOT]
+	MOV	byte [DS:SI].DISK_SECTOR_SIZ,AL
+	MOV	AL,[CS:EOT]
 	MOV	[SI].DISK_EOT,AL	; SET UP THE MAX NUMBER OF SEC/TRACK
 	POP	DS
 	MOV	AL, DL
 DOTHEIO:
-	MOV	CS:[SECCNT],AX		; SET UP THE COUNT OF SECTORS TO I/O
+	MOV	[CS:SECCNT],AX		; SET UP THE COUNT OF SECTORS TO I/O
 	CALL	DISK
 ; ADVANCE BUFFER POINTER BY ADDING SECTOR SIZE
 	POP	SI
@@ -772,7 +772,7 @@ DOTHEIO:
 	POP	DX
 	POP	CX
 	LOOP	IONEXTSECTOR
-	cmp	byte cs:[Media_Set_For_Format], 1	;AN001;
+	cmp	byte [cs:Media_Set_For_Format], 1	;AN001;
 	je	No_Need_Done				;AN001;
 	CALL	DONE			; SET TIME OF LAST ACCESS, AND RESET
 No_Need_Done:				;AN001;
@@ -814,21 +814,21 @@ SECTORSIZEINDEXTOSECTORSIZE:
 SETDASD:
 ; SEE IF WE HAVE PREVIOUSLY SET DASD TYPE
 ;SB33114******************************************************************
-	cmp	cs:[Had_Format_Error],1
+	cmp	[cs:Had_Format_Error],1
 	je	DoSetDasd
 ;SB33114******************************************************************
-	TEST	word DS:[DI].FLAGS, SET_DASD_TRUE
+	TEST	word [DS:DI].FLAGS, SET_DASD_TRUE
 	JZ	DASDHASBEENSET
-	AND	word DS:[DI].FLAGS, NOT SET_DASD_TRUE
+	AND	word [DS:DI].FLAGS, NOT SET_DASD_TRUE
 ;SB33115******************************************************************
 DoSetDasd:
-	mov	cs:[Had_Format_Error],0 ;reset it
+	mov	[cs:Had_Format_Error],0 ;reset it
 ;SB33115******************************************************************
-	MOV	CS:[GAP_PATCH],50H	; FORMAT GAP FOR 48TPI DISKS
+	MOV	[CS:GAP_PATCH],50H	; FORMAT GAP FOR 48TPI DISKS
 	MOV	AL,4
-	CMP	byte DS:[DI].FORMFACTOR,DEV_3INCH720KB
+	CMP	byte [DS:DI].FORMFACTOR,DEV_3INCH720KB
 	JZ	DO_SET
-	CMP	byte DS:[DI].FORMFACTOR, DEV_5INCH96TPI
+	CMP	byte [DS:DI].FORMFACTOR, DEV_5INCH96TPI
 	JZ	GOT_BIG
 	MOV	AL,1			; 160/320K IN A 160/320K DRIVE
 	JMP	SHORT DO_SET
@@ -837,7 +837,7 @@ GOT_BIG:
 	CMP	CS:MEDIATYPE, 0
 	JNE	DO_SET
 	MOV	AL,3			; 1.2MEG IN A 1.2MEG DRIVE
-	MOV	CS:[GAP_PATCH],54H
+	MOV	[CS:GAP_PATCH],54H
 DO_SET:
 	push	ds				;AN003;
 	push	si				;AN003;
@@ -847,8 +847,8 @@ DO_SET:
 
 	xor	si, si
 	mov	ds, si
-	lds	si, dword ds:[DSKADR]
-	mov	ds:[si].DISK_HEAD_STTL, 0Fh
+	lds	si, dword [ds:DSKADR]
+	mov	[ds:si].DISK_HEAD_STTL, 0Fh
 ;SB34IOCTL002****************************************************************
 	pop	si				;AN003;
 	pop	ds				;AN003;
@@ -859,7 +859,7 @@ DO_SET:
 ;SB33032******************************************************************
 DASDHASBEENSET:
 	MOV	AH,byte [DI].SECLIM
-	MOV	CS:[FORMT_EOT],AH
+	MOV	[CS:FORMT_EOT],AH
 	RET
 
 ;
@@ -892,7 +892,7 @@ RESETDISK:
 	xor	AH, AH			; set command to reset disk   ;SB ;3.30*
 	int	13h			; call the rom-bios	      ;SB ;3.30*
 ;SB33033******************************************************************
-	MOV	CS:[STEP_DRV],-1	; ZAP UP THE SPEED
+	MOV	[CS:STEP_DRV],-1	; ZAP UP THE SPEED
 	RESTOREREG <AX>
 	RET
 
@@ -911,24 +911,24 @@ RESETDISK:
 	global TO_ROM
 TO_ROM:
 	SAVEREG <DS,DI,ES,BX,SI>
-	TEST	byte CS:[NEW_ROM],1
+	TEST	byte [CS:NEW_ROM],1
 	JNZ	GOT_VALID_DPT
 	PUSH	AX
 	MOV	DX,DS			; SAVE DS:DI-> BDS
 	XOR	AX,AX
 	MOV	DS,AX
-	LDS	SI,dword DS:[DSKADR]	; GET POINTER TO DISK BASE TABLE
-	MOV	word CS:[DPT],SI
-	MOV	word CS:[DPT+2],DS		; SAVE POINTER TO TABLE
-	MOV	AL,CS:[FORMT_EOT]
+	LDS	SI,dword [DS:DSKADR]	; GET POINTER TO DISK BASE TABLE
+	MOV	word [CS:DPT],SI
+	MOV	word [CS:DPT+2],DS		; SAVE POINTER TO TABLE
+	MOV	AL,[CS:FORMT_EOT]
 	MOV	[SI].DISK_EOT,AL
-	MOV	AL,CS:[GAP_PATCH]
+	MOV	AL,[CS:GAP_PATCH]
 	MOV	[SI].DISK_FORMT_GAP,AL	; IMPORTANT FOR FORMAT
 	MOV	[SI].DISK_HEAD_STTL,15	; ASSUME WE ARE DOING A SEEK OPERATION
 ; SET UP MOTOR START CORRECTLY FOR 3.5" DRIVES.
 	PUSH	ES
 	MOV	ES,DX
-	CMP	byte ES:[DI].FORMFACTOR,FFSMALL	; IS IT A 3.5" DRIVE?
+	CMP	byte [ES:DI].FORMFACTOR,FFSMALL	; IS IT A 3.5" DRIVE?
 	JNZ	MOTORSTRTOK
 	MOV	AL,4
 	XCHG	AL,[SI].DISK_MOTOR_STRT
@@ -944,10 +944,10 @@ MOTORSTRTOK:
 	POP	AX
 GOT_VALID_DPT:
 ;SB33034*******************************************************************
-	mov	dx, cs:[trknum] 	; set track number	      ;SB ;3.30*
+	mov	dx, [cs:trknum] 	; set track number	      ;SB ;3.30*
 	mov	ch,dl			; set low 8 bits in ch	      ;SB ;3.30*
-	mov	DL, ds:[di].DriveNum	; set drive number	      ;SB ;3.30*
-	mov	DH, CS:[HDNUM]		; set head number	      ;SB ;3.30*
+	mov	DL, [ds:di].DriveNum	; set drive number	      ;SB ;3.30*
+	mov	DH, [CS:HDNUM]		; set head number	      ;SB ;3.30*
 	int	13h			; call the rom-bios  routines ;SB ;3.30*
 ;SB33034*******************************************************************
 	RESTOREREG <SI,BX,ES,DI,DS>
@@ -985,14 +985,14 @@ DONE_GETOWN:
 	global IOCTL$SETOWN
 IOCTL$SETOWN:
 	CALL	SETDRIVE
-	MOV	byte CS:[FSETOWNER],1	; SET FLAG FOR CHECKSINGLE TO
+	MOV	byte [CS:FSETOWNER],1	; SET FLAG FOR CHECKSINGLE TO
 						; LOOK AT.
 	CALL	CHECKSINGLE			; SET OWNERSHIP OF DRIVE
-	MOV	byte CS:[FSETOWNER],0	; RESET FLAG
+	MOV	byte [CS:FSETOWNER],0	; RESET FLAG
 	XOR	BX,BX
 	MOV	ES,BX
 	MOV	CL,-1
-	MOV	byte ES:[LSTDRV],CL 	; SET UP SDSB AS WELL
+	MOV	byte [ES:LSTDRV],CL 	; SET UP SDSB AS WELL
 
 EXIT_OWN:
 ; IF THERE IS ONLY ONE LOGICAL DRIVE ASSIGNED TO THIS PHYSICAL DRIVE, RETURN
@@ -1003,7 +1003,7 @@ EXIT_OWN:
 	MOV	CL,byte [DI].DRIVELET	; GET LOGICAL DRIVE NUMBER
 	INC	CL				; GET IT 1-BASED
 EXIT_NO_MULT:
-	LDS	BX,CS:[PTRSAV]
+	LDS	BX,[CS:PTRSAV]
 	MOV	byte [BX].UNIT,CL
 	JMP	EXIT
 
@@ -1020,16 +1020,16 @@ RESTOREOLDDPT:
 	PUSH	AX
 	XOR	AL,AL
 ; RESET FLAG AND GET CURRENT FLAG SETTING
-	mov	cs:[Had_Format_Error],al
-	XCHG	byte CS:[MEDIA_SET_FOR_FORMAT],AL
+	mov	[cs:Had_Format_Error],al
+	XCHG	byte [CS:MEDIA_SET_FOR_FORMAT],AL
 	OR	AL,AL
 	JZ	DONTRESTORE
 	SAVEREG <SI,DS,ES>
-	LDS	SI,CS:[TEMPDPT]
+	LDS	SI,[CS:TEMPDPT]
 	XOR	AX,AX
 	MOV	ES,AX				; HAVE ES -> SEGMENT 0
-	MOV	word ES:[DSKADR],SI
-	MOV	word ES:[DSKADR+2],DS
+	MOV	word [ES:DSKADR],SI
+	MOV	word [ES:DSKADR+2],DS
 GOTCURRENTDPT:
 	RESTOREREG <ES,DS,SI>
 DONTRESTORE:
@@ -1083,7 +1083,7 @@ DONTRESTORE:
 
 GetMediaID:;AN000;
 	call	Changeline_Chk			;AN010;
-	mov	al, DS:[DI].DRIVELET		;AN000; logical drive number
+	mov	al, [DS:DI].DRIVELET		;AN000; logical drive number
 	mov	cs:RFlag, ROMREAD		;AN000; read operation
 	call	Boot_IO 			;AN000; read boot sector into cs:DiskSector
 ;	$IF	NC				;AN000;
@@ -1165,7 +1165,7 @@ $IOCTL$IF1:
 
 SetMediaID:
 	call	Changeline_Chk			;AN010;
-	mov	al, DS:[DI].DRIVELET		;AN000; logical drive number
+	mov	al, [DS:DI].DRIVELET		;AN000; logical drive number
 	mov	dl, al				;AN000; save it for the time being.
 	mov	cs:RFlag, ROMREAD		;AN000; read operation
 	push	dx				;AN000; save drive number
@@ -1198,7 +1198,7 @@ SetMediaID:
 	      mov  al, dl			;AN000; set drive number for Boot_IO
 	      mov  cs:RFlag, ROMWRITE		;AN000;
 	      call Boot_IO			;AN000; write it back.
-	      mov     cs:[TIM_DRV], -1		;AN011; Make sure chk$media check the driver
+	      mov     [cs:TIM_DRV], -1		;AN011; Make sure chk$media check the driver
 ;	   $ELSE				;AN000;
 	   JMP SHORT $IOCTL$EN7
 $IOCTL$IF7:
@@ -1292,10 +1292,10 @@ Boot_IO:;AN000;
 ;									       *
 ;*******************************************************************************
 Changeline_Chk:;AN010;
-	mov	dl, byte ds:[di].DRIVENUM	;AN010;
+	mov	dl, byte [ds:di].DRIVENUM	;AN010;
 	or	dl, dl				;AN010;Fixed disk?
 	js	Chln_Chk_Ret			;AN010;Yes, skip it.
-	cmp	cs:[fHave96], 1 		;AN011;This ROM support change line?
+	cmp	[cs:fHave96], 1 		;AN011;This ROM support change line?
 	jne	Chln_Chk_Ret			;AN011;
 	call	HasChange			;AN011;This drive support change line?
 	jz	Chln_Chk_Ret			;AN011;do nothing
@@ -1306,7 +1306,7 @@ Changeline_Chk:;AN010;
 	int	13h
 ;SB34IOCTL004*****************************************************************
 	jnc	Chln_Chk_Ret			;AN010;no change line activity?
-	mov	word cs:[FLAGBITS], FCHANGED ;AN010;
+	mov	word [cs:FLAGBITS], FCHANGED ;AN010;
 	call	SET_CHANGED_DL			;AN010;Update FLAG in BDS for this physical drive
 Chln_Chk_Ret:					;AN010;
 	ret					;AN010;
@@ -1326,12 +1326,12 @@ Chln_Chk_Ret:					;AN010;
 ;						 = 1 if disk I/O allowed.      *
 ;*******************************************************************************
 GetAccessFlag:;AN007;
-	test	word ds:[di].FLAGS, UNFORMATTED_MEDIA   ;AN007;Is it unformtted media?
+	test	word [ds:di].FLAGS, UNFORMATTED_MEDIA   ;AN007;Is it unformtted media?
 	jz	GAF_Allowed				    ;AN007;No, formatted media
-	mov	es:[bx].DAC_ACCESS_FLAG, 0		    ;AN007;
+	mov	[es:bx].DAC_ACCESS_FLAG, 0		    ;AN007;
 	jmp	short GAF_Done				    ;AN007;
 GAF_Allowed:						    ;AN007;
-	mov	es:[bx].DAC_ACCESS_FLAG, 1		    ;AN007;
+	mov	[es:bx].DAC_ACCESS_FLAG, 1		    ;AN007;
 GAF_Done:						    ;AN007;
 	ret						    ;AN007;
 ; ENDP GetAccessFlag;AN007;
@@ -1349,12 +1349,12 @@ GAF_Done:						    ;AN007;
 ; Output:   UNFORMTTED_MEDIA bit modified according to the user request        *
 ;*******************************************************************************
 SetAccessFlag:;AN007;
-	cmp	es:[bx].DAC_ACCESS_FLAG, 0		    ;AN007;
+	cmp	[es:bx].DAC_ACCESS_FLAG, 0		    ;AN007;
 	jne	SAF_Allow_Access			    ;AN007;
-	or	word ds:[di].FLAGS, UNFORMATTED_MEDIA   ;AN007;
+	or	word [ds:di].FLAGS, UNFORMATTED_MEDIA   ;AN007;
 	jmp	short SAF_Done				    ;AN007;
 SAF_Allow_Access:					    ;AN007;
-	and	word ds:[di].FLAGS, not UNFORMATTED_MEDIA ;AN007;
+	and	word [ds:di].FLAGS, not UNFORMATTED_MEDIA ;AN007;
 SAF_Done:						    ;AN007;
 	ret						    ;AN007;
 ; ENDP SetAccessFlag;AN007;

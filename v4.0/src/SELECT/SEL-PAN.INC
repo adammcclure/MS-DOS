@@ -4,7 +4,7 @@
 ;	SEL-PAN.INC
 ;
 ;
-FALSE = 0
+FALSE equ 0
 
 ;
 ;  Dialog Equates

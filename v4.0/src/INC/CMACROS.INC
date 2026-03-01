@@ -63,41 +63,41 @@ outif ?PLM,0,<PLM calling convention>
  ; .XCREF ?lb1,?lblpu
  ; .XCREF ?DF,?PLM,?WIN,?IA,?PU,?ADJ
  ; .CREF
-?RSL = 0
-?CPD = 0
-?ArgL = 0
-?ArgC = 0
-?BA = 0
-?ACB = 0
-??? = 0
-?PO = 0
-?PAS = 0
-?PC = 0
-?IA = 0
-?PU = 0
-?ADJ = 0
-?lblpu = 0
-?N = 0000000000000000B
-?AX = 0000000000000011B
-?AH = 0000000000000001B
-?AL = 0000000000000010B
-?BX = 0000000000001100B
-?BH = 0000000000000100B
-?BL = 0000000000001000B
-?CX = 0000000000110000B
-?CH = 0000000000010000B
-?CL = 0000000000100000B
-?DX = 0000000011000000B
-?DH = 0000000001000000B
-?DL = 0000000010000000B
-?SI = 0000000100000000B
-?DI = 0000001000000000B
-?ES = 0000010000000000B
-?DS = 0000100000000000B
-?BP = 0001000000000000B
-?SP = 0010000000000000B
-?SS = 0100000000000000B
-?CS = 1000000000000000B
+?RSL equ 0
+?CPD equ 0
+?ArgL equ 0
+?ArgC equ 0
+?BA equ 0
+?ACB equ 0
+??? equ 0
+?PO equ 0
+?PAS equ 0
+?PC equ 0
+?IA equ 0
+?PU equ 0
+?ADJ equ 0
+?lblpu equ 0
+?N equ 0000000000000000B
+?AX equ 0000000000000011B
+?AH equ 0000000000000001B
+?AL equ 0000000000000010B
+?BX equ 0000000000001100B
+?BH equ 0000000000000100B
+?BL equ 0000000000001000B
+?CX equ 0000000000110000B
+?CH equ 0000000000010000B
+?CL equ 0000000000100000B
+?DX equ 0000000011000000B
+?DH equ 0000000001000000B
+?DL equ 0000000010000000B
+?SI equ 0000000100000000B
+?DI equ 0000001000000000B
+?ES equ 0000010000000000B
+?DS equ 0000100000000000B
+?BP equ 0001000000000000B
+?SP equ 0010000000000000B
+?SS equ 0100000000000000B
+?CS equ 1000000000000000B
 %macro uconcat 6
 n1&n2 o1&o2 p1&p2
 %endmacro
@@ -116,7 +116,7 @@ pop x
 %endmacro
 %endmacro
 %macro SAVE 1
-?RSL = 0
+?RSL equ 0
 ?RI ?RSL,<rL>
 %endmacro
 %macro smashes 2
@@ -129,7 +129,7 @@ pop x
 %macro ?RI 2
 ; irp x,<rL>
 ifdef ?&&x
-n = n or ?&&x
+n equ n or ?&&x
 %endif
 %endmacro
 %endmacro
@@ -184,13 +184,13 @@ parmW <nl>
 %if (?PLM) == 0
 ; irp x,<nL>
 ?pp1 x,<t>,%?PO,%?adj,%(?PO+?adj)
-?PO = ?PO + l
+?PO equ ?PO + l
  ; .xcref ?T&&x
 ?T&&x = s
 %endmacro
 %else
 ; irp x,<nL>
-?PO = ?PO + l
+?PO equ ?PO + l
 ?pp1 x,<t>,%?PO,%?adj,%(?PO+?adj)
  ; .xcref ?T&&x
 ?T&&x = s
@@ -251,9 +251,9 @@ localW <nL>
 %macro ?aLoc 5
 %if ?CPD
  ; .xcref
-??? = ??? + l
+??? equ ??? + l
 %if a
-??? = ((??? + 1) AND 0FFFEH)
+??? equ ((??? + 1) AND 0FFFEH)
 %endif
 ; irp x,<nL>
 ?aL1 x,<t>,%???
@@ -481,10 +481,10 @@ extern x:&d
 %endmacro
 %endif
 %macro ?lb1 3
-?lblpu = 0
+?lblpu equ 0
 ; irp x,<nL>
 %ifidn <x>,<PUBLIC>
-?lblpu = 1
+?lblpu equ 1
 %else
  ; .xcref
  ; .xcref ?T&&x
@@ -558,7 +558,7 @@ defW <nL>
 %endmacro
 %macro arg 1
 ; irp x,<aL>
-?argc = ?argc + 1
+?argc equ ?argc + 1
 ?Atal <x>,%?argc
 %endmacro
 %endmacro
@@ -571,7 +571,7 @@ defW <nL>
 &endm
 %endmacro
 %macro ?AP 1
-?argl = ?argl + 2
+?argl equ ?argl + 2
 ifdef ?T&n
 %if (?T&n-1) == 0
 push word (n)
@@ -584,7 +584,7 @@ exitm
 %if (?T&n-4) == 0
 push word (n)+2
 push word (n)
-?argl = ?argl + 2
+?argl equ ?argl + 2
 exitm
 %endif
 %if (?T&n-8) == 0
@@ -592,13 +592,13 @@ push word (n)+6
 push word (n)+4
 push word (n)+2
 push word (n)
-?argl = ?argl + 6
+?argl equ ?argl + 6
 exitm
 %endif
 %if (?T&n-0FFFFH) == 0
 mpush %(?SR&n),1
 mpush %(?OR&n),1
-?argl = ?argl + 2
+?argl equ ?argl + 2
 exitm
 %endif
 %if (?T&n) == 0
@@ -614,15 +614,15 @@ push n
 Arg <a>
 %endif
 ifdef ?SM&n
-?RSL = ?RSL AND ?SM&n
+?RSL equ ?RSL AND ?SM&n
 %endif
 mpush %?RSL
-?argl = 0
-?ACB = ?argc
+?argl equ 0
+?ACB equ ?argc
 %rep ?argc
 uconcat <?ALI>,%?ACB
 uconcat <purge>,,<?ALI>,%?ACB
-?ACB = ?ACB - 1
+?ACB equ ?ACB - 1
 %endmacro
 %if (?PLM) == 0
 %if 0  ; IFB <sleaze>
@@ -637,9 +637,9 @@ call n
 add sp,?argl
 %endif
 mpop %?RSL
-?RSL = 0
-?argc = 0
-?argl = 0
+?RSL equ 0
+?argc equ 0
+?argl equ 0
 %endmacro
 %else
 %macro ccall 2
@@ -647,15 +647,15 @@ mpop %?RSL
 Arg <a>
 %endif
 ifdef ?SM&n
-?RSL = ?RSL AND ?SM&n
+?RSL equ ?RSL AND ?SM&n
 %endif
 mpush %?RSL
-?argl = 0
-?ACB = 1
+?argl equ 0
+?ACB equ 1
 %rep ?argc
 uconcat <?ALI>,%?ACB
 uconcat <purge>,,<?ALI>,%?ACB
-?ACB = ?ACB + 1
+?ACB equ ?ACB + 1
 %endmacro
 %if (?PLM) == 0
 call _&n
@@ -663,9 +663,9 @@ call _&n
 call n
 %endif
 mpop %?RSL
-?RSL = 0
-?argc = 0
-?argl = 0
+?RSL equ 0
+?argc equ 0
+?argl equ 0
 %endmacro
 %endif
 %macro cProc 3
@@ -675,35 +675,35 @@ mpop %?RSL
 %if ?CPD
 ?UTPE
 %endif
-?CPD = 1
-??? = 0
-?argc = 0
-?BA = 0
-?PO = 0
-?PU = 0
-?IA = 0
-?adj = i
-?PAS = 0
+?CPD equ 1
+??? equ 0
+?argc equ 0
+?BA equ 0
+?PO equ 0
+?PU equ 0
+?IA equ 0
+?adj equ i
+?PAS equ 0
 %if 1  ; IFNB <a>
 ?RI ?PAS,<a>
 %endif
-?PC = sizeC
+?PC equ sizeC
 ; irp x,<c>
 %ifidn <x>,<FAR>
-?PC = 1
+?PC equ 1
 %endif
 %ifidn <x>,<NEAR>
-?PC = 0
+?PC equ 0
 %endif
 %ifidn <x>,<PUBLIC>
-?PU = 1
+?PU equ 1
 %endif
 %endmacro
 %if ?PC
 %if ?WIN
-?IA = 2
+?IA equ 2
 %endif
-?adj = ?adj + 2
+?adj equ ?adj + 2
 %endif
 %if (?PLM) == 0
 %if (?PC) == 0
@@ -721,10 +721,10 @@ n:
     cBegin &macro g
 	; .xcref
 	?pg1 <n>,c,a,%?PO
-	?CPD = 0
-	?argc = 0
-	?BA = 1
-	??? = (???+1) AND 0FFFEH
+	?CPD equ 0
+	?argc equ 0
+	?BA equ 1
+	??? equ (???+1) AND 0FFFEH
 	%if p
 	    global n
 	%endif
@@ -767,7 +767,7 @@ n:
     ; .xcref
     cEnd &macro g
 	; .xcref
-	?BA = 0
+	?BA equ 0
 	%ifidn <g>,<nogen>
 	    %if o+a
 		%warning <cEnd - possible invalid use of nogen>
@@ -799,22 +799,22 @@ n:
 
 %macro assumes 2
 ; LOCAL assumed
-assumed = 0
+assumed equ 0
 %ifidn <code>,<g>
 ?cas <s>
-assumed = 1
+assumed equ 1
 %endif
 %ifidn <CODE>,<g>
 ?cas <s>
-assumed = 1
+assumed equ 1
 %endif
 %ifidn <data>,<g>
 ; assume s&:dgroup
-assumed = 1
+assumed equ 1
 %endif
 %ifidn <DATA>,<g>
 ; assume s&:dgroup
-assumed = 1
+assumed equ 1
 %endif
 %if (assumed) == 0
 ; assume s&:&g

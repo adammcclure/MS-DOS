@@ -76,25 +76,25 @@ SAVEXIT EQU     10
 ; Field definition for FCBs
 
 struc FCBLOCK
-        times 12 db 0;Drive code and name
-EXTENT: dw 0
-RECSIZ: dw 0;Size of record (user settable)
-FILSIZ: dw 0;Size of file in bytes
-DRVBP: dw 0;BP for SEARCH FIRST and SEARCH NEXT
-FDATE: dw 0;Date of last writing
-FTIME: dw 0;Time of last writing
-DEVID: db 0;Device ID number, bits 0-5
+        resb 12;Drive code and name
+EXTENT: resw 1
+RECSIZ: resw 1;Size of record (user settable)
+FILSIZ: resw 1;Size of file in bytes
+DRVBP: resw 1;BP for SEARCH FIRST and SEARCH NEXT
+FDATE: resw 1;Date of last writing
+FTIME: resw 1;Time of last writing
+DEVID: resb 1;Device ID number, bits 0-5
                         ;bit 7=0 for file, bit 7=1 for I/O device
                         ;If file, bit 6=0 if dirty
                         ;If I/O device, bit 6=0 if EOF (input)
-FIRCLUS: dw 0;First cluster of file
-LSTCLUS: dw 0;Last cluster accessed
-CLUSPOS: dw 0;Position of last cluster accessed
-        db 0;Forces NR to offset 32
-NR: db 0;Next record
-RR: times 3 db 0;Random record
+FIRCLUS: resw 1;First cluster of file
+LSTCLUS: resw 1;Last cluster accessed
+CLUSPOS: resw 1;Position of last cluster accessed
+        resb 1;Forces NR to offset 32
+NR: resb 1;Next record
+RR: resb 3;Random record
 endstruc
-FILDIRENT       = FILSIZ                ;Used only by SEARCH FIRST and SEARCH NEXT
+FILDIRENT equ FILSIZ;Used only by SEARCH FIRST and SEARCH NEXT
 
 ; Description of 32-byte directory entry (same as returned by SEARCH FIRST
 ; and SEARCH NEXT, functions 17 and 18).
@@ -126,24 +126,24 @@ FILDIRENT       = FILSIZ                ;Used only by SEARCH FIRST and SEARCH NE
 ; Field definition for Drive Parameter Block
 
 struc DPBLOCK
-DEVNUM: db 0;I/O driver number
-DRVNUM: db 0;Physical Unit number
-SECSIZ: dw 0;Size of physical sector in bytes
-CLUSMSK: db 0;Sectors/cluster - 1
-CLUSSHFT: db 0;Log2 of sectors/cluster
-FIRFAT: dw 0;Starting record of FATs
-FATCNT: db 0;Number of FATs for this drive
-MAXENT: dw 0;Number of directory entries
-FIRREC: dw 0;First sector of first cluster
-MAXCLUS: dw 0;Number of clusters on drive + 1
-FATSIZ: db 0;Number of records occupied by FAT
-FIRDIR: dw 0;Starting record of directory
-FAT: dw 0;Pointer to start of FAT
+DEVNUM: resb 1;I/O driver number
+DRVNUM: resb 1;Physical Unit number
+SECSIZ: resw 1;Size of physical sector in bytes
+CLUSMSK: resb 1;Sectors/cluster - 1
+CLUSSHFT: resb 1;Log2 of sectors/cluster
+FIRFAT: resw 1;Starting record of FATs
+FATCNT: resb 1;Number of FATs for this drive
+MAXENT: resw 1;Number of directory entries
+FIRREC: resw 1;First sector of first cluster
+MAXCLUS: resw 1;Number of clusters on drive + 1
+FATSIZ: resb 1;Number of records occupied by FAT
+FIRDIR: resw 1;Starting record of directory
+FAT: resw 1;Pointer to start of FAT
 endstruc
 
 DPBSIZ  EQU     20      ;Size of the structure in bytes
-DIRSEC  =       FIRREC  ;Number of dir. sectors (init temporary)
-DSKSIZ  =       MAXCLUS ;Size of disk (temp used during init only)
+DIRSEC equ FIRREC;Number of dir. sectors (init temporary)
+DSKSIZ equ MAXCLUS;Size of disk (temp used during init only)
 
 ;The following are all of the segments used
 ;They are declared in the order that they should be placed in the executable
@@ -168,7 +168,7 @@ SECTION .SEGBIOS
         %if IBM
 BIOSSEG EQU     60H
         %endif
-        %if NOT IBM
+        %if ~IBM
 BIOSSEG EQU     40H
         %endif
 
@@ -194,18 +194,18 @@ BIOSMAPDEV: times 3 db 0;Dynamic disk table mapper
 ; Location of user registers relative user stack pointer
 
 struc STKPTRS
-AXSAVE: dw 0
-BXSAVE: dw 0
-CXSAVE: dw 0
-DXSAVE: dw 0
-SISAVE: dw 0
-DISAVE: dw 0
-BPSAVE: dw 0
-DSSAVE: dw 0
-ESSAVE: dw 0
-IPSAVE: dw 0
-CSSAVE: dw 0
-FSAVE: dw 0
+AXSAVE: resw 1
+BXSAVE: resw 1
+CXSAVE: resw 1
+DXSAVE: resw 1
+SISAVE: resw 1
+DISAVE: resw 1
+BPSAVE: resw 1
+DSSAVE: resw 1
+ESSAVE: resw 1
+IPSAVE: resw 1
+CSSAVE: resw 1
+FSAVE: resw 1
 endstruc
 
 ; Start of code
@@ -219,7 +219,7 @@ CODSTRT EQU     $
 
 ESCCHAR DB      ESCCH   ;Lead-in character for escape sequences
 ESCTAB: 
-        %if NOT IBM
+        %if ~IBM
         DB      "S"     ;Copy one char
         DB      "V"     ;Skip one char
         DB      "T"     ;Copy to char
@@ -250,7 +250,7 @@ ESCTAB:
         %endif
 
 ESCTABLEN EQU   $-ESCTAB
-        %if NOT IBM
+        %if ~IBM
 HEADER  DB      13,10,"MS-DOS version 1.25"
         %if HIGHMEM
         DB      "H"
@@ -277,11 +277,11 @@ IRET:   IRET
 ENTRY:  ;System call entry point and dispatcher
         POP     AX              ;IP from the long call at 5
         POP     AX              ;Segment from the long call at 5
-        POP     CS:[TEMP]       ;IP from the CALL 5
+        POP     [CS:TEMP]       ;IP from the CALL 5
         PUSHF                   ;Start re-ordering the stack
         CLI
         PUSH    AX              ;Save segment
-        PUSH    CS:[TEMP]       ;Stack now ordered as if INT had been used
+        PUSH    [CS:TEMP]       ;Stack now ordered as if INT had been used
         CMP     CL,MAXCALL      ;This entry point doesn't get as many calls
         JA      BADCALL
         MOV     AH,CL
@@ -297,16 +297,16 @@ SAVREGS:
         PUSH    AX
 
         %if DSKTEST
-        MOV     AX,CS:[SPSAVE]
-        MOV     CS:[NSP],AX
-        MOV     AX,CS:[SSSAVE]
-        MOV     CS:[NSS],AX
+        MOV     AX,[CS:SPSAVE]
+        MOV     [CS:NSP],AX
+        MOV     AX,[CS:SSSAVE]
+        MOV     [CS:NSS],AX
         POP     AX
         PUSH    AX
         %endif
 
-        MOV     CS:[SPSAVE],SP
-        MOV     CS:[SSSAVE],SS
+        MOV     [CS:SPSAVE],SP
+        MOV     [CS:SSSAVE],SS
         MOV     SP,CS
         MOV     SS,SP
 REDISP:
@@ -320,19 +320,19 @@ REDISP:
         JLE     SAMSTK
         MOV     SP,DSKSTACK
 SAMSTK:
-        CALL    CS:[BX+DISPATCH]
+        CALL    [CS:BX+DISPATCH]
 LEAVE:
         CLI
-        MOV     SP,CS:[SPSAVE]
-        MOV     SS,CS:[SSSAVE]
+        MOV     SP,[CS:SPSAVE]
+        MOV     SS,[CS:SSSAVE]
         MOV     BP,SP
-        MOV     byte [BP.AXSAVE],AL
+        MOV     byte [BP+AXSAVE],AL
 
         %if DSKTEST
-        MOV     AX,CS:[NSP]
-        MOV     CS:[SPSAVE],AX
-        MOV     AX,CS:[NSS]
-        MOV     CS:[SSSAVE],AX
+        MOV     AX,[CS:NSP]
+        MOV     [CS:SPSAVE],AX
+        MOV     AX,[CS:NSS]
+        MOV     [CS:SSSAVE],AX
         %endif
 
         POP     AX
@@ -457,7 +457,7 @@ UNPACK:
 ;       Zero set means DI=0 (free cluster)
 ; No other registers affected. Fatal error if cluster too big.
 
-        CMP     BX,[BP.MAXCLUS]
+        CMP     BX,[BP+MAXCLUS]
         JA      HURTFAT
         LEA     DI,[SI+BX]
         SHR     BX,1
@@ -645,7 +645,7 @@ GETENTRY:
 
         MOV     AX,[LASTENT]
         INC     AX                      ;Start with next entry
-        CMP     AX,[BP.MAXENT]
+        CMP     AX,[BP+MAXENT]
         JAE     NONE
 GETENT:
         MOV     [LASTENT],AX
@@ -654,11 +654,11 @@ GETENT:
         XOR     DX,DX
         SHL     AX,1
         RCL     DX,1                    ;Account for overflow in last shift
-        MOV     BX,[BP.SECSIZ]
+        MOV     BX,[BP+SECSIZ]
         AND     BL,255-31               ;Must be multiple of 32
         DIV     BX
         MOV     BX,DX                   ;Position within sector
-        MOV     AH,[BP.DEVNUM]          ;AL=Directory sector no.
+        MOV     AH,[BP+DEVNUM]          ;AL=Directory sector no.
         CMP     AX,[DIRBUFID]
         JZ      HAVDIRBUF
         PUSH    BX
@@ -667,7 +667,7 @@ GETENT:
 HAVDIRBUF:
         MOV     DX,DIRBUF
         ADD     BX,DX
-        ADD     DX,[BP.SECSIZ]
+        ADD     DX,[BP+SECSIZ]
         RET
 
 NEXTENTRY:
@@ -680,7 +680,7 @@ NEXTENTRY:
 
         MOV     DI,[LASTENT]
         INC     DI
-        CMP     DI,[BP.MAXENT]
+        CMP     DI,[BP+MAXENT]
         JAE     NONE
         MOV     [LASTENT],DI
         ADD     BX,32
@@ -705,7 +705,7 @@ DELETE: ; System call 19
         CALL    MOVNAME
         MOV     AL,-1
         JC      RET4
-        MOV     AL,CS:[ATTRIB]
+        MOV     AL,[CS:ATTRIB]
         AND     AL,6                    ;Look only at hidden bits
         CMP     AL,6                    ;Both must be set
         JNZ     NOTALL
@@ -714,7 +714,7 @@ DELETE: ; System call 19
         MOV     DI,NAME1
         REPE    SCASB                   ;See if name is *.*
         JNZ     NOTALL
-        MOV     byte CS:[DELALL],0  ;DEL *.* - flag deleting all
+        MOV     byte [CS:DELALL],0  ;DEL *.* - flag deleting all
 NOTALL:
         CALL    FINDNAME
         MOV     AL,-1
@@ -726,10 +726,10 @@ DELFILE:
         MOV     AH,[DELALL]
         MOV     byte [BX],AH
         MOV     BX,[SI]
-        MOV     SI,[BP.FAT]
+        MOV     SI,[BP+FAT]
         OR      BX,BX
         JZ      DELNXT
-        CMP     BX,[BP.MAXCLUS]
+        CMP     BX,[BP+MAXCLUS]
         JA      DELNXT
         CALL    RELEASE
 DELNXT:
@@ -820,7 +820,7 @@ MOVNAME:
         MOV     DI,NAME1
         MOV     SI,DX
         LODSB
-        MOV     CS:[EXTFCB],AL  ;Set flag if extended FCB in use
+        MOV     [CS:EXTFCB],AL  ;Set flag if extended FCB in use
         MOV     AH,0            ;Set default attributes
         CMP     AL,-1           ;Is it an extended FCB?
         JNZ     HAVATTRB
@@ -829,7 +829,7 @@ MOVNAME:
         MOV     AH,[SI-1]       ;Get attribute byte
         LODSB           ;Get drive select byte
 HAVATTRB:
-        MOV     CS:[ATTRIB],AH  ;Save attributes
+        MOV     [CS:ATTRIB],AH  ;Save attributes
         CALL    GETTHISDRV
 LODNAME:
 ; This entry point copies a file name from DS,SI
@@ -852,13 +852,13 @@ STOLET:
 RET6:   RET
 
 GETTHISDRV:
-        CMP     CS:[NUMDRV],AL
+        CMP     [CS:NUMDRV],AL
         JC      RET6
         DEC     AL
         JNS     PHYDRV
-        MOV     AL,CS:[CURDRV]
+        MOV     AL,[CS:CURDRV]
 PHYDRV:
-        MOV     CS:[THISDRV],AL
+        MOV     [CS:THISDRV],AL
         RET
         
 
@@ -881,7 +881,7 @@ DOOPEN:
         ADD     DI,11
         STOSW                   ;Zero low byte of extent field if IBM only
         %endif
-        %if NOT ZEROEXT
+        %if ~ZEROEXT
         ADD     DI,12           ;Point to high half of CURRENT BLOCK field
         STOSB                   ;Set it to zero (CP/M programs set low byte)
         %endif
@@ -895,7 +895,7 @@ DOOPEN:
         STOSW                   ;Save date in FCB
         MOV     AX,[SI-10]      ;Get time
         STOSW                   ;Save it in FCB
-        MOV     AL,[BP.DEVNUM]
+        MOV     AL,[BP+DEVNUM]
         OR      AL,40H
         STOSB
         MOV     AX,DX           ;Restore starting cluster
@@ -951,7 +951,7 @@ FATREAD:
         JC      FATERR
         CALL    GETBP
         MOV     AL,[THISDRV]    ;Use physical unit number
-        MOV     SI,[BP.FAT]
+        MOV     SI,[BP+FAT]
         OR      AH,[SI-1]       ;Dirty byte for FAT
         JS      NEWDSK          ;If either say new disk, then it's so
         JNZ     MAPDRV
@@ -971,12 +971,12 @@ NEXTFAT:
         CALL    DSKREAD
         POP     AX
         JC      BADFAT
-        SUB     AL,[BP.FATCNT]
+        SUB     AL,[BP+FATCNT]
         JZ      NEWFAT
         CALL    FATWRT
 NEWFAT:
-        MOV     SI,[BP.FAT]
-        MOV     AL,[BP.DEVNUM]
+        MOV     SI,[BP+FAT]
+        MOV     AL,[BP+DEVNUM]
         MOV     AH,[SI]         ;Get first byte of FAT
         OR      AH,0F8H         ;Put in range
         CALL    far BIOSMAPDEV
@@ -1016,7 +1016,7 @@ CLOSE:  ;System call 16
         JNZ     NORMFCB3
         ADD     DI,7
 NORMFCB3:
-        TEST    byte [DI.DEVID],0C0H        ;Allow only dirty files
+        TEST    byte [DI+DEVID],0C0H        ;Allow only dirty files
         JNZ     OKRET1                          ;can't close if I/O device, or not writen
         MOV     AL,[DI]                         ;Get physical unit number
         DEC     AL                              ;Make zero = drive A
@@ -1040,22 +1040,22 @@ FNDDIR:
         CALL    GETFILE
 BADCLOSEJ:
         JC      BADCLOSE
-        MOV     CX,ES:[DI.FIRCLUS]
+        MOV     CX,[ES:DI+FIRCLUS]
         MOV     [SI],CX
-        MOV     DX,ES:word [DI.FILSIZ]
+        MOV     DX,ES:word [DI+FILSIZ]
         MOV     [SI+2],DX
-        MOV     DX,ES:word [DI.FILSIZ+2]
+        MOV     DX,ES:word [DI+FILSIZ+2]
         MOV     [SI+4],DX
-        MOV     DX,ES:[DI.FDATE]
+        MOV     DX,[ES:DI+FDATE]
         MOV     [SI-2],DX
-        MOV     DX,ES:[DI.FTIME]
+        MOV     DX,[ES:DI+FTIME]
         MOV     [SI-4],DX
         CALL    DIRWRITE
 
 CHKFATWRT:
 ; Do FATWRT only if FAT is dirty and uses same I/O driver
-        MOV     SI,[BP.FAT]
-        MOV     AL,[BP.DEVNUM]
+        MOV     SI,[BP+FAT]
+        MOV     AL,[BP+DEVNUM]
         MOV     AH,1
         CMP     [SI-2],AX       ;See if FAT dirty and uses same driver
         JNZ     OKRET
@@ -1093,7 +1093,7 @@ OKRET:
         RET
 
 BADCLOSE:
-        MOV     SI,[BP.FAT]
+        MOV     SI,[BP+FAT]
         MOV     byte [SI-1],0
         MOV     AL,-1
         RET
@@ -1102,18 +1102,18 @@ BADCLOSE:
 FIGFAT:
 ; Loads registers with values needed to read or
 ; write a FAT.
-        MOV     AL,[BP.FATCNT]
-        MOV     BX,[BP.FAT]
-        MOV     CL,[BP.FATSIZ]  ;No. of records occupied by FAT
+        MOV     AL,[BP+FATCNT]
+        MOV     BX,[BP+FAT]
+        MOV     CL,[BP+FATSIZ]  ;No. of records occupied by FAT
         MOV     CH,0
-        MOV     DX,[BP.FIRFAT]  ;Record number of start of FATs
+        MOV     DX,[BP+FIRFAT]  ;Record number of start of FATs
         RET
 
 
 DIRCOMP:
 ; Prepare registers for directory read or write
         CBW
-        ADD     AX,[BP.FIRDIR]
+        ADD     AX,[BP+FIRDIR]
         MOV     DX,AX
         MOV     BX,DIRBUF
         MOV     CX,1
@@ -1151,11 +1151,11 @@ EXISTENT:
         JS      OPENJMP         ;If so, no action
         MOV     CX,[SI]         ;Get pointer to clusters
         JCXZ    FREESPOT
-        CMP     CX,[BP.MAXCLUS]
+        CMP     CX,[BP+MAXCLUS]
         JA      FREESPOT
         PUSH    BX
         MOV     BX,CX
-        MOV     SI,[BP.FAT]
+        MOV     SI,[BP+FAT]
         CALL    RELEASE         ;Free any data already allocated
         CALL    FATWRT
         POP     BX
@@ -1207,7 +1207,7 @@ DIRREAD:
         CALL    CHKDIRWRITE
         POP     AX
         PUSH    AX
-        MOV     AH,[BP.DEVNUM]
+        MOV     AH,[BP+DEVNUM]
         MOV     [DIRBUFID],AX
         CALL    DIRCOMP
         CALL    DREAD
@@ -1251,36 +1251,36 @@ HARDERR:
         SUB     AX,CX           ;Number of sectors successfully transferred
         ADD     DX,AX           ;First sector number to retry
         PUSH    DX
-        MUL     [BP.SECSIZ]     ;Number of bytes transferred
+        MUL     [BP+SECSIZ]     ;Number of bytes transferred
         POP     DX
         ADD     BX,AX           ;First address for retry
         MOV     AH,0            ;Flag disk section in error
-        CMP     DX,[BP.FIRFAT]  ;In reserved area?
+        CMP     DX,[BP+FIRFAT]  ;In reserved area?
         JB      ERRINT
         INC     AH              ;Flag for FAT
-        CMP     DX,[BP.FIRDIR]  ;In FAT?
+        CMP     DX,[BP+FIRDIR]  ;In FAT?
         JB      ERRINT
         INC     AH
-        CMP     DX,[BP.FIRREC]  ;In directory?
+        CMP     DX,[BP+FIRREC]  ;In directory?
         JB      ERRINT
         INC     AH              ;Must be in data area
 ERRINT:
         SHL     AH,1            ;Make room for read/write bit
-        OR      AH,CS:[READOP]
+        OR      AH,[CS:READOP]
 FATAL:
-        MOV     AL,[BP.DRVNUM]  ;Get drive number
+        MOV     AL,[BP+DRVNUM]  ;Get drive number
 FATAL1:
         PUSH    BP              ;The only thing we preserve
-        MOV     CS:[CONTSTK],SP
+        MOV     [CS:CONTSTK],SP
         CLI                     ;Prepare to play with stack
-        MOV     SS,CS:[SSSAVE]
-        MOV     SP,CS:[SPSAVE]  ;User stack pointer restored
+        MOV     SS,[CS:SSSAVE]
+        MOV     SP,[CS:SPSAVE]  ;User stack pointer restored
         INT     24H             ;Fatal error interrupt vector
-        MOV     CS:[SPSAVE],SP
-        MOV     CS:[SSSAVE],SS
+        MOV     [CS:SPSAVE],SP
+        MOV     [CS:SSSAVE],SS
         MOV     SP,CS
         MOV     SS,SP
-        MOV     SP,CS:[CONTSTK]
+        MOV     SP,[CS:CONTSTK]
         STI
         POP     BP
         CMP     AL,2
@@ -1288,7 +1288,7 @@ FATAL1:
         RET
 
 DSKREAD:
-        MOV     AL,[BP.DEVNUM]
+        MOV     AL,[BP+DEVNUM]
         PUSH    BP
         PUSH    BX
         PUSH    CX
@@ -1334,7 +1334,7 @@ DWRITE:
 ;       errors, will call HARDERR for further action.
 ; BP preserved. All other registers destroyed.
 
-        MOV     AL,[BP.DEVNUM]
+        MOV     AL,[BP+DEVNUM]
         MOV     AH,CS:VERFLG
         PUSH    BP
         PUSH    BX
@@ -1355,7 +1355,7 @@ DWRITE:
 
 ABORT:
         LDS     SI,CS:dword [SPSAVE]
-        MOV     DS,[SI.CSSAVE]
+        MOV     DS,[SI+CSSAVE]
         XOR     AX,AX
         MOV     ES,AX
         MOV     SI,SAVEXIT
@@ -1427,27 +1427,27 @@ BLKWRT: ;System call 40
         CALL    STORE
 FINBLK:
         LDS     SI,dword [SPSAVE]
-        MOV     [SI.CXSAVE],CX
+        MOV     [SI+CXSAVE],CX
         JCXZ    FINRND
         ADD     AX,1
         ADC     DX,0
 FINRND:
-        MOV     ES:word [DI.RR],AX
-        MOV     ES:[DI.RR+2],DL
+        MOV     ES:word [DI+RR],AX
+        MOV     [ES:DI+RR+2],DL
         OR      DH,DH
         JZ      SETNREX
-        MOV     ES:[DI.RR+3],DH ;Save 4 byte of RECPOS only if significant
+        MOV     [ES:DI+RR+3],DH ;Save 4 byte of RECPOS only if significant
 SETNREX:
         MOV     CX,AX
         AND     AL,7FH
-        MOV     ES:[DI.NR],AL
+        MOV     [ES:DI+NR],AL
         AND     CL,80H
         SHL     CX,1
         RCL     DX,1
         MOV     AL,CH
         MOV     AH,DL
-        MOV     ES:[DI.EXTENT],AX
-        MOV     AL,CS:[DSKERR]
+        MOV     [ES:DI+EXTENT],AX
+        MOV     AL,[CS:DSKERR]
         RET
 
 GETRRPOS1:
@@ -1458,8 +1458,8 @@ GETRRPOS:
         JNZ     NORMFCB1
         ADD     DI,7
 NORMFCB1:
-        MOV     AX,word [DI.RR]
-        MOV     DX,word [DI.RR+2]
+        MOV     AX,word [DI+RR]
+        MOV     DX,word [DI+RR+2]
         RET
 
 NOFILERR:
@@ -1499,13 +1499,13 @@ SETUP:
         PUSH    AX
         MOV     AL,[DI]
         DEC     AL
-        MOV     CS:[THISDRV],AL
-        MOV     AL,[DI.DEVID]
-        MOV     SI,[DI.RECSIZ]
+        MOV     [CS:THISDRV],AL
+        MOV     AL,[DI+DEVID]
+        MOV     SI,[DI+RECSIZ]
         OR      SI,SI
         JNZ     HAVRECSIZ
         MOV     SI,128
-        MOV     [DI.RECSIZ],SI
+        MOV     [DI+RECSIZ],SI
 HAVRECSIZ:
         PUSH    DS
         POP     ES              ;Set ES to DS
@@ -1543,17 +1543,17 @@ SMALREC:
         MOV     word [BYTPOS+2],AX
         MOV     DX,AX
         MOV     AX,word [BYTPOS]
-        MOV     BX,[BP.SECSIZ]
+        MOV     BX,[BP+SECSIZ]
         CMP     DX,BX           ;See if divide will overflow
         JNC     EOFERR
         DIV     BX
         MOV     [SECPOS],AX
         MOV     [BYTSECPOS],DX
         MOV     DX,AX
-        AND     AL,[BP.CLUSMSK]
+        AND     AL,[BP+CLUSMSK]
         MOV     [SECCLUSPOS],AL
         MOV     AX,CX           ;Record count
-        MOV     CL,[BP.CLUSSHFT]
+        MOV     CL,[BP+CLUSSHFT]
         SHR     DX,CL
         MOV     [CLUSNUM],DX
         MUL     SI              ;Multiply by bytes per record
@@ -1574,8 +1574,8 @@ PARTSEG:
         MOV     CX,AX
         JCXZ    NOROOM
 OK:
-        MOV     BL,ES:[DI.DEVID]
-        MOV     SI,[BP.FAT]
+        MOV     BL,[ES:DI+DEVID]
+        MOV     SI,[BP+FAT]
         RET
 
 EOFERR:
@@ -1602,7 +1602,7 @@ BREAKDOWN:
         MOV     BX,CX
         OR      AX,AX
         JZ      SAVFIR          ;Partial first sector?
-        SUB     AX,[BP.SECSIZ]
+        SUB     AX,[BP+SECSIZ]
         NEG     AX              ;Max number of bytes left in first sector
         SUB     BX,AX           ;Subtract from total length
         JAE     SAVFIR
@@ -1612,7 +1612,7 @@ SAVFIR:
         MOV     [BYTCNT1],AX
         MOV     AX,BX
         XOR     DX,DX
-        DIV     [BP.SECSIZ]     ;How many whole sectors?
+        DIV     [BP+SECSIZ]     ;How many whole sectors?
         MOV     [SECCNT],AX
         MOV     [BYTCNT2],DX    ;Bytes remaining for last sector
 RET10:  RET
@@ -1632,15 +1632,15 @@ FNDCLUS:
 ;       DX = Position of last cluster
 ; DI destroyed. No other registers affected.
 
-        MOV     BX,ES:[DI.LSTCLUS]
-        MOV     DX,ES:[DI.CLUSPOS]
+        MOV     BX,[ES:DI+LSTCLUS]
+        MOV     DX,[ES:DI+CLUSPOS]
         OR      BX,BX
         JZ      NOCLUS
         SUB     CX,DX
         JNB     FINDIT
         ADD     CX,DX
         XOR     DX,DX
-        MOV     BX,ES:[DI.FIRCLUS]
+        MOV     BX,[ES:DI+FIRCLUS]
 FINDIT:
         JCXZ    RET10
 SKPCLP:
@@ -1769,12 +1769,12 @@ NEXTSEC:
         JZ      CLRET
         MOV     AL,[SECCLUSPOS]
         INC     AL
-        CMP     AL,[BP.CLUSMSK]
+        CMP     AL,[BP+CLUSMSK]
         JBE     SAVPOS
         MOV     BX,[CLUSNUM]
         CMP     BX,0FF8H
         JAE     NONEXT
-        MOV     SI,[BP.FAT]
+        MOV     SI,[BP+FAT]
         CALL    UNPACK
         MOV     [CLUSNUM],DI
         INC     [LASTPOS]
@@ -1810,7 +1810,7 @@ ENDRDDEV:
         POP     ES
         JNZ     SETFCBJ         ;Zero set if Ctrl-Z found in input
         MOV     DI,[FCB]
-        AND     ES:byte [DI.DEVID],0FFH-40H ;Mark as no more data available
+        AND     ES:byte [DI+DEVID],0FFH-40H ;Mark as no more data available
 SETFCBJ:
         JMP     SETFCB
 
@@ -1877,8 +1877,8 @@ LOAD:
         CALL    SETUP
         OR      BL,BL           ;Check for named device I/O
         JS      READDEV
-        MOV     AX,ES:word [DI.FILSIZ]
-        MOV     BX,ES:word [DI.FILSIZ+2]
+        MOV     AX,ES:word [DI+FILSIZ]
+        MOV     BX,ES:word [DI+FILSIZ+2]
         SUB     AX,word [BYTPOS]
         SBB     BX,word [BYTPOS+2]
         JB      RDERR
@@ -1930,7 +1930,7 @@ RDLP:
 ;We must transfer the sector from the buffer to correct memory address
         SUB     AX,[BUFSECNO]   ;How many sectors into the transfer?
         NEG     AX
-        MOV     CX,[BP.SECSIZ]
+        MOV     CX,[BP+SECSIZ]
         MUL     CX              ;How many bytes into the transfer?
         ADD     DI,AX
         MOV     SI,[BUFFER]
@@ -1958,7 +1958,7 @@ SETFCB:
         MOV     DI,AX
         SUB     AX,[DMAADD]     ;Number of bytes transfered
         XOR     DX,DX
-        MOV     CX,ES:[SI.RECSIZ]
+        MOV     CX,[ES:SI+RECSIZ]
         DIV     CX              ;Number of records
         CMP     AX,[RECCNT]     ;Check if all records transferred
         JZ      FULLREC
@@ -1984,9 +1984,9 @@ FULLREC:
         MOV     DI,SI           ;ES:DI point to FCB
 SETCLUS:
         MOV     AX,[CLUSNUM]
-        MOV     ES:[DI.LSTCLUS],AX
+        MOV     [ES:DI+LSTCLUS],AX
         MOV     AX,[LASTPOS]
-        MOV     ES:[DI.CLUSPOS],AX
+        MOV     [ES:DI+CLUSPOS],AX
 ADDREC:
         MOV     AX,word [RECPOS]
         MOV     DX,word [RECPOS+2]
@@ -2078,12 +2078,12 @@ STORE:
 
         CALL    SETUP
         CALL    DATE16
-        MOV     ES:[DI.FDATE],AX
-        MOV     ES:[DI.FTIME],DX
+        MOV     [ES:DI+FDATE],AX
+        MOV     [ES:DI+FTIME],DX
         OR      BL,BL
         JS      WRTDEV
         AND     BL,3FH          ;Mark file as dirty
-        MOV     ES:[DI.DEVID],BL
+        MOV     [ES:DI+DEVID],BL
         CALL    BREAKDOWN
         MOV     AX,word [BYTPOS]
         MOV     DX,word [BYTPOS+2]
@@ -2091,13 +2091,13 @@ STORE:
         DEC     CX
         ADD     AX,CX
         ADC     DX,0            ;AX:DX=last byte accessed
-        DIV     [BP.SECSIZ]     ;AX=last sector accessed
-        MOV     CL,[BP.CLUSSHFT]
+        DIV     [BP+SECSIZ]     ;AX=last sector accessed
+        MOV     CL,[BP+CLUSSHFT]
         SHR     AX,CL           ;Last cluster to be accessed
         PUSH    AX
-        MOV     AX,ES:word [DI.FILSIZ]
-        MOV     DX,ES:word [DI.FILSIZ+2]
-        DIV     [BP.SECSIZ]
+        MOV     AX,ES:word [DI+FILSIZ]
+        MOV     DX,ES:word [DI+FILSIZ+2]
+        DIV     [BP+SECSIZ]
         OR      DX,DX
         JZ      NORNDUP
         INC     AX              ;Round up if any remainder
@@ -2174,11 +2174,11 @@ FINWRT:
         ADC     DX,0
         MOV     CX,DX
         MOV     DI,[FCB]
-        CMP     AX,ES:word [DI.FILSIZ]
-        SBB     CX,ES:word [DI.FILSIZ+2]
+        CMP     AX,ES:word [DI+FILSIZ]
+        SBB     CX,ES:word [DI+FILSIZ+2]
         JB      SAMSIZ
-        MOV     ES:word [DI.FILSIZ],AX
-        MOV     ES:word [DI.FILSIZ+2],DX
+        MOV     ES:word [DI+FILSIZ],AX
+        MOV     ES:word [DI+FILSIZ+2],DX
 SAMSIZ:
         MOV     CX,[RECCNT]
         JMP     SETCLUS
@@ -2192,8 +2192,8 @@ WRTEOF:
         JZ      KILLFIL
         SUB     AX,1
         SBB     DX,0
-        DIV     [BP.SECSIZ]
-        MOV     CL,[BP.CLUSSHFT]
+        DIV     [BP+SECSIZ]
+        MOV     CL,[BP+CLUSSHFT]
         SHR     AX,CL
         MOV     CX,AX
         CALL    FNDCLUS
@@ -2203,9 +2203,9 @@ WRTEOF:
 UPDATE:
         MOV     DI,[FCB]
         MOV     AX,word [BYTPOS]
-        MOV     ES:word [DI.FILSIZ],AX
+        MOV     ES:word [DI+FILSIZ],AX
         MOV     AX,word [BYTPOS+2]
-        MOV     ES:word [DI.FILSIZ+2],AX
+        MOV     ES:word [DI+FILSIZ+2],AX
         XOR     CX,CX
         JMP     ADDREC
 
@@ -2218,7 +2218,7 @@ SETDIRT:
 
 KILLFIL:
         XOR     BX,BX
-        XCHG    BX,ES:[DI.FIRCLUS]
+        XCHG    BX,[ES:DI+FIRCLUS]
         OR      BX,BX
         JZ      UPDATE
         CALL    RELEASE
@@ -2248,12 +2248,12 @@ OPTIMIZE:
 
         PUSH    DX
         PUSH    BX
-        MOV     AL,[BP.CLUSMSK]
+        MOV     AL,[BP+CLUSMSK]
         INC     AL              ;Number of sectors per cluster
         MOV     AH,AL
         SUB     AL,DL           ;AL = Number of sectors left in first cluster
         MOV     DX,CX
-        MOV     SI,[BP.FAT]
+        MOV     SI,[BP+FAT]
         MOV     CX,0
 OPTCLUS:
 ;AL has number of sectors available in current cluster
@@ -2277,7 +2277,7 @@ FINCLUS:
         SUB     DX,CX           ;Number of sectors still needed
         PUSH    DX
         MOV     AX,CX
-        MUL     [BP.SECSIZ]     ;Number of sectors times sector size
+        MUL     [BP+SECSIZ]     ;Number of sectors times sector size
         MOV     SI,[NEXTADD]
         ADD     AX,SI           ;Adjust by size of transfer
         MOV     [NEXTADD],AX
@@ -2297,7 +2297,7 @@ FINCLUS:
         CMC
         JC      RET100          ;If SI <= [BUFSECNO] then not in buffer
         PUSH    AX
-        MOV     AL,[BP.DEVNUM]
+        MOV     AL,[BP+DEVNUM]
         CMP     AL,[BUFDRVNO]   ;Is buffer for this drive?
         POP     AX
         JZ      RET100          ;If so, then we match 
@@ -2323,12 +2323,12 @@ FIGREC:
 ;No other registers affected.
 
         PUSH    CX
-        MOV     CL,[BP.CLUSSHFT]
+        MOV     CL,[BP+CLUSSHFT]
         DEC     DX
         DEC     DX
         SHL     DX,CL
         OR      DL,BL
-        ADD     DX,[BP.FIRREC]
+        ADD     DX,[BP+FIRREC]
         POP     CX
         RET
 
@@ -2348,8 +2348,8 @@ GETREC:
         ADD     DI,7
 NORMFCB2:
         MOV     CX,1
-        MOV     AL,[DI.NR]
-        MOV     DX,[DI.EXTENT]
+        MOV     AL,[DI+NR]
+        MOV     DX,[DI+EXTENT]
         SHL     AL,1
         SHR     DX,1
         RCR     AL,1
@@ -2391,7 +2391,7 @@ ALLOC:
         MOV     DX,BX
 FINDFRE:
         INC     BX
-        CMP     BX,[BP.MAXCLUS]
+        CMP     BX,[BP+MAXCLUS]
         JLE     TRYOUT
         CMP     AX,1
         JG      TRYIN
@@ -2404,7 +2404,7 @@ FINDFRE:
         POP     [SI]
         INC     DX              ;Position of first cluster allocated
         ADD     AX,DX           ;AX=max no. of cluster in file
-        MOV     DL,[BP.CLUSMSK]
+        MOV     DL,[BP+CLUSMSK]
         MOV     DH,0
         INC     DX              ;DX=records/cluster
         MUL     DX              ;AX=max no. of records in file
@@ -2445,7 +2445,7 @@ HAVFRE:
         OR      DI,DI
         JNZ     RET11
         MOV     DI,[FCB]
-        MOV     ES:[DI.FIRCLUS],BX
+        MOV     [ES:DI+FIRCLUS],BX
 RET12:  RET
 
 
@@ -2500,8 +2500,8 @@ SAVPLCE:
         OR      BH,BH
         JS      SRCHDEV
         MOV     AX,[LASTENT]
-        MOV     ES:[DI.FILDIRENT],AX
-        MOV     ES:[DI.DRVBP],BP
+        MOV     [ES:DI+FILDIRENT],AX
+        MOV     [ES:DI+DRVBP],BP
 ;Information in directory entry must be copied into the first
 ; 33 bytes starting at the disk transfer address.
         MOV     SI,BX
@@ -2528,12 +2528,12 @@ KILLSRCH:
 KILLSRCH1       EQU     KILLSRCH+1
 ;The purpose of the KILLSRCH1 label is to provide a jump label to the following
 ;   instruction which leaves out the segment override.
-        MOV     word ES:[DI.FILDIRENT],-1
+        MOV     word [ES:DI+FILDIRENT],-1
         MOV     AL,-1
         RET
 
 SRCHDEV:
-        MOV     ES:[DI.FILDIRENT],BX
+        MOV     [ES:DI+FILDIRENT],BX
         LES     DI,dword [DMAADD]
         XOR     AX,AX
         STOSB           ;Zero drive byte
@@ -2555,8 +2555,8 @@ SRCHNXT: ;System call 18
         CALL    MOVNAME
         MOV     DI,DX
         JC      near KILLSRCH1
-        MOV     BP,[DI.DRVBP]
-        MOV     AX,[DI.FILDIRENT]
+        MOV     BP,[DI+DRVBP]
+        MOV     AX,[DI+FILDIRENT]
         OR      AX,AX
         JS      near KILLSRCH1
         PUSH    DX
@@ -2575,7 +2575,7 @@ FILESIZE: ;System call 35
         MOV     AL,-1
         JC      RET14
         ADD     DI,33           ;Write size in RR field
-        MOV     CX,ES:[DI.RECSIZ-33]
+        MOV     CX,[ES:DI+RECSIZ-33]
         OR      CX,CX
         JNZ     RECOK
         MOV     CX,128
@@ -2604,13 +2604,13 @@ DEVSIZ:
         MOV     AL,0
         CMP     CX,64
         JAE     RET14           ;Only 3-byte field if RECSIZ >= 64
-        MOV     ES:[DI],AH
+        MOV     [ES:DI],AH
         RET
 
 
 SETDMA: ;System call 26
-        MOV     CS:[DMAADD],DX
-        MOV     CS:[DMAADD+2],DS
+        MOV     [CS:DMAADD],DX
+        MOV     [CS:DMAADD+2],DS
         RET
 
 NOSUCHDRV:
@@ -2627,17 +2627,17 @@ GETFATPTDL:     ;System call 28
         CALL    GETTHISDRV
         JC      NOSUCHDRV
         CALL    FATREAD
-        MOV     BX,[BP.FAT]
-        MOV     AL,[BP.CLUSMSK]
+        MOV     BX,[BP+FAT]
+        MOV     AL,[BP+CLUSMSK]
         INC     AL
-        MOV     DX,[BP.MAXCLUS]
+        MOV     DX,[BP+MAXCLUS]
         DEC     DX
-        MOV     CX,[BP.SECSIZ]
+        MOV     CX,[BP+SECSIZ]
         LDS     SI,dword [SPSAVE]
-        MOV     [SI.BXSAVE],BX
-        MOV     [SI.DXSAVE],DX
-        MOV     [SI.CXSAVE],CX
-        MOV     [SI.DSSAVE],CS
+        MOV     [SI+BXSAVE],BX
+        MOV     [SI+DXSAVE],DX
+        MOV     [SI+CXSAVE],CX
+        MOV     [SI+DSSAVE],CS
         RET
 
 
@@ -2648,8 +2648,8 @@ GETDSKPT: ;System call 31
         MOV     [THISDRV],AL
         CALL    FATREAD
         LDS     SI,dword [SPSAVE]
-        MOV     [SI.BXSAVE],BP
-        MOV     [SI.DSSAVE],CS
+        MOV     [SI+BXSAVE],BP
+        MOV     [SI+DSSAVE],CS
         RET
 
 
@@ -2681,7 +2681,7 @@ WRTFAT:
 
 
 GETDRV: ;System call 25
-        MOV     AL,CS:[CURDRV]
+        MOV     AL,[CS:CURDRV]
 RET15:  RET
 
 
@@ -2689,17 +2689,17 @@ SETRNDREC: ;System call 36
         CALL    GETREC
         MOV     [DI+33],AX
         MOV     [DI+35],DL
-        CMP     [DI.RECSIZ],64
+        CMP     [DI+RECSIZ],64
         JAE     RET15
         MOV     [DI+36],DH      ;Set 4th byte only if record size < 64
 RET16:  RET
 
 
 SELDSK: ;System call 14
-        MOV     AL,CS:[NUMDRV]
+        MOV     AL,[CS:NUMDRV]
         CMP     DL,AL
         JNB     RET17
-        MOV     CS:[CURDRV],DL
+        MOV     [CS:CURDRV],DL
 RET17:  RET
 
 BUFIN:  ;System call 10
@@ -2722,8 +2722,8 @@ EDITON:
         MOV     DL,AL
         DEC     DX
 NEWLIN:
-        MOV     AL,CS:[CARPOS]
-        MOV     CS:[STARTPOS],AL
+        MOV     AL,[CS:CARPOS]
+        MOV     [CS:STARTPOS],AL
         PUSH    SI
         MOV     DI,INBUF
         MOV     AH,CH
@@ -2806,7 +2806,7 @@ KILNEW:
         POP     SI
 PUTNEW:
         CALL    CRLF
-        MOV     AL,CS:[STARTPOS]
+        MOV     AL,[CS:STARTPOS]
         CALL    TAB
         JMP     NEWLIN
 
@@ -2814,7 +2814,7 @@ BACKSP:
         OR      DH,DH
         JZ      OLDBAK
         CALL    BACKUP
-        MOV     AL,ES:[DI]
+        MOV     AL,[ES:DI]
         CMP     AL," "
         JAE     OLDBAK
         CMP     AL,9
@@ -2847,7 +2847,7 @@ FNDPOS:
 CHKCNT:
         LOOP    FNDPOS
 FIGTAB:
-        SUB     BL,CS:[STARTPOS]
+        SUB     BL,[CS:STARTPOS]
 HAVTAB:
         SUB     BL,DH
         ADD     CL,BL
@@ -2958,7 +2958,7 @@ ENTERINS:
         NOT     AH
         JMP     GETCH
         %endif
-        %if NOT TOGLINS
+        %if ~TOGLINS
         MOV     AH,-1
         JMP     GETCH
 
@@ -2969,7 +2969,7 @@ EXITINS:
 
 ESCFUNC DW      GETCH
         DW      TWOESC
-        %if NOT TOGLINS
+        %if ~TOGLINS
         DW      EXITINS
         %endif
         DW      ENTERINS
@@ -3004,7 +3004,7 @@ BUFOUT:
 NOSTOP:
         CMP     AL,"P"-"@"
         JZ      INCHK
-        %if NOT TOGLPRN
+        %if ~TOGLPRN
         CMP     AL,"N"-"@"
         JZ      INCHK
         %endif
@@ -3040,7 +3040,7 @@ INCHK:
         CALL    far BIOSIN 
         CMP     AL,'P'-'@'
         JZ      PRINTON
-        %if NOT TOGLPRN
+        %if ~TOGLPRN
         CMP     AL,'N'-'@'
         JZ      PRINTOFF
         %endif
@@ -3059,8 +3059,8 @@ INCHK:
         CALL    BUFOUT
         CALL    CRLF
         CLI                     ;Prepare to play with stack
-        MOV     SS,CS:[SSSAVE]
-        MOV     SP,CS:[SPSAVE]  ;User stack now restored
+        MOV     SS,[CS:SSSAVE]
+        MOV     SP,[CS:SPSAVE]  ;User stack now restored
         POP     AX
         POP     BX
         POP     CX
@@ -3078,7 +3078,7 @@ PRINTON:
         NOT     CS:byte [PFLAG]
         RET
         %endif
-        %if NOT TOGLPRN
+        %if ~TOGLPRN
         MOV     CS:byte [PFLAG],1
         RET
 
@@ -3094,7 +3094,7 @@ CTRLOUT:
         JZ      BACKPOS
         CMP     AL,9
         JNZ     OUTCHJ
-        MOV     AL,CS:[CARPOS]
+        MOV     AL,[CS:CARPOS]
         OR      AL,0F8H
         NEG     AL
 TAB:
@@ -3144,15 +3144,15 @@ RAWIO:  ;System call 6
         MOV     AL,DL
         CMP     AL,-1
         JNZ     RAWOUT
-        LDS     SI,dword CS:[SPSAVE]                ;Get pointer to register save area
+        LDS     SI,dword [CS:SPSAVE]                ;Get pointer to register save area
         CALL    far BIOSSTAT
         JNZ     RESFLG
-        OR      byte [SI.FSAVE],40H ;Set user's zero flag
+        OR      byte [SI+FSAVE],40H ;Set user's zero flag
         XOR     AL,AL
         RET
 
 RESFLG:
-        AND     byte [SI.FSAVE],0FFH-40H    ;Reset user's zero flag
+        AND     byte [SI+FSAVE],0FFH-40H    ;Reset user's zero flag
 RAWINP: ;System call 7
         CALL    far BIOSIN 
         RET
@@ -3179,7 +3179,7 @@ OUTSTR:
         JMP     SHORT OUTSTR
 
 OUTMES: ;String output for internal messages
-        LODS    CS:byte [SI]
+        lodsb
         CMP     AL,"$"
         JZ      RET20
         CALL    OUT
@@ -3193,7 +3193,7 @@ EXTBIT  EQU     8
         MOV     DL,0            ;Flag--not ambiguous file name
         TEST    AL,DRVBIT       ;Use current drive field if default?
         JNZ     DEFDRV
-        MOV     byte ES:[DI],0      ;No - use default drive
+        MOV     byte [ES:DI],0      ;No - use default drive
 DEFDRV:
         INC     DI
         MOV     CX,8
@@ -3232,7 +3232,7 @@ NOSCAN:
         INC     SI              ;Skip over colon
         SUB     AL,"@"          ;Convert drive letter to binary drive number
         JBE     BADDRV          ;Valid drive numbers are 1-15
-        CMP     AL,CS:[NUMDRV]
+        CMP     AL,[CS:NUMDRV]
         JBE     HAVDRV
 BADDRV:
         MOV     DL,-1
@@ -3252,7 +3252,7 @@ NODRV:
         CALL    MUSTGETWORD
 NODOT:
         LDS     BX,CS:dword [SPSAVE]
-        MOV     [BX.SISAVE],SI
+        MOV     [BX+SISAVE],SI
         MOV     AL,DL
         RET
 
@@ -3320,7 +3320,7 @@ DELIM:
         %endif
         CMP     AL,":"          ;Allow ":" as separator in IBM version
         JZ      RET21
-        %if NOT IBM
+        %if ~IBM
 DELIM:
         %endif
 
@@ -3345,18 +3345,18 @@ SETVECT: ; Interrupt call 37
         MOV     BL,AL
         SHL     BX,1
         SHL     BX,1
-        MOV     ES:[BX],DX
-        MOV     ES:[BX+2],DS
+        MOV     [ES:BX],DX
+        MOV     [ES:BX+2],DS
         RET
 
 
 NEWBASE: ; Interrupt call 38
         MOV     ES,DX
         LDS     SI,CS:dword [SPSAVE]
-        MOV     DS,[SI.CSSAVE]
+        MOV     DS,[SI+CSSAVE]
         XOR     SI,SI
         MOV     DI,SI
-        MOV     AX,DS:[2]
+        MOV     AX,[DS:2]
         MOV     CX,80H
         REP     MOVSW
 
@@ -3390,7 +3390,7 @@ SETMEM:
         MOVSW
         MOVSW
         MOVSW
-        MOV     ES:[2],AX
+        MOV     [ES:2],AX
         SUB     AX,DX
         CMP     AX,MAXDIF
         JBE     HAVDIF
@@ -3403,10 +3403,10 @@ HAVDIF:
         SHL     AX,1
         SHL     AX,1
         MOV     DS,DX
-        MOV     DS:[6],AX
-        MOV     DS:[8],BX
-        MOV     DS:[0],20CDH    ;"INT INTTAB"
-        MOV     DS:(byte [5]),LONGCALL
+        MOV     [DS:6],AX
+        MOV     [DS:8],BX
+        MOV     [DS:0],20CDH    ;"INT INTTAB"
+        MOV     byte [DS:5],LONGCALL
         RET
 
 DATE16:
@@ -3519,10 +3519,10 @@ GETDATE: ;Function call 42
         MOV     AX,[YEAR]
         MOV     BX,word [DAY]
         LDS     SI,dword [SPSAVE]   ;Get pointer to user registers
-        MOV     [SI.DXSAVE],BX  ;DH=month, DL=day
+        MOV     [SI+DXSAVE],BX  ;DH=month, DL=day
         ADD     AX,1980         ;Put bias back
-        MOV     [SI.CXSAVE],AX  ;CX=year
-        MOV     AL,CS:[WEEKDAY]
+        MOV     [SI+CXSAVE],AX  ;CX=year
+        MOV     AL,[CS:WEEKDAY]
 RET24:  RET
 
 SETDATE: ;Function call 43
@@ -3594,8 +3594,8 @@ GETTIME: ;Function call 44
         POP     DS
         CALL    READTIME
         LDS     SI,dword [SPSAVE]   ;Get pointer to user registers
-        MOV     [SI.DXSAVE],DX
-        MOV     [SI.CXSAVE],CX
+        MOV     [SI+DXSAVE],DX
+        MOV     [SI+CXSAVE],CX
         XOR     AL,AL
 RET26:  RET
 
@@ -3636,7 +3636,7 @@ SECTION .CONSTANTS
 CONSTRT EQU     $               ;Start of constants segment
 
 IONAME:
-        %if NOT IBM
+        %if ~IBM
         DB      "PRN ","LST ","NUL ","AUX ","CON "
         %endif
         %if IBM
@@ -3733,14 +3733,14 @@ DIRBUF:
 
 MOVFAT:
 ;This section of code is safe from being overwritten by block move
-        REP     MOVS    byte [DI],[SI]
+        REP     movsb
         CLD
-        MOV     ES:[DMAADD+2],DX
+        MOV     [ES:DMAADD+2],DX
         MOV     SI,[DRVTAB]     ;Address of first DPB
         MOV     AL,-1
         MOV     CL,[NUMIO]      ;Number of DPBs
 FLGFAT:
-        MOV     DI,ES:[SI.FAT]  ;get pointer to FAT
+        MOV     DI,[ES:SI+FAT]  ;get pointer to FAT
         DEC     DI              ;Point to dirty byte
         STOSB                   ;Flag as unused
         ADD     SI,DPBSIZ       ;Point to next DPB
@@ -3757,13 +3757,13 @@ DOSINIT:
         CLD
         PUSH    CS
         POP     ES
-        MOV     ES:[ENDMEM],DX
+        MOV     [ES:ENDMEM],DX
         LODSB                   ;Get no. of drives & no. of I/O drivers
-        MOV     ES:[NUMIO],AL
+        MOV     [ES:NUMIO],AL
         MOV     DI,MEMSTRT
 PERDRV:
         MOV     BP,DI
-        MOV     AL,ES:[DRVCNT]
+        MOV     AL,[ES:DRVCNT]
         STOSB           ;DEVNUM
         LODSB           ;Physical unit no.
         STOSB           ;DRVNUM
@@ -3779,9 +3779,9 @@ PERDRV:
         LODSW
         STOSW           ;SECSIZ
         MOV     DX,AX
-        CMP     AX,ES:[MAXSEC]
+        CMP     AX,[ES:MAXSEC]
         JBE     NOTMAX
-        MOV     ES:[MAXSEC],AX
+        MOV     [ES:MAXSEC],AX
 NOTMAX:
         LODSB
         DEC     AL
@@ -3803,7 +3803,7 @@ HAVSHFT:
         SHR     AX,CL
         MOV     CX,AX           ;Directory entries per sector
         DEC     AX
-        ADD     AX,ES:[BP.MAXENT]
+        ADD     AX,[ES:BP+MAXENT]
         XOR     DX,DX
         DIV     CX
         STOSW           ;DIRSEC (temporarily)
@@ -3821,7 +3821,7 @@ GETFATSIZ:
         MOV     DH,DL
         MOV     DL,AL           ;Shuffle trials
         JNZ     GETFATSIZ       ;Continue iterations if not oscillating
-        DEC     word ES:[BP.DSKSIZ] ;Damp those oscillations
+        DEC     word [ES:BP+DSKSIZ] ;Damp those oscillations
         JMP     SHORT FNDFATSIZ ;Try again
 
 BADINIT:
@@ -3832,27 +3832,27 @@ BADINIT:
 
 HAVFATSIZ:
         STOSB                   ;FATSIZ
-        MUL     ES:byte[BP.FATCNT]  ;Space occupied by all FATs
-        ADD     AX,ES:[BP.FIRFAT]
+        MUL     ES:byte[BP+FATCNT]  ;Space occupied by all FATs
+        ADD     AX,[ES:BP+FIRFAT]
         STOSW                   ;FIRDIR
-        ADD     AX,ES:[BP.DIRSEC]
-        MOV     ES:[BP.FIRREC],AX       ;Destroys DIRSEC
+        ADD     AX,[ES:BP+DIRSEC]
+        MOV     [ES:BP+FIRREC],AX       ;Destroys DIRSEC
         CALL    FIGMAX
-        MOV     ES:[BP.MAXCLUS],CX
+        MOV     [ES:BP+MAXCLUS],CX
         MOV     AX,BX           ;Pointer into FAT size table
         STOSW                   ;Allocate space for FAT pointer
-        MOV     AL,ES:[BP.FATSIZ]
+        MOV     AL,[ES:BP+FATSIZ]
         XOR     AH,AH
-        MUL     ES:[BP.SECSIZ]
-        CMP     AX,ES:[BX]      ;Bigger than already allocated
+        MUL     [ES:BP+SECSIZ]
+        CMP     AX,[ES:BX]      ;Bigger than already allocated
         JBE     SMFAT
-        MOV     ES:[BX],AX
+        MOV     [ES:BX],AX
 SMFAT:
         POP     SI              ;Restore pointer to init. table
-        MOV     AL,ES:[DRVCNT]
+        MOV     AL,[ES:DRVCNT]
         INC     AL
-        MOV     ES:[DRVCNT],AL
-        CMP     AL,ES:[NUMIO]
+        MOV     [ES:DRVCNT],AL
+        CMP     AL,[ES:NUMIO]
         JAE     CONTINIT
         JMP     PERDRV  
 
@@ -3918,13 +3918,13 @@ SETEND:
         MOV     BP,CX           ;Segment of DOS
         MOV     DX,CS           ;Program segment
         %endif
-        %if NOT HIGHMEM
+        %if ~HIGHMEM
         MOV     BP,CS
         %endif
 ; BP has segment of DOS (whether to load high or run in place)
 ; DX has program segment (whether after DOS or overlaying DOS)
 ; CX has size of memory in paragraphs (reduced by DOS size if HIGHMEM)
-        MOV     CS:[ENDMEM],CX
+        MOV     [CS:ENDMEM],CX
         %if HIGHMEM
         MOV     ES,BP
         XOR     SI,SI
@@ -3941,26 +3941,26 @@ SETEND:
         MOV     AX,QUIT
         STOSW                   ;Set abort address--displacement
         MOV     AX,BP
-        MOV     byte DS:[ENTRYPOINT],LONGJUMP
-        MOV     word DS:[ENTRYPOINT+1],ENTRY
-        MOV     word DS:[ENTRYPOINT+3],AX
-        MOV     word DS:[0],DIVOV   ;Set default divide trap address
-        MOV     DS:[2],AX
+        MOV     byte [DS:ENTRYPOINT],LONGJUMP
+        MOV     word [DS:ENTRYPOINT+1],ENTRY
+        MOV     word [DS:ENTRYPOINT+3],AX
+        MOV     word [DS:0],DIVOV   ;Set default divide trap address
+        MOV     [DS:2],AX
         MOV     CX,9
         REP STOSW               ;Set 5 segments (skip 2 between each)
-        MOV     word DS:[INTBASE+4],COMMAND
-        MOV     word DS:[INTBASE+12],IRET   ;Ctrl-C exit
-        MOV     word DS:[INTBASE+16],IRET   ;Fatal error exit
+        MOV     word [DS:INTBASE+4],COMMAND
+        MOV     word [DS:INTBASE+12],IRET   ;Ctrl-C exit
+        MOV     word [DS:INTBASE+16],IRET   ;Fatal error exit
         MOV     AX,BIOSREAD
         STOSW
         MOV     AX,BIOSSEG
         STOSW
         STOSW                   ;Add 2 to DI
         STOSW
-        MOV     word DS:[INTBASE+18H],BIOSWRITE
-        MOV     word DS:[EXIT],100H
-        MOV     word DS:[EXIT+2],DX
-        %if NOT IBM
+        MOV     word [DS:INTBASE+18H],BIOSWRITE
+        MOV     word [DS:EXIT],100H
+        MOV     word [DS:EXIT+2],DX
+        %if ~IBM
         MOV     SI,HEADER
         CALL    OUTMES
         %endif
@@ -3994,14 +3994,14 @@ MOVJMP:
         JMP     MOVFAT
 
 FIGFATSIZ:
-        MUL     ES:byte[BP.FATCNT]
-        ADD     AX,ES:[BP.FIRFAT]
-        ADD     AX,ES:[BP.DIRSEC]
+        MUL     ES:byte[BP+FATCNT]
+        ADD     AX,[ES:BP+FIRFAT]
+        ADD     AX,[ES:BP+DIRSEC]
 FIGMAX:
 ;AX has equivalent of FIRREC
-        SUB     AX,ES:[BP.DSKSIZ]
+        SUB     AX,[ES:BP+DSKSIZ]
         NEG     AX
-        MOV     CL,ES:[BP.CLUSSHFT]
+        MOV     CL,[ES:BP+CLUSSHFT]
         SHR     AX,CL
         INC     AX
         MOV     CX,AX           ;MAXCLUS
@@ -4009,7 +4009,7 @@ FIGMAX:
         MOV     DX,AX
         SHR     DX,1
         ADC     AX,DX           ;Size of FAT in bytes
-        MOV     SI,ES:[BP.SECSIZ]
+        MOV     SI,[ES:BP+SECSIZ]
         ADD     AX,SI
         DEC     AX
         XOR     DX,DX

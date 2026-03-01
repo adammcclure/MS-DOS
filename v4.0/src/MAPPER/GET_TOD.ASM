@@ -27,9 +27,9 @@ SECTION .dosxxx
 	    %include "macros.inc"
 
 struc str
-old_bp: dw 0
-return: dd 0
-data: dd 0; date and time info return pointer
+old_bp: resw 1
+return: resd 1
+data: resd 1; date and time info return pointer
 endstruc
 
 dosgetdatetime:

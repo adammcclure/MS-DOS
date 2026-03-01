@@ -135,7 +135,7 @@ DEVFCB:; Uses NAME1, NAME2, combined
  
 ; make those pushes fast!!!
 align 2
-StackSize   =   180h                    ; gross but effective
+StackSize equ 180h; gross but effective
 ;;;StackSize   =   300h                    ; This is a "trial" change IBM hasn't
 ;;;                                        ; made up their minds about
  

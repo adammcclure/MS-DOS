@@ -12,7 +12,7 @@
 ;AN003 D486 Share installation for large media			   02/24/88 J.K.
 ;==============================================================================
 
-iTEST = 0
+iTEST equ 0
 %include "MSequ.INC"
 %include "MSmacro.INC"
 

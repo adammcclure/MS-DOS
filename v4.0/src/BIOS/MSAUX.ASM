@@ -243,7 +243,7 @@ AUX$WRIT:
 	jcxz	EXVEC2		; if CX is zero, no characters
 				;   to be written, jump to exit
 AUX$LOOP:
-	mov	AL,ES:[DI]	; get character to be written
+	mov	AL,[ES:DI]	; get character to be written
 	inc	DI		; move DI pointer to next character
 ;;Ver 3.30 modification ---------------------------
 	MOV	AH,AUXFUNC_SEND ;VALUE=1, INDICATES A WRITE

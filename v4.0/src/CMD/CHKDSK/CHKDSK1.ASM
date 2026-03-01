@@ -44,8 +44,8 @@ CHKDSK:
     mov     cs:psp_segment,bx							   ;ac034;bgb
     mov     ds,bx			    ;ds points to the psp		;Ac034;bgb
     ; Assume  DS:Nothing
-    MOV     DX,DS:[2]			    ;High break
-    mov     cs:[mem_size],dx		    ;move it into data area		;an054;bgb
+    MOV     DX,[DS:2]			    ;High break
+    mov     [cs:mem_size],dx		    ;move it into data area		;an054;bgb
     MOV     BX,0FFFFH			    ;need at least 64k bytes
     MOV     CX,CS	    ;get segment of where we are
     SUB     DX,CX	    ;top-of-mem  -  pgm  =  # para left in alloc block
@@ -103,7 +103,7 @@ OkDrive:
 	ret					;Go back to Main_Init		;AC000;
 ;   $ENDIF
 $$IF3:
-    MOV     word CS:[THISDPB+2],DS	    ;get the dpb segment
+    MOV     word [CS:THISDPB+2],DS	    ;get the dpb segment
     set_data_segment			    ;reset ds to the pgm
     MOV     word [THISDPB],BX	    ;get the dpb offset
 
@@ -141,35 +141,35 @@ $$IF5:
 ;get the dpb info
     LDS     BX,[THISDPB]		;ds:bx--> dpb area
     ; ASSUME  DS:NOTHING
-    MOV     AX,[BX.dpb_sector_size]	;Bytes/sector
+    MOV     AX,[BX+dpb_sector_size]	;Bytes/sector
     MOV     [SSIZE],AX			;Sector size in bytes
-    MOV     AL,[BX.dpb_cluster_mask]
+    MOV     AL,[BX+dpb_cluster_mask]
     INC     AL
     MOV     [CSIZE],AL			;Sectors per cluster
-    MOV     AX,[BX.dpb_max_cluster]	; number of clusters in the disk
+    MOV     AX,[BX+dpb_max_cluster]	; number of clusters in the disk
     MOV     [MCLUS],AX			;Bound for FAT searching
     DEC     AX			    ;ax= max clusters - 1			;an005;bgb
     MOV     [DSIZE],AX		    ;Total data clusters on disk		;an005;bgb
     CMP     AX,4096-8			;Big or little FAT?
 ;   $IF     NB
     JB $$IF7
-fat16b: INC	es:[BIGFAT]		   ;set 16-bit fat flag to true
-	MOV	es:[EOFVAL],0FFF8H	   ;set 16-bit compare fields for fat
-	MOV	es:[CHAIN_END],0FFFFh		   ;Marker for end of chain	   ;AC000;
-	MOV	es:[BADVAL],0FFF7H	   ;set 16-bit compare fields for fat
+fat16b: INC	[es:BIGFAT]		   ;set 16-bit fat flag to true
+	MOV	[es:EOFVAL],0FFF8H	   ;set 16-bit compare fields for fat
+	MOV	[es:CHAIN_END],0FFFFh		   ;Marker for end of chain	   ;AC000;
+	MOV	[es:BADVAL],0FFF7H	   ;set 16-bit compare fields for fat
 ;   $ENDIF
 $$IF7:
-    mov     ax,[bx.dpb_FAT_size]    ;Sectors for one fat (DCR)			;an005;bgb
+    mov     ax,[bx+dpb_FAT_size]    ;Sectors for one fat (DCR)			;an005;bgb
     mov     fatsiz,ax		    ;Sectors for one fat (DCR)			;an005;bgb
-    MOV     CL,[BX.dpb_FAT_count]	   ;Number of FATs			;an005;bgb
+    MOV     CL,[BX+dpb_FAT_count]	   ;Number of FATs			;an005;bgb
     mov     fatcnt,cl								;an005;bgb
-    MOV     DX,[BX.dpb_first_FAT]	   ;First sector of FAT 		;an005;bgb
+    MOV     DX,[BX+dpb_first_FAT]	   ;First sector of FAT 		;an005;bgb
     MOV     firstfat,dx 		   ;First sector of FAT 		;an005;bgb
-    MOV     DX,[BX.dpb_first_sector]	   ;First sector of data		;ac048;bgb
+    MOV     DX,[BX+dpb_first_sector]	   ;First sector of data		;ac048;bgb
     MOV     firstsec,dx 		   ;First sector of data		;ac048;bgb
-    MOV     DX,[BX.dpb_dir_sector]	 ;First sector of dir			;ac048;bgb
+    MOV     DX,[BX+dpb_dir_sector]	 ;First sector of dir			;ac048;bgb
     MOV     dirsec,dx			 ;First sector of dir			;ac048;bgb
-    MOV     DX,[BX.dpb_root_entries]	 ;First sector of dir			;ac048;bgb
+    MOV     DX,[BX+dpb_root_entries]	 ;First sector of dir			;ac048;bgb
     MOV     root_entries,dx			 ;First sector of dir		;ac048;bgb
     set_data_segment			;reset ds to point to data area
 
@@ -300,7 +300,7 @@ RDOK:	;**Check_for_FAT_ID**********************************************
     mov     es,fattbl_seg	     ;segment of fat-table			;an005;bgb
     xor     si,si		     ;offset of first byte in fat-table 	;an005;bgb
 ;;;;LODSB			    ;Check FAT ID byte
-    mov     al,byte es:[si]     ;get first byte of fat table
+    mov     al,byte [es:si]     ;get first byte of fat table
     CMP     AL,0F8H		    ;is it the correct id byte?
 ;   $IF     B,AND
     JNB $$IF17
@@ -443,7 +443,7 @@ ParseName:
 ;
 ; Twiddle the file name to be truly bogus.  Zorch the drive letter
 ;
-	MOV	byte es:[DI],-1
+	MOV	byte [es:DI],-1
 ScanFile:
 	INVOKE	DOCRLF
 ;set dma pointer to here
@@ -614,31 +614,31 @@ PRINTID:
 	REP	MOVSB			; Move all of it
 ;get the year									;an012;bgb
 	xor	si,si			;Get back pointer to FCB		;an009;bgb
-	mov	ax,ds:[si].DirDat	   ;yyyyyyym mmmddddd Put in SysDisp form  ;AN009;bgb
+	mov	ax,[ds:si].DirDat	   ;yyyyyyym mmmddddd Put in SysDisp form  ;AN009;bgb
 	and	ax,Year_Mask		;yyyyyyy0 00000000			;AN000;
 	shr	ax,1			;0yyyyyyy 00000000			;AN000;
 	xchg	al,ah			;00000000 0yyyyyyy			;AN000;
 	add	ax,1980 		;					;AN000;
 	mov	es:Sublist_msg_Idmes.Sublist_Offset+(Sublist_Struc_size),ax ;	   ;AN009;bgb
 ;get the month									;an012;bgb
-	mov	ax,ds:[si].DirDat	   ;yyyyyyym mmmddddd			   ;AN009;bgb
+	mov	ax,[ds:si].DirDat	   ;yyyyyyym mmmddddd			   ;AN009;bgb
 	and	ax,Month_Mask		;0000000m mmm00000			;AN000;
 	mov	cl,5			;					;AN000;
 	shr	ax,cl			;00000000 0000mmmm			;AN000;
 	mov	cl,al			;0000mmmm				;AN000;
 ;get the day									;an012;bgb
-	mov	ax,ds:[si].DirDat	   ;yyyyyyym mmmddddd			   ;AN009;bgb
+	mov	ax,[ds:si].DirDat	   ;yyyyyyym mmmddddd			   ;AN009;bgb
 	and	ax,Day_Mask		;00000000 000ddddd			;AN000;
 	mov	ah,cl			;0000mmmm 000ddddd			;AN000;
 	xchg	ah,al			;make it display correctly		;an012;bgb
 	mov	es:Sublist_msg_Idmes.Sublist_Segment+(Sublist_Struc_size),ax ;	   ;AN009;bgb
 ;get the time									;an012;bgb
-	mov	ax,ds:[si].DirTim	   ;hhhhhmmm mmmsssss			   ;AN009;bgb
+	mov	ax,[ds:si].DirTim	   ;hhhhhmmm mmmsssss			   ;AN009;bgb
 	and	ax,Hour_Mask		;hhhhh000 00000000			;AN000;
 	mov	cl,11			;					;AN000;
 	shr	ax,cl			;00000000 000hhhhh			;AN000;
 	mov	ch,al			;000hhhhh				;AN000;
-	mov	ax,ds:[si].DirTim	   ;hhhhhmmm mmmsssss			   ;AN009;bgb
+	mov	ax,[ds:si].DirTim	   ;hhhhhmmm mmmsssss			   ;AN009;bgb
 	and	ax,Minute_Mask		;00000mmm mmm00000			;AN000;
 	mov	cl,3			;					;AN000;
 	shl	ax,cl			;00mmmmmm 00000000		       ;AN000;

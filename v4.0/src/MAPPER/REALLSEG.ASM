@@ -38,10 +38,10 @@ SECTION .dosxxx
         ; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-Selector: dw 0; segment selector
-SegmentSize: dw 0; new segment size in bytes
+old_bp: resw 1
+return: resd 1
+Selector: resw 1; segment selector
+SegmentSize: resw 1; new segment size in bytes
 endstruc
 
 dosreallocseg:

@@ -159,12 +159,12 @@ SetPageEntry:
 	global GetPageEntry
 GetPageEntry:
 ;
-	mov	ax,ES:[DI]	; AX = low word of entry
+	mov	ax,[ES:DI]	; AX = low word of entry
 	mov	bx,ax		; get access/status rights bits
 	and	bx,00FFFh	; turn off address bits
 ;
 	and	ax,0F000h	; turn off status bits
-	mov	dx,ES:[DI+2]	; get high word of addr
+	mov	dx,[ES:DI+2]	; get high word of addr
 ;
 	ret
 ; ENDP GetPageEntry

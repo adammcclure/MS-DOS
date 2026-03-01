@@ -99,14 +99,14 @@
 ;-----------------------------------------------------------------------;
 ;	Request Header (Common portion) 				;
 ;-----------------------------------------------------------------------;
-RH	EQU	DS:[BX] 		;addressability to Request Header structure
+RH	EQU	[DS:BX] 		;addressability to Request Header structure
 
 struc RHC;fields common to all request types
-	db 0;length of Request Header (including data)
-	db 0;unit code (subunit)
-RHC_CMD: db 0;command code
-RHC_STA: dw 0;status
-	dq 0;reserved for DOS
+	resb 1;length of Request Header (including data)
+	resb 1;unit code (subunit)
+RHC_CMD: resb 1;command code
+RHC_STA: resw 1;status
+	resq 1;reserved for DOS
 ;;;;;	DW	?			;reserved for BIOS message flag 	;an006; dms;
 endstruc;end of common portion
 
@@ -123,15 +123,15 @@ STAT_BUSY EQU	0200H			;busy bit (9) for Removable Media call
 ;	Request Header for INIT command 				;
 ;-----------------------------------------------------------------------;
 struc RH0
-	DB	(TYPE RHC) DUP (?)	;common portion
-RH0_NUN: db 0;number of units
+	resb 1;common portion
+RH0_NUN: resb 1;number of units
 					;set to 1 if installation succeeds,
 					;set to 0 to cause installation failure
-RH0_ENDO: dw 0;offset  of ending address
-RH0_ENDS: dw 0;segment of ending address
-RH0_BPBO: dw 0;offset  of BPB array address
-RH0_BPBS: dw 0;segment of BPB array address
-RH0_DRIV: db 0;drive code (DOS 3 only)
+RH0_ENDO: resw 1;offset  of ending address
+RH0_ENDS: resw 1;segment of ending address
+RH0_BPBO: resw 1;offset  of BPB array address
+RH0_BPBS: resw 1;segment of BPB array address
+RH0_DRIV: resb 1;drive code (DOS 3 only)
 RH0_FLAG DW	0			;initialized to no error		;an000; dms;
 endstruc
 
@@ -142,31 +142,31 @@ RH0_BPBA EQU	dword RH0_BPBO	;offset/segment of BPB array address
 ;	Request Header for MEDIA CHECK Command				;
 ;-----------------------------------------------------------------------;
 struc RH1
-	DB	(TYPE RHC) DUP (?)	;common portion
-	db 0;media descriptor
-RH1_RET: db 0;return information
+	resb 1;common portion
+	resb 1;media descriptor
+RH1_RET: resb 1;return information
 endstruc
 ;-----------------------------------------------------------------------;
 ;	Request Header for BUILD BPB Command				;
 ;-----------------------------------------------------------------------;
 struc RH2
-	DB	(TYPE RHC) DUP(?)	;common portion
-	db 0;media descriptor
-	dw 0;offset  of transfer address
-	dw 0;segment of transfer address
-RH2_BPBO: dw 0;offset  of BPB table address
-RH2_BPBS: dw 0;segment of BPB table address
+	resb 1;common portion
+	resb 1;media descriptor
+	resw 1;offset  of transfer address
+	resw 1;segment of transfer address
+RH2_BPBO: resw 1;offset  of BPB table address
+RH2_BPBS: resw 1;segment of BPB table address
 endstruc
 ;-----------------------------------------------------------------------;
 ;	Request Header for INPUT, OUTPUT, and OUTPUT with verify	;
 ;-----------------------------------------------------------------------;
 struc RH4
-	DB	(TYPE RHC) DUP (?)	;common portion
-	db 0;media descriptor
-RH4_DTAO: dw 0;offset  of transfer address
-RH4_DTAS: dw 0;segment of transfer address
-RH4_CNT: dw 0;sector count
-RH4_SSN: dw 0;starting sector number
+	resb 1;common portion
+	resb 1;media descriptor
+RH4_DTAO: resw 1;offset  of transfer address
+RH4_DTAS: resw 1;segment of transfer address
+RH4_CNT: resw 1;sector count
+RH4_SSN: resw 1;starting sector number
 endstruc
 
 RH4_DTAA EQU	dword RH4_DTAO	;offset/segment of transfer address
@@ -178,8 +178,8 @@ struc DESC;data segment descriptor
 DESC_LMT DW	0			;segment limit (length)
 DESC_BASEL DW	0			;bits 15-0 of physical address
 DESC_BASEH DB	0			;bits 23-16 of physical address
-	DB	0			;access rights byte
-	DW	0			;reserved
+	resb 1;access rights byte
+	resw 1;reserved
 endstruc
 
 	; SUBTTL	Equates and Macro Definitions
@@ -329,27 +329,27 @@ PC_386	DB	false			;AN000; DMS;386 machine flag
 
 struc SUBLIST;AN000;SUBLIST STRUCTURE
 
-SL_SIZE: db 0;AN000;SUBLIST SIZE
-SL_RES: db 0;AN000;RESERVED
-SL_OFFSET: dw 0;AN000;PARM OFFSET
-SL_SEGMENT: dw 0;AN000;PARM SEGMENT
-SL_ID: db 0;AN000;NUMBER OF PARM
-SL_FLAG: db 0;AN000;DISPLAY TYPE
-SL_MAXW: db 0;AN000;MAXIMUM FIELD WIDTH
-SL_MINW: db 0;AN000;MINIMUM FIELD WIDTH
-SL_PAD: db 0;AN000;PAD CHARACTER
+SL_SIZE: resb 1;AN000;SUBLIST SIZE
+SL_RES: resb 1;AN000;RESERVED
+SL_OFFSET: resw 1;AN000;PARM OFFSET
+SL_SEGMENT: resw 1;AN000;PARM SEGMENT
+SL_ID: resb 1;AN000;NUMBER OF PARM
+SL_FLAG: resb 1;AN000;DISPLAY TYPE
+SL_MAXW: resb 1;AN000;MAXIMUM FIELD WIDTH
+SL_MINW: resb 1;AN000;MINIMUM FIELD WIDTH
+SL_PAD: resb 1;AN000;PAD CHARACTER
 
 endstruc;AN000;END SUBLIST STRUCTURE
 
 
 struc BIOS_SYSTEM_DESCRIPTOR;AN000;SYSTEM TYPE STRUC
 
-bios_SD_leng: dw 0;AN000;VECTOR LENGTH
-bios_SD_modelbyte: db 0;AN000;SYSTEM MODEL TYPE
-bios_SD_scnd_modelbyte: db 0;AN000;
-	db 0;AN000;
-bios_SD_featurebyte1: db 0;AN000;
-	times 4 db 0;AN000;
+bios_SD_leng: resw 1;AN000;VECTOR LENGTH
+bios_SD_modelbyte: resb 1;AN000;SYSTEM MODEL TYPE
+bios_SD_scnd_modelbyte: resb 1;AN000;
+	resb 1;AN000;
+bios_SD_featurebyte1: resb 1;AN000;
+	resb 4;AN000;
 
 endstruc;AN000;END OF STRUC
 
@@ -1588,7 +1588,7 @@ PC_386_CHK:;AN000;DETERMINE MACHINE TYPE
 	    CMP     AH,0		;AN000;IS IT NEW FORMAT FOR CONFIG.
 ;	    $IF     E			;AN000;YES
 	    JNE $$IF14
-		MOV	AL,ES:[BX.BIOS_SD_MODELBYTE] ;AN000;CHECK MODEL
+		MOV	AL,[ES:BX+BIOS_SD_MODELBYTE] ;AN000;CHECK MODEL
 		CMP	AL,0F8H 	;AN000;IS IT A 386 MACHINE?
 ;		$IF	E		;AN000;YES
 		JNE $$IF15

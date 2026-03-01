@@ -129,7 +129,7 @@ MSG_UTILNAME <FIND>             ;AN000;
 ;-      EQUATES
 ;--------------------------
 FALSE           equ     0
-TRUE            equ     NOT FALSE
+TRUE            equ     ~FALSE
 
 CR              equ     0dh             ;A Carriage Return
 LF              equ     0ah             ;A Line Feed
@@ -253,7 +253,7 @@ struc querylist;AN001; ;query general list
 qea_num     dw      1                ;AN001;
 qea_type    db      EAISBINARY       ;AN001;
 qea_flags   dw      EASYSTEM         ;AN001;
-qea_namelen: db 0;AN001;
+qea_namelen: resb 1;AN001;
 qea_name    db      "        "       ;AN001;
 endstruc;AN001;
 
@@ -774,7 +774,7 @@ try_again:
         sub     cx,bp                   ;length of the current line
         mov     bx,cx                   ;save in case it has a match
         dec     cx                      ;Discount the LF we found
-        cmp     byte ES:[DI-2],CR   ; Is there a CR to discount too?
+        cmp     byte [ES:DI-2],CR   ; Is there a CR to discount too?
         jnz     NO_SECOND_DEC           ; No there is not.
         dec     cx                      ;CR character discounted
 NO_SECOND_DEC:
@@ -1140,16 +1140,16 @@ get_dbcs_vector:;AN006;
         int  21h                      ;AN006; ;DOS function call,vector returned
                                       ;AN006; ; in ES:DI
         inc  di                       ;AN006; ;skip over id byte returned
-        mov  ax,word es:[di]      ;AN006; ;get offset of DBCS table
+        mov  ax,word [es:di]      ;AN006; ;get offset of DBCS table
         mov  cs:dbcs_off,ax           ;AN006; ;save it
 ;
         add  di,2                     ;AN006; ;skip over offset to get segment
-        mov  bx,word es:[di]      ;AN006; ;get segment of DBCS table
+        mov  bx,word [es:di]      ;AN006; ;get segment of DBCS table
         mov  cs:dbcs_seg,bx           ;AN006; ;save it
 ;
         mov  di,ax                    ;AN006; ;Point to DBCS table to get length
         mov  es,bx                    ;AN006;
-        mov  ax,word es:[di]      ;AN006;
+        mov  ax,word [es:di]      ;AN006;
         mov  cs:dbcs_len,ax           ;AN006;
         add  cs:dbcs_off,2            ;AN006; ;change offset to point to table
 ;
@@ -1179,13 +1179,13 @@ is_prefix:;AN006;
         mov     ax,cs:dbcs_seg
         mov     es,ax
 ;
-        mov     al,byte cs:[di]   ;get first byte of string
+        mov     al,byte [cs:di]   ;get first byte of string
 ;
 ; Two consecutive 00 bytes signifies end of table
 ;
 
 is_loop:
-        cmp  word es:[si],00h     ;Check for two consecutive 00 bytes
+        cmp  word [es:si],00h     ;Check for two consecutive 00 bytes
         jne  is_next1                 ;no, continue
         clc                           ;clear carry - byte is not lead byte of db char
         jmp  short is_exit            ;AN007; ;yes, found them, quit
@@ -1195,12 +1195,12 @@ is_loop:
 ;
 
 is_next1:
-        cmp  al,byte es:[si]      ;is byte >= first byte in range?
+        cmp  al,byte [es:si]      ;is byte >= first byte in range?
         jae  is_next2                 ;yes, continue
         jmp  short is_again           ;AN007; ;no, loop again
 
 is_next2:
-        cmp  al,byte es:[si+1]    ;is byte <= last byte in range?
+        cmp  al,byte [es:si+1]    ;is byte <= last byte in range?
         jbe  is_found                 ;yes, found a lead byte of db char
 
 is_again:
@@ -1615,10 +1615,10 @@ get_length:
         push    dx
         xor     ax,ax                   ;init string length
 look_str:
-        mov     dl,es:[di]              ;get character
+        mov     dl,[es:di]              ;get character
         or      bx,bx                   ;save it?
         jz      no_save
-        mov     es:[bx],dl              ;save character
+        mov     [es:bx],dl              ;save character
         inc     bx                      ;save next character
 no_save:                                ;AN007;
         and     dl,dl                   ;AN007; ;check for eol (asciiz string)

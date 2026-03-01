@@ -27,10 +27,10 @@ SECTION .dosxxx
             %include "macros.inc"
 
 struc str
-old_bp: dw 0
-return: dd 0
-Result: dw 0; result code
-Action: dw 0; action code
+old_bp: resw 1
+return: resd 1
+Result: resw 1; result code
+Action: resw 1; action code
 endstruc
 
 dosexit:

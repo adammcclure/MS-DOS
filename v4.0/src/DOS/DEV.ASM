@@ -113,11 +113,11 @@ Break	<IOFUNC -- DO FUNCTION 1-12 I/O>
 	MOV	word [IOXAD],DEVIOBUF
 	MOV	word [IOSCNT],1
 	MOV	word [DEVIOBUF],AX
-	TEST	[SI.sf_flags],sf_isnet
+	TEST	[SI+sf_flags],sf_isnet
 	JZ	IOTO22								;AN000;
 	JMP	IOTOFILE							;AN000;
 IOTO22:
-	TEST	[SI.sf_flags],devid_device
+	TEST	[SI+sf_flags],devid_device
 	JNZ	IOTo33								;AN000;
 	JMP	IOTOFILE							;AN000;
 IOTO33:
@@ -219,7 +219,7 @@ QuickReturn:				;AN000; 2/13/KK
 ;------------------------------ Start of DBCS 2/13/KK
 CHKERROUT:				;AN000;
 	MOV	DS, DX			;AN000;
-	TEST	[SI.sf_flags], devid_device_con_out	;AN000; output to console ?
+	TEST	[SI+sf_flags], devid_device_con_out	;AN000; output to console ?
 	JNZ	GOOD			;AN000; yes
 	CMP	CL, 01			;AN000; write interim ?
 	JNZ	GOOD			;AN000; no,
@@ -233,7 +233,7 @@ GOOD:					;AN000;
 ;------------------------------ End of DBCS 2/13/KK
  %endif;AN000;
 DevErr:
-	TEST	CS:[DOS34_FLAG],X25_Special ;AN000; from disk.asm
+	TEST	[CS:DOS34_FLAG],X25_Special ;AN000; from disk.asm
 	JZ	notx25			 ;AN000; no
 	PUSH	AX			 ;AN000; unknown command ?
 	MOV	AX,DI			 ;AN000;
@@ -268,11 +268,11 @@ IOTOFILE:
 	return				; NON ZERO FLAG FOR OUTPUT STATUS
 
 IOIST:
-	PUSH	word [SI.sf_position]   ; Save position
-	PUSH	word [SI.sf_position+2]
+	PUSH	word [SI+sf_position]   ; Save position
+	PUSH	word [SI+sf_position+2]
 	CALL	IOIN
-	POP	word [SI.sf_position+2] ; Restore position
-	POP	word [SI.sf_position]
+	POP	word [SI+sf_position+2] ; Restore position
+	POP	word [SI+sf_position]
 	return
 
 IOUT:
@@ -367,8 +367,8 @@ EndProc DEV_OPEN_SFT
 	invoke	Test_IFS_Remote 						;AC000;
 	JNZ	OPCLS_DONE		; NOP on net SFTs
 	XOR	AH,AH			; Unit
-	TEST	ES:[DI.sf_flags],devid_device
-	LES	DI,ES:[DI.sf_devptr]	; Get DPB or device
+	TEST	[ES:DI+sf_flags],devid_device
+	LES	DI,[ES:DI+sf_devptr]	; Get DPB or device
 	JNZ	Got_Dev_Addr
 ;
 ; We are about to call device open/close on a block driver.  If no sharing
@@ -377,11 +377,11 @@ EndProc DEV_OPEN_SFT
 ;;;;;	invoke	CheckShare
 	CMP	fshare,1		;AN010; /NC or no SHARE
 	JBE	opCLs_Done		;AN010; yes
-	MOV	AH,ES:[DI.dpb_UNIT]
-	MOV	CL,ES:[DI.dpb_drive]
-	LES	DI,ES:[DI.dpb_driver_addr]  ; Get device
+	MOV	AH,[ES:DI+dpb_UNIT]
+	MOV	CL,[ES:DI+dpb_drive]
+	LES	DI,[ES:DI+dpb_driver_addr]  ; Get device
 GOT_DEV_ADDR:				; ES:DI -> device
-	TEST	ES:[DI.SDEVATT],DEVOPCL
+	TEST	[ES:DI+SDEVATT],DEVOPCL
 	JZ	OPCLS_DONE		; Device can't
 	PUSH	ES
 	POP	DS
@@ -398,13 +398,13 @@ OPCLS_RETRY:
 	STOSB				; Unit
 	XCHG	AH,AL
 	STOSB				; Command
-	MOV	word ES:[DI],0	; Status
+	MOV	word [ES:DI],0	; Status
 	PUSH	AX			; Save Unit,Command
 	invoke	DEVIOCALL2
-	MOV	DI,ES:[BX.REQSTAT]
+	MOV	DI,[ES:BX+REQSTAT]
 	TEST	DI,STERR
 	JZ	OPCLS_DONEP		; No error
-	TEST	[SI.SDEVATT],DEVTYP
+	TEST	[SI+SDEVATT],DEVTYP
 	JZ	BLKDEV
 	MOV	AH,86H			; Read error in data, Char dev
 	JMP	SHORT HRDERR
@@ -443,27 +443,27 @@ Break	<DEVIOCALL, DEVIOCALL2 - CALL A DEVICE>
 ; ASSUME	DS:NOTHING,ES:NOTHING
 
 	Assert	ISSFT,<DS,SI>,"DevIOCall"
-	LDS	SI,[SI.sf_devptr]
+	LDS	SI,[SI+sf_devptr]
 
 	entry	DEVIOCALL2
 
 	EnterCrit   critDevice
 
-	TEST	[SI.SDEVATT],DevTyp    ;AN000; >32mb   block device ?
+	TEST	[SI+SDEVATT],DevTyp    ;AN000; >32mb   block device ?
 	JNZ	chardev2	       ;AN000; >32mb   no
-	CMP	ES:[BX.REQFUNC],DEVRD  ;AN000; >32mb   read ?
+	CMP	[ES:BX+REQFUNC],DEVRD  ;AN000; >32mb   read ?
 	JZ	chkext		       ;AN000; >32mb   yes
-	CMP	ES:[BX.REQFUNC],DEVWRT ;AN000; >32mb   write ?
+	CMP	[ES:BX+REQFUNC],DEVWRT ;AN000; >32mb   write ?
 	JZ	chkext		       ;AN000; >32mb   yes
-	CMP	ES:[BX.REQFUNC],DEVWRTV;AN000; >32mb   write/verify ?
+	CMP	[ES:BX+REQFUNC],DEVWRTV;AN000; >32mb   write/verify ?
 	JNZ	chardev2	       ;AN000; >32mb   no
 chkext:
 	CALL	RW_SC		       ;AN000;LB. use secondary cache if there
 	JC	dev_exit	       ;AN000;LB. done
 
-	TEST	[SI.SDEVATT],EXTDRVR   ;AN000;>32mb   extended driver?
+	TEST	[SI+SDEVATT],EXTDRVR   ;AN000;>32mb   extended driver?
 	JZ	chksector	       ;AN000;>32mb   no
-	ADD	byte ES:[BX],8     ;AN000;>32mb   make length to 30
+	ADD	byte [ES:BX],8     ;AN000;>32mb   make length to 30
 	MOV	AX,[CALLSSEC]	       ;AN000;>32mb
 	MOV	[CALLSSEC],-1	       ;AN000;>32mb   old sector  =-1
 	MOV	word [CALLNEWSC],AX   ;AN000;>32mb	 new sector  =
@@ -473,16 +473,16 @@ chkext:
 chksector:			       ;AN000; >32mb
 	CMP	[HIGH_SECTOR],0        ;AN000; >32mb   if >32mb
 	JZ	chardev2	       ;AN000; >32mb   then fake error
-	MOV	ES:[BX.REQSTAT],STERR+STDON+ERROR_I24_NOT_DOS_DISK  ;AN000; >32mb
+	MOV	[ES:BX+REQSTAT],STERR+STDON+ERROR_I24_NOT_DOS_DISK  ;AN000; >32mb
 	JMP	SHORT dev_exit	       ;AN000; >32mb
 
 chardev2:			       ;AN000;
 ; As above only DS:SI points to device header on entry, and DS:SI is preserved
-	MOV	AX,[SI.SDEVSTRAT]
+	MOV	AX,[SI+SDEVSTRAT]
 	MOV	word [CALLDEVAD],AX
 	MOV	word [CALLDEVAD+2],DS
 	CALL	dword [CALLDEVAD]
-	MOV	AX,[SI.SDEVINT]
+	MOV	AX,[SI+SDEVINT]
 	MOV	word [CALLDEVAD],AX
 	CALL	dword [CALLDEVAD]
 	CALL	VIRREAD 		;AN000;LB. move data from SC to buffer

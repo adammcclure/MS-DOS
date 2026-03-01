@@ -28,7 +28,7 @@ SECTION .CODE
 ; .cref
 ; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	THISSFT,DWORD
 	i_need	DMAADD,DWORD
@@ -97,7 +97,7 @@ Break	<DISKWRITE -- PERFORM USER DISK WRITE>
 	; ASSUME	ES:NOTHING
 
 	Assert	ISSFT,<ES,DI>,"DiskWrite"
-	PUSH	ES:[DI.sf_firclus]	  ; set up 1st cluster # for FastSeek
+	PUSH	[ES:DI+sf_firclus]	  ; set up 1st cluster # for FastSeek
 	POP	[FSeek_firclus]
 
 	invoke	CHECK_WRITE_LOCK	  ;IFS. check write lock		 ;AN000;
@@ -108,11 +108,11 @@ WRTEOFJ:
 	JMP	WRTEOF
 
 WRITE_OK:
-	AND	ES:[DI.sf_flags],NOT (sf_close_nodate OR devid_file_clean)
+	AND	[ES:DI+sf_flags],NOT (sf_close_nodate OR devid_file_clean)
 				; Mark file as dirty, clear no date on close
 	LES	BP,[THISDPB]
 	Assert	ISDPB,<ES,BP>,"DiskWrite/WriteOk"
-	MOV	AL,ES:[BP.dpb_drive]   ; set up drive # for FastSeek
+	MOV	AL,[ES:BP+dpb_drive]   ; set up drive # for FastSeek
 	MOV	[FSeek_drive],AL       ; 11/5/86 DOS 4.00
 
 	invoke	BREAKDOWN
@@ -124,7 +124,7 @@ WRITE_OK:
 ;
 ; Make sure divide won't overflow
 ;
-	MOV	BX,ES:[BP.dpb_sector_size]
+	MOV	BX,[ES:BP+dpb_sector_size]
 ;	CMP	DX,BX			;F.C. >32mb  16 bit sector check	;AN000;
 ;	JAE	WrtErr			;F.C. >32mb				;AN000;
 
@@ -145,8 +145,8 @@ CALCLUS:
 	PUSH	ES
 	LES	DI,[THISSFT]
 	Assert	ISSFT,<ES,DI>,"DiskWrite/CalClus"
-	MOV	AX,word ES:[DI.sf_size]
-	MOV	DX,word ES:[DI.sf_size+2]
+	MOV	AX,word [ES:DI+sf_size]
+	MOV	DX,word [ES:DI+sf_size+2]
 	POP	ES
 
 
@@ -154,11 +154,11 @@ CALCLUS:
 	PUSH	AX			;F.C. >32mb				;AN000;
 	MOV	AX,DX			;F.C. >32mb				;AN000;
 	XOR	DX,DX			;F.C. >32mb				;AN000;
-	DIV	ES:[BP.dpb_sector_size] ;F.C. >32mb				;AN000;
+	DIV	[ES:BP+dpb_sector_size] ;F.C. >32mb				;AN000;
 	MOV	[HIGH_SECTOR_TEMP],AX	;F.C. >32mb				;AN000;
 	POP	AX			;F.C. >32mb				;AN000;
 
-	DIV	ES:[BP.dpb_sector_size]
+	DIV	[ES:BP+dpb_sector_size]
 	MOV	CX,AX		; Save last full sector of current file
 	OR	DX,DX
 	JZ	NORNDUP
@@ -188,11 +188,11 @@ lowsec:
 yesgrow:
 	MOV	CX,DX
 	XCHG	AX,BX
-	MUL	ES:[BP.dpb_sector_size]  ; Bytes of full sector growth
+	MUL	[ES:BP+dpb_sector_size]  ; Bytes of full sector growth
 	MOV	[HIGH_SECTOR],DX	 ;F.C. >32mb save dx			;AN000;
 	MOV	[HIGH_SECTOR_TEMP],AX	 ;F.C. >32mb save ax			;AN000;
 	MOV	AX,DI			 ;F.C. >32mb				;AN000;
-	MUL	ES:[BP.dpb_sector_size]  ;F.C. >32mb do higher word multiply	;AN000;
+	MUL	[ES:BP+dpb_sector_size]  ;F.C. >32mb do higher word multiply	;AN000;
 	ADD	AX,[HIGH_SECTOR]	 ;F.C. >32mb add lower value		;AN000;
 	MOV	DX,AX			 ;F.C. >32mb DX:AX is the result of	;AN000;
 	MOV	AX,[HIGH_SECTOR_TEMP]	 ;F.C. >32mb a 32 bit multiply		;AN000;
@@ -313,7 +313,7 @@ wokok:
 	PUSH	DX
 	PUSH	BX
 	Assert	ISDPB,<ES,BP>,"DiskWrite/WrtLp"
-	MOV	AL,ES:[BP.dpb_drive]
+	MOV	AL,[ES:BP+dpb_drive]
 	MOV	[SC_DRIVE],AL		  ;LB. save it for INVALIDATE_SC	;AN000;
 	PUSH	CX			  ;LB.					;AN000;
 	PUSH	[HIGH_SECTOR]		  ;LB.					;AN000;
@@ -333,14 +333,14 @@ NEXTBUFF:			; Search for buffers
 nosc:
 	CALL	BUFF_RANGE_CHECK	    ;F.C. >32mb 			;AN000;
 	JNC	inrange2		    ;F.C. >32mb 			;AN000;
-	mov	DI,[DI.buf_next]	    ;LB. get next buffer 1/19/88	;AN000;
+	mov	DI,[DI+buf_next]	    ;LB. get next buffer 1/19/88	;AN000;
 	JMP	DONEXTBUFF		    ;LB.				;AN000;
 inrange2:
-	TEST	[DI.buf_flags],buf_dirty    ;LB. if dirty			;AN000;
+	TEST	[DI+buf_flags],buf_dirty    ;LB. if dirty			;AN000;
 	JZ	not_dirty		    ;LB.				;AN000;
 	invoke	DEC_DIRTY_COUNT 	    ;LB. then decrement dirty count	;AN000;
 not_dirty:
-	MOV	word [DI.buf_ID],(buf_visit SHL 8) OR 0FFH	  ; Free the buffer, it is being over written
+	MOV	word [DI+buf_ID],(buf_visit SHL 8) OR 0FFH	  ; Free the buffer, it is being over written
 	invoke	SCANPLACE
 DONEXTBUFF:
 	CMP	DI,[FIRST_BUFF_ADDR]	  ;LB. end of chain			;AN000;
@@ -406,8 +406,8 @@ FINWRT:
 	JNZ	UPDATE_size
 	JCXZ	SAMSIZ
 Update_size:
-	ADD	word ES:[DI.sf_size],AX
-	ADC	word ES:[DI.sf_size+2],CX
+	ADD	word [ES:DI+sf_size],AX
+	ADC	word [ES:DI+sf_size+2],CX
 ;
 ; Make sure that all other SFT's see this growth also.
 ;
@@ -431,7 +431,7 @@ WRTEOF:
 	SBB	DX,0
 
 	PUSH	BX
-	MOV	BX,ES:[BP.dpb_sector_size]    ;F.C. >32mb			;AN000;
+	MOV	BX,[ES:BP+dpb_sector_size]    ;F.C. >32mb			;AN000;
 	CALL	DIV32			      ;F.C. >32mb			;AN000;
 	POP	BX			      ;F.C. >32mb			;AN000;
 	CALL	SHR32			      ;F.C. >32mb			;AN000;
@@ -453,9 +453,9 @@ UPDATE:
 	LES	DI,[THISSFT]
 	Assert	ISSFT,<ES,DI>,"DiskWrite/update"
 	MOV	AX,word [BYTPOS]
-	MOV	word ES:[DI.sf_size],AX
+	MOV	word [ES:DI+sf_size],AX
 	MOV	AX,word [BYTPOS+2]
-	MOV	word ES:[DI.sf_size+2],AX
+	MOV	word [ES:DI+sf_size+2],AX
 ;
 ; Make sure that all other SFT's see this growth also.
 ;
@@ -483,9 +483,9 @@ KILLFIL:
 	PUSH	ES
 	LES	DI,[THISSFT]
 	Assert	ISSFT,<ES,DI>,"DiskWrite/KillFil"
-	MOV	ES:[DI.sf_cluspos],BX
-	MOV	ES:[DI.sf_lstclus],BX
-	XCHG	BX,ES:[DI.sf_firclus]
+	MOV	[ES:DI+sf_cluspos],BX
+	MOV	[ES:DI+sf_lstclus],BX
+	XCHG	BX,[ES:DI+sf_firclus]
 	POP	ES
 ;; 11/5/86 FastSeek
 	invoke	Delete_FSeek   ; delete fastseek entry
@@ -499,7 +499,7 @@ KILLFIL:
 	PUSH	CX
 	PUSH	DX
 	LES	BP,[THISDPB]		 ; get current DPB
-	MOV	DL,ES:[BP.dpb_drive]	 ; get current drive
+	MOV	DL,[ES:BP+dpb_drive]	 ; get current drive
 	MOV	CX,BX			 ; first cluster #
 	MOV	AH,2			 ; delete cache entry by drive:firclus
 	invoke	FastOpen_Update 	 ; call fastopen
@@ -557,7 +557,7 @@ Break	<SHR32 -- PERFORM 32 BIT SHIFT RIGHT>
 	; ASSUME	DS:NOTHING,ES:NOTHING
 
 
-	MOV	CL,ES:[BP.dpb_cluster_shift]
+	MOV	CL,[ES:BP+dpb_cluster_shift]
 	XOR	CH,CH
 entry ROTASHFT				;F.C. >32mb				;AN000;
 	OR	CX,CX			;F.C. >32mb				;AN000;
@@ -591,7 +591,7 @@ procedure File_Handle_Fail_Error,NEAR						;AN000;
 										;AN000;
 	LES	DI,[THISSFT]	 ;MS. get current SFT				;AN000;
 ;	LES	DI,ES:[DI.sf_DEVPTR];MS. get device header			;AN000;
-	TEST	ES:[DI.sf_flags],Handle_Fail_I24  ;MS. gen I24 ?		;AN000;
+	TEST	[ES:DI+sf_flags],Handle_Fail_I24  ;MS. gen I24 ?		;AN000;
 	JZ	Fexit		 ;MS. no					;AN000;
 	PUSH	DS		 ;MS. save DS					;AN000;
 	TEST	AH,1				;MS. READ ?			;AN000;
@@ -606,13 +606,13 @@ errset:
 	MOV	[EXTERR_LOCUS],errLOC_Unk	;MS. set locus			;AN000;
 	MOV	word [EXITHOLD + 2],ES	;MS. save es:bp in exithold	;AN000;
 	MOV	word [EXITHOLD],BP		;MS.				;AN000;
-	TEST	ES:[DI.sf_flags],devid_device	  ;MS. device  ?		;AN000;
+	TEST	[ES:DI+sf_flags],devid_device	  ;MS. device  ?		;AN000;
 	JNZ	chardev2			  ;MS. yes			;AN000;
-	LDS	SI,ES:[DI.sf_DEVPTR]		  ;MS. get dpb			;AN000;
-	LDS	SI,[SI.dpb_driver_addr] 	  ;MS. get drive device haeder	;AN000;
+	LDS	SI,[ES:DI+sf_DEVPTR]		  ;MS. get dpb			;AN000;
+	LDS	SI,[SI+dpb_driver_addr] 	  ;MS. get drive device haeder	;AN000;
 	JMP	SHORT doi24			  ;MS. gen I24 ?		;AN000;
 chardev2:
-	LDS	SI,ES:[DI.sf_DEVPTR]		  ;MS. get chr dev header	;AN000;
+	LDS	SI,[ES:DI+sf_DEVPTR]		  ;MS. get chr dev header	;AN000;
 doi24:
 	MOV	BP,DS				  ;MS. bp:si -> device header	;AN000;
 	MOV	DI,error_I24_gen_failure	;MS. general error		;AN000;
@@ -643,12 +643,12 @@ Break	<BUFF_RANGE_CHECK- buffer range checkink>
 	procedure   BUFF_RANGE_CHECK,NEAR
 	; ASSUME	DS:NOTHING,ES:NOTHING
 
-	CMP	word [DI.buf_sector],DX					;AN000;
+	CMP	word [DI+buf_sector],DX					;AN000;
 	JNZ	DONEXTBUFF2	; not this sector	   ;F.C. >32mb		;AN000;
 	MOV	SI,[HIGH_SECTOR]			   ;F.C. >32mb		;AN000;
-	CMP	word [DI.buf_sector+2],SI		   ;F.C. >32mb		;AN000;
+	CMP	word [DI+buf_sector+2],SI		   ;F.C. >32mb		;AN000;
 	JNZ	DONEXTBUFF2	; Not for this drive
-	CMP	AL,[DI.buf_ID]
+	CMP	AL,[DI+buf_ID]
 	JZ	secfound	; Buffer has the sector 			;AN000;
 DONEXTBUFF2:
 	STC

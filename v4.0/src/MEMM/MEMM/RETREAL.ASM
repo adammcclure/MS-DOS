@@ -148,7 +148,7 @@ rl386_a:
 	mov	ax, GDTD_GSEL
 	mov	es, ax			; ES:0 = ptr to gdt
 
-	and	byte ES:[TSS_GSEL + 5], 11111101B
+	and	byte [ES:TSS_GSEL + 5], 11111101B
 
 ;
 ;   lock high system ROM before returning to real
@@ -200,7 +200,7 @@ Real_Seg:
 	dw	_TEXT			; destination segment
 rl386_b:
 	OP32				; load up full IDT address
-	lidt	qword cs:[real_idt]
+	lidt	qword [cs:real_idt]
 
 	sti
 

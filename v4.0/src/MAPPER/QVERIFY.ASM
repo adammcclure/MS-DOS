@@ -28,9 +28,9 @@ SECTION .dosxxx
             ; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-verify: dd 0; return data area pointer
+old_bp: resw 1
+return: resd 1
+verify: resd 1; return data area pointer
 endstruc
 
 dosqverify:

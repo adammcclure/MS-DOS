@@ -115,7 +115,7 @@ notmax:
 errout: 			       ;AN000;
 	JMP    insuff_space	       ;AN000;;FT. no error
 goodsiz:			       ;AN000;
-	MOV    word ES:[DI],0      ;AN000;FT. FAKE FAKE ...............
+	MOV    word [ES:DI],0      ;AN000;FT. FAKE FAKE ...............
 	MOV    CX,2		       ;AN000;FT. FAKE FAKE ...............
 	JMP    set_user_cx	       ;AN000;FT. FAKE FAKE ...............
 
@@ -152,7 +152,7 @@ geteaname:
 ;;	MOV    CX,[MAX_EANAME_SIZE]    ;AN000;;FT. get name size
 set_user_cx:			       ;AN000;
 	invoke get_user_stack	       ;AN000;;FT. get user stack
-	MOV    [SI.user_CX],CX	       ;AN000;;FT.
+	MOV    [SI+user_CX],CX	       ;AN000;;FT.
 	JMP    OKexit		       ;AN000;;FT. exit
 
 getsome:			       ;AN000;

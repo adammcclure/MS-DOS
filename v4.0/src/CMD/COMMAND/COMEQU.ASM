@@ -3,7 +3,7 @@
 ;*************************************
 ; COMMAND EQUs which are not switch dependant
 
-EMGDEBUG = FALSE
+EMGDEBUG equ FALSE
 
 SYM		EQU	">"
 
@@ -141,10 +141,10 @@ AltPipeChr	equ	"|"             ; alternate pipe character
 FCB		EQU	5CH
 
 struc VARSTRUC
-ISDIR: db 0
-SIZ: db 0
-TTAIL: dw 0
-INFO: db 0
+ISDIR: resb 1
+SIZ: resb 1
+TTAIL: resw 1
+INFO: resb 1
 BUF		DB	DIRSTRLEN + times 20 db 0
 endstruc
 
@@ -179,9 +179,9 @@ Batechoflag	DB	0		; G state of echo
 Batlast 	DW	0		; G segment of last batch file
 Batforptr	DW	0		; G segment for FOR command
 Batforflag	DB	0		; G state of FOR
-BatSeek: dd 0; lseek position of next char
-BatParm: times 10 dw 0; pointers to parameters
-BatFile: db 0; beginning of batch file name
+BatSeek: resd 1; lseek position of next char
+BatParm: resb 20; pointers to parameters
+BatFile: resb 1; beginning of batch file name
 endstruc
 
 ANULL		equ	0		; terminates an argv string

@@ -448,6 +448,6 @@ INSTALL_TO_720_DRIVE:
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS
+; END SECTION .SELECT
 	; END
 

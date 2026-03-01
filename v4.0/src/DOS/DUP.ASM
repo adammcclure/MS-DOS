@@ -58,7 +58,7 @@ BREAK <DOS_DUP -- DUP SFT across network>
 	invoke	DEV_OPEN_SFT
 DO_INC:
 	Assert	ISSFT,<ES,DI>,"DOSDup/DoInc"
-	INC	ES:[DI.sf_ref_count]	; Clears carry (if this ever wraps
+	INC	[ES:DI+sf_ref_count]	; Clears carry (if this ever wraps
 					;   we're in big trouble anyway)
 	return
 

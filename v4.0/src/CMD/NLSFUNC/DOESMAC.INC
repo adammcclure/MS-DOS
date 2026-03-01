@@ -22,7 +22,7 @@ BREAK <SaveReg - save a set of registers>
 
 %macro SaveReg 1;; push those registers
 ; IRP reg,<reglist>
-	?stackdepth = ?stackdepth + 1
+	?stackdepth equ ?stackdepth + 1
 	PUSH	reg
 %endmacro
 %endmacro
@@ -32,7 +32,7 @@ BREAK <RestoreReg - unsave some registers>
 
 %macro RestoreReg 1;; pop those registers
 ; IRP reg,<reglist>
-	?stackdepth = ?stackdepth - 1
+	?stackdepth equ ?stackdepth - 1
 	POP	reg
 %endmacro
 %endmacro

@@ -56,7 +56,7 @@ BREAK			<Transient Messages>
 
 
 ;			$SALUT (4,25,30,41)
-false			=    0
+false equ 0
 
 DateSW			equ  false
 TimeSW			equ  false

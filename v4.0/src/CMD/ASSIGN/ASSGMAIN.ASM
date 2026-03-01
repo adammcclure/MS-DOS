@@ -113,7 +113,7 @@
 ;*********************************************
 
 ; page
-DEBUG	=	0
+DEBUG equ 0
 
 ; .xlist
 	%include "SYSMSG.INC";AN000;
@@ -137,11 +137,11 @@ MSG_UTILNAME <ASSIGN>
 ; .xcref	break
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 %macro CallOperRange 3;;NS-macro to call subroutines
-?call	=	low			;;NS-in the given call range
+?call equ low;;NS-in the given call range
 					;;NS-starting call value = low #
 %rep (high-low)+1;;NS-calculate the entry point
 	CallOper ?call,routine		;;NS-into the table then execute
-	?call	= ?call + 1		;;NS-increment call value to next
+	?call equ ?call + 1;;NS-increment call value to next
 %endmacro
 	%endmacro
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -166,7 +166,7 @@ MSG_UTILNAME <ASSIGN>
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 %macro SaveReg 1;; push those registers
 ; IRP	reg,<reglist>
-	?stackdepth = ?stackdepth + 1
+	?stackdepth equ ?stackdepth + 1
 	PUSH	reg
 %endmacro
 %endmacro
@@ -174,7 +174,7 @@ MSG_UTILNAME <ASSIGN>
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 %macro RestoreReg 1;; pop those registers
 ; IRP	reg,<reglist>
-	?stackdepth = ?stackdepth - 1
+	?stackdepth equ ?stackdepth - 1
 	POP	reg
 %endmacro
 %endmacro
@@ -770,7 +770,7 @@ DoRename:
 ;	$ENDIF				;AC000;
 $$IF17:
 					;DoES:
-	mov	ax,es:[di]		;NS- Get the 2nd drive from the command linepSOP
+	mov	ax,[es:di]		;NS- Get the 2nd drive from the command linepSOP
 	mov	drive_save2,al		;NS- Save possible drive
 	cmp	ah,':'			;NS- exclude if no colon present
 ;	$IF	Z			;AC000;
@@ -778,7 +778,7 @@ $$IF17:
 
 	    call    maplet		;NS- go convert letter to actual drive #
 
-	    mov     es:[di],al		;NS- new drive value
+	    mov     [es:di],al		;NS- new drive value
 ;	$ENDIF				;AC000;
 $$IF19:
 					;DoIt:
@@ -794,7 +794,7 @@ $$IF19:
 
 	SaveReg <ax,bx>
 	mov	al,drive_save2		; NS- get the second drive update
-	mov	es:[di],al		; NS- on the command line
+	mov	[es:di],al		; NS- on the command line
 	mov	bx,drive_address	;
 	mov	al,drive_save		;
 	mov	[bx],al 		;
@@ -932,7 +932,7 @@ $$IF28:
 	    cbw
 	    mov     bx,drives-1
 	    add     bx,ax
-	    mov     al,cs:[bx]
+	    mov     al,[cs:bx]
 	    mov     ah,ch
 	    pop     cx
 	    pop     bx
@@ -1032,7 +1032,7 @@ $$SR37:
 	pop	si
 	ret
 
-prog_size =	($-ASSIGN_BASE+15)/16
+prog_size equ ($-ASSIGN_BASE+15)/16
 
 ; page
 ;************************************************************************************
@@ -1163,7 +1163,7 @@ $$IF41:
 ;    ******************************************
 ;************************************* CNS ************************************
 					;OKDOS:
-	mov	ax,ds:[pdb_environ]	;get your Process Data Block Address
+	mov	ax,[ds:pdb_environ]	;get your Process Data Block Address
 	or	ax,ax			;check to see if space available
 ;	$IF	NZ			;AC000;
 	JZ $$IF43
@@ -1474,18 +1474,18 @@ drvchk:
 	    push    ax
 
 	    les     bx,inv
-	    cmp     al,es:[bx].sysi_ncds	;AN000; ;NS- check in case current directory
+	    cmp     al,[es:bx].sysi_ncds	;AN000; ;NS- check in case current directory
 ;	    $IF     NAE 			;AN000; ;NS- has been altered
 	    JAE $$IF68
 
 
-		les	bx,es:[bx].sysi_cds
+		les	bx,[es:bx].sysi_cds
 		push	bx
 		mov	bl,curdir_list_size
 		mul	bl
 		pop	bx
 		add	bx,ax
-		test	es:[bx].curdir_flags,curdir_inuse
+		test	[es:bx].curdir_flags,curdir_inuse
 ;		$IF	NZ			;AC000;
 		JZ $$IF69
 
@@ -1536,13 +1536,13 @@ $$DO73:
 ;	$LEAVE	A				;AN000; exit loop if we have
 	JA $$EN73
 
-	    cmp     cl,es:[bx]			;AN000; ;compare the table value
+	    cmp     cl,[es:bx]			;AN000; ;compare the table value
 							;to the table contents
 ;	    $IF     NE				;AN000;
 	    JE $$IF75
 		push	bx			;an000; save bx - we stomp it
 		push	cx			;an000; save cx - we stomp it
-		mov	al,es:[bx]		;AN000; get the table contents to convert
+		mov	al,[es:bx]		;AN000; get the table contents to convert
 		push	es			;an000; save es for print
 		mov	bx,curr_es_seg		;an000; get the current segment
 		mov	es,bx			;an000; get the segment into es
@@ -1614,7 +1614,7 @@ EXIT_PROG:
 PARSE_ERR:;an000; dms;report an error
 
 	push	ax			;an000;save ax
-	mov	byte ds:[si],0	;an002;null terminate string
+	mov	byte [ds:si],0	;an002;null terminate string
 	mov	dx,Parm_Ptr1		;an002;move ptr to sublist
 	mov	Parse_Sub_Off,dx	;an002;
 	mov	Parse_Sub_Seg,ds	;an002;
@@ -1640,7 +1640,7 @@ Release_Environment:;an001; dms;
 	mov	ah,Get_PSP		; get the PSP segment			;an001; dms;
 	int	21h			; invoke INT 21h			;an001; dms;
 	mov	es,bx			; BX contains PSP segment - put in ES	;an001; dms;
-	mov	bx,word es:[PSP_Env]; get segment of environmental vector	;an001; dms;
+	mov	bx,word [es:PSP_Env]; get segment of environmental vector	;an001; dms;
 	mov	es,bx			; place segment in ES for Free Memory	;an001; dms;
 	mov	ah,Dealloc		; Free Allocated Memory 		;an001; dms;
 	int	21h			; invoke INT 21h			;an001; dms;
@@ -1692,8 +1692,8 @@ Get_Vectors:;get original vectors			;an001; dms;
 	    mov     ax,(Get_Interrupt_Vector SHL 8)+DOS_CALL ;(3521H)
 	    int     DOS_CALL
 
-	    mov     word cs:[system],bx
-	    mov     word cs:[system+2],es
+	    mov     word [cs:system],bx
+	    mov     word [cs:system+2],es
 
 	    MOV     AX,(MPLEX_ID SHL 8)+MPLEX_R_U_THERE ;(0600H) See if we are in system already
 	    INT     MULTIPLEXOR 	;(2FH)

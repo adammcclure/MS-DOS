@@ -8,7 +8,7 @@
 ; .xcref
 %include "DOSSYM.INC";AC000;
 %include "doscntry.inc";AC000;
-DEBUG = 0				; NEED TO SET IT TO WHAT IT IS IN DOSSYM.INC
+DEBUG equ 0; NEED TO SET IT TO WHAT IT IS IN DOSSYM.INC
 
 
 	%include "DEVSYM.INC"
@@ -20,7 +20,7 @@ DEBUG = 0				; NEED TO SET IT TO WHAT IT IS IN DOSSYM.INC
 ; .cref
 
 
-Tokenized   =	FALSE
+Tokenized equ FALSE
 
 SECTION .DATARES;AC000;
 	extern abort_char
@@ -130,7 +130,7 @@ DSKERR:
 	PUSH	CX
 	PUSH	AX
 	MOV	DS,BP
-	MOV	AX,[SI.SDEVATT]
+	MOV	AX,[SI+SDEVATT]
 	MOV	[CDEVAT],AH
 	PUSH	CS
 	POP	ES
@@ -190,8 +190,8 @@ SAVMES:
 	POP	SI
 	POP	BP
 	POP	DS
-	mov	word cs:[RemMsg],di 	;AC000; save pointer to remote message
-	mov	word cs:[RemMsg+2],es	;AC000;    (only used on code 15)
+	mov	word [cs:RemMsg],di 	;AC000; save pointer to remote message
+	mov	word [cs:RemMsg+2],es	;AC000;    (only used on code 15)
 	pop	ES				;AN000;
 	XOR	AH,AH
 	mov	di,ax				; REAL error code to DI
@@ -298,7 +298,7 @@ CheckErrType:
 	jmp	short ASK
 
 ContOld:
-	%if NOT Tokenized
+	%if ~Tokenized
 	MOV	AX,SI				;AN000; get reading/writing for message
 	MOV	DH,UTIL_MSG_CLASS		;AN000; this is a utility message
 	CALL	SYSGETMSG			;AN000; get the message
@@ -443,7 +443,7 @@ JustExit:
 ; ASSUME	DS:RESGROUP
 	call	reset_msg_pointers		;AN000; reset critical & parse message addresses
 	mov	ax,[PARENT]			; Load real parent PID
-	mov	word ds:[PDB_Parent_PID],ax ; Put it back where it belongs
+	mov	word [ds:PDB_Parent_PID],ax ; Put it back where it belongs
 	mov	ax,(Exit SHL 8) OR 255
 	int	21H
 
@@ -527,7 +527,7 @@ RPRINT:
 ; Use CPM io to output it.
 ;
 
-%if NOT tokenized
+%if ~tokenized
 	PUSH	AX
 	PUSH	BX				;AC000; save BX register
 	PUSH	CX				;AC000; save CX register
@@ -638,14 +638,14 @@ TestKanjR:					;AN000;  3/3/KK
 	lds	si,dbcs_vector_addr		;AN000;  GET DBCS VECTOR
 
 ktlop:						;AN000;  3/3/KK
-	cmp	word ds:[si],0		;AN000;  3/3/KK end of Lead Byte Table
+	cmp	word [ds:si],0		;AN000;  3/3/KK end of Lead Byte Table
 	je	notlead 			;AN000;  3/3/KK
 	pop	ax				;AN000;  3/3/KK
 	push	ax				;AN000;  3/3/KK
-	cmp	al, byte ds:[si]		;AN000;  3/3/KK
+	cmp	al, byte [ds:si]		;AN000;  3/3/KK
 	jb	notlead 			;AN000;  3/3/KK
 	inc	si				;AN000;  3/3/KK
-	cmp	al, byte ds:[si]		;AN000;  3/3/KK
+	cmp	al, byte [ds:si]		;AN000;  3/3/KK
 	jbe	islead				;AN000;  3/3/KK
 	inc	si				;AN000;  3/3/KK
 	jmp	short ktlop			;AN000;  3/3/KK try another range

@@ -44,7 +44,7 @@ SECTION .CODE
 ;       Zero set means DI=0 (free cluster)
 ; SI Destroyed, No other registers affected. Fatal error if cluster too big.
 
-        CMP     BX,ES:[BP.dpb_max_cluster]
+        CMP     BX,[ES:BP+dpb_max_cluster]
         JA      HURTFAT
         CALL    MAPCLUSTER
 ; ASSUME  DS:NOTHING
@@ -100,7 +100,7 @@ PACKIN:
         OR      SI,DX
         MOV     [DI],SI
         LDS     SI,[CURBUF]
-        MOV     [SI.BUFDIRTY],1
+        MOV     [SI+BUFDIRTY],1
         CMP     byte [CLUSSPLIT],0
         PUSH    SS
         POP     DS
@@ -124,10 +124,10 @@ PACKIN:
         invoke  GETBUFFRB
         LDS     DI,[CURBUF]
 ; ASSUME  DS:NOTHING
-        MOV     [DI.BUFDIRTY],1
+        MOV     [DI+BUFDIRTY],1
         ADD     DI,BUFINSIZ
         DEC     DI
-        ADD     DI,ES:[BP.dpb_sector_size]
+        ADD     DI,[ES:BP+dpb_sector_size]
         POP     AX
         MOV     [DI],AL
         PUSH    SS
@@ -163,9 +163,9 @@ PACKIN:
         SHR     AX,1
         ADD     AX,BX
         XOR     DX,DX
-        MOV     CX,ES:[BP.dpb_sector_size]
+        MOV     CX,[ES:BP+dpb_sector_size]
         DIV     CX              ; AX is FAT sector # DX is sector index
-        ADD     AX,ES:[BP.dpb_first_FAT]
+        ADD     AX,[ES:BP+dpb_first_FAT]
         DEC     CX
         PUSH    AX
         PUSH    DX
@@ -176,7 +176,7 @@ PACKIN:
         invoke  GETBUFFRB
         LDS     SI,[CURBUF]
 ; ASSUME  DS:NOTHING
-        LEA     DI,[SI.BufInSiz]
+        LEA     DI,[SI+BufInSiz]
         POP     CX
         POP     AX
         POP     DX
@@ -196,7 +196,7 @@ PACKIN:
         invoke  GETBUFFRB
         LDS     SI,[CURBUF]
 ; ASSUME  DS:NOTHING
-        LEA     DI,[SI.BufInSiz]
+        LEA     DI,[SI+BufInSiz]
         MOV     AL,[DI]
         PUSH    SS
         POP     DS
@@ -237,16 +237,16 @@ FATERR:
         MOV     AL,byte [THISDRV]
         invoke  GETBP
         MOV     AL,DMEDHL
-        MOV     AH,ES:[BP.dpb_UNIT]
+        MOV     AH,[ES:BP+dpb_UNIT]
         MOV     word [DEVCALL],AX
         MOV     byte [DEVCALL.REQFUNC],DEVMDCH
         MOV     [DEVCALL.REQSTAT],0
-        MOV     AL,ES:[BP.dpb_media]
+        MOV     AL,[ES:BP+dpb_media]
         MOV     byte [CALLMED],AL
         PUSH    ES
         PUSH    DS
         MOV     BX,DEVCALL
-        LDS     SI,ES:[BP.dpb_driver_addr]       ; DS:SI Points to device header
+        LDS     SI,[ES:BP+dpb_driver_addr]       ; DS:SI Points to device header
 ; ASSUME  DS:NOTHING
         POP     ES                      ; ES:BX Points to call header
         invoke  DEVIOCALL2
@@ -258,7 +258,7 @@ FATERR:
         TEST    DI,STERR
         JNZ     FATERR
         XOR     AH,AH
-        XCHG    AH,ES:[BP.dpb_first_access]      ; Reset dpb_first_access
+        XCHG    AH,[ES:BP+dpb_first_access]      ; Reset dpb_first_access
         MOV     AL,byte [THISDRV]    ; Use physical unit number
         OR      AH,byte [CALLRBYT]
         JS      NEWDSK          ; new disk or first access?
@@ -269,25 +269,25 @@ CHKBUFFDIRT:
         LDS     DI,[BUFFHEAD]
 ; ASSUME  DS:NOTHING
 NBUFFER:                        ; Look for dirty buffers
-        CMP     AX,word [DI.BUFDRV]
+        CMP     AX,word [DI+BUFDRV]
         retz                    ; There is a dirty buffer, assume Media OK
-        LDS     DI,[DI.NEXTBUF]
+        LDS     DI,[DI+NEXTBUF]
         CMP     DI,-1
         JNZ     NBUFFER
 ; If no dirty buffers, assume Media changed
 NEWDSK:
         invoke  SETVISIT
 NXBUFFER:
-        MOV     [DI.VISIT],1
-        CMP     AL,[DI.BUFDRV]       ; For this drive?
+        MOV     [DI+VISIT],1
+        CMP     AL,[DI+BUFDRV]       ; For this drive?
         JNZ     SKPBUFF
-        MOV     word [DI.BUFDRV],00FFH  ; Free up buffer
+        MOV     word [DI+BUFDRV],00FFH  ; Free up buffer
         invoke  SCANPLACE
 SKPBUFF:
         invoke  SKIPVISIT
         JNZ     NXBUFFER
-        LDS     DI,ES:[BP.dpb_driver_addr]
-        TEST    [DI.SDEVATT],ISFATBYDEV
+        LDS     DI,[ES:BP+dpb_driver_addr]
+        TEST    [DI+SDEVATT],ISFATBYDEV
         JNZ     GETFREEBUF
         context DS
         MOV     BX,2
@@ -310,16 +310,16 @@ GOTGETBUF:
 ; ASSUME  DS:DOSGROUP
         MOV     word [CALLXAD],DI
         MOV     AL,DBPBHL
-        MOV     AH,byte ES:[BP.dpb_UNIT]
+        MOV     AH,byte [ES:BP+dpb_UNIT]
         MOV     word [DEVCALL],AX
         MOV     byte [DEVCALL.REQFUNC],DEVBPB
         MOV     [DEVCALL.REQSTAT],0
-        MOV     AL,byte ES:[BP.dpb_media]
+        MOV     AL,byte [ES:BP+dpb_media]
         MOV     [CALLMED],AL
         PUSH    ES
         PUSH    DS
-        PUSH    word ES:[BP.dpb_driver_addr+2]
-        PUSH    word ES:[BP.dpb_driver_addr]
+        PUSH    word [ES:BP+dpb_driver_addr+2]
+        PUSH    word [ES:BP+dpb_driver_addr]
         MOV     BX,DEVCALL
         POP     SI
         POP     DS                      ; DS:SI Points to device header
@@ -333,22 +333,22 @@ GOTGETBUF:
         MOV     DI,[DEVCALL.REQSTAT]
         TEST    DI,STERR
         JNZ     FATERRJ
-        MOV     AL,byte ES:[BP.dpb_media]
+        MOV     AL,byte [ES:BP+dpb_media]
         LDS     SI,[CALLBPB]
 ; ASSUME  DS:NOTHING
-        CMP     AL,byte [SI.BPMEDIA]
+        CMP     AL,byte [SI+BPMEDIA]
         JZ      DPBOK
         invoke  $SETDPB
         LDS     DI,[CALLXAD]            ; Get back buffer pointer
-        MOV     AL,byte ES:[BP.dpb_FAT_count]
-        MOV     AH,byte ES:[BP.dpb_FAT_size]
-        MOV     word [DI.BUFWRTCNT-BUFINSIZ],AX   ;Correct buffer info
+        MOV     AL,byte [ES:BP+dpb_FAT_count]
+        MOV     AH,byte [ES:BP+dpb_FAT_size]
+        MOV     word [DI+BUFWRTCNT-BUFINSIZ],AX   ;Correct buffer info
 DPBOK:
         context ds
         MOV     AX,-1
-        TEST    ES:[BP.dpb_current_dir],AX
+        TEST    [ES:BP+dpb_current_dir],AX
         retz                            ; If root, leave as root
-        MOV     ES:[BP.dpb_current_dir],AX    ; Path may be bad, mark invalid
+        MOV     [ES:BP+dpb_current_dir],AX    ; Path may be bad, mark invalid
         return
 
 FATERRJ: JMP    FATERR

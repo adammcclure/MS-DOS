@@ -205,12 +205,12 @@ EM386ll:
 
 	mov	bx,GDTD_GSEL		; get GDT data alias
 	mov	ds,bx			; DS -> GDT
-	mov	bx, [bp.VTFOE+VMTF_ES]	; Get VM ES from GP stack frame
+	mov	bx, [bp+VTFOE+VMTF_ES]	; Get VM ES from GP stack frame
 	mov	ax,bx
 	shl	bx,4			; BX = low 16 bits of base
-	mov	ds:[VM1_GSEL+2],bx	; place in descriptor
+	mov	[ds:VM1_GSEL+2],bx	; place in descriptor
 	shr	ax, 4			; AH = high 8 bits of base
-	mov	ds:[VM1_GSEL+4],ah	; place in descriptor
+	mov	[ds:VM1_GSEL+4],ah	; place in descriptor
 
 ;   Point DS:ESI to start of client's 386 loadall buffer
 	mov	bx,VM1_GSEL
@@ -225,7 +225,7 @@ EM386ll:
 	mov	es,ax
 	OP32
 	xor	di,di			; clear EDI
-	mov	di,ES:[ELOff]		; ES:EDI pts to our 386 loadall buffer
+	mov	di,[ES:ELOff]		; ES:EDI pts to our 386 loadall buffer
 ;
 	cld
 
@@ -358,7 +358,7 @@ CopyCac:				; ES:DI pts to our 386 buf cache entry
 
 	OP32
 	xor	di,di			    ; XOR EDI,EDI - clear EDI
-	mov	di,ES:[ELOff]		    ; ES:EDI pts to loadall buffer
+	mov	di,[ES:ELOff]		    ; ES:EDI pts to loadall buffer
 	dw	LODAL386		    ; execute 386 LOADALL
 
 	; ASSUME	DS:DGROUP

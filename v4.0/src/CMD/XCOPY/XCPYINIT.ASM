@@ -184,8 +184,8 @@ COUNTRY_INFO: times 34 db 0
 ;-------------------------------
 
 struc SUB_LIST;AN000;MSG RETRIEVER SUBSTITUTION LST
-	DB	11			;AN000;
-	DB	0			;AN000;
+	resb 1;AN000;
+	resb 1;AN000;
 DATA_OFF DW	0			;AN000; offset of data to be inserted
 DATA_SEG DW	0			;AN000; offset of data to be inserted
 MSG_ID	DB	0			;AN000; n of %n
@@ -723,7 +723,7 @@ MASSAGE_DISP_PATH:
 	    CALL    CHK_DRV_LETTER	;drive letter?
 ;	    $IF     NC			;yes. "D:filename",0 case
 	    JC $$IF73
-		MOV	byte DS:[SI], 0 ;make it "D:",0 since SI now points to the next chr
+		MOV	byte [DS:SI], 0 ;make it "D:",0 since SI now points to the next chr
 ;	    $ELSE			;no. "filename",0 case
 	    JMP SHORT $$EN73
 $$IF73:
@@ -791,13 +791,13 @@ GET_OPTIONS:
 	JE $$XL1
 	JMP $$IF78
 $$XL1:
-	    CMP     byte ES:[DI+BYTE],ALPHA_S ;AC000;"S"
+	    CMP     byte [ES:DI+BYTE],ALPHA_S ;AC000;"S"
 	    JNE     GO_A
 	    OR	    OPTION_FLAG, SLASH_S ;set the walk the tree bit on.
 	    MOV     SW_S,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    JMP     GO_EXIT		;AC000;
 GO_A:
-	    CMP     byte ES:[DI+BYTE],ALPHA_A ;AN000;"A"
+	    CMP     byte [ES:DI+BYTE],ALPHA_A ;AN000;"A"
 	    JNE     GO_M
 	    MOV     SW_A,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    TEST    OPTION_FLAG, SLASH_M ;hard archieve already on?
@@ -807,7 +807,7 @@ GO_A1:
 	    OR	    OPTION_FLAG, SLASH_A ;set soft archieve
 	    JMP     GO_EXIT		;AC000;
 GO_M:
-	    CMP     byte ES:[DI+BYTE],ALPHA_M ;AN000;"M"
+	    CMP     byte [ES:DI+BYTE],ALPHA_M ;AN000;"M"
 	    JNE     GO_P
 	    MOV     SW_M,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    TEST    OPTION_FLAG, SLASH_A ;soft archieve already on?
@@ -817,20 +817,20 @@ GO_M1:
 	    OR	    OPTION_FLAG, SLASH_M ;turn on the hard archieve bit.
 	    JMP     GO_EXIT		;AC000;
 GO_P:
-	    CMP     byte ES:[DI+BYTE],ALPHA_P ;AN000;"P"
+	    CMP     byte [ES:DI+BYTE],ALPHA_P ;AN000;"P"
 	    JNE     GO_E
 	    MOV     SW_P,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    OR	    OPTION_FLAG, SLASH_P
 	    OR	    MY_FLAG, SINGLE_COPY_FLAG ;if user want prompt, then should be single copy (not a multi copy).
 	    JMP     SHORT  GO_EXIT	;AC000;
 GO_E:
-	    CMP     byte ES:[DI+BYTE],ALPHA_E ;AN000;"E"
+	    CMP     byte [ES:DI+BYTE],ALPHA_E ;AN000;"E"
 	    JNE     GO_V
 	    MOV     SW_E,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    OR	    OPTION_FLAG, SLASH_E ;turn on "creating empty dir" bit.
 	    JMP     SHORT  GO_EXIT	;AC000;
 GO_V:
-	    CMP     byte ES:[DI+BYTE],ALPHA_V ;AN000;"V"
+	    CMP     byte [ES:DI+BYTE],ALPHA_V ;AN000;"V"
 	    JNE     GO_W
 	    MOV     SW_V,SPACE		;AN004;DISALLOW DUPLICATE SWITCHES
 	    MOV     AH, 54h		;get verify setting

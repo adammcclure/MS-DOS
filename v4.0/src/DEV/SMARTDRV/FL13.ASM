@@ -4,8 +4,8 @@
 
 
 memS	EQU	1		; Small model
-?PLM	=	0		; Standard 'C'
-?WIN	=	0		; Not windows
+?PLM equ 0; Standard 'C'
+?WIN equ 0; Not windows
 
 %include "cmacros.inc"
 

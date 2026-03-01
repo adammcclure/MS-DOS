@@ -26,9 +26,9 @@ SECTION .dosxxx
             %include "macros.inc"
 
 struc str
-Old_bp: dw 0
-Return: dd 0
-Ccode: dd 0; country code
+Old_bp: resw 1
+Return: resd 1
+Ccode: resd 1; country code
 endstruc
 
 dossetctrycode:

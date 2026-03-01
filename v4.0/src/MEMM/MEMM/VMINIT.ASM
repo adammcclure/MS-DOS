@@ -133,7 +133,7 @@ InitBitMap:
 ; initialize BitMapBase in Tss
 ;
 	mov	ax,IOBitMap
-	mov	ES:[bx.BitMapBase],ax		; set Bit Map base in Tss
+	mov	[ES:bx+BitMapBase],ax		; set Bit Map base in Tss
 ;
 ;  set ports for return to real trap
 ;

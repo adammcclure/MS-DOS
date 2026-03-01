@@ -100,7 +100,7 @@ DOFORSRCH:
         STOSW
 NDRV8:
         CALL    FCB_TO_ASCZ
-        MOV     byte ES:[DI-1],0DH
+        MOV     byte [ES:DI-1],0DH
         PUSH    ES
         POP     DS
 ; ASSUME  DS:RESGROUP
@@ -153,10 +153,10 @@ NOFORPARM:
         POP     DS
 ; ASSUME  DS:TRANGROUP
         JZ      NOECHO3
-        MOV     byte ES:[DI-1],'$'
+        MOV     byte [ES:DI-1],'$'
         MOV     DX,COMBUF+2
         CALL    PRINT
-        MOV     byte ES:[DI-1],0DH
+        MOV     byte [ES:DI-1],0DH
         JMP     DOCOM
 NOECHO3:
         JMP     DOCOM1
@@ -229,13 +229,13 @@ SETFORSCAN:
 NOFORSCAN:
         CALL    DELIM
         JNZ     FORSETLP
-        MOV     byte ES:[DI-1],0DH
+        MOV     byte [ES:DI-1],0DH
         CALL    SCANOFF
         JMP     FORSETLP
 
 FORSETEND:
         MOV     AX,000DH
-        CMP     byte ES:[DI-1],0DH
+        CMP     byte [ES:DI-1],0DH
         JNZ     FORSETTERM
         XOR     AX,AX
 FORSETTERM:
@@ -308,7 +308,7 @@ IFCOMP:
         JNZ     IFDIF
 FIRSTCOMP:
         LODSB
-        MOV     AH,ES:[DI]
+        MOV     AH,[ES:DI]
         INC     DI
         CMP     AL,AH
         JZ      IFLP
@@ -404,8 +404,8 @@ IFTRUE:
         CALL    SCANOFF
         MOV     CX,SI
         SUB     CX,81H
-        SUB     DS:[80H],CL
-        MOV     CL,DS:[80H]
+        SUB     [DS:80H],CL
+        MOV     CL,[DS:80H]
         MOV     [COMBUF+1],CL
         MOV     DI,COMBUF+2
         REP     MOVSB
@@ -474,7 +474,7 @@ SKIPCRLP:
         JNZ     SKIPCRLP
         CMP     byte [SI],0
         retz                            ; End of parms
-        MOV     ES:[DI],SI              ; Pointer to next parm as %9
+        MOV     [ES:DI],SI              ; Pointer to next parm as %9
         return
 
 
@@ -525,12 +525,12 @@ NEXTCHRLP:
         CALL    GETBATBYT
         POP     CX
         OR      AL,20H
-        CMP     AL,ES:[DI]
+        CMP     AL,[ES:DI]
         JNZ     TRYUPPER
         JMP     SHORT NEXTLABCHR
 TRYUPPER:
         SUB     AL,20H
-        CMP     AL,ES:[DI]
+        CMP     AL,[ES:DI]
         JNZ     LABLKTST
 NEXTLABCHR:
         INC     DI
@@ -547,7 +547,7 @@ TONEXTBATLIN:
 SKIPLFEED:
         CALL    GETBATBYT
 BATCLOSE:
-        MOV     BX,CS:[BATHAND]
+        MOV     BX,[CS:BATHAND]
         MOV     AH,CLOSE
         INT     int_command
         return
@@ -621,8 +621,8 @@ TESTDOREIN:
         JC      REDIRERR
         MOV     BX,AX
         MOV     AL,0FFH
-        XCHG    AL,[BX.PDB_JFN_Table]
-        MOV     DS:[PDB_JFN_Table],AL
+        XCHG    AL,[BX+PDB_JFN_Table]
+        MOV     [DS:PDB_JFN_Table],AL
         return
 
 REDIRERR:
@@ -656,8 +656,8 @@ REOUTCRT:
         MOV     BX,AX
 SET_REOUT:
         MOV     AL,0FFH
-        XCHG    AL,[BX.PDB_JFN_Table]
-        MOV     DS:[PDB_JFN_Table+1],AL
+        XCHG    AL,[BX+PDB_JFN_Table]
+        MOV     [DS:PDB_JFN_Table+1],AL
 NOREOUT:
         return
 

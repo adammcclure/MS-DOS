@@ -108,10 +108,10 @@ MAX_DEV_TYPE		EQU	7	; MAXIMUM DEVICE TYPE THAT WE
 ;J.K. Bug in MASM 3.  A_BPB will be defined in PASS1 and, in PASS2 the
 ;compiler does not include BPB.INC and it will be treated as undefined.
 %if 1  ; IF1 - pass-specific
-	BPBINPASS1 = 0
+	BPBINPASS1 equ 0
 	%ifndef A_BPB
 	    %include "BPB.INC"
-	    BPBINPASS1 = 1
+	    BPBINPASS1 equ 1
 	%endif
 %else
 	%if BPBINPASS1
@@ -120,49 +120,49 @@ MAX_DEV_TYPE		EQU	7	; MAXIMUM DEVICE TYPE THAT WE
 %endif
 
 struc A_SECTORTABLE
-ST_SECTORNUMBER: dw 0
-ST_SECTORSIZE: dw 0
+ST_SECTORNUMBER: resw 1
+ST_SECTORSIZE: resw 1
 endstruc
 
 struc A_DEVICEPARAMETERS
-DP_SPECIALFUNCTIONS: db 0
-DP_DEVICETYPE: db 0
-DP_DEVICEATTRIBUTES: dw 0
-DP_CYLINDERS: dw 0
-DP_MEDIATYPE: db 0
+DP_SPECIALFUNCTIONS: resb 1
+DP_DEVICETYPE: resb 1
+DP_DEVICEATTRIBUTES: resw 1
+DP_CYLINDERS: resw 1
+DP_MEDIATYPE: resb 1
 DP_BPB			DB	A_BPB_size DUP (?)
-DP_TRACKTABLEENTRIES: dw 0
+DP_TRACKTABLEENTRIES: resw 1
 DP_SECTORTABLE		DB MAX_SECTORS_IN_TRACK * A_SECTORTABLE_size DUP (?)
 endstruc
 
 struc A_TRACKREADWRITEPACKET
-TRWP_SPECIALFUNCTIONS: db 0
-TRWP_HEAD: dw 0
-TRWP_CYLINDER: dw 0
-TRWP_FIRSTSECTOR: dw 0
-TRWP_SECTORSTOREADWRITE: dw 0
-TRWP_TRANSFERADDRESS: dd 0
+TRWP_SPECIALFUNCTIONS: resb 1
+TRWP_HEAD: resw 1
+TRWP_CYLINDER: resw 1
+TRWP_FIRSTSECTOR: resw 1
+TRWP_SECTORSTOREADWRITE: resw 1
+TRWP_TRANSFERADDRESS: resd 1
 endstruc
 
 ;AN001; - FP_TRACKCOUNT is only meaningful when FP_SPECIALFUNCTIONS bit 1 = 1.
 struc A_FORMATPACKET
-FP_SPECIALFUNCTIONS: db 0
-FP_HEAD: dw 0
-FP_CYLINDER: dw 0
+FP_SPECIALFUNCTIONS: resb 1
+FP_HEAD: resw 1
+FP_CYLINDER: resw 1
 FP_TRACKCOUNT		DW	1
 endstruc
 
 struc A_VERIFYPACKET
-VP_SPECIALFUNCTIONS: db 0
-VP_HEAD: dw 0
-VP_CYLINDER: dw 0
+VP_SPECIALFUNCTIONS: resb 1
+VP_HEAD: resw 1
+VP_CYLINDER: resw 1
 endstruc
 
 struc A_MEDIA_ID_INFO
 MI_LEVEL		DW	0		;J.K. 87 Info. level
-MI_SERIAL: dd 0;J.K. 87 Serial #
-MI_LABEL: times 11 db ' ';J.K. 87 volume label
-MI_SYSTEM: times 8 db ' ';J.K. 87 File system type
+MI_SERIAL: resd 1;J.K. 87 Serial #
+MI_LABEL: resb 11;J.K. 87 volume label
+MI_SYSTEM: resb 8;J.K. 87 File system type
 endstruc
 
 struc A_DISKACCESS_CONTROL;AN002; Unpublished function. Only for Hard file.
@@ -179,7 +179,7 @@ GET_RETRY_COUNT 	EQU	65H
 SET_RETRY_COUNT 	EQU	45H
 
 struc A_RETRYCOUNT
-RC_COUNT: dw 0
+RC_COUNT: resw 1
 endstruc
 
 ;********************************;*		;J.K. 4/29/86

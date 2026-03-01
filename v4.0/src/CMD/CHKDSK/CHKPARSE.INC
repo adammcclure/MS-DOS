@@ -97,12 +97,12 @@ Command_Line_Parms	equ	81h		;				;an000;bgb;AN000;
 										;an000;bgb
 struc Control;an000;bgb
 										;an000;bgb
-Match_Flags: dw 0;an000;bgb
-Function_Flags: dw 0;an000;bgb
-Result: dw 0;an000;bgb
-Values: dw 0;an000;bgb
-Num_Keywords: db 0;an000;bgb
-Keyword: db 0;an000;bgb
+Match_Flags: resw 1;an000;bgb
+Function_Flags: resw 1;an000;bgb
+Result: resw 1;an000;bgb
+Values: resw 1;an000;bgb
+Num_Keywords: resb 1;an000;bgb
+Keyword: resb 1;an000;bgb
 										;an000;bgb
 endstruc;an000;bgb
 										;an000;bgb
@@ -135,7 +135,7 @@ struc Switch_Return;				;an000;bgb;AN000;
 Switch_Type	db	0			;				;an000;bgb;AN000;
 Switch_Item_Tag db	0			;				;an000;bgb;AN000;
 Switch_Pointer	dw	0			;				;an000;bgb;AN000;
-Switch_Debug: times 4 db 0;an000;bgb
+Switch_Debug: resb 4;an000;bgb
 endstruc;				;an000;bgb;AN000;
 										;an000;bgb
 struc Switch_Num_Return;				;an000;bgb;AN000;

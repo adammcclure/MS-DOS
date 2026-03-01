@@ -252,7 +252,7 @@ EMM_pEntry:
 ;
 	push	ebp
 	mov	bp,sp
-	test	[bp.VTFO+VMTF_EFLAGShi],2	;Q:client in Virtual mode ?
+	test	[bp+VTFO+VMTF_EFLAGShi],2	;Q:client in Virtual mode ?
 	jz	EpE_not_VM			;  N: handle it
 						;  Y: check flag
 	push	VDMD_GSEL
@@ -270,13 +270,13 @@ EMM_pEntry:
 EpE_chk_func:
 	HwTabUnlock		; unlock ROM
 
-	push	[bp.VTFO+VMTF_FS]		; client FS
-	push	[bp.VTFO+VMTF_GS]		; client GS
-	push	[bp.VTFO+VMTF_ES]		; client ES
-	push	[bp.VTFO+VMTF_DS]		; client DS
-	push	[bp.VTFO+VMTF_EFLAGS]		; client Flag
-	push	[bp.VTFO+VMTF_CS]		; client CS
-	push	word [bp.VTFO+VMTF_EIP]	; client IP (low word of EIP)
+	push	[bp+VTFO+VMTF_FS]		; client FS
+	push	[bp+VTFO+VMTF_GS]		; client GS
+	push	[bp+VTFO+VMTF_ES]		; client ES
+	push	[bp+VTFO+VMTF_DS]		; client DS
+	push	[bp+VTFO+VMTF_EFLAGS]		; client Flag
+	push	[bp+VTFO+VMTF_CS]		; client CS
+	push	word [bp+VTFO+VMTF_EIP]	; client IP (low word of EIP)
 				; stack has - IP,CS,PFlag,DS,ES,GS,FS
 	pushad			; all regs saved
 	mov	bp,sp		; SS:BP -> to stack args (see r67_Frame struc)
@@ -285,7 +285,7 @@ EpE_chk_func:
 
 	push	ax
 	mov	ax, PFLAG_VIRTUAL		; Faked VM bit
-	or	[bp.PFlag], ax			; Incorpated in PFlag
+	or	[bp+PFlag], ax			; Incorpated in PFlag
 	pop	ax
 	;
 	; validate function code
@@ -310,27 +310,27 @@ EpE_jump:
 	; check to see if we need to patch CS:IP on the iretd stack frame
 	;
 EpE_Exit:
-	test	word [bp.PFlag], PFLAG_PATCH_CS_IP
+	test	word [bp+PFlag], PFLAG_PATCH_CS_IP
 	jz	EpE_No_Patch
 
 	mov	bp, sp		; use bp to address stack
 	;
 	; patch iretd's CS:EIP to new CS:IP on stack
 	;
-	mov	ax, [bp.retaddr]	; get return IP
-	mov	[bp.rFS+6], ax		; iretd's IP (6 bytes beyond FS)
+	mov	ax, [bp+retaddr]	; get return IP
+	mov	[bp+rFS+6], ax		; iretd's IP (6 bytes beyond FS)
 	xor	ax, ax
-	mov	[bp.rFS+8], ax		; zero high word of EIP
-	mov	ax, [bp.rCS]		; get return CS
-	mov	[bp.rFS+10], ax		; iretd's CS
+	mov	[bp+rFS+8], ax		; zero high word of EIP
+	mov	ax, [bp+rCS]		; get return CS
+	mov	[bp+rFS+10], ax		; iretd's CS
 
 EpE_No_Patch:
 	popad			; restore regs
 	add	sp, 6		; throw away return addr cs and ip and flags
-	pop	[bp.VTFO+VMTF_DS]		; client DS
-	pop	[bp.VTFO+VMTF_ES]		; client ES
-	pop	[bp.VTFO+VMTF_GS]		; client GS
-	pop	[bp.VTFO+VMTF_FS]		; client FS
+	pop	[bp+VTFO+VMTF_DS]		; client DS
+	pop	[bp+VTFO+VMTF_ES]		; client ES
+	pop	[bp+VTFO+VMTF_GS]		; client GS
+	pop	[bp+VTFO+VMTF_FS]		; client FS
 
 
 	pop	ebp		; restore bp
@@ -346,7 +346,7 @@ EpE_Null:
 ; EMM error handling
 ;
 EpE_inv_exit:				; set invalid function code error
-	mov	byte [bp.rAX+1],INVALID_FUNCTION
+	mov	byte [bp+rAX+1],INVALID_FUNCTION
 	jmp	EpE_Exit
 
 ; ENDP EMM_pEntry

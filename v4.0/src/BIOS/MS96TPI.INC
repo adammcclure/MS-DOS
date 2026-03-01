@@ -19,7 +19,7 @@ DSK$OPEN:				;ARR 2.41
 	MESSAGE FTESTDISK,<CR,LF>
 ; AL IS LOGICAL DRIVE
 	CALL	SETDRIVE		;GET BDS FOR DRIVE
-	INC	word DS:[DI].OPCNT
+	INC	word [DS:DI].OPCNT
 	JMP	EXIT			;ARR 2.41
 
 DSK$CLOSE:				;ARR 2.41
@@ -30,9 +30,9 @@ DSK$CLOSE:				;ARR 2.41
 	MESSAGE FTESTDISK,<CR,LF>
 ; AL IS LOGICAL DRIVE
 	CALL	SETDRIVE		;GET BDS FOR DRIVE
-	CMP	word DS:[DI].OPCNT,0
+	CMP	word [DS:DI].OPCNT,0
 	JZ	EXITJX			; WATCH OUT FOR WRAP  ARR 2.41
-	DEC	word DS:[DI].OPCNT
+	DEC	word [DS:DI].OPCNT
 EXITJX:
 	JMP	EXIT
 
@@ -43,7 +43,7 @@ CHKOPCNT:
 	MESSAGE FTEST96,<"CHECK OPEN COUNT ">
 	MNUM	FTEST96,AX
 	MESSAGE FTEST96,<CR,LF>
-	CMP	word DS:[DI].OPCNT,0
+	CMP	word [DS:DI].OPCNT,0
 	RET
 
 ;
@@ -61,7 +61,7 @@ MEDIACHECK:
 	PUSH	AX
 	PUSH	DX
 ;SB33001****************************************************************
-	mov	DL, DS:[DI.drivenum] ;SB   ; set logical drive number	  ;3.30*
+	mov	DL, [DS:DI+drivenum] ;SB   ; set logical drive number	  ;3.30*
 	mov	AH, 16h 	 ;SB	   ; get changeline status	  ;3.30*
 	int	13h		 ;SB	   ; call rom diskette routine	  ;3.30*
 ;SB33001****************************************************************
@@ -77,7 +77,7 @@ MEDIACHECK:
 ; STATUS.
 	global LOSECHNG
 LOSECHNG:
-	MOV	BL,CS:[TIM_DRV] 	; GET LAST DRIVE ACCESSED
+	MOV	BL,[CS:TIM_DRV] 	; GET LAST DRIVE ACCESSED
 	CMP	byte [DI].DRIVENUM,BL
 	JZ	MEDIARET
 ; DO THE 2 SECOND TWIDDLE. IF TIME >= 2 SECONDS, DO A VOLID CHECK.
@@ -182,14 +182,14 @@ CHECK_VID:
 ;SB	with code below
 ;SB		2 LOCS
 
-	cmp	cs:[Ext_Boot_Sig],Ext_Boot_Signature
+	cmp	[cs:Ext_Boot_Sig],Ext_Boot_Signature
 	jz	Do_Ext_Check_Id
 ;SB34MS96TPI001*********************************************************
 	call	HasChange			;AN000;
 	jz	CheckRet			;AN000;
 
 	xor	si,si				;AN000; assume I don't know.
-	cmp	byte cs:[SECPERCLUSINSECTOR]+3,0 ;AN000; Don't read vol id from
+	cmp	byte [cs:SECPERCLUSINSECTOR]+3,0 ;AN000; Don't read vol id from
 	je	CHECKFATRET			;AN000; the directory if not FAT system
 	CALL	READ_VOLUME_ID
 	JC	CHECKFATRET
@@ -204,7 +204,7 @@ VID_NO_Changed:
 CHECKFATRET:
 	RET
 CHANGED_DRV:
-	MOV	CS:[TIM_DRV],-1 		; ENSURE THAT WE ASK ROM FOR MEDIA
+	MOV	[CS:TIM_DRV],-1 		; ENSURE THAT WE ASK ROM FOR MEDIA
 	RET					; CHECK NEXT TIME ROUND
    ;
    ; extended ID check
@@ -227,11 +227,11 @@ Do_Ext_Check_ID:				;AN000;
 ;SB		7 LOCS
 ;SB	BDS fields in inc\msbds.inc
 
-	mov	ax,cs:[Boot_Serial_L]
-	cmp	ax,word ds:[di+VOL_SERIAL]
+	mov	ax,[cs:Boot_Serial_L]
+	cmp	ax,word [ds:di+VOL_SERIAL]
 	jnz	Ext_Changed
-	mov	ax,cs:[Boot_Serial_H]
-	cmp	ax,word ds:[di+VOL_SERIAL+2]
+	mov	ax,[cs:Boot_Serial_H]
+	cmp	ax,word [ds:di+VOL_SERIAL+2]
 	jnz	Ext_Changed
 	xor	si,si			; don't know
 
@@ -287,9 +287,9 @@ RETURNVID:
 	PUSH	DI
 	PUSH	CX
 	CALL	INIT_VID_LOOP		; SETS ES:DI -> VID
-	LDS	BX,CS:[PTRSAV]
-	MOV	[BX.EXTRA],DI
-	MOV	[BX.EXTRA+2],ES
+	LDS	BX,[CS:PTRSAV]
+	MOV	[BX+EXTRA],DI
+	MOV	[BX+EXTRA+2],ES
 	POP	CX
 	POP	DI			; RESTORE CURRENT BDS
 	POP	DS
@@ -335,9 +335,9 @@ MEDIA_SET_VID:				; ARR 2.42
 	global MEDIA_SET_VID
 
 	CALL	INIT_VID_LOOP		; SETS ES:DI -> VID
-	LDS	BX,CS:[PTRSAV]		; GET POINTER TO PACKET
-	MOV	word [BX.TRANS+1],DI
-	MOV	word [BX.TRANS+3],ES
+	LDS	BX,[CS:PTRSAV]		; GET POINTER TO PACKET
+	MOV	word [BX+TRANS+1],DI
+	MOV	word [BX+TRANS+3],ES
 	RET
 
 
@@ -365,13 +365,13 @@ HIDENSITY:
 ;
 ; CHECK FOR CORRECT DRIVE
 ;
-	TEST	word DS:[DI].FLAGS,FCHANGELINE	; IS IT SPECIAL?
+	TEST	word [DS:DI].FLAGS,FCHANGELINE	; IS IT SPECIAL?
 	JZ	DOFLOPPY		; NO, DO NORMAL FLOPPY TEST
 ;
 ; WE HAVE A MEDIA BYTE THAT IS PRETTY COMPLEX.	EXAMINE DRIVE INFORMATION
 ; TABLE TO SEE WHAT KIND IT IS.
 ;
-	CMP	byte DS:[DI].FORMFACTOR,FFSMALL;  IS IT SINGLE-MEDIA?
+	CMP	byte [DS:DI].FORMFACTOR,FFSMALL;  IS IT SINGLE-MEDIA?
 	JZ	DOFLOPPY		; YES, USE FATID...
 ;
 ; 96 TPI DRIVE
@@ -426,7 +426,7 @@ B:	POPF				; NO, SOME OTHER ERROR, IGNORE IT
 	JMP	OLDINT			; RETURN AND POP OFF FLAGS
 GOTERR: OR	DL,DL			; IS THIS FOR THE HARD DISK?
 	JS	B			; YES, IGNORE
-	MOV	word CS:[FLAGBITS],FCHANGED
+	MOV	word [CS:FLAGBITS],FCHANGED
 	CALL	SET_CHANGED_DL
 	JMP	B
 ; ENDP INT13
@@ -448,7 +448,7 @@ SET_CHANGED_DL:
 	PUSH	DX
 	MOV	BL,DL
 ALL_SET:
-	MOV	DX,CS:[FLAGBITS]	; GET BITS TO SET IN FLAG FIELD
+	MOV	DX,[CS:FLAGBITS]	; GET BITS TO SET IN FLAG FIELD
 	XOR	BH,BH
 ;
 ; IN THE VIRTUAL DRIVE SYSTEM WE *MUST* FLAG THE OTHER DRIVES AS BEING CHANGED
@@ -457,7 +457,7 @@ ALL_SET:
 	PUSH	AX
 	PUSH	DS		    ; SAVE CURRENT BDS
 	PUSH	DI
-	LDS	DI,dword CS:[START_BDS]
+	LDS	DI,dword [CS:START_BDS]
 SCAN_BDS:
 	CMP	DI,-1
 	JZ	SKIPSET
@@ -468,7 +468,7 @@ SCAN_BDS:
 ; NOTED.  THERE ARE *NO* OTHER COMPROMISING CIRCUMSTANCES.
 ;
 SETCHANGED:
-	OR	word DS:[DI].FLAGS,DX	; SIGNAL CHANGE ON OTHER DRIVE
+	OR	word [DS:DI].FLAGS,DX	; SIGNAL CHANGE ON OTHER DRIVE
 GET_NEXT_BDS:
 	MOV	AX,word [DI].LINK+2   ; GO TO NEXT BDS
 	MOV	DI,word [DI].LINK
@@ -509,7 +509,7 @@ RESETCHANGED:
 	MESSAGE FTEST13,<"RESETCHANGED ">
 	MNUM	FTEST13
 	MESSAGE FTEST13,<CR,LF>
-	AND	word DS:[DI].FLAGS,NOT FCHANGED
+	AND	word [DS:DI].FLAGS,NOT FCHANGED
 	RET
 
 ;

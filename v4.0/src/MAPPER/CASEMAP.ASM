@@ -28,11 +28,11 @@ SECTION .dosxxx
         %include "macros.inc"
 
 struc str
-old_bp: dw 0
-return: dd 0
-StringPtr: dd 0; binary string pointer
-CountryCodePtr: dd 0; country code pointer
-StringLength: dw 0; lenght of the string
+old_bp: resw 1
+return: resd 1
+StringPtr: resd 1; binary string pointer
+CountryCodePtr: resd 1; country code pointer
+StringLength: resw 1; lenght of the string
 endstruc
 
 DosCaseMap:
@@ -42,7 +42,7 @@ DosCaseMap:
 ; Get the country, so we can then get the country case map stuff
 
         lds     si,[bp].CountryCodePtr
-        mov     ax,ds:[si]
+        mov     ax,[ds:si]
 
 ; Note: do the country selection later (maybe never)
 
@@ -58,7 +58,7 @@ MapLoop:                                ; convert characters to upper case
         jnc     ThisCharDone
 
         add     al,'A' - 'a'
-        mov     ds:[si-1],al
+        mov     [ds:si-1],al
 
 ThisCharDone:
         loop    MapLoop                 ; loop until string is complete

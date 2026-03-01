@@ -99,7 +99,7 @@ NOSTOP:
         CMP     AL,"P"-"@"
         JZ      INCHK
 
-        %if NOT TOGLPRN
+        %if ~TOGLPRN
         CMP     AL,"N"-"@"
         JZ      INCHK
         %endif
@@ -159,7 +159,7 @@ INCHK:
         invoke  IOFUNC
         CMP     AL,'P'-'@'
         JZ      PRINTON
-        %if NOT TOGLPRN
+        %if ~TOGLPRN
         CMP     AL,'N'-'@'
         JZ      PRINTOFF
         %endif
@@ -301,35 +301,35 @@ ctrlc_new:
         CMP     DI,WRECODE              ; Write Protect Error?
         JNZ     NOSETWRPERR
         PUSH    AX
-        MOV     AL,ES:[BP.dpb_drive]
+        MOV     AL,[ES:BP+dpb_drive]
         MOV     byte [WPERR],AL              ; Flag drive with WP error
         POP     AX
 NOSETWRPERR:
         SUB     AX,CX                   ; Number of sectors successfully transferred
         ADD     DX,AX                   ; First sector number to retry
         PUSH    DX
-        MUL     ES:[BP.dpb_sector_size]          ; Number of bytes transferred
+        MUL     [ES:BP+dpb_sector_size]          ; Number of bytes transferred
         POP     DX
         ADD     BX,AX                   ; First address for retry
         XOR     AH,AH                   ; Flag disk section in error
-        CMP     DX,ES:[BP.dpb_first_FAT]    ; In reserved area?
+        CMP     DX,[ES:BP+dpb_first_FAT]    ; In reserved area?
         JB      ERRINT
         INC     AH                      ; Flag for FAT
-        CMP     DX,ES:[BP.dpb_dir_sector]   ; In FAT?
+        CMP     DX,[ES:BP+dpb_dir_sector]   ; In FAT?
         JB      ERRINT
         INC     AH
-        CMP     DX,ES:[BP.dpb_first_sector]       ; In directory?
+        CMP     DX,[ES:BP+dpb_first_sector]       ; In directory?
         JB      ERRINT
         INC     AH                      ; Must be in data area
 ERRINT:
         SHL     AH,1                    ; Make room for read/write bit
         OR      AH,byte [READOP]
         entry   FATAL
-        MOV     AL,ES:[BP.dpb_drive]      ; Get drive number
+        MOV     AL,[ES:BP+dpb_drive]      ; Get drive number
         entry   FATAL1
         MOV     word [EXITHOLD+2],ES
         MOV     word [EXITHOLD],BP  ; The only things we preserve
-        LES     SI,ES:[BP.dpb_driver_addr]
+        LES     SI,[ES:BP+dpb_driver_addr]
         MOV     BP,ES                   ; BP:SI points to the device involved
 FATALC:
         CMP     byte [ERRORMODE],0
@@ -343,10 +343,10 @@ FATALC:
         DEC     byte [INDOS]        ; INT 24 handler might not return
         MOV     SS,[user_SS]
 ; ASSUME  SS:NOTHING
-        MOV     SP,ES:[user_SP]         ; User stack pointer restored
+        MOV     SP,[ES:user_SP]         ; User stack pointer restored
         INT     int_fatal_abort         ; Fatal error interrupt vector, must preserve ES
-        MOV     ES:[user_SP],SP         ; restore our stack
-        MOV     ES:[user_SS],SS
+        MOV     [ES:user_SP],SP         ; restore our stack
+        MOV     [ES:user_SS],SS
         MOV     SP,ES
         MOV     SS,SP
 ; ASSUME  SS:DOSGROUP
@@ -397,7 +397,7 @@ NOSWAP2:
 
         MOV     BX,[CurrentPDB]         ; get current process
         MOV     DS,BX                   ;
-        MOV     AX,DS:[PDB_Parent_PID]  ; get parent to return to
+        MOV     AX,[DS:PDB_Parent_PID]  ; get parent to return to
         POP     CX
 ;
 ; AX = parentPDB, BX = CurrentPDB, CX = ThisPDB
@@ -443,8 +443,8 @@ reset_return:                           ; come here for normal return
 ;
         MOV     DS,[CurrentPDB]
         ; ASSUME  DS:NOTHING
-        MOV     SS,word DS:[PDB_user_stack+2]
-        MOV     SP,word DS:[PDB_user_stack]
+        MOV     SS,word [DS:PDB_user_stack+2]
+        MOV     SP,word [DS:PDB_user_stack]
 
         ; ASSUME  SS:NOTHING
         invoke  restore_world

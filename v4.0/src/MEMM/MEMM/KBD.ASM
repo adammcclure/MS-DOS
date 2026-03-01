@@ -212,7 +212,7 @@ AccChTbl:
 ;PCType 	db	?	; type of PC running on
 PCType		db	0fch	; type of PC running on
 
-PC_AT	= 0FCh			;if anything else, assume PC/XT
+PC_AT equ 0FCh;if anything else, assume PC/XT
 
 ;Accent 	db	0	; set for accent key, =0 for none.
 ;AccentKey	dw	?	; last accent key pressed
@@ -497,13 +497,13 @@ KbI21:
 	inc	si			; Advance to next entry
 	cmp	si, AltChrsEnd
 	jae	KbI22			;at end of table, so no remap
-	cmp	ah, cs:[si]
+	cmp	ah, [cs:si]
 	jne	KbI21			;this isn't it so loop
 ;	Found character, so do the mapping
 	sub	si, AltChrs
 	add	si, AltMap	;get index into remaped table
 	pop	ax			;get scan code
-	mov	al, cs:[si]		;get new character to use
+	mov	al, [cs:si]		;get new character to use
 	jmp	PutKRet
 KbI22:
 	pop	ax
@@ -511,10 +511,10 @@ KbI23:
 
 ;	les	si,[KeyVector]
 	mov	si, KeyMapTable
-	mov	cx,cs:[si+bx]		;(cx) = lc, uc bytes
+	mov	cx,[cs:si+bx]		;(cx) = lc, uc bytes
 	mov	al,cl			;(al) = lc code for key
 	mov	dl,[KeyState]		;(dl) = keyboard flags
-	jmp	word cs:[si+bx+2]	;Call appropriate key handler
+	jmp	word [cs:si+bx+2]	;Call appropriate key handler
 ;***
 ;	for all key handler routines,
 ;
@@ -757,8 +757,8 @@ XBoot:					; Reboot system.
 ;
 ;   Set up entry point after the reset
 ;
-	mov	ds:[67h],0EA81h 	; offset of CTRL-ALT-DEL entry point
-	mov	ds:[67h+2],0F000h	; segment of CTRL-ALT-DEL entry point
+	mov	[ds:67h],0EA81h 	; offset of CTRL-ALT-DEL entry point
+	mov	[ds:67h+2],0F000h	; segment of CTRL-ALT-DEL entry point
 ;
 ;   Reset the CPU
 ;
@@ -1574,19 +1574,19 @@ kgetc:
 	mov	ds, bx			; DS -> ROM data area
 
 	cli
-	mov	bx, ds:[KbHead] 	; bx = start of buffer
-	cmp	bx, ds:[KbTail] 	; is buffer empty
+	mov	bx, [ds:KbHead] 	; bx = start of buffer
+	cmp	bx, [ds:KbTail] 	; is buffer empty
 ;*	sti
 	jz	ge1
 
 	cli
 	mov	ax, [bx]		; AX = character and scan code
 	add	bx, 2			; step buffer pointer
-	cmp	bx, ds:[KbEnd]		; is it at end of buffer
+	cmp	bx, [ds:KbEnd]		; is it at end of buffer
 	jne	ge2
-	mov	bx, ds:[KbStart]	; move it back to start
+	mov	bx, [ds:KbStart]	; move it back to start
 ge2:
-	mov	ds:[KbHead], bx 	; store new start pointer
+	mov	[ds:KbHead], bx 	; store new start pointer
 ;*	sti
 	and	bx, 0ffffh		; just to clear zero flag
 ge1:

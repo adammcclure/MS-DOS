@@ -27,11 +27,11 @@
 struc IFSHEADER
 IFS_NEXT	DD	-1	; Next header in list (-1=end)
 IFS_NAME	DB	"        " ; IFS name
-IFS_ATTRIBUTE: dw 0; Attributes
+IFS_ATTRIBUTE: resw 1; Attributes
 IFS_VERSION	DW	0	; Request level supported
-IFS_DOSCALL@: dd 0; DOS interface routine
+IFS_DOSCALL@: resd 1; DOS interface routine
 				;   (set by TUPPER before the init call)
-IFS_CALL@: dw 0; Function entry point
+IFS_CALL@: resw 1; Function entry point
 endstruc
 
 ;=====================
@@ -39,12 +39,12 @@ endstruc
 ;=====================
 
 struc IFSRH
-IFSR_LENGTH: dw 0; Total length of request
-IFSR_FUNCTION: db 0; Requested function
-IFSR_RETCODE: db 0; Explicit error
-IFSR_RETCLASS: db 0; Error class
-IFSR_RESV1: times 17 db 0; DOS reserved
-IFSR_FCN_PARMS: times 38 db 0; Additional parameters
+IFSR_LENGTH: resw 1; Total length of request
+IFSR_FUNCTION: resb 1; Requested function
+IFSR_RETCODE: resb 1; Explicit error
+IFSR_RETCLASS: resb 1; Error class
+IFSR_RESV1: resb 17; DOS reserved
+IFSR_FCN_PARMS: resb 38; Additional parameters
 endstruc
 
 ; IFSR_FUNCTION codes
@@ -56,7 +56,7 @@ IFSEXECAPI     EQU     4
 IFSCRITMSG     EQU     5
 IFSCBUPDATE    EQU     6
 ; INIT function.
-IFSR_PARMS@	   =  dword  IFSR_FCN_PARMS    ; command parameters
-IFSR_RESSIZE	   =  word  IFSR_FCN_PARMS+4  ; driver total size
+IFSR_PARMS@ equ dword  IFSR_FCN_PARMS; command parameters
+IFSR_RESSIZE equ word  IFSR_FCN_PARMS+4; driver total size
 LENGTH_INIT	   EQU IFSR_RESSIZE-IFSRH+2
 

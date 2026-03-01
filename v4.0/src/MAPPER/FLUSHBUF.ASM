@@ -25,9 +25,9 @@ savedkbdinput:
 
 
 struc str
-old_bp: dw 0
-return: dd 0
-handle: dw 0; kbd handle
+old_bp: resw 1
+return: resd 1
+handle: resw 1; kbd handle
 endstruc
 
 kbdflushbuffer:

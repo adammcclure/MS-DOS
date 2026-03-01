@@ -244,10 +244,10 @@ set_src_selector:
 	push	di
 	mov	di,gdt2_mb ; cs:di -> source seg descriptor
 set_entry:
-	mov	cs:[di.BASE_LOW],ax	   ; Store base address bits 15:00
-	mov	cs:[di.BASE_HIGH],dl	   ; Store base address bits 23:16
-	mov	cs:[di.LIMIT],cx	   ; Store size
-	sub	cs:[di.LIMIT],1 	   ; subtract 1 => convert to limit
+	mov	[cs:di+BASE_LOW],ax	   ; Store base address bits 15:00
+	mov	[cs:di+BASE_HIGH],dl	   ; Store base address bits 23:16
+	mov	[cs:di+LIMIT],cx	   ; Store size
+	sub	[cs:di+LIMIT],1 	   ; subtract 1 => convert to limit
 ;
 	pop	di
 	ret				; *** Return ***
@@ -276,7 +276,7 @@ set_dest_selector:
 ;
 	push	di
 	mov	di,gdt3_mb	; cs:di -> source seg descriptor
-	mov	cs:[di.BASE_XHI],dh	; bits 24-31
+	mov	[cs:di+BASE_XHI],dh	; bits 24-31
 	jmp	set_entry		; set this entry in gdt_mb
 ;
 	ret				; *** Return ***

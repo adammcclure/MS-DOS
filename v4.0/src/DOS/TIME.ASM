@@ -47,7 +47,7 @@ SECTION .CODE
     i_need  MONTAB,12
     i_need  DATE_FLAG,WORD
 
-    FOURYEARS = 3*365 + 366
+    FOURYEARS equ 3*365 + 366
 
 ; SUBTTL DATE AND TIME - SYSTEM CALLS 42,43,44,45
 ; PAGE
@@ -70,9 +70,9 @@ SECTION .CODE
 	MOV	BX,word [DAY]	; fetch both day and month
 	invoke	get_user_stack		;Get pointer to user registers
 ; ASSUME	DS:NOTHING
-	MOV	[SI.user_DX],BX 	;DH=month, DL=day
+	MOV	[SI+user_DX],BX 	;DH=month, DL=day
 	ADD	AX,1980 		;Put bias back
-	MOV	[SI.user_CX],AX 	;CX=year
+	MOV	[SI+user_CX],AX 	;CX=year
 	MOV	AL,byte [WEEKDAY]
 	return
 EndProc $GET_DATE
@@ -116,8 +116,8 @@ EndProc $SET_DATE
 	Context DS
 	CALL	READTIME
 	invoke	get_user_stack		;Get pointer to user registers
-	MOV	[SI.user_DX],DX
-	MOV	[SI.user_CX],CX
+	MOV	[SI+user_DX],DX
+	MOV	[SI+user_CX],CX
 	XOR	AL,AL
 RET26:	return
 EndProc $GET_TIME

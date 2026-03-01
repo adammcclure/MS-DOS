@@ -30,12 +30,12 @@ SECTION .dosxxx
             ; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-Written: dd 0; number of bytes actually written
-Bufflng: dw 0; number of bytes to be written
-Buffer: dd 0; write buffer address
-Handle: dw 0; file handle
+old_bp: resw 1
+return: resd 1
+Written: resd 1; number of bytes actually written
+Bufflng: resw 1; number of bytes to be written
+Buffer: resd 1; write buffer address
+Handle: resw 1; file handle
 endstruc
 
 doswrite:

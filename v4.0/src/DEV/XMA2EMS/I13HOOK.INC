@@ -98,7 +98,7 @@ I13_Target_Source_Loop:
 	cmp	cx,0				;at end?			;an000; dms;
 	je	I13_Target_Source_Not_EMS_Page	;yes - source/target not in pg	;an000; dms;
 
-	mov	ax,ds:[si].Phys_Page_Segment	;get the segment value		;an000; dms;
+	mov	ax,[ds:si].Phys_Page_Segment	;get the segment value		;an000; dms;
 	mov	bx,es				;				;an000; dms;
 	cmp	bx,ax				;source/target > EMS page?	;an000; dms;
 	jb	I13_Target_Source_Not_EMS_Page	;no - we are OK for old INT 13	;an000; dms;
@@ -396,19 +396,19 @@ I13_Get_Dev_Parms:;get sectors/track & head cnt.	;an000; dms;
 
 I13_Get_Dev_Next_Entry:
 
-	cmp	ds:[di].Drivenum,dl		;do we have our drive?		;an000; dms;
+	cmp	[ds:di].Drivenum,dl		;do we have our drive?		;an000; dms;
 	je	I13_Get_Dev_Save_Parms		;yes get data			;an000; dms;
-	cmp	word ds:[di].Link[+0],-1	;last entry in list?		;an000; dms;
+	cmp	word [ds:di].Link[+0],-1	;last entry in list?		;an000; dms;
 	je	I13_Get_Dev_Parms_Error_Exit	;yes - did not find drive	;an000; dms;
-	mov	ax,word ds:[di].Link[+0]	;get offset of next entry	;an000; dms;
-	mov	bx,word ds:[di].Link[+2]	;get segment of next entry	;an000; dms;
+	mov	ax,word [ds:di].Link[+0]	;get offset of next entry	;an000; dms;
+	mov	bx,word [ds:di].Link[+2]	;get segment of next entry	;an000; dms;
 	mov	ds,bx				;stuff into ds:di		;an000; dms;
 	mov	di,ax				;				;an000; dms;
 	jmp	I13_Get_Dev_Next_Entry		;continue			;an000; dms;
 
 I13_Get_Dev_Save_Parms:
 
-	mov	ax,ds:[di].BytePerSec		;get byte count per sector	;an000; dms;
+	mov	ax,[ds:di].BytePerSec		;get byte count per sector	;an000; dms;
 	mov	cs:I13_BPS,ax			;				;an000; dms;
 
 	xor	dx,dx				;clear high word		;an000; dms;
@@ -418,10 +418,10 @@ I13_Get_Dev_Save_Parms:
 	shl	ax,1				;				;an000; dms;
 	mov	cs:I13_DD_Per_Sector,ax 	;				;an000; dms;
 
-	mov	ax,ds:[di].SecLim		;get sectors per track		;an000; dms;
+	mov	ax,[ds:di].SecLim		;get sectors per track		;an000; dms;
 	mov	cs:I13_SPT,al			;				;an000; dms;
 
-	mov	ax,ds:[di].HdLim		;get max head count		;an000; dms;
+	mov	ax,[ds:di].HdLim		;get max head count		;an000; dms;
 	mov	cs:I13_Max_Head,al		;				;an000; dms;
 
 	clc					;flag data found		;an000; dms;

@@ -93,14 +93,14 @@ NOTFIRSTGROW:
         XOR     BL,BL
         invoke  FIGREC
 GOTDIRREC:
-        MOV     CL,ES:[BP.dpb_cluster_mask]
+        MOV     CL,[ES:BP+dpb_cluster_mask]
         INC     CL
         XOR     CH,CH
 ZERODIR:
         PUSH    CX
         MOV     AL,0FFH
         invoke  GETBUFFR
-        MOV     CX,ES:[BP.dpb_sector_size]
+        MOV     CX,[ES:BP+dpb_sector_size]
         PUSH    ES
         LES     DI,[CURBUF]
         PUSH    DI
@@ -113,7 +113,7 @@ ZERODIR:
 EVENZ:
         POP     DI
         INC     AL
-        MOV     ES:[DI.BUFDIRTY],AL
+        MOV     [ES:DI+BUFDIRTY],AL
         POP     ES
         POP     CX
         INC     DX
@@ -139,9 +139,9 @@ GOTRET:
         MOV     AL,attr_directory
         STOSB
         ADD     DI,10
-        MOV     AX,[SI.fcb_FTIME]
+        MOV     AX,[SI+fcb_FTIME]
         STOSW
-        MOV     AX,[SI.fcb_FDATE]
+        MOV     AX,[SI+fcb_FDATE]
         STOSW
         MOV     AX,DX
         STOSW
@@ -266,7 +266,7 @@ CHKFNAM:
 WILDCRD:
         REPE    CMPSB
         JZ      FOUND
-        CMP     byte ES:[DI-1],"?"
+        CMP     byte [ES:DI-1],"?"
         JZ      WILDCRD
         POP     DS
 ; ASSUME  DS:DOSGROUP
@@ -321,7 +321,7 @@ check_one_volume_id:
         JZ      NEXTENT                 ; Otherwise continue searching
 RETF:
         LES     BP,[THISDPB]
-        MOV     AH,ES:[BP.dpb_drive]
+        MOV     AH,[ES:BP+dpb_drive]
 SETESRET:
         PUSH    SS
         POP     ES
@@ -353,7 +353,7 @@ SETESRET:
         XOR     DX,DX
         SHL     AX,1
         RCL     DX,1                    ; Account for overflow in last shift
-        MOV     BX,ES:[BP.dpb_sector_size]
+        MOV     BX,[ES:BP+dpb_sector_size]
         AND     BL,255-31               ; Must be multiple of 32
         DIV     BX
         MOV     BX,DX                   ; Position within sector
@@ -364,7 +364,7 @@ SETENTRY:
         MOV     DX,word [CURBUF]
         ADD     DX,BUFINSIZ
         ADD     BX,DX
-        ADD     DX,ES:[BP.dpb_sector_size]       ; Always clears carry
+        ADD     DX,[ES:BP+dpb_sector_size]       ; Always clears carry
         return
 
         entry   NEXTENTRY
@@ -409,7 +409,7 @@ SAMECLUS:
         PUSH    DS
         LDS     DI,[CURBUF]
 ; ASSUME  DS:NOTHING
-        MOV     DX,[DI.BUFSECNO]
+        MOV     DX,[DI+BUFSECNO]
         INC     DX
         POP     DS
 ; ASSUME  DS:DOSGROUP
@@ -439,18 +439,18 @@ SAMECLUS:
 ;       [CLUSFAC] Sectors/cluster
 ; Destroys all registers
 
-        MOV     BX,ES:[BP.dpb_current_dir]
+        MOV     BX,[ES:BP+dpb_current_dir]
         OR      BX,BX
         JZ      SETROOTSRCH
         CMP     BX,0FF8H
         JB      SETDIRSRCH
         PUSH    ES
         POP     DS
-        LEA     SI,[BP.dpb_dir_text]
+        LEA     SI,[BP+dpb_dir_text]
         CALL    ROOTPATH
 ; ASSUME  DS:DOSGROUP
         JNC     SETCURR
-        MOV     ES:[BP.dpb_current_dir],0
+        MOV     [ES:BP+dpb_current_dir],0
 
 SETROOTSRCH:
 ; ASSUME  DS:NOTHING,ES:NOTHING
@@ -462,8 +462,8 @@ SETROOTSRCH:
         MOV     byte [SECCLUSPOS],AL
         DEC     AX
         MOV     [CLUSNUM],AX
-        MOV     AX,ES:[BP.dpb_first_sector]
-        MOV     DX,ES:[BP.dpb_dir_sector]
+        MOV     AX,[ES:BP+dpb_first_sector]
+        MOV     DX,[ES:BP+dpb_dir_sector]
         SUB     AX,DX
         MOV     byte [CLUSFAC],AL
         MOV     [DIRSEC],DX
@@ -472,7 +472,7 @@ SETROOTSRCH:
 SETCURR:
 ; ASSUME  DS:DOSGROUP
         MOV     AX,[DIRSTART]
-        MOV     ES:[BP.dpb_current_dir],AX
+        MOV     [ES:BP+dpb_current_dir],AX
         return
 
         entry   SETDIRSRCH
@@ -495,7 +495,7 @@ SETCURR:
         POP     DS
 ; ASSUME  DS:DOSGROUP
         MOV     [DIRSTART],BX
-        MOV     AL,ES:[BP.dpb_cluster_mask]
+        MOV     AL,[ES:BP+dpb_cluster_mask]
         INC     AL
         MOV     byte [CLUSFAC],AL
         invoke  UNPACK
@@ -787,7 +787,7 @@ CHKPRESTRING:
         JZ      GOTPRESTRING
         DEC     SI
         invoke  GETLET          ; Try convert to upper case
-        CMP     AL,ES:[DI-1]
+        CMP     AL,[ES:DI-1]
         JZ      CHKPRESTRING
 NOPRESTRING:
         STC
@@ -969,7 +969,7 @@ SetDir:
         PUSH    AX
         PUSH    SI
         PUSH    CX
-        PUSH    [DI.BUFSECNO]
+        PUSH    [DI+BUFSECNO]
         MOV     BX,DX
         CALL    SETDIRSRCH
 ; ASSUME  DS:DOSGROUP

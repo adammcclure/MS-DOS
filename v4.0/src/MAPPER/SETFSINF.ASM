@@ -35,13 +35,13 @@ SECTION .dosxxx
 	; .list
 
 struc str
-old_bp: dw 0
-return: dd 0
-sbufsize: dw 0; info buffer size
-sbuffoff: dw 0; info buffer offset
-sbuffseg: dw 0; info buffer segment
-slevel: dw 0; info level
-sdrive: dw 0; drive number
+old_bp: resw 1
+return: resd 1
+sbufsize: resw 1; info buffer size
+sbuffoff: resw 1; info buffer offset
+sbuffseg: resw 1; info buffer segment
+slevel: resw 1; info level
+sdrive: resw 1; drive number
 endstruc
 
 

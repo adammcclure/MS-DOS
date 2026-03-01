@@ -79,12 +79,12 @@ TSD		EQU  TEMP_SHARED_DATA  ;;
 					       ;;
 COPY_SD_AREA:;;
 					       ;;
-	REP	MOVS ES:byte [DI],DS:[SI]  ;; Copy SHARED_DATA_AREA to
+	REP	movsbDS:[SI]  ;; Copy SHARED_DATA_AREA to
 
 		  push	  ax			  ;AN004;save existing values
 		  push	  es			  ;AN004;;
 		  xor	  ax,ax 		  ;AN004;clear out ax
-		  mov	  ax,cs:[2ch]		  ;AN004;check offset for address containin environ.
+		  mov	  ax,[cs:2ch]		  ;AN004;check offset for address containin environ.
 		  cmp	  ax,0			  ;AN004;
 		  je	  NO_FREEDOM		  ;AN004;
 		  mov	  es,ax 		  ;AN004;
@@ -124,5 +124,5 @@ SD_DEST_PTR:;;
 				       ;;
 SHARED_DATA   SHARED_DATA_STR <>       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CODE   ENDS
+; END SECTION .CODE
        ; END
