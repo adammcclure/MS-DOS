@@ -390,7 +390,7 @@ NDOTMES DB      "   Does not exist.",13,10,"$"
 NULNZ   DB      "   First cluster number is invalid,",13,10
         DB      "    entry truncated.",13,10,"$"
 NULDMES DB      "   Directory is totally empty, no . or ..",13,10,"$"
-BADCLUS DB      "   Allocation error, adjusted_size.",13,10,"$"
+BADCLUS DB      "   Allocation error, size adjusted.",13,10,"$"
 NORECDOT DB     "   Cannot recover . entry, processing continued.",13,10,"$"
 NORECDDOT DB    "   Cannot recover .. entry,"
 
