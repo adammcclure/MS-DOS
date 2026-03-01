@@ -132,7 +132,7 @@ InvPFBA		db	"Page Frame Base Address adjusted.",CR,LF
 InvMRA		db	"Mapping Register Address adjusted.",CR,LF
 		db	"$"
 
-Adj_Size	db	"of_size expanded memory pool adjusted.",CR,LF
+Adj_Size	db	"Size of expanded memory pool adjusted.",CR,LF
 		db	"$"
 
 PFWarning	db	"WARNING - "

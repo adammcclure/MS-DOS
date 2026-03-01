@@ -47,7 +47,7 @@ crlf        db      13,10,0
 	    addr    crlf,crlf_ptr
 
 rdbad       db      "WARNING - Read error on EXE file.",13,10
-	    db      "          Amount read less than in_size header.",0
+	    db      "          Amount read less than size in header.",0
 	    addr    rdbad,rdbad_ptr
 
 

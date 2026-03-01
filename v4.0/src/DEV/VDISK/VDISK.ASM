@@ -2195,8 +2195,8 @@ STOR_SIZE_Z:
 
 IMSG	DB	'VDISK virtual disk ','$'
 
-ERRM1	DB	'   Buffer adjusted_size',CR,LF,'$'
-ERRM2	DB	'   Sector adjusted_size',CR,LF,'$'
+ERRM1	DB	'   Buffer size adjusted',CR,LF,'$'
+ERRM2	DB	'   Sector size adjusted',CR,LF,'$'
 ERRM3	DB	'   Directory entries adjusted',CR,LF,'$'
 ERRM4	DB	'   VDISK not installed - insufficient memory'
 	DB	CR,LF,CR,LF,BEL,'$'
@@ -2205,7 +2205,7 @@ ERRM6	DB	'   VDISK not installed - Extender Card switches'
 	DB	CR,LF
 	DB	'   do not match system memory size'
 	DB	CR,LF,CR,LF,BEL,'$'
-ERRM7	DB	'   Transfer adjusted_size',CR,LF,'$'
+ERRM7	DB	'   Transfer size adjusted',CR,LF,'$'
 ERRM8	DB	'   VDISK not installed - Incorrect DOS version'
 	DB	CR,LF,CR,LF,BEL,'$'
 

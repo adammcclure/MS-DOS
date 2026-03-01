@@ -3919,7 +3919,7 @@ ERRTAB:
 	DM	29,"First operand must be register"
 	DM	30,"Undefined label not allowed"
 	DM	31,"Value out of range"
-	DM	32,"Missing or illegal operand flag_size"
+	DM	32,"Missing or illegal operand size flag"
 	DM	33,"Must have label on same line"
 	DM	35,"Zero-length string illegal"
 	DM	36,"ENDIF without IF"
