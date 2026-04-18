@@ -1,6 +1,6 @@
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	EMMDISP - EMM dispatcher
+	; title	EMMDISP - EMM dispatcher
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -35,21 +35,21 @@ page	58,132
 ;
 ;
 ;******************************************************************************
-.lfcond					; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 
 ;******************************************************************************
 ;	P U B L I C S
 ;******************************************************************************
-	public	int67_Entry
-	public	dispatch_vector
+	global int67_Entry
+	global dispatch_vector
 
 ;******************************************************************************
 ;	I N C L U D E S
 ;******************************************************************************
-	include	vdmseg.inc
-	include vdmsel.inc
-	include	emmdef.inc
+	%include "vdmseg.inc"
+	%include "vdmsel.inc"
+	%include "emmdef.inc"
 ;
 ;******************************************************************************
 ;	D E F I N E S
@@ -60,21 +60,21 @@ TRUE		equ	not FALSE
 CR		equ	0dh
 LF		equ	0ah
 
-mkvect	MACRO	name
-	extrn	_&name:near
-	dw	offset _TEXT:_&name
-endm
+%macro mkvect 1
+	extern _&name
+	dw	_&name
+%endmacro
 
 ;******************************************************************************
 ;	E X T E R N A L S 
 ;******************************************************************************
 
-_DATA	SEGMENT
-extrn	_EMMstatus:word
-extrn	Active_Status:byte
-extrn	Auto_Mode:byte
-extrn	_regp:word
-_DATA	ENDS
+SECTION ._DATA
+extern _EMMstatus
+extern Active_Status
+extern Auto_Mode
+extern _regp
+; END SECTION ._DATA
 
 
 ;******************************************************************************
@@ -91,13 +91,13 @@ _DATA	ENDS
 ;
 ;_DATA	ENDS
 
-_TEXT	SEGMENT
-assume	cs:_text,ds:DGROUP,ss:DGROUP,es:DGROUP
+SECTION ._TEXT
+; assume	cs:_text,ds:DGROUP,ss:DGROUP,es:DGROUP
 ;
 	db	'PxB'
 ;
 
-dispatch_vector	label word
+dispatch_vector:
 	mkvect	GetStatus
 	mkvect	GetPageFrameAddress
 	mkvect	GetUnallocatedPageCount
@@ -181,7 +181,7 @@ dispatch_vector	label word
 ;	+-------+
 ;
 ;*************************************
-int67_Entry	proc	far
+int67_Entry:
 	pushad			; save all regs
 	mov	bp,sp		;  SS:[BP] points to stack frame
 ;
@@ -220,15 +220,15 @@ ok_exit:
 	ret			; bye!
 
 i67_off_err:				; set h/w error
-	mov	byte ptr [bp.rAX+1],EMM_HW_MALFUNCTION
+	mov	byte [bp+rAX+1],EMM_HW_MALFUNCTION
 	jmp	ok_exit
 
 i67_inv_exit:				; set invalid function code error
-	mov	byte ptr [bp.rAX+1],INVALID_FUNCTION
+	mov	byte [bp+rAX+1],INVALID_FUNCTION
 	jmp	ok_exit
 
-int67_entry	endp
+; ENDP int67_entry
 
-_TEXT	ENDS
-END
+; END SECTION ._TEXT
+; END
 

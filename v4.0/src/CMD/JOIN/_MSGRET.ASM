@@ -1,6 +1,6 @@
-page	60,132
-name	_msgret
-title	C	to Message Retriever
+; page	60,132
+; name	_msgret
+; title	C	to Message Retriever
 ;-------------------------------------------------------------------
 ;
 ;	MODULE: 	_msgret
@@ -17,40 +17,40 @@ title	C	to Message Retriever
 ;
 ;-------------------------------------------------------------------
 
-	INCLUDE SYSMSG.INC		;PERMIT SYSTEM MESSAGE HANDLER DEFINITION;AN000;
+	%include "SYSMSG.INC";PERMIT SYSTEM MESSAGE HANDLER DEFINITION;AN000;
 
 	MSG_UTILNAME <JOIN>		;IDENTIFY THE COMPONENT 		;AN000;
 
-	.8087									;AN000;
-_TEXT	SEGMENT BYTE PUBLIC 'CODE'						;AN000;
-_TEXT	ENDS									;AN000;
-_DATA	SEGMENT WORD PUBLIC 'DATA'						;AN000;
-_DATA	ENDS									;AN000;
-CONST	SEGMENT WORD PUBLIC 'CONST'						;AN000;
-CONST	ENDS									;AN000;
-_BSS	SEGMENT WORD PUBLIC 'BSS'						;AN000;
-_BSS	ENDS									;AN000;
-DGROUP	GROUP	CONST, _BSS, _DATA						;AN000;
-	ASSUME	CS: _TEXT, DS: _TEXT, SS: DGROUP, ES: DGROUP			;AN000;
+	; .8087;AN000;
+SECTION ._TEXT;AN000;
+; END SECTION ._TEXT;AN000;
+SECTION ._DATA;AN000;
+; END SECTION ._DATA;AN000;
+SECTION .CONST;AN000;
+; END SECTION .CONST;AN000;
+SECTION ._BSS;AN000;
+; END SECTION ._BSS;AN000;
+; DGROUP	GROUP	CONST, _BSS, _DATA;AN000;
+	; ASSUME	CS: _TEXT, DS: _TEXT, SS: DGROUP, ES: DGROUP;AN000;
 
 
-	public	_sysloadmsg							;AN000;
-	public	_sysgetmsg							;AN000;
-	public	_sysdispmsg							;AN000;
+	global _sysloadmsg;AN000;
+	global _sysgetmsg;AN000;
+	global _sysdispmsg;AN000;
 
 ;-------------------------------------------------------------------
 ;-------------------------------------------------------------------
 
-_DATA	segment 								;AN000;
-.XLIST										;AN000;
-.XCREF										;AN000;
+SECTION ._DATA;AN000;
+; .XLIST;AN000;
+; .XCREF;AN000;
 	MSG_SERVICES <MSGDATA>		;DATA AREA FOR THE MESSAGE HANDLER	;AN000;
-.LIST										;AN000;
-.CREF										;AN000;
-_DATA	ends									;AN000;
+; .LIST;AN000;
+; .CREF;AN000;
+; END SECTION ._DATA;AN000;
 
 
-_TEXT	segment 								;AN000;
+SECTION ._TEXT;AN000;
 
 ;-------------------------------------------------------------------
 
@@ -64,16 +64,16 @@ _TEXT	segment 								;AN000;
 					;DEFAULT=NO DATEmsg			;AN000;
 ;	MSG_SERVICES <LOADmsg,GETmsg,DISPLAYmsg,CHARmsg,NUMmsg,TIMEmsg,DATEmsg,INPUTmsg,FARmsg>;AN000;
 ;	MSG_SERVICES <JOIN.CLA,JOIN.CL1,JOIN.CL2> ;MSG TEXT			;AN000;
-.XLIST										;AN000;
-.XCREF										;AN000;
+; .XLIST;AN000;
+; .XCREF;AN000;
 ;	MSG_SERVICES <MSGDATA>		;DATA AREA FOR THE MESSAGE HANDLER	;AN000;
 	MSG_SERVICES <LOADmsg,GETmsg,DISPLAYmsg,CHARmsg,NUMmsg,TIMEmsg,DATEmsg,INPUTmsg,FARmsg>;AN000;
 	MSG_SERVICES <JOIN.CLA,JOIN.CL1,JOIN.CL2> ;MSG TEXT			;AN000;
-.LIST										;AN000;
-.CREF										;AN000;
+; .LIST;AN000;
+; .CREF;AN000;
 ;-------------------------------------------------------------------
 
-_sysloadmsg proc near								;AN000;
+_sysloadmsg:;AN000;
 
 	push	bp			; save user's base pointer              ;AN000;
 	mov	bp,sp			; set bp to current sp			;AN000;
@@ -127,10 +127,10 @@ _sysloadmsg proc near								;AN000;
 	pop	bp			; restore user's bp                     ;AN000;
 	ret									;AN000;
 
-_sysloadmsg endp								;AN000;
+; ENDP _sysloadmsg;AN000;
 
 
-_sysgetmsg proc near								;AN000;
+_sysgetmsg:;AN000;
 
 	push	bp			; save user's base pointer              ;AN000;
 	mov	bp,sp			; set bp to current sp			;AN000;
@@ -184,9 +184,9 @@ _sysgetmsg proc near								;AN000;
 	pop	bp			; restore user's bp                     ;AN000;
 	ret									;AN000;
 
-_sysgetmsg endp 								;AN000;
+; ENDP _sysgetmsg;AN000;
 
-_sysdispmsg proc near								;AN000;
+_sysdispmsg:;AN000;
 
 	push	bp			; save user's base pointer              ;AN000;
 	mov	bp,sp			; set bp to current sp			;AN000;
@@ -240,11 +240,11 @@ _sysdispmsg proc near								;AN000;
 	pop	bp			; restore user's bp                     ;AN000;
 	ret									;AN000;
 
-_sysdispmsg endp								;AN000;
+; ENDP _sysdispmsg;AN000;
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-_TEXT	ends				; end code segment			;AN000;
-	end									;AN000;
+; END SECTION ._TEXT; end code segment			;AN000;
+	; end;AN000;
 
 

@@ -2,17 +2,17 @@
 ; system call entry points MSDOS
 ;
 
-INCLUDE DOSSEG.ASM
+%include "DOSSEG.ASM"
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-        ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+        ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.xlist
-.xcref
-INCLUDE DOSSYM.ASM
-INCLUDE DEVSYM.ASM
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.ASM"
+%include "DEVSYM.ASM"
+; .cref
+; .list
 
 
         i_need  YEAR,WORD
@@ -36,10 +36,10 @@ INCLUDE DEVSYM.ASM
         i_need  VolID,BYTE
         i_need  FoundDel,BYTE
 
-SUBTTL DATE AND TIME - SYSTEM CALLS 42,43,44,45; S/G DATE,TIME
-PAGE
+; SUBTTL DATE AND TIME - SYSTEM CALLS 42,43,44,45; S/G DATE,TIME
+; PAGE
         procedure   $GET_DATE,NEAR   ;System call 42
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       None
@@ -50,21 +50,21 @@ ASSUME  DS:NOTHING,ES:NOTHING
 
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         invoke  READTIME        ;Check for rollover to next day
         MOV     AX,[YEAR]
-        MOV     BX,WORD PTR [DAY]
+        MOV     BX,word [DAY]
         invoke  get_user_stack           ;Get pointer to user registers
-ASSUME  DS:NOTHING
-        MOV     [SI.user_DX],BX  ;DH=month, DL=day
+; ASSUME  DS:NOTHING
+        MOV     [SI+user_DX],BX  ;DH=month, DL=day
         ADD     AX,1980         ;Put bias back
-        MOV     [SI.user_CX],AX  ;CX=year
-        MOV     AL,BYTE PTR [WEEKDAY]
+        MOV     [SI+user_CX],AX  ;CX=year
+        MOV     AL,byte [WEEKDAY]
         RET
-$GET_DATE ENDP
+; ENDP $GET_DATE
 
         procedure   $SET_DATE,NEAR   ;System call 43
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       CX:DX valid date
@@ -86,13 +86,13 @@ ASSUME  DS:NOTHING,ES:NOTHING
         JA      RET24
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         invoke  DODATE
 RET24:  RET
-$SET_DATE ENDP
+; ENDP $SET_DATE
 
         procedure   $GET_TIME,NEAR   ;System call 44
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       None
@@ -103,18 +103,18 @@ ASSUME  DS:NOTHING,ES:NOTHING
 
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         invoke  READTIME
         invoke  get_user_stack           ;Get pointer to user registers
-        MOV     [SI.user_DX],DX
-        MOV     [SI.user_CX],CX
+        MOV     [SI+user_DX],DX
+        MOV     [SI+user_CX],CX
         XOR     AL,AL
 RET26:  RET
-$GET_TIME ENDP
+; ENDP $GET_TIME
 
         procedure   $SET_TIME,NEAR   ;System call 45
 ;Time is in CX:DX in hours, minutes, seconds, 1/100 sec.
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       CX:DX = Time
@@ -136,35 +136,35 @@ ASSUME  DS:NOTHING,ES:NOTHING
         PUSH    DX
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
-        MOV     BX,OFFSET DOSGROUP:TIMEBUF
+; ASSUME  DS:DOSGROUP
+        MOV     BX,TIMEBUF
         MOV     CX,6
         XOR     DX,DX
         MOV     AX,DX
         PUSH    BX
         invoke  SETREAD
-ASSUME  ES:DOSGROUP
+; ASSUME  ES:DOSGROUP
         PUSH    DS
         LDS     SI,[BCLOCK]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         invoke  DEVIOCALL2      ;Get correct day count
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         POP     BX
         invoke  SETWRITE
-        POP     WORD PTR [TIMEBUF+4]
-        POP     WORD PTR [TIMEBUF+2]
+        POP     word [TIMEBUF+4]
+        POP     word [TIMEBUF+2]
         LDS     SI,[BCLOCK]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         invoke  DEVIOCALL2      ;Set the time
         XOR     AL,AL
         RET
-$SET_TIME ENDP
+; ENDP $SET_TIME
 
-SUBTTL DISK R/W ROUTINES
-PAGE
+; SUBTTL DISK R/W ROUTINES
+; PAGE
         procedure   $FCB_SEQ_READ,NEAR   ; System call 20
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX Points to openned FCB
@@ -181,7 +181,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         JMP     SHORT FINSEQ
 
     entry   $FCB_SEQ_WRITE              ; System call 21
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX Points to openned FCB
@@ -201,7 +201,7 @@ FINSEQ:
         JMP     SHORT SETNREX
 
     entry   $FCB_RANDOM_READ                ; System call 33
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX Points to openned FCB
@@ -219,7 +219,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         JMP     SHORT FINRND
 
     entry   $FCB_RANDOM_WRITE               ; System call 34
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX Points to openned FCB
@@ -236,7 +236,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         JMP     SHORT FINRND
 
     entry   $FCB_RANDOM_READ_BLOCK          ; System call 39
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX Points to openned FCB
@@ -256,7 +256,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         JMP     SHORT FINBLK
 
     entry   $FCB_RANDOM_WRITE_BLOCK         ; System call 40
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX Points to openned FCB
@@ -275,36 +275,36 @@ ASSUME  DS:NOTHING,ES:NOTHING
         invoke  STORE
 FINBLK:
         invoke  get_user_stack
-        MOV     [SI.user_CX],CX
+        MOV     [SI+user_CX],CX
         entry   FINNOSAV
         JCXZ    FINRND
         ADD     AX,1
         ADC     DX,0
 FINRND:
-        MOV     WORD PTR ES:[DI.fcb_RR],AX
-        MOV     ES:[DI.fcb_RR+2],DL
+        MOV     word [ES:DI+fcb_RR],AX
+        MOV     [ES:DI+fcb_RR+2],DL
         OR      DH,DH
         JZ      SETNREX
-        MOV     ES:[DI.fcb_RR+3],DH ; Save 4 byte of RECPOS only if significant
+        MOV     [ES:DI+fcb_RR+3],DH ; Save 4 byte of RECPOS only if significant
 SETNREX:
         MOV     CX,AX
         AND     AL,7FH
-        MOV     ES:[DI.fcb_NR],AL
+        MOV     [ES:DI+fcb_NR],AL
         AND     CL,80H
         SHL     CX,1
         RCL     DX,1
         MOV     AL,CH
         MOV     AH,DL
-        MOV     ES:[DI.fcb_EXTENT],AX
-        MOV     AL,BYTE PTR [DSKERR]
+        MOV     [ES:DI+fcb_EXTENT],AX
+        MOV     AL,byte [DSKERR]
 RET4:
         RET
-$FCB_SEQ_READ   ENDP
+; ENDP $FCB_SEQ_READ
 
-SUBTTL $FCB_DELETE -- SYSTEM CALL 19
-PAGE
+; SUBTTL $FCB_DELETE -- SYSTEM CALL 19
+; PAGE
         procedure   $FCB_DELETE,NEAR   ; System call 19
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX point to unopened FCB
@@ -314,11 +314,11 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       AL = -1 if no entries matched, otherwise 0
 
         invoke  MOVNAME
-ASSUME  ES:DOSGROUP
+; ASSUME  ES:DOSGROUP
         MOV     AL,-1
-        MOV     BYTE PTR [FoundDel],AL
+        MOV     byte [FoundDel],AL
         JC      RET4
-        MOV     AL,BYTE PTR [ATTRIB]
+        MOV     AL,byte [ATTRIB]
         AND     AL,attr_hidden+attr_system+attr_directory+attr_volume_id+attr_read_only
                                         ; Look only at hidden bits
         CMP     AL,attr_hidden+attr_system+attr_directory+attr_volume_id+attr_read_only
@@ -326,39 +326,39 @@ ASSUME  ES:DOSGROUP
         JNZ     NOTALL
         MOV     CX,11
         MOV     AL,"?"
-        MOV     DI,OFFSET DOSGROUP:NAME1
+        MOV     DI,NAME1
         REPE    SCASB                   ; See if name is *.*
         JNZ     NOTALL
-        MOV     BYTE PTR [DELALL],0           ; DEL *.* - flag deleting all
+        MOV     byte [DELALL],0           ; DEL *.* - flag deleting all
 NOTALL:
         invoke  FINDNAME
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     AL,-1
         JC      RET4
         OR      AH,AH           ; Check if device name
         JS      RET4            ; Can't delete I/O devices
 DELFILE:
         LES     BP,[THISDPB]
-        MOV     AH,BYTE PTR [DELALL]
+        MOV     AH,byte [DELALL]
         PUSH    DS
         LDS     DI,[CURBUF]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         TEST    [Attrib],attr_read_only ; are we deleting RO files too?
         JNZ     DoDelete            ; yes
-        TEST    DS:[BX.dir_attr],attr_read_only
+        TEST    [DS:BX+dir_attr],attr_read_only
         JZ      DoDelete            ; not read only
         POP     DS
         JMP     SHORT DelNxt
 DoDelete:
-        MOV     BYTE PTR [FoundDel],0
-        MOV     [DI.BUFDIRTY],1
-        MOV     BYTE PTR [BX],AH
+        MOV     byte [FoundDel],0
+        MOV     [DI+BUFDIRTY],1
+        MOV     byte [BX],AH
         MOV     BX,[SI]
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         OR      BX,BX
         JZ      DELNXT
-        CMP     BX,ES:[BP.dpb_max_cluster]
+        CMP     BX,[ES:BP+dpb_max_cluster]
         JA      DELNXT
         invoke  RELEASE
 DELNXT:
@@ -366,17 +366,17 @@ DELNXT:
         invoke  NEXTENT
         JNC     DELFILE
         CALL    FLUSHRET1
-        MOV     AL,BYTE PTR [FoundDel]
+        MOV     AL,byte [FoundDel]
         RET
 
-$FCB_DELETE  ENDP
+; ENDP $FCB_DELETE
 
-SUBTTL $FCB_RENAME -- SYSTEM CALL 23; RENAME FILES
-PAGE
+; SUBTTL $FCB_RENAME -- SYSTEM CALL 23; RENAME FILES
+; PAGE
 ERRETJ: JMP     ERRET
 
         procedure   $FCB_RENAME,NEAR   ; System call 23
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX point to a modified FCB (DS:DX+11H points to destination
@@ -387,31 +387,31 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       AL = -1 if no entries matched, otherwise 0
 
         invoke  MOVNAME
-ASSUME  ES:DOSGROUP
+; ASSUME  ES:DOSGROUP
         JC      ERRETJ
         ADD     SI,5
-        MOV     DI,OFFSET DOSGROUP:NAME2
+        MOV     DI,NAME2
         invoke  LODNAME
         JC      ERRETJ          ; Report error if second name invalid
         invoke  FINDNAME
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         JC      ERRETJ
         OR      AH,AH           ; Check if I/O device name
         JS      ERRETJ          ; If so, can't rename it
-        MOV     SI,OFFSET DOSGROUP:NAME1
-        MOV     DI,OFFSET DOSGROUP:NAME3
+        MOV     SI,NAME1
+        MOV     DI,NAME3
         MOV     CX,13
         REP     MOVSB           ; Copy name to search for --include attribute byte
 RENFIL:
-        MOV     DI,OFFSET DOSGROUP:NAME1
-        MOV     SI,OFFSET DOSGROUP:NAME2
+        MOV     DI,NAME1
+        MOV     SI,NAME2
         MOV     CX,11
 NEWNAM:
         LODSB
         CMP     AL,"?"
         JNZ     NOCHG
         PUSH    DS
-        MOV     DS,WORD PTR [CURBUF+2]
+        MOV     DS,word [CURBUF+2]
         MOV     AL,[BX]
         POP     DS
 NOCHG:
@@ -419,7 +419,7 @@ NOCHG:
         INC     BX
         LOOP    NEWNAM
         INC     DI
-        MOV     BYTE PTR [DI],attr_all  ;Sets ATTRIB
+        MOV     byte [DI],attr_all  ;Sets ATTRIB
                                 ; Stop duplicates with any attributes
         invoke  DEVNAME         ; Check if giving it a device name
         JNC     RENERR
@@ -431,16 +431,16 @@ NOCHG:
         LES     BP,[THISDPB]
         invoke  GETENT                  ; Re-read matching entry
         MOV     DI,BX           ; Leave BX,DX until call to NEXTENT
-        MOV     ES,WORD PTR [CURBUF+2]
-        MOV     SI,OFFSET DOSGROUP:NAME1
+        MOV     ES,word [CURBUF+2]
+        MOV     SI,NAME1
         MOV     CX,11
         REP     MOVSB                   ; Replace old name with new one
-        MOV     DI,WORD PTR [CURBUF]
-        MOV     ES:[DI.BUFDIRTY],1      ; Directory changed
+        MOV     DI,word [CURBUF]
+        MOV     [ES:DI+BUFDIRTY],1      ; Directory changed
         PUSH    SS
         POP     ES
-        MOV     SI,OFFSET DOSGROUP:NAME3
-        MOV     DI,OFFSET DOSGROUP:NAME1
+        MOV     SI,NAME3
+        MOV     DI,NAME1
         MOV     CX,13                   ; Include attribute byte
         REP     MOVSB                   ; Copy name back into search buffer
         invoke  NEXTENT
@@ -452,12 +452,12 @@ RENERR:
 ERRET:
         MOV     AL,-1
         RET
-$FCB_RENAME  ENDP
+; ENDP $FCB_RENAME
 
-SUBTTL $FCB_OPEN -- SYSTEM CALL 15; OPEN A FILE
-PAGE
+; SUBTTL $FCB_OPEN -- SYSTEM CALL 15; OPEN A FILE
+; PAGE
         procedure   $FCB_OPEN,NEAR   ; System call 15
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX point to an unopened FCB
@@ -469,7 +469,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       [CURBUF+2]:SI and [CURBUF+2]:BX Preserved
 
         invoke  GETFILE
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
     entry   DOOPEN
 
@@ -485,19 +485,19 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         OR      AH,AH
         JS      OPENDEV
         MOV     AL,[THISDRV]
-        MOV     DS,WORD PTR [CURBUF+2]
-ASSUME  DS:NOTHING
+        MOV     DS,word [CURBUF+2]
+; ASSUME  DS:NOTHING
         INC     AX
 OPENDEV:
         STOSB
         XOR     AX,AX
-IF ZEROEXT
+%if ZEROEXT
         ADD     DI,11
         STOSW                   ; Zero low byte of extent field if ZERPEXT only
-ELSE
+%else
         ADD     DI,12           ; Point to high half of CURRENT BLOCK field
         STOSB                   ; Set it to zero (CP/M programs set low byte)
-ENDIF
+%endif
         MOV     AL,128          ; Default record size
         STOSW                   ; Set record size
         LODSW                   ; Get starting cluster
@@ -522,7 +522,7 @@ ENDIF
         POP     AX                      ; last cluster
         STOSB
         MOV     AL,AH
-        MOV     AH,BYTE PTR [DIRSTART]
+        MOV     AH,byte [DIRSTART]
         PUSH    CX
         MOV     CL,4
         SHL     AH,CL
@@ -539,18 +539,18 @@ OPEN_RET:
         RET
 
 SAVDEVPT:
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         LDS     AX,[DEVPT]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         STOSW
-        MOV     ES:[DI],DS
+        MOV     [ES:DI],DS
         JMP     SHORT OPEN_RET
-$FCB_OPEN    ENDP
+; ENDP $FCB_OPEN
 
-SUBTTL $FCB_CLOSE -- SYSTEM CALL 16; CLOSE FILE
-PAGE
+; SUBTTL $FCB_CLOSE -- SYSTEM CALL 16; CLOSE FILE
+; PAGE
         procedure   $FCB_CLOSE,NEAR   ; System call 16
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX point to an opened FCB
@@ -560,11 +560,11 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       AL = -1 if disk has been changed, otherwise 0
 
         MOV     DI,DX
-        CMP     BYTE PTR [DI],-1        ; Check for extended FCB
+        CMP     byte [DI],-1        ; Check for extended FCB
         JNZ     NORMFCB3
         ADD     DI,7
 NORMFCB3:
-        TEST    [DI.fcb_DEVID],devid_file_clean+devid_device
+        TEST    [DI+fcb_DEVID],devid_file_clean+devid_device
                                         ; Allow only dirty files
         JNZ     OKRET1                  ; can't close I/O device or not written
         invoke  MOVNAMENOSET
@@ -573,13 +573,13 @@ NORMFCB3:
         PUSH    DX
         PUSH    DS
         MOV     SI,DX
-        MOV     BX,[SI.fcb_LSTCLUS+1]
+        MOV     BX,[SI+fcb_LSTCLUS+1]
         MOV     CL,4
         SHR     BX,CL
         PUSH    BX
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         invoke  FATREAD
         POP     BX
         invoke  SETDIRSRCH
@@ -588,28 +588,28 @@ ASSUME  DS:DOSGROUP
         POP     DI
         JC      BADCLOSE
         LDS     BX,[CURBUF]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
 
         ; note that SI points to dir_first...
 
-        OR      BYTE PTR [SI-dir_first+dir_attr],attr_archive
-        MOV     CX,ES:[DI.fcb_FIRCLUS]
+        OR      byte [SI-dir_first+dir_attr],attr_archive
+        MOV     CX,[ES:DI+fcb_FIRCLUS]
         MOV     [SI-dir_first+dir_first],CX
-        MOV     DX,ES:WORD PTR [DI.fcb_FILSIZ]
+        MOV     DX,ES:word [DI+fcb_FILSIZ]
         MOV     [SI-dir_first+dir_size_l],DX
-        MOV     DX,ES:WORD PTR [DI.fcb_FILSIZ+2]
+        MOV     DX,ES:word [DI+fcb_FILSIZ+2]
         MOV     [SI-dir_first+dir_size_h],DX
-        MOV     DX,ES:[DI.fcb_FDATE]
+        MOV     DX,[ES:DI+fcb_FDATE]
         MOV     [SI-dir_first+dir_date],DX
-        MOV     DX,ES:[DI.fcb_FTIME]
+        MOV     DX,[ES:DI+fcb_FTIME]
         MOV     [SI-dir_first+dir_time],DX
-        MOV     [BX.BUFDIRTY],1
+        MOV     [BX+BUFDIRTY],1
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
 FLUSHRET1:
         LES     BP,[THISDPB]
-        MOV     AL,ES:[BP.dpb_drive]
+        MOV     AL,[ES:BP+dpb_drive]
         invoke  FLUSHBUF
 OKRET1:
         XOR     AL,AL
@@ -618,12 +618,12 @@ OKRET1:
 BADCLOSE:
         MOV     AL,-1
         RET
-$FCB_CLOSE   ENDP
+; ENDP $FCB_CLOSE
 
-SUBTTL $FCB_CREATE -- SYSTEM CALL 22; MAKE AND OPEN A NEW FILE
-PAGE
+; SUBTTL $FCB_CREATE -- SYSTEM CALL 22; MAKE AND OPEN A NEW FILE
+; PAGE
         procedure   $FCB_CREATE,NEAR   ; System call 22
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX point to an unopened FCB
@@ -634,21 +634,21 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       AL = -1 if file cannot be created, otherwise 0
 
         invoke  MOVNAME
-ASSUME  ES:DOSGROUP
+; ASSUME  ES:DOSGROUP
         JC      ERRET3
-        MOV     DI,OFFSET DOSGROUP:NAME1
+        MOV     DI,NAME1
         MOV     CX,11
         MOV     AL,"?"
         REPNE   SCASB
         JZ      ERRET3
-        MOV     BYTE PTR [CREATING],-1
+        MOV     byte [CREATING],-1
         PUSH    DX
         PUSH    DS
         invoke  FINDNAME
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
 NWENTY:
         LES     BP,[THISDPB]
-ASSUME  ES:NOTHING
+; ASSUME  ES:NOTHING
         JNC     EXISTENT
         invoke  BUILDDIR
         JC      ERRPOP
@@ -657,7 +657,7 @@ ASSUME  ES:NOTHING
 ERRPOP:
         POP     DS
         POP     DX
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
 ERRET3:
         JMP     SHORT BADCLOSE
 
@@ -671,19 +671,19 @@ ERRET3:
         JMP     NWENTY
 
 EXISTENT:
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         JNZ     ERRPOP          ; Error if attributes don't match
         OR      AH,AH           ; Check if file is I/O device
         JS      OPENJMP         ; If so, no action
         PUSH    DS
         LDS     DI,[CURBUF]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     CX,[SI]         ; Get pointer to clusters
-        MOV     SI,[DI.BUFSECNO]
+        MOV     SI,[DI+BUFSECNO]
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         JCXZ    FREESPOT
-        CMP     CX,ES:[BP.dpb_max_cluster]
+        CMP     CX,[ES:BP+dpb_max_cluster]
         JA      FREESPOT
         SUB     BX,DI
         PUSH    BX
@@ -694,16 +694,16 @@ ASSUME  DS:DOSGROUP
         XOR     AL,AL
         invoke  GETBUFFR
         POP     BX
-        ADD     BX,WORD PTR [CURBUF]
+        ADD     BX,word [CURBUF]
 FREESPOT:
-        TEST    BYTE PTR [ATTRIB],attr_volume_id
+        TEST    byte [ATTRIB],attr_volume_id
         JZ      NOTVOLID
-        CMP     BYTE PTR [VOLID],0
+        CMP     byte [VOLID],0
         JNZ     ERRPOP          ; Can't create a second volume ID
 NOTVOLID:
-        MOV     ES,WORD PTR [CURBUF+2]
+        MOV     ES,word [CURBUF+2]
         MOV     DI,BX
-        MOV     SI,OFFSET DOSGROUP:NAME1
+        MOV     SI,NAME1
         MOV     CX,5
         MOVSB
         REP     MOVSW
@@ -722,10 +722,10 @@ NOTVOLID:
         STOSW
         STOSW
         STOSW
-        MOV     SI,WORD PTR [CURBUF]
-        MOV     ES:[SI.BUFDIRTY],1
+        MOV     SI,word [CURBUF]
+        MOV     [ES:SI+BUFDIRTY],1
         LES     BP,[THISDPB]
-        MOV     AL,ES:[BP.dpb_drive]
+        MOV     AL,[ES:BP+dpb_drive]
         PUSH    AX
         PUSH    BX
         invoke  FLUSHBUF
@@ -737,13 +737,13 @@ OPENJMP:
         CLC                     ; Clear carry so OPEN won't fail
         POP     ES
         POP     DI
-ASSUME  ES:NOTHING
+; ASSUME  ES:NOTHING
         JMP     DOOPEN
-$FCB_CREATE  ENDP
+; ENDP $FCB_CREATE
 
 do_ext
 
-CODE    ENDS
-    END
+; END SECTION .CODE
+    ; END
 
 

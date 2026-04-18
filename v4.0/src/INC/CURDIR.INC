@@ -15,24 +15,24 @@ BREAK <Current directory list structure>
 DIRSTRLEN	EQU	64+3		; Max length in bytes of directory strings
 TEMPLEN 	EQU	DIRSTRLEN*2
 
-curdir_list	STRUC
+struc curdir_list
 curdir_text	DB	DIRSTRLEN DUP (?)   ; text of assignment and curdir
-curdir_flags	DW	?		; various flags
-curdir_devptr	DD	?		; local pointer to DPB or net device
-curdir_ID	DW	?		; cluster of current dir (net ID)
-		DW	?
-curdir_user_word DW	?
-curdir_end	DW	?		; end of assignment
-curdir_type	DB	?		; IFS drive (2=ifs, 4=netuse)
-curdir_ifs_hdr	DD	?		; Ptr to File System Header
-curdir_fsda	DB	2 DUP (?)	; File System Dependent Data Area
-curdir_list	ENDS
+curdir_flags: resw 1; various flags
+curdir_devptr: resd 1; local pointer to DPB or net device
+curdir_ID: resw 1; cluster of current dir (net ID)
+		resw 1
+curdir_user_word: resw 1
+curdir_end: resw 1; end of assignment
+curdir_type: resb 1; IFS drive (2=ifs, 4=netuse)
+curdir_ifs_hdr: resd 1; Ptr to File System Header
+curdir_fsda: resb 2; File System Dependent Data Area
+endstruc
 
-curdirLen	EQU	Size curdir_list	; Needed for screwed up
+curdirLen	EQU	curdir_list_size	; Needed for screwed up
 						; ASM87 which doesn't allow
 						; Size directive as a macro
 						; argument
-curdir_netID	EQU	DWORD PTR curdir_ID
+curdir_netID	EQU	dword curdir_ID
 
 ;Flag word masks
 curdir_isnet	EQU	1000000000000000B

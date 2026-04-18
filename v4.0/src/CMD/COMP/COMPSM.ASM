@@ -1,5 +1,5 @@
-	PAGE	,132			;
-	TITLE	COMPSM.SAL - COMP SYSTEM MESSAGES
+	; PAGE	,132;
+	; TITLE	COMPSM.SAL - COMP SYSTEM MESSAGES
 ;****************** START OF SPECIFICATIONS *****************************
 ; MODULE NAME: COMPSM.SAL
 ;
@@ -103,36 +103,36 @@
 ;		 DOS 4.0  modifications by Edwin M. K., Bill L.
 ;****************** END OF SPECIFICATIONS *****************************
 ;									 ;AN000;
-	IF1								 ;AN000;
-	    %OUT    COMPONENT=COMP, MODULE=COMPSM.SAL...		 ;AN000;
-	ENDIF								 ;AN000;
+	%if 1  ; IF1 - pass-specific;AN000;
+	    %warning COMPONENT=COMP, MODULE=COMPSM.SAL...;AN000;
+	%endif;AN000;
 ; =  =	=  =  =  =  =  =  =  =	=  =					 ;AN000;
 ;									 ;AN000;
-HEADER	MACRO	TEXT							 ;AN000;
-.XLIST									 ;AN000;
-	SUBTTL	TEXT							 ;AN000;
-.LIST									 ;AN000;
-	PAGE								 ;AN000;
-	ENDM								 ;AN000;
+%macro HEADER 1;AN000;
+; .XLIST;AN000;
+	; SUBTTL	TEXT;AN000;
+; .LIST;AN000;
+	; PAGE;AN000;
+	%endmacro;AN000;
 ; =  =	=  =  =  =  =  =  =  =	=  =					 ;AN000;
-	INCLUDE SYSMSG.INC		;PERMIT SYSTEM MESSAGE HANDLER DEFINITION ;AN000;
+	%include "SYSMSG.INC";PERMIT SYSTEM MESSAGE HANDLER DEFINITION ;AN000;
 	MSG_UTILNAME <COMP>		;IDENTIFY THE UTILITY		 ;AN000;
 ; =  =	=  =  =  =  =  =  =  =	=  =					 ;AN000;
 	HEADER	<DEFINITION OF MESSAGES>				 ;AN000;
 ;	   $SALUT (4,12,18,36)						 ;AN000;
-CSEG	   SEGMENT PARA PUBLIC	'CODE'					 ;AN000;
-	   ASSUME CS:CSEG,DS:CSEG,ES:CSEG,SS:CSEG			 ;AN000;
+SECTION .CSEG;AN000;
+	   ; ASSUME CS:CSEG,DS:CSEG,ES:CSEG,SS:CSEG;AN000;
 ;									 ;AN000;
-	   PUBLIC COPYRIGHT						 ;AN000;
+	   global COPYRIGHT;AN000;
 COPYRIGHT  DB	 "The DOS COMP Utility" 	       ;AN000;
-	   INCLUDE MSGHAN.INC	   ;DEFINE THE MESSAGE HANDLER CONTROL BLOCKS ;AN000;
-	   INCLUDE COMPMS.INC	   ;DEFINE THE MESSAGES, AND CONTROL BLOCKS ;AN000;
+	   %include "MSGHAN.INC";DEFINE THE MESSAGE HANDLER CONTROL BLOCKS ;AN000;
+	   %include "COMPMS.INC";DEFINE THE MESSAGES, AND CONTROL BLOCKS ;AN000;
 	   MSG_SERVICES <MSGDATA>					 ;AN000;
 ; =  =	=  =  =  =  =  =  =  =	=  =					 ;AN000;
 	   HEADER <SYSTEM MESSAGE HANDLER>				 ;AN000;
-	   PUBLIC SYSLOADMSG						 ;AN000;
-	   PUBLIC SYSDISPMSG						 ;AN000;
-	   PUBLIC SYSGETMSG						 ;AN000;
+	   global SYSLOADMSG;AN000;
+	   global SYSDISPMSG;AN000;
+	   global SYSGETMSG;AN000;
 ;									 ;AN000;
 ;	   MSG_SERVICES <LOADmsg,GETmsg,DISPLAYmsg,CHARmsg,INPUTmsg,NUMmsg> ;AN000;
 				   ;DEFAULT=CHECK DOS VERSION		 ;AN000;
@@ -141,19 +141,19 @@ COPYRIGHT  DB	 "The DOS COMP Utility" 	       ;AN000;
 				   ;DEFAULT=NUMmsg			 ;AN000;
 				   ;DEFAULT=NO TIMEmsg			 ;AN000;
 				   ;DEFAULT=NO DATEmsg			 ;AN000;
-.XLIST									 ;AN000;
-.XCREF									 ;AN000;
+; .XLIST;AN000;
+; .XCREF;AN000;
 	   MSG_SERVICES <LOADmsg>					 ;AN000;
 	   MSG_SERVICES <GETmsg>					 ;AN000;
 	   MSG_SERVICES <DISPLAYmsg,CHARmsg,INPUTmsg,NUMmsg>		 ;AN000;
-.LIST									 ;AN000;
-.CREF									 ;AN000;
+; .LIST;AN000;
+; .CREF;AN000;
 ;									 ;AN000;
 	   MSG_SERVICES <COMP.CLA,COMP.CL1,COMP.CL2> ;TEXTS OF MESSAGES  ;AN000;
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =	 ;AN000;
-CSEG	   ENDS 							 ;AN000;
+; END SECTION .CSEG;AN000;
 
-	include msgdcl.inc
+	%include "msgdcl.inc"
 
-	   END								 ;AN000;
+	   ; END;AN000;
 

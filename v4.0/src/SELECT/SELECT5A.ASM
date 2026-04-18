@@ -1,10 +1,10 @@
 
 
-PAGE 55,132							;AN000;
-NAME	SELECT							;AN000;
-TITLE	SELECT - DOS - SELECT.EXE				;AN000;
-SUBTTL	SELECT5A.asm						;AN000;
-.ALPHA								;AN000;
+; PAGE 55,132;AN000;
+; NAME	SELECT;AN000;
+; TITLE	SELECT - DOS - SELECT.EXE;AN000;
+; SUBTTL	SELECT5A.asm;AN000;
+; .ALPHA;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	SELECT5A.ASM : Copyright 1988 Microsoft
@@ -30,38 +30,38 @@ SUBTTL	SELECT5A.asm						;AN000;
 ;		;AN002;  for DCR225
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DATA	SEGMENT BYTE PUBLIC 'DATA'                              ;AN000;
-	EXTRN	SEL_FLG:BYTE					;AN000;
-DATA	       ENDS						;AN000;
+SECTION .DATA;AN000;
+	extern SEL_FLG;AN000;
+; END SECTION .DATA;AN000;
 								;
-.XLIST								;AN000;
-	INCLUDE    PANEL.MAC					;AN000;
-	INCLUDE    SELECT.INC					;AN000;
-	INCLUDE    CASTRUC.INC					;AN000;
-	INCLUDE    STRUC.INC					;AN000;
-	INCLUDE    MACROS.INC					;AN000;
-	INCLUDE    EXT.INC					;AN000;
-	INCLUDE    VARSTRUC.INC 				;AN000;
-	INCLUDE    ROUT_EXT.INC 				;AN000;
-	INCLUDE    PAN-LIST.INC 				;AN000;
-.LIST								;AN000;
+; .XLIST;AN000;
+	%include "PANEL.MAC";AN000;
+	%include "SELECT.INC";AN000;
+	%include "CASTRUC.INC";AN000;
+	%include "STRUC.INC";AN000;
+	%include "MACROS.INC";AN000;
+	%include "EXT.INC";AN000;
+	%include "VARSTRUC.INC";AN000;
+	%include "ROUT_EXT.INC";AN000;
+	%include "PAN-LIST.INC";AN000;
+; .LIST;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	SEGMENT PARA PUBLIC 'SELECT'                            ;AN000;segment for far routine
-	ASSUME	CS:SELECT,DS:DATA				;AN000;
+SECTION .SELECT;AN000;segment for far routine
+	; ASSUME	CS:SELECT,DS:DATA;AN000;
 								;
-	INCLUDE CASEXTRN.INC					;AN000;
+	%include "CASEXTRN.INC";AN000;
 								;
-	EXTRN	CREATE_AUTOEXEC_BAT:NEAR			;AN000;
-	EXTRN	CREATE_CONFIG_SYS:NEAR				;AN000;
-	EXTRN	CREATE_SHELL_BAT:NEAR				;AN000;DT
-	EXTRN	SCAN_INFO_CALL:NEAR				;AN000;DT
+	extern CREATE_AUTOEXEC_BAT;AN000;
+	extern CREATE_CONFIG_SYS;AN000;
+	extern CREATE_SHELL_BAT;AN000;DT
+	extern SCAN_INFO_CALL;AN000;DT
 								;
-	PUBLIC	DATE_TIME_SCREEN				;AN000;
-	EXTRN	PROCESS_ESC_F3:near				;AN000;
-	EXTRN	FORMAT_DISK_SCREEN:near 			;AN000;
-	EXTRN	EXIT_DOS:near					;AN000;
-	EXTRN	INSTALL_ERROR:near				;AN000;
-	EXTRN	EXIT_SELECT:NEAR				;AN000;
+	global DATE_TIME_SCREEN;AN000;
+	extern PROCESS_ESC_F3;AN000;
+	extern FORMAT_DISK_SCREEN;AN000;
+	extern EXIT_DOS;AN000;
+	extern INSTALL_ERROR;AN000;
+	extern EXIT_SELECT;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;  ������������������������������������Ŀ
@@ -82,26 +82,26 @@ SELECT	SEGMENT PARA PUBLIC 'SELECT'                            ;AN000;segment fo
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 DATE_TIME_SCREEN:						;AN000;
 								;
-	.IF < N_SELECT_MODE eq E_SELECT_FDISK > and		;AN000;DT
-	.IF < N_DISKETTE_A eq E_DISKETTE_360 >			;AN000;DT
+	; .IF < N_SELECT_MODE eq E_SELECT_FDISK > and;AN000;DT
+	; .IF < N_DISKETTE_A eq E_DISKETTE_360 >;AN000;DT
 	   CALL 		CURSOROFF			;AN082;SEH
 	   INSERT_DISK		SUB_INSTALL_COPY, S_SELECT_TMP	;AN000;JW
 	   CALL 		SCAN_INFO_CALL			;AN000;DT
-	.ENDIF							;AN000;DT
+	; .ENDIF;AN000;DT
 								;
 	INIT_VAR		STACK_INDEX, 0			;AN000; clear SELECT STACK
 								;
 	CHECK_WRITE_PROTECT	DRIVE_A, N_RETCODE		;AC000;JW
-	.IF c							;AN000;
+	; .IF c;AN000;
 	   GOTO 		INSTALL_ERROR			;AN000;
-	.ELSE							;AN000;
+	; .ELSE;AN000;
 	   OR  SEL_FLG,INSTALLRW				;AN000; indicate INSTALL diskette is R/W
-	.ENDIF							;AN000;
+	; .ENDIF;AN000;
 								;
 	GET_DATE		N_YEAR, N_MONTH, N_DAY		;AN000; get system date
-	.IF c							;AN000; if system date is 1/1/1980
+	; .IF c;AN000; if system date is 1/1/1980
 	   GOTO 		FORMAT_DISK_SCREEN		;AN000;    goto next screen (FORMAT_DISK)
-	.ENDIF							;AN000;
+	; .ENDIF;AN000;
 								;
 	GET_TIME		N_HOUR, N_MINUTE, N_SECOND	;AN000; get system time
 								;
@@ -128,7 +128,7 @@ DATE_TIME_SCREEN:						;AN000;
 								;
 DATE_TIME_LOOP: 						;AN000;
 								;
-	.REPEAT 						;AN000; repeat code block
+	; .REPEAT;AN000; repeat code block
 								;
 	   .SELECT						;AN000;
 								;
@@ -160,27 +160,27 @@ DATE_TIME_LOOP: 						;AN000;
 								;
 	   INC_VAR		N_COUNTER			;AN000;    inc counter
 								;
-	   .IF < N_COUNTER a 6 >				;AN000;    if counter > 6
+	   ; .IF < N_COUNTER a 6 >;AN000;    if counter > 6
 	      INIT_VAR		N_COUNTER, 1			;AN000;       set counter = 1
-	   .ENDIF						;AN000;
+	   ; .ENDIF;AN000;
 								;
-	.UNTIL < N_USER_FUNC eq E_ENTER > near			;AN000; break loop if user entered ENTER
+	; .UNTIL < N_USER_FUNC eq E_ENTER > near;AN000; break loop if user entered ENTER
 								;
 	CHECK_DATE_CHANGE	N_WORD_1,N_WORD_2,N_WORD_3,N_YEAR,N_MONTH,N_DAY     ;AN000; check if new date is different
-	.IF c							;AN000; if new date different
+	; .IF c;AN000; if new date different
 	   SET_DATE		N_WORD_1, N_WORD_2, N_WORD_3	;AN000;    set new system date
-	   .IF c						;AN000;    if new date invalid
+	   ; .IF c;AN000;    if new date invalid
 	      INIT_VAR		N_COUNTER, 3			;AN000;       set counter = 3
 	      GOTO		DATE_TIME_LOOP			;AN000;       goto get day again
-	   .ENDIF						;AN000;
-	.ENDIF							;AN000;
+	   ; .ENDIF;AN000;
+	; .ENDIF;AN000;
 								;
 	CHECK_TIME_CHANGE	N_WORD_4,N_WORD_5,N_WORD_6,N_HOUR,N_MINUTE,N_SECOND ;AN000; check if new time is different
-	.IF c							;AN000; if new time is different
+	; .IF c;AN000; if new time is different
 	   SET_TIME		N_WORD_4, N_WORD_5, N_WORD_6	;AN000;    set new system time
-	.ENDIF							;AN000;
+	; .ENDIF;AN000;
 								;
 	GOTO			FORMAT_DISK_SCREEN		;AN000; goto next screen (FORMAT_DISK)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS							;AN000;
-	END							;AN000;
+; END SECTION .SELECT;AN000;
+	; END;AN000;

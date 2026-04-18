@@ -1,14 +1,14 @@
 ;m
-	PAGE	,132			;
-	TITLE	MODE COMMAND - MAIN PROCEDURE AND COMMAND PARSING
-.XLIST
-   INCLUDE STRUC.INC
-.LIST
+	; PAGE	,132;
+	; TITLE	MODE COMMAND - MAIN PROCEDURE AND COMMAND PARSING
+; .XLIST
+   %include "STRUC.INC"
+; .LIST
 ;.SALL
 
 
-;ษออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 ;  AC001 - P3976: Need to have all pieces of messages in MODE.SKL so have to
 ;		  implement the SYSGETMSG method of getting addressability to
@@ -20,16 +20,16 @@
 ;  AN002 - P4011: Need to close all open handles before terminating and staying
 ;		  resident so don't eat into the total available handles for the
 ;		  system.
-;บ											  บ
-;ศออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
-INCLUDE  SYSMSG.INC
+%include "SYSMSG.INC"
 
 MSG_UTILNAME <MODE>
 
 
-;ษอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 false	EQU	00H
 STDIN	    EQU   0		       ;AN002;handle for standard input device
@@ -38,66 +38,66 @@ TERMINATE EQU	4CH			;INT 21 "TERMINATE RETURNING CODE" FUNCTION
 terminate_and_stay_resident    EQU   31H   ;INT 21 "terminate and remain resident"
 truu	 EQU   0FFH
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออ  S T R U C T U R E S  ออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  S T R U C T U R E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออ  S T R U C T U R E S  ออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  S T R U C T U R E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-	PAGE
-PRINTF_CODE SEGMENT PUBLIC
-	ASSUME	CS:PRINTF_CODE,DS:PRINTF_CODE,SS:PRINTF_CODE
+	; PAGE
+SECTION .PRINTF_CODE
+	; ASSUME	CS:PRINTF_CODE,DS:PRINTF_CODE,SS:PRINTF_CODE
 
 
-;ษอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-PUBLIC	 main
-PUBLIC	 SYSDISPMSG
-PUBLIC	 SYSGETMSG
-
-
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออผ
+global main
+global SYSDISPMSG
+global SYSGETMSG
 
 
-;ษอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
-
-EXTRN	analyze_and_invoke:NEAR
-EXTRN	get_machine_type:NEAR		      ;get model and sub-model bytes
-EXTRN	initialize_sublists:NEAR	  ;see display.asm
-EXTRN	move_destination:ABS		  ;location of res code after it has been moved
-EXTRN	noerror:BYTE
-EXTRN	parse_parameters:NEAR
-EXTRN	PRINTF:NEAR
-EXTRN	rescode_length:ABS	       ;length in paragraphs of the resident code
-EXTRN	stay_resident:BYTE	       ;boolean indicating just loaded resident code see 'rescode'
-
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออออออออ  D A T A	ออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
+
+extern analyze_and_invoke
+extern get_machine_type;get model and sub-model bytes
+extern initialize_sublists;see display.asm
+extern move_destination;location of res code after it has been moved
+extern noerror
+extern parse_parameters
+extern PRINTF
+extern rescode_length;length in paragraphs of the resident code
+extern stay_resident;boolean indicating just loaded resident code see 'rescode'
+
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+
+
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  D A T A	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 
 	DB	"The MODE command "
 	DB	"--------------------------------------------------------------"
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออออออ  D A T A	ออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  D A T A	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
-;ษออออออออออออออออออออออออออออ	P R O C E D U R E S  อออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรร	P R O C E D U R E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-close_handles  PROC  NEAR		  ;AN002;close all standard device handles
+close_handles:;AN002;close all standard device handles
 					  ;AN002;
 MOV   AH,3EH				  ;AN002;
 					  ;AN002;
@@ -107,10 +107,10 @@ MOV   AH,3EH				  ;AN002;
 					  ;AN002;
 RET					  ;AN002;
 					  ;AN002;
-close_handles  ENDP			  ;AN002;
+; ENDP close_handles;AN002;
 
-;บ											  บ
-;ศออออออออออออออออออออออออออออ	P R O C E D U R E S  อออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรร	P R O C E D U R E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
 ;
@@ -123,22 +123,22 @@ MSG_SERVICES <mode.cla,mode.clb,mode.cl1,mode.cl2>    ;class B is for messages >
 ;;RPS  MSG_SERVICES <mode.cl1,mode.cl2>
 
 
-main  PROC  NEAR
+main:
 
 CALL  SYSLOADMSG		    ;load the message text
-.IF NC THEN			    ;IF messages loaded successfully THEN
+; .IF NC THEN;IF messages loaded successfully THEN
    CALL  get_machine_type
    CALL  initialize_sublists
    CALL  parse_parameters
-   .IF <noerror EQ truu> THEN	       ;no problems parsing so continue
+   ; .IF <noerror EQ truu> THEN;no problems parsing so continue
       CALL  analyze_and_invoke		  ;semantically analyze the parms and invoke appropriate routine
-   .ENDIF
+   ; .ENDIF
 
    MOV	AH,TERMINATE		       ;assume won't stay resident
-   .IF <noerror EQ false> THEN
+   ; .IF <noerror EQ false> THEN
       MOV  AL,1 		       ;had a problem somewhere
-   .ELSE
-      .IF   <stay_resident EQ truu> THEN
+   ; .ELSE
+      ; .IF   <stay_resident EQ truu> THEN
 	 CALL  close_handles		  ;close all standard devices;AN002;
 	 MOV  DX,move_destination
 	 MOV  CL,4			  ;4 right shifts = divide by 16
@@ -147,22 +147,22 @@ CALL  SYSLOADMSG		    ;load the message text
 					  ;TO first usable
 	 ADD   DX,rescode_length	  ;BYTE OF PROGRAM segment PREFIX
 	 MOV  AH,terminate_and_stay_resident
-      .ENDIF
+      ; .ENDIF
       MOV  AL,0 		       ;all went well
-   .ENDIF
-.ELSE				       ;ABORT
+   ; .ENDIF
+; .ELSE;ABORT
 
    CALL  SYSDISPMSG			  ;display some "I'm crashing" message
 
-.ENDIF
+; .ENDIF
 
 
 INT	21H			 ;TERMINATE RETURNING ERRORLEVEL INDICATING success
 RET
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-main  ENDP
+; ENDP main
 
-PRINTF_CODE ENDS
-	END
+; END SECTION .PRINTF_CODE
+	; END

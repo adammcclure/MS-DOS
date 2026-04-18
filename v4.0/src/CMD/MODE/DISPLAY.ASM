@@ -1,25 +1,25 @@
 ;m
-PRINTF_CODE SEGMENT PUBLIC
+SECTION .PRINTF_CODE
 
-ASSUME CS:PRINTF_CODE, DS:PRINTF_CODE, ES:PRINTF_CODE, SS:PRINTF_CODE
+; ASSUME CS:PRINTF_CODE, DS:PRINTF_CODE, ES:PRINTF_CODE, SS:PRINTF_CODE
 
 
-;ษอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-PUBLIC	 initialize_sublists
+global initialize_sublists
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 ;*****************************************************************************
 ; External Declarations
 ;*****************************************************************************
 ;
 
-EXTRN	 first_sublist:BYTE
-EXTRN	 number_of_sublists:ABS
-EXTRN	 SysDispMsg:Near
+extern first_sublist
+extern number_of_sublists
+extern SysDispMsg
 
 
 
@@ -33,7 +33,7 @@ EXTRN	 SysDispMsg:Near
 ;
 
 
-Message_Table struc				;				;AN000;
+struc Message_Table;				;AN000;
 						;
 Entry1	dw	0				;				;AN000;
 Entry2	dw	0				;				;AN000;
@@ -43,9 +43,9 @@ Entry5	db	0				;				;AN000;
 Entry6	db	0				;				;AN000;
 Entry7	dw	0				;				;AN000;
 						;
-Message_Table ends				;				;AN000;
+endstruc;				;AN000;
 
-include common.stc	      ;contains the following structure
+%include "common.stc";contains the following structure
 
 ;sublist_def  STRUC
 
@@ -61,54 +61,54 @@ include common.stc	      ;contains the following structure
 
 ;sublist_def  ENDS
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
-;ณ
-;ณ INITIALIZE_SUBLISTS
-;ณ -------------------
-;ณ A .COM file cannot have references to segments in it at EXE2BIN time so
-;ณ the segment part of pointers to pieces of messages in sublist blocks must
-;ณ be done at execution time.  This routine does that for all sublists.
-;ณ
-;ณ
-;ณ INPUT:
-;ณ
-;ณ
-;ณ
-;ณ
-;ณ
-;ณ
-;ณ
-;ณ RETURN:
-;ณ
-;ณ
-;ณ  MESSAGES:	 none
-;ณ
-;ณ
-;ณ
-;ณ  REGISTER
-;ณ  USAGE AND
-;ณ  COMVENTIONS:
-;ณ
-;ณ
-;ณ
-;ณ  ASSUMPTIONS:
-;ณ
-;ณ
-;ณ  SIDE EFFECT:
-;ณ
-;ณ
-;ณ   ๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙
-;ณ
-;ณ BEGIN
-;ณ										ณ
-;ณ END										ณ
-;ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+;ยณ
+;ยณ INITIALIZE_SUBLISTS
+;ยณ -------------------
+;ยณ A .COM file cannot have references to segments in it at EXE2BIN time so
+;ยณ the segment part of pointers to pieces of messages in sublist blocks must
+;ยณ be done at execution time.  This routine does that for all sublists.
+;ยณ
+;ยณ
+;ยณ INPUT:
+;ยณ
+;ยณ
+;ยณ
+;ยณ
+;ยณ
+;ยณ
+;ยณ
+;ยณ RETURN:
+;ยณ
+;ยณ
+;ยณ  MESSAGES:	 none
+;ยณ
+;ยณ
+;ยณ
+;ยณ  REGISTER
+;ยณ  USAGE AND
+;ยณ  COMVENTIONS:
+;ยณ
+;ยณ
+;ยณ
+;ยณ  ASSUMPTIONS:
+;ยณ
+;ยณ
+;ยณ  SIDE EFFECT:
+;ยณ
+;ยณ
+;ยณ   รนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรน
+;ยณ
+;ยณ BEGIN
+;ยณ										ยณ
+;ยณ END										ยณ
+;ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 
-initialize_sublists  PROC  NEAR 										 ;AN000;
+initialize_sublists:;AN000;
 
 MOV   CX,number_of_sublists											 ;AN000;
-MOV   SI,OFFSET first_sublist	       ;address first sublist							 ;AN000;
+MOV   SI,first_sublist	       ;address first sublist							 ;AN000;
 REPEAT: 													 ;AN000;
    MOV	 [SI].sublist_seg,DS	       ;set up the segment part of the pointer field in the sublist block	 ;AN000;
    ADD	 SI,TYPE sublist_def	       ;point to next sublist block						 ;AN000;
@@ -116,7 +116,7 @@ LOOPNZ	repeat													 ;AN000;
 														 ;AN000;
 RET
 														 ;AN000;
-initialize_sublists  ENDP
+; ENDP initialize_sublists
 
 ;*****************************************************************************
 ;PRINTF
@@ -147,8 +147,8 @@ initialize_sublists  ENDP
 ;	ret
 ;*****************************************************************************
 
-Public	PRINTF
-PRINTF	 PROC  NEAR		     ;				     ;AN000;
+global PRINTF
+PRINTF:;				     ;AN000;
 
 ;	push	ax
 						;Save registers 		;AN000;
@@ -174,8 +174,8 @@ PRINTF	 PROC  NEAR		     ;				     ;AN000;
 ;	pop	ax				; "  "    "  "                  ;AN000;
 	ret					;All done			;AN000;
 
-PRINTF	ENDP			 ;				 ;AN000;
+; ENDP PRINTF;				 ;AN000;
 
-PRINTF_CODE ENDS
+; END SECTION .PRINTF_CODE
 
-	end
+	; end

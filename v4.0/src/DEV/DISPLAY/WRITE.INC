@@ -2,16 +2,16 @@
 ;   WRITE ROUTINE FOR DESIGNATE WRITE
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IF1                                            ;
-        %OUT .               ®WRITE   .INC¯
-ENDIF                                          ;
-        PUBLIC  REDUCED_SUPPORT                ;
+%if 1  ; IF1 - pass-specific;
+        %warning .               Â®WRITE   .INCÂ¯
+%endif;
+        global REDUCED_SUPPORT;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       WRITE DESIGNATE SUPPORT
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DESG_WRITE      PROC                    ;
+DESG_WRITE:;
         CMP     CS:DESG_SEMAPHORE,ZERO  ; TEST IF DESIGNATE IS ON...
         JNE     DW_2                    ; PASS ONTO DOS
         CLC                             ;
@@ -23,7 +23,7 @@ DW_2:   CMP     CS:DESG_SEMAPHORE,ONE   ; CHECK IF PROPER DESIGNATE
         RET                             ;
 DW_4:   CALL    WRITE                   ;
         RET                             ;
-DESG_WRITE   ENDP                       ;
+; ENDP DESG_WRITE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
@@ -31,7 +31,7 @@ DESG_WRITE   ENDP                       ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 REDUCED_SUPPORT EQU     $               ; THIS IS A MARKER FOR REDUCED CPS
                                         ; SUPPORT WITH 0 DESGINATES (CGA,MONO)
-WRITE   PROC                            ;
+WRITE:;
         PUSH    DS                      ;
                                         ;
         PUSH    CS                      ;
@@ -43,27 +43,27 @@ WRITE   PROC                            ;
         MOV     OLD_STACK_O,SI        ;S;
         MOV     SI,SS                 ;S;
         MOV     OLD_STACK_S,SI        ;S;
-        MOV     AX,OFFSET STACK_START ;S;
+        MOV     AX,STACK_START ;S;
         MOV     SI,CS                 ;S;
         MOV     SS,SI                 ;S;
         MOV     SP,AX                 ;S;
         STI                           ;S;
                                         ;
-        LES     DI,DWORD PTR BUF.RH_PTRO; RESTORE ES:DI AS REQUEST HEADER PTR
+        LES     DI,dword BUF.RH_PTRO; RESTORE ES:DI AS REQUEST HEADER PTR
         LEA     SI,FTABLE               ; GET BASE ADDRESS OF PARSER TABLE
                                         ;
-        MOV     DS:[SI].FLAG,0          ; NO RESTART
+        MOV     [DS:SI].FLAG,0          ; NO RESTART
         MOV     AX,RH.RH3_CNT           ;
-        MOV     DS:[SI].BUFFER_LEN,AX   ; LENGTH OF REQUEST PACKET
+        MOV     [DS:SI].BUFFER_LEN,AX   ; LENGTH OF REQUEST PACKET
                                         ;
         PUSH    SI                      ;
         LEA     SI,[SI].BUFFER_ADDR     ; PACKET ADDRESS
         MOV     AX,RH.RH3_DTAO          ;
-        MOV     DS:[SI],AX              ;
+        MOV     [DS:SI],AX              ;
         INC     SI                      ;
         INC     SI                      ;
         MOV     AX,RH.RH3_DTAS          ;
-        MOV     DS:[SI],AX              ;
+        MOV     [DS:SI],AX              ;
         POP     SI                      ;
                                         ;
         CALL    FONT_PARSER             ;
@@ -78,7 +78,7 @@ WRITE   PROC                            ;
         MOV     CX,[SI].NUM_FTBLK       ; CX = NUMBER OF PARSING TABLES
         LEA     SI,FTB1                 ; THEN SET SI = FIRST PARSING TABLE
                                         ;
-W_1:    MOV     AX,DS:[SI].FTB_STATUS   ;
+W_1:    MOV     AX,[DS:SI].FTB_STATUS   ;
         CMP     AX,0FFF0H               ; CHECK THE PARSER STATUS
         JNB     W_3                     ;
                                         ;
@@ -90,7 +90,7 @@ W_1:    MOV     AX,DS:[SI].FTB_STATUS   ;
 W_3:    CMP     AX,FSTAT_FONT           ;
         JNE     W_6                     ;
                                         ;
-        MOV     AX,DS:[SI].FTB_DLEN     ;
+        MOV     AX,[DS:SI].FTB_DLEN     ;
         CALL    HANDLE_DATA_WRITE       ;
                                         ;
 W_6:    ADD     SI,TYPE FTBLK           ; ADVANCE SI POINTER TO NEXT TABLE
@@ -106,7 +106,7 @@ W_7:    CLI                           ;S;
         POP     DS                      ;
         STC                             ; INDICATE NOT TO PASS ON DATA
         RET                             ;
-WRITE   ENDP                            ;
+; ENDP WRITE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       THIS IS USED TO SET THE CPS DRIVER IN THE CASE OF A
@@ -115,7 +115,7 @@ WRITE   ENDP                            ;
 ;       THEN IT TOO BECOMES INVALID.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-HANDLE_WRITE_ERROR      PROC            ;
+HANDLE_WRITE_ERROR:;
         PUSH    DS                      ;
         PUSH    AX                      ;
         PUSH    CX                      ;
@@ -142,7 +142,7 @@ HWE_2:  POP     SI                      ;
         POP     AX                      ;
         POP     DS                      ;
         RET                             ;
-HANDLE_WRITE_ERROR      ENDP            ;
+; ENDP HANDLE_WRITE_ERROR;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       THIS SUBROUTINE TAKES THE DATA INFORMATION ISOLATED
@@ -157,12 +157,12 @@ HANDLE_WRITE_ERROR      ENDP            ;
 ;               DS:SI = POINTER TO 'FTBLK'
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-NUM_DATA_FONTS  DW      ?               ;
-TABLE_INDEX     DW      ?               ;
-LEN_DATA        DW      ?               ;
-INDEX_WRITE_PNTER DW    ?               ;
+NUM_DATA_FONTS: dw 0;
+TABLE_INDEX: dw 0;
+LEN_DATA: dw 0;
+INDEX_WRITE_PNTER: dw 0;
                                         ;
-HANDLE_DATA_WRITE       PROC            ;
+HANDLE_DATA_WRITE:;
         PUSH    AX                      ;
         PUSH    BX                      ;
         PUSH    CX                      ;
@@ -172,7 +172,7 @@ HANDLE_DATA_WRITE       PROC            ;
         PUSH    ES                      ;
                                         ;
         PUSH    CX                      ;
-        MOV     CX,DS:[SI].FTB_FONTS    ; READ IN #FONTS FROM DATA FILE
+        MOV     CX,[DS:SI].FTB_FONTS    ; READ IN #FONTS FROM DATA FILE
         MOV     CS:NUM_DATA_FONTS,CX    ;
         POP     CX                      ;
                                         ;
@@ -189,7 +189,7 @@ HANDLE_DATA_WRITE       PROC            ;
                                         ;
         PUSH    CS                      ;
         POP     ES                      ;
-        MOV     AX,DS:[SI].FTB_CP       ; GET THE CODE PAGE OF THIS FONT BLOCK
+        MOV     AX,[DS:SI].FTB_CP       ; GET THE CODE PAGE OF THIS FONT BLOCK
         MOV     CX,CPD_DESG_N           ; GET THE NUMBER OF CP's TO CHECK
         MOV     DI,TWO                  ;
 BBB_0:  CMP     AX,CPD_DESG_N[DI]       ; LOOKING FOR A MATCHED CODE PAGE
@@ -221,11 +221,11 @@ BBB_2:  POP     ES                      ;
                                         ;
         MOV     CS:INDEX_WRITE_PNTER,DI ; SAVE ADDRESS OF INDEX WRITE PNTER
                                         ;
-        MOV     ES,CS:[DI+2]            ; SET ES : DI WITH WRITE POINTER!
-        MOV     DI,CS:[DI]              ;
+        MOV     ES,[CS:DI+2]            ; SET ES : DI WITH WRITE POINTER!
+        MOV     DI,[CS:DI]              ;
                                         ;
-        MOV     CX,DS:[SI].FTB_DAHI     ; GET SEGMENT OF DATA
-        MOV     SI,DS:[SI].FTB_DALO     ; GET OFFSET OF DATA
+        MOV     CX,[DS:SI].FTB_DAHI     ; GET SEGMENT OF DATA
+        MOV     SI,[DS:SI].FTB_DALO     ; GET OFFSET OF DATA
         MOV     DS,CX                   ;
                                         ; <<SETUP DESTINATION INFO>>
         MOV     CX,AX                   ; SAVE LENGTH OF DATA TO COPY
@@ -251,7 +251,7 @@ TEMP_0: PUSH    AX                      ;
         LEA     BX,CPD_FONT_DATA        ; TEST IF THERE IS OUTSTANDING DATA
         ADD     BX,CS:TABLE_INDEX       ; FOR INFORMATION TO COPY or SKIP OVER.
         ADD     BX,CS:TABLE_INDEX       ; (ACCOUNT FOR WORD VALUE)
-        MOV     AX,CS:[BX]              ;
+        MOV     AX,[CS:BX]              ;
         OR      AX,AX                   ;
         JE      HDW_00                  ; IF NOTHING TO CONSIDER, THEN MOVE ON
         TEST    AX,8000H ;;;;SKIP/COPY;;;;; TEST IF OUTSTANDING DATA TO COPY/SKIP
@@ -275,7 +275,7 @@ HDW_0A: MOV     AL,[SI]                 ; GET #ROWS FROM DATA
         PUSH    CX                      ; SAVE COUNT
         MOV     CX,NUM_FONT_PRIORITY    ;
         LEA     BX,FONT_PRIORITY        ; SET DI TO START OF TABLE
-HDW_1:  CMP     AL,CS:[BX]              ;
+HDW_1:  CMP     AL,[CS:BX]              ;
         JE      HDW_3                   ; IF EQUAL, THEN ALREADY IN TABLE
         INC     BX                      ; OTHERWISE, TAKE THIS MODES FONT RES
         LOOP    HDW_1                   ; AND COMPARE AGAINST NEXT PRIOR.VALUE
@@ -331,8 +331,8 @@ HDW_5B: SUB     CS:LEN_DATA,CX          ;
         JUMP    HDW_4                   ;
                                         ;
 HDW_6:  MOV     SI,CS:INDEX_WRITE_PNTER ;
-        MOV     CS:[SI],DI              ;
-        MOV     CS:[SI+2],ES            ;
+        MOV     [CS:SI],DI              ;
+        MOV     [CS:SI+2],ES            ;
                                         ;
         POP     DI                      ;
         POP     SI                      ;
@@ -352,7 +352,7 @@ HDW_8:  POP     ES                      ;
         POP     BX                      ;
         POP     AX                      ;
         RET                             ;
-HANDLE_DATA_WRITE       ENDP            ;
+; ENDP HANDLE_DATA_WRITE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;       SET_CPD_FONT_DATA
@@ -361,13 +361,13 @@ HANDLE_DATA_WRITE       ENDP            ;
 ;       CONTAINED IN 'AX'.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SET_CPD_FONT_DATA       PROC            ;
+SET_CPD_FONT_DATA:;
         PUSH    SI                      ;
         MOV     SI,CS:TABLE_INDEX       ;
         ADD     SI,SI                   ;
         MOV     CS:CPD_FONT_DATA.[SI],AX;
         POP     SI                      ;
         RET                             ;
-SET_CPD_FONT_DATA       ENDP            ;
+; ENDP SET_CPD_FONT_DATA;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

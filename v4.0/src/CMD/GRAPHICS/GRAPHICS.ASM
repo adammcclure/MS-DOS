@@ -1,5 +1,5 @@
-	PAGE	,132								;AN000;
-	TITLE	DOS GRAPHICS Command  -	Command Entry Point
+	; PAGE	,132;AN000;
+	; TITLE	DOS GRAPHICS Command  -	Command Entry Point
 										;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 ;; MS DOS GRAPHICS Command
@@ -53,12 +53,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 				       ;;					;AN000;
 				       ;;					;AN000;
-CODE	SEGMENT PUBLIC 'CODE'          ;;                                       ;AN000;
-	ASSUME	CS:CODE,DS:CODE        ;;					;AN000;
+SECTION .CODE;;                                       ;AN000;
+	; ASSUME	CS:CODE,DS:CODE;;					;AN000;
 	ORG   100H		       ;; required for .COM			;AN000;
 				       ;;					;AN000;
 				       ;;					;AN000;
-	INCLUDE GRINST.EXT	       ;; Bring in external declarations	;AN000;
+	%include "GRINST.EXT";; Bring in external declarations	;AN000;
 				       ;;  for transient command processing	;AN000;
 START:				       ;;					;AN000;
 				       ;;					;AN000;
@@ -72,5 +72,5 @@ START:				       ;;					;AN000;
 				       ;;					;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 										;AN000;
-CODE   ENDS									;AN000;
-       END    START								;AN000;
+; END SECTION .CODE;AN000;
+       ; END    START;AN000;

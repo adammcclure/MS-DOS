@@ -1,97 +1,97 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tcmd1a.asm 1.1 85/05/14
 ;	SCCSID = @(#)tcmd1a.asm 1.1 85/05/14
-TITLE	PART4 COMMAND Transient routines.
+; TITLE	PART4 COMMAND Transient routines.
 
 ;	Internal commands DIR,PAUSE,ERASE,TYPE,VOL,VER
 
-	INCLUDE comsw.asm
-.xlist
-.xcref
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm		;AC000;
-	include ioctl.inc		;AN000;
-.list
-.cref
+	%include "comsw.asm"
+; .xlist
+; .xcref
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm";AC000;
+	%include "ioctl.inc";AN000;
+; .list
+; .cref
 
-DATARES SEGMENT PUBLIC BYTE		;AN020;
-	EXTRN	append_flag:byte	;AN020;
-	EXTRN	append_state:word	;AN020;
-DATARES ENDS				;AN020;
+SECTION .DATARES;AN020;
+	extern append_flag;AN020;
+	extern append_state;AN020;
+; END SECTION .DATARES;AN020;
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BadCD_ptr:word
-	EXTRN	bits:word
-	EXTRN	Bytmes_ptr:word
-	EXTRN	comsw:word
-	EXTRN	dir_w_syn:word		;AC000;
-	EXTRN	dirdat_mo_day:word	;AC000;
-	EXTRN	dirdat_yr:word		;AC000;
-	EXTRN	dirdattim_ptr:word
-	EXTRN	dirhead_ptr:word
-	EXTRN	dirtim_hr_min:word	;AC000;
-	EXTRN	Dirmes_ptr:word
-	EXTRN	disp_file_size_ptr:word
-	EXTRN	Dmes_ptr:word
-	EXTRN	Extend_buf_ptr:word	;AN000;
-	EXTRN	msg_disp_class:byte	;AN000;
-	EXTRN	parse_dir:byte		;AC000;
-	EXTRN	slash_p_syn:word	;AC000;
-	EXTRN	string_buf_ptr:word
-	EXTRN	tab_ptr:word		;AC000;
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern BadCD_ptr
+	extern bits
+	extern Bytmes_ptr
+	extern comsw
+	extern dir_w_syn;AC000;
+	extern dirdat_mo_day;AC000;
+	extern dirdat_yr;AC000;
+	extern dirdattim_ptr
+	extern dirhead_ptr
+	extern dirtim_hr_min;AC000;
+	extern Dirmes_ptr
+	extern disp_file_size_ptr
+	extern Dmes_ptr
+	extern Extend_buf_ptr;AN000;
+	extern msg_disp_class;AN000;
+	extern parse_dir;AC000;
+	extern slash_p_syn;AC000;
+	extern string_buf_ptr
+	extern tab_ptr;AC000;
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	bytes_free:word
-	EXTRN	charbuf:byte
-	EXTRN	COM:byte
-	EXTRN	Destisdir:byte
-	EXTRN	Desttail:word
-	EXTRN	dir_num:word
-	EXTRN	Dirbuf:byte
-	EXTRN	dirflag:byte		;AN015;
-	EXTRN	display_ioctl:word	;AC000;
-	EXTRN	display_mode:byte	;AC000;
-	EXTRN	filecnt:word
-	EXTRN	file_size_high:word
-	EXTRN	file_size_low:word
-	EXTRN	fullscr:word
-	EXTRN	ID:byte
-	EXTRN	lincnt:byte		;AC000;
-	EXTRN	linlen:byte
-	EXTRN	linperpag:word		;AC000;
-	EXTRN	msg_numb:word		;AN022;
-	EXTRN	parse1_addr:dword	;AC000;
-	EXTRN	parse1_syn:word 	;AC000;
-	EXTRN	parse1_type:byte	;AC000;
-	EXTRN	pathcnt:word		;AN000;
-	EXTRN	pathpos:word		;AN000;
-	EXTRN	resseg:word		;AN020;
-	EXTRN	srcbuf:byte		;AC000;
-	EXTRN	string_ptr_2:word
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern bytes_free
+	extern charbuf
+	extern COM
+	extern Destisdir
+	extern Desttail
+	extern dir_num
+	extern Dirbuf
+	extern dirflag;AN015;
+	extern display_ioctl;AC000;
+	extern display_mode;AC000;
+	extern filecnt
+	extern file_size_high
+	extern file_size_low
+	extern fullscr
+	extern ID
+	extern lincnt;AC000;
+	extern linlen
+	extern linperpag;AC000;
+	extern msg_numb;AN022;
+	extern parse1_addr;AC000;
+	extern parse1_syn;AC000;
+	extern parse1_type;AC000;
+	extern pathcnt;AN000;
+	extern pathpos;AN000;
+	extern resseg;AN020;
+	extern srcbuf;AC000;
+	extern string_ptr_2
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ;---------------
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg:byte		; the arg structure!
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern arg; the arg structure!
+; END SECTION .TRANSPACE
 ;---------------
 
-	EXTRN	cerror:near
-	EXTRN	std_printf:near
+	extern cerror
+	extern std_printf
 
 
-	PUBLIC	catalog
+	global catalog
 
 
 	break	Catalog - Directory command
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 ;
 ; The DIR command displays the contents of a directory.
@@ -116,14 +116,14 @@ CATALOG:
 ;
 ; Set up DTA for dir search firsts
 ;
-	mov	dx,offset trangroup:Dirbuf	;AC000; Set Disk transfer address
+	mov	dx,Dirbuf	;AC000; Set Disk transfer address
 	mov	ah,Set_DMA			;AC000;
 	int	int_command			;AC000;
 ;
 ; Set up defaults for switches and parse the command line.
 ;
 	mov	msg_numb,0			;AN022; initialize message flag
-	mov	di,offset trangroup:srcbuf	;AN000; get address of srcbuf
+	mov	di,srcbuf	;AN000; get address of srcbuf
 	mov	[pathpos],di			;AN000; this is start of path
 	mov	[pathcnt],1			;AN000; initialize length to 1 char
 	mov	al,star 			;AN000; initialize srcbuf to *,0d
@@ -131,7 +131,7 @@ CATALOG:
 	mov	al,end_of_line_in		;AN000;
 	stosb					;AN000;
 	mov	si,81H				;AN000; Get command line
-	mov	di,offset trangroup:parse_dir	;AN000; Get adderss of PARSE_DIR
+	mov	di,parse_dir	;AN000; Get adderss of PARSE_DIR
 	xor	cx,cx				;AC000; clear counter for positionals
 	mov	ComSw,cx			;AC000; initialize flags
 	mov	bits,cx 			;AC000; initialize switches
@@ -152,9 +152,9 @@ dirscan_cont:
 	jmp	badparm 			;AN000; yes - exit
 
 dirscan_cont2:
-	cmp	parse1_syn,offset trangroup:dir_w_syn ;AN000; was /W entered?
+	cmp	parse1_syn,dir_w_syn ;AN000; was /W entered?
 	je	set_dir_width			;AN000; yes - go set wide lines
-	cmp	parse1_syn,offset trangroup:slash_p_syn ;AN000; was /P entered?
+	cmp	parse1_syn,slash_p_syn ;AN000; was /P entered?
 	je	set_dir_pause			;AN000; yes - go set pause at end of screen
 ;
 ; Must be filespec since no other matches occurred. move filename to srcbuf
@@ -180,7 +180,7 @@ dirscan_cont2:
 	jmp	dir_err_setup			;AN022; otherwise - go issue error message
 
 dir_check_device:				;AN022;
-	test	byte ptr (DirBuf+find_buf_attr),attr_device ;AC000;
+	test	byte (DirBuf+find_buf_attr),attr_device ;AC000;
 	jz	Dir_fspec_end			;AC000; no, go do normal operation
 	mov	ComSw,-2			;AC000; signal device
 
@@ -189,7 +189,7 @@ dir_fspec_end:
 	jmp	short dirscan			;AC000; keep parsing
 
 set_dir_width:
-	test	byte ptr[bits],SwitchW		;AN018; /W already set?
+	test	byte[bits],SwitchW		;AN018; /W already set?
 	jz	ok_set_width			;AN018; no - okay to set width
 	mov	ax,moreargs_ptr 		;AN018; set up too many arguments
 	invoke	setup_parse_error_msg		;AN018; set up an error message
@@ -202,7 +202,7 @@ ok_set_width:
 	jmp	short dirscan			;AC000; keep parsing
 
 set_dir_pause:
-	test	byte ptr[bits],SwitchP		;AN018; /p already set?
+	test	byte[bits],SwitchP		;AN018; /p already set?
 	jz	ok_set_pause			;AN018; no - okay to set width
 	mov	ax,moreargs_ptr 		;AN018; set up too many arguments
 	invoke	setup_parse_error_msg		;AN018; set up an error message
@@ -216,7 +216,7 @@ ok_set_pause:
 	mov	bx,stdout			;AN000; lines for stdout
 	mov	ch,ioc_sc			;AN000; type is display
 	mov	cl,get_generic			;AN000; get information
-	mov	dx,offset trangroup:display_ioctl ;AN000;
+	mov	dx,display_ioctl ;AN000;
 	int	int_command			;AN000;
 
 lines_set:
@@ -267,7 +267,7 @@ DirNF:
 
 dir_err_setup:
 	mov	msg_disp_class,ext_msg_class	;AN000; set up extended error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr  ;AC000; get extended message pointer
+	mov	dx,Extend_Buf_ptr  ;AC000; get extended message pointer
 	mov	extend_buf_ptr,ax		;AN022;
 
 DirError:
@@ -281,15 +281,15 @@ DirError:
 ; found.
 ;
 DoParse:
-	mov	si,offset trangroup:srcbuf	;AN000; Get address of source
-	cmp	byte ptr [si+1],colon_char	;AN000; Is there a drive?
+	mov	si,srcbuf	;AN000; Get address of source
+	cmp	byte [si+1],colon_char	;AN000; Is there a drive?
 	jnz	dir_no_drive			;AN000; no - keep going
 	lodsw					;AN000; bypass drive
 
 dir_no_drive:
 	cmp	[si],".."
 	jnz	DoRealParse
-	cmp	byte ptr [si+2],0
+	cmp	byte [si+2],0
 	jnz	DoRealParse
 	inc	ComSw
 	jmp	short DoHeader
@@ -317,14 +317,14 @@ DoHeader:
 	int	2fh				;AN020;
 	push	ds				;AN020; save current data segment
 	mov	ds,[resseg]			;AN020; get resident segment
-	assume	ds:resgroup			;AN020;
+	; assume	ds:resgroup;AN020;
 	mov	append_state,bx 		;AN020; save append state
 	mov	append_flag,-1			;AN020; set append flag
 	xor	bx,bx				;AN020; clear out state
 	mov	ax,AppendSetState		;AN020; Set the state of Append
 	int	2fh				;AN020;     set everything off
 	pop	ds				;AN020; save current data segment
-	assume	ds:trangroup			;AN020;
+	; assume	ds:trangroup;AN020;
 
 ;
 ; Display the header
@@ -334,7 +334,7 @@ DoHeaderCont:
 	mov	al,blank			;AN051; Print out a blank
 	invoke	print_char			;AN051;   before DIR header
 	invoke	build_dir_string		; get current dir string
-	mov	dx,offset trangroup:Dirhead_ptr
+	mov	dx,Dirhead_ptr
 	invoke	printf_crlf			; bang!
 
 ;
@@ -344,7 +344,7 @@ DoHeaderCont:
 	jz	DoSearch			; nothing left; good parse
 	jl	DirNFFix			; not .. => error file not found
 	invoke	RestUDir
-	mov	dx,offset TranGroup:BadCD_ptr
+	mov	dx,BadCD_ptr
 	jmp	Cerror				; was .. => error directory not found
 DirNFFix:
 	invoke	RestUDir
@@ -355,8 +355,8 @@ DirNFFix:
 ; and reset our directory afterward.
 ;
 DoSearch:
-	mov	byte ptr DS:[FCB-7],0FFH
-	mov	byte ptr DS:[FCB-1],010H
+	mov	byte [DS:FCB-7],0FFH
+	mov	byte [DS:FCB-1],010H
 ;
 ; Caution!  Since we are using an extended FCB, we will *also* be returning
 ; the directory information as an extended FCB.  We must bias all fetches into
@@ -374,7 +374,7 @@ DoSearch:
 	push	dx				;AN022; save message
 	invoke	restudir			;AN022; restore user's dir
 	pop	dx				;AN022; restore message
-	cmp	word ptr Extend_Buf_Ptr,Error_No_More_Files ;AN022; convert no more files to
+	cmp	word Extend_Buf_Ptr,Error_No_More_Files ;AN022; convert no more files to
 	jnz	DirCerrorJ			;AN022; 	file not found
 	mov	Extend_Buf_Ptr,Error_File_Not_Found  ;AN022;
 
@@ -404,12 +404,12 @@ DIRSTART:
 
 Display:
 	inc	[filecnt]			; Keep track of how many we find
-	mov	si,offset trangroup:dirbuf+8	; SI -> information returned by sys call
+	mov	si,dirbuf+8	; SI -> information returned by sys call
 	call	shoname
 ;
 ; If we are displaying in wide mode, do not output the file info
 ;
-	test	byte ptr[bits],SwitchW		; W switch set?
+	test	byte[bits],SwitchW		; W switch set?
 	jz	DirTest
 	jmp	nexent				; If so, no size, date, or time
 
@@ -422,7 +422,7 @@ DirTest:
 ;
 ; We have a directory.	Display the <DIR> field in place of the file size
 ;
-	mov	dx,offset trangroup:Dmes_ptr
+	mov	dx,Dmes_ptr
 	call	std_printf
 	jmp	short nofsiz
 ;
@@ -433,7 +433,7 @@ fileent:
 	mov	file_size_low,dx
 	mov	dx,[DirBuf+8].dir_size_h
 	mov	file_size_high,dx
-	mov	dx,offset trangroup:disp_file_size_ptr
+	mov	dx,disp_file_size_ptr
 	call	std_printf
 ;
 ; Display time and date of last modification
@@ -477,10 +477,10 @@ millenium:
 	mov	DirTim_hr_min,cx		;AC000; put hours and minutes into message subst block
 
 prbuf:
-	mov	dx,offset trangroup:DirDatTim_ptr
+	mov	dx,DirDatTim_ptr
 	call	std_printf
 	invoke	crlf2				;AC066;end the line
-	dec	byte ptr [fullscr]		;AC066;count the line
+	dec	byte [fullscr]		;AC066;count the line
 	jnz	endif04 			;AN066;IF the last on the screen THEN
 	   call    check_for_P			;AN066;   pause if /P requested
 	endif04:				;AN066;
@@ -507,9 +507,9 @@ nexent:
 	else01: 				;AN066;ELSE since screen not full
 	   cmp	   bl,[linlen]			;AN066;   IF starting new line THEN
 	   jne	   endif03			;	     count the line
-	      dec     byte ptr [fullscr]	;AN066;   ENDIF
+	      dec     byte [fullscr]	;AN066;   ENDIF
 	   endif03:				;AC066;We are outputting on the same line, between fields, we tab.
-	   mov	   dx,offset trangroup:tab_ptr	;Output a tab
+	   mov	   dx,tab_ptr	;Output a tab
 	   call    std_printf
 	endif01:				;AX066;
 ;
@@ -548,12 +548,12 @@ Trailer:
 	endif06:				;AN066;   displays
 
 mmessage:
-	mov	dx,offset trangroup:Dirmes_ptr
+	mov	dx,Dirmes_ptr
 	mov	si,[filecnt]
 	mov	dir_num,si
 	call	std_printf
 	mov	ah,Get_Drive_Freespace
-	mov	dl,byte ptr DS:[FCB]
+	mov	dl,byte [DS:FCB]
 	int	int_command
 	cmp	ax,-1
 	retz
@@ -561,11 +561,11 @@ mmessage:
 	mul	bx
 	mov	bytes_free,ax			;AC000;
 	mov	bytes_free+2,dx 		;AC000;
-	MOV	DX,OFFSET TRANGROUP:BYTMES_ptr
+	MOV	DX,BYTMES_ptr
 	jmp	std_printf
 
 shoname:
-	mov	di,offset trangroup:charbuf
+	mov	di,charbuf
 	mov	cx,8
 	rep	movsb
 	mov	al,' '
@@ -575,16 +575,16 @@ shoname:
 	xor	ax,ax
 	stosb
 	push	dx
-	mov	dx,offset trangroup:charbuf
+	mov	dx,charbuf
 	mov	string_ptr_2,dx
-	mov	dx,offset trangroup:string_buf_ptr
+	mov	dx,string_buf_ptr
 	call	std_printf
 	pop	DX
 	return
 
-check_for_P    PROC  NEAR			;AN066;
+check_for_P:;AN066;
 
-test	byte ptr[bits],SwitchP	     ;P switch present?
+test	byte[bits],SwitchP	     ;P switch present?
 jz	endif05 				;AN066;
    mov	   ax,linperpag 		   ;AN000;  transfer lines per page
    mov	   [fullscr],ax 		   ;AC000;	to fullscr
@@ -592,7 +592,7 @@ jz	endif05 				;AN066;
 endif05:
 ret						;AN066;
 
-check_for_P    ENDP				;AN066;
+; ENDP check_for_P;AN066;
 
-trancode    ends
-	    end
+; END SECTION .trancode
+	    ; end

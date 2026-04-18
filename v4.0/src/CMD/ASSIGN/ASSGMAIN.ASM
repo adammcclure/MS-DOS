@@ -1,7 +1,7 @@
 
 
-	PAGE	90,132			  ;
-	TITLE	ASSGMAIN.SAL - ASSIGN  MAIN PROGRAM
+	; PAGE	90,132;
+	; TITLE	ASSGMAIN.SAL - ASSIGN  MAIN PROGRAM
 ;****************** START OF SPECIFICATIONS *****************************
 ; MODULE NAME: ASSGMAIN.SAL
 ;
@@ -112,45 +112,45 @@
 ;*		   a=c sets a: to c:	     *
 ;*********************************************
 
-page
-DEBUG	=	0
+; page
+DEBUG equ 0
 
-.xlist
-	INCLUDE SYSMSG.INC		;AN000;
-	INCLUDE SYSVAR.INC
-	INCLUDE CURDIR.INC
-	INCLUDE MULT.INC
-	INCLUDE PDB.INC
+; .xlist
+	%include "SYSMSG.INC";AN000;
+	%include "SYSVAR.INC"
+	%include "CURDIR.INC"
+	%include "MULT.INC"
+	%include "PDB.INC"
 
 MSG_UTILNAME <ASSIGN>
 
-.list
+; .list
 
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 	BREAK	<MACRO DEFINITIONS>
-BREAK	MACRO	subtitle
-.XLIST
-	SUBTTL	subtitle
-.LIST
-	PAGE
-	ENDM
-.xcref	break
+%macro BREAK 1
+; .XLIST
+	; SUBTTL	subtitle
+; .LIST
+	; PAGE
+	%endmacro
+; .xcref	break
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-CallOperRange macro low,high,routine	;;NS-macro to call subroutines
-?call	=	low			;;NS-in the given call range
+%macro CallOperRange 3;;NS-macro to call subroutines
+?call equ low;;NS-in the given call range
 					;;NS-starting call value = low #
-rept	(high-low)+1			;;NS-calculate the entry point
+%rep (high-low)+1;;NS-calculate the entry point
 	CallOper ?call,routine		;;NS-into the table then execute
-	?call	= ?call + 1		;;NS-increment call value to next
-endm
-	endm
+	?call equ ?call + 1;;NS-increment call value to next
+%endmacro
+	%endmacro
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-CallOper macro	call,routine		;;NS-macro that calls a single
+%macro CallOper 2;;NS-macro that calls a single
 					;;NS-subroutine that is used in
 					;;NS-the above macro loop CallOperange
 	ORG	(SysTab-ASSIGN_BASE)+(call*2) ;;NS-Calculate entry point into
-	DW	OFFSET CODE:routine	;;NS-code where SysTab is the
-	ENDM				;;NS-entry point to the tables
+	DW	routine	;;NS-code where SysTab is the
+	%endmacro;;NS-entry point to the tables
 					;;NS-ASSIGN_BASE is at 0:0000
 					;;NS-the (call*2) is calculated
 					;;NS-to take into account two bytes
@@ -159,31 +159,31 @@ CallOper macro	call,routine		;;NS-macro that calls a single
 					;;NS-label
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 ;	$SALUT	(0,36,40,48)
-MyINT21 macro				;;NS-macro used to save
+%macro MyINT21 0;;NS-macro used to save
 	pushf				;;NS-the flags to maintain
 	call	system			;;NS-DOS environment
-	endm
+	%endmacro
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-SaveReg MACRO	reglist 		;; push those registers
-IRP	reg,<reglist>
-	?stackdepth = ?stackdepth + 1
+%macro SaveReg 1;; push those registers
+; IRP	reg,<reglist>
+	?stackdepth equ ?stackdepth + 1
 	PUSH	reg
-ENDM
-ENDM
-.xcref	SaveReg
+%endmacro
+%endmacro
+; .xcref	SaveReg
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-RestoreReg MACRO reglist		;; pop those registers
-IRP	reg,<reglist>
-	?stackdepth = ?stackdepth - 1
+%macro RestoreReg 1;; pop those registers
+; IRP	reg,<reglist>
+	?stackdepth equ ?stackdepth - 1
 	POP	reg
-ENDM
-ENDM
-.xcref	RestoreReg
+%endmacro
+%endmacro
+; .xcref	RestoreReg
 
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 ; = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-page
+; page
 	BREAK	<DOS FUNCTIONS, AND OTHER EQUATES>
 ;	$SALUT	(0,23,28,41)
 ;		DOS FUNCTIONS USED
@@ -237,11 +237,11 @@ f_Interrupt EQU 0000001000000000B	;NS - mask used for interrupt
 	BREAK	<ENTRY POINT FOR CODE, EXTRNS>
 ;	$SALUT	(4,15,21,41)
 
-code	segment para   public		;NS code all in one segment
-assume	cs:code
+SECTION .code;NS code all in one segment
+; assume	cs:code
 					;   one segment
 
-page
+; page
 
 ASSIGN_BASE:				;NS- starting point of loaded file
 	org	100h
@@ -253,25 +253,25 @@ ENTRY_POINT:
 drives	db	1,2,3,4,5,6,7,8,9	;drive values used in comparison
 	db	10,11,12,13,14,15,16,17,18,19 ;against default or found drive
 	db	20,21,22,23,24,25,26
-default_drive db ?
-drive_save db	?			; saved drive byte
-drive_address dw ?			; location (from DS) of drive byte
-drive_save2 db	?			; second saved drive byte
+default_drive: db 0
+drive_save: db 0; saved drive byte
+drive_address: dw 0; location (from DS) of drive byte
+drive_save2: db 0; second saved drive byte
 ;******************************************************************************
 ;******************************************************************************
 
-system	dd	?
-int25_vec dd	?			;NS - Hooks for the Int 2f handler preparation
-int26_vec dd	?			;NS - Hooks for the Int 2f handler preparation
-int2F_vec dd	?			;NS - Area to be hooked in and remain resident
-user_ret dd	?			;     ???????????????????????????????????????
-saveIntF dw	?			;     ???????????????????????????????????????
-I21_Func db	?			; Save area for INT21 function requested -->RW
+system: dd 0
+int25_vec: dd 0;NS - Hooks for the Int 2f handler preparation
+int26_vec: dd 0;NS - Hooks for the Int 2f handler preparation
+int2F_vec: dd 0;NS - Area to be hooked in and remain resident
+user_ret: dd 0;     ???????????????????????????????????????
+saveIntF: dw 0;     ???????????????????????????????????????
+I21_Func: db 0; Save area for INT21 function requested -->RW
 
 
 ;	$SALUT	(4,9,23,41)
-	EVEN
-SysTab	label	word			;NS-Beginning of the call,subroutine table
+	align 2
+SysTab:;NS-Beginning of the call,subroutine table
 	CallOper 00h,DoReset
 	CallOperRange 01h,0Ch,DoNothing ; done ????????????????????????
 	CallOper 0Dh,DoReset		; done ????????????????????????
@@ -313,7 +313,7 @@ SysTab	label	word			;NS-Beginning of the call,subroutine table
 	CallOperRange 6ah,6bh,DoNothing ;done ????????????????????????
 	CallOper 6ch,DoAscii_DS_SI	;done ?????????????????????????
 					; ????????????????????????
-page
+; page
 ;	$SALUT	(4,5,11,36)
 MAXCLL	EQU	6CH			; High bound of table
 
@@ -377,7 +377,7 @@ DoNothing:				;NS-System registers and flags still
 	RestoreReg <bx,ax>		;NS-intact it has not been clobbered
 	jmp	system			;NS-by ASSIGN code
 
-page
+; page
 ;************************************************************************************
 ;
 ; Munge the drive byte in an FCB pointed to by DS:DX.
@@ -416,8 +416,8 @@ $$IF1:
 ;
 	mov	drive_address,bx	; NS- location of drive value
 	RestoreReg <BX,AX>		; get back original registers
-	pop	word ptr user_ret	; restore his IP
-	pop	word ptr user_ret+2	; restore his CS
+	pop	word user_ret	; restore his IP
+	pop	word user_ret+2	; restore his CS
 	call	GotoCLI 		; NS- Clear out old interrupts
 					; NS- before an IRET is issued
 					; NS- update the current
@@ -431,20 +431,20 @@ $$IF1:
 	mov	al,drive_save		; NS- section
 	mov	[bx],al
 	RestoreReg <bx,ax>
-	push	word ptr user_ret+2	; push back user's cs
-	push	word ptr user_ret	; push back user's ip
+	push	word user_ret+2	; push back user's cs
+	push	word user_ret	; push back user's ip
 	Call	LeaveAssign
 
 	iret				; back to user
 
-page
+; page
 ;************************************************************************************
 ;
 ; Munge the user's ASCIZ string at DS:DX.
 ;
 DoAscii:
 	mov	bx,dx			; point to area
-	cmp	byte ptr [bx+1],':'	; drive letter present?
+	cmp	byte [bx+1],':'	; drive letter present?
 	jnz	DoNothing		; nope, ignore this
 ;
 ; There is a drive leter present.  Grab it and convert it
@@ -458,8 +458,8 @@ DoAscii:
 	mov	[bx],al 		; place in new drive letter
 	mov	drive_address,bx
 	RestoreReg <BX,AX>		; get back original registers
-	pop	word ptr user_ret	; restore his IP
-	pop	word ptr user_ret+2	; restore his CS
+	pop	word user_ret	; restore his IP
+	pop	word user_ret+2	; restore his CS
 	call	GotoCLI 		; clean up stack
 
 	call	system			; flags saved => this is a system call
@@ -472,8 +472,8 @@ DoAscii:
 	mov	al,drive_save
 	mov	[bx],al
 	RestoreReg <bx,ax>
-	push	word ptr user_ret+2	; push back user's cs
-	push	word ptr user_ret	; push back user's ip
+	push	word user_ret+2	; push back user's cs
+	push	word user_ret	; push back user's ip
 	Call	LeaveAssign		; NS-  exit ASSIGN crit. section
 
 	iret				; back to user
@@ -485,7 +485,7 @@ DoAscii:
 ;
 DoAscii_DS_SI:
 	mov	bx,si			; point to area
-	cmp	byte ptr [bx+1],':'	; drive letter present?
+	cmp	byte [bx+1],':'	; drive letter present?
 ;	$if	ne			; drive letter not present
 	JE $$IF3
 		jmp	DoNothing	; nope, ignore this
@@ -503,8 +503,8 @@ $$IF3:
 	mov	[bx],al 		; place in new drive letter
 	mov	drive_address,bx
 	RestoreReg <BX,AX>		; get back original registers
-	pop	word ptr user_ret	; restore his IP
-	pop	word ptr user_ret+2	; restore his CS
+	pop	word user_ret	; restore his IP
+	pop	word user_ret+2	; restore his CS
 	call	GotoCLI 		; clean up stack
 
 	call	system			; flags saved => this is a system call
@@ -517,13 +517,13 @@ $$IF3:
 	mov	al,drive_save
 	mov	[bx],al
 	RestoreReg <bx,ax>
-	push	word ptr user_ret+2	; push back user's cs
-	push	word ptr user_ret	; push back user's ip
+	push	word user_ret+2	; push back user's cs
+	push	word user_ret	; push back user's ip
 	Call	LeaveAssign		; NS-  exit ASSIGN crit. section
 
 	iret				; back to user
 
-page
+; page
 ;************************************************************************************
 
 ;
@@ -548,8 +548,8 @@ $$IF5:
 	mov	dl,al			; drive is mapped
 	RestoreReg <BX,AX>		; get back registers
 	mov	I21_Func,ah		; Save requested function call -->RW
-	pop	word ptr user_ret	; restore his IP
-	pop	word ptr user_ret+2	; restore his CS
+	pop	word user_ret	; restore his IP
+	pop	word user_ret+2	; restore his CS
 	call	GotoCLI
 
 	call	system			; flags saved => this is a system call
@@ -573,8 +573,8 @@ $$IF5:
 					;DONT_RESTORE_DL:
 Dont_Restore_DL:
 
-	push	word ptr user_ret+2	; push back user's cs
-	push	word ptr user_ret	; push back user's ip
+	push	word user_ret+2	; push back user's cs
+	push	word user_ret	; push back user's ip
 	Call	LeaveAssign
 
 	iret				; back to user
@@ -610,8 +610,8 @@ DoMapBX:
 
 	mov	bl,al			; drive is mapped
 	RestoreReg <AX,AX>		; get back registers (throw away BX)
-	pop	word ptr user_ret	; restore his IP
-	pop	word ptr user_ret+2	; restore his CS
+	pop	word user_ret	; restore his IP
+	pop	word user_ret+2	; restore his CS
 	call	GotoCLI
 
 	call	system			; flags saved => this is a system call
@@ -620,8 +620,8 @@ DoMapBX:
 	call	RestInt
 
 	mov	bl,drive_save		; restore his dl
-	push	word ptr user_ret+2	; push back user's cs
-	push	word ptr user_ret	; push back user's ip
+	push	word user_ret+2	; push back user's cs
+	push	word user_ret	; push back user's ip
 	Call	LeaveAssign
 
 	iret				; back to user
@@ -647,8 +647,8 @@ DoSetGetMedia:
 
 			mov	bl,al			; drive is mapped
 			RestoreReg <AX,AX>		; get back registers (throw away BX)
-			pop	word ptr user_ret	; restore his IP
-			pop	word ptr user_ret+2	; restore his CS
+			pop	word user_ret	; restore his IP
+			pop	word user_ret+2	; restore his CS
 			call	GotoCLI
 
 			call	system			; flags saved => this is a system call
@@ -657,8 +657,8 @@ DoSetGetMedia:
 			call	RestInt
 
 			mov	bl,drive_save		; restore his dl
-			push	word ptr user_ret+2	; push back user's cs
-			push	word ptr user_ret	; push back user's ip
+			push	word user_ret+2	; push back user's cs
+			push	word user_ret	; push back user's ip
 			Call	LeaveAssign
 ;		$else					;an000; dms;not valid function 69h
 		JMP SHORT $$EN8
@@ -674,7 +674,7 @@ $$IF7:
 $$EN7:
 
 	iret				; back to user
-page
+; page
 ;************************************************************************************
 ;
 ; Map the drive letter and forget about it.  EXEC never returns.
@@ -688,7 +688,7 @@ DoExec:
 
 	    mov     bx,dx		; point to area
 DoOnce:
-	    cmp     byte ptr [bx+1],':' ; drive letter present?
+	    cmp     byte [bx+1],':' ; drive letter present?
 ;	    $IF     Z			;AC000;;YES
 	    JNZ $$IF14
 ;
@@ -714,7 +714,7 @@ $$IF13:
 ;
 DoTranslate:
 	mov	bx,SI			; point to area
-	cmp	byte ptr [bx+1],':'	; drive letter present?
+	cmp	byte [bx+1],':'	; drive letter present?
 	jnz	DNJ3			; nope, ignore this
 ;
 ; There is a drive leter present.  Grab it and convert it
@@ -728,8 +728,8 @@ DoTranslate:
 	mov	[bx],al 		; place in new drive letter
 	mov	drive_address,bx
 	RestoreReg <BX,AX>		; get back original registers
-	pop	word ptr user_ret	; restore his IP
-	pop	word ptr user_ret+2	; restore his CS
+	pop	word user_ret	; restore his IP
+	pop	word user_ret+2	; restore his CS
 	call	GotoCLI
 
 	call	system			; flags saved => this is a system call
@@ -742,13 +742,13 @@ DoTranslate:
 	mov	al,drive_save
 	mov	[bx],al
 	RestoreReg <bx,ax>
-	push	word ptr user_ret+2	; push back user's cs
-	push	word ptr user_ret	; push back user's ip
+	push	word user_ret+2	; push back user's cs
+	push	word user_ret	; push back user's ip
 	Call	LeaveAssign
 
 	iret				; back to user
 
-page
+; page
 ;************************************************************************************
 ;
 ; Munge the user's ASCIZ string at DS:DX and es:di
@@ -770,7 +770,7 @@ DoRename:
 ;	$ENDIF				;AC000;
 $$IF17:
 					;DoES:
-	mov	ax,es:[di]		;NS- Get the 2nd drive from the command linepSOP
+	mov	ax,[es:di]		;NS- Get the 2nd drive from the command linepSOP
 	mov	drive_save2,al		;NS- Save possible drive
 	cmp	ah,':'			;NS- exclude if no colon present
 ;	$IF	Z			;AC000;
@@ -778,13 +778,13 @@ $$IF17:
 
 	    call    maplet		;NS- go convert letter to actual drive #
 
-	    mov     es:[di],al		;NS- new drive value
+	    mov     [es:di],al		;NS- new drive value
 ;	$ENDIF				;AC000;
 $$IF19:
 					;DoIt:
 	RestoreReg <BX,AX>		; get back original registers
-	pop	word ptr user_ret	; restore his IP
-	pop	word ptr user_ret+2	; restore his CS
+	pop	word user_ret	; restore his IP
+	pop	word user_ret+2	; restore his CS
 	call	GotoCLI
 
 	call	system			; flags saved => this is a system call
@@ -794,13 +794,13 @@ $$IF19:
 
 	SaveReg <ax,bx>
 	mov	al,drive_save2		; NS- get the second drive update
-	mov	es:[di],al		; NS- on the command line
+	mov	[es:di],al		; NS- on the command line
 	mov	bx,drive_address	;
 	mov	al,drive_save		;
 	mov	[bx],al 		;
 	RestoreReg <bx,ax>		;
-	push	word ptr user_ret+2	; push back user's cs
-	push	word ptr user_ret	; push back user's ip
+	push	word user_ret+2	; push back user's cs
+	push	word user_ret	; push back user's ip
 	Call	LeaveAssign
 
 	iret				; back to user
@@ -824,7 +824,7 @@ $$IF21:
 	dec	al
 	iret
 
-page
+; page
 ;************************************************************************************
 ;
 ; DoSetDefault - try to set to the mapped current drive.  If we can do it,
@@ -877,7 +877,7 @@ GotoCLI:
 ;	      bp  ax  ret  f
 	mov	ax,[bp + 2 + 2 + 2]
 	and	SaveIntf,ax		; save those interrupts
-	and	word ptr [bp + 2 + 2 + 2],not f_interrupt
+	and	word [bp + 2 + 2 + 2],not f_interrupt
 	pop	bp
 	pop	ax
 	ret
@@ -930,9 +930,9 @@ $$IF28:
 	    push    cx
 	    mov     ch,ah
 	    cbw
-	    mov     bx,offset drives-1
+	    mov     bx,drives-1
 	    add     bx,ax
-	    mov     al,cs:[bx]
+	    mov     al,[cs:bx]
 	    mov     ah,ch
 	    pop     cx
 	    pop     bx
@@ -963,7 +963,7 @@ DoMapLet:
 LetDone:
 	ret
 
-page
+; page
 ;************************************************************************************
 int25:
 	call	mapdrv0
@@ -1032,9 +1032,9 @@ $$SR37:
 	pop	si
 	ret
 
-prog_size =	($-ASSIGN_BASE+15)/16
+prog_size equ ($-ASSIGN_BASE+15)/16
 
-page
+; page
 ;************************************************************************************
 ;			TRANSIENT CODE
 ;************************************************************************************
@@ -1096,7 +1096,7 @@ page
 
 	BREAK	<INITIALIZATION - NOT STAY RESIDENT>
 
-	EXTRN	SYSPARSE:NEAR			;AN000;
+	extern SYSPARSE;AN000;
 
 ODDX			equ	01H		;AN000;
 EVENX			equ	00H		;AN000;
@@ -1115,20 +1115,20 @@ POS_FLAG	db	'n'			;AN000;
 PARMS_AVAIL	db	'n'			;AN000;
 PAR_RETC	dw	0			;AN000; used for the return code
 DRV_X		db	0			;AN000; from the parser
-save_dr_tbl_ptr dw	?			;an000;drive table pointer
-curr_es_seg	dw	?
-Parm_Ptr1	dw	?			;an002;ptr to parse parm
-Parm_Ptr2	dw	?			;an002;ptr to parse parm
+save_dr_tbl_ptr: dw 0;an000;drive table pointer
+curr_es_seg: dw 0
+Parm_Ptr1: dw 0;an002;ptr to parse parm
+Parm_Ptr2: dw 0;an002;ptr to parse parm
 
-inv		dd	?
-STring		dd	?			;AN000;string holder
-
-
-INCLUDE ASSGPARM.INC				;AN000;
-INCLUDE ASSGMSG.INC				;AN000;
+inv: dd 0
+STring: dd 0;AN000;string holder
 
 
-assume	cs:code, ds:code, ss:code, es:code
+%include "ASSGPARM.INC";AN000;
+%include "ASSGMSG.INC";AN000;
+
+
+; assume	cs:code, ds:code, ss:code, es:code
 
 INITIALIZATION:
 
@@ -1151,7 +1151,7 @@ INITIALIZATION:
 $$IF41:
 
 
-page
+; page
 ;************************************* CNS ************************************
 ;    *****************************************
 ;    *		 INITIALIZATION 	     *
@@ -1163,7 +1163,7 @@ page
 ;    ******************************************
 ;************************************* CNS ************************************
 					;OKDOS:
-	mov	ax,ds:[pdb_environ]	;get your Process Data Block Address
+	mov	ax,[ds:pdb_environ]	;get your Process Data Block Address
 	or	ax,ax			;check to see if space available
 ;	$IF	NZ			;AC000;
 	JZ $$IF43
@@ -1183,8 +1183,8 @@ $$IF43:
 	mov	ah,Get_In_Vars		;(52H)
 	int	DOS_CALL
 
-	mov	Word ptr inv,bx
-	mov	Word ptr inv+2,es
+	mov	word inv,bx
+	mov	word inv+2,es
 	pop	es			;an000; restore es
 
 ;******************************************************************************
@@ -1202,11 +1202,11 @@ $$IF43:
 					;decrement mode - maintanis pointer without
 					;advancement
 
-	mov	di,offset ASS_PARMS	;AC000; ;set index to the location of your PARAMETER
+	mov	di,ASS_PARMS	;AC000; ;set index to the location of your PARAMETER
 					;PARSER control block
 	mov	si,81h			;AC000; ;set index to the beginning of the commandline
 					;at 81h to the first 128 bytes
-page
+; page
 ;******************************************************************************
 ;*	     PROCESS PATH
 ;******************************************************************************
@@ -1330,7 +1330,7 @@ $$IF55:
 ;	$ENDIF				;AN000;
 $$IF50:
 
-page
+; page
 
 	cmp	STATUS_ONLY,0		;AN000;
 ;	$IF	E			;AN000;
@@ -1348,9 +1348,9 @@ $$IF58:
 
 ;	$ENDIF
 $$EN58:
-page
+; page
 ;*********************************** CNS ***************************************
-	RELOAD_CURDIR PROC    NEAR
+	RELOAD_CURDIR:
 
 ;*****************************************************************************
 ;
@@ -1369,7 +1369,7 @@ page
 	MOV	AX,(MPLEX_ID SHL 8)+MPLEX_GET_SEG ;(0601H) Get the SEG of the installed ASSIGN
 	INT	MULTIPLEXOR		;(2FH)	in ES
 
-	mov	si,offset drives	;move in the new drive table
+	mov	si,drives	;move in the new drive table
 	mov	di,si
 	mov	cx,26			; move a-z
 	CLI
@@ -1386,7 +1386,7 @@ page
 
 	ret
 
-	RELOAD_CURDIR ENDP
+	; ENDP RELOAD_CURDIR
 ;*********************************** CNS ***************************************
 ;Input: Parser control block
 ;Output: Result Parser control block
@@ -1395,7 +1395,7 @@ page
 ;
 ;*********************************** CNS ***************************************
 
-	CHK_PARSER PROC    NEAR
+	CHK_PARSER:
 
 	xor	cx,cx				;an000; clear out cx
 	xor	ax,ax				;AN000; clear out ax
@@ -1415,7 +1415,7 @@ page
 	    mov     drv_x,al			;AN000; save it for later use
 	    call    drvchk			;AC000; check for valid drive
 	    cbw 				;AC000; convert drive byte found to a word
-	    mov     bx,offset drives-1		;AC000; get the drive table
+	    mov     bx,drives-1		;AC000; get the drive table
 	    add     bx,ax			;AC000; get the drive address
 	    mov     save_dr_tbl_ptr,bx		;an000; save the drive table pointer
 	    pop     ax				;an000; restore ax
@@ -1447,8 +1447,8 @@ $$IF63:
 	JE $$IF65
 	    mov     STATUS_flag,1		;AN000; set the status flag on
 	    mov     PARMS_AVAIL,'y'		;AN000; and report that a valid parameter
-	    mov     byte ptr SW_Syn1,20h	;an000; remove switch from list
-	    mov     byte ptr SW_Syn2,20h	;an000; remove switch from list
+	    mov     byte SW_Syn1,20h	;an000; remove switch from list
+	    mov     byte SW_Syn2,20h	;an000; remove switch from list
 	    mov     Parm_Ptr1,si		;an002; dms;ptr to 1st. parm
 ;	$ENDIF					;AN000; was on the command line
 $$IF65:
@@ -1456,9 +1456,9 @@ $$IF65:
 	ret					;AN000;
 
 
-	CHK_PARSER ENDP
+	; ENDP CHK_PARSER
 
-page
+; page
 ;*********************************** CNS ***************************************
 ;
 ; check drive validity
@@ -1474,18 +1474,18 @@ drvchk:
 	    push    ax
 
 	    les     bx,inv
-	    cmp     al,es:[bx].sysi_ncds	;AN000; ;NS- check in case current directory
+	    cmp     al,[es:bx].sysi_ncds	;AN000; ;NS- check in case current directory
 ;	    $IF     NAE 			;AN000; ;NS- has been altered
 	    JAE $$IF68
 
 
-		les	bx,es:[bx].sysi_cds
+		les	bx,[es:bx].sysi_cds
 		push	bx
-		mov	bl,size curdir_list
+		mov	bl,curdir_list_size
 		mul	bl
 		pop	bx
 		add	bx,ax
-		test	es:[bx].curdir_flags,curdir_inuse
+		test	[es:bx].curdir_flags,curdir_inuse
 ;		$IF	NZ			;AC000;
 		JZ $$IF69
 
@@ -1515,7 +1515,7 @@ $$IF67:
 ;	  storage address
 ;
 ;*******************************  CNS *******************************************
-REPORT_STATUS PROC NEAR
+REPORT_STATUS:
 
 	push	es				;an000; save es
 	push	es				;an000; swap es with
@@ -1524,11 +1524,11 @@ REPORT_STATUS PROC NEAR
 
 	mov	ax,0601h			;an000; our int 2fh
 	int	2fh				;an000; returns segment of drive vector
-	assume	es:nothing			;an000; tell the linker
+	; assume	es:nothing;an000; tell the linker
 
 	mov	cl,01				;AN000; ;initialize the counter
 						;AN000; advance to next drive
-	mov	bx,offset drives		;AN000; load drive table
+	mov	bx,drives		;AN000; load drive table
 ;	$DO
 $$DO73:
 	    cmp     cl,26			;AN000; see if we scanned all drives
@@ -1536,17 +1536,17 @@ $$DO73:
 ;	$LEAVE	A				;AN000; exit loop if we have
 	JA $$EN73
 
-	    cmp     cl,es:[bx]			;AN000; ;compare the table value
+	    cmp     cl,[es:bx]			;AN000; ;compare the table value
 							;to the table contents
 ;	    $IF     NE				;AN000;
 	    JE $$IF75
 		push	bx			;an000; save bx - we stomp it
 		push	cx			;an000; save cx - we stomp it
-		mov	al,es:[bx]		;AN000; get the table contents to convert
+		mov	al,[es:bx]		;AN000; get the table contents to convert
 		push	es			;an000; save es for print
 		mov	bx,curr_es_seg		;an000; get the current segment
 		mov	es,bx			;an000; get the segment into es
-		assume	es:code 		;an000; tell linker it is code
+		; assume	es:code;an000; tell linker it is code
 
 		add	cl,40H			;AN000; convert to ascii representation
 		add	al,40h			;an000; convert to ascii
@@ -1556,14 +1556,14 @@ $$DO73:
 		mov	ax,0002h		;an000; message #2
 		mov	bx,stdout		;an000; print to standard out
 		mov	cx,0002h		;an000; two replaceable parms
-		mov	si,offset sublist1	;an000; offset of sublist
+		mov	si,sublist1	;an000; offset of sublist
 		mov	di,0000h		;an000; no buffer for user input
 		mov	dl,no_input		;AN000; no user input to mes. ret.
 		mov	dh,utility_msg_class	;an000; utility messages only
 
 		call	SYSDISPMSG		;AN000; ;go to message retriever
 		pop	es			;an000; restore es
-		assume	es:nothing		;an000; tell the linker
+		; assume	es:nothing;an000; tell the linker
 		pop	cx			;an000; restore cx
 		pop	bx			;an000; restore bx
 
@@ -1577,19 +1577,19 @@ $$IF75:
 	JMP SHORT $$DO73
 $$EN73:
 	pop	es				;an000; restore es
-	assume	es:code 			;an000; tell the linker
+	; assume	es:code;an000; tell the linker
 
 	ret					;AN000;
 
-REPORT_STATUS ENDP
-page
+; ENDP REPORT_STATUS
+; page
 ;*******************************  CNS *******************************************
 ; Purpose: Exit program
 ; Input  : Error code AL
 ; Output : Error code AL
 ;
 ;*******************************  CNS *******************************************
-EXIT_PROG PROC	NEAR
+EXIT_PROG:
 
 
 
@@ -1599,7 +1599,7 @@ EXIT_PROG PROC	NEAR
 
 	ret				;AC000;
 
-EXIT_PROG ENDP
+; ENDP EXIT_PROG
 ;*******************************  CNS *******************************************
 
 ;=========================================================================
@@ -1611,17 +1611,17 @@ EXIT_PROG ENDP
 ;=========================================================================
 
 
-PARSE_ERR	proc	near		;an000; dms;report an error
+PARSE_ERR:;an000; dms;report an error
 
 	push	ax			;an000;save ax
-	mov	byte ptr ds:[si],0	;an002;null terminate string
+	mov	byte [ds:si],0	;an002;null terminate string
 	mov	dx,Parm_Ptr1		;an002;move ptr to sublist
 	mov	Parse_Sub_Off,dx	;an002;
 	mov	Parse_Sub_Seg,ds	;an002;
 
 	mov	bx,STDERR		;an000;print to standard out
 	mov	cx,1			;an002;1 replaceable parm
-	mov	si,offset Parse_Sublist ;an002;sublist for replaceable parm
+	mov	si,Parse_Sublist ;an002;sublist for replaceable parm
 	mov	dl,NO_INPUT		;AN000;no input to message retriever
 	mov	dh,PARSE_ERR_CLASS	;AN000;display parse errors
 	call	SYSDISPMSG		;AN000;display error
@@ -1630,9 +1630,9 @@ PARSE_ERR	proc	near		;an000; dms;report an error
 	call	EXIT_PROG		;AN000;exit ASSIGN due to error
 
 
-PARSE_ERR	endp			;an000; dms;
+; ENDP PARSE_ERR;an000; dms;
 
-Release_Environment	proc	near						;an001; dms;
+Release_Environment:;an001; dms;
 
 	push	ax			;save regs				;an001; dms;
 	push	bx			;					;an001; dms;
@@ -1640,7 +1640,7 @@ Release_Environment	proc	near						;an001; dms;
 	mov	ah,Get_PSP		; get the PSP segment			;an001; dms;
 	int	21h			; invoke INT 21h			;an001; dms;
 	mov	es,bx			; BX contains PSP segment - put in ES	;an001; dms;
-	mov	bx,word ptr es:[PSP_Env]; get segment of environmental vector	;an001; dms;
+	mov	bx,word [es:PSP_Env]; get segment of environmental vector	;an001; dms;
 	mov	es,bx			; place segment in ES for Free Memory	;an001; dms;
 	mov	ah,Dealloc		; Free Allocated Memory 		;an001; dms;
 	int	21h			; invoke INT 21h			;an001; dms;
@@ -1650,9 +1650,9 @@ Release_Environment	proc	near						;an001; dms;
 
 	ret				; return to caller			;an001; dms;
 
-Release_Environment	endp
+; ENDP Release_Environment
 
-Close_Handles		proc	near	;close handles 0-4			;an001; dms;
+Close_Handles:;close handles 0-4			;an001; dms;
 
 	push	bx			;save regs				;an001; dms;
 	mov	bx,4			;close all standard files		;an001; dms;
@@ -1667,33 +1667,33 @@ Close_Handle_Loop:
 	pop	bx			;restore regs				;an001; dms;
 	ret				;					;an001; dms;
 
-Close_Handles		endp		;					;an001; dms;
+; ENDP Close_Handles;					;an001; dms;
 
-Get_Vectors		proc	near	;get original vectors			;an001; dms;
+Get_Vectors:;get original vectors			;an001; dms;
 
 	    mov     ax,(GET_INTERRUPT_VECTOR SHL 8)+ABS_DISK_READ ;(3525h) get the int 25 vector
 	    int     DOS_CALL
 
-	    mov     word ptr [int25_vec],bx
-	    mov     word ptr [int25_vec+2],es
+	    mov     word [int25_vec],bx
+	    mov     word [int25_vec+2],es
 
 	    mov     ax,(GET_INTERRUPT_VECTOR SHL 8)+ABS_DISK_WRITE ;(3526H) get the int 26 vector
 	    int     DOS_CALL
 
-	    mov     word ptr [int26_vec],bx
-	    mov     word ptr [int26_vec+2],es
+	    mov     word [int26_vec],bx
+	    mov     word [int26_vec+2],es
 
 	    mov     ax,(GET_INTERRUPT_VECTOR SHL 8)+MULTIPLEXOR ;(352FH) get the int 2F vector
 	    int     DOS_CALL
 
-	    mov     word ptr [int2F_vec],bx
-	    mov     word ptr [int2F_vec+2],es
+	    mov     word [int2F_vec],bx
+	    mov     word [int2F_vec+2],es
 
 	    mov     ax,(Get_Interrupt_Vector SHL 8)+DOS_CALL ;(3521H)
 	    int     DOS_CALL
 
-	    mov     word ptr cs:[system],bx
-	    mov     word ptr cs:[system+2],es
+	    mov     word [cs:system],bx
+	    mov     word [cs:system+2],es
 
 	    MOV     AX,(MPLEX_ID SHL 8)+MPLEX_R_U_THERE ;(0600H) See if we are in system already
 	    INT     MULTIPLEXOR 	;(2FH)
@@ -1709,10 +1709,10 @@ $$IF78:
 
 	ret				;					;an001; dms;
 
-Get_Vectors		endp		;					;an001; dms;
+; ENDP Get_Vectors;					;an001; dms;
 
 
-Set_Vectors		proc	near	;set to new vectors			;an001; dms;
+Set_Vectors:;set to new vectors			;an001; dms;
 
 	    mov     ah,Get_Default_Drive ;(19H)
 	    int     DOS_CALL
@@ -1726,19 +1726,19 @@ Set_Vectors		proc	near	;set to new vectors			;an001; dms;
 	    mov     ah,Set_Default_Drive ;(0EH)
 	    int     DOS_CALL
 					;NS- Set up hooks
-	    mov     dx,offset int25	;set int 25 vector
+	    mov     dx,int25	;set int 25 vector
 	    mov     ax,(SET_INTERRUPT_VECTOR SHL 8) + ABS_DISK_READ ;(2525H)
 	    int     DOS_CALL
 					;NS- setup new seg
-	    mov     dx,offset int26	;set int 26 vector
+	    mov     dx,int26	;set int 26 vector
 	    mov     ax,(SET_INTERRUPT_VECTOR SHL 8) + ABS_DISK_WRITE ;(2526H)
 	    int     DOS_CALL
 					;NS- Hook in resident portion
-	    mov     dx,offset int2F	;set int 2F vector
+	    mov     dx,int2F	;set int 2F vector
 	    mov     ax,(SET_INTERRUPT_VECTOR SHL 8) + MULTIPLEXOR ;(252FH)
 	    int     DOS_CALL
 
-	    mov     dx,offset ASSIGN_HANDLER ;set the system int vector
+	    mov     dx,ASSIGN_HANDLER ;set the system int vector
 	    mov     ax,(SET_INTERRUPT_VECTOR SHL 8) + DOS_CALL ;(2521H)
 	    int     DOS_CALL
 
@@ -1751,21 +1751,21 @@ Set_Vectors		proc	near	;set to new vectors			;an001; dms;
 
 	ret				;					;an001; dms;
 
-Set_Vectors		endp		;					;an001; dms;
+; ENDP Set_Vectors;					;an001; dms;
 
 
 
-.xlist
+; .xlist
 MSG_SERVICES <MSGDATA>
 msg_services <NEARmsg>
 msg_services <LOADmsg>
 msg_services <DISPLAYmsg,CHARmsg>
 msg_services <assign.cla,assign.cl1>
 msg_services <assign.cl2>
-.list
+; .list
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-code	ends
-	end	ENTRY_POINT
+; END SECTION .code
+	; end	ENTRY_POINT
 

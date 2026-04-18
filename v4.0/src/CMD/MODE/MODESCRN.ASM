@@ -1,14 +1,14 @@
-PAGE ,132 ;
-TITLE MODESCRN.ASM - SCREEN SUPPORT FOR THE MODE COMMAND
+; PAGE ,132;
+; TITLE MODESCRN.ASM - SCREEN SUPPORT FOR THE MODE COMMAND
 
-.XLIST
-INCLUDE STRUC.INC
-.LIST
+; .XLIST
+%include "STRUC.INC"
+; .LIST
 
-INCLUDE  COMMON.STC	;definitions of message sublist blocks ;AC001;
+%include "COMMON.STC";definitions of message sublist blocks ;AC001;
 
-;ษออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออป				   ;AN000;
-;บ											  บ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
 															   ;AN000;
 ;  AC000 - P3200: Was displaying a message that Sam Nunn had deleted from the
 ;		  USA.MSG file because it looked like a common message.  Now
@@ -25,37 +25,37 @@ INCLUDE  COMMON.STC	;definitions of message sublist blocks ;AC001;
 ;  AX002 - P5159: Need to use get extended country call (6523) to get the yes
 ;     7-14-88	  no answer
 
-;บ											  บ				   ;AN000;
-;ศออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออผ				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ				   ;AN000;
 
-;ษออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-BREAK	MACRO	X
+%macro BREAK 1
    JMP	   endcase_&X
-ENDM
+%endmacro
 
 
-SCRN	MACRO COMMAND,MOD
+%macro SCRN 2
 		      MOV    AH,COMMAND ;REQUEST FUNCTION OF SCREEN BIOS
- IFNB <MOD>
+ %if 1  ; IFNB <MOD>
 		      MOV    AL,MOD	;SET MODE TO SCREEN
- ENDIF
+ %endif
 		      INT    10H	;CALL BIOS SCREEN HANDLER
 ;
-     ENDM
+     %endmacro
 ;
-DISPLAY 	MACRO	MSG
-IFNB <MSG>
-	MOV	DX,OFFSET MSG
-ENDIF
+%macro DISPLAY 1
+%if 1  ; IFNB <MSG>
+	MOV	DX,MSG
+%endif
 	CALL	PRINTF
-ENDM
+%endmacro
 
 
-SET_LEFT_SHIFT_LIMIT	MACRO
-	LOCAL	LIMIT_SET
-	ASSUME	DS:ROM_BIOS
+%macro SET_LEFT_SHIFT_LIMIT 0
+	; LOCAL LIMIT_SET
+	; ASSUME	DS:ROM_BIOS
 ;
 	PUSH	DS
 	PUSH	AX
@@ -63,23 +63,23 @@ SET_LEFT_SHIFT_LIMIT	MACRO
 	MOV	DS,AX
 	CMP	DS:MACHINE_TYPE,JUNIOR		;IF this machine is a Junior THEN
 	JNE	LIMIT_SET
-	  MOV	BYTE PTR CS:LEFT_LIMIT,JR_LEFT_LIMIT	;USE THE JUNIOR'S LEFT LIMIT
+	  MOV	byte CS:LEFT_LIMIT,JR_LEFT_LIMIT	;USE THE JUNIOR'S LEFT LIMIT
 	LIMIT_SET:
 	POP	AX
 	POP	DS
 ;
-	ASSUME	DS:PRINTF_CODE
+	; ASSUME	DS:PRINTF_CODE
 ;
-ENDM
+%endmacro
 
-set_submessage_ptr   MACRO submessage,message ;PUT pointer to "subMESSAGE" into submessage pointer field of "message".
+%macro set_submessage_ptr 2;PUT pointer to "subMESSAGE" into submessage pointer field of "message".
 
 MOV   AX,submessage			     ;AX=message number 		;AN001;
 MOV   DH,utility_msg_class		     ;DH=message class=utility class	;AN001;
 CALL  SYSGETMSG 			     ;DS:SI=>message piece				  ;AN001;
-MOV   BP,OFFSET sublist_&message	     ;address the sublist control block ;AN001;
+MOV   BP,sublist_&message	     ;address the sublist control block ;AN001;
 MOV   [BP].sublist_off,SI		     ;the sublist now points to the desired message piece ;AN001;
-ENDM												  ;AN001;
+%endmacro;AN001;
 
 
 ;---------------------------------------------------------------------------
@@ -89,27 +89,27 @@ ENDM												  ;AN001;
 ;set to the message file segment.
 ;---------------------------------------------------------------------------
 ;
-SET_UP_FOR_PRINTF	MACRO
+%macro SET_UP_FOR_PRINTF 0
 
 	PUSH	DS		;SAVE DS
 	PUSH	CS
 	POP	DS		;DS NOW HAS MESSAGE SEGMENT
 ;
-ENDM
+%endmacro
 
 ;----------------------------------------------------------------------------
 ;   REPLACE_DS
 ;Replace the contents DS had before the PRINTF call. Assume that DS was pushed.
 ;-----------------------------------------------------------------------------
 
-REPLACE_DS	MACRO
+%macro REPLACE_DS 0
 
 	POP	DS
 ;
-ENDM
+%endmacro
 
-;บ											  บ
-;ศออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 CURRENT_VIDEO_STATE EQU 15 ;REQUEST TO BIOS SCREEN TO RETURN SCREEN STATE
 SET_SCREEN_MODE EQU 0	      ;REQUEST TO BIOS SCREEN TO SET SCREEN MODE
@@ -145,55 +145,55 @@ JR_LEFT_LIMIT  EQU 031H 	  ;LEFT LIMIT FOR SCREEN SHIFT ON PC JUNIOR
 ;
 EGA_SIG 	EQU	0AA55H	  ;SIGNITURE FOR THE EGA CARD
 ;
-ROM_BIOS  SEGMENT AT 0F000H
+SECTION .ROM_BIOS
 	ORG	0FFFEH
 ;
-	MACHINE_TYPE	LABEL	BYTE		;MACHINE TYPE BURNED IN ROM
+	MACHINE_TYPE:;MACHINE TYPE BURNED IN ROM
 ;
-ROM_BIOS  ENDS
+; END SECTION .ROM_BIOS
 
 ROM_BIOS_SEG	EQU	0F000H
 ;
-SIGNITURE  SEGMENT AT 0C000H			;SEGMENT OF EGA AREA
+SECTION .SIGNITURE;SEGMENT OF EGA AREA
 	ORG	0
-SIGWORD DW	?			;SIGNITURE OF THE EGA IS STORED HERE IF THE CARD IS PRESENT
-SIGNITURE	ENDS
+SIGWORD: dw 0;SIGNITURE OF THE EGA IS STORED HERE IF THE CARD IS PRESENT
+; END SECTION .SIGNITURE
 ;
-PRINTF_CODE   SEGMENT PUBLIC
-     ASSUME CS:PRINTF_CODE,DS:PRINTF_CODE
+SECTION .PRINTF_CODE
+     ; ASSUME CS:PRINTF_CODE,DS:PRINTF_CODE
 ;
 
 
-;ษอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-PUBLIC	 HANDLE_40_OR_80	 ;make available to "ANALYZE_AND_INVOKE"
-PUBLIC	 SHIFT_SCREEN		 ;make available to "ANALYZE_AND_INVOKE"
-
-
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออผ
+global HANDLE_40_OR_80;make available to "ANALYZE_AND_INVOKE"
+global SHIFT_SCREEN;make available to "ANALYZE_AND_INVOKE"
 
 
-;ษอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
-EXTRN CANT_SHIFT:WORD	    ;CR,LF,"Unable to shift screen",BEEP,EOM
-EXTRN PRINTF:NEAR		;interface to message service ROUTINE
-EXTRN SCRNTAB:NEAR		;LOADS VIDEO INIT TABLE RETURNING POINTER TO IT
+
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
+
+extern CANT_SHIFT;CR,LF,"Unable to shift screen",BEEP,EOM
+extern PRINTF;interface to message service ROUTINE
+extern SCRNTAB;LOADS VIDEO INIT TABLE RETURNING POINTER TO IT
 ;
-EXTRN PARM1:BYTE,PARM2:BYTE,PARM3:BYTE,MODE:BYTE,FLAG:BYTE
+extern PARM1,PARM2,PARM3,MODE,FLAG
 ;PARM1	DB	10 DUP(0)
 ;PARM2	DB	0
 ;PARM3	DB	0
 ;MODE	DB	0
 ;FLAG	DB	0
-EXTRN NEW_VIDEO_PARMS_SEGMENT:WORD
-EXTRN	NOERROR:BYTE		  ;INDICATE IF AN ERROR OCCURED YET
+extern NEW_VIDEO_PARMS_SEGMENT
+extern NOERROR;INDICATE IF AN ERROR OCCURED YET
 ENDPARM EQU	MODE
-EXTRN	ALT_SELECT:ABS		;INT 10 FUNCTION GET MONITOR TYPE
-EXTRN	EGA_INFO:ABS		;INT 10 FUNCTION GET INFO
-EXTRN	COLOR_ON_IT:ABS 	;INT 10 RETURN FOR COLOR MONITOR HOOKED TO EGA
+extern ALT_SELECT;INT 10 FUNCTION GET MONITOR TYPE
+extern EGA_INFO;INT 10 FUNCTION GET INFO
+extern COLOR_ON_IT;INT 10 RETURN FOR COLOR MONITOR HOOKED TO EGA
 ;
 LEFT_LIMIT  DB	   02EH 	  ;SCREEN SHIFT LEFT LIMIT, MAY BE Revised
 ;
@@ -201,34 +201,34 @@ SWITCH	  DB	 0		  ;LOOP CONTROLLER
 ;AC000;OK	 DB	1		 ;INDICATOR OF VALID REQUEST:
 ;				     1=BAD, 0=GOOD
 ;
-EXTRN L_item_tag:ABS			  ;see MODEpars.asm	  ;AN000;
-EXTRN R_item_tag:ABS			  ;see MODEpars.asm	  ;AN000;
-EXTRN T_item_tag:ABS			  ;see MODEpars.asm	  ;AN000;
+extern L_item_tag;see MODEpars.asm	  ;AN000;
+extern R_item_tag;see MODEpars.asm	  ;AN000;
+extern T_item_tag;see MODEpars.asm	  ;AN000;
 
-EXTRN RIGHTMOST:WORD	;message number for "rightmost 9",EOM	;AC001;
-EXTRN LEFTMOST:WORD    ;message number for "leftmost 0",EOM	;AC001;
+extern RIGHTMOST;message number for "rightmost 9",EOM	;AC001;
+extern LEFTMOST;message number for "leftmost 0",EOM	;AC001;
 ;AC001;EXTRN LFTM_OR_RGHTM_PTR:WORD
-EXTRN SHIFT_MSG:WORD	    ;CR,LF,"Do you see the ...",CR,LF,EOM ;AX000;
+extern SHIFT_MSG;CR,LF,"Do you see the ...",CR,LF,EOM ;AX000;
 ;AC000;EXTRN MSGI:WORD	  ;CR,LF,"Invalid parameters",BEEP,CR,LF,"$"	 ;AX000;
-EXTRN NUMBERS:WORD   ;"0123456789"				  ;AX000;
-EXTRN LEFT:WORD 		;message number for "left",EOM	  ;AC001;
-EXTRN RIGHT:WORD		;message number for "right",EOM   ;AC001;
+extern NUMBERS;"0123456789"				  ;AX000;
+extern LEFT;message number for "left",EOM	  ;AC001;
+extern RIGHT;message number for "right",EOM   ;AC001;
 ;AC001;EXTRN LEFT_OR_RIGHT_PTR:WORD	      ;PART OF MESSAGE "Unable to shift screen ..."
-EXTRN sublist_cant_shift:BYTE	 ;definition of submessage ;AC001;
-EXTRN sublist_shift_msg:BYTE	 ;definition of submessage ;AC001;
-EXTRN SYSGETMSG:NEAR		 ;used to get the address of a message part ;AC001;
-EXTRN utility_msg_class:ABS	 ;input for sysgetmsg	;AC001;
+extern sublist_cant_shift;definition of submessage ;AC001;
+extern sublist_shift_msg;definition of submessage ;AC001;
+extern SYSGETMSG;used to get the address of a message part ;AC001;
+extern utility_msg_class;input for sysgetmsg	;AC001;
 
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
 
 ;----------------------------------------------------------------------------
 
 
-HANDLE_40_OR_80   PROC	NEAR	    ;AN000;
+HANDLE_40_OR_80:;AN000;
 
 ;      SCREEN WIDTH IN BL
 ;
@@ -248,15 +248,15 @@ HANDLE_40_OR_80   PROC	NEAR	    ;AN000;
 ;	    7,
 ;	    11:
 
-			   .IF <DS:mode EQ 0> OR
-			   .IF <DS:mode EQ 2> OR
-			   .IF <DS:mode EQ 5> OR
-			   .IF <DS:mode EQ 6> OR
-			   .IF <DS:mode EQ 7> OR
-			   .IF <DS:mode EQ 011H> THEN
+			   ; .IF <DS:mode EQ 0> OR
+			   ; .IF <DS:mode EQ 2> OR
+			   ; .IF <DS:mode EQ 5> OR
+			   ; .IF <DS:mode EQ 6> OR
+			   ; .IF <DS:mode EQ 7> OR
+			   ; .IF <DS:mode EQ 011H> THEN
 	       MOV   DS:MODE,0		 ;SWITCH TO 40 COL, BW
 	       BREAK 0
-			   .ENDIF
+			   ; .ENDIF
 
 ;	    1,
 ;	    3,
@@ -264,14 +264,14 @@ HANDLE_40_OR_80   PROC	NEAR	    ;AN000;
 ;	    12,
 ;	    13:
 
-			   .IF <DS:mode EQ 1> OR
-			   .IF <DS:mode EQ 3> OR
-			   .IF <DS:mode EQ 4> OR
-			   .IF <DS:mode EQ 012H> OR
-			   .IF <DS:mode EQ 013H> THEN
+			   ; .IF <DS:mode EQ 1> OR
+			   ; .IF <DS:mode EQ 3> OR
+			   ; .IF <DS:mode EQ 4> OR
+			   ; .IF <DS:mode EQ 012H> OR
+			   ; .IF <DS:mode EQ 013H> THEN
 	       MOV   DS:MODE,1		 ;SWITCH TO 40 COL, COLOR
 	       BREAK 0
-			   .ENDIF
+			   ; .ENDIF
 
 
 	 ENDCASE_0:
@@ -295,15 +295,15 @@ ELSE01:
   ;	      7,
   ;	      11:
 
-			     .IF <DS:mode EQ 0> OR
-			     .IF <DS:mode EQ 2> OR
-			     .IF <DS:mode EQ 5> OR
-			     .IF <DS:mode EQ 6> OR
-			     .IF <DS:mode EQ 7> OR
-			     .IF <DS:mode EQ 011H> THEN
+			     ; .IF <DS:mode EQ 0> OR
+			     ; .IF <DS:mode EQ 2> OR
+			     ; .IF <DS:mode EQ 5> OR
+			     ; .IF <DS:mode EQ 6> OR
+			     ; .IF <DS:mode EQ 7> OR
+			     ; .IF <DS:mode EQ 011H> THEN
 		 MOV   DS:MODE,2	   ;SWITCH TO 80 COL, BW
 		 BREAK 1
-			     .ENDIF
+			     ; .ENDIF
 
   ;	      1,
   ;	      3,
@@ -311,14 +311,14 @@ ELSE01:
   ;	      12,
   ;	      13:
 
-			     .IF <DS:mode EQ 1> OR
-			     .IF <DS:mode EQ 3> OR
-			     .IF <DS:mode EQ 4> OR
-			     .IF <DS:mode EQ 012H> OR
-			     .IF <DS:mode EQ 013H> THEN
+			     ; .IF <DS:mode EQ 1> OR
+			     ; .IF <DS:mode EQ 3> OR
+			     ; .IF <DS:mode EQ 4> OR
+			     ; .IF <DS:mode EQ 012H> OR
+			     ; .IF <DS:mode EQ 013H> THEN
 		 MOV   DS:MODE,3	   ;SWITCH TO 80 COL, COLOR
 		 BREAK 1
-			     .ENDIF
+			     ; .ENDIF
 
 
 	   ENDCASE_1:
@@ -332,13 +332,13 @@ ENDIF01:
 
 RET		     ;AN000;
 
-HANDLE_40_OR_80   ENDP			  ;AN000;
+; ENDP HANDLE_40_OR_80;AN000;
 
 
 ;------------------------------------------------------------------------------
 
 
-SHIFT_SCREEN	PROC  NEAR		      ;AN000;shift the screen
+SHIFT_SCREEN:;AN000;shift the screen
 
 ;    DO SHIFT UNTIL HE CAN SEE END CHAR
      MOV    SWITCH,NOEXIT	  ;SET TO REPEAT NEXT LOOP
@@ -364,7 +364,7 @@ $$IF1:
 CHECK_FOR_EGA:					;SEE IF SCREEN IS HOOKED TO EGA
 	MOV	AX,SIGNITURE			;GET TO SEGMENT OF SIGNITURE WORD
 	MOV	ES,AX				;ADDRESS THROUGH ES
-	CMP	WORD PTR ES:SIGWORD,EGA_SIG	;IF EGA card being used THEN
+	CMP	word ES:SIGWORD,EGA_SIG	;IF EGA card being used THEN
 	JNE	TRY_TO_SHIFT
 	  MOV	  AH,ALT_SELECT   ;AH GETS INT FUNCTION SPECIFIER
 	  MOV	  BL,EGA_INFO	  ;SPECIFY IN BL THE OPTION OF THE FUNCTION OF INT 10 WE
@@ -383,7 +383,7 @@ TRY_TO_SHIFT:
 ;	     DS NOW POINTS TO THE SEGMENT WHERE THE VIDEO TABLE WAS MOVED TO.
 ;	     BX HAS THE NEW OFFSET OF THE VIDEO TABLE
 
-	  CMP	  BYTE PTR DS:[BX][SHIFCT40],RIGHT_LIMIT	;IF haven't shifted max right THEN
+	  CMP	  byte [DS:BX][SHIFCT40],RIGHT_LIMIT	;IF haven't shifted max right THEN
 	  JG	  SHIFT_RIGHT
 	    SET_UP_FOR_PRINTF
 ;AC001;     MOV 	LEFT_OR_RIGHT_PTR,OFFSET RIGHT
@@ -392,15 +392,15 @@ TRY_TO_SHIFT:
 	    REPLACE_DS
 	    JMP 	ELSE05
   SHIFT_RIGHT:
-	 MOV	AL,DS:[BX][SHIFCT40]	;GET SHIFT COUNT FOR 40COL
+	 MOV	AL,[DS:BX][SHIFCT40]	;GET SHIFT COUNT FOR 40COL
 	 SUB	AL,1		      ;SHIFT IT LEFT 1
-	 MOV	DS:[BX][SHIFCT40],AL	;STORE IT BACK
-	 MOV	AL,DS:[BX][SHIFCT80]	;GET SHIFT COUNT FOR 80COL
+	 MOV	[DS:BX][SHIFCT40],AL	;STORE IT BACK
+	 MOV	AL,[DS:BX][SHIFCT80]	;GET SHIFT COUNT FOR 80COL
 	 SUB	AL,2		      ;SHIFT LEFT 2
-	 MOV	DS:[BX][SHIFCT80],AL	;STORE IT BACK
-	 MOV	AL,DS:[BX][SHIFCTGR]	;GET GRAPHICS SHIFT COUNT
+	 MOV	[DS:BX][SHIFCT80],AL	;STORE IT BACK
+	 MOV	AL,[DS:BX][SHIFCTGR]	;GET GRAPHICS SHIFT COUNT
 	 SUB	AL,1		      ;SHIFT LEFT 1
-	 MOV	DS:[BX][SHIFCTGR],AL	;STORE IT BACK
+	 MOV	[DS:BX][SHIFCTGR],AL	;STORE IT BACK
 ;    : ELSE ,SINCE PARM2 IS NOT AN "R"
        JMP ENDIF03
 ELSE03:
@@ -423,7 +423,7 @@ ELSE03:
 	   CHK_FOR_EGA: 				;SEE IF SCREEN IS HOOKED TO EGA
 	     MOV	AX,SIGNITURE			;GET TO SEGMENT OF SIGNITURE WORD
 	     MOV	ES,AX				;ADDRESS THROUGH ES
-	     CMP	WORD PTR ES:SIGWORD,EGA_SIG	;IF EGA card being used THEN
+	     CMP	word ES:SIGWORD,EGA_SIG	;IF EGA card being used THEN
 	     JNE	TRY_TO_SHIFT_LEFT
 	       MOV	  AH,ALT_SELECT   ;AH GETS INT FUNCTION SPECIFIER
 	       MOV	  BL,EGA_INFO	  ;SPECIFY IN BL THE OPTION OF THE FUNCTION OF INT 10 WE
@@ -442,7 +442,7 @@ TRY_TO_SHIFT_LEFT:
 ;
 	   SET_LEFT_SHIFT_LIMIT 	;SET LIMIT TO SUIT MACHINE TYPE
 ;
-	   MOV	  AL,BYTE PTR DS:[BX][SHIFCT40] ;AL=current horizontal sync position
+	   MOV	  AL,byte [DS:BX][SHIFCT40] ;AL=current horizontal sync position
 	   CMP	  AL,CS:LEFT_LIMIT		;IF haven't shifted max left THEN
 	     JL 	  SHIFT_LEFT
 	     SET_UP_FOR_PRINTF
@@ -452,15 +452,15 @@ TRY_TO_SHIFT_LEFT:
 	     REPLACE_DS
 	     JMP	ELSE05
   SHIFT_LEFT:
-	   MOV	  AL,DS:[BX][SHIFCT40]	;GET SHIFT COUNT 40COL
+	   MOV	  AL,[DS:BX][SHIFCT40]	;GET SHIFT COUNT 40COL
 	   ADD	  AL,1		      ;SHIFT RIGHT ONE
-	   MOV	  DS:[BX][SHIFCT40],AL	;STORE IT BACK
-	   MOV	  AL,DS:[BX][SHIFCT80]	;GET SHIFT COUNT 80COL
+	   MOV	  [DS:BX][SHIFCT40],AL	;STORE IT BACK
+	   MOV	  AL,[DS:BX][SHIFCT80]	;GET SHIFT COUNT 80COL
 	   ADD	  AL,2		      ;SHIFT RIGHT 2
-	   MOV	  DS:[BX][SHIFCT80],AL	;STORE IT BACK
-	   MOV	  AL,DS:[BX][SHIFCTGR]	;GET GRAPHICS COUNT
+	   MOV	  [DS:BX][SHIFCT80],AL	;STORE IT BACK
+	   MOV	  AL,[DS:BX][SHIFCTGR]	;GET GRAPHICS COUNT
 	   ADD	  AL,1		      ;SHIFT RIGHT 8 PIXELS
-	   MOV	  DS:[BX][SHIFCTGR],AL	;STORE IT BACK
+	   MOV	  [DS:BX][SHIFCTGR],AL	;STORE IT BACK
 ;    : : ELSE ,SINCE CHAR IS NEITHER "R" NOR "L", QUIT
 	 JMP	SHORT ENDIF05
 ;	 $ENDIF ;EGA or MONO
@@ -472,14 +472,14 @@ ENDIF05:
 ;    : ENDIF END, IS PARM2 AN "R"? TEST
 ENDIF03:
 
-PUBLIC	 ENDIF03
+global ENDIF03
 
        MOV    AX,CS		  ;RESTORE THIS SEG
        MOV    DS,AX		  ; TO DS
 ;    LEAVE IF THE EXIT SWITCH IS SET
 ;AC001;     CMP    SWITCH,EXIT
 ;AC001;     JE	   ENDDO01
-     .IF <switch NE exit> THEN NEAR
+     ; .IF <switch NE exit> THEN NEAR
 ;
        SCRN CURRENT_VIDEO_STATE,0
        MOV    DS:MODE,AL	  ;SAVE CURRENT MODE
@@ -515,7 +515,7 @@ ENDIF08:
 ;    : : ENDIF ,END IS IT 40 COL? TEST
 ENDIF07:
 ;
-	 .REPEAT
+	 ; .REPEAT
 	    SCRN   SET_SCREEN_MODE,DS:MODE		;clear the screen
 	    PUSH  CX		    ;save loop counter
 	    DO02:		      ;DO UNTIL LINE IS DISPLAYED across entire screen
@@ -527,8 +527,8 @@ ENDIF07:
 	    MOV   AX,6523H	    ;AN002;yes no check get extended error
 	    INT   21H		    ;AN002;AX returned with indication of yes or no
 	    POP   CX		    ;restore loop counter
-	 .UNTIL <AX EQ yes> OR
-	 .UNTIL <AX EQ no>
+	 ; .UNTIL <AX EQ yes> OR
+	 ; .UNTIL <AX EQ no>
 ;    : : IF RESPONSE IS "Y"
 	 CMP	AL,YES
 	 JNE	ENDIF09
@@ -547,7 +547,7 @@ ENDIF06:
 ;
 ;    ENDDO GO BACK AND SHIFT MORE
      JMP    DO01
-     .ENDIF
+     ; .ENDIF
 ENDDO01:
 ;
 ;    IF NO LEGAL FUNCTIONS DONE,
@@ -558,7 +558,7 @@ ENDDO01:
 ;    ENDIF ,END ARE NO LEGAL FUNCTIONS DONE? TEST
 ;AC000;ENDIF10:
      RET			  ;RETURN TO MODE MAIN ROUTINE
-SHIFT_SCREEN	ENDP			;AN000;
-PRINTF_CODE    ENDS
-	 END
+; ENDP SHIFT_SCREEN;AN000;
+; END SECTION .PRINTF_CODE
+	 ; END
 

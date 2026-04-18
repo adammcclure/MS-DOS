@@ -1,26 +1,26 @@
 ; KeyData
 
-KeyData         struc
+struc KeyData
 
-Char_Code       db      ?
-Scan_Code       db      ?
-Status          db      ?
-Shift_State     dw      ?
-Time            dd      ?
+Char_Code: resb 1
+Scan_Code: resb 1
+Status: resb 1
+Shift_State: resw 1
+Time: resd 1
 
-KeyData         ends
+endstruc
 
 
 
-KbdStatus       struc
+struc KbdStatus
 
-KS_Length               dw      ?
-Bit_mask                dw      ?
-Turn_Around_Char        dw      ?
-Interim_Char_Flags      dw      ?
-Status_Shift_State      dw      ?
+KS_Length: resw 1
+Bit_mask: resw 1
+Turn_Around_Char: resw 1
+Interim_Char_Flags: resw 1
+Status_Shift_State: resw 1
 
-KbdStatus       ends
+endstruc
 
 ; Bit_Mask equates
 
@@ -30,6 +30,6 @@ EchoOff         equ     2
 EchoOn          equ     1
 
 
-        include macros.inc
+        %include "macros.inc"
 
 

@@ -1,4 +1,4 @@
-.XLIST
+; .XLIST
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -21,9 +21,9 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-        EXTRN    KEYB_STATE_PROCESSOR:NEAR
+        extern KEYB_STATE_PROCESSOR
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-.LIST
+; .LIST
 

@@ -1,10 +1,10 @@
 
-CODE	segment public 'code'
-ASSUME	CS:CODE,DS:NOTHING,ES:NOTHING,SS:NOTHING
+SECTION .CODE
+; ASSUME	CS:CODE,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	org	0
 
-	include copyrigh.inc
+	%include "copyrigh.inc"
 
-code	ends
-	end
+; END SECTION .code
+	; end
 

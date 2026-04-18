@@ -1,5 +1,5 @@
-PAGE	    ,132
-TITLE	    PARSE CODE AND CONTROL BLOCKS FOR ANSI.SYS
+; PAGE	    ,132
+; TITLE	    PARSE CODE AND CONTROL BLOCKS FOR ANSI.SYS
 
 ;****************** START OF SPECIFICATIONS **************************
 ;
@@ -53,15 +53,15 @@ TITLE	    PARSE CODE AND CONTROL BLOCKS FOR ANSI.SYS
 ;******************************************************************************
 
 
-INCLUDE     ANSI.INC	    ; ANSI equates and structures				 ;AN000;
-.XLIST
-INCLUDE     STRUC.INC	    ; Structured macros 					 ;AN000;
+%include "ANSI.INC"; ANSI equates and structures				 ;AN000;
+; .XLIST
+%include "STRUC.INC"; Structured macros 					 ;AN000;
 
-INCLUDE     SYSMSG.INC	    ; Message retriever code					 ;AN000;
+%include "SYSMSG.INC"; Message retriever code					 ;AN000;
 MSG_UTILNAME <ANSI>	    ; Let message retriever know its ANSI.SYS			 ;AN000;
-.LIST
+; .LIST
 
-PUBLIC	    PARSE_PARM	     ; near procedure for parsing DEVICE= statement		 ;AN000;
+global PARSE_PARM; near procedure for parsing DEVICE= statement		 ;AN000;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -81,23 +81,23 @@ Val2SW	      EQU     0 								 ;AN000;
 Val3SW	      EQU     0 								 ;AN000;
 
 
-CODE	      SEGMENT  PUBLIC BYTE
-	      ASSUME CS:CODE
+SECTION .CODE
+	      ; ASSUME CS:CODE
 
-.XLIST
+; .XLIST
 MSG_SERVICES <MSGDATA>									 ;AN000;
 MSG_SERVICES <DISPLAYmsg,LOADmsg,CHARmsg>						 ;AN000;
 MSG_SERVICES <ANSI.CL1> 								 ;AN000;
 MSG_SERVICES <ANSI.CL2> 								 ;AN000;
 MSG_SERVICES <ANSI.CLA> 								 ;AN000;
 
-INCLUDE     PARSE.ASM	    ; Parsing code						 ;AN000;
-.LIST
+%include "PARSE.ASM"; Parsing code						 ;AN000;
+; .LIST
 
 
-EXTRN	    SWITCH_X:BYTE	 ; /X switch flag						 ;AN000;
-extrn	    Switch_L:Byte	 ;AN002; /L switch flag
-extrn	    Switch_K:Byte	 ;AN003; /K switch
+extern SWITCH_X; /X switch flag						 ;AN000;
+extern Switch_L;AN002; /L switch flag
+extern Switch_K;AN003; /K switch
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -108,25 +108,25 @@ extrn	    Switch_K:Byte	 ;AN003; /K switch
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 											 ;AN000;
-PARMS	       LABEL WORD								 ;AN000;
+PARMS:;AN000;
 	       DW	PARMSX								 ;AN000;
 	       DB	0		   ; no extra delimeters or EOLs.		 ;AN000;
 											 ;AN000;
-PARMSX	       LABEL BYTE								 ;AN000;
+PARMSX:;AN000;
 	       DB	1,1		   ;AN001; 1 valid positional operand
 	       DW	FILENAME	   ;AN001; filename
 	       DB	1		   ;AN002; 1 switche definition in the following
 	       DW	Switches	   ;AN002;
 	       DB	0		   ;AN001; no keywords
 											 ;AN000;
-FILENAME       LABEL WORD								 ;AN000;
+FILENAME:;AN000;
 	       DW	0200H		   ; file spec					 ;AN000;
 	       DW	0001H		   ; cap by file table				 ;AN000;
 	       DW	RESULT_BUF	   ; result					 ;AN000;
 	       DW	NOVALS		   ; no value checking done			 ;AN000;
 	       DB	0		   ; no switch/keyword synonyms 		 ;AN000;
 											 ;AN000;
-Switches       LABEL WORD								 ;AN000;
+Switches:;AN000;
 	       DW	0		   ; switch with no value			 ;AN000;
 	       DW	0		   ; no functions				 ;AN000;
 	       DW	RESULT_BUF	   ; result					 ;AN000;
@@ -136,26 +136,26 @@ X_SWITCH       DB	"/X",0             ;AN002; /X name
 L_SWITCH       DB	"/L",0             ;AN002; /L
 K_SWITCH       DB	"/K",0             ;AN003; /K
 
-NOVALS	       LABEL BYTE								 ;AN000;
+NOVALS:;AN000;
 	       DB	0		   ; no value checking done			 ;AN000;
 
-RESULT_BUF     LABEL BYTE								 ;AN000;
-	       DB	?		   ; type returned (number, string, etc.)	 ;AN000;
-	       DB	?		   ; matched item tag (if applicable)		 ;AN000;
+RESULT_BUF:;AN000;
+	       db 0; type returned (number, string, etc.)	 ;AN000;
+	       db 0; matched item tag (if applicable)		 ;AN000;
 SYNONYM_PTR    DW	0		   ; synonym ptr (if applicable)		 ;AN000;
-	       DD	?		   ; value					 ;AN000;
+	       dd 0; value					 ;AN000;
 											 ;AN000;
-SUBLIST        LABEL DWORD		   ; list for substitution			 ;AN000;
+SUBLIST:; list for substitution			 ;AN000;
 	       DB	SUB_SIZE							 ;AN000;
 	       DB	0								 ;AN000;
-	       DD	?								 ;AN000;
+	       dd 0;AN000;
 	       DB	1								 ;AN000;
 	       DB	LEFT_ASCIIZ							 ;AN000;
 	       DB	UNLIMITED							 ;AN000;
 	       DB	1								 ;AN000;
 	       DB	" "                                                              ;AN000;
 
-Old_SI		dw	?			;AN001;
+Old_SI: dw 0;AN001;
 Saved_Chr	db	0			;AN001;
 Continue_Flag	db	ON			;AN002;
 Parse_Err_Flag	db	OFF			;AN002;
@@ -177,12 +177,12 @@ Parse_Err_Flag	db	OFF			;AN002;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PARSE_PARM    PROC     NEAR								 ;AN000;
+PARSE_PARM:;AN000;
 	      CALL     SYSLOADMSG		; load message				 ;AN000;
-	      .IF C NEAR								 ;AN000;
+	      ; .IF C NEAR;AN000;
 		CALL	 SYSDISPMSG		; display error message 		 ;AN000;
 		STC				; ensure carry still set		 ;AN000;
-	      .ELSE NEAR								 ;AN000;
+	      ; .ELSE NEAR;AN000;
 		PUSH	 CS			; establish ES ..			 ;AN000;
 		POP	 ES			; addressability to data		 ;AN000;
 		LEA	 DI,PARMS		; point to PARMS control block		 ;AN000;
@@ -191,39 +191,39 @@ PARSE_PARM    PROC     NEAR								 ;AN000;
 		CALL	 SYSPARSE		; move pointer past file spec		 ;AN000;
 		mov	 Switch_L, OFF		;AN002;
 		mov	 Switch_X, OFF		;AN002;
-		.WHILE <Continue_Flag EQ ON>	;AN002;
+		; .WHILE <Continue_Flag EQ ON>;AN002;
 		     mov Old_SI, SI		;AN001;to be use by PARM_ERROR
 		     call SysParse		;AN002;
-		     .IF <AX EQ RC_EOL> 	;AN002;
+		     ; .IF <AX EQ RC_EOL>;AN002;
 			mov Continue_Flag, OFF	;AN002;
-		     .ELSE			;AN002;
-			.IF <AX NE RC_NO_ERROR> ;AN002;
+		     ; .ELSE;AN002;
+			; .IF <AX NE RC_NO_ERROR>;AN002;
 			   mov Continue_Flag, OFF    ;AN002;
 			   mov Switch_X, OFF	;AN002;
 			   mov Switch_L, OFF	;AN002;
 			   mov Switch_K, OFF	;AN003;
 			   call Parm_Error	;AN002;
 			   mov Parse_Err_Flag,ON;AN002;
-			.ELSE			;AN002;
-			   .IF <Synonym_ptr EQ <offset X_SWITCH>>      ;AN002;
+			; .ELSE;AN002;
+			   ; .IF <Synonym_ptr EQ <offset X_SWITCH>>;AN002;
 				mov	Switch_X, ON		       ;AN002;
-			   .ELSE				       ;AN002;
-			       .IF <Synonym_ptr EQ <offset L_SWITCH>>  ;AN003;
+			   ; .ELSE;AN002;
+			       ; .IF <Synonym_ptr EQ <offset L_SWITCH>>;AN003;
 				    mov     Switch_L, ON ;AN002;
-			       .ELSE			 ;AN003;Must be /K option.
+			       ; .ELSE;AN003;Must be /K option.
 				    mov     Switch_K, ON ;AN003;/K entered.
-			       .ENDIF			 ;AN003;
-			   .ENDIF			 ;AN002;
+			       ; .ENDIF;AN003;
+			   ; .ENDIF;AN002;
 			    clc 		;AN002;
-			.ENDIF			;AN002;
-		     .ENDIF			;AN002;
+			; .ENDIF;AN002;
+		     ; .ENDIF;AN002;
 		.ENDWHILE			;AN002;
-		.IF <Parse_Err_Flag EQ ON>	;AN002;
+		; .IF <Parse_Err_Flag EQ ON>;AN002;
 		     stc			;AN002;
-		.ELSE				;AN002;
+		; .ELSE;AN002;
 		     clc			;AN002;
-		.ENDIF				;AN002;
-	      .ENDIF				;AN002;
+		; .ENDIF;AN002;
+	      ; .ENDIF;AN002;
 
 ;		 mov	  cs:Old_SI, SI 	 ;AN001; Save pointer to parm
 ;		 CALL	  SYSPARSE		 ; look for /X switch			  ;AN000;
@@ -248,7 +248,7 @@ PARSE_PARM    PROC     NEAR								 ;AN000;
 ;	       .ENDIF				 ;					  ;AN000;
 
 	      RET									 ;AN000;
-PARSE_PARM    ENDP									 ;AN000;
+; ENDP PARSE_PARM;AN000;
 											 ;AN000;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -268,7 +268,7 @@ PARSE_PARM    ENDP									 ;AN000;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PARM_ERROR    PROC   NEAR								 ;AN000;
+PARM_ERROR:;AN000;
 	      PUSH   CX 								 ;AN000;
 	      PUSH   SI 								 ;AN000;
 	      PUSH   ES 		;						 ;AN000;
@@ -283,16 +283,16 @@ PARM_ERROR    PROC   NEAR								 ;AN000;
 	       mov    si, cs:Old_SI	;AN001;Now es:dx -> offending parms
 	       push   si		;AN001;Save it
 Get_CR:
-	       cmp    byte ptr es:[si], 13 ;AN001;CR?
+	       cmp    byte [es:si], 13 ;AN001;CR?
 	       je     Got_CR		   ;AN001;
 	       inc    si		   ;AN001;
 	       jmp    Get_CR		   ;AN001;
 Got_CR: 				   ;AN001;
 	       inc    si		   ;AN001; The next char.
-	       mov    al, byte ptr es:[si] ;AN001;
+	       mov    al, byte [es:si] ;AN001;
 	       mov    cs:Saved_Chr, al	   ;AN001; Save the next char
 
-	       mov    byte ptr es:[si], 0     ;AN001; and make it an ASCIIZ
+	       mov    byte [es:si], 0     ;AN001; and make it an ASCIIZ
 	       mov    cs:Old_SI, si	;AN001; Set it again
 	       pop    dx		;AN001; saved SI -> DX
 
@@ -310,16 +310,16 @@ Got_CR: 				   ;AN001;
 	      CALL   SYSDISPMSG 	; display error message 			 ;AN000;
 	      mov    si, cs:Old_SI	;AN001;restore the original char.
 	      mov    cl, cs:Saved_Chr	;AN001;
-	      mov    byte ptr es:[si], cl ;AN001;
+	      mov    byte [es:si], cl ;AN001;
 
 	      POP    DS 								 ;AN000;
 	      POP    ES 								 ;AN000;
 	      POP    SI 								 ;AN000;
 	      POP    CX 								 ;AN000;
 	      RET									 ;AN000;
-PARM_ERROR    ENDP
+; ENDP PARM_ERROR
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-CODE	      ENDS
-	      END
+; END SECTION .CODE
+	      ; END

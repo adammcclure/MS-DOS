@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	VDM_Init - VDM initialization module
+	; title	VDM_Init - VDM initialization module
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -44,25 +44,25 @@ page	58,132
 ;   to the calling routine in Virtual Mode.
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 ;******************************************************************************
 ;	P U B L I C S
 ;******************************************************************************
 
-	public	VDM_Init
-	public	PageD_Seg
-	public	PageT_Seg
-	public	Page_Dir
+	global VDM_Init
+	global PageD_Seg
+	global PageT_Seg
+	global Page_Dir
 
 ;******************************************************************************
 ;	D E F I N E S
 ;******************************************************************************
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include instr386.inc
-	include page.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "instr386.inc"
+	%include "page.inc"
 
 FALSE		equ	0
 TRUE		equ	not FALSE
@@ -72,41 +72,41 @@ LF		equ	0ah
 ;******************************************************************************
 ;	E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
-_DATA	SEGMENT
-extrn	P_TABLE_CNT:abs
-extrn	ELOff:word		; offset of LL buffer
-_DATA	ENDS
+SECTION ._DATA
+extern P_TABLE_CNT
+extern ELOff; offset of LL buffer
+; END SECTION ._DATA
 
-_TEXT SEGMENT
+SECTION ._TEXT
 
-extrn	InitBitMap:far	; (vminit.asm)
+extern InitBitMap; (vminit.asm)
 
-_TEXT	ENDS
+; END SECTION ._TEXT
 
-GDT	SEGMENT
-extrn	GDTLEN:abs
-GDT	ENDS
+SECTION .GDT
+extern GDTLEN
+; END SECTION .GDT
 
-IDT	SEGMENT
-extrn	IDTLEN:abs
-IDT	ENDS
+SECTION .IDT
+extern IDTLEN
+; END SECTION .IDT
 
-TSS	SEGMENT
-extrn	TSSLEN:abs
-TSS	ENDS
+SECTION .TSS
+extern TSSLEN
+; END SECTION .TSS
 
-PAGESEG SEGMENT
-extrn	Page_Area:byte
-PAGESEG ENDS
+SECTION .PAGESEG
+extern Page_Area
+; END SECTION .PAGESEG
 
 
-LAST	SEGMENT
-extrn	SetSegDesc:near
-extrn	SegTo24:near
-extrn	SetPageEntry:near
-extrn	get_init_a20_state:near
-extrn	OEM_Init_Diag_Page:near
-LAST	ENDS
+SECTION .LAST
+extern SetSegDesc
+extern SegTo24
+extern SetPageEntry
+extern get_init_a20_state
+extern OEM_Init_Diag_Page
+; END SECTION .LAST
 
 ;******************************************************************************
 ;	S E G M E N T	D E F I N I T I O N S
@@ -115,34 +115,34 @@ LAST	ENDS
 ;
 ;  Ring 0 stack for VDM exception/int handling
 ;
-STACK SEGMENT
-stkstrt label	byte
+SECTION .STACK
+stkstrt:
 
 	db	STACK0_SIZE dup(0)
 
-	public	kstack_top
-kstack_top	label	byte
+	global kstack_top
+kstack_top:
 
 	db	400h dup (0)
-	public	exe_stack
-exe_stack	label	byte
+	global exe_stack
+exe_stack:
 
-STACK ENDS
+; END SECTION .STACK
 
-_DATA	SEGMENT
+SECTION ._DATA
 
 PageD_Seg	dw	0		; segment for Page Directory
 PageT_Seg	dw	0		; segment for Page Tables
 Page_Dir	dd	0		; 32 bit address of Page Directory
 
-_DATA ENDS
+; END SECTION ._DATA
 
 ;
 ;   code
 ;
-LAST SEGMENT
+SECTION .LAST
 
-	assume cs:LAST, ds:DGROUP, es:DGROUP
+	; assume cs:LAST, ds:DGROUP, es:DGROUP
 
 ;******************************************************************************
 ;	VDM_Init - VDM initialization routine
@@ -160,7 +160,7 @@ LAST SEGMENT
 ;    USED:	none
 ;
 ;******************************************************************************
-VDM_Init	proc	near
+VDM_Init:
 ;
 	pushf
 	pusha
@@ -188,23 +188,23 @@ VDM_Init	proc	near
 	mov	es,ax			; ES -> TSS
 	xor	di,di			; ES:DI -> TSS
 
-	mov	ES:[di.TSS386_SS0], VDMS_GSEL
-	mov	word ptr ES:[di.TSS386_ESP0lo], offset STACK:kstack_top
-	mov	word ptr ES:[di.TSS386_ESP0hi], 0
+	mov	[ES:di+TSS386_SS0], VDMS_GSEL
+	mov	word [ES:di+TSS386_ESP0lo], kstack_top
+	mov	word [ES:di+TSS386_ESP0hi], 0
 
 ; now set CR3 in the TSS
 
 	db	66h
-	mov	ax,word ptr [Page_Dir]		; EAX = page dir 32 bit addr
+	mov	ax,word [Page_Dir]		; EAX = page dir 32 bit addr
 	db	66h
-	mov	word ptr ES:[di.TSS386_CR3],ax	; mov EAX into CR3 spot in TSS
+	mov	word [ES:di+TSS386_CR3],ax	; mov EAX into CR3 spot in TSS
 
 ;	clear the TSS busy flag
 
 	mov	ax,seg GDT
 	mov	es, ax			; DS:0 = ptr to gdt
 
-	and	byte ptr ES:[TSS_GSEL + 5], 11111101B
+	and	byte [ES:TSS_GSEL + 5], 11111101B
 
 ;
 ;  dword align the LL buffer (move foward)
@@ -224,7 +224,7 @@ VDM_Init	proc	near
 	popa
 	popf
 	ret
-VDM_Init	endp
+; ENDP VDM_Init
 
 ;**	InitGdt - initialise GDT
 ;
@@ -239,8 +239,8 @@ VDM_Init	endp
 ;	WARNING This code only works on a 286.
 ;		Designed to be called from real mode ONLY.
 
-	public InitGdt
-InitGdt proc near
+	global InitGdt
+InitGdt:
 	push	es
 
 	mov	ax,GDT
@@ -301,14 +301,14 @@ InitGdt proc near
 
 	mov	ax, seg STACK		; set up Ring 0 stack
 	call	SegTo24
-	mov	cx, offset STACK:kstack_top
+	mov	cx, kstack_top
 	mov	ah, D_DATA0
 	mov	bx, VDMS_GSEL
 	call	SetSegDesc
 
 	pop	es
 	ret
-InitGdt endp
+; ENDP InitGdt
 
 ;**	InitPages - initialize Page Directory and Table
 ;
@@ -346,8 +346,8 @@ InitGdt endp
 ;	WARNING This code only works on a 286/386.
 ;		Designed to be called from real mode ONLY.
 
-	public InitPages
-InitPages	proc near
+	global InitPages
+InitPages:
 	push	ax
 	push	bx
 	push	cx
@@ -358,7 +358,7 @@ InitPages	proc near
 ;
 ;  get physical pointer to nearest page
 ;
-	mov	ax,offset PAGESEG:Page_Area
+	mov	ax,Page_Area
 	add	ax,15
 	shr	ax,4			; AX = seg offset for page area
 	mov	bx,PAGESEG		; PAGESEG is on a 256 boundary
@@ -374,8 +374,8 @@ InitPages	proc near
 	shr	dl,4			; DL = bits 16 - 19
 	xor	dh,dh			; DX = bits 16 - 31
 	shl	ah,4			; AX = bits 0 - 15
-	mov	word ptr [Page_Dir],AX	; DX,AX = 32 bit addr of Page Directory
-	mov	word ptr [Page_Dir+2],DX	; save it
+	mov	word [Page_Dir],AX	; DX,AX = 32 bit addr of Page Directory
+	mov	word [Page_Dir+2],DX	; save it
 ;
 ;   get addr of Page Table for Page Directory entry
 ;
@@ -518,10 +518,10 @@ setL_tentry:
 	pop	bx
 	pop	ax
 	ret
-InitPages endp
+; ENDP InitPages
 
-LAST	ends
+; END SECTION .LAST
 
-	END
+	; END
 
 

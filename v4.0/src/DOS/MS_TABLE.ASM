@@ -4,23 +4,23 @@
 ;         A001   DCR 486 - Share installation for >32mb drives
 ;         A006   DCR 503 - fake version for IBMCACHE
 ;         A008   PTM 4070 - fake version for MS WINDOWS
-.xlist
-.xcref
-include dosseg.asm
-include EA.inc                           ;AN000;; for Extended Attributes
-include fastopen.inc                     ;AN000;; for Extended Attributes
-include dossym.inc
-.cref
-.list
+; .xlist
+; .xcref
+%include "dosseg.asm"
+%include "EA.inc";AN000;; for Extended Attributes
+%include "fastopen.inc";AN000;; for Extended Attributes
+%include "dossym.inc"
+; .cref
+; .list
 
         AsmVars <Kanji, Debug, Redirector, ShareF>
 
-TABLE           SEGMENT BYTE PUBLIC 'TABLE'
-TableZero   LABEL   BYTE
+SECTION .TABLE
+TableZero:
 
-        PUBLIC  MSVERS
-PUBLIC MSTAB001s,MSTAB001e
-MSTAB001S       label byte
+        global MSVERS
+global MSTAB001s,MSTAB001e
+MSTAB001S:
 
 MSVERS  EQU     THIS WORD               ; MS-DOS version in hex for $GET_VERSION
 MSMAJOR DB      MAJOR_VERSION
@@ -61,8 +61,8 @@ MSMINOR DB      MINOR_VERSION
 ;
 ; The table is terminated by a call value of 0FFh
 
-PUBLIC  I21_MAP_E_TAB
-I21_MAP_E_TAB   LABEL   BYTE
+global I21_MAP_E_TAB
+I21_MAP_E_TAB:
     DB  International,2,error_invalid_function,error_file_not_found
     DB  MKDir,3,error_path_not_found,error_file_not_found,error_access_denied
     DB  RMDir,4,error_current_directory,error_path_not_found
@@ -128,16 +128,16 @@ I21_MAP_E_TAB   LABEL   BYTE
 ; A value of 0FFh indicates a call specific value (ie.  should already
 ; be set).  AN ERROR CODE NOT IN THE TABLE FALLS THROUGH TO THE CATCH ALL AT
 ; THE END, IT IS ASSUMES THAT CLASS, ACTION, LOCUS IS ALREADY SET.
-ErrTab  Macro   err,class,action,locus
-ifidn <locus>,<0FFh>
+%macro ErrTab 4
+%ifidn <locus>,<0FFh>
     DB  error_&err,errCLASS_&class,errACT_&action,0FFh
-ELSE
+%else
     DB  error_&err,errCLASS_&class,errACT_&action,errLOC_&locus
-ENDIF
-ENDM
+%endif
+%endmacro
 
-PUBLIC  ERR_TABLE_21
-ERR_TABLE_21    LABEL   BYTE
+global ERR_TABLE_21
+ERR_TABLE_21:
     ErrTab  invalid_function,       Apperr,     Abort,      0FFh
     ErrTab  file_not_found,         NotFnd,     User,       Disk
     ErrTab  path_not_found,         NotFnd,     User,       Disk
@@ -181,8 +181,8 @@ ERR_TABLE_21    LABEL   BYTE
 ; be set).  AN ERROR CODE NOT IN THE TABLE FALLS THROUGH TO THE CATCH ALL AT
 ; THE END.
 
-PUBLIC  ERR_TABLE_24
-ERR_TABLE_24    LABEL   BYTE
+global ERR_TABLE_24
+ERR_TABLE_24:
     ErrTab  write_protect,          Media,      IntRet,     Disk
     ErrTab  bad_unit,               Intrn,      Panic,      Unk
     ErrTab  not_ready,              HrdFail,    IntRet,     0FFh
@@ -208,8 +208,8 @@ ERR_TABLE_24    LABEL   BYTE
 ; We need to map old int 24 errors and device driver errors into the new set
 ; of errors.  The following table is indexed by the new errors
 ;
-Public  ErrMap24
-ErrMap24    Label   BYTE
+global ErrMap24
+ErrMap24:
     DB  error_write_protect             ;   0
     DB  error_bad_unit                  ;   1
     DB  error_not_ready                 ;   2
@@ -227,17 +227,17 @@ ErrMap24    Label   BYTE
     DB  error_gen_failure               ;   E   RESERVED
     DB  error_wrong_disk                ;   F
 
-Public  ErrMap24End
-ErrMap24End LABEL   BYTE
+global ErrMap24End
+ErrMap24End:
 
 
-        PUBLIC  DISPATCH,MAXCALL,MAXCOM
+        global DISPATCH,MAXCALL,MAXCOM
 
 MAXCALL DB      VAL1
 MAXCOM  DB      VAL2
 
 ; Standard Functions
-DISPATCH    LABEL WORD
+DISPATCH:
         short_addr  $ABORT                          ;  0      0
         short_addr  $STD_CON_INPUT                  ;  1      1
         short_addr  $STD_CON_OUTPUT                 ;  2      2
@@ -289,7 +289,7 @@ DISPATCH    LABEL WORD
         short_addr  $FCB_RANDOM_WRITE               ; 34     22
         short_addr  $GET_FCB_FILE_LENGTH            ; 35     23
         short_addr  $GET_FCB_POSITION               ; 36     24
-VAL1    =       ($-DISPATCH)/2 - 1
+VAL1 equ ($-DISPATCH)/2 - 1
 
 ; Extended Functions
         short_addr  $SET_INTERRUPT_VECTOR           ; 37     25
@@ -406,18 +406,18 @@ VAL1    =       ($-DISPATCH)/2 - 1
         short_addr  $IFS_IOCTL                      ; 107    6B   ;AN000;
         short_addr  $Extended_Open                  ; 108    6C   ;AN000;
 ;
-VAL2    =       ($-DISPATCH)/2 - 1
+VAL2 equ ($-DISPATCH)/2 - 1
 
 
-        If      Installed
+        %if Installed
 
-PUBLIC FOO
-FOO     LABEL WORD
+global FOO
+FOO:
         Short_addr  Leave2F
-DTab    DW  OFFSET  DOSGroup:DOSTable
-        PUBLIC FOO,DTAB
+DTab    DW  DOSTable
+        global FOO,DTAB
 
-DOSTable    LABEL   WORD
+DOSTable:
         DB      (DOSTableEnd-DOSTable-1)/2
         Short_addr  DOSInstall          ;   0 install check
         Short_addr  DOS_CLOSE           ;   1   DOS_CLOSE
@@ -468,9 +468,9 @@ DOSTable    LABEL   WORD
         Short_addr  MSG_RETRIEVAL       ;   46  MSG_RETRIEVAL DOS 4.0  ;AN000;
         Short_addr  Fake_Version        ;   47  Fake_Version  DOS 4.0  ;AN006;
 
-DOSTableEnd LABEL   BYTE
+DOSTableEnd:
 
-        ENDIF
+        %endif
 
 ; NOTE WARNING: This declaration of HEADER must be THE LAST thing in this
 ;       module. The reason is so that the data alignments are the same in
@@ -484,94 +484,94 @@ DOSTableEnd LABEL   BYTE
         I_AM    InterChar, byte         ; Interim character flag ( 1= interim)  ;AN000;
                                                                                 ;AN000;
 ;------- NOTE: NEXT TWO BYTES SOMETIMES USED AS A WORD !! ---------------------
-DUMMY   LABEL   WORD                                                            ;AN000;
-        PUBLIC  InterCon                ; Console in Interim mode ( 1= interim) ;AN000;
+DUMMY:;AN000;
+        global InterCon; Console in Interim mode ( 1= interim) ;AN000;
 InterCon        db      0                                                       ;AN000;
-        PUBLIC  SaveCurFlg              ; Print, do not advance cursor flag     ;AN000;
+        global SaveCurFlg; Print, do not advance cursor flag     ;AN000;
 SaveCurFlg      db      0                                                       ;AN000;
 ;-----------------------------------------End of Korean support  2/11/KK
 
 
-        PUBLIC  HEADER
-Header  LABEL   BYTE
-        IF      DEBUG
+        global HEADER
+Header:
+        %if DEBUG
         DB      13,10,"Debugging DOS version "
         DB      MAJOR_VERSION + "0"
         DB      "."
         DB      (MINOR_VERSION / 10) + "0"
         DB      (MINOR_VERSION MOD 10) + "0"
-        ENDIF
+        %endif
 
-        IF      NOT IBM
+        %if ~IBM
         DB      13,10,"MS-DOS version "
         DB      MAJOR_VERSION + "0"
         DB      "."
         DB      (MINOR_VERSION / 10) + "0"
         DB      (MINOR_VERSION MOD 10) + "0"
 
-        IF      HIGHMEM
+        %if HIGHMEM
         DB      "H"
-        ENDIF
+        %endif
 
 	DB	13,10, "Copyright 1981,82,83,84,88 Microsoft Corp.",13,10,"$"
-	ENDIF
+	%endif
 
-IF DEBUG
+%if DEBUG
         DB      13,10,"$"
-ENDIF
+%endif
 
-MSTAB001E       label byte
+MSTAB001E:
 
-include copyrigh.inc                                                            ;AN000;
+%include "copyrigh.inc";AN000;
 
 ; SYS init extended table,   DOS 3.3   F.C. 5/29/86
 ;
-       PUBLIC   SysInitTable
+       global SysInitTable
        I_need   COUNTRY_CDPG,BYTE
        I_need   SYSINITVAR,BYTE
 
-SysInitTable  label  byte
-               dw      OFFSET DOSGROUP:SYSINITVAR    ; pointer to sysinit var
+SysInitTable:
+               dw      SYSINITVAR    ; pointer to sysinit var
                dw      0                             ; segment
-               dw      OFFSET DOSGROUP:COUNTRY_CDPG  ; pointer to country table
+               dw      COUNTRY_CDPG  ; pointer to country table
                dw      0                             ; segment of pointer
 ; DOS 3.3 F.C. 6/12/86
 
 ; FASTOPEN communications area DOS 3.3   F.C. 5/29/86
 ;
-       PUBLIC   FastOpenTable
-       PUBLIC   FastTable                            ; a better name
-       EXTRN    FastRet:FAR                          ; defined in misc2.asm
+       global FastOpenTable
+       global FastTable; a better name
+       extern FastRet; defined in misc2.asm
 
-FastTable      label  byte                           ; a better name
-FastOpenTable  label  byte
+FastTable:; a better name
+FastOpenTable:
                dw      2                             ; number of entries
-               dw      OFFSET DOSGROUP:FastRet       ; pointer to ret instr.
+               dw      FastRet       ; pointer to ret instr.
                dw      0                             ; and will be modified by
-               dw      OFFSET DOSGROUP:FastRet       ; FASTxxx when loaded in
+               dw      FastRet       ; FASTxxx when loaded in
                dw      0                             ;
 ; DOS 3.3 F.C. 6/12/86
-      PUBLIC   FastFlg                  ;AN000; flags
-FastFlg        label  byte              ;AN000; don't change the following order
+      global FastFlg;AN000; flags
+FastFlg:;AN000; don't change the following order
         I_am   FastOpenFlg,BYTE,<0>     ;AN000;
         I_am   FastSeekFlg,BYTE,<0>     ;AN000;
 
-       PUBLIC   FastOpen_Ext_Info
+       global FastOpen_Ext_Info
 
 ; FastOpen_Ext_Info is used as a temporary storage for saving dirpos,dirsec
 ; and clusnum  which are filled by DOS 3.3 when calling FastOpen Insert
 ; or filled by FastOPen when calling FastOpen Lookup
 
-FastOpen_Ext_Info  label  byte
-               db   SIZE FASTOPEN_EXTENDED_INFO dup(0) ;dirpos
+FastOpen_Ext_Info:
+               db   FASTOPEN_EXTENDED_INFO_size dup(0) ;dirpos
 
 ; Dir_Info_Buff is a dir entry buffer which is filled by FastOPen
 ; when calling FastOpen Lookup
 
-       PUBLIC  Dir_Info_Buff
+       global Dir_Info_Buff
 
-Dir_Info_Buff  label  byte
-               db   SIZE dir_entry dup (0)
+Dir_Info_Buff:
+               db   dir_entry_size dup (0)
 
 
       I_am     Next_Element_Start,WORD  ; save next element start offset
@@ -587,47 +587,47 @@ Dir_Info_Buff  label  byte
 ; not to destroy the INT 21 stack saved for the user.
 
 
-       PUBLIC   User_SP_2F
+       global User_SP_2F
 
-USER_SP_2F       LABEL  WORD
-                dw    OFFSET DOSGROUP:FAKE_STACK_2F
+USER_SP_2F:
+                dw    FAKE_STACK_2F
 
-       PUBLIC   Packet_Temp
-Packet_Temp      label  word             ; temporary packet used by readtime
-       PUBLIC   DOS_TEMP                 ; temporary word
-DOS_TEMP         label  word
-FAKE_STACK_2F   dw   14 dup (0)          ; 12 register temporary storage
+       global Packet_Temp
+Packet_Temp:; temporary packet used by readtime
+       global DOS_TEMP; temporary word
+DOS_TEMP:
+FAKE_STACK_2F: times 14 dw 0; 12 register temporary storage
 
-       PUBLIC   Hash_Temp                ;AN000; temporary word
-Hash_Temp        label  word             ;AN000;
-                dw    4 dup (0)          ;AN000; temporary hash table during config.sys
+       global Hash_Temp;AN000; temporary word
+Hash_Temp:;AN000;
+                times 4 dw 0;AN000; temporary hash table during config.sys
 
-      PUBLIC   SCAN_FLAG                 ; flag to indicate key ALT_Q
-SCAN_FLAG      label  byte
+      global SCAN_FLAG; flag to indicate key ALT_Q
+SCAN_FLAG:
                db     0
 ;;; The following  2 words must be adjacent for IBMDOS reasons
 
-      PUBLIC   DATE_FLAG
-DATE_FLAG      label  word               ; flag to
+      global DATE_FLAG
+DATE_FLAG:; flag to
                dw     0                  ; to update the date
 ;;;; special tag for IBMDOS
-      PUBLIC   FETCHI_TAG
-FETCHI_TAG     label  word               ; TAG to make DOS 3.3 work
+      global FETCHI_TAG
+FETCHI_TAG:; TAG to make DOS 3.3 work
                dw     0                  ; must be 22642
 ;;; The above  2 words must be adjacent for IBMDOS reasons
 ; DOS 3.3 F.C. 6/12/86
       I_am     Del_ExtCluster,WORD       ; for dos_delete                       ;AN000;
 
-      PUBLIC   MSG_EXTERROR              ; for system message addr              ;AN000;
-MSG_EXTERROR   label  DWORD                                                     ;AN000;
+      global MSG_EXTERROR; for system message addr              ;AN000;
+MSG_EXTERROR:;AN000;
                dd     0                  ; for extended error                   ;AN000;
                dd     0                  ; for parser                           ;AN000;
                dd     0                  ; for critical errror                  ;AN000;
                dd     0                  ; for IFS                              ;AN000;
                dd     0                  ; for code reduction                   ;AN000;
 
-      PUBLIC   SEQ_SECTOR                ; last sector read                     ;AN000;
-SEQ_SECTOR     label  DWORD                                                     ;AN000;
+      global SEQ_SECTOR; last sector read                     ;AN000;
+SEQ_SECTOR:;AN000;
                dd     -1                                                        ;AN000;
 
       I_am     XA_CONDITION,BYTE,<0>     ; for Extended Attributes              ;AN000;
@@ -684,12 +684,12 @@ SEQ_SECTOR     label  DWORD                                                     
         I_am    SC_FLAG,BYTE,<0>                 ; SC flag                            ;AN000;
         I_am    IFS_DRIVER_ERR,WORD,<0>          ; driver error for IFS               ;AN000;
 
-          PUBLIC NO_NAME_ID                                                           ;AN000;
-NO_NAME_ID       label byte                                                           ;AN000;
+          global NO_NAME_ID;AN000;
+NO_NAME_ID:;AN000;
                  db   'NO NAME    '              ; null media id                      ;AN000;
 
-          PUBLIC SWAP_AREA_TABLE                                                      ;AN000;
-SWAP_AREA_TABLE  label byte                                                           ;AN000;
+          global SWAP_AREA_TABLE;AN000;
+SWAP_AREA_TABLE:;AN000;
         I_am    NUM_SWAP_AREA,WORD,<2>           ; number of swap areas               ;AN000;
         I_am    SWAP_IN_DOS,DWORD                ; swap in dos area                   ;AN000;
         I_am    SWAP_IN_DOS_LEN,WORD             ; swap in dos area length            ;AN000;
@@ -704,7 +704,7 @@ SWAP_AREA_TABLE  label byte                                                     
         I_am    FAKE_COUNT,<255>                 ;AN008; fake version count
         I_am    OLD_FIRSTCLUS,WORD               ;AN011; save old first cluster for fastopen
 
-TABLE   ENDS
+; END SECTION .TABLE
 
 
 

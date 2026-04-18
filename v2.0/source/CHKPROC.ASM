@@ -1,80 +1,80 @@
-TITLE   CHKPROC - Procedures called from chkdsk
+; TITLE   CHKPROC - Procedures called from chkdsk
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 DRVCHAR EQU     ":"
 
-        INCLUDE DOSSYM.ASM
+        %include "DOSSYM.ASM"
 
-SUBTTL  Segments used in load order
+; SUBTTL  Segments used in load order
 
-CODE    SEGMENT PUBLIC
-CODE    ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST   SEGMENT PUBLIC BYTE
+SECTION .CONST
 
-        EXTRN   CLUSBAD:BYTE,BADATT:BYTE,BADSIZM:BYTE
-        EXTRN   DIRECMES:BYTE,CDDDMES:BYTE,NDOTMES:BYTE
-        EXTRN   BADTARG1:BYTE,BADTARG2:BYTE,FATALMES:BYTE
-        EXTRN   STACKMES:BYTE,BADDPBDIR:BYTE,CREATMES:BYTE
-        EXTRN   FREEBYMES_PRE:BYTE,FREEBYMESF_PRE:BYTE
-        EXTRN   FREEBYMES_POST:BYTE,FREEBYMESF_POST:BYTE
-        EXTRN   NULNZ:BYTE,NULDMES:BYTE,BADCLUS:BYTE
-        EXTRN   NORECDDOT:BYTE,NORECDOT:BYTE,DOTMES:BYTE
-        EXTRN   BADWRITE_PRE:BYTE,BADCHAIN:BYTE,CROSSMES_PRE:BYTE
-        EXTRN   BADWRITE_POST:BYTE,CROSSMES_POST:BYTE,INDENT:BYTE
-        EXTRN   PTRANDIR:BYTE,PTRANDIR2:BYTE,FREEMES:BYTE,FIXMES:BYTE
+        extern CLUSBAD,BADATT,BADSIZM
+        extern DIRECMES,CDDDMES,NDOTMES
+        extern BADTARG1,BADTARG2,FATALMES
+        extern STACKMES,BADDPBDIR,CREATMES
+        extern FREEBYMES_PRE,FREEBYMESF_PRE
+        extern FREEBYMES_POST,FREEBYMESF_POST
+        extern NULNZ,NULDMES,BADCLUS
+        extern NORECDDOT,NORECDOT,DOTMES
+        extern BADWRITE_PRE,BADCHAIN,CROSSMES_PRE
+        extern BADWRITE_POST,CROSSMES_POST,INDENT
+        extern PTRANDIR,PTRANDIR2,FREEMES,FIXMES
 
-        EXTRN   NOISY:BYTE,DOFIX:BYTE,DIRBUF:WORD,DOTENT:BYTE,FIXMFLG:BYTE
-        EXTRN   HAVFIX:BYTE,SECONDPASS:BYTE,LCLUS:WORD,DIRTYFAT:BYTE
-        EXTRN   NUL:BYTE,ALLFILE:BYTE,PARSTR:BYTE,ERRSUB:WORD,USERDIR:BYTE
-        EXTRN   HIDCNT:WORD,HIDSIZ:WORD,FILCNT:WORD,FILSIZ:WORD,DIRCHAR:BYTE
-        EXTRN   DIRCNT:WORD,DIRSIZ:WORD,FRAGMENT:BYTE,HECODE:BYTE
-        EXTRN   BADSIZ:WORD,ORPHSIZ:WORD,DDOTENT:BYTE,CROSSCNT:WORD
-        EXTRN   ORPHCNT:WORD,ORPHFCB:BYTE,ORPHEXT:BYTE,ALLDRV:BYTE,DIRCHAR:BYTE
+        extern NOISY,DOFIX,DIRBUF,DOTENT,FIXMFLG
+        extern HAVFIX,SECONDPASS,LCLUS,DIRTYFAT
+        extern NUL,ALLFILE,PARSTR,ERRSUB,USERDIR
+        extern HIDCNT,HIDSIZ,FILCNT,FILSIZ,DIRCHAR
+        extern DIRCNT,DIRSIZ,FRAGMENT,HECODE
+        extern BADSIZ,ORPHSIZ,DDOTENT,CROSSCNT
+        extern ORPHCNT,ORPHFCB,ORPHEXT,ALLDRV,DIRCHAR
 
-CONST   ENDS
+; END SECTION .CONST
 
-DATA    SEGMENT PUBLIC WORD
+SECTION .DATA
 
-        EXTRN   THISDPB:DWORD,HARDCH:DWORD,CONTCH:DWORD,USERDEV:BYTE
-        EXTRN   CSIZE:BYTE,SSIZE:WORD,DSIZE:WORD,MCLUS:WORD,NAMBUF:BYTE
-        EXTRN   DOTSNOGOOD:BYTE,ZEROTRUNC:BYTE,ISCROSS:BYTE,SRFCBPT:WORD
-        EXTRN   FATMAP:WORD,SECBUF:WORD,ERRCNT:BYTE,STACKLIM:WORD,FAT:WORD
+        extern THISDPB,HARDCH,CONTCH,USERDEV
+        extern CSIZE,SSIZE,DSIZE,MCLUS,NAMBUF
+        extern DOTSNOGOOD,ZEROTRUNC,ISCROSS,SRFCBPT
+        extern FATMAP,SECBUF,ERRCNT,STACKLIM,FAT
 
-DATA    ENDS
+; END SECTION .DATA
 
-DG      GROUP   CODE,CONST,DATA
+; DG      GROUP   CODE,CONST,DATA
 
-SUBTTL  Initialized Data
-PAGE
+; SUBTTL  Initialized Data
+; PAGE
 
 
-CODE    SEGMENT PUBLIC
-ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
+SECTION .CODE
+; ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
 
-        PUBLIC  INT_23,INT_24,FINDCHAIN,DONE,AMDONE,RDONE
-        PUBLIC  FATAL,DIRPROC,CHKMAP,CHKCROSS,UNPACK
-        PUBLIC  PRINTTHISEL2,CHECKERR,PRINTCURRDIRERR
+        global INT_23,INT_24,FINDCHAIN,DONE,AMDONE,RDONE
+        global FATAL,DIRPROC,CHKMAP,CHKCROSS,UNPACK
+        global PRINTTHISEL2,CHECKERR,PRINTCURRDIRERR
 
-        EXTRN   EPRINT:NEAR,DOCRLF:NEAR,PRINT:NEAR
-        EXTRN   PROMPTYN:NEAR,DOINT26:NEAR,SUBERRP:NEAR
-        EXTRN   DOTCOMBMES:NEAR,DISP16BITS:NEAR
-        EXTRN   CHAINREPORT:NEAR,DISPCLUS:NEAR
-        EXTRN   PRTCHR:NEAR,WDSKERR:NEAR,CHECKFILES:NEAR
-        EXTRN   FCB_TO_ASCZ:NEAR,FIGREC:NEAR,RDSKERR:NEAR
+        extern EPRINT,DOCRLF,PRINT
+        extern PROMPTYN,DOINT26,SUBERRP
+        extern DOTCOMBMES,DISP16BITS
+        extern CHAINREPORT,DISPCLUS
+        extern PRTCHR,WDSKERR,CHECKFILES
+        extern FCB_TO_ASCZ,FIGREC,RDSKERR
 
 CHKPROC:
 
-SUBTTL  DIRPROC -- Recursive directory processing
+; SUBTTL  DIRPROC -- Recursive directory processing
 
 ; YOU ARE ADVISED NOT TO COPY THE FOLLOWING METHOD!!!
 
 DOTDOTHARDWAY:
         LDS     DI,[THISDPB]
-ASSUME  DS:NOTHING
-        MOV     [DI.dpb_current_dir],-1       ;Invalidate path
+; ASSUME  DS:NOTHING
+        MOV     [DI+dpb_current_dir],-1       ;Invalidate path
         MOV     SI,DI
         ADD     SI,dpb_dir_text
         MOV     CX,SI
@@ -86,50 +86,50 @@ FINDEND:
 DELLOOP:                                ;Delete last element
         CMP     SI,CX
         JZ      SETROOT
-        CMP     BYTE PTR [SI],"/"
+        CMP     byte [SI],"/"
         JZ      SETTERM
-        CMP     BYTE PTR [SI],"\"
+        CMP     byte [SI],"\"
         JZ      SETTERM
         DEC     SI
         JMP     SHORT DELLOOP
 
 SETTERM:
-        MOV     BYTE PTR [SI],0
+        MOV     byte [SI],0
 SETCURR:
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
-        MOV     DX,OFFSET DG:DOTMES
+; ASSUME  DS:DG
+        MOV     DX,DOTMES
         MOV     AH,CHDIR                ;Chdir to altered path
         INT     21H
         RET
 
 SETROOT:
-ASSUME  DS:NOTHING
-        MOV     [DI.dpb_current_dir],0        ;Set Path to Root
+; ASSUME  DS:NOTHING
+        MOV     [DI+dpb_current_dir],0        ;Set Path to Root
         JMP     SHORT SETCURR           ;The CHDIR will fail, but who cares
 
 
 ;Structures used by DIRPROC
 
-SRCHFCB STRUC
-        DB      44 DUP (?)
-SRCHFCB ENDS
-SFCBSIZ EQU     SIZE SRCHFCB
+struc SRCHFCB
+        resb 44
+endstruc
+SFCBSIZ EQU     SRCHFCB_size
 THISENT EQU     17H                     ;Relative entry number of current entry
 
-DIRENT  STRUC
-        DB      7 DUP (?)               ;Ext FCB junk
-        DB      ?                       ;Drive
-DIRNAM  DB      11 DUP (?)
-DIRATT  DB      ?
-        DB      10 DUP (?)
-DIRTIM  DW      ?
-DIRDAT  DW      ?
-DIRCLUS DW      ?
-DIRESIZ DD      ?
-DIRENT  ENDS
-ENTSIZ  EQU     SIZE DIRENT
+struc DIRENT
+        resb 7;Ext FCB junk
+        resb 1;Drive
+DIRNAM: resb 11
+DIRATT: resb 1
+        resb 10
+DIRTIM: resw 1
+DIRDAT: resw 1
+DIRCLUS: resw 1
+DIRESIZ: resd 1
+endstruc
+ENTSIZ  EQU     DIRENT_size
 
 ;Attribute bits
 
@@ -139,7 +139,7 @@ SYSTM   EQU     4
 VOLIDA  EQU     8
 ISDIR   EQU     10H
 
-ASSUME  DS:DG
+; ASSUME  DS:DG
 
 NODOT:                                  ;No .
         PUSH    AX                      ;Return from SRCH
@@ -148,9 +148,9 @@ NODOT:                                  ;No .
         CALL    SUBERRP
         JMP     SHORT MESD1
 DOEXTMES1:
-        MOV     SI,OFFSET DG:DOTMES
+        MOV     SI,DOTMES
         CALL    PRINTCURRDIRERR
-        MOV     DX,OFFSET DG:NDOTMES
+        MOV     DX,NDOTMES
         CALL    EPRINT
 MESD1:
         XOR     AX,AX
@@ -159,9 +159,9 @@ MESD1:
         CALL    GETENT
         POP     BP
         PUSH    BP
-        CMP     BYTE PTR [DI],0E5H      ;Have place to put .?
+        CMP     byte [DI],0E5H      ;Have place to put .?
         JNZ     CANTREC                 ;Nope
-        MOV     SI,OFFSET DG:DOTENT
+        MOV     SI,DOTENT
         MOV     CX,11
         REP     MOVSB                   ;Name
         PUSH    AX
@@ -188,13 +188,13 @@ CANTREC:
         INC     [DOTSNOGOOD]
         CMP     [NOISY],0
         JZ      DOTGOON
-        MOV     DX,OFFSET DG:NORECDOT
+        MOV     DX,NORECDOT
         CALL    EPRINT
 DOTGOON:
         POP     BP
         POP     BX
         POP     AX
-        MOV     SI,OFFSET DG:DIRBUF
+        MOV     SI,DIRBUF
         JMP     CHKDOTDOT               ;Go look for ..
 
 NODDOT:                                 ;No ..
@@ -204,9 +204,9 @@ NODDOT:                                 ;No ..
         CALL    SUBERRP
         JMP     SHORT MESD2
 DOEXTMES2:
-        MOV     SI,OFFSET DG:PARSTR
+        MOV     SI,PARSTR
         CALL    PRINTCURRDIRERR
-        MOV     DX,OFFSET DG:NDOTMES
+        MOV     DX,NDOTMES
         CALL    EPRINT
 MESD2:
         MOV     AX,1
@@ -215,9 +215,9 @@ MESD2:
         CALL    GETENT
         POP     BP
         PUSH    BP
-        CMP     BYTE PTR [DI],0E5H      ;Place to put it?
+        CMP     byte [DI],0E5H      ;Place to put it?
         JNZ     CANTREC2                ;Nope
-        MOV     SI,OFFSET DG:DDOTENT
+        MOV     SI,DDOTENT
         MOV     CX,11
         REP     MOVSB                   ;Name
         PUSH    AX
@@ -242,7 +242,7 @@ NFIX:
         POP     BP
         POP     BX
         POP     AX
-        MOV     SI,OFFSET DG:DIRBUF
+        MOV     SI,DIRBUF
         JMP     ROOTDIR                 ;Process files
 
 CANTREC2:
@@ -251,7 +251,7 @@ CANTREC2:
         POP     AX
         CMP     [NOISY],0
         JZ      DOTSBAD
-        MOV     DX,OFFSET DG:NORECDDOT
+        MOV     DX,NORECDDOT
         CALL    EPRINT
         JMP     DOTSBAD
 
@@ -261,12 +261,12 @@ NULLDIRERR:
         CALL    SUBERRP
         JMP     SHORT DOTSBAD
 DOEXTMES3:
-        MOV     SI,OFFSET DG:NUL
+        MOV     SI,NUL
         CALL    PRINTCURRDIRERR
-        MOV     DX,OFFSET DG:NULDMES
+        MOV     DX,NULDMES
         CALL    EPRINT
 DOTSBAD:                                ;Can't recover
-        MOV     DX,OFFSET DG:BADTARG2
+        MOV     DX,BADTARG2
         CALL    EPRINT
         CALL    DOTDOTHARDWAY
         INC     [DOTSNOGOOD]
@@ -274,7 +274,7 @@ DOTSBAD:                                ;Can't recover
 
 ROOTDIRJ: JMP   ROOTDIR
 
-PAGE
+; PAGE
 DIRPROC:
 ;Recursive tree walker
 ;dirproc(self,parent)
@@ -285,20 +285,20 @@ DIRPROC:
         SUB     SP,SFCBSIZ              ;Only local var
         CMP     SP,[STACKLIM]
         JA      STACKISOK
-        MOV     BX,OFFSET DG:STACKMES   ;Out of stack
+        MOV     BX,STACKMES   ;Out of stack
         JMP     FATAL
 STACKISOK:
         CMP     [NOISY],0
         JZ      NOPRINT
         CMP     [SECONDPASS],0
         JNZ     NOPRINT                 ;Don't do it again on second pass
-        MOV     DX,OFFSET DG:DIRECMES   ;Tell user where we are
+        MOV     DX,DIRECMES   ;Tell user where we are
         CALL    PRINT
-        MOV     SI,OFFSET DG:NUL
+        MOV     SI,NUL
         CALL    PRINTCURRDIR
         CALL    DOCRLF
 NOPRINT:
-        MOV     SI,OFFSET DG:ALLFILE
+        MOV     SI,ALLFILE
         MOV     DI,SP
         PUSH    DI
         MOV     CX,SFCBSIZ
@@ -307,58 +307,58 @@ NOPRINT:
         MOV     BX,DX           ;BX points to SRCH FCB
         MOV     AH,DIR_SEARCH_FIRST
         INT     21H
-        CMP     WORD PTR [BP+6],0       ;Am I the root
+        CMP     word [BP+6],0       ;Am I the root
         JZ      ROOTDIRJ                ;Yes, no . or ..
         OR      AL,AL
         JZ      NONULLDERR
         JMP     NULLDIRERR              ;Dir is empty!
 NONULLDERR:
-        MOV     SI,OFFSET DG:DIRBUF + DIRNAM
-        MOV     DI,OFFSET DG:DOTENT
+        MOV     SI,DIRBUF + DIRNAM
+        MOV     DI,DOTENT
         MOV     CX,11
         REP     CMPSB
         JZ      DOTOK                   ;Got a . as first entry
         JMP     NODOT                   ;No .
 DOTOK:
-        MOV     SI,OFFSET DG:DIRBUF
-        MOV     AL,[SI.DIRATT]
+        MOV     SI,DIRBUF
+        MOV     AL,[SI+DIRATT]
         TEST    AL,ISDIR
         JNZ     DATTOK
         PUSH    SI                      ;. not a dir?
-        MOV     SI,OFFSET DG:DOTMES
-        MOV     DX,OFFSET DG:BADATT
+        MOV     SI,DOTMES
+        MOV     DX,BADATT
         CALL    DOTCOMBMES
         POP     SI
-        OR      [SI.DIRATT],ISDIR
+        OR      [SI+DIRATT],ISDIR
         CALL    FIXENT                  ;Fix it
 DATTOK:
-        MOV     AX,[SI.DIRCLUS]
+        MOV     AX,[SI+DIRCLUS]
         CMP     AX,[BP+6]               ;. link = MYSELF?
         JZ      DLINKOK
         PUSH    SI                      ;Link messed up
-        MOV     SI,OFFSET DG:DOTMES
-        MOV     DX,OFFSET DG:CLUSBAD
+        MOV     SI,DOTMES
+        MOV     DX,CLUSBAD
         CALL    DOTCOMBMES
         POP     SI
         MOV     AX,[BP+6]
-        MOV     [SI.DIRCLUS],AX
+        MOV     [SI+DIRCLUS],AX
         CALL    FIXENT                  ;Fix it
 DLINKOK:
-        MOV     AX,WORD PTR [SI.DIRESIZ]
+        MOV     AX,word [SI+DIRESIZ]
         OR      AX,AX
         JNZ     BADDSIZ
-        MOV     AX,WORD PTR [SI.DIRESIZ+2]
+        MOV     AX,word [SI+DIRESIZ+2]
         OR      AX,AX
         JZ      DSIZOK
 BADDSIZ:                                ;Size should be zero
         PUSH    SI
-        MOV     SI,OFFSET DG:DOTMES
-        MOV     DX,OFFSET DG:BADSIZM
+        MOV     SI,DOTMES
+        MOV     DX,BADSIZM
         CALL    DOTCOMBMES
         POP     SI
         XOR     AX,AX
-        MOV     WORD PTR [SI.DIRESIZ],AX
-        MOV     WORD PTR [SI.DIRESIZ+2],AX
+        MOV     word [SI+DIRESIZ],AX
+        MOV     word [SI+DIRESIZ+2],AX
         CALL    FIXENT                  ;Fix it
 DSIZOK:                                 ;Get next (should be ..)
         MOV     DX,BX
@@ -369,50 +369,50 @@ CHKDOTDOT:                              ;Come here after . failure
         JZ      DOTDOTOK
 NODDOTJ: JMP    NODDOT                  ;No ..
 DOTDOTOK:
-        MOV     SI,OFFSET DG:DIRBUF + DIRNAM
-        MOV     DI,OFFSET DG:DDOTENT
+        MOV     SI,DIRBUF + DIRNAM
+        MOV     DI,DDOTENT
         MOV     CX,11
         REP     CMPSB
         JNZ     NODDOTJ                 ;No ..
-        MOV     SI,OFFSET DG:DIRBUF
-        MOV     AL,[SI.DIRATT]
+        MOV     SI,DIRBUF
+        MOV     AL,[SI+DIRATT]
         TEST    AL,ISDIR
         JNZ     DDATTOK                 ;.. must be a dir
         PUSH    SI
-        MOV     SI,OFFSET DG:PARSTR
-        MOV     DX,OFFSET DG:BADATT
+        MOV     SI,PARSTR
+        MOV     DX,BADATT
         CALL    DOTCOMBMES
         POP     SI
-        OR      [SI.DIRATT],ISDIR
+        OR      [SI+DIRATT],ISDIR
         CALL    FIXENT                  ;Fix it
 DDATTOK:
         PUSH    SI
-        MOV     AX,[SI.DIRCLUS]
+        MOV     AX,[SI+DIRCLUS]
         CMP     AX,[BP+4]               ;.. link must be PARENT
         JZ      DDLINKOK
-        MOV     SI,OFFSET DG:PARSTR
-        MOV     DX,OFFSET DG:CLUSBAD
+        MOV     SI,PARSTR
+        MOV     DX,CLUSBAD
         CALL    DOTCOMBMES
         POP     SI
         MOV     AX,[BP+4]
-        MOV     [SI.DIRCLUS],AX
+        MOV     [SI+DIRCLUS],AX
         CALL    FIXENT                  ;Fix it
 DDLINKOK:
-        MOV     AX,WORD PTR [SI.DIRESIZ]
+        MOV     AX,word [SI+DIRESIZ]
         OR      AX,AX
         JNZ     BADDDSIZ
-        MOV     AX,WORD PTR [SI.DIRESIZ+2]
+        MOV     AX,word [SI+DIRESIZ+2]
         OR      AX,AX
         JZ      DDSIZOK
 BADDDSIZ:                               ;.. size should be 0
         PUSH    SI
-        MOV     SI,OFFSET DG:PARSTR
-        MOV     DX,OFFSET DG:BADSIZM
+        MOV     SI,PARSTR
+        MOV     DX,BADSIZM
         CALL    DOTCOMBMES
         POP     SI
         XOR     AX,AX
-        MOV     WORD PTR [SI.DIRESIZ],AX
-        MOV     WORD PTR [SI.DIRESIZ+2],AX
+        MOV     word [SI+DIRESIZ],AX
+        MOV     word [SI+DIRESIZ+2],AX
         CALL    FIXENT                  ;Fix it
 DDSIZOK:
         MOV     DX,BX                   ;Next entry
@@ -422,17 +422,17 @@ DDSIZOK:
 ROOTDIR:                                ;Come here after .. failure also
         OR      AL,AL
         JZ      MOREDIR                 ;More to go
-        CMP     WORD PTR [BP+6],0       ;Am I the root?
+        CMP     word [BP+6],0       ;Am I the root?
         JZ      DIRDONE                 ;Yes, no chdir
-        MOV     DX,OFFSET DG:PARSTR
+        MOV     DX,PARSTR
         MOV     AH,CHDIR                ;Chdir to parent (..)
         INT     21H
         JNC     DIRDONE                 ;Worked
         CMP     [NOISY],0
         JZ      DODDH
-        MOV     SI,OFFSET DG:NUL
+        MOV     SI,NUL
         CALL    PRINTCURRDIRERR
-        MOV     DX,OFFSET DG:CDDDMES
+        MOV     DX,CDDDMES
         CALL    EPRINT
 DODDH:
         CALL    DOTDOTHARDWAY           ;Try again
@@ -442,8 +442,8 @@ DIRDONE:
         RET     4                       ;Pop args
 
 MOREDIR:
-        MOV     SI,OFFSET DG:DIRBUF
-        TEST    [SI.DIRATT],ISDIR
+        MOV     SI,DIRBUF
+        TEST    [SI+DIRATT],ISDIR
         JNZ     NEWDIR                  ;Is a new directory
         CMP     [SECONDPASS],0
         JZ      FPROC1                  ;First pass
@@ -452,7 +452,7 @@ MOREDIR:
 FPROC1:
         CMP     [NOISY],0
         JZ      NOPRINT2
-        MOV     DX,OFFSET DG:INDENT     ;Tell user where we are
+        MOV     DX,INDENT     ;Tell user where we are
         CALL    PRINT
         PUSH    BX
         MOV     BX,SI
@@ -463,9 +463,9 @@ FPROC1:
 NOPRINT2:
         MOV     AL,81H                  ;Head of file
         CALL    MARKFAT
-        TEST    [SI.DIRATT],VOLIDA
+        TEST    [SI+DIRATT],VOLIDA
         JNZ     HIDENFILE               ;VOL ID counts as hidden
-        TEST    [SI.DIRATT],HIDDN
+        TEST    [SI+DIRATT],HIDDN
         JZ      NORMFILE
 HIDENFILE:
         INC     [HIDCNT]
@@ -489,16 +489,16 @@ DPROC1:
         CMP     [ZEROTRUNC],0
         JZ      DPROC2                  ;Dir not truncated
 CONVDIR:
-        AND     [SI.DIRATT],NOT ISDIR   ;Turn into file
+        AND     [SI+DIRATT],NOT ISDIR   ;Turn into file
         CALL    FIXENT
         JMP     DDSIZOK                 ;Next
 DPROC2:
         PUSH    [ERRSUB]
         PUSH    BX                      ;Save my srch FCB pointer
-        PUSH    [SI.DIRCLUS]            ;MYSELF for next directory
+        PUSH    [SI+DIRCLUS]            ;MYSELF for next directory
         PUSH    [BP+6]                  ;His PARENT is me
         ADD     SI,DIRNAM
-        MOV     DI,OFFSET DG:NAMBUF
+        MOV     DI,NAMBUF
         PUSH    DI
         CALL    FCB_TO_ASCZ
         POP     DX
@@ -518,21 +518,21 @@ CANTTARG:
         POP     AX
         POP     AX
         PUSH    DX                      ;Save pointer to bad DIR
-        MOV     DX,OFFSET DG:BADTARG1
+        MOV     DX,BADTARG1
         CALL    EPRINT
         POP     SI                      ;Pointer to bad DIR
         CALL    PRINTCURRDIRERR
-        MOV     DX,OFFSET DG:BADTARG2
+        MOV     DX,BADTARG2
         CALL    EPRINT
 DDSIZOKJ: JMP   DDSIZOK                 ;Next
 
 ASKCONV:
         CMP     [SECONDPASS],0
         JNZ     DDSIZOKJ                ;Leave on second pass
-        MOV     DX,OFFSET DG:PTRANDIR
+        MOV     DX,PTRANDIR
         CMP     [NOISY],0
         JNZ     PRINTTRMES
-        MOV     DX,OFFSET DG:PTRANDIR2
+        MOV     DX,PTRANDIR2
 PRINTTRMES:
         CALL    PROMPTYN                ;Ask user what to do
         JNZ     DDSIZOKJ                ;User say leave alone
@@ -541,29 +541,29 @@ PRINTTRMES:
         MOV     AX,[BX+THISENT]         ;Entry number
         CALL    GETENT                  ;Get the entry
         MOV     SI,DI
-        MOV     DI,OFFSET DG:DIRBUF
+        MOV     DI,DIRBUF
         PUSH    DI
         ADD     DI,DIRNAM
         MOV     CX,32
         REP     MOVSB                   ;Transfer entry to DIRBUF
         POP     SI
         PUSH    SI
-        MOV     SI,[SI.DIRCLUS]         ;First cluster
+        MOV     SI,[SI+DIRCLUS]         ;First cluster
         CALL    GETFILSIZ
         POP     SI
         POP     BX
         POP     BP
-        MOV     WORD PTR [SI.DIRESIZ],AX        ;Fix entry
-        MOV     WORD PTR [SI.DIRESIZ+2],DX
+        MOV     word [SI+DIRESIZ],AX        ;Fix entry
+        MOV     word [SI+DIRESIZ+2],DX
         JMP     CONVDIR
 
-SUBTTL  FAT Look routines
-PAGE
+; SUBTTL  FAT Look routines
+; PAGE
 CROSSLOOK:
 ;Same as MRKFAT only simpler for pass 2
         MOV     [SRFCBPT],BX
         MOV     BX,SI
-        MOV     SI,[BX.DIRCLUS]
+        MOV     SI,[BX+DIRCLUS]
         CALL    CROSSCHK
         JNZ     CROSSLINKJ
 CHLP:
@@ -600,7 +600,7 @@ MARKFAT:
         MOV     [SRFCBPT],BX
         MOV     BX,SI
         XOR     CX,CX
-        MOV     SI,[BX.DIRCLUS]
+        MOV     SI,[BX+DIRCLUS]
         CMP     SI,2
         JB      NOCLUSTERSJ     ;Bad cluster #  or nul file (SI = 0)
         CMP     SI,[MCLUS]
@@ -628,7 +628,7 @@ MRKBAD:                         ;Bad cluster # in chain
         PUSH    CX
         PUSH    DI
         CALL    PRINTTHISELERR
-        MOV     DX,OFFSET DG:BADCHAIN
+        MOV     DX,BADCHAIN
         CALL    EPRINT
         POP     SI
         MOV     DX,0FFFH        ;Insert EOF
@@ -648,18 +648,18 @@ CROSSLINK:                      ;File is cross linked
         PUSH    SI                      ;Cluster number
         CALL    PRINTTHISEL
         CALL    DOCRLF
-        MOV     DX,OFFSET DG:CROSSMES_PRE
+        MOV     DX,CROSSMES_PRE
         CALL    PRINT
         POP     SI
         PUSH    BX
         PUSH    CX
-        MOV     BX,OFFSET DG:CROSSMES_POST
+        MOV     BX,CROSSMES_POST
         XOR     DI,DI
         CALL    DISP16BITS
         POP     CX
         POP     BX
 CHAINDONE:
-        TEST    [BX.DIRATT],ISDIR
+        TEST    [BX+DIRATT],ISDIR
         JNZ     NOSIZE                  ;Don't size dirs
         CMP     [ISCROSS],0
         JNZ     NOSIZE                  ;Don't size cross linked files
@@ -672,8 +672,8 @@ CHAINDONE:
         MUL     CX
         MOV     DI,DX           ;Save allocation size
         MOV     SI,AX
-        SUB     AX,WORD PTR [BX.DIRESIZ]
-        SBB     DX,WORD PTR [BX.DIRESIZ+2]
+        SUB     AX,word [BX+DIRESIZ]
+        SBB     DX,word [BX+DIRESIZ+2]
         JC      BADFSIZ         ;Size to big
         OR      DX,DX
         JNZ     BADFSIZ         ;Size to small
@@ -684,11 +684,11 @@ CHAINDONE:
 BADFSIZ:
         POP     DX
         PUSH    CX              ;Save size of file
-        MOV     WORD PTR [BX.DIRESIZ],SI
-        MOV     WORD PTR [BX.DIRESIZ+2],DI
+        MOV     word [BX+DIRESIZ],SI
+        MOV     word [BX+DIRESIZ+2],DI
         CALL    FIXENT2                 ;Fix it
         CALL    PRINTTHISELERR
-        MOV     DX,OFFSET DG:BADCLUS
+        MOV     DX,BADCLUS
         CALL    EPRINT
         POP     CX              ;Restore size of file
 NOSIZE:
@@ -700,36 +700,36 @@ NOCLUSTERS:
 ;File is zero length
         OR      SI,SI
         JZ      CHKSIZ          ;Firclus is OK, Check size
-        MOV     DX,OFFSET DG:NULNZ
+        MOV     DX,NULNZ
 ADJUST:
         PUSH    DX
         CALL    PRINTTHISELERR
         POP     DX
         CALL    EPRINT
         XOR     SI,SI
-        MOV     [BX.DIRCLUS],SI                 ;Set it to 0
-        MOV     WORD PTR [BX.DIRESIZ],SI        ;Set size too
-        MOV     WORD PTR [BX.DIRESIZ+2],SI
+        MOV     [BX+DIRCLUS],SI                 ;Set it to 0
+        MOV     word [BX+DIRESIZ],SI        ;Set size too
+        MOV     word [BX+DIRESIZ+2],SI
         CALL    FIXENT2                         ;Fix it
         INC     [ZEROTRUNC]                     ;Indicate truncation
         JMP     CHAINDONE
 
 CHKSIZ:
-        MOV     DX,OFFSET DG:BADCLUS
-        CMP     WORD PTR [BX.DIRESIZ],0
+        MOV     DX,BADCLUS
+        CMP     word [BX+DIRESIZ],0
         JNZ     ADJUST                          ;Size wrong
-        CMP     WORD PTR [BX.DIRESIZ+2],0
+        CMP     word [BX+DIRESIZ+2],0
         JNZ     ADJUST                          ;Size wrong
         JMP     CHAINDONE                       ;Size OK
 
 UNPACK:
 ;Cluster number in SI, Return contents in DI, BX destroyed
 ;ZERO SET IF CLUSTER IS FREE
-        MOV     BX,OFFSET DG:FAT
+        MOV     BX,FAT
         MOV     DI,SI
         SHR     DI,1
         ADD     DI,SI
-        MOV     DI,WORD PTR [DI+BX]
+        MOV     DI,word [DI+BX]
         TEST    SI,1
         JZ      HAVCLUS
         SHR     DI,1
@@ -746,7 +746,7 @@ PACK:
 ; BX,DX   DESTROYED
         MOV     [DIRTYFAT],1            ;Set FAT dirty byte
         MOV     [HAVFIX],1              ;Indicate a fix
-        MOV     BX,OFFSET DG:FAT
+        MOV     BX,FAT
         PUSH    SI
         MOV     DI,SI
         SHR     SI,1
@@ -809,11 +809,11 @@ CHKMAPLP:
         CMP     DI,0FF7H        ;Bad sector?
         JNZ     ORPHAN          ;No, found an orphan
         INC     [BADSIZ]
-        MOV     BYTE PTR [SI-1],4       ;Flag it
+        MOV     byte [SI-1],4       ;Flag it
         JMP     CONTLP
 ORPHAN:
         INC     [ORPHSIZ]
-        MOV     BYTE PTR [SI-1],8       ;Flag it
+        MOV     byte [SI-1],8       ;Flag it
 CONTLP:
         INC     DX              ;Next cluster
         LOOP    CHKMAPLP
@@ -828,7 +828,7 @@ RECOVER:
         CALL    CHECKNOFMES
         CALL    DOCRLF
         CALL    CHAINREPORT
-        MOV     DX,OFFSET DG:FREEMES
+        MOV     DX,FREEMES
         CALL    PROMPTYN                ;Ask user
         JNZ     NOCHAINREC
         JMP     CHAINREC
@@ -854,17 +854,17 @@ NEXTCLUS:
         XOR     AX,AX
         XCHG    AX,[ORPHSIZ]
         PUSH    AX
-        MOV     DX,OFFSET DG:FREEBYMESF_PRE
+        MOV     DX,FREEBYMESF_PRE
         CMP     [DOFIX],0
         JNZ     PRINTFMES
-        MOV     DX,OFFSET DG:FREEBYMES_PRE
+        MOV     DX,FREEBYMES_PRE
 PRINTFMES:
         CALL    PRINT
         POP     AX
-        MOV     BX,OFFSET DG:FREEBYMESF_POST
+        MOV     BX,FREEBYMESF_POST
         CMP     [DOFIX],0
         JNZ     DISPFRB
-        MOV     BX,OFFSET DG:FREEBYMES_POST
+        MOV     BX,FREEBYMES_POST
         MOV     [LCLUS],AX
 DISPFRB:
         CALL    DISPCLUS        ;Tell how much freed
@@ -887,7 +887,7 @@ CHKMAPLP3:
         PUSH    CX
         PUSH    DX
         DEC     SI
-        OR      BYTE PTR [SI],81H       ;Mark as seen and head
+        OR      byte [SI],81H       ;Mark as seen and head
         INC     [ORPHCNT]      ;Found a chain
         MOV     SI,DX
 CHAINLP:
@@ -913,14 +913,14 @@ INSERTEOF:
 CHKCHHEAD:
         TEST    AH,80H          ;Previosly marked head?
         JZ      ADDCHAIN        ;Nope
-        AND     BYTE PTR [DI],NOT 80H   ;Turn off head bit
+        AND     byte [DI],NOT 80H   ;Turn off head bit
         DEC     [ORPHCNT]              ;Wasn't really a head
         POP     DI              ;Clean stack
         JMP     SHORT CHGOON
 ADDCHAIN:
         TEST    AH,1            ;Previosly seen?
         JNZ     INSERTEOF       ;Yup, don't make a cross link
-        OR      BYTE PTR [DI],1 ;Mark as seen
+        OR      byte [DI],1 ;Mark as seen
         POP     DI              ;Clean stack
         JMP     CHAINLP         ;Follow chain
 
@@ -935,11 +935,11 @@ NEXTCLUS2:
 
 CHAINREC:
         LDS     DI,[THISDPB]
-ASSUME  DS:NOTHING
-        MOV     CX,[DI.dpb_root_entries]
+; ASSUME  DS:NOTHING
+        MOV     CX,[DI+dpb_root_entries]
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
         MOV     SI,[FATMAP]
         INC     SI
         INC     SI
@@ -957,9 +957,9 @@ MAKFILLP:
         PUSH    SI
         CALL    GETENT
         POP     SI
-        CMP     BYTE PTR [DI],0E5H
+        CMP     byte [DI],0E5H
         JZ      GOTENT
-        CMP     BYTE PTR [DI],0
+        CMP     byte [DI],0
         JNZ     NEXTENT
 GOTENT:
         MOV     [HAVFIX],1      ;Making a fix
@@ -971,7 +971,7 @@ GOTENT:
         PUSH    BX
         MOV     AH,DISK_RESET        ;Force current state
         INT     21H
-        MOV     DX,OFFSET DG:ORPHFCB
+        MOV     DX,ORPHFCB
         MOV     AH,FCB_OPEN
 OPAGAIN:
         INT     21H
@@ -981,7 +981,7 @@ OPAGAIN:
         JMP     SHORT OPAGAIN
 
 GOTORPHNAM:
-        MOV     SI,OFFSET DG:ORPHFCB + 1   ;ORPHFCB Now has good name
+        MOV     SI,ORPHFCB + 1   ;ORPHFCB Now has good name
         MOV     CX,11
         REP     MOVSB
         CALL    MAKORPHNAM                 ;Make next name
@@ -1027,7 +1027,7 @@ NXTORP:
         POP     AX                      ;Clean Stack
         POP     AX
         SUB     [ORPHCNT],DX            ;Couldn't make them all
-        MOV     DX,OFFSET DG:CREATMES
+        MOV     DX,CREATMES
         CALL    EPRINT
 RET100: RET
 
@@ -1044,12 +1044,12 @@ NEXTORPH:
 
 MAKORPHNAM:
         PUSH    SI
-        MOV     SI,OFFSET DG:ORPHEXT - 1
+        MOV     SI,ORPHEXT - 1
 NAM0:
-        INC     BYTE PTR [SI]
-        CMP     BYTE PTR [SI],'9'
+        INC     byte [SI]
+        CMP     byte [SI],'9'
         JLE     NAMMADE
-        MOV     BYTE PTR [SI],'0'
+        MOV     byte [SI],'0'
         DEC     SI
         JMP     NAM0
 
@@ -1090,27 +1090,27 @@ CHKCROSS:
         CALL    DIRPROC         ;Do it again
 RET8:   RET
 
-SUBTTL  AMDONE - Finish up routine
-PAGE
+; SUBTTL  AMDONE - Finish up routine
+; PAGE
 AMDONE:
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         CMP     [DIRTYFAT],0
         JZ      NOWRITE         ;FAT not dirty
         CMP     [DOFIX],0
         JZ      NOWRITE         ;Not supposed to fix
 REWRITE:
         LDS     BX,[THISDPB]
-ASSUME  DS:NOTHING
-        MOV     CL,[BX.dpb_FAT_size]          ;Sectors for one fat
+; ASSUME  DS:NOTHING
+        MOV     CL,[BX+dpb_FAT_size]          ;Sectors for one fat
         XOR     CH,CH
         MOV     DI,CX
-        MOV     CL,[BX.dpb_FAT_count]          ;Number of FATs
-        MOV     DX,[BX.dpb_first_FAT]          ;First sector of FAT
+        MOV     CL,[BX+dpb_FAT_count]          ;Number of FATs
+        MOV     DX,[BX+dpb_first_FAT]          ;First sector of FAT
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
         MOV     [ERRCNT],CH
-        MOV     BX,OFFSET DG:FAT
+        MOV     BX,FAT
         MOV     AL,[ALLDRV]
         DEC     AL
         MOV     AH,'1'
@@ -1126,13 +1126,13 @@ WRTLOOP:
         POP     AX                      ;Flags
         JNC     WRTOK
         INC     [ERRCNT]
-        MOV     DX,OFFSET DG:BADWRITE_PRE
+        MOV     DX,BADWRITE_PRE
         CALL    PRINT
         POP     AX
         PUSH    AX
         MOV     DL,AH
         CALL    PRTCHR
-        MOV     DX,OFFSET DG:BADWRITE_POST
+        MOV     DX,BADWRITE_POST
         CALL    PRINT
 WRTOK:
         POP     AX
@@ -1150,21 +1150,21 @@ WRTOK:
 NOWRITE:
         MOV     AH,DISK_RESET        ;Invalidate any buffers in system
         INT     21H
-        MOV     DX,OFFSET DG:USERDIR    ;Recover users directory
+        MOV     DX,USERDIR    ;Recover users directory
         MOV     AH,CHDIR
         INT     21H
-        CMP     BYTE PTR [FRAGMENT],1   ;Check for any fragmented files?
+        CMP     byte [FRAGMENT],1   ;Check for any fragmented files?
         JNZ     DONE                    ;No -- we're finished
         CALL    CHECKFILES              ;Yes -- report any fragments
 DONE:
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     DL,[USERDEV]    ;Recover users drive
         MOV     AH,SET_DEFAULT_DRIVE
         INT     21H
         RET
 
-SUBTTL  Routines for manipulating dir entries
-PAGE
+; SUBTTL  Routines for manipulating dir entries
+; PAGE
 FIXENT2:
 ;Same as FIXENT only [SRFCBPT] points to the search FCB, BX points to the entry
         PUSH    SI
@@ -1208,14 +1208,14 @@ GETENT:
 ;AX DX BX set to do an INT 26 to write it back out (CX must be reset to 1)
 ;ALL registers destroyed (via int 25)
         LDS     DI,[THISDPB]
-ASSUME  DS:NOTHING
-        MOV     BX,[DI.dpb_current_dir]
+; ASSUME  DS:NOTHING
+        MOV     BX,[DI+dpb_current_dir]
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
         CMP     BX,0FF8H
         JB      CLUSISOK
-        MOV     BX,OFFSET DG:BADDPBDIR          ;This should never happen
+        MOV     BX,BADDPBDIR          ;This should never happen
         JMP     FATAL
 CLUSISOK:
         MOV     CL,4
@@ -1267,12 +1267,12 @@ RDOK2:
 WANTROOT:
         PUSH    DX
         LDS     DI,[THISDPB]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     DX,AX
-        ADD     DX,[DI.dpb_dir_sector]
+        ADD     DX,[DI+dpb_dir_sector]
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
         JMP     DOROOTDIR
 
 CHECKNOFMES:
@@ -1283,7 +1283,7 @@ CHECKNOFMES:
         CMP     [DOFIX],0
         JNZ     RET14           ;Don't print it if F switch specified
         PUSH    DX
-        MOV     DX,OFFSET DG:FIXMES
+        MOV     DX,FIXMES
         CALL    PRINT
         POP     DX
         RET
@@ -1311,7 +1311,7 @@ PRINTTHISEL:
         MOV     SI,BX
         ADD     SI,DIRNAM
 PRINTTHISEL2:
-        MOV     DI,OFFSET DG:NAMBUF
+        MOV     DI,NAMBUF
         PUSH    DI
         CALL    FCB_TO_ASCZ
         POP     SI
@@ -1323,8 +1323,8 @@ PRINTCURRDIR:
         MOV     DL,DRVCHAR
         CALL    PRTCHR
         LDS     SI,[THISDPB]
-ASSUME  DS:NOTHING
-        CMP     [SI.dpb_current_dir],0
+; ASSUME  DS:NOTHING
+        CMP     [SI+dpb_current_dir],0
         JZ      CURISROOT
         MOV     DL,[DIRCHAR]
         CALL    PRTCHR
@@ -1340,9 +1340,9 @@ PCURRLP:
 CURISROOT:
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
         POP     SI
-        CMP     BYTE PTR [SI],0
+        CMP     byte [SI],0
         JZ      LPDONE          ;If tail string NUL, no '/'
         MOV     DL,[DIRCHAR]
         CALL    PRTCHR
@@ -1358,7 +1358,7 @@ LPDONE:
 
 FATAL:
 ;Unrecoverable error
-        MOV     DX,OFFSET DG:FATALMES
+        MOV     DX,FATALMES
         CALL    PRINT
         MOV     DX,BX
         CALL    PRINT
@@ -1368,17 +1368,17 @@ FATAL:
         INT     20H
 
 
-INT_24_RETADDR  DW      OFFSET DG:INT_24_BACK
+INT_24_RETADDR  DW      INT_24_BACK
 
-INT_24  PROC    FAR
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+INT_24:
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         PUSHF
         PUSH    CS
         PUSH    [INT_24_RETADDR]
-        PUSH    WORD PTR [HARDCH+2]
-        PUSH    WORD PTR [HARDCH]
+        PUSH    word [HARDCH+2]
+        PUSH    word [HARDCH]
         RET
-INT_24  ENDP
+; ENDP INT_24
 
 INT_24_BACK:
         CMP     AL,2            ;Abort?
@@ -1397,12 +1397,12 @@ INT_23:
         INT     21H
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
         MOV     [FRAGMENT],0
 RDONE:
         CALL    NOWRITE         ;Restore users drive and directory
         INT     20H
 
-CODE    ENDS
-        END     CHKPROC
+; END SECTION .CODE
+        ; END     CHKPROC
                                                                                        

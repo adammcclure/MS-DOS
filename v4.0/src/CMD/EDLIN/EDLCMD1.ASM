@@ -1,5 +1,5 @@
-	PAGE 60,132;
-	TITLE EDLCMD1.ASM
+	; PAGE 60,132;
+	; TITLE EDLCMD1.ASM
 
 ;======================= START OF SPECIFICATIONS =========================
 ;
@@ -41,61 +41,61 @@
 ;
 ;======================= END OF SPECIFICATIONS ===========================
 
-include edlequ.asm
+%include "edlequ.asm"
 
-SUBTTL	Contants and Data areas
-PAGE
+; SUBTTL	Contants and Data areas
+; PAGE
 
 
-CODE	SEGMENT PUBLIC
-CODE	ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST	SEGMENT PUBLIC WORD
-CONST	ENDS
+SECTION .CONST
+; END SECTION .CONST
 
-cstack	segment stack
-cstack	ends
+SECTION .cstack
+; END SECTION .cstack
 
-DATA	SEGMENT PUBLIC WORD
-DATA	ENDS
+SECTION .DATA
+; END SECTION .DATA
 
-DG	GROUP	CODE,CONST,cstack,DATA
+; DG	GROUP	CODE,CONST,cstack,DATA
 
-CONST	SEGMENT PUBLIC WORD
-	EXTRN	DSKFUL_ptr:word,READ_ERR_PTR:word
-	EXTRN	NOSUCH_ptr:word,TOOLNG_ptr:word,EOF_ptr:word
-	extrn	txt1:byte,txt2:byte
-CONST	ENDS
+SECTION .CONST
+	extern DSKFUL_ptr,READ_ERR_PTR
+	extern NOSUCH_ptr,TOOLNG_ptr,EOF_ptr
+	extern txt1,txt2
+; END SECTION .CONST
 
-cstack	segment stack
-cstack	ends
+SECTION .cstack
+; END SECTION .cstack
 
-DATA	SEGMENT PUBLIC WORD
-	extrn	ParamCt:WORD
-	extrn	current:word,pointer:word,start:word,endtxt:word
-	extrn	wrt_handle:word,editbuf:byte,path_name:byte,fname_len:word
-	extrn	arg_buf:byte,arg_buf_ptr:word
-	extrn	olddat:byte,oldlen:word,newlen:word,param1:word,param2:word
-	extrn	srchflg:byte,srchmod:byte,comline:word,lstfnd:word,numpos:word
-	extrn	lstnum:word,srchcnt:word,amnt_req:word,delflg:byte,lastlin:word
-	extrn	three4th:word,one4th:word,last:word,rd_handle:word,ending:byte
-	extrn	haveof:byte
-	extrn	Disp_Len:Byte
+SECTION .DATA
+	extern ParamCt
+	extern current,pointer,start,endtxt
+	extern wrt_handle,editbuf,path_name,fname_len
+	extern arg_buf,arg_buf_ptr
+	extern olddat,oldlen,newlen,param1,param2
+	extern srchflg,srchmod,comline,lstfnd,numpos
+	extern lstnum,srchcnt,amnt_req,delflg,lastlin
+	extern three4th,one4th,last,rd_handle,ending
+	extern haveof
+	extern Disp_Len
 
-DATA	ENDS
+; END SECTION .DATA
 
-CODE SEGMENT PUBLIC
-ASSUME	CS:DG,DS:DG,SS:CStack,ES:DG
+SECTION .CODE
+; ASSUME	CS:DG,DS:DG,SS:CStack,ES:DG
 
-	extrn	findlin:near,shownum:near,loadbuf:near
-	extrn	delbak:near,unquote:near,lf:near
-	extrn	dispone:near,display:near,query:near
-	extrn	quit:near,scanln:near,scaneof:near
-	extrn	fndfirst:near,fndnext:near,replace:near,memerr:near
-	extrn	std_printf:near,chkrange:near,comerr:near
+	extern findlin,shownum,loadbuf
+	extern delbak,unquote,lf
+	extern dispone,display,query
+	extern quit,scanln,scaneof
+	extern fndfirst,fndnext,replace,memerr
+	extern std_printf,chkrange,comerr
 
-	public	xerror,bad_read,append,nocom,pager,list
-	public	delete,replac_from_curr,search_from_curr,ewrite,wrt
+	global xerror,bad_read,append,nocom,pager,list
+	global delete,replac_from_curr,search_from_curr,ewrite,wrt
 
 NOMOREJ:JMP	NOMORE
 
@@ -104,7 +104,7 @@ APPEND:
 	JZ	AppendOK
 	JMP	ComErr
 AppendOK:
-	TEST	BYTE PTR [HAVEOF],-1
+	TEST	byte [HAVEOF],-1
 	JNZ	NOMOREJ
 	MOV	DX,[ENDTXT]
 	CMP	[PARAM1],0	;See if parameter is missing
@@ -135,7 +135,7 @@ sj53:
 	CMP	AX,0		      ;Is it EOF?
 	POP	AX
 	JNZ	SJ54		      ;No -- we have one more character
-	MOV	BYTE PTR [HAVEOF],1   ;Yes - set old style system call flag
+	MOV	byte [HAVEOF],1   ;Yes - set old style system call flag
 	JMP	SHORT SJ55
 SJ54:
 	INC	AX		      ;Include one more char in byte count
@@ -144,7 +144,7 @@ sj55:
 	PUSH	CX		      ;Save actual byte count
 	CALL	SCANEOF
 	JNZ	NOTEND
-	MOV	BYTE PTR [HAVEOF],1	;Set flag if 1AH found in file
+	MOV	byte [HAVEOF],1	;Set flag if 1AH found in file
 NOTEND:
 	XOR	DX,DX
 	MOV	BX,[PARAM1]
@@ -168,8 +168,8 @@ COUNTLN:
 ; We have an incomplete line in the buffer at end of file.  Fix it up to be
 ; pretty.
 ;
-	MOV	BYTE PTR [DI],13	; CR
-	MOV	BYTE PTR [DI+1],10	; LF
+	MOV	byte [DI],13	; CR
+	MOV	byte [DI+1],10	; LF
 	ADD	DI,2			; length is 2 greater
 	POP	CX
 	ADD	CX,2
@@ -187,7 +187,7 @@ DoBackScan:
 	DEC	DX
 FULLN:
 	POP	CX				    ;Actual amount read
-	MOV	WORD PTR [DI],1AH		    ;Place EOF after last line
+	MOV	word [DI],1AH		    ;Place EOF after last line
 	SUB	CX,DI
 	XCHG	DI,[ENDTXT]
 	ADD	DI,CX				    ;Amount of file read but not used
@@ -209,25 +209,25 @@ FULLN:
 FULLN1:
 	CMP	BX,DX
 	JNZ	EOFCHK
-	MOV	BYTE PTR [HAVEOF],0
+	MOV	byte [HAVEOF],0
 	return
 NOMORE:
-	MOV	DX,OFFSET DG:EOF_ptr
+	MOV	DX,EOF_ptr
 	call	std_printf
 ret3:	return
 
 BAD_READ:
-	MOV	DX,OFFSET DG:READ_ERR_ptr
-	MOV	DI,offset dg:path_name
+	MOV	DX,READ_ERR_ptr
+	MOV	DI,path_name
 	ADD	DI,[FNAME_LEN]
 	MOV	AL,0
 	STOSB
 	JMP	XERROR
 
 EOFCHK:
-	TEST	BYTE PTR [HAVEOF],-1
+	TEST	byte [HAVEOF],-1
 	JNZ	NOMORE
-	TEST	BYTE PTR [ENDING],-1
+	TEST	byte [ENDING],-1
 	retnz			;Suppress memory error during End
 	JMP	MEMERR
 
@@ -243,7 +243,7 @@ EWriteOK:
 	MOV	DI,[ENDTXT]
 	SUB	DI,CX		;Write everything in front of here
 	JBE	RET3
-	CMP	DI,OFFSET DG:START	;See if there's anything to write
+	CMP	DI,START	;See if there's anything to write
 	JBE	RET3
 	XOR	DX,DX
 	MOV	BX,1		;Look for one more line
@@ -253,7 +253,7 @@ WRT:
 	INC	BX
 	CALL	FINDLIN
 WRTADD:
-	CMP	BYTE PTR [DELFLG],0
+	CMP	byte [DELFLG],0
 	JNZ	WRTADD1
 	PUSH	DI
 	CALL	DELBAK			;Want to delete the .BAK file
@@ -261,7 +261,7 @@ WRTADD:
 	POP	DI
 WRTADD1:
 	MOV	CX,DI
-	MOV	DX,OFFSET DG:START
+	MOV	DX,START
 	SUB	CX,DX			;Amount to write
 	retz
 	MOV	BX,[WRT_HANDLE]
@@ -271,7 +271,7 @@ WRTADD1:
 	CMP	AX,CX			; MZ correct full disk detection
 	JNZ	WRTERR			; MZ correct full disk detection
 	MOV	SI,DI
-	MOV	DI,OFFSET DG:START
+	MOV	DI,START
 	MOV	[POINTER],DI
 	MOV	CX,[ENDTXT]
 	SUB	CX,SI
@@ -287,7 +287,7 @@ WRTERR:
 	MOV	BX,[WRT_HANDLE]
 	MOV	AH,CLOSE
 	INT	21H
-	MOV	DX,OFFSET DG:DSKFUL_ptr
+	MOV	DX,DSKFUL_ptr
 xERROR:
 	push	cs
 	pop	ds
@@ -303,13 +303,13 @@ replac_from_curr:
 	JBE	Replace1
 	JMP	ComErr
 Replace1:
-	mov	byte ptr [srchmod],1   ;search from curr+1 line
+	mov	byte [srchmod],1   ;search from curr+1 line
 	jmp	short sj6
 
 REPLAC:
-	mov	byte ptr [srchmod],0   ;search from beg of buffer
+	mov	byte [srchmod],0   ;search from beg of buffer
 sj6:
-	MOV	BYTE PTR [SRCHFLG],0
+	MOV	byte [SRCHFLG],0
 	CALL	FNDFIRST
 	JNZ	NOTFNDJ
 REPLP:
@@ -330,10 +330,10 @@ len_ok:
 	MOV	SI,[NUMPOS]
 	SUB	CX,SI		;Get no. of char on line before change
 	DEC	CX
-	mov	di,offset dg:arg_buf	;Initialize the output string buffer
+	mov	di,arg_buf	;Initialize the output string buffer
 	CALL	OUTCNT		;Output first part of line
 	PUSH	SI
-	MOV	SI,1+ OFFSET DG:TXT2
+	MOV	SI,1+ TXT2
 	MOV	CX,[NEWLEN]
 	CALL	OUTCNT		;Output change
 	POP	SI
@@ -343,14 +343,14 @@ len_ok:
 	CALL	OUTCNT		;Output last part of line
 	xor	al,al
 	stosb
-	mov	dx,offset dg:arg_buf_ptr
+	mov	dx,arg_buf_ptr
 	call	std_printf
 	CALL	QUERY		;Check if change OK
 	JNZ	REPNXT
 	CALL	PUTCURS
 	MOV	DI,[LSTFND]
 	DEC	DI
-	MOV	SI,1+ OFFSET DG:TXT2
+	MOV	SI,1+ TXT2
 	MOV	DX,[OLDLEN]
 	MOV	CX,[NEWLEN]
 	DEC	CX
@@ -378,7 +378,7 @@ OUTLP:
 RET8:	return
 
 TOOLONG:
-	MOV	DX,OFFSET DG:TOOLNG_ptr
+	MOV	DX,TOOLNG_ptr
 	JMP	SHORT PERR
 
 search_from_curr:
@@ -386,13 +386,13 @@ search_from_curr:
 	JBE	Search1
 	JMP	ComErr
 Search1:
-	mov	byte ptr [srchmod],1   ;search from curr+1 line
+	mov	byte [srchmod],1   ;search from curr+1 line
 	jmp	short sj7
 
 SEARCH:
-	mov	byte ptr [srchmod],0   ;search from beg of buffer
+	mov	byte [srchmod],0   ;search from beg of buffer
 sj7:
-	MOV	BYTE PTR [SRCHFLG],1
+	MOV	byte [SRCHFLG],1
 	CALL	FNDFIRST
 	JNZ	NOTFND
 SRCH:
@@ -414,7 +414,7 @@ SRCH:
 	CALL	FNDNEXT
 	JZ	SRCH
 NOTFND:
-	MOV	DX,OFFSET DG:NOSUCH_ptr
+	MOV	DX,NOSUCH_ptr
 PERR:
 	call	std_printf
 	return
@@ -531,7 +531,7 @@ frstok1:
 	push	ax		;an000;save affected registers
 
 	mov	ah,00h		;an000;zero out high byte
-	mov	al,dg:disp_len	;an000;set ax to active display length
+	mov	al,disp_len	;an000;set ax to active display length
 	sub	ax,2		;an000;adjust for length of screen & current
 				;      line
 	add	dx,ax		;an000;this gives us the last line to be
@@ -597,7 +597,7 @@ CHKP2:
 	push	ax			;an000;save affected registers
 
 	mov	ah,00h			;an000;zero out high byte
-	mov	al,dg:disp_len		;an000;set ax to active display length	       dec     ax		       ;an000;allow room at bottom for
+	mov	al,disp_len		;an000;set ax to active display length	       dec     ax		       ;an000;allow room at bottom for
 					;      messages
 	mov	di,ax			;an000;number of lines to print an
 					;      entire screen less 1.
@@ -643,14 +643,14 @@ sj12:
 	CALL	DISPONE
 	CALL	SHOWNUM
 	MOV	AH,STD_CON_STRING_INPUT 	  ;Get input buffer
-	MOV	DX,OFFSET DG:EDITBUF
+	MOV	DX,EDITBUF
 	INT	21H
 	CALL	lf
 	MOV	CL,[EDITBUF+1]
 	MOV	CH,0
 	JCXZ	RET12
 	MOV	DX,[OLDLEN]
-	MOV	SI,2 + OFFSET DG:EDITBUF
+	MOV	SI,2 + EDITBUF
 ;-----------------------------------------------------------------------
 	call	unquote 		;scan for quote chars if any
 ;-----------------------------------------------------------------------
@@ -659,6 +659,6 @@ sj12:
 	MOV	DI,[POINTER]
 	JMP	Replace 		; MZ 11/30
 
-CODE	ENDS
-	END
+; END SECTION .CODE
+	; END
 

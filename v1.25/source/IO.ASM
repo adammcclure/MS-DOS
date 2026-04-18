@@ -86,28 +86,28 @@ SERIAL:	EQU	SERIALPRN+SERIALAUX
 STCDATA:EQU	BASE+4		; Ports for 9513 Timer chip.
 STCCOM:	EQU	BASE+5
 
-	IF	SERIALAUX
+	%if SERIALAUX
 AUXSTAT:EQU	SIOBASE+3
 AUXDATA:EQU	SIOBASE+2
-	ENDIF
+	%endif
 
-	IF	PARALLELAUX
+	%if PARALLELAUX
 AUXSTAT:EQU	BASE+13
 AUXDATA:EQU	BASE+12
-	ENDIF
+	%endif
 
-	IF	SERIALPRN
+	%if SERIALPRN
 PRNSTAT:EQU	SIOBASE+1
 PRNDATA:EQU	SIOBASE+0
-	ENDIF
+	%endif
 
-	IF	PARALLELPRN
+	%if PARALLELPRN
 PRNSTAT:EQU	BASE+13
 PRNDATA:EQU	BASE+12
-	ENDIF
+	%endif
 
 	ORG	0
-	PUT	100H
+	; PUT	100H
 
 	JMP	INIT
 	JMP	STATUS
@@ -132,17 +132,17 @@ INIT:
 	MOV	SS,BP
 	MOV	SP,BIOSSEG*16
 
-	IF	INTINP-1
+	%if INTINP-1
 	MOV	AL,0FFH		; Mask all interrupts.
 	OUTB	BASE+3
-	ENDIF
+	%endif
 
-	IF	INTINP
+	%if INTINP
 	DI			; Set up keyboard interrupt vector.
 	MOV	[BP+64H],KBINT
 	MOV	[BP+66H],CS
 	EI
-	ENDIF
+	%endif
 
 	MOV	[BP+4*38H],PRNFCB
 	MOV	[BP+4*38H+2],CS
@@ -155,26 +155,26 @@ INIT:
 	MOV	CX,4		;Initialize 4 registers
 	UP
 INITSTC:
-	LODB
+	lodsb
 	OUT	STCCOM		;Select register to initialize
-	LODB
+	lodsb
 	OUT	STCDATA
-	LODB
+	lodsb
 	OUT	STCDATA
 	LOOP	INITSTC
 
-	IF	SERIAL
+	%if SERIAL
 	MOV	CX,4
 SERINIT:
-	LODB
+	lodsb
 	OUT	SIOBASE+1
 	OUT	SIOBASE+3
 	LOOP	SERINIT
-	LODB			;Baud rate for channel 0
+	lodsb;Baud rate for channel 0
 	OUT	SIOBASE+8
-	LODB			;Baud rate for channel 1
+	lodsb;Baud rate for channel 1
 	OUT	SIOBASE+9
-	ENDIF
+	%endif
 ;
 ; Move MS-DOS down to the first segment just above the I/O system.
 ;
@@ -194,8 +194,8 @@ SERINIT:
 ; DIRECTREAD and DIRECTWRITE rather than READ and WRITE.
 ;
 	SUB	BP,BP
-	MOV	W,[BP+37*4],DIRECTREAD
-	MOV	W,[BP+38*4],DIRECTWRITE
+	MOV	word [BP+37*4],DIRECTREAD
+	MOV	word [BP+38*4],DIRECTWRITE
 
 	MOV	DX,100H
 	MOV	AH,26		;Set DMA address
@@ -255,13 +255,13 @@ STCTAB:	DB	17H		;Select master mode register
 	DB	3
 	DW	0008H		;Set counter 3 to count days
 
-	IF	SERIAL
+	%if SERIAL
 	DB	0B7H, 77H, 4EH, 37H, PRNBAUD, AUXBAUD
-	ENDIF
+	%endif
 
 BADCOM:	DB	13,10,"Error in loading Command Interpreter",13,10,"$"
 FCB:	DB	1,"COMMAND COM"
-	DS	25
+	times 25 db 0
 ;
 ; ************ Time and Date ************
 ;
@@ -357,7 +357,7 @@ POINTSTAT:
 ; ************ CONSOLE INPUT ************
 ;
 
-	IF	INTINP-1	; Non-interrupt driven input.
+	%if INTINP-1; Non-interrupt driven input.
 STATUS:
 	IN	STAT
 	AND	AL,DAV
@@ -365,12 +365,12 @@ STATUS:
 	PUSHF			; Save Z flag.
 	INB	DATA
 	AND	AL,7FH
-	SEG	CS
+	; SEG override: cs
 	MOV	[QUEUE],AL	; Put new character in buffer.
 	POPF			; Return with Z flag clear.
 	RET	L
 NOTHING:
-	SEG	CS
+	; SEG override: cs
 	MOV	AL,[QUEUE]	; See if there's anything in the buffer.
 	NOT	AL		; Set up the Z flag.
 	TEST	AL,80H
@@ -381,7 +381,7 @@ NOTHING:
 
 INP:
 	MOV	AL,-1
-	SEG	CS
+	; SEG override: cs
 	XCHG	AL,[QUEUE]	; Remove the character from the buffer.
 	AND	AL,AL
 	JNS	INRET		; Return if we have a character.
@@ -396,9 +396,9 @@ FLUSH:
 	RET	L
 
 QUEUE:	DB	-1		; For storing characters from STATUS to INP.
-	ENDIF
+	%endif
 
-	IF	INTINP		; Interrupt-driven input.
+	%if INTINP; Interrupt-driven input.
 ;
 ; Console keyboard interrupt handler.
 ;
@@ -418,15 +418,15 @@ KBINT:
 FLSH:
 	CALL	13*3,BIOSSEG	; Call I/O system keyboard buffer flush.
 SAVKY:
-	SEG	CS
+	; SEG override: cs
 	MOV	SI,[REAR]	;Pointer to rear of queue
 	CALL	INCQ
-	SEG	CS
+	; SEG override: cs
 	CMP	SI,[FRONT]	;Any room in queue?
 	JZ	QFULL
-	SEG	CS
+	; SEG override: cs
 	MOV	[SI],AL		;Put character in queue
-	SEG	CS
+	; SEG override: cs
 	MOV	[REAR],SI	;Save pointer
 LEAVINT:
 	POP	SI
@@ -443,13 +443,13 @@ STATUS:
 	IN	PRNSTAT
 	AND	AL,TBMT
 	JZ	NOPRN
-	SEG	CS
+	; SEG override: cs
 	MOV	SI,[PFRONT]
-	SEG	CS
+	; SEG override: cs
 	CMP	SI,[PREAR]	;Anything in print queue?
 	JNZ	SENDPRN
-	SEG	CS
-	CMP	B,[PRNFCB],-1	;Print spooling in progress?
+	; SEG override: cs
+	CMP	byte [PRNFCB],-1	;Print spooling in progress?
 	JZ	NOPRN		;If not, nothing to print
 ;Print spooling in progress. Get next buffer
 	PUSH	DS
@@ -471,7 +471,7 @@ STATUS:
 	INT	33
 	OR	AL,AL
 	JZ	NOTEOF
-	MOV	B,[PRNFCB],-1	;Turn off print spooling at EOF
+	MOV	byte [PRNFCB],-1	;Turn off print spooling at EOF
 NOTEOF:
 	POP	[DMAADD+2]
 	POP	[DMAADD]
@@ -485,25 +485,25 @@ NOTEOF:
 	OR	SI,SI
 	JZ	NOPRN
 	ADD	SI,PQUEUE-1
-	SEG	CS
+	; SEG override: cs
 	MOV	[PREAR],SI
 	MOV	SI,ENDPQ-1
 SENDPRN:
 	CALL	INCPQ
-	SEG	CS
+	; SEG override: cs
 	MOV	[PFRONT],SI
-	SEG	CS
+	; SEG override: cs
 	LODSB			;Get character to print
 	OUT	PRNDATA
 NOPRN:
 	DI			; Disable interrupts while checking queue.
-	SEG	CS
+	; SEG override: cs
 	MOV	SI,[FRONT]
-	SEG	CS
+	; SEG override: cs
 	CMP	SI,[REAR]	; Anything in queue?
 	JZ	NOCHR		; Jump if nothing in queue.
 	CALL	INCQ
-	SEG	CS
+	; SEG override: cs
 	LODSB			;Get character (if there is one)
 	OR	SI,SI		;Reset zero flag
 NOCHR:
@@ -516,10 +516,10 @@ INP:
 	JZ	INP
 	PUSH	SI
 	DI			; Disable interrupts while changing queue pointers.
-	SEG	CS
+	; SEG override: cs
 	MOV	SI,[FRONT]
 	CALL	INCQ		; Permanently remove char from queue
-	SEG	CS
+	; SEG override: cs
 	MOV	[FRONT],SI
 	EI
 	POP	SI
@@ -527,9 +527,9 @@ INP:
 
 FLUSH:
 	DI
-	SEG	CS
+	; SEG override: cs
 	MOV	[REAR],QUEUE
-	SEG	CS
+	; SEG override: cs
 	MOV	[FRONT],QUEUE
 	EI
 	RET	L
@@ -550,15 +550,15 @@ INCPQ:
 
 FRONT:	DW	QUEUE
 REAR:	DW	QUEUE
-QUEUE:	DS	QSIZE
+QUEUE: times QSIZE db 0
 ENDQ:	EQU	$
 PFRONT:	DW	PQUEUE
 PREAR:	DW	PQUEUE
-PQUEUE:	DS	PBUFSIZ
+PQUEUE: times PBUFSIZ db 0
 ENDPQ:	EQU	$
 PRNFCB:	DB	-1
-	DS	36
-	ENDIF
+	times 36 db 0
+	%endif
 
 ;
 ; ************ Console and Printer Output ************
@@ -575,11 +575,11 @@ OUTLP:
 
 PRINT:
 	PUSH	SI
-	SEG	CS
+	; SEG override: cs
 	MOV	SI,[PREAR]
 	CALL	INCPQ
 PRINLP:
-	SEG	CS
+	; SEG override: cs
 	CMP	SI,[PFRONT]
 	JNZ	PRNCHR
 ;Print queue is full
@@ -588,9 +588,9 @@ PRINLP:
 	POP	AX
 	JMPS	PRINLP
 PRNCHR:
-	SEG	CS
+	; SEG override: cs
 	MOV	[PREAR],SI
-	SEG	CS
+	; SEG override: cs
 	MOV	[SI],AL
 	POP	SI
 	RET	L
@@ -622,54 +622,54 @@ CROMEMCO:EQU	CROMEMCO4FDC+CROMEMCO16FDC
 WD1791:	EQU	SCP+TARBELLDD+CROMEMCO16FDC
 WD1771:	EQU	TARBELLSD+CROMEMCO4FDC
 
-	IF	WD1791
+	%if WD1791
 READCOM:EQU	80H
 WRITECOM:EQU	0A0H
-	ENDIF
+	%endif
 
-	IF	WD1771
+	%if WD1771
 READCOM:EQU	88H
 WRITECOM:EQU	0A8H
-	ENDIF
+	%endif
 
-	IF	SCP
+	%if SCP
 SMALLBIT:EQU	10H
 BACKBIT:EQU	04H
 DDENBIT:EQU	08H
 DONEBIT:EQU	01H
 DISK:	EQU	0E0H
-	ENDIF
+	%endif
 
-	IF	TARBELL
+	%if TARBELL
 BACKBIT:EQU	40H
 DDENBIT:EQU	08H
 DONEBIT:EQU	80H
 DISK:	EQU	78H
-	ENDIF
+	%endif
 
-	IF	CROMEMCO
+	%if CROMEMCO
 SMALLBIT:EQU	10H
 BACKBIT:EQU	0FDH		; Send this to port 4 to select back.
 DDENBIT:EQU	40H
 DONEBIT:EQU	01H
 DISK:	EQU	30H
-	ENDIF
+	%endif
 
-	IF	SMALLDS-1
+	%if SMALLDS-1
 SMALLDDSECT:	EQU	8
-	ENDIF
+	%endif
 
-	IF	SMALLDS
+	%if SMALLDS
 SMALLDDSECT:	EQU	16
-	ENDIF
+	%endif
 
-	IF	LARGEDS-1
+	%if LARGEDS-1
 LARGEDDSECT:	EQU	8
-	ENDIF
+	%endif
 
-	IF	LARGEDS
+	%if LARGEDS
 LARGEDDSECT:	EQU	16
-	ENDIF
+	%endif
 ;
 ; Disk change function.
 ; On entry:
@@ -685,21 +685,21 @@ LARGEDDSECT:	EQU	16
 ;	CF set if disk error.
 ;	AL = disk error code (see disk read below).
 ;
-	IF	WD1771
+	%if WD1771
 DSKCHG:
 	MOV	AH,0		; AH = 0 in case we don't know.
-	SEG	CS
+	; SEG override: cs
 	CMP	AL,[CURDRV]
 	JNZ	RETL
 	PUSH	AX		; Save drive number.
 
-	IF	CROMEMCO
+	%if CROMEMCO
 	INB	DISK+4
-	ENDIF
+	%endif
 
-	IF	TARBELL
+	%if TARBELL
 	INB	DISK
-	ENDIF
+	%endif
 
 	AND	AL,20H		; Look at head load bit
 	POP	AX
@@ -708,30 +708,30 @@ DSKCHG:
 RETL:
 	CLC			; No disk error.
 	RET	L
-	ENDIF			; End of 1771 DSKCHG.
+	%endif; End of 1771 DSKCHG.
 
-	IF	WD1791
+	%if WD1791
 DSKCHG:
 	MOV	AH,0		; AH = 0 in case we don't know.
-	SEG	CS
+	; SEG override: cs
 	CMP	AL,[CURDRV]
 	JNZ	DENSCHK		; Check density if not same drive.
 	PUSH	AX
 
-	IF	SCP+CROMEMCO
+	%if SCP+CROMEMCO
 	INB	DISK+4
-	ENDIF
+	%endif
 
-	IF	TARBELL
+	%if TARBELL
 	INB	DISK
-	ENDIF
+	%endif
 
 	AND	AL,20H		; Look at head load bit
 	POP	AX
 	JZ	DENSCHK		; Check density if head not loaded.
 	MOV	AH,1		; AH = 1, disk not changed.
 	MOV	BX,PREVDENS
-	SEG	CS
+	; SEG override: cs
 	XLAT			; Get previous density
 	CLC			; No disk error.
 	RET	L
@@ -743,15 +743,15 @@ DENSCHK:
 	MOV	CX,4		; Try each density twice
 	MOV	AH,0		; Disk may not have been changed.
 CHKDENS:
-	SEG	CS
+	; SEG override: cs
 	MOV	AL,[SI]		; Get previous disk I/O driver number.
 	MOV	BX,DRVTAB
-	SEG	CS
+	; SEG override: cs
 	XLAT			; Get drive select byte for previous density
 
-	IF	CROMEMCO16FDC
+	%if CROMEMCO16FDC
 	CALL	MOTOR		; Wait for motor to come up to speed.
-	ENDIF
+	%endif
 
 	OUT	DISK+4		; Select disk
 	MOV	AL,0C4H		; READ ADDRESS command
@@ -760,25 +760,25 @@ CHKDENS:
 	IN	DISK+3		; Eat last byte to reset DRQ
 	JZ	HAVDENS		; Jump if no error in reading address.
 	NOT	AH		; AH = -1 (disk changed) if new density works.
-	SEG	CS
-	XOR	B,[SI],1	; Try other density
+	; SEG override: cs
+	XOR	byte [SI],1	; Try other density
 	LOOP	CHKDENS
 	MOV	AX,2		; Couldn't read disk at all, AH = 0 for don't 
 	STC			;  know if disk changed, AL = error code 2 -
 	RET	L		;  disk not ready, carry set to indicate error.
 
 HAVDENS:
-	SEG	CS
+	; SEG override: cs
 	LODSB			; AL = disk I/O driver number.
 	CLC			; No disk error.
 	RET	L
 
 PREVDENS:DB	1,3,5,7,9,11,13	; Table of previous disk I/O driver numbers.
-	ENDIF			; End of 1793 DSKCHG function.
+	%endif; End of 1793 DSKCHG function.
 
 CHKNEW:
 	MOV	AH,AL		; Save disk drive number in AH.
-	SEG	CS		; AL = previous disk drive number,
+	; SEG override: cs; AL = previous disk drive number,
 	XCHG	AL,[CURDRV]	;  make new drive current.
 	CMP	AL,AH		; Changing drives?
 	JZ	RET
@@ -793,7 +793,7 @@ CHKNEW:
 	MOV	AL,AH		; Restore current drive number
 	RET
 
-	IF	CROMEMCO16FDC
+	%if CROMEMCO16FDC
 MOTOR:
 	PUSH	AX
 	MOV	AH,AL
@@ -812,7 +812,7 @@ MOTORDELAY:			;  (8 MHz, 16-bit memory).
 MOTORSON:
 	POP	AX
 	RET
-	ENDIF
+	%endif
 ;
 ; Disk read function.
 ;
@@ -869,13 +869,13 @@ POPESERROR:
 	POP	ES		; Restore ES register.
 ERROR:
 	MOV	BL,-1
-	SEG	CS
+	; SEG override: cs
 	MOV	[DI],BL		; Indicate we don't know where head is.
 	MOV	SI,ERRTAB
 GETCOD:
 	INC	BL		; Increment to next error code.
-	SEG	CS
-	LODB
+	; SEG override: cs
+	lodsb
 	TEST	AH,AL		; See if error code matches disk status.
 	JZ	GETCOD		; Try another if not.
 	MOV	AL,BL		; Now we've got the code.
@@ -907,38 +907,38 @@ ERRTAB:
 ;
 DIRECTREAD:
 
-	IF	WD1791
+	%if WD1791
 	CALL	GETIODRIVER	; Convert drive number to I/O driver number.
 	JC	DIRECTRET	; Return if DSKCHG returned error.
-	ENDIF
+	%endif
 
 	CALL	7*3,BIOSSEG	; Call READ.
 	JMPS	DIRECTRET
 
 DIRECTWRITE:
 
-	IF	WD1791
+	%if WD1791
 	CALL	GETIODRIVER	; Convert drive number to I/O driver number.
 	JC	DIRECTRET	; Return if DSKCHG returned error.
-	ENDIF
+	%endif
 
 	CALL	8*3,BIOSSEG	; Call WRITE.
 DIRECTRET:
-	SEG	CS
-	MOV	B,[CURDRV],-1	; Force DSKCHG to do density check.
+	; SEG override: cs
+	MOV	byte [CURDRV],-1	; Force DSKCHG to do density check.
 	RET	L
 
-	IF	WD1791
+	%if WD1791
 GETIODRIVER:
-	SEG	CS
-	MOV	B,[CURDRV],-1	; Force DSKCHG to do density check.
+	; SEG override: cs
+	MOV	byte [CURDRV],-1	; Force DSKCHG to do density check.
 	PUSH	BX
 	PUSH	CX
 	CALL	9*3,BIOSSEG	; Call DSKCHG.
 	POP	CX
 	POP	BX
 	RET
-	ENDIF
+	%endif
 ;
 ; Function:
 ;	Seeks to proper track.
@@ -957,29 +957,29 @@ SEEK:
 	CBW
 	MOV	BX,AX		; Prepare to index on drive number
 
-	IF	WD1791		; If two disk formats per drive.
+	%if WD1791; If two disk formats per drive.
 	SHR	AL		; Convert to physical disk drive number.
-	ENDIF
+	%endif
 
 	CALL	CHKNEW		; Unload head if changing drives.
-	SEG	CS
+	; SEG override: cs
 	MOV	AL,[BX+DRVTAB]	; Get drive-select byte.
 
-	IF	CROMEMCO16FDC
+	%if CROMEMCO16FDC
 	CALL	MOTOR		; Wait for the motors to come up to speed.
-	ENDIF
+	%endif
 
 	OUTB	DISK+4		; Select drive.
 
-	IF	CROMEMCO
+	%if CROMEMCO
 	OR	AL,80H		; Set auto-wait bit.
-	ENDIF
+	%endif
 
 	MOV	AH,AL		; Save drive-select byte in AH.
 	XCHG	AX,DX		; AX = logical sector number.
 	MOV	DL,26		; 26 sectors/track unless changed below
 
-	IF	SCP
+	%if SCP
 	TEST	DH,SMALLBIT	; Check if small disk.
 	JZ	BIGONE		; Jump if big disk.
 	MOV	DL,18		; Assume 18 sectors on small track.
@@ -991,21 +991,21 @@ BIGONE:
 	TEST	DH,DDENBIT	; Check if double-density.
 	JZ	HAVSECT		; Jump if not.
 	MOV	DL,LARGEDDSECT	; Number of sectors on big DD track.
-	ENDIF
+	%endif
 
-	IF	TARBELLDD	; Tarbell DD controller.
+	%if TARBELLDD; Tarbell DD controller.
 	TEST	DH,DDENBIT	; Check for double-density.
 	JZ	HAVSECT
 	MOV	DL,LARGEDDSECT	; Number of sectors on DD track.
-	ENDIF
+	%endif
 
-	IF	CROMEMCO4FDC
+	%if CROMEMCO4FDC
 	TEST	DH,SMALLBIT	; Check if small disk.
 	JNZ	HAVSECT		; Jump if not.
 	MOV	DL,18		; 18 sectors on small disk track.
-	ENDIF
+	%endif
 
-	IF	CROMEMCO16FDC
+	%if CROMEMCO16FDC
 	TEST	DH,SMALLBIT	; Check if small disk.
 	JNZ	BIGONE		; Jump if big disk.
 	MOV	DL,18		; Assume 18 sectors on small track.
@@ -1017,18 +1017,18 @@ BIGONE:
 	TEST	DH,DDENBIT	; Check if double-density.
 	JZ	HAVSECT		; Jump if not.
 	MOV	DL,LARGEDDSECT	; Number of sectors on big DD track.
-	ENDIF
+	%endif
 
 HAVSECT:
 	DIV	AL,DL		; AL = track, AH = sector.
 	XCHG	AX,DX		; AH has drive-select byte, DX = track & sector.
 	INC	DH		; Sectors start at one, not zero.
-	SEG	CS
+	; SEG override: cs
 	MOV	BL,[BX+TRKPT]	; Get this drive's displacement into track table.
 	ADD	BX,TRKTAB	; BX now points to track counter for this drive.
 	MOV	DI,BX
 	MOV	AL,DL		; Move new track number into AL.
-	SEG	CS
+	; SEG override: cs
 	XCHG	AL,[DI]		; Xchange current track with desired track
 	OUT	DISK+1		; Inform controller chip of current track
 	CMP	AL,DL		; See if we're at the right track.
@@ -1060,92 +1060,92 @@ SEEKERR:
 SETUP:
 	MOV	BL,DH		; Move sector number to BL to play with
 
-	IF	SCP+CROMEMCO16FDC
+	%if SCP+CROMEMCO16FDC
 	TEST	AH,DDENBIT	; Check for double density.
 	JZ	CHECKSMALL	; Not DD, check size for SD.
-	ENDIF
+	%endif
 
-	IF	TARBELLDD
+	%if TARBELLDD
 	TEST	AH,DDENBIT	; Check for double density.
 	JZ	CHECK26		; Not DD.
-	ENDIF
+	%endif
 
-	IF	WD1791
+	%if WD1791
 
-	IF	(SCP+TARBELL)*LARGEDS+SCP*SMALLDS
+	%if (SCP+TARBELL)*LARGEDS+SCP*SMALLDS
 	MOV	AL,AH		; Select front side of disk.
 	OUT	DISK+4
-	ENDIF
+	%endif
 
-	IF	CROMEMCO*(LARGEDS+SMALLDS)
+	%if CROMEMCO*(LARGEDS+SMALLDS)
 	MOV	AL,0FFH		; Select front side of disk.
 	OUT	04H
-	ENDIF
+	%endif
 
 	CMP	BL,8		; See if legal DD sector number.
 	JBE	PUTSEC		; Jump if ok.
 
-	IF	(LARGEDS-1)*((SMALLDS*(SCP+CROMEMCO))-1)
+	%if (LARGEDS-1)*((SMALLDS*(SCP+CROMEMCO))-1)
 	JP	STEP		; If only SS drives, we gotta step.
-	ENDIF
+	%endif
 
-	IF	SCP*LARGEDS*(SMALLDS-1)
+	%if SCP*LARGEDS*(SMALLDS-1)
 	TEST	AH,SMALLBIT	; Check for 5.25 inch disk.
 	JNZ	STEP		; Jump if small because SMALLDS is off.
-	ENDIF
+	%endif
 
-	IF	SCP*SMALLDS*(LARGEDS-1)
+	%if SCP*SMALLDS*(LARGEDS-1)
 	TEST	AH,SMALLBIT	; Check for 8 inch disk.
 	JZ	STEP		; Jump if large because LARGEDS is off.
-	ENDIF
+	%endif
 
-	IF	CROMEMCO16FDC*LARGEDS*(SMALLDS-1)
+	%if CROMEMCO16FDC*LARGEDS*(SMALLDS-1)
 	TEST	AH,SMALLBIT	; Check for 5.25 inch disk.
 	JZ	STEP		; Jump if small because SMALLDS is off.
-	ENDIF
+	%endif
 
-	IF	CROMEMCO16FDC*SMALLDS*(LARGEDS-1)
+	%if CROMEMCO16FDC*SMALLDS*(LARGEDS-1)
 	TEST	AH,SMALLBIT	; Check for 8 inch disk.
 	JNZ	STEP		; Jump if large because LARGEDS is off.
-	ENDIF
+	%endif
 
-	IF	LARGEDS+SMALLDS*(SCP+CROMEMCO)
+	%if LARGEDS+SMALLDS*(SCP+CROMEMCO)
 	SUB	BL,8		; Find true sector for back side.
 	CMP	BL,8		; See if ok now.
 	JA	STEP		; Have to step if still too big.
 
-	IF	SCP+TARBELLDD
+	%if SCP+TARBELLDD
 	MOV	AL,AH		; Move drive select byte into AL.
 	OR	AL,BACKBIT	; Select back side.
 	OUT	DISK+4
-	ENDIF
+	%endif
 
-	IF	CROMEMCO16FDC
+	%if CROMEMCO16FDC
 	MOV	AL,BACKBIT	; Select back side.
 	OUT	04H
-	ENDIF
+	%endif
 
 	JP	PUTSEC
-	ENDIF
+	%endif
 
-	ENDIF
+	%endif
 
-	IF	SCP
+	%if SCP
 CHECKSMALL:
 	TEST	AH,SMALLBIT	; See if big disk.
 	JZ	CHECK26		; Jump if big.
-	ENDIF
+	%endif
 
-	IF	CROMEMCO
+	%if CROMEMCO
 CHECKSMALL:
 	TEST	AH,SMALLBIT	; See if big disk.
 	JNZ	CHECK26		; Jump if big.
-	ENDIF
+	%endif
 
-	IF 	SCP+CROMEMCO
+	%if SCP+CROMEMCO
 	CMP	BL,18		; See if legal small SD/SS sector.
 	JA	STEP		; Jump if not.
-	ENDIF
+	%endif
 
 CHECK26:
 	CMP	BL,26		; See if legal large SD/SS sector.
@@ -1154,8 +1154,8 @@ STEP:
 	INC	DL		; Increment track number.
 	MOV	AL,58H		; Step in with update.
 	CALL	DCOM
-	SEG	CS
-	INC	B,[DI]		; Increment the track pointer.
+	; SEG override: cs
+	INC	byte [DI]		; Increment the track pointer.
 	MOV	DH,1		; After step, do first sector.
 	MOV	BL,DH		; Fix temporary sector number also.
 PUTSEC:
@@ -1163,13 +1163,13 @@ PUTSEC:
 	OUT	DISK+2
 	DI			; Interrupts not allowed until I/O done
 
-	IF	SCP+CROMEMCO
+	%if SCP+CROMEMCO
 	INB	DISK+4		; Get head-load bit.
-	ENDIF
+	%endif
 
-	IF	TARBELL
+	%if TARBELL
 	INB	DISK
-	ENDIF
+	%endif
 
 	NOT	AL
 	AND	AL,20H		; Check head load status
@@ -1187,36 +1187,36 @@ RDAGN:
 	OR	AL,READCOM
 	OUT	DISK
 
-	IF	CROMEMCO
+	%if CROMEMCO
 	MOV	AL,AH		; Turn on auto-wait.
 	OUT	DISK+4
-	ENDIF
+	%endif
 
 	MOV	BP,DI		; Save address for retry.
 	JMPS	RLOOPENTRY
 RLOOP:
-	STOB			; Write into memory.
+	stosb; Write into memory.
 RLOOPENTRY:
 
-	IF	SCP
+	%if SCP
 	IN	DISK+5		; Wait for DRQ or INTRQ.
-	ENDIF
+	%endif
 
-	IF	TARBELL+CROMEMCO
+	%if TARBELL+CROMEMCO
 	IN	DISK+4
-	ENDIF
+	%endif
 
-	IF	TARBELL
+	%if TARBELL
 	SHL	AL
 	INB	DX		; Read data from disk controller chip.
 	JC	RLOOP
-	ENDIF
+	%endif
 
-	IF	SCP+CROMEMCO
+	%if SCP+CROMEMCO
 	SHR	AL
 	INB	DX		; Read data from disk controller chip.
 	JNC	RLOOP
-	ENDIF
+	%endif
 
 	EI			; Interrupts OK now
 	CALL	GETSTAT
@@ -1233,7 +1233,7 @@ RDPOP:
 	POP	DX		; Get back track & sector number.
 	XCHG	SI,DI		; Address back to SI.
 
-	IF	TARBELL
+	%if TARBELL
 FORCINT:
 	MOV	AL,0D0H		; Tarbell controllers need this Force Interrupt
 	OUT	DISK		;  so that Type I status is always available
@@ -1241,7 +1241,7 @@ FORCINT:
 INTDLY:				;  out if the head is loaded.  SCP and Cromemco
 	DEC	AL		;  controllers have head-load status available
 	JNZ	INTDLY		;  at the DISK+4 status port.
-	ENDIF
+	%endif
 
 	RET
 
@@ -1254,35 +1254,35 @@ WRTAGN:
 	OR	AL,WRITECOM
 	OUT	DISK
 
-	IF	CROMEMCO
+	%if CROMEMCO
 	MOV	AL,AH		; Turn on auto-wait.
 	OUT	DISK+4
-	ENDIF
+	%endif
 
 	MOV	BP,SI
 WRLOOP:
 
-	IF	SCP
+	%if SCP
 	INB	DISK+5
-	ENDIF
+	%endif
 
-	IF	TARBELL+CROMEMCO
+	%if TARBELL+CROMEMCO
 	INB	DISK+4
-	ENDIF
+	%endif
 
-	IF	SCP+CROMEMCO
+	%if SCP+CROMEMCO
 	SHR	AL
-	LODB			; Get data from memory.
+	lodsb; Get data from memory.
 	OUTB	DX		; Write to disk.
 	JNC	WRLOOP
-	ENDIF
+	%endif
 
-	IF	TARBELL
+	%if TARBELL
 	SHL	AL
-	LODB			; Get data from memory.
+	lodsb; Get data from memory.
 	OUTB	DX		; Write to disk.
 	JC	WRLOOP
-	ENDIF
+	%endif
 
 	EI			; Interrupts OK now.
 	DEC	SI
@@ -1299,42 +1299,42 @@ WRLOOP:
 WRPOP:
 	POP	DX		; Get back track & sector number.
 
-	IF	TARBELL
+	%if TARBELL
 	JMPS	FORCINT
-	ENDIF
+	%endif
 
-	IF	SCP+CROMEMCO
+	%if SCP+CROMEMCO
 	RET
-	ENDIF
+	%endif
 ;
 ; Subroutine to restore the read/write head to track 0.
 ;
-	IF	SCP+CROMEMCO+TARBELL*(FASTSEEK-1)
+	%if SCP+CROMEMCO+TARBELL*(FASTSEEK-1)
 HOME:
-	ENDIF
+	%endif
 
-	IF	FASTSEEK*CROMEMCO
+	%if FASTSEEK*CROMEMCO
 	TEST	AH,SMALLBIT	; Check for large disk.
 	JNZ	RESTORE		; Big disks are fast seek PerSci.
-	ENDIF
+	%endif
 
 	MOV	BL,3
 TRYHOM:
 
-	IF	SCP*FASTSEEK
+	%if SCP*FASTSEEK
 	MOV	AL,AH		; Turn on Restore to PerSci.
 	OR	AL,80H
 	OUTB	DISK+4
-	ENDIF
+	%endif
 
 	MOV	AL,0CH+STPSPD	; Restore with verify command.
 	CALL	DCOM
 	AND	AL,98H
 
-	IF	SCP*FASTSEEK
+	%if SCP*FASTSEEK
 	MOV	AL,AH		; Restore off.
 	OUTB	DISK+4
-	ENDIF
+	%endif
 
 	JZ	RET
 	JS	HOMERR		; No retries if not ready
@@ -1349,13 +1349,13 @@ HOMERR:
 ; RESTORE for PerSci drives.
 ; Doesn't exist yet for Tarbell controllers.
 ;
-	IF	FASTSEEK*TARBELL
+	%if FASTSEEK*TARBELL
 HOME:
 RESTORE:
 	RET
-	ENDIF
+	%endif
 
-	IF	FASTSEEK*CROMEMCO4FDC
+	%if FASTSEEK*CROMEMCO4FDC
 RESTORE:
 	MOV	AL,0C4H		;READ ADDRESS command to keep head loaded
 	OUT	DISK
@@ -1377,9 +1377,9 @@ RESDONE:
 	MOV	AL,0
 	OUT	DISK+1		;Tell 1771 we're now on track 0
 	RET
-	ENDIF
+	%endif
 
-	IF	FASTSEEK*CROMEMCO16FDC
+	%if FASTSEEK*CROMEMCO16FDC
 RESTORE:
 	MOV	AL,0D7H		; Turn on Drive-Select and Restore.
 	OUTB	4
@@ -1395,20 +1395,20 @@ RESWAIT:
 	SUB	AL,AL		; Tell 1793 we're on track 0.
 	OUTB	DISK+1
 	RET
-	ENDIF
+	%endif
 ;
 ; Subroutine to move the read/write head to the desired track.
 ; Usually falls through to DCOM unless special handling for
 ; PerSci drives is required in which case go to FASTSK.
 ;
-	IF	SCP+CROMEMCO+TARBELL*(FASTSEEK-1)
+	%if SCP+CROMEMCO+TARBELL*(FASTSEEK-1)
 MOVHEAD:
-	ENDIF
+	%endif
 
-	IF	CROMEMCO*FASTSEEK
+	%if CROMEMCO*FASTSEEK
 	TEST	AH,SMALLBIT	; Check for PerSci.
 	JNZ	FASTSK
-	ENDIF
+	%endif
 
 DCOM:
 	OUT	DISK
@@ -1419,13 +1419,13 @@ GETSTAT:
 	IN	DISK+4
 	TEST	AL,DONEBIT
 
-	IF	TARBELL
+	%if TARBELL
 	JNZ	GETSTAT
-	ENDIF
+	%endif
 
-	IF	SCP+CROMEMCO
+	%if SCP+CROMEMCO
 	JZ	GETSTAT
-	ENDIF
+	%endif
 
 	IN	DISK
 	RET
@@ -1433,13 +1433,13 @@ GETSTAT:
 ; Fast seek code for PerSci drives.
 ; Tarbell not installed yet.
 ;
-	IF	FASTSEEK*TARBELL
+	%if FASTSEEK*TARBELL
 MOVHEAD:
 FASTSK:
 	RET
-	ENDIF
+	%endif
 
-	IF	FASTSEEK*CROMEMCO
+	%if FASTSEEK*CROMEMCO
 FASTSK:
 	MOV	AL,6FH
 	OUT	4
@@ -1453,7 +1453,7 @@ SKWAIT:
 	OUT	4
 	MOV	AL,0
 	RET
-	ENDIF
+	%endif
 
 CURDRV:	DB	-1
 ;
@@ -1481,7 +1481,7 @@ CURDRV:	DB	-1
 ; INITTAB is the initialization table for 86-DOS as described in the
 ; 86-DOS Programer's Manual under "Customizing the I/O System."
 ;
-	IF	SCP*COMBIN*FASTSEEK
+	%if SCP*COMBIN*FASTSEEK
 ;
 ; A PerSci 277 or 299 and one 5.25-inch drive.
 ;
@@ -1489,13 +1489,13 @@ DRVTAB:	DB	00H,08H,01H,09H,10H,18H,00H,08H,01H,09H
 TRKPT:	DB	0,0,0,0,1,1,0,0,0,0
 TRKTAB:	DB	-1,-1
 INITTAB:
-	IF	CONVERT-1
+	%if CONVERT-1
 	DB	6		; Number of disk I/O drivers.
-	ENDIF
+	%endif
 
-	IF	CONVERT
+	%if CONVERT
 	DB	10
-	ENDIF
+	%endif
 
 	DB	0		; Disk I/O driver 0 uses disk drive 0.
 	DW	LSDRIVE		; Disk I/O driver 0 is 8-inch single-density.
@@ -1510,7 +1510,7 @@ INITTAB:
 	DB	2
 	DW	SDDRIVE
 
-	IF	CONVERT
+	%if CONVERT
 	DB	3
 	DW	OLDLSDRIVE
 	DB	3
@@ -1519,10 +1519,10 @@ INITTAB:
 	DW	OLDLSDRIVE
 	DB	4
 	DW	OLDLDDRIVE
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 
-	IF	SCP*LARGE*FASTSEEK
+	%if SCP*LARGE*FASTSEEK
 ;
 ; PerSci 277 or 299.
 ;
@@ -1530,13 +1530,13 @@ DRVTAB:	DB	00H,08H,01H,09H,00H,08H,01H,09H
 TRKPT:	DB	0,0,0,0,0,0,0,0
 TRKTAB:	DB	-1
 INITTAB:
-	IF	CONVERT-1
+	%if CONVERT-1
 	DB	4
-	ENDIF
+	%endif
 
-	IF	CONVERT
+	%if CONVERT
 	DB	8
-	ENDIF
+	%endif
 
 	DB	0
 	DW	LSDRIVE
@@ -1547,7 +1547,7 @@ INITTAB:
 	DB	1
 	DW	LDDRIVE
 
-	IF	CONVERT
+	%if CONVERT
 	DB	2
 	DW	OLDLSDRIVE
 	DB	2
@@ -1556,10 +1556,10 @@ INITTAB:
 	DW	OLDLSDRIVE
 	DB	3
 	DW	OLDLDDRIVE
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 
-	IF	TARBELLDD
+	%if TARBELLDD
 ;
 ; Two 8-inch Shugart-type drives.
 ;
@@ -1568,13 +1568,13 @@ TRKPT:	DB	0,0,1,1,0,0,1,1
 TRKTAB:	DB	-1,-1
 INITTAB:
 
-	IF	CONVERT-1
+	%if CONVERT-1
 	DB	4
-	ENDIF
+	%endif
 
-	IF	CONVERT
+	%if CONVERT
 	DB	8
-	ENDIF
+	%endif
 
 	DB	0
 	DW	LSDRIVE
@@ -1585,7 +1585,7 @@ INITTAB:
 	DB	1
 	DW	LDDRIVE
 
-	IF	CONVERT
+	%if CONVERT
 	DB	2
 	DW	OLDLSDRIVE
 	DB	2
@@ -1594,10 +1594,10 @@ INITTAB:
 	DW	OLDLSDRIVE
 	DB	3
 	DW	OLDLDDRIVE
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 
-	IF	TARBELLSD
+	%if TARBELLSD
 ;
 ; Four 8-inch Shugart-type drives.
 ;
@@ -1606,26 +1606,26 @@ TRKPT:	DB	0,1,0,1
 TRKTAB:	DB	-1,-1
 INITTAB:
 
-	IF	CONVERT-1
+	%if CONVERT-1
 	DB	2
-	ENDIF
+	%endif
 
-	IF	CONVERT
+	%if CONVERT
 	DB	4
-	ENDIF
+	%endif
 
 	DB	0
 	DW	LSDRIVE
 	DB	1
 	DW	LSDRIVE
 
-	IF	CONVERT
+	%if CONVERT
 	DB	2
 	DW	OLDLSDRIVE
 	DB	3
 	DW	OLDLSDRIVE
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 ;
 ; Cromemco drive select byte is derived as follows:
 ;	Bit 7 = 0
@@ -1637,7 +1637,7 @@ INITTAB:
 ;	Bit 1 = 1 for drive 1
 ;	Bit 0 = 1 for drive 0
 ;
-	IF	CROMEMCO4FDC*LARGE
+	%if CROMEMCO4FDC*LARGE
 ;
 ; PerSci 277 drive.
 ;
@@ -1646,28 +1646,28 @@ TRKPT:	DB	0,0,0,0
 TRKTAB:	DB	-1
 INITTAB:
 
-	IF	CONVERT-1
+	%if CONVERT-1
 	DB	2
-	ENDIF
+	%endif
 
-	IF	CONVERT
+	%if CONVERT
 	DB	4
-	ENDIF
+	%endif
 
 	DB	0
 	DW	LSDRIVE
 	DB	1
 	DW	LSDRIVE
 
-	IF	CONVERT
+	%if CONVERT
 	DB	2
 	DW	OLDLSDRIVE
 	DB	3
 	DW	OLDLSDRIVE
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 
-	IF	CROMEMCO4FDC*COMBIN
+	%if CROMEMCO4FDC*COMBIN
 ;
 ; A PerSci 277 and one 5.25-inch drive.
 ;
@@ -1676,13 +1676,13 @@ TRKPT:	DB	0,0,1,0,0
 TRKTAB:	DB	-1,-1
 INITTAB:
 
-	IF	CONVERT-1
+	%if CONVERT-1
 	DB	3
-	ENDIF
+	%endif
 
-	IF	CONVERT
+	%if CONVERT
 	DB	5
-	ENDIF
+	%endif
 
 	DB	0
 	DW	LSDRIVE
@@ -1691,15 +1691,15 @@ INITTAB:
 	DB	2
 	DW	SSDRIVE
 
-	IF	CONVERT
+	%if CONVERT
 	DB	3
 	DW	OLDLSDRIVE
 	DB	4
 	DW	OLDLSDRIVE
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 
-	IF	CROMEMCO4FDC*SMALL
+	%if CROMEMCO4FDC*SMALL
 ;
 ; Three 5.25-inch drives.
 ;
@@ -1713,9 +1713,9 @@ INITTAB:DB	3
 	DW	SSDRIVE
 	DB	2
 	DW	SSDRIVE
-	ENDIF
+	%endif
 
-	IF	CUSTOM
+	%if CUSTOM
 ;
 ; Cromemco 4FDC with two 8-inch Shugart-type drives.
 ;
@@ -1723,28 +1723,28 @@ DRVTAB:	DB	31H,32H,31H,32H
 TRKPT:	DB	0,1,0,1
 TRKTAB:	DB	-1,-1
 INITTAB:
-	IF	CONVERT-1
+	%if CONVERT-1
 	DB	2
-	ENDIF
+	%endif
 
-	IF	CONVERT
+	%if CONVERT
 	DB	4
-	ENDIF
+	%endif
 
 	DB	0
 	DW	LSDRIVE
 	DB	1
 	DW	LSDRIVE
 
-	IF	CONVERT
+	%if CONVERT
 	DB	2
 	DW	OLDLSDRIVE
 	DB	3
 	DW	OLDLSDRIVE
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 
-	IF	CROMEMCO16FDC*SMALL
+	%if CROMEMCO16FDC*SMALL
 ;
 ; Three 5.25-inch drives.
 ;
@@ -1764,9 +1764,9 @@ INITTAB:DB	6
 	DW	SSDRIVE
 	DB	2
 	DW	SDDRIVE
-	ENDIF
+	%endif
 
-	IF	CROMEMCO16FDC*COMBIN
+	%if CROMEMCO16FDC*COMBIN
 ;
 ; A PerSci 277 or 299 and one 5.25-inch drive.
 ;
@@ -1774,13 +1774,13 @@ DRVTAB:	DB	31H,71H,32H,72H,24H,64H,31H,71H,32H,72H
 TRKPT:	DB	0,0,0,0,1,1,0,0,0,0
 TRKTAB:	DB	-1,-1
 INITTAB:
-	IF	CONVERT-1
+	%if CONVERT-1
 	DB	6
-	ENDIF
+	%endif
 
-	IF	CONVERT
+	%if CONVERT
 	DB	10
-	ENDIF
+	%endif
 
 	DB	0
 	DW	LSDRIVE
@@ -1795,7 +1795,7 @@ INITTAB:
 	DB	2
 	DW	SDDRIVE
 
-	IF	CONVERT
+	%if CONVERT
 	DB	3
 	DW	OLDLSDRIVE
 	DB	3
@@ -1804,10 +1804,10 @@ INITTAB:
 	DW	OLDLSDRIVE
 	DB	4
 	DW	OLDLDDRIVE
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 
-	IF	CROMEMCO16FDC*LARGE
+	%if CROMEMCO16FDC*LARGE
 ;
 ; A PerSci 277 or 299.
 ;
@@ -1815,13 +1815,13 @@ DRVTAB:	DB	31H,71H,32H,72H,31H,71H,32H,72H
 TRKPT:	DB	0,0,0,0,0,0,0,0
 TRKTAB:	DB	-1
 INITTAB:
-	IF	CONVERT-1
+	%if CONVERT-1
 	DB	4
-	ENDIF
+	%endif
 
-	IF	CONVERT
+	%if CONVERT
 	DB	8
-	ENDIF
+	%endif
 
 	DB	0
 	DW	LSDRIVE
@@ -1832,7 +1832,7 @@ INITTAB:
 	DB	1
 	DW	LDDRIVE
 
-	IF	CONVERT
+	%if CONVERT
 	DB	2
 	DW	OLDLSDRIVE
 	DB	2
@@ -1841,10 +1841,10 @@ INITTAB:
 	DW	OLDLSDRIVE
 	DB	3
 	DW	OLDLDDRIVE
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 
-	IF	SMALL+COMBIN
+	%if SMALL+COMBIN
 SSDRIVE:
 	DW	128		; Sector size in bytes.
 	DB	2		; Sector per allocation unit.
@@ -1853,7 +1853,7 @@ SSDRIVE:
 	DW	64		; Number of directory entrys.
 	DW	720		; Number of sectors on the disk.
 
-	IF	SMALLDS-1
+	%if SMALLDS-1
 SDDRIVE:			; This is the IBM Personal Computer
 	DW	512		; disk format.
 	DB	1
@@ -1861,9 +1861,9 @@ SDDRIVE:			; This is the IBM Personal Computer
 	DB	2
 	DW	64
 	DW	320
-	ENDIF
+	%endif
 
-	IF	SMALLDS
+	%if SMALLDS
 SDDRIVE:
 	DW	512
 	DB	2
@@ -1871,10 +1871,10 @@ SDDRIVE:
 	DB	2
 	DW	112
 	DW	640
-	ENDIF
-	ENDIF			; End of small drive DPTs.
+	%endif
+	%endif; End of small drive DPTs.
 
-	IF	COMBIN+LARGE
+	%if COMBIN+LARGE
 LSDRIVE:
 	DW	128		; Size of sector in bytes.
 	DB	4		; Sectors per allocation unit.
@@ -1883,7 +1883,7 @@ LSDRIVE:
 	DW	68		; Number of directory entrys.
 	DW	77*26		; Number of sectors on the disk.
 
-	IF	CONVERT
+	%if CONVERT
 OLDLSDRIVE:
 	DW	128
 	DB	4
@@ -1891,9 +1891,9 @@ OLDLSDRIVE:
 	DB	2
 	DW	64		; 64 directory entrys.
 	DW	77*26
-	ENDIF
+	%endif
 
-	IF	LARGEDS-1
+	%if LARGEDS-1
 OLDLDDRIVE:
 LDDRIVE:
 	DW	1024
@@ -1902,9 +1902,9 @@ LDDRIVE:
 	DB	2
 	DW	96
 	DW	77*8
-	ENDIF
+	%endif
 
-	IF	LARGEDS
+	%if LARGEDS
 LDDRIVE:
 	DW	1024
 	DB	1
@@ -1913,7 +1913,7 @@ LDDRIVE:
 	DW	192		; 192 directory entrys in new 8-inch DD/DS format.
 	DW	77*8*2
 
-	IF	CONVERT
+	%if CONVERT
 OLDLDDRIVE:
 	DW	1024
 	DB	1
@@ -1921,14 +1921,14 @@ OLDLDDRIVE:
 	DB	2
 	DW	128		; 128 directory entrys in old 8-inch DD/DS format.
 	DW	77*8*2
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 
-	ENDIF			; End of large drive DPTs.
+	%endif; End of large drive DPTs.
 
 DOSSEG:	EQU	($+15)/16+BIOSSEG	; Compute segment to use for 86-DOS.
 DOSDIF:	EQU	16*(DOSSEG-BIOSSEG)
 STKSAV:	EQU	1701H+DOSDIF
 DMAADD:	EQU	15B4H+DOSDIF
-	END
+	; END
 

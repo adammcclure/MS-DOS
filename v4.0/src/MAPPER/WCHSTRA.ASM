@@ -1,10 +1,10 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS VioWrtCharStrAtt mapper
+; title CP/DOS VioWrtCharStrAtt mapper
 ;
-vioxxx  segment byte public 'vio'
-        assume  cs:vioxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .vioxxx
+        ; assume  cs:vioxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -27,27 +27,27 @@ vioxxx  segment byte public 'vio'
 ; *
 ; *************************************************************************
 
-        public  viowrtcharstratt
-        .sall
-        .xlist
-        include macros.inc
-        .list
+        global viowrtcharstratt
+        ; .sall
+        ; .xlist
+        %include "macros.inc"
+        ; .list
 
 full_scr_err equ 0001h
 error_bvs_parameter     equ 0002h
 
-str     struc
-old_bp  dw      ?
-return  dd      ?
-handle  dw      ?       ; vio handle
-attr    dd      ?       ; attribute pointer
-column  dw      ?       ; column number
-row     dw      ?       ; starting position for output
-lngth   dw      ?       ; length of the string
-addr    dd      ?       ; string to be written (pointer)
-str     ends
+struc str
+old_bp: resw 1
+return: resd 1
+handle: resw 1; vio handle
+attr: resd 1; attribute pointer
+column: resw 1; column number
+row: resw 1; starting position for output
+lngth: resw 1; length of the string
+addr: resd 1; string to be written (pointer)
+endstruc
 
-viowrtcharstratt proc   far
+viowrtcharstratt:
         Enter   viowrtcharstratt         ; push registers
 
         sub     bh,bh
@@ -67,14 +67,14 @@ viowrtcharstratt proc   far
 
         popal
         lds     si,[bp].attr             ; Set up attribute in BL
-        mov     bl,byte ptr ds:[si]
+        mov     bl,byte [ds:si]
         lds     si,[bp].addr             ; DS:SI is pointer to string
         mov     di,[bp].lngth
                                          ;  ****************************
 ;       cmp     bl,15                    ;  ** assume good attribute! **
 ;       jg      error                    ;  ****************************
 
-top:    mov     al,byte ptr [si]
+top:    mov     al,byte [si]
         mov     ah,09h                   ; set write char/attrib function code
         mov     cx,1                     ; write only one character
         pushal                           ; Save registers in case int 10h
@@ -108,8 +108,8 @@ around: mov     ah,02h
 error:  mov     ax,error_bvs_parameter
 
 exit:   Mexit                            ; return
-        ret     size str - 6
+        ret     str_size - 6
 ;
-viowrtcharstratt endp
-vioxxx  ends
-        end
+; ENDP viowrtcharstratt
+; END SECTION .vioxxx
+        ; end

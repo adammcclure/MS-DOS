@@ -15,7 +15,7 @@
 ;;	 purpose of changing the ASCII-N string to an ASCII-Z string.
 ;;
 ;;****************************************************************************
-page					;AN000;
+; page;AN000;
 ;;************************************************************************
 ;;
 ;;   CLOSE_FILE: Close File
@@ -35,11 +35,11 @@ page					;AN000;
 ;;   IS RETURNED IN AX.
 ;;
 ;;**************************************************************************
-CLOSE_FILE   MACRO   HANDLE			 ;;AN000;
+%macro CLOSE_FILE 1;;AN000;
 						 ;;
     MOV  BX, HANDLE				 ;;AN000;
-    CALL FAR PTR CLOSE_FILE_ROUTINE		 ;;AN000;
-    ENDM					 ;;AN000;
+    CALL far CLOSE_FILE_ROUTINE		 ;;AN000;
+    %endmacro;;AN000;
 ;;**************************************************************
 ;;
 ;;   CREATE_FILE: Create new File
@@ -60,12 +60,12 @@ CLOSE_FILE   MACRO   HANDLE			 ;;AN000;
 ;;   IS RETURNED IN AX.
 ;;
 ;;**************************************************************************
-CREATE_FILE  MACRO   NAME_FILE, IMMED_ATTR, VAR_HANDLE ;;AN000;
+%macro CREATE_FILE 3;;AN000;
     LEA  DI, NAME_FILE				;;AN000;
     MOV  CX, IMMED_ATTR 			;;AN000;
     CALL CREATE_FILE_ROUTINE			;;AN000;
     MOV  VAR_HANDLE, AX 			;;AN000;
-    ENDM					;;AN000;
+    %endmacro;;AN000;
 ;;****************************************************************************
 ;;
 ;;   ERASE_FILE: Erase File
@@ -84,11 +84,11 @@ CREATE_FILE  MACRO   NAME_FILE, IMMED_ATTR, VAR_HANDLE ;;AN000;
 ;;   IS RETURNED IN AX.
 ;;
 ;;****************************************************************************
-ERASE_FILE   MACRO   FILE_NAME			;;AN000;
+%macro ERASE_FILE 1;;AN000;
 
     LEA  DI, FILE_NAME				;;AN000;
     CALL ERASE_FILE_ROUTINE			;;AN000;
-    ENDM					;;AN000;
+    %endmacro;;AN000;
 ;;****************************************************************************
 ;;
 ;;   CHMOD_FILE: Change file attributes to read/write
@@ -104,11 +104,11 @@ ERASE_FILE   MACRO   FILE_NAME			;;AN000;
 ;;	to read/write.
 ;;
 ;;****************************************************************************
-CHMOD_FILE   MACRO   FILE_NAME			;;AN000;
+%macro CHMOD_FILE 1;;AN000;
 
     LEA  DI, FILE_NAME				;;AN000;
     CALL CHMOD_FILE_ROUTINE			;;AN000;
-    ENDM					;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************
 ;;   FIND_FILE: Find File
 ;;
@@ -129,12 +129,12 @@ CHMOD_FILE   MACRO   FILE_NAME			;;AN000;
 ;;   IS RETURNED IN AX.
 ;;
 ;;************************************************************************
-FIND_FILE  MACRO   LOC_FILE,ATTRIBUTE		 ;;AN000;
+%macro FIND_FILE 2;;AN000;
 						 ;;
     LEA  DI, LOC_FILE				 ;;AN000;
     MOV  CX, ATTRIBUTE				 ;;AN000;
     CALL FIND_FILE_ROUTINE			 ;;AN000;
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;************************************************************************
 ;;   FIND_NEXT: Find the next match in the directory.
 ;;
@@ -154,13 +154,13 @@ FIND_FILE  MACRO   LOC_FILE,ATTRIBUTE		 ;;AN000;
 ;;
 ;;
 ;;************************************************************************
-FIND_NEXT  MACRO   LOC_FILE,ATTRIBUTE		;;AN000;
+%macro FIND_NEXT 2;;AN000;
 	CALL  HOOK_INT_24			;;AN000;
 	MOV	INT_24_ERROR, FALSE		;;AN000; Zero the number of critical errors
 	MOV	AH,4FH				;;AN000;
 	DOSCALL 				;;AN000;
 	CALL  RESTORE_INT_24			;;AN000;
-	ENDM					;;AN000;
+	%endmacro;;AN000;
 ;;**************************************************************************
 ;;
 ;;   OPEN_FILE - Open File
@@ -182,13 +182,13 @@ FIND_NEXT  MACRO   LOC_FILE,ATTRIBUTE		;;AN000;
 ;;   IS RETURNED IN AX.
 ;;
 ;;**************************************************************************
-OPEN_FILE   MACRO   FILE_NAME,MODE,HANDLE	;;AN000;
+%macro OPEN_FILE 3;;AN000;
 
     LEA  DI, FILE_NAME				;;AN000;
     MOV  AL, MODE				;;AN000;
     CALL OPEN_FILE_ROUTINE			;;AN000;
     MOV  HANDLE, AX				;;AN000;
-    ENDM					;;AN000;
+    %endmacro;;AN000;
 ;;**************************************************************************
 ;;
 ;;   RENAME_FILE - Rename File
@@ -209,12 +209,12 @@ OPEN_FILE   MACRO   FILE_NAME,MODE,HANDLE	;;AN000;
 ;;   IS RETURNED IN AX.
 ;;
 ;;**************************************************************************
-RENAME_FILE  MACRO   OLD_NAME,NEW_NAME		 ;;AN000;
+%macro RENAME_FILE 2;;AN000;
 						 ;;
     LEA  SI, OLD_NAME				 ;;AN000;
     LEA  DI, NEW_NAME				 ;;AN000;
     CALL RENAME_FILE_ROUTINE			 ;;AN000;
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;**************************************************************************
 ;;
 ;;   READ_FILE: Transfer the specified number of bytes from a file into a
@@ -238,13 +238,13 @@ RENAME_FILE  MACRO   OLD_NAME,NEW_NAME		 ;;AN000;
 ;;   AX WILL RETURN THE NUMBER BYTES ACTUALLY WRITTEN.
 ;;
 ;;************************************************************************
-READ_FILE    MACRO   VAR_HANDLE,BUFFER,IMMED_CHAR, VAR_CHAR ;;AN000;
+%macro READ_FILE 4;;AN000;
 
     MOV  BX,VAR_HANDLE				 ;;AN000;
-    MOV  DX,OFFSET BUFFER			 ;;AN000;
+    MOV  DX,BUFFER			 ;;AN000;
     MOV  CX,IMMED_CHAR				 ;;AN000;
     CALL READ_FILE_ROUTINE			 ;;AN000;
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;**************************************************************************
 ;;
 ;;   WRITE_FILE: Transfer the specified number of bytes from a buffer into a
@@ -268,13 +268,13 @@ READ_FILE    MACRO   VAR_HANDLE,BUFFER,IMMED_CHAR, VAR_CHAR ;;AN000;
 ;;   AX WILL RETURN THE NUMBER BYTES ACTUALLY WRITTEN.
 ;;
 ;;************************************************************************
-WRITE_FILE   MACRO   VAR_HANDLE, BUFFER, IMMED_CHAR, VAR_CHAR ;;AN000;
+%macro WRITE_FILE 4;;AN000;
 						 ;;
     MOV  BX,VAR_HANDLE				 ;;AN000;
-    MOV  DX,OFFSET BUFFER			 ;;AN000;
+    MOV  DX,BUFFER			 ;;AN000;
     MOV  CX,IMMED_CHAR				 ;;AN000;
     CALL WRITE_FILE_ROUTINE			 ;;AN000;
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;**************************************************************************
 ;;
 ;;   PREPARE_FILE:  Prepare a file and a buffer for the construction of that
@@ -295,11 +295,11 @@ WRITE_FILE   MACRO   VAR_HANDLE, BUFFER, IMMED_CHAR, VAR_CHAR ;;AN000;
 ;;	 of writes to the file.
 ;;
 ;;**************************************************************************
-PREPARE_FILE  MACRO	FILENAME		 ;;AN000;
+%macro PREPARE_FILE 1;;AN000;
 
-    MOV  BX, OFFSET FILENAME			 ;;AN000; Pass the address of the filename string
+    MOV  BX, FILENAME			 ;;AN000; Pass the address of the filename string
     CALL PREPARE_FILE_ROUTINE			 ;;AN000; Call a routine to do that actual work
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;**************************************************************************
 ;;
 ;;   WRITE_LINE:  Write a line to the file being constructed.
@@ -317,11 +317,11 @@ PREPARE_FILE  MACRO	FILENAME		 ;;AN000;
 ;;	 buffer is full, the data is written to the disk.
 ;;
 ;;**************************************************************************
-WRITE_LINE    MACRO	LINE			 ;;AN000;
+%macro WRITE_LINE 1;;AN000;
 
-    MOV  BX, OFFSET LINE			 ;;AN000; Pass the address of the line to write
+    MOV  BX, LINE			 ;;AN000; Pass the address of the line to write
     CALL WRITE_LINE_ROUTINE			 ;;AN000; Call a routine to do the actual work
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;**************************************************************************
 ;;
 ;;   SAVE_FILE:  Empty the data in the buffer being used to create the file
@@ -345,12 +345,12 @@ WRITE_LINE    MACRO	LINE			 ;;AN000;
 ;;	 and the error code will be returned in ERROR_CODE.
 ;;
 ;;**************************************************************************
-SAVE_FILE     MACRO	FILE_NAME, ERROR_CODE	 ;;AN000;
+%macro SAVE_FILE 2;;AN000;
 
-    MOV  BX, OFFSET FILE_NAME			 ;;AN000; Get the address of the file name string
+    MOV  BX, FILE_NAME			 ;;AN000; Get the address of the file name string
     CALL SAVE_FILE_ROUTINE			 ;;AN000; Call a subroutine to do the actual work
     MOV  ERROR_CODE, AX 			 ;;AN000; Store the returned error code
-    ENDM					 ;;AN000;
+    %endmacro;;AN000;
 ;;**************************************************************************
 ;;
 ;;   CHECK_DOS_VERSION: Check DOS Version level is 4.00
@@ -367,16 +367,16 @@ SAVE_FILE     MACRO	FILE_NAME, ERROR_CODE	 ;;AN000;
 ;;	 version number.  If the DOS version is not 4.00, the carry flag is set.
 ;;
 ;;**************************************************************************
-CHECK_DOS_VERSION   MACRO		;;AN000;
+%macro CHECK_DOS_VERSION 0;;AN000;
 	MOV	AH, 30H 		;;AN000; DOS function number to perform
 	DOSCALL 			;;AN000;
-	.IF < AL EQ MAJOR_VERSION > AND ;;AC047;SEH check is now made in VERSIONA.INC
-	.IF < AH EQ MINOR_VERSION >	;;AC047;SEH Check the DOS minor version
+	; .IF < AL EQ MAJOR_VERSION > AND;;AC047;SEH check is now made in VERSIONA.INC
+	; .IF < AH EQ MINOR_VERSION >;;AC047;SEH Check the DOS minor version
 	CLC				;;AN000; This is the correct version
-	.ELSE				;;AN000;
+	; .ELSE;;AN000;
 	STC				;;AN000; This is the incorrect version
-	.ENDIF				;;AN000;
-	ENDM				;;AN000;
+	; .ENDIF;;AN000;
+	%endmacro;;AN000;
 ;;**************************************************************************
 ;;
 ;;   SET_DISPLAY_MODE:	Set the display mode to 80 column.
@@ -393,10 +393,10 @@ CHECK_DOS_VERSION   MACRO		;;AN000;
 ;;	 the display to 80 column mode.
 ;;
 ;;************************************************************************
-SET_DISPLAY_MODE	MACRO		;;AN000;
+%macro SET_DISPLAY_MODE 0;;AN000;
 
     CALL SET_DISPLAY_MODE_ROUTINE	;;AN000;
-    ENDM				;;AN000;
+    %endmacro;;AN000;
 
 ;;************************************************************************
 ;;
@@ -427,11 +427,11 @@ SET_DISPLAY_MODE	MACRO		;;AN000;
 ;;	 All other models do not support expanded memory.
 ;;
 ;;************************************************************************
-CHECK_EXPANDED_MEMORY	MACRO	VAR_XMA, VAR_MOD80	;;AC000;JW
+%macro CHECK_EXPANDED_MEMORY 2;;AC000;JW
 
     CALL CHK_EX_MEM_ROUTINE				;;AN000;
     MOV  VAR_XMA, SI					;;AN000;
     MOV  VAR_MOD80,BX					;;AN000;JW
-    ENDM						;;AN000;
+    %endmacro;;AN000;
 
-INCLUDE  MACROS3.INC					;;AN000;
+%include "MACROS3.INC";;AN000;

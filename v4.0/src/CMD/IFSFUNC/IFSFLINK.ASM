@@ -1,22 +1,22 @@
-	PAGE	,132				; 
+	; PAGE	,132; 
 ;	SCCSID = @(#)ifsflink.asm 1.0 87/05/11
-TITLE	IFSFUNC LINK FIX ROUTINES - Routines to resolve ifsfunc externals
-NAME	IFSFLINK
+; TITLE	IFSFUNC LINK FIX ROUTINES - Routines to resolve ifsfunc externals
+; NAME	IFSFLINK
 
-.xlist
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+; .cref
+; .list
 
-CODE	SEGMENT BYTE PUBLIC 'CODE'
-code	ENDS
+SECTION .CODE
+; END SECTION .code
 
-include dosseg.asm
+%include "dosseg.asm"
 
-code	SEGMENT BYTE PUBLIC 'code'
-	ASSUME	CS:dosgroup
+SECTION .code
+	; ASSUME	CS:dosgroup
 
 	procedure OUTT,FAR
 	entry	$DUP
@@ -196,7 +196,7 @@ code	SEGMENT BYTE PUBLIC 'code'
 	NOP
 EndProc OUTT
 
-	code	ENDS
-    END
+	; END SECTION .code
+    ; END
 
 

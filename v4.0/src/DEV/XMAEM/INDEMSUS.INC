@@ -1,4 +1,4 @@
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                             *
 * MODULE NAME     : INDEMSUS                                                  *
@@ -38,10 +38,10 @@ COMMENT #
 ; Note that the messages are declared 80 bytes long to facilitate world trade translation.             D0A;
 ;---------------------------------------------------------------------------D0A;
                                                                         ;   D0A
-           PUBLIC  WELCOME                                              ;   D0A
-           PUBLIC  GOODLOAD                                             ;   D0A
-           PUBLIC  NO_80386                                             ;   D0A
-           PUBLIC  WAS_INST                                             ;   D0A
+           global WELCOME;   D0A
+           global GOODLOAD;   D0A
+           global NO_80386;   D0A
+           global WAS_INST;   D0A
                                                                         ;   D0A
 CR         EQU     13        ; ASCII for a carriage return              ;  @D0A
 LF         EQU     10        ; ASCII for a line feed                    ;  @D0A

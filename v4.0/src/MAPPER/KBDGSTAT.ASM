@@ -1,28 +1,28 @@
 ;0
-page 80,132
+; page 80,132
 ;
-title CP/DOS KbdGetStatus
+; title CP/DOS KbdGetStatus
 ;
-	.sall
-	.xlist
-	include kbd.inc
-	.list
+	; .sall
+	; .xlist
+	%include "kbd.inc"
+	; .list
 
-kbddata segment word public 'kbddata'
+SECTION .kbddata
 
-		public	KbdBitMask
+		global KbdBitMask
 KbdBitMask	dw	CookedModeOn or EchoOn
 
-		public	KbdTurnAroundCharacter
+		global KbdTurnAroundCharacter
 KbdTurnAroundCharacter	dw	0dh
 
-		public	KbdInterimCharFlags
+		global KbdInterimCharFlags
 KbdInterimCharFlags	dw	0
 
-kbddata ends
+; END SECTION .kbddata
 
-kbdxxx	segment byte public 'kbd'
-	assume	cs:kbdxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .kbdxxx
+	; assume	cs:kbdxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -33,16 +33,16 @@ kbdxxx	segment byte public 'kbd'
 ; *
 ; *************************************************************************
 
-	public kbdgetstatus
+	global kbdgetstatus
 
-str	struc
-old_bp	dw	?
-return	dd	?
-handle	dw	?      ; kbd handle
-data	dd	?      ; data area pointer
-str	ends
+struc str
+old_bp: resw 1
+return: resd 1
+handle: resw 1; kbd handle
+data: resd 1; data area pointer
+endstruc
 
-kbdgetstatus	proc	far
+kbdgetstatus:
 
 	Enter	KbdGetStatus		; push registers
 
@@ -50,27 +50,27 @@ kbdgetstatus	proc	far
 					; returned
 	mov	ax,seg kbddata
 	mov	ds,ax
-	assume	ds:kbddata
+	; assume	ds:kbddata
 
 	mov	ax,KbdBitMask			 ; save kbd bit mask in
-	mov	es:[di].Bit_Mask,ax		 ; return data area
+	mov	[es:di].Bit_Mask,ax		 ; return data area
 
 	mov	ax,KbdTurnAroundCharacter	 ; save turn around character
-	mov	es:[di].Turn_Around_Char,ax
+	mov	[es:di].Turn_Around_Char,ax
 
 	mov	ax,KbdInterimCharFlags		 ; save interim character flag
-	mov	es:[di].Interim_Char_Flags,ax
+	mov	[es:di].Interim_Char_Flags,ax
 
 	mov	ah,2
 	int	16h				 ; get kbd shift status
 
 	xor	ah,ah
-	mov	es:[di].Status_Shift_State,ax	 ; save it in return data
+	mov	[es:di].Status_Shift_State,ax	 ; save it in return data
 						 ; area
 	Mexit					 ; restore registers
 
-	ret	size str - 6			 ; return
+	ret	str_size - 6			 ; return
 
-kbdgetstatus	endp
-kbdxxx	ends
-	end
+; ENDP kbdgetstatus
+; END SECTION .kbdxxx
+	; end

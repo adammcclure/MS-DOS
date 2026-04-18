@@ -1,10 +1,10 @@
 
 
-PAGE 60,132							;AN000;
-NAME	SELECT							;AN000;
-TITLE	SELECT - DOS - SELECT.EXE				;AN000;
-SUBTTL	SELECT3.asm						;AN000;
-.ALPHA								;AN000;
+; PAGE 60,132;AN000;
+; NAME	SELECT;AN000;
+; TITLE	SELECT - DOS - SELECT.EXE;AN000;
+; SUBTTL	SELECT3.asm;AN000;
+; .ALPHA;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	SELECT3.ASM : Copyright 1988 Microsoft
@@ -33,45 +33,45 @@ SUBTTL	SELECT3.asm						;AN000;
 ;	;AN001;  GHG changes for 0 Parallel/Serial printer ports
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-DATA	SEGMENT BYTE PUBLIC 'DATA'                              ;AN000; Dummy DATA Seg
-	EXTRN	 SEG_LOC:WORD					;AN000;
-	EXTRN	 NAMES_OFF:WORD 				;AN000;
-	EXTRN	 N_PRN_NAMES:WORD				;AN000;
-	EXTRN	 MAX_NAME:WORD					;AN000;
-	EXTRN	 SIZE_NAMES:ABS 				;AN000;
-DATA	ENDS							;AN000;
+SECTION .DATA;AN000; Dummy DATA Seg
+	extern SEG_LOC;AN000;
+	extern NAMES_OFF;AN000;
+	extern N_PRN_NAMES;AN000;
+	extern MAX_NAME;AN000;
+	extern SIZE_NAMES;AN000;
+; END SECTION .DATA;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.XLIST								;AN000;
-	INCLUDE    PANEL.MAC					;AN000;
-	INCLUDE    SELECT.INC					;AN000;
-	INCLUDE    PAN-LIST.INC 				;AN000;
-	INCLUDE    CASTRUC.INC					;AN000;
-	INCLUDE    STRUC.INC					;AN000;
-	INCLUDE    MACROS.INC					;AN000;
-	INCLUDE    EXT.INC					;AN000;
-	INCLUDE    VARSTRUC.INC 				;AN000;
-	INCLUDE    ROUT_EXT.INC 				;AN000;
-.LIST								;AN000;
+; .XLIST;AN000;
+	%include "PANEL.MAC";AN000;
+	%include "SELECT.INC";AN000;
+	%include "PAN-LIST.INC";AN000;
+	%include "CASTRUC.INC";AN000;
+	%include "STRUC.INC";AN000;
+	%include "MACROS.INC";AN000;
+	%include "EXT.INC";AN000;
+	%include "VARSTRUC.INC";AN000;
+	%include "ROUT_EXT.INC";AN000;
+; .LIST;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	Continuation of code ...
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	SEGMENT PARA PUBLIC 'SELECT'                            ;AN000;
-	ASSUME	CS:SELECT,DS:DATA				;AN000;
+SECTION .SELECT;AN000;
+	; ASSUME	CS:SELECT,DS:DATA;AN000;
 								;
-	INCLUDE CASEXTRN.INC					;AN000;
+	%include "CASEXTRN.INC";AN000;
 								;
-	EXTRN	EXIT_SELECT:NEAR				;AN000;
-	EXTRN	INSTALL_ERROR:NEAR				;AN000;
-	EXTRN	PROCESS_ESC_F3:NEAR				;AN000;
-	EXTRN	DOS_PARAMETERS_SCREEN:NEAR			;AN000;
-	EXTRN	EXIT_DOS:NEAR					;AN000;
-	EXTRN	FIRST_DISK_SCREEN:NEAR				;AN000;
-	PUBLIC	choose_shell_screen	 			;AC020; SEH
+	extern EXIT_SELECT;AN000;
+	extern INSTALL_ERROR;AN000;
+	extern PROCESS_ESC_F3;AN000;
+	extern DOS_PARAMETERS_SCREEN;AN000;
+	extern EXIT_DOS;AN000;
+	extern FIRST_DISK_SCREEN;AN000;
+	global choose_shell_screen;AC020; SEH
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;  ������������������������������������Ŀ
@@ -88,7 +88,7 @@ SELECT	SEGMENT PARA PUBLIC 'SELECT'                            ;AN000;
 ;	by defining the symbol NOSHELL.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 choose_shell_screen:						;AN000;
-IFNDEF NOSHELL
+%ifndef NOSHELL
 	INIT_PQUEUE		PAN_choose_shell		;AN000; initialize queue
 	PREPARE_PANEL		PAN_HBAR			;AN000; prepare horizontal bar
 	PREPARE_CHILDREN					;AN000; prepare child panels
@@ -97,15 +97,15 @@ IFNDEF NOSHELL
 								;
 	GET_SCROLL		SCR_choose_shell, f_shell, FK_SCROLL ;AN000; get new shell option
 								;
-	.IF < N_USER_FUNC eq E_ENTER >				;AN000; if user entered ENTER key
+	; .IF < N_USER_FUNC eq E_ENTER >;AN000; if user entered ENTER key
 	.THEN							;AN000;
 	   COPY_WORD		f_shell, I_USER_INDEX		;AN000;    save new shell option
 	   PUSH_HEADING 	choose_shell_screen		;AN000;    save address on SELECT STACK
 	   GOTO 		REVIEW_SELECTION_SCREEN		;AN000;    goto the next screen (REVIEW_SELECTION)
-	.ELSE							;AN000;
+	; .ELSE;AN000;
 	   GOTO 		PROCESS_ESC_F3			;AN000; user entered ESC or F3, take action
-	.ENDIF							;AN000;
-ENDIF
+	; .ENDIF;AN000;
+%endif
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;  ������������������������������������Ŀ
@@ -126,14 +126,14 @@ REVIEW_SELECTION_SCREEN:					;AN000;
 								;
 	GET_SCROLL		SCR_REVIEW, F_REVIEW, FK_SCROLL ;AN000; get new review option
 								;
-	.IF < N_USER_FUNC eq E_ENTER >				;AN000; if user entered ENTER key
+	; .IF < N_USER_FUNC eq E_ENTER >;AN000; if user entered ENTER key
 	.THEN							;AN000;
 	   COPY_WORD		F_REVIEW, I_USER_INDEX		;AN000;    save new review option
 	   PUSH_HEADING 	REVIEW_SELECTION_SCREEN 	;AN000;    save address on SELECT STACK
 	   GOTO 		REVIEW_DISK_SCREEN		;AN000;    goto the next screen (REVIEW_FUNCTIONS)
-	.ELSE							;AN000;
+	; .ELSE;AN000;
 	   GOTO 		PROCESS_ESC_F3			;AN000; user entered ESC or F3, take action
-	.ENDIF							;AN000;
+	; .ENDIF;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;  ������������������������������������Ŀ
@@ -170,15 +170,15 @@ REVIEW_SELECTION_SCREEN:					;AN000;
 ;  instead.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 REVIEW_DISK_SCREEN:						;AN000;
-	.IF < F_REVIEW eq E_REVIEW_ACCEPT >			;AN000; if accept SELECT generated commands
+	; .IF < F_REVIEW eq E_REVIEW_ACCEPT >;AN000; if accept SELECT generated commands
 	.THEN							;AN000;
 	   GOTO 		FIRST_DISK_SCREEN		;AN000;    skip related screens
-	.ENDIF							;AN000;
+	; .ENDIF;AN000;
 								;
-	.IF < I_DEST_DRIVE ne E_DEST_DRIVE_C >			;AC000; if install to drive B: or A: JW
+	; .IF < I_DEST_DRIVE ne E_DEST_DRIVE_C >;AC000; if install to drive B: or A: JW
 	.THEN							;AN000;
 	   GOTO 		REVIEW_DISKETTE_SCREEN		;AN000;    goto disket functions screen
-	.ENDIF							;AN000;
+	; .ENDIF;AN000;
 								;
 	INIT_PQUEUE		PAN_FUNC_DISK			;AN000; initialize queue
 	PREPARE_PANEL		PAN_HBAR			;AN000; prepare horizontal bar
@@ -198,20 +198,20 @@ REVIEW_DISK_SCREEN:						;AN000;
 								;
 	INIT_VAR		I_USER_INDEX, 1 		;AN000; set counter = 1
 								;
-	.REPEAT 						;AN000; repeat code block
+	; .REPEAT;AN000; repeat code block
 								;
 	   GET_SCROLL		SCR_FUNC_DISK,I_USER_INDEX,FK_REVIEW  ;AN000; get new value
 								;
-	   .IF < N_USER_FUNC eq E_SPACE >			;AN000;    if user entered TAB
+	   ; .IF < N_USER_FUNC eq E_SPACE >;AN000;    if user entered TAB
 	   .THEN						;AN000;
 	      TOGGLE_SUPPORT	SUPPORT_STATUS, I_USER_INDEX	;AN000;       toggle support of parameter
-	   .ELSE						;AN000;    else
+	   ; .ELSE;AN000;    else
 	      .LEAVE						;AN000;        break from repeat loop
-	   .ENDIF						;AN000;
+	   ; .ENDIF;AN000;
 								;
-	.UNTIL							;AN000; end of repeat loop
+	; .UNTIL;AN000; end of repeat loop
 								;
-	.IF < N_USER_FUNC eq E_ENTER > near			;AN000; if user entered ENTER key
+	; .IF < N_USER_FUNC eq E_ENTER > near;AN000; if user entered ENTER key
 	.THEN							;AN000;    get revised values for
 	   RET_SUPPORT		SUPPORT_STATUS,E_CPSW_C, F_CPSW ;AN000;       cpsw support
 	   RET_SUPPORT		SUPPORT_STATUS, E_XMA_C, F_XMA	;AN000;       expanded memory support
@@ -224,9 +224,9 @@ REVIEW_DISK_SCREEN:						;AN000;
 	   RET_SUPPORT		SUPPORT_STATUS,E_VDISK_C,F_VDISK;AN000;      VDISK support
 	   PUSH_HEADING 	REVIEW_DISK_SCREEN		;AN000;    save screen address on SELECT STACK
 	   GOTO 		DOS_PARAMETERS_SCREEN		;AN000;    goto the next screen (DOS_PARAMETERS)
-	.ELSE							;AN000;
+	; .ELSE;AN000;
 	   GOTO 		PROCESS_ESC_F3			;AN000; user entered ESCAPE or F3, take action
-	.ENDIF							;AN000;
+	; .ENDIF;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;  ������������������������������������Ŀ
@@ -255,20 +255,20 @@ REVIEW_DISKETTE_SCREEN: 					;AN000;
 								;
 	INIT_VAR		I_USER_INDEX, 1 		;AN000; set counter = 1
 								;
-	.REPEAT 						;AN000; repeat code block
+	; .REPEAT;AN000; repeat code block
 								;
 	   GET_SCROLL		SCR_FUNC_DISKET,I_USER_INDEX,FK_REVIEW;AN000; get new value
 								;
-	   .IF < N_USER_FUNC eq E_SPACE >			;AN000;    if user entered TAB
+	   ; .IF < N_USER_FUNC eq E_SPACE >;AN000;    if user entered TAB
 	   .THEN						;AN000;
 	      TOGGLE_SUPPORT	SUPPORT_STATUS, I_USER_INDEX	;AN000;       toggle support of parameter
-	   .ELSE						;AN000;
+	   ; .ELSE;AN000;
 	      .LEAVE						;AN000;    else
-	   .ENDIF						;AN000;        break from loop
+	   ; .ENDIF;AN000;        break from loop
 								;
-	.UNTIL							;AN000; end of repeat block
+	; .UNTIL;AN000; end of repeat block
 								;
-	.IF < N_USER_FUNC eq E_ENTER > near			;AN000; if user entered ENTER key
+	; .IF < N_USER_FUNC eq E_ENTER > near;AN000; if user entered ENTER key
 	.THEN							;AN000;    get revised values
 	   RET_SUPPORT		SUPPORT_STATUS,E_CPSW_B, F_CPSW ;AN000;       cpsw support
 	   RET_SUPPORT		SUPPORT_STATUS,E_ANSI_B, F_ANSI ;AN000;       ANSI.SYS support
@@ -278,9 +278,9 @@ REVIEW_DISKETTE_SCREEN: 					;AN000;
 	   RET_SUPPORT		SUPPORT_STATUS,E_VDISK_B,F_VDISK;AN000;      VDISK support
 	   PUSH_HEADING 	REVIEW_DISKETTE_SCREEN		;AN000; save screen address onto SELECT STACK
 	   GOTO 		DOS_PARAMETERS_SCREEN		;AN000; goto the next screen (DOS_PARAMETERS)
-	.ELSE							;AN000;
+	; .ELSE;AN000;
 	   GOTO 		PROCESS_ESC_F3			;AN000; user entered ESC or E3, take action
-	.ENDIF							;AN000;
+	; .ENDIF;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS							;AN000;
-	END							;AN000;
+; END SECTION .SELECT;AN000;
+	; END;AN000;

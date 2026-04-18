@@ -1,5 +1,5 @@
-PAGE	,132
-TITLE	DOS - CON Code Page Switching Device Driver (INIT)
+; PAGE	,132
+; TITLE	DOS - CON Code Page Switching Device Driver (INIT)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;  FILENAME:	 INIT.ASM
@@ -29,12 +29,12 @@ TITLE	DOS - CON Code Page Switching Device Driver (INIT)
 ;******************************************************************************
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IF1					;
-	%OUT .COMPILING:     INIT.ASM
-	%OUT .		     ô INSTALL CPS-CON DRIVER
-	%OUT .		     õ VERSION 3.30
-	%OUT .INCLUDE FILES:
-ENDIF					;
+%if 1  ; IF1 - pass-specific;
+	%warning .COMPILING:     INIT.ASM
+	%warning .		     Ã´ INSTALL CPS-CON DRIVER
+	%warning .		     Ãµ VERSION 3.30
+	%warning .INCLUDE FILES:
+%endif;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	REFERENCES
@@ -44,58 +44,58 @@ ENDIF					;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;
-.XLIST					;
-INCLUDE SYSMSG.INC			; WGR				       ;AN000;
+; .XLIST;
+%include "SYSMSG.INC"; WGR				       ;AN000;
 MSG_UTILNAME <DISPLAY>			; WGR				       ;AN000;
-.LIST					;
+; .LIST;
 					;
 					;
-CODE	SEGMENT PUBLIC BYTE 'CODE'      ;
-	ASSUME	CS:CODE,DS:CODE 	;
-	PUBLIC	INIT			;
+SECTION .CODE;
+	; ASSUME	CS:CODE,DS:CODE;
+	global INIT;
 					;
-	EXTRN	ROM_INT_2F:WORD 	;
-	EXTRN	ROM_INT_10:WORD 	;
-	EXTRN	ROM_INT_1F:WORD 	;
-	EXTRN	OLD_INT_1F:WORD 	;
-	EXTRN	ROM_INT_44:WORD 	;
-	EXTRN	INT_2F_COM:NEAR 	;
-	EXTRN	INT_10_COM:NEAR 	;
-	EXTRN	EOF_MARKER:BYTE 	;
-	EXTRN	ABORT:BYTE		;
-	EXTRN	CPD_ACTIVE:WORD 	;
-	EXTRN	CPD_CLASS:BYTE		;
-	EXTRN	CPD_HDWR_N_MAX:ABS	;
-	EXTRN	CPD_DESG_N_MAX:ABS	;
-	EXTRN	CPD_HDWR_N:WORD 	;
-	EXTRN	CPD_DESG_N:WORD 	;
-	EXTRN	CPD_FONTS_N:WORD	;
-	EXTRN	IRPT_2:NEAR		;
-	EXTRN	IRPT_CMD_EXIT:NEAR	;
-	EXTRN	FONT_SIZE:BYTE		;
-	EXTRN	LOAD_MECH:BYTE		;
-	EXTRN	CPD_FONT_PNTER:WORD	;
-	EXTRN	PARSER:NEAR		;
-	EXTRN	GET_DEVICE_ID:NEAR	;
-	EXTRN	TABLE:BYTE		;
-	EXTRN	ASK_BIOS_FONT_SIZE:NEAR ;
-	EXTRN	ASK_BIOS_SCAN_LINES:NEAR;
-	EXTRN	REDUCED_SUPPORT:ABS	;
-	EXTRN	DEV_HDR:WORD		;
-	EXTRN	MODE_VALUE:BYTE 	;
+	extern ROM_INT_2F;
+	extern ROM_INT_10;
+	extern ROM_INT_1F;
+	extern OLD_INT_1F;
+	extern ROM_INT_44;
+	extern INT_2F_COM;
+	extern INT_10_COM;
+	extern EOF_MARKER;
+	extern ABORT;
+	extern CPD_ACTIVE;
+	extern CPD_CLASS;
+	extern CPD_HDWR_N_MAX;
+	extern CPD_DESG_N_MAX;
+	extern CPD_HDWR_N;
+	extern CPD_DESG_N;
+	extern CPD_FONTS_N;
+	extern IRPT_2;
+	extern IRPT_CMD_EXIT;
+	extern FONT_SIZE;
+	extern LOAD_MECH;
+	extern CPD_FONT_PNTER;
+	extern PARSER;
+	extern GET_DEVICE_ID;
+	extern TABLE;
+	extern ASK_BIOS_FONT_SIZE;
+	extern ASK_BIOS_SCAN_LINES;
+	extern REDUCED_SUPPORT;
+	extern DEV_HDR;
+	extern MODE_VALUE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	LOCAL VARIABLES
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-HANDLE_ROUTINES LABEL WORD		; INDEX TABLE OF 'FUNCTIONS' TO
-	DW OFFSET HANDLE_DEVICE_NAME	; OPERATE ON THE COMMAND_LINE
-	DW OFFSET HANDLE_DEVICE_ID	;
-	DW OFFSET HANDLE_HDWR_CP	;
-	DW OFFSET HANDLE_DESG_CP	;
+HANDLE_ROUTINES:; INDEX TABLE OF 'FUNCTIONS' TO
+	DW HANDLE_DEVICE_NAME	; OPERATE ON THE COMMAND_LINE
+	DW HANDLE_DEVICE_ID	;
+	DW HANDLE_HDWR_CP	;
+	DW HANDLE_DESG_CP	;
 LEN_HANDLE_ROUTINES EQU ($-HANDLE_ROUTINES)/2
 					;
-RESIDENT_END  DW   OFFSET EOF_MARKER	; POINTER TO SEG:OFFSET OF CODE END!
+RESIDENT_END  DW   EOF_MARKER	; POINTER TO SEG:OFFSET OF CODE END!
 RESIDENT_ENDS DW   SEG CODE		;
 					;
 DEVICE_ID_INDEX DW	0		; INDEX VALUE FOR DEVICE SUB-TYPE
@@ -104,9 +104,9 @@ DEVICE_ID_INDEX DW	0		; INDEX VALUE FOR DEVICE SUB-TYPE
 ;	INCLUDE FILES
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	INCLUDE MACROS.INC		; GENERAL PURPOSE 'MACROs'
-	INCLUDE DEF-EQU.INC		; CPS DRIVER STRUCTURES AND EQUATES
-	INCLUDE TABLES.INC		; DEVICE SUB-TYPE CONFIGURATION TABLES
+	%include "MACROS.INC"; GENERAL PURPOSE 'MACROs'
+	%include "DEF-EQU.INC"; CPS DRIVER STRUCTURES AND EQUATES
+	%include "TABLES.INC"; DEVICE SUB-TYPE CONFIGURATION TABLES
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	INITIALIZATION ROUTINE
@@ -117,7 +117,7 @@ DEVICE_ID_INDEX DW	0		; INDEX VALUE FOR DEVICE SUB-TYPE
 ;	in the sky!
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INIT	PROC				;
+INIT:;
 	PUSH	DS			;
 					;
 	PUSH	CS			;
@@ -133,11 +133,11 @@ INIT_00:				; WGR				       ;AN000;
 	POP	BX			; WGR				       ;AN000;
 	MOV	RESIDENT_ENDS,CS	; SET INITIAL RESIDENT END SEGMENT
 					;
-	LES	DI,DWORD PTR BUF.RH_PTRO; GET RH
+	LES	DI,dword BUF.RH_PTRO; GET RH
 	CALL	PARSER			;
 	JC	INIT_1A 		;
 					;
-	MOV	SI,OFFSET TABLE 	; ADDRESS [ TABLE 1 ]
+	MOV	SI,TABLE 	; ADDRESS [ TABLE 1 ]
 	MOV	CX,[SI].NUM_DEVICES	; CHECK THE NUMBER OF DEVICES SPECIFIED
 	CMP	CX,ONE			; IF <> 1, THEN WE HAVE A PROBLEM...
 	JNE	INIT_1A 		; ERROR
@@ -145,7 +145,7 @@ INIT_00:				; WGR				       ;AN000;
 	MOV	CX,[SI].NUM_ITEMS	;
 	LEA	DI,HANDLE_ROUTINES	;
 					;
-INIT_0: CALL	CS:[DI] 		; CALL ROUTINE WITH '[SI].OFFSET_LIST'
+INIT_0: CALL	[CS:DI] 		; CALL ROUTINE WITH '[SI].OFFSET_LIST'
 					;
 	JC	INIT_1			; ERROR IN ROUTINE (COMMAND_LINE)
 	INC	SI			; ADVANCE POINTERS FOR CALL AND
@@ -175,7 +175,7 @@ INIT_1A:				;
 	POP	AX			; WGR				       ;AN000;
 					;
 INIT_1: XOR	AX,AX			; CLEAR ERROR CODE TO BE RETURNED
-	LES	DI,DWORD PTR BUF.RH_PTRO; GET RH
+	LES	DI,dword BUF.RH_PTRO; GET RH
 	MOV	RH.RH0_ENDO,AX		; OFFSET = 0
 	MOV	RH.RH0_ENDS,CS		;
 	MOV	RH.RH0_UNIT,AL		; SET 0 UNITS....
@@ -192,8 +192,8 @@ INIT_1C:				;
 	PUSH	DI			; 'DETACH' THE LINK LIST TO THE
 	MOV	AX,-1			; NEXT DEVICE NAME....THIS MAY not
 	LEA	DI,DEV_HDR		; NEED TO BE RESET FOR INIT ERROR....
-	MOV	CS:[DI],AX		;
-	MOV	CS:[DI+2],AX		;
+	MOV	[CS:DI],AX		;
+	MOV	[CS:DI+2],AX		;
 	POP	DI			;
 	STC				; SET CY TO INDICATE FNC DONE
 	POP	DS			;
@@ -210,19 +210,19 @@ INIT_1C:				;
 INIT_2: PUSH	ES			;
 	XOR	AX,AX			; SET ES TO INTERRUPT REGION
 	MOV	ES,AX			;
-	MOV	AX,ES:WORD PTR INT_2F_LOW;GET OFFSET VALUE OF INT 2F hex
+	MOV	AX,ES:word INT_2F_LOW;GET OFFSET VALUE OF INT 2F hex
 	MOV	CS:ROM_INT_2F,AX	;		&
-	MOV	CX,ES:WORD PTR INT_2F_HI;   ALSO THE SEGMENT VALUE
+	MOV	CX,ES:word INT_2F_HI;   ALSO THE SEGMENT VALUE
 	MOV	CS:ROM_INT_2F+2,CX	;
 	OR	AX,CX			; IS INT 2F hex = 0 ?
 	JNE	INIT_6			;
-	MOV	AX,OFFSET ABORT 	; YES:	USE IRET AS THE LOWER CODE
+	MOV	AX,ABORT 	; YES:	USE IRET AS THE LOWER CODE
 	MOV	CS:ROM_INT_2F,AX	;	REFER TO ABORT LABEL FOR IRET!
 	MOV	AX,CS			;
 	MOV	CS:ROM_INT_2F+2,AX	;
 INIT_6: CLI				; NEXT CHANGE THE ACTIVE INT 2F hex
-	MOV	ES:WORD PTR INT_2F_LOW,OFFSET INT_2F_COM;
-	MOV	ES:WORD PTR INT_2F_HI,CS; TO THE NEWLY LOADED CODE (INT2FCOM)
+	MOV	ES:word INT_2F_LOW,INT_2F_COM;
+	MOV	ES:word INT_2F_HI,CS; TO THE NEWLY LOADED CODE (INT2FCOM)
 	STI				; (with interrupts off, of course)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -234,16 +234,16 @@ INIT_6: CLI				; NEXT CHANGE THE ACTIVE INT 2F hex
 ;	VECTOR.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	MOV	CX,ES:WORD PTR INT_1F_LOW; GET OFFSET OF INTERRUPT 1FH
+	MOV	CX,ES:word INT_1F_LOW; GET OFFSET OF INTERRUPT 1FH
 	MOV	CS:ROM_INT_1F,CX	;	    &
 	MOV	CS:OLD_INT_1F,CX	;
-	MOV	CX,ES:WORD PTR INT_1F_HI; SEGMENT OF INTERRUPT 1FH
+	MOV	CX,ES:word INT_1F_HI; SEGMENT OF INTERRUPT 1FH
 	MOV	CS:ROM_INT_1F+2,CX	;
 	MOV	CS:OLD_INT_1F+2,CX	;
 					;
-	MOV	CX,ES:WORD PTR INT_44_LOW; GET OFFSET OF INTERRUPT 44H
+	MOV	CX,ES:word INT_44_LOW; GET OFFSET OF INTERRUPT 44H
 	MOV	CS:ROM_INT_44,CX	;	    &
-	MOV	CX,ES:WORD PTR INT_44_HI; SEGMENT OF INTERRUPT 44H
+	MOV	CX,ES:word INT_44_HI; SEGMENT OF INTERRUPT 44H
 	MOV	CS:ROM_INT_44+2,CX	;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -254,13 +254,13 @@ INIT_6: CLI				; NEXT CHANGE THE ACTIVE INT 2F hex
 ;	CODE PAGE IS LOADED EVERYTIME A MODE_SET OCCURS!
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	MOV	CX,ES:WORD PTR INT_10_LOW; GET OFFSET OF INT 10H
+	MOV	CX,ES:word INT_10_LOW; GET OFFSET OF INT 10H
 	MOV	CS:ROM_INT_10,CX	;	   &
-	MOV	CX,ES:WORD PTR INT_10_HI;  SEGMENT OF INT 10H
+	MOV	CX,ES:word INT_10_HI;  SEGMENT OF INT 10H
 	MOV	CS:ROM_INT_10+2,CX	;
 	CLI				; INSTALL THE NEW INT 10H CODE
-	MOV	ES:WORD PTR INT_10_LOW,OFFSET INT_10_COM;
-	MOV	ES:WORD PTR INT_10_HI,CS;
+	MOV	ES:word INT_10_LOW,INT_10_COM;
+	MOV	ES:word INT_10_HI,CS;
 	STI				; (with interrupts off, of course)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -272,7 +272,7 @@ INIT_6: CLI				; NEXT CHANGE THE ACTIVE INT 2F hex
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	POP	ES			; RESTORE THE ES REGISTER
-	LES	DI,DWORD PTR BUF.RH_PTRO; GET REQUEST HEADER ADDRESS
+	LES	DI,dword BUF.RH_PTRO; GET REQUEST HEADER ADDRESS
 	MOV	AX,RESIDENT_END 	; GET OFFSET OF RESIDENT END
 	MOV	RH.RH0_ENDO,AX		;
 INIT_7: MOV	AX,RESIDENT_ENDS	; GET SEGMENT OF RESIDENT END
@@ -280,7 +280,7 @@ INIT_7: MOV	AX,RESIDENT_ENDS	; GET SEGMENT OF RESIDENT END
 	STC				; CY = 1, CALL FULLY SERVICED = ON
 	POP	DS			;
 	RET				;
-INIT	ENDP				;
+; ENDP INIT;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	DEVICE NAME PARSING IS LIMITED ONLY TO 1 DEVICE NAME
@@ -290,7 +290,7 @@ DEVICE_NAMES	DB	"CON     "      ; ONLY ONE VALID NAME FOR DEVICE...
 L_DEVICE_NAMES	EQU ($-DEVICE_NAMES)	;
 N_DEVICE_NAMES	EQU ($-DEVICE_NAMES)/L_DEVICE_NAMES
 					;
-HANDLE_DEVICE_NAME PROC 		; [ TABLE 3 ]
+HANDLE_DEVICE_NAME:; [ TABLE 3 ]
 	PUSH	CX			;
 	PUSH	SI			;
 					;
@@ -323,7 +323,7 @@ H_DN_0: POP	SI			;
 					;
 	STC				; TELL CALLER ABOUT ERROR!
 	RET				;
-HANDLE_DEVICE_NAME ENDP 		;
+; ENDP HANDLE_DEVICE_NAME;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	THIS ROUTINE IS USED TO VERIFY THE ADAPTER 'NAME' AGAINST
@@ -342,7 +342,7 @@ L_ID_NAMES	EQU ($-ID_NAMES)	;
 		DB	"CGA     "      ;
 N_ID_NAMES	EQU ($-ID_NAMES)/L_ID_NAMES
 					;
-HANDLE_DEVICE_ID   PROC 		; [ TABLE 4 ]
+HANDLE_DEVICE_ID:; [ TABLE 4 ]
 	PUSH	DI			;
 	PUSH	CX			;
 	PUSH	SI			;
@@ -404,7 +404,7 @@ HDID_6: 				; WGR				       ;AN000;
 	POP	CX			;
 	POP	DI			;
 	RET				;
-HANDLE_DEVICE_ID   ENDP 		;
+; ENDP HANDLE_DEVICE_ID;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	THIS ROUTINE CHECKS THE HARDWARE CP VALUE (if specified)!
@@ -418,7 +418,7 @@ HANDLE_DEVICE_ID   ENDP 		;
 ;	ENDIF
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-HANDLE_HDWR_CP	   PROC 		; [ TABLE 5 ]
+HANDLE_HDWR_CP:; [ TABLE 5 ]
 	PUSH	CX			;
 	PUSH	SI			;
 	MOV	SI,[SI].OFFSET_LIST	;
@@ -463,7 +463,7 @@ H_HC_0: POP	SI			;
 	POP	SI			;
 	STC				;
 	RET				;
-HANDLE_HDWR_CP	   ENDP 		;
+; ENDP HANDLE_HDWR_CP;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	THIS ROUTINE CHECKS THE LAST PARAMETER IN THE COMMAND LINE
@@ -487,7 +487,7 @@ HANDLE_HDWR_CP	   ENDP 		;
 ;		   #FONT = 0 (maximum)	#FONT = 0 (maximum)  #FONT = m
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-HANDLE_DESG_CP	   PROC 		; [ TABLE 6 ]
+HANDLE_DESG_CP:; [ TABLE 6 ]
 	PUSH	AX			;
 	PUSH	CX			;
 	PUSH	DX			;
@@ -529,7 +529,7 @@ H_DC_5: POP	SI			;
 	POP	AX			; WGR				       ;AN000;
 	STC				;
 	RET				;
-HANDLE_DESG_CP	   ENDP 		;
+; ENDP HANDLE_DESG_CP;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	INSTALL_ID
@@ -541,12 +541,12 @@ HANDLE_DESG_CP	   ENDP 		;
 ;		DEVICE_ID_INDEX = INDEX TO LIST OF SUPPORTED DEVICES
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INSTALL_ID	   PROC 		; ROUTINE TO INSTALL INFO FOR DEVICE
+INSTALL_ID:; ROUTINE TO INSTALL INFO FOR DEVICE
 	CALL	INSTALL_TABLE		;
 	JNC	INSI_3			;
 					;
 	PUSH	SI			;
-	MOV	SI,OFFSET TABLE 	; ADDRESS [ TABLE 1 ]
+	MOV	SI,TABLE 	; ADDRESS [ TABLE 1 ]
 	MOV	SI,[SI].DEVICE1_OFFSET	; MOVE FROM [ TABLE 1 ] TO [ TABLE 2 ]
 ;	INC	SI			;
 ;	INC	SI			;
@@ -554,13 +554,13 @@ INSTALL_ID	   PROC 		; ROUTINE TO INSTALL INFO FOR DEVICE
 	POP	SI			;
 	STC				;
 INSI_3: RET				;
-INSTALL_ID	   ENDP 		;
+; ENDP INSTALL_ID;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INSTALL_TABLE	PROC			;
+INSTALL_TABLE:;
 	PUSH	AX			;
 	PUSH	CX			;
 	PUSH	DX			;
@@ -606,7 +606,7 @@ IT_5:	POP	ES			;
 	POP	CX			;
 	POP	AX			;
 	RET				;
-INSTALL_TABLE	ENDP			;
+; ENDP INSTALL_TABLE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	INSTALL MEMORY
@@ -618,7 +618,7 @@ INSTALL_TABLE	ENDP			;
 ;		CALCULATION OF RESIDENT_END VALUE
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-MEMORY_SIZE_INDEX LABEL WORD		; THIS CORRESPONDS TO THE MEM RQMENTS
+MEMORY_SIZE_INDEX:; THIS CORRESPONDS TO THE MEM RQMENTS
 	DW	0,0,0,0 		;
 	DW     19*256+6 		;
 	DW     16*256+6 		;
@@ -626,7 +626,7 @@ MEMORY_SIZE_INDEX LABEL WORD		; THIS CORRESPONDS TO THE MEM RQMENTS
 	DW	8*256+6 		; BYTE IN 'TABLES.SRC'.
 NUM_MEMORY_SIZE EQU ($-MEMORY_SIZE_INDEX)/2
 					;
-INSTALL_MEMORY	PROC			;
+INSTALL_MEMORY:;
 	PUSH	AX			;
 	PUSH	BX			;
 	PUSH	CX			;
@@ -732,7 +732,7 @@ IM_A:	POP	ES			;
 	POP	BX			;
 	POP	AX			;
 	RET				;
-INSTALL_MEMORY	ENDP			;
+; ENDP INSTALL_MEMORY;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	     ; WGR
 ;						     ; WGR
 ;	ISSUE MESSAGE				     ; WGR
@@ -748,7 +748,7 @@ INSTALL_MEMORY	ENDP			;
 ;		none				     ; WGR
 ;						     ; WGR
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;	     ; WGR
-ISSUE_MESSAGE	   PROC 		;	     ; WGR		       ;AN000;
+ISSUE_MESSAGE:;	     ; WGR		       ;AN000;
 	PUSH	DS			; WGR				       ;AN000;
 	PUSH	BX			; WGR				       ;AN000;
 	PUSH	CX			; WGR				       ;AN000;
@@ -762,7 +762,7 @@ ISSUE_MESSAGE	   PROC 		;	     ; WGR		       ;AN000;
 	POP	BX			; WGR				       ;AN000;
 	POP	DS			; WGR				       ;AN000;
 	RET				; WGR				       ;AN000;
-ISSUE_MESSAGE	   ENDP 		;
+; ENDP ISSUE_MESSAGE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	ISSUE_ERROR_1
@@ -781,10 +781,10 @@ SUB_SIZE	EQU	11		; WGR sublist size		       ;AN000;
 LEFT_ASCIIZ	EQU	00010000B	; WGR left-aligned asciiz string       ;AN000;
 UNLIMITED	EQU	0		; WGR unlimited message size.	       ;AN000;
 					; WGR				       ;AN000;
-SUBLIST LABEL	DWORD			; WGR				       ;AN000;
+SUBLIST:; WGR				       ;AN000;
 	DB	SUB_SIZE		; WGR				       ;AN000;
 	DB	0			; WGR				       ;AN000;
-MSG_PTR DW	?			; WGR				       ;AN000;
+MSG_PTR: dw 0; WGR				       ;AN000;
 MSG_SEG DW	SEG CODE		; WGR				       ;AN000;
 	DB	1			; WGR				       ;AN000;
 	DB	LEFT_ASCIIZ		; WGR				       ;AN000;
@@ -792,7 +792,7 @@ MSG_SEG DW	SEG CODE		; WGR				       ;AN000;
 	DB	1			; WGR				       ;AN000;
 	DB	" "                     ; WGR                                  ;AN000;
 					;
-ISSUE_ERROR_1	PROC			;
+ISSUE_ERROR_1:;
 	PUSH	AX			;
 	PUSH	BX			; WGR				       ;AN000;
 	PUSH	CX			;
@@ -832,7 +832,7 @@ IN_3:	MOV	AL,ZERO 		; SET  0  TO TERMINATE ASCII STRING
 	POP	BX			; WGR				       ;AN000;
 	POP	AX			;
 	RET				;
-ISSUE_ERROR_1	ENDP			;
+; ENDP ISSUE_ERROR_1;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	MODIFY_ID_NAME
@@ -852,7 +852,7 @@ NUM_NEW_NAME	EQU ($-NEW_NAME)/L_ID_NAMES
 					;
 NOT_CPS_ID	DB	OFF		; WGR device id does not support CPS   ;AN000;
 					;
-MODIFY_ID_NAME	PROC			;
+MODIFY_ID_NAME:;
 	PUSH	DI			;
 	PUSH	AX			;
 	PUSH	BX			;
@@ -860,7 +860,7 @@ MODIFY_ID_NAME	PROC			;
 	PUSH	SI			;
 					;
 	MOV	SI,[SI].OFFSET_LIST	; GET START OF ID_NAME
-	CMP	WORD PTR [SI],EIGHT	; WGR				       ;AN000;
+	CMP	word [SI],EIGHT	; WGR				       ;AN000;
 	JE	MIN_00			; WGR				       ;AN000;
 	CALL	GET_DEVICE_ID		; WGR				       ;AN000;
 	JNC	MIN_00			; WGR CPS id?...yes continue	       ;AN000;
@@ -943,23 +943,23 @@ MIN_5:	POP	SI			; IF NOT FOUND, THEN ERROR...
 	POP	AX			;
 	POP	DI			;
 	RET				;
-MODIFY_ID_NAME	ENDP			;
+; ENDP MODIFY_ID_NAME;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.XLIST
+; .XLIST
 MSG_SERVICES <MSGDATA>			; WGR				       ;AN000;
 MSG_SERVICES <DISPLAYmsg,LOADmsg,CHARmsg> ; WGR 			       ;AN000;
 MSG_SERVICES <DISPLAY.CL1>		; WGR				       ;AN000;
 MSG_SERVICES <DISPLAY.CL2>		; WGR				       ;AN000;
 MSG_SERVICES <DISPLAY.CLA>		; WGR				       ;AN000;
-.LIST					;
+; .LIST;
 					;
-include msgdcl.inc			;
+%include "msgdcl.inc";
 					;
-CODE	ENDS				;
-	END				;
+; END SECTION .CODE;
+	; END;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

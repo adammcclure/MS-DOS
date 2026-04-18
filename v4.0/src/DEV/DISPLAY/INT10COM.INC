@@ -37,34 +37,34 @@
 ;		 (C)Copyright 1988 Microsoft
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IF1					;
-	%OUT .		     �INT10COM.INC�
-ENDIF
+%if 1  ; IF1 - pass-specific;
+	%warning .		     �INT10COM.INC�
+%endif
 
 ;Modification history *********************************************************
 ;AN001; P1497 Cursor disappearance problem after codepage switch    10/9/87 J.K.
 ;******************************************************************************
-	PUBLIC	MODE_VALUE		;
-	PUBLIC	ROM_INT_10		;
-	PUBLIC	ROM_INT_1F		;
-	PUBLIC	OLD_INT_1F		;
-	PUBLIC	ROM_INT_44		;
-	PUBLIC	INT_10_COM		;
-	PUBLIC	ASK_BIOS_FONT_SIZE	;
-	PUBLIC	ASK_BIOS_SCAN_LINES	;
+	global MODE_VALUE;
+	global ROM_INT_10;
+	global ROM_INT_1F;
+	global OLD_INT_1F;
+	global ROM_INT_44;
+	global INT_10_COM;
+	global ASK_BIOS_FONT_SIZE;
+	global ASK_BIOS_SCAN_LINES;
 					;
-ROM_INT_10	 DW   ? 		; Int 10H vector offset
-		 DW   ? 		; Int 10H vector segment
-ROM_INT_1F	 DW   ? 		; Int 1FH vector offset
-		 DW   ? 		; Int 1FH vector segment
-OLD_INT_1F	 DW   ? 		; OLD Int 1FH vector offset
-		 DW   ? 		; OLD Int 1FH vector segment
-ROM_INT_44	 DW   ? 		; Int 44H vector offset
-		 DW   ? 		; Int 44H vector segment
-MODE_VALUE	 DB   ? 		; VALUE OF AL DURING INT 10H (AH=0)
-BYTES_PER_CHAR	 DB   ? 		; VALUE OF BYTES/CHARACTER IN MODES
-LOAD_MECHANISM	 DB   ? 		; SUPPORT SCHEME FOR ACTIVE MODE
-CHARACTER_SOURCE DB   ? 		; FLAG TO INDICATE: 0 = HDWR
+ROM_INT_10: dw 0; Int 10H vector offset
+		 dw 0; Int 10H vector segment
+ROM_INT_1F: dw 0; Int 1FH vector offset
+		 dw 0; Int 1FH vector segment
+OLD_INT_1F: dw 0; OLD Int 1FH vector offset
+		 dw 0; OLD Int 1FH vector segment
+ROM_INT_44: dw 0; Int 44H vector offset
+		 dw 0; Int 44H vector segment
+MODE_VALUE: db 0; VALUE OF AL DURING INT 10H (AH=0)
+BYTES_PER_CHAR: db 0; VALUE OF BYTES/CHARACTER IN MODES
+LOAD_MECHANISM: db 0; SUPPORT SCHEME FOR ACTIVE MODE
+CHARACTER_SOURCE: db 0; FLAG TO INDICATE: 0 = HDWR
 					;		    1 = DESG
 INVALID_MODE	 EQU  0FFH		;
 MASK_BIOS_LOAD	 EQU  00000011b 	;
@@ -77,9 +77,9 @@ MODE_MASK	 EQU  01111111B 	; GHG Emulator Problem
 ;	TABLE WILL BE FILLED IN BY INIT.ASM
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	PUBLIC	LOAD_MECH		;
-LOAD_MECH	LABEL	BYTE		; RESERVE 32 MODE SETTINGS
-		DB	32 DUP(?)	; REFER TO TABLES.INC FOR DETAILS
+	global LOAD_MECH;
+LOAD_MECH:; RESERVE 32 MODE SETTINGS
+		times 32 db 0; REFER TO TABLES.INC FOR DETAILS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	CONFIGURATION TABLES FOR CHARACTER SIZES
@@ -87,9 +87,9 @@ LOAD_MECH	LABEL	BYTE		; RESERVE 32 MODE SETTINGS
 ;	TABLE WILL BE FILLED IN BY INIT.ASM
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	PUBLIC	FONT_SIZE		;
-FONT_SIZE	LABEL	BYTE		; RESERVE 32 MODE SETTINGS
-		DB	32 DUP(?)	; REFER TO TABLES.INC FOR DETAILS
+	global FONT_SIZE;
+FONT_SIZE:; RESERVE 32 MODE SETTINGS
+		times 32 db 0; REFER TO TABLES.INC FOR DETAILS
 NUM_FONT_SIZES	EQU ($-FONT_SIZE)	;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -100,20 +100,20 @@ NUM_FONT_SIZES	EQU ($-FONT_SIZE)	;
 ;	LOWER LEVEL (usually BIOS for Device Drivers).
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INT_10_COM	PROC  FAR		;
+INT_10_COM:;
 	STI				;
 	OR	AH,AH			; TEST THE SUBFUNCTION CALL=0
 	JE	INT_1			; RESERVED FOR THE COM PATH!
-	JMP	DWORD PTR CS:ROM_INT_10 ;
+	JMP	dword CS:ROM_INT_10 ;
 					;
 INT_1:					;
 	PUSHF				; PREPARE FOR IRET!
-	CALL	DWORD PTR CS:ROM_INT_10 ; call routine to handle the command
+	CALL	dword CS:ROM_INT_10 ; call routine to handle the command
 	PUSH	AX			;
 	PUSH	BX			; WGR						 ;AN000;
 	MOV	AH,GET_MODE		; WGR get actual mode set			 ;AN000;
 	PUSHF				; WGR						 ;AN000;
-	CALL	DWORD PTR CS:ROM_INT_10 ; WGR						 ;AN000;
+	CALL	dword CS:ROM_INT_10 ; WGR						 ;AN000;
 	MOV	CS:MODE_VALUE,AL	; SAVE MODE_VALUE BEFORE CALL
 	and	CS:MODE_VALUE,mode_mask ; GHG Emulator Problem.....
 	POP	BX			; WGR						 ;AN000;
@@ -131,7 +131,7 @@ INT_2:	MOV	CS:SETMODE_FLAG,OFF	; WGR						 ;AN000;
 INT_3:	POP	AX			;
 					;
 	IRET				;
-INT_10_COM   ENDP			;
+; ENDP INT_10_COM;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	SET BLOCK SPECIFIER = 0
@@ -146,7 +146,7 @@ INT_10_COM   ENDP			;
 ;		none
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SET_BLOCK_SP0	PROC			;
+SET_BLOCK_SP0:;
 	PUSH	AX			;
 	PUSH	BX			;
 	MOV	AX,1103H		; SET BLOCK SPECIFIER
@@ -155,7 +155,7 @@ SET_BLOCK_SP0	PROC			;
 	POP	BX			;
 	POP	AX			;
 	RET				;
-SET_BLOCK_SP0	ENDP			;
+; ENDP SET_BLOCK_SP0;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	FIND_FONT
@@ -176,7 +176,7 @@ SET_BLOCK_SP0	ENDP			;
 ;
 ;		DS = CS assumed
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-FIND_FONT	PROC			;
+FIND_FONT:;
 	PUSH	AX			;
 	PUSH	CX			;
 	PUSH	DX			;
@@ -184,12 +184,12 @@ FIND_FONT	PROC			;
 	MOV	CX,CPD_FONTS_N		; GET NUMBER OF FONT STYLES
 FF_0:	MOV	AH,BYTES_PER_CHAR	; GET BYTES_PER_CHAR FOR COMPARISON
 					;
-	MOV	AL,ES:[DI]		; GET #ROWS OF POINTED DATA
+	MOV	AL,[ES:DI]		; GET #ROWS OF POINTED DATA
 	CMP	AL,AH			; COMPARE BYTES_PER_CHAR AGAINST #ROWS
 	JE	FF_3			; IF MATCHED...THEN ADJUST ES:DI (CY=0)
 					;
 	PUSH	CX			; ELSE, MOVE ES:DI TO NEXT FONT START
-	MOV	CX,ES:[DI+4]		; GET count OF CHARACTERS IN LIST
+	MOV	CX,[ES:DI+4]		; GET count OF CHARACTERS IN LIST
 	XOR	AH,AH			; PREPARE AX FOR MULT
 	MUL	CX			; CALCULATE DELTA TO NEXT FONT START
 	POP	CX			;
@@ -206,7 +206,7 @@ FF_4:	POP	DX			;
 	POP	CX			;
 	POP	AX			;
 	RET				;
-FIND_FONT	ENDP			;
+; ENDP FIND_FONT;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	BIOS_LOAD
@@ -237,7 +237,7 @@ AX_1400H	EQU	00000010b	;
 EGA_INFO	EQU	0487H		; ADDRESS OF INFO BYTE
 EGA_ACTIVE	EQU	00001000b	; MASK FOR EGA_ACTIVE/NON-ACTIVE
 					;
-BIOS_LOAD	PROC			;
+BIOS_LOAD:;
 	CALL	GET_CURSOR_POS		; ONE MUST RECORD THE CURSOR POS DURING
 					; A FONT LOAD...ELSE CURSOR TO (1,1)
 	PUSH	BX			;
@@ -292,7 +292,7 @@ BL_2AA:
 	PUSH	DS			; WGR						 ;AN000;
 	XOR	AX,AX			; WGR						 ;AN000;
 	MOV	DS,AX			; WGR						 ;AN000;
-	PUSH	DS:[VIDEO_CTRL] 	; WGR						 ;AN000;
+	PUSH	[DS:VIDEO_CTRL] 	; WGR						 ;AN000;
 	MOV	AL,CS:MODE_VALUE	; WGR GET CURRENT MODE				 ;AN000;
 	OR	AL,NOT MODE_MASK	; WGR MODE SET WITHOUT BUFFER CLEARED		 ;AN000;
 
@@ -300,11 +300,11 @@ BL_2AA:
 
 	XOR	AH,AH			; WGR MODE SET CALL..				 ;AN000;
 	PUSHF				; WGR						 ;AN000;
-	CALL	DWORD PTR CS:ROM_INT_10 ; WGR						 ;AN000;
+	CALL	dword CS:ROM_INT_10 ; WGR						 ;AN000;
 
 	call	Info_Ansi_ModeDone	;J.K.Tell ANSI that it is through.
 
-	POP	DS:[VIDEO_CTRL] 	; WGR						 ;AN000;
+	POP	[DS:VIDEO_CTRL] 	; WGR						 ;AN000;
 	POP	DS			; WGR						 ;AN000;
 	POP	AX			; WGR						 ;AN000;
 BL_2B:					; WGR WAS ISSUED (BY ME)			 ;AN000;
@@ -352,7 +352,7 @@ BL_7:	POP	DX			;
 					;
 	CALL	SET_CURSOR_POS		; RESTORE THE CURSOR POSITION
 	RET				;
-BIOS_LOAD	ENDP			;
+; ENDP BIOS_LOAD;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	ASK_BIOS_INFO
@@ -370,46 +370,46 @@ BIOS_LOAD	ENDP			;
 ;		     1 if not supported
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-RETURN_INFO	LABEL BYTE		;
-	DW	?			; OFFSET  TO STATIC FUNCTIONALITY INFO
-	DW	?			; SEGMENT TO STATIC FUNCTIONALITY INFO
-	DB	?			; VIDEO MODE
-	DW	?			; COLUMNS ON SCREEN
-	DW	?			; LEN OF REGEN BUFFER
-	DW	?			; START ADDRESS IN REGEN BUFFER
-	DW	?			; CURSOR POSITION OF PAGE #0
-	DW	?			; CURSOR POSITION OF PAGE #1
-	DW	?			; CURSOR POSITION OF PAGE #2
-	DW	?			; CURSOR POSITION OF PAGE #3
-	DW	?			; CURSOR POSITION OF PAGE #4
-	DW	?			; CURSOR POSITION OF PAGE #5
-	DW	?			; CURSOR POSITION OF PAGE #6
-	DW	?			; CURSOR POSITION OF PAGE #7
-	DW	?			; CURSOR MODE SETTING
-	DB	?			; ACTIVE DISPLAY PAGE
-	DW	?			; CRT CONTROLLER ADDRESS
-	DB	?			; CRT_MODE_SET
-	DB	?			; CRT_PALETTE
-	DB	?			; ROWS ON SCREEN
-CHAR_H	LABEL	WORD			;
-	DW	?			; CHARACTER HEIGHT
-	DB	?			; DISPLAY COMBINATION (ACTIVE)
-	DB	?			; DISPLAY COMBINATION (ALTERNATE)
+RETURN_INFO:;
+	dw 0; OFFSET  TO STATIC FUNCTIONALITY INFO
+	dw 0; SEGMENT TO STATIC FUNCTIONALITY INFO
+	db 0; VIDEO MODE
+	dw 0; COLUMNS ON SCREEN
+	dw 0; LEN OF REGEN BUFFER
+	dw 0; START ADDRESS IN REGEN BUFFER
+	dw 0; CURSOR POSITION OF PAGE #0
+	dw 0; CURSOR POSITION OF PAGE #1
+	dw 0; CURSOR POSITION OF PAGE #2
+	dw 0; CURSOR POSITION OF PAGE #3
+	dw 0; CURSOR POSITION OF PAGE #4
+	dw 0; CURSOR POSITION OF PAGE #5
+	dw 0; CURSOR POSITION OF PAGE #6
+	dw 0; CURSOR POSITION OF PAGE #7
+	dw 0; CURSOR MODE SETTING
+	db 0; ACTIVE DISPLAY PAGE
+	dw 0; CRT CONTROLLER ADDRESS
+	db 0; CRT_MODE_SET
+	db 0; CRT_PALETTE
+	db 0; ROWS ON SCREEN
+CHAR_H:;
+	dw 0; CHARACTER HEIGHT
+	db 0; DISPLAY COMBINATION (ACTIVE)
+	db 0; DISPLAY COMBINATION (ALTERNATE)
 L_RET_INFO	EQU ($-RETURN_INFO)	;
 	DB     (40h-L_RET_INFO) DUP (?) ; REMAINING DATA....
 					;
-STATIC_INFO	STRUC			;
-	DB	?			; VIDEO MODES (part 1)
-	DB	?			; VIDEO MODES (part 2)
-	DB	?			; VIDEO MODES (part 3)
-	DB	?			; RESERVED
-	DB	?			; RESERVED
-	DB	?			; RESERVED
-	DB	?			; RESERVED
-SI_LINE DB	?			; SCAN LINES AVAILABLE IN TEXT MODES
-STATIC_INFO	ENDS			;
+struc STATIC_INFO;
+	resb 1; VIDEO MODES (part 1)
+	resb 1; VIDEO MODES (part 2)
+	resb 1; VIDEO MODES (part 3)
+	resb 1; RESERVED
+	resb 1; RESERVED
+	resb 1; RESERVED
+	resb 1; RESERVED
+SI_LINE: resb 1; SCAN LINES AVAILABLE IN TEXT MODES
+endstruc;
 					;
-ASK_BIOS_INFO	PROC			;
+ASK_BIOS_INFO:;
 	PUSH	ES			;
 	PUSH	DI			;
 	PUSH	BX			;
@@ -417,7 +417,7 @@ ASK_BIOS_INFO	PROC			;
 					;
 	MOV	AX,1B00H		; BIOS CALL FOR 'EGA +' INFORMATION
 	MOV	BX,0			;
-	MOV	DI,OFFSET RETURN_INFO	; SETUP THE RETURN ADDRESS (above)
+	MOV	DI,RETURN_INFO	; SETUP THE RETURN ADDRESS (above)
 	PUSH	CS			;
 	POP	ES			;
 	INT	10H			;
@@ -433,7 +433,7 @@ ABI_4:	POP	AX			;
 	POP	DI			;
 	POP	ES			;
 	RET				;
-ASK_BIOS_INFO	ENDP			;
+; ENDP ASK_BIOS_INFO;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	ASK_BIOS_FONT_SIZE
@@ -450,7 +450,7 @@ ASK_BIOS_INFO	ENDP			;
 ;		     1 if not supported (and AL = unchanged)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ASK_BIOS_FONT_SIZE PROC 		;
+ASK_BIOS_FONT_SIZE:;
 	PUSH	BX			;
 	CALL	ASK_BIOS_INFO		;
 	JC	ABFS_1			;
@@ -463,7 +463,7 @@ ASK_BIOS_FONT_SIZE PROC 		;
 ABFS_0: CLC				;
 ABFS_1: POP	BX			;
 	RET				;
-ASK_BIOS_FONT_SIZE ENDP 		;
+; ENDP ASK_BIOS_FONT_SIZE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	ASK_BIOS_SCAN_LINES
@@ -480,22 +480,22 @@ ASK_BIOS_FONT_SIZE ENDP 		;
 ;		     1 if not supported
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ASK_BIOS_SCAN_LINES PROC		;
+ASK_BIOS_SCAN_LINES:;
 	CALL	ASK_BIOS_INFO		; ASK BIOS FOR DETAILED INFO...
 	JC	ABSL_0			; IF CY = 1, THEN BIOS NOT SMART ENOUGH!
 	PUSH	BX			;
 	PUSH	SI			;
 	PUSH	ES			;
 	LEA	SI,RETURN_INFO		; GET POINTERS TO STATIC TABLE....
-	MOV	BX,CS:[SI+2]		; GET STATIC INFO SEGMENT
+	MOV	BX,[CS:SI+2]		; GET STATIC INFO SEGMENT
 	MOV	ES,BX			;	    &
-	MOV	SI,CS:[SI]		; GET STATIC INFO OFFSET
-	MOV	AL,ES:[SI].SI_LINE	; THEN, FINALLY THE ENCODED SCAN_LINES
+	MOV	SI,[CS:SI]		; GET STATIC INFO OFFSET
+	MOV	AL,[ES:SI].SI_LINE	; THEN, FINALLY THE ENCODED SCAN_LINES
 	POP	ES			;
 	POP	SI			;
 	POP	BX			;
 ABSL_0: RET				;
-ASK_BIOS_SCAN_LINES ENDP		;
+; ENDP ASK_BIOS_SCAN_LINES;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	VECTOR_LOAD
@@ -533,13 +533,13 @@ ASK_BIOS_SCAN_LINES ENDP		;
 ;    ***********************************************************
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-VECTOR_MODE	DB	?		;
+VECTOR_MODE: db 0;
 INTER_43H	EQU	00100000b	;
 INTER_1FH	EQU	00010000b	;
 LCD_1FH 	EQU	01000000b	;
 INTER_44H	EQU	10000000b	;
 					;
-VECTOR_LOAD	PROC			;
+VECTOR_LOAD:;
 	TEST	AL,INTER_1FH		; CHECK IF ANY INTERRUPT 1FH PROCESSING
 	JNZ	VL_00			; IS NEEDED.
 	JUMP	VL_3			; IS NEEDED.
@@ -564,8 +564,8 @@ VL_2AA: CMP	CHARACTER_SOURCE,0	; TEST IF CP = HDWR
 	ADD	AX,8*128		;
 					;
 	CLI				;
-	MOV	DS:WORD PTR INT_1F_LOW,AX; SET THE HIGH 128 CHARACTERS
-	MOV	DS:WORD PTR INT_1F_HI,ES;
+	MOV	DS:word INT_1F_LOW,AX; SET THE HIGH 128 CHARACTERS
+	MOV	DS:word INT_1F_HI,ES;
 	STI				;
 	MOV	CS:OLD_INT_1F,AX	; SAVE VALUE TO INTERNAL STORAGE
 	MOV	CS:OLD_INT_1F+2,ES	;
@@ -583,10 +583,10 @@ VL_1:	TEST	CS:VECTOR_MODE,LCD_1FH	; CHECK IF LCD ACTIVE
 	MOV	DS,AX			;
 	CLI				;
 	MOV	DI,CS:ROM_INT_1F	;
-	MOV	DS:WORD PTR INT_1F_LOW,DI; SET NEW VECTOR
+	MOV	DS:word INT_1F_LOW,DI; SET NEW VECTOR
 	MOV	CS:OLD_INT_1F,DI	; SAVE VALUE TO INTERNAL STORAGE
 	MOV	DI,CS:ROM_INT_1F+2	;
-	MOV	DS:WORD PTR INT_1F_HI,DI;
+	MOV	DS:word INT_1F_HI,DI;
 	MOV	CS:OLD_INT_1F+2,DI	;
 	STI				;
 	POP	AX			;
@@ -607,8 +607,8 @@ VL_11A: PUSH	ES			; SET INT 1F hex WITH HDWR CP
 	XOR	AX,AX			;
 	MOV	DS,AX			;
 	CLI				;
-	MOV	DS:WORD PTR INT_1F_LOW,BP; SET THE HIGH 128 CHARACTERS
-	MOV	DS:WORD PTR INT_1F_HI,ES;
+	MOV	DS:word INT_1F_LOW,BP; SET THE HIGH 128 CHARACTERS
+	MOV	DS:word INT_1F_HI,ES;
 	STI				;
 	MOV	CS:OLD_INT_1F,BP	; SAVE VALUE TO INTERNAL STORAGE
 	MOV	CS:OLD_INT_1F+2,ES	;
@@ -631,8 +631,8 @@ VL_3:	TEST	AL,INTER_43H		;
 	XOR	AX,AX			;
 	MOV	DS,AX			;
 	CLI				;
-	MOV	DS:WORD PTR INT_43_LOW,DI;
-	MOV	DS:WORD PTR INT_43_HI,ES;
+	MOV	DS:word INT_43_LOW,DI;
+	MOV	DS:word INT_43_HI,ES;
 	STI				;
 	POP	AX			;
 	POP	DS			;
@@ -666,8 +666,8 @@ VL_6:	PUSH	AX			; YES, ONCE AGAIN, SAVE THOSE REG'ies
 	XOR	AX,AX			;
 	MOV	DS,AX			;
 	CLI				;
-	MOV	DS:WORD PTR INT_43_LOW,BP; SET THE FULL CHARACTER SET
-	MOV	DS:WORD PTR INT_43_HI,ES;
+	MOV	DS:word INT_43_LOW,BP; SET THE FULL CHARACTER SET
+	MOV	DS:word INT_43_HI,ES;
 	STI				;
 	POP	BP			;
 	POP	ES			;
@@ -688,8 +688,8 @@ VL_8:	TEST	AL,INTER_44H		; Test for INTERRUPT 44 Hex
 	XOR	AX,AX			;
 	MOV	DS,AX			;
 	CLI				;
-	MOV	DS:WORD PTR INT_44_LOW,DI;
-	MOV	DS:WORD PTR INT_44_HI,ES;
+	MOV	DS:word INT_44_LOW,DI;
+	MOV	DS:word INT_44_HI,ES;
 	STI				;
 	POP	AX			;
 	POP	DS			;
@@ -702,16 +702,16 @@ VL_8A:	PUSH	DS			; SET INT 44 hex WITH HDWR CP
 	MOV	DS,AX			;
 	CLI				;
 	MOV	DI,CS:ROM_INT_44	;
-	MOV	DS:WORD PTR INT_44_LOW,DI;
+	MOV	DS:word INT_44_LOW,DI;
 	MOV	DI,CS:ROM_INT_44+2	;
-	MOV	DS:WORD PTR INT_44_HI,DI;
+	MOV	DS:word INT_44_HI,DI;
 	STI				;
 	POP	AX			;
 	POP	DI			;
 	POP	DS			;
 					;
 VL_9:	RET				;
-VECTOR_LOAD	ENDP			;
+; ENDP VECTOR_LOAD;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	LOAD CODE PAGE
@@ -729,30 +729,30 @@ VECTOR_LOAD	ENDP			;
 ;			AX = 0001 if routine is presently busy
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CP_ES	DW	?			;
-CP_DI	DW	?			;
+CP_ES: dw 0;
+CP_DI: dw 0;
 LOAD_CP_SEMA	DB	0		; SEMAPHORE TO TELL IF ROUTINE IS
 					; ALREADY ACTIVE....
 					;
-ANSI_BUFFER  LABEL BYTE 		; WGR BUFFER FOR ANSI				 ;AN000;
+ANSI_BUFFER:; WGR BUFFER FOR ANSI				 ;AN000;
 	     DB    ZERO 		; WGR INFO LEVEL				 ;AN000;
 	     DB    ZERO 		; WGR						 ;AN000;
 	     DW    ANSI_BUF_SIZE	; WGR LENGTH OF DATA				 ;AN000;
-	     DW    ?			; WGR CONTROL FLAGS				 ;AN000;
-D_MODE	     LABEL BYTE 		; WGR DISPLAY MODE				 ;AN000;
-	     DB    ?			; WGR						 ;AN000;
-	     DB    ?			; WGR RESERVED					 ;AN000;
-	     DW    ?			; WGR COLORS					 ;AN000;
-	     DW    ?			; WGR WIDTH					 ;AN000;
-	     DW    ?			; WGR LENGTH					 ;AN000;
-	     DW    ?			; WGR COLUMNS					 ;AN000;
-SCR_ROWS     LABEL WORD 		; WGR ROWS					 ;AN000;
-	     DW    ?			; WGR						 ;AN000;
+	     dw 0; WGR CONTROL FLAGS				 ;AN000;
+D_MODE:; WGR DISPLAY MODE				 ;AN000;
+	     db 0; WGR						 ;AN000;
+	     db 0; WGR RESERVED					 ;AN000;
+	     dw 0; WGR COLORS					 ;AN000;
+	     dw 0; WGR WIDTH					 ;AN000;
+	     dw 0; WGR LENGTH					 ;AN000;
+	     dw 0; WGR COLUMNS					 ;AN000;
+SCR_ROWS:; WGR ROWS					 ;AN000;
+	     dw 0; WGR						 ;AN000;
 					;
 RE_CALC      DW    OFF			; WGR VALUE TO OR IN CHARACTER LOAD		 ;AN000;
 SETMODE_FLAG DB    OFF			; WGR FLAG INDICATING A MODE SET IS REQUIRED	 ;AN000;
 					;
-TEST_CP 	PROC			;
+TEST_CP:;
 	CMP	CS:LOAD_CP_SEMA,ZERO	; TEST IF ALREADY ACTIVE!
 	JE	I10_0			;
 	STC				; IF ALREADY ACTIVE, THEN SET ERROR
@@ -838,7 +838,7 @@ I10_B:	POP	ES			;
 	POP	BX			;
 	MOV	CS:LOAD_CP_SEMA,ZERO	; SET ROUTINE NOW COMPLETED....
 	RET				;
-TEST_CP 	ENDP			;
+; ENDP TEST_CP;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	INVOKE DATA
@@ -852,7 +852,7 @@ TEST_CP 	ENDP			;
 ;		CP_DI	points to the actual data of CP offset
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INVOKE_DATA	PROC			;
+INVOKE_DATA:;
 	PUSH	BX			;
 	PUSH	CX			;
 	PUSH	SI			;
@@ -894,7 +894,7 @@ INV_B:	POP	ES			;
 	POP	CX			;
 	POP	BX			;
 	RET				;
-INVOKE_DATA	ENDP			;
+; ENDP INVOKE_DATA;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	GET_CURSOR_POSITION
@@ -912,10 +912,10 @@ INVOKE_DATA	ENDP			;
 ;
 ;		DS = CS assumed
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ACTIVE_PAGE	DW	?		;
-CURSOR_POS	DW	?		;
+ACTIVE_PAGE: dw 0;
+CURSOR_POS: dw 0;
 					;
-GET_CURSOR_POS	PROC			;
+GET_CURSOR_POS:;
 	PUSHF				;
 	PUSH	DX			;
 	PUSH	CX			;
@@ -923,12 +923,12 @@ GET_CURSOR_POS	PROC			;
 	PUSH	AX			;
 	MOV	AH,15			; CALL TO GET CURRENT_VIDEO_STATE
 	PUSHF				;
-	CALL	DWORD PTR CS:ROM_INT_10 ; call routine to handle the command
+	CALL	dword CS:ROM_INT_10 ; call routine to handle the command
 	MOV	ACTIVE_PAGE,BX		;
 					;
 	MOV	AH,3			;
 	PUSHF				;
-	CALL	DWORD PTR CS:ROM_INT_10 ; call routine to handle the command
+	CALL	dword CS:ROM_INT_10 ; call routine to handle the command
 	MOV	CURSOR_POS,DX		;
 	POP	AX			;
 	POP	BX			;
@@ -936,7 +936,7 @@ GET_CURSOR_POS	PROC			;
 	POP	DX			;
 	POPF				;
 	RET				;
-GET_CURSOR_POS	ENDP			;
+; ENDP GET_CURSOR_POS;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	SET_CURSOR_POSITION
@@ -951,7 +951,7 @@ GET_CURSOR_POS	ENDP			;
 ;		none
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SET_CURSOR_POS	PROC			;
+SET_CURSOR_POS:;
 	PUSHF				;
 	PUSH	DX			;
 	PUSH	BX			;
@@ -960,13 +960,13 @@ SET_CURSOR_POS	PROC			;
 	MOV	BX,ACTIVE_PAGE		;
 	MOV	DX,CURSOR_POS		;
 	PUSHF				;
-	CALL	DWORD PTR CS:ROM_INT_10 ; call routine to handle the command
+	CALL	dword CS:ROM_INT_10 ; call routine to handle the command
 	POP	AX			;
 	POP	BX			;
 	POP	DX			;
 	POPF				;
 	RET				;
-SET_CURSOR_POS	ENDP			;
+; ENDP SET_CURSOR_POS;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	Info_Ansi_ModeSet
@@ -975,7 +975,7 @@ SET_CURSOR_POS	ENDP			;
 ;	OUTPUT:None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Info_Ansi_ModeSet	proc	near
+Info_Ansi_ModeSet:
 	push	ax
 	push	dx
 	push	ds
@@ -995,7 +995,7 @@ Info_Ansi_ModeSet	proc	near
 	pop	dx
 	pop	ax
 	ret
-Info_Ansi_ModeSet	endp
+; ENDP Info_Ansi_ModeSet
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	Info_Ansi_ModeDone
@@ -1004,7 +1004,7 @@ Info_Ansi_ModeSet	endp
 ;	OUTPUT:None
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Info_Ansi_ModeDone	proc	near
+Info_Ansi_ModeDone:
 	push	ax
 	push	dx
 	push	ds
@@ -1024,6 +1024,6 @@ Info_Ansi_ModeDone	proc	near
 	pop	dx
 	pop	ax
 	ret
-Info_Ansi_ModeDone	endp
+; ENDP Info_Ansi_ModeDone
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

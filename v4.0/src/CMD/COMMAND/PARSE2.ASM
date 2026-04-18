@@ -1,16 +1,16 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)parse.asm	1.1 85/05/14
 ;	SCCSID = @(#)parse.asm	1.1 85/05/14
-.sall
-.xlist
-.xcref
-    INCLUDE DOSSYM.INC
-    INCLUDE DEVSYM.INC
-    include comsw.asm
-    include comseg.asm
-    include comequ.asm
-.list
-.cref
+; .sall
+; .xlist
+; .xcref
+    %include "DOSSYM.INC"
+    %include "DEVSYM.INC"
+    %include "comsw.asm"
+    %include "comseg.asm"
+    %include "comequ.asm"
+; .list
+; .cref
 
 
 break <Parse.Asm>
@@ -47,24 +47,24 @@ break <Parse.Asm>
 ; DATA:
 ;---------------
 
-DATARES 	SEGMENT PUBLIC BYTE
-	EXTRN	FORFLAG:BYTE
-DATARES     ENDS
+SECTION .DATARES
+	extern FORFLAG
+; END SECTION .DATARES
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	combuf:byte
-	EXTRN	cpyflag:byte
-	EXTRN	expand_star:byte
-	EXTRN	RESSEG:word
-	EXTRN	STARTEL:word
-TRANSPACE   ENDS
+SECTION .TRANSPACE;AC000;
+	extern combuf
+	extern cpyflag
+	extern expand_star
+	extern RESSEG
+	extern STARTEL
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE	;AC000;
-	PUBLIC	argv_calc		; convert array index into address
-	PUBLIC	parseline
+SECTION .TRANCODE;AC000;
+	global argv_calc; convert array index into address
+	global parseline
 
 
-assume cs:trangroup, ds:trangroup, es:trangroup, ss:nothing
+; assume cs:trangroup, ds:trangroup, es:trangroup, ss:nothing
 
 
 break <Parseline:  Munch on the command line>
@@ -124,13 +124,13 @@ break <Parseline:  Munch on the command line>
 ; DATA:
 ;---------------
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg:byte
-	EXTRN	argbufptr:word
-	EXTRN	comptr:word
-	EXTRN	last_arg:word
-	EXTRN	tpbuf:byte
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern arg
+	extern argbufptr
+	extern comptr
+	extern last_arg
+	extern tpbuf
+; END SECTION .TRANSPACE
 
 ;---------------
 parseline:
@@ -147,13 +147,13 @@ parseline:
 
 	mov	[LAST_ARG], -1			; last argument at which to accumulate
 	xor	ax,ax
-	mov	cx,SIZE arg_unit
-	mov	di,offset trangroup:arg
+	mov	cx,arg_unit_size
+	mov	di,arg
 	rep	stosb
-	mov	argbufptr,offset trangroup:arg.argbuf
+	mov	argbufptr,arg.argbuf
 	mov	arg.argswinfo, 0		; switch information, and info to date
 	mov	arg.argvcnt, 0			; initialize argvcnt/argv[]
-	mov	SI, OFFSET TRANGROUP:combuf+2	; prescan leaves cooked input in combuf
+	mov	SI, combuf+2	; prescan leaves cooked input in combuf
 
 ; This next section of code (up to pcont:)  makes sure that si is set up for
 ; parsing.  It should point at COMBUF if FORFLAG is set and arg.argforcombuf
@@ -166,26 +166,26 @@ parseline:
 
 	push	ds
 	mov	ds,[RESSEG]
-	assume	ds:resgroup
+	; assume	ds:resgroup
 	cmp	FORFLAG,0
 	pop	ds
-	assume	ds:trangroup
+	; assume	ds:trangroup
 	jnz	pcont
-	mov	di,OFFSET TRANGROUP:arg.argforcombuf
+	mov	di,arg.argforcombuf
 	xor	ch,ch
 	mov	cl,[COMBUF+1]
 	inc	cl
 	rep	movsb
-	mov	si,OFFSET TRANGROUP:arg.argforcombuf
+	mov	si,arg.argforcombuf
 
 pcont:
-	mov	DI, OFFSET TRANGROUP:tpbuf	; destination is temporary token buffer
+	mov	DI, tpbuf	; destination is temporary token buffer
 	mov	BL, ' '                         ; no special delimiter, for now
 
 parseloop:
 	mov	comptr,si			; save ptr into original command buffer
 	xor	BP, BP				; switch information put here by cparse
-	mov	byte ptr [expand_star],0	; don't expand *'s to ?'s
+	mov	byte [expand_star],0	; don't expand *'s to ?'s
 	invoke	scanoff 			; skip leading blanks...
 	invoke	cparse				; byte off a token (args in SI, DI, BL)
 	jnc	More_prse
@@ -262,7 +262,7 @@ newarg:
 	mov	DH, BH				; save argflags
 	mov	BX, arg.argvcnt 		; argv[argvcnt++] = arg data
 	inc	arg.argvcnt
-	mov	AX, OFFSET TRANGROUP:arg.argv
+	mov	AX, arg.argv
 	call	argv_calc			; convert offset to pointer
 	mov	[BX].argsw_word, 0		; no switch information, yet...
 	mov	[BX].arglen, CX 		; argv[argvcnt].arglen = arg length
@@ -278,7 +278,7 @@ newarg:
 	mov	SI, DI				; now save argstring in argbuffer
 	mov	DI, argbufptr			; load the argbuf pointer and make
 	add	DI, CX				; sure we're not about to run off
-	cmp	DI, OFFSET TRANGROUP:arg.argbuf+ARGBLEN-1
+	cmp	DI, arg.argbuf+ARGBLEN-1
 	jge	buf_ovflow			; the end of the buffer (plus null byte)
 	sub	DI, CX				; adjust the pointer
 	cld
@@ -341,10 +341,10 @@ break <Arg_Switch>
 ; DATA:
 ;---------------
 
-TRANSPACE	SEGMENT PUBLIC BYTE		;AC000;
-    extrn   switch_list:byte
+SECTION .TRANSPACE;AC000;
+    extern switch_list
     switch_count    EQU     $-switch_list
-transpace   ends
+; END SECTION .transpace
 
 ;---------------
 Arg_Switch:
@@ -360,7 +360,7 @@ Arg_Switch:
 	cmp	[LAST_ARG], -1			; have we encountered any REAL args yet?
 	je	arg_no_switch1			; no, so leading switches don't matter
 	mov	BX, [LAST_ARG]			; yes, add switch info to last REAL arg
-	mov	AX, OFFSET TRANGROUP:arg.argv
+	mov	AX, arg.argv
 	call	argv_calc
 	or	[BX].argsw_word, BP
 	or	arg.argswinfo, BP
@@ -405,7 +405,7 @@ break <Argv_calc>
 argv_calc:
 	push	ax				; Save base
 	mov	al,bl				; al = array index
-	mov	bl,SIZE argv_ele		; bl = size of an argv element
+	mov	bl,argv_ele_size		; bl = size of an argv element
 	mul	bl				; ax = base offset
 	pop	bx				; Get base
 	add	ax,bx				; Add in base offset
@@ -418,5 +418,5 @@ argv_calc:
 
 
 
-trancode    ends
-	    end
+; END SECTION .trancode
+	    ; end

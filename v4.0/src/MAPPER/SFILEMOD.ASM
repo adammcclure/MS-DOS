@@ -1,10 +1,10 @@
 ;0
-page 80,132
+; page 80,132
 
-title CP/DOS DosSetFileMode mapper
+; title CP/DOS DosSetFileMode mapper
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -23,22 +23,22 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-	    public   dossetfilemode
-	    .sall
-	    .xlist
-	    include  macros.inc
-	    .list
+	    global dossetfilemode
+	    ; .sall
+	    ; .xlist
+	    %include "macros.inc"
+	    ; .list
 
 
-str	struc
-old_bp	dw	?
-return	dd	?
-Rsrvd	dd	?	; reserved
-Attrib	dw	?	; file attribute
-Path	dd	?	; path name pointer  pointer
-str	ends
+struc str
+old_bp: resw 1
+return: resd 1
+Rsrvd: resd 1; reserved
+Attrib: resw 1; file attribute
+Path: resd 1; path name pointer  pointer
+endstruc
 
-dossetfilemode proc  far
+dossetfilemode:
 	    Enter    dossetfilemode	   ; push registers
 
 	    lds      dx,[bp].path	   ; set pointer to path
@@ -52,10 +52,10 @@ dossetfilemode proc  far
 	    jmp      short exit 	   ; return
 
 exit:	    mexit			   ; pop registers
-	    ret      size  str - 6	   ; return
+	    ret      str_size - 6	   ; return
 
-dossetfilemode endp
+; ENDP dossetfilemode
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

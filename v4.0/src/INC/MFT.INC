@@ -81,17 +81,17 @@ BREAK   <MFT Definitions>
 ;*              possibility.  If you add or remove flag values you must check
 ;*              all references to mft_flag.
 
-MFT_entry       STRUC
+struc MFT_entry
 
-mft_flag        DB      ?               ; flag/len field
-mft_len         DW      ?
-mft_sum         DB      ?               ; string sum word
-mft_lptr        DW      ?               ; LCK pointer
-mft_sptr        DD      ?               ; sft pointer
-mft_serl        DW      ?               ; serial number
-mft_name        DB      ?               ; offset to start of name
+mft_flag: resb 1; flag/len field
+mft_len: resw 1
+mft_sum: resb 1; string sum word
+mft_lptr: resw 1; LCK pointer
+mft_sptr: resd 1; sft pointer
+mft_serl: resw 1; serial number
+mft_name: resb 1; offset to start of name
 
-MFT_entry       ENDS
+endstruc
 
 MFLG_NAM        EQU     1               ; min value for name record
 MFLG_FRE        EQU     0               ; free record
@@ -110,17 +110,17 @@ MFLG_END        EQU     -1              ; end record
 ;                       LBA    = offset of last byte of locked region
 ;                       SPTR   = pointer to SFT lock was issued on
 
-RLR_entry       STRUC
+struc RLR_entry
 
-rlr_next        DW      ?               ; chain to next RLR, 0 if end
-rlr_fba         DW      ?               ; first byte addr (offset) of reigion
-                DW      ?
-rlr_lba         DW      ?               ; last byte addr of region
-                DW      ?
-rlr_sptr        DD      ?               ; SFT pointer
-rlr_pid         dw      ?               ; process id of issuer
-rlr_type        dw      ?               ; lock type
-RLR_entry       ENDS
+rlr_next: resw 1; chain to next RLR, 0 if end
+rlr_fba: resw 1; first byte addr (offset) of reigion
+                resw 1
+rlr_lba: resw 1; last byte addr of region
+                resw 1
+rlr_sptr: resd 1; SFT pointer
+rlr_pid: resw 1; process id of issuer
+rlr_type: resw 1; lock type
+endstruc
 
 rlr_lall        equ     00h            ; lock all ops
 rlr_lwr         equ     01h            ; lock write ops

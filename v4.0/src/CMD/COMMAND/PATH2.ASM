@@ -1,20 +1,20 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)path2.asm	1.1 85/05/14
 ;	SCCSID = @(#)path2.asm	1.1 85/05/14
-.sall
-.xlist
-.xcref
-INCLUDE DOSSYM.INC
-    include comsw.asm
-    include comseg.asm
-    include comequ.asm
-.list
-.cref
+; .sall
+; .xlist
+; .xcref
+%include "DOSSYM.INC"
+    %include "comsw.asm"
+    %include "comseg.asm"
+    %include "comequ.asm"
+; .list
+; .cref
 
 
-DATARES SEGMENT PUBLIC BYTE
-	EXTRN	FORFLAG:BYTE
-DATARES ENDS
+SECTION .DATARES
+	extern FORFLAG
+; END SECTION .DATARES
 
 
 break <Path.Asm>
@@ -62,22 +62,22 @@ break <Path.Asm>
 ; DATA:
 ;---------------
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg:byte
-	EXTRN	BADPMES_ptr:word
-	EXTRN	curdrv:byte
-	EXTRN	EXECPATH:byte
-	EXTRN	ext_entered:byte	;AN005;
-	EXTRN	fbuf:byte
-	EXTRN	pathinfo:word
-	EXTRN	psep_char:byte
-	EXTRN	string_ptr_2:word
-	EXTRN	tpbuf:byte
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern arg
+	extern BADPMES_ptr
+	extern curdrv
+	extern EXECPATH
+	extern ext_entered;AN005;
+	extern fbuf
+	extern pathinfo
+	extern psep_char
+	extern string_ptr_2
+	extern tpbuf
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE	;AC000;
+SECTION .TRANCODE;AC000;
 
-assume cs:trangroup, ds:trangroup, es:trangroup, ss:nothing
+; assume cs:trangroup, ds:trangroup, es:trangroup, ss:nothing
 
 
 break <Search>
@@ -114,12 +114,12 @@ wildchar		    equ 	'?'
 ;---------------
 ; DATA:
 ;---------------
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	search_best:byte
-	EXTRN	search_best_buf:byte
-	EXTRN	search_curdir_buf:byte
-	EXTRN	search_error:word
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern search_best
+	extern search_best_buf
+	extern search_curdir_buf
+	extern search_error
+; END SECTION .TRANSPACE
 
 ;---------------
 Procedure   Search,NEAR
@@ -132,9 +132,9 @@ Procedure   Search,NEAR
 
 	push	DX				; check drivespec (save pname ptr)
 	mov	DI, DX				; working copy of pathname
-	mov	SI, OFFSET TRANGROUP:search_curdir_buf
+	mov	SI, search_curdir_buf
 	xor	DX, DX				; zero means current drive
-	cmp	BYTE PTR [DI+1],':'             ; is there a drive spec?
+	cmp	byte [DI+1],':'             ; is there a drive spec?
 	jne	search_dir_check
 	mov	DL, [DI]			; get the drive byte
 	and	DL, NOT 20H			; uppercase the sucker
@@ -156,8 +156,8 @@ search_loop:
 	cmp	AL, search_best 		; better than what we've found so far?
 	jle	search_next			; no, look for another
 	mov	search_best, AL 		; found something... save its code
-	mov	SI, OFFSET TRANGROUP:fbuf.find_buf_pname
-	mov	DI, OFFSET TRANGROUP:search_best_buf
+	mov	SI, fbuf.find_buf_pname
+	mov	DI, search_best_buf
 	mov	CX, fname_max_len
 	cld
 	rep	movsb				; save complete pathname representation
@@ -208,16 +208,16 @@ break <Search_Ftype>
 ;---------------
 ; DATA:
 ;---------------
-TRANDATA	SEGMENT PUBLIC BYTE		;AC000;
-	extrn	comext:byte,exeext:byte,batext:byte
-trandata     ends
+SECTION .TRANDATA;AC000;
+	extern comext,exeext,batext
+; END SECTION .trandata
 ;---------------
 Procedure   Search_Ftype,NEAR
 ;---------------
 	push	DI
 	push	si
 	mov	AX, ANULL			; find the end of the filename
-	mov	DI, OFFSET TRANGROUP:fbuf.find_buf_pname
+	mov	DI, fbuf.find_buf_pname
 	mov	CX, fname_max_len
 	cld
 	repnz	scasb				; search for the terminating null
@@ -226,7 +226,7 @@ Procedure   Search_Ftype,NEAR
 ;
 ; Compare .COM
 ;
-	mov	si,offset trangroup:comext
+	mov	si,comext
 	mov	ax,di
 	cmpsw
 	jnz	ftype_exe
@@ -240,7 +240,7 @@ Procedure   Search_Ftype,NEAR
 
 ftype_exe:					; still looking... now for '.exe'
 	mov	di,ax
-	mov	si,offset trangroup:exeext
+	mov	si,exeext
 	cmpsw
 	jnz	ftype_bat
 	cmpsw
@@ -253,7 +253,7 @@ ftype_exe:					; still looking... now for '.exe'
 
 ftype_bat:					; still looking... now for '.bat'
 	mov	di,ax
-	mov	si,offset trangroup:batext
+	mov	si,batext
 	cmpsw
 	jnz	ftype_fail
 	cmpsw
@@ -307,7 +307,7 @@ Procedure   Strip,NEAR
 	mov	ext_entered,1			;AN005; assume no extension on file name
 	mov	DX, DS:arg.argv[0].argpointer	; save pointer to beginning of argstring
 	mov	DI, DS:arg.argv[0].argstartel	; beginning of last pathname element
-	cmp	BYTE PTR [DI], 0		; *STARTEL == NULL means no command
+	cmp	byte [DI], 0		; *STARTEL == NULL means no command
 	jz	strip_error
 	mov	CX, DX				; compute where end of argstring lies
 	add	CX, DS:arg.argv[0].arglen
@@ -395,7 +395,7 @@ Procedure   Save_Args,NEAR
 	push	SI
 	push	BP
 	pushf
-	add	BX, SIZE arg_unit + 0FH 	; space for arg structure, round up
+	add	BX, arg_unit_size + 0FH 	; space for arg structure, round up
 	mov	CL, 4				; to paragraph size and convert
 	shr	BX, CL				; size in bytes to size in paragraphs
 	trap	Alloc
@@ -403,14 +403,14 @@ Procedure   Save_Args,NEAR
 	mov	BP, AX				; save segment id
 	push	ES				; save TRANGROUP address
 	mov	ES, AX				; switch to new memory segment
-assume	ES:nothing
-	mov	CX, SIZE arg_unit		; get back structure size
+; assume	ES:nothing
+	mov	CX, arg_unit_size		; get back structure size
 	xor	DI, DI				; destination is new memory area
-	mov	SI, OFFSET TRANGROUP:arg	; source is arg structure
+	mov	SI, arg	; source is arg structure
 	rep	movsb				; move that sucker!
 	mov	CX, arg.argvcnt 		; adjust argv pointers
 	xor	AX, AX				; base address for argv_calc
-	mov	SI, OFFSET TRANGROUP:arg.argbuf - OFFSET arg_unit.argbuf
+	mov	SI, arg.argbuf - arg_unit.argbuf
 
 save_ptr_loop:
 	dec	CX				; exhausted all args?
@@ -430,7 +430,7 @@ save_ptr_loop:
 
 save_done:
 	pop	ES				; back we go to TRANGROUP
-assume	ES:trangroup
+; assume	ES:trangroup
 	mov	AX, BP				; restore segment id
 	jmp	short save_ok
 
@@ -454,5 +454,5 @@ save_exit:
 EndProc Save_Args
 ;----------------------------------------------------------------------------
 
-trancode    ends
-END
+; END SECTION .trancode
+; END

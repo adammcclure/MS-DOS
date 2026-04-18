@@ -1,17 +1,17 @@
 ; 0
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosQFileInfo mapper
+; title CP/DOS DosQFileInfo mapper
 ;
 
-FileAttributeSegment	segment word public 'fat'
+SECTION .FileAttributeSegment
 
-	 extrn	FileAttributeTable:word
+	 extern FileAttributeTable
 
-FileAttributeSegment	ends
+; END SECTION .FileAttributeSegment
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -31,36 +31,36 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-	    public   dosQfileinfo
-	    .sall
-	    .xlist
-	    include  macros.inc
-	    .list
+	    global dosQfileinfo
+	    ; .sall
+	    ; .xlist
+	    %include "macros.inc"
+	    ; .list
 
 
-FileInfo	struc
-CreateDate	dw	?
-CreateTime	dw	?
-LastAccessDate	dw	?
-LastAccessTime	dw	?
-LastWriteDate	dw	?
-LastWriteTime	dw	?
-DataLength	dd	?	; File size
-FileSpace	dd	?	; falloc_size
-Attributes	dw	?	; attributes
-FileInfo	ends
+struc FileInfo
+CreateDate: resw 1
+CreateTime: resw 1
+LastAccessDate: resw 1
+LastAccessTime: resw 1
+LastWriteDate: resw 1
+LastWriteTime: resw 1
+DataLength: resd 1; File size
+FileSpace: resd 1; falloc_size
+Attributes: resw 1; attributes
+endstruc
 
 
-str	    struc
-old_bp	    dw	     ?
-return	    dd	     ?
-BufferSize  dw	     ?		; file data buffer size
-BufferPtr   dd	     ?		; file data buffer
-Level	    dw	     ?		; file data info level
-Handle	    dw	     ?		; file handle
-str	    ends
+struc str
+old_bp: resw 1
+return: resd 1
+BufferSize: resw 1; file data buffer size
+BufferPtr: resd 1; file data buffer
+Level: resw 1; file data info level
+Handle: resw 1; file handle
+endstruc
 
-dosQfileinfo  proc     far
+dosQfileinfo:
 	Enter	dosQfileinfo		   ; save registers
 
 	mov	bx,[bp].handle		   ;fill registers for function call
@@ -70,12 +70,12 @@ dosQfileinfo  proc     far
 	jc	ErrorExit		   ; jump if error
 
 	lds	si,[bp].BufferPtr	   ; copy date and time to
-	mov	ds:[si].CreateDate,dx	   ; file info return data area
-	mov	ds:[si].CreateTime,cx
-	mov	ds:[si].LastAccessDate,dx
-	mov	ds:[si].LastAccessTime,cx
-	mov	ds:[si].LastWriteDate,dx
-	mov	ds:[si].LastWriteTime,cx
+	mov	[ds:si].CreateDate,dx	   ; file info return data area
+	mov	[ds:si].CreateTime,cx
+	mov	[ds:si].LastAccessDate,dx
+	mov	[ds:si].LastAccessTime,cx
+	mov	[ds:si].LastWriteDate,dx
+	mov	[ds:si].LastWriteTime,cx
 
 ;  Calculate the file length and file space and save in the file info data area
 
@@ -98,8 +98,8 @@ dosQfileinfo  proc     far
 	int	21h
 
 	lds	si,[bp].BufferPtr		  ; save the file length in
-	mov	ds:word ptr DataLength[si+0],ax   ; file info data area
-	mov	ds:word ptr DataLength[si+2],dx
+	mov	ds:word DataLength[si+0],ax   ; file info data area
+	mov	ds:word DataLength[si+2],dx
 
 	test	ax,511
 	jz	HaveSpace
@@ -109,8 +109,8 @@ dosQfileinfo  proc     far
 	adc	dx,0
 
 HaveSpace:
-	mov	ds:word ptr FileSpace[si+0],ax	    ; save file space
-	mov	ds:word ptr FileSpace[si+2],dx	    ; in return data area
+	mov	ds:word FileSpace[si+0],ax	    ; save file space
+	mov	ds:word FileSpace[si+2],dx	    ; in return data area
 
 ;   calculate the file attribute  and save
 
@@ -125,7 +125,7 @@ HaveSpace:
 
 	mov	ax,seg FileAttributeSegment
 	mov	ds,ax
-	assume	ds:FileAttributeSegment
+	; assume	ds:FileAttributeSegment
 
 	mov	bx,[bp].Handle
 	add	bx,bx
@@ -137,10 +137,10 @@ HaveSpace:
 
 ErrorExit:
 	mexit				       ; restore registers
-	ret	 size  str - 6		       ; return
+	ret	 str_size - 6		       ; return
 
-dosqfileinfo endp
+; ENDP dosqfileinfo
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

@@ -1,63 +1,63 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tfor.asm	4.1 85/09/17
 ;	SCCSID = @(#)tfor.asm	4.1 85/09/17
-TITLE	Part3 COMMAND Transient Routines
+; TITLE	Part3 COMMAND Transient Routines
 
 ;     For loop processing routines
 
 
-.xlist
-.xcref
-	include comsw.asm
-	INCLUDE DOSSYM.INC
-	INCLUDE DEVSYM.INC
-	include comseg.asm
-	include comequ.asm
-.list
-.cref
+; .xlist
+; .xcref
+	%include "comsw.asm"
+	%include "DOSSYM.INC"
+	%include "DEVSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BATCH:WORD
-	EXTRN	ECHOFLAG:BYTE
-	EXTRN	FORFLAG:BYTE
-	EXTRN	FORPTR:WORD
-	EXTRN	NEST:WORD
-	EXTRN	NULLFLAG:BYTE
-	EXTRN	PIPEFILES:BYTE
-	EXTRN	SINGLECOM:WORD
-DATARES ENDS
+SECTION .DATARES;AC000;
+	extern BATCH
+	extern ECHOFLAG
+	extern FORFLAG
+	extern FORPTR
+	extern NEST
+	extern NULLFLAG
+	extern PIPEFILES
+	extern SINGLECOM
+; END SECTION .DATARES
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	Extend_buf_ptr:word	;AN000;
-	extrn	fornestmes_ptr:word
-	EXTRN	msg_disp_class:byte	;AN000;
-	extrn	string_buf_ptr:word
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern Extend_buf_ptr;AN000;
+	extern fornestmes_ptr
+	extern msg_disp_class;AN000;
+	extern string_buf_ptr
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	extrn	arg:byte		; the arg structure!
-	EXTRN	COMBUF:BYTE
-	EXTRN	RESSEG:WORD
-	EXTRN	string_ptr_2:word
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern arg; the arg structure!
+	extern COMBUF
+	extern RESSEG
+	extern string_ptr_2
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	EXTRN	cerror:near
-	EXTRN	docom:near
-	EXTRN	docom1:near
-	EXTRN	forerror:near
-	EXTRN	tcommand:near
+	extern cerror
+	extern docom
+	extern docom1
+	extern forerror
+	extern tcommand
 
-	PUBLIC	$for
-	PUBLIC	forproc
+	global $for
+	global forproc
 
 
 ; All batch proccessing has DS set to segment of resident portion
-ASSUME	DS:RESGROUP,ES:TRANGROUP
+; ASSUME	DS:RESGROUP,ES:TRANGROUP
 
 
 FORTERM:
@@ -67,7 +67,7 @@ FORTERM:
 	pop	es				;AN037;
 	call	ForOff
 	mov	ds,ResSeg
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	CMP	[SINGLECOM],0FF00H
 	JNZ	BATCRLF
 	CMP	NEST,0				;G See if we have nested batch files
@@ -143,19 +143,19 @@ NOFORP2:
 ; it may be easier to allocate it as part of 'for_segment'.
 ;------
 
-	include fordata.asm
+	%include "fordata.asm"
 
 $for_exit:
 	jmp	forterm 			; exceeding maxarg means all done
 
 forproc:
-assume	DS:resgroup
+; assume	DS:resgroup
 	mov	AX, [ForPtr]
 	mov	DS, AX
 	mov	ES, AX				; operate in for-info area
-assume	DS:for_segment, ES:for_segment
+; assume	DS:for_segment, ES:for_segment
 
-	mov	DX, OFFSET fordma
+	mov	DX, fordma
 	trap	Set_Dma
 for_begin:
 	cmp	f.for_expand, 0 		; non-zero for_expand equals FALSE
@@ -165,7 +165,7 @@ for_begin1:
 	mov	BX, f.for_minarg		; current item in <list> to examine
 	cmp	BX, f.for_maxarg
 	jg	$for_exit			; exceeding maxarg means all done
-	mov	AX, OFFSET for_args.argv
+	mov	AX, for_args.argv
 	invoke	argv_calc			; compute argv[x] address
 
 	mov	CX, [BX].argstartel
@@ -174,14 +174,14 @@ for_begin1:
 	jnz	forsub				; Yes, argstartel should be correct
 	mov	si, [BX].argpointer
 	mov	al,lparen
-	cmp	byte ptr [si-1],al		; If the current token is the first
+	cmp	byte [si-1],al		; If the current token is the first
 	jnz	forsub				;  one in the list and originally had
 	inc	cx				;  the opening paren as its first char,
 						;  the argstartel ptr needs to be
 						;  advanced passed it before the prefix
 						;  length is computed.
 	mov	al,':'
-	cmp	byte ptr [si+1],al		; If the token begins with "(d:",
+	cmp	byte [si+1],al		; If the token begins with "(d:",
 	jnz	forsub				;  argstartel has to be moved over the
 	add	cx,2				;  rest of the prefix as well.
 
@@ -215,15 +215,15 @@ forCheck:					; Find* returns 0 for SUCCESS
 
 for_smoosh:
 	mov	SI, [BX].argpointer		; copy argv[arg][0,CX] into destbuf
-	mov	DI, OFFSET forbuf		; some days this will be the entire
+	mov	DI, forbuf		; some days this will be the entire
 	rep	movsb				; arg, some days just the path prefix
 
 	cmp	f.FOR_EXPAND, 0 		; if we're not expanding, we can
 	jnz	for_make_com			; skip the following
 
-	mov	SI, OFFSET fordma.find_buf_pname
+	mov	SI, fordma.find_buf_pname
 for_more:					; tack on matching filename
-	cmp	BYTE PTR [SI], 0
+	cmp	byte [SI], 0
 	je	for_make_com
 	movsb
 	jnz	for_more
@@ -235,15 +235,15 @@ for_make_com:
 	xor	CX, CX				; character count for command line
 	not	CX				; negate it -- take advantage of loopnz
 	xor	BX, BX				; argpointer
-	mov	DI, OFFSET TRANGROUP:COMBUF+2
+	mov	DI, COMBUF+2
 	mov	bl, f.FOR_COM_START		; argindex
 	mov	DH, f.FOR_VAR			; %<for-var> is replaced by [forbuf]
 						; time to form the <command> string
 	push	CS
 	pop	ES
-assume	ES:trangroup
+; assume	ES:trangroup
 
-	mov	AX, OFFSET for_args		; translate offset to pointer
+	mov	AX, for_args		; translate offset to pointer
 	invoke	argv_calc
 	mov	si,[bx].arg_ocomptr
 	inc	si				; mov ptr passed beginning space
@@ -253,12 +253,12 @@ for_make_loop:
 	inc	si
 	cmp	AL,'%'                          ; looking for %<control-variable>
 	jne	for_stosb			; no % ... add byte to string
-	cmp	BYTE PTR [SI], DH		; got the right <variable>?
+	cmp	byte [SI], DH		; got the right <variable>?
 	jne	for_stosb			; got a %, but wrong <variable>
 	inc	SI				; skip over <for-variable>
 
 	push	SI
-	mov	SI, OFFSET forbuf		; substitute the <item> for <variable>
+	mov	SI, forbuf		; substitute the <item> for <variable>
 						; to make a final <command> to execute
 sloop:
 	lodsb					; grab all those <item> bytes, and
@@ -282,7 +282,7 @@ for_made_com:					; finished all the <command> args
 	mov	[COMBUF+1], CL
 
 	mov	DS, [RESSEG]
-assume	DS:resgroup
+; assume	DS:resgroup
 
 	test	[ECHOFLAG],1			; shall we echo this <command>, dearie?
 	jz	noecho3
@@ -294,27 +294,27 @@ no_crlf_pr:
 	mov	nullflag,0			;G reset no command flag
 	push	CS
 	pop	DS
-	assume	DS:trangroup
+	; assume	DS:trangroup
 	push	di
 	invoke	PRINT_PROMPT			;G Prompt the user
 	pop	di
-	mov	BYTE PTR ES:[DI-1],0		; yeah, PRINT it out...
-	mov	string_ptr_2,OFFSET TRANGROUP:COMBUF+2
-	mov	dx,offset trangroup:string_buf_ptr
+	mov	byte [ES:DI-1],0		; yeah, PRINT it out...
+	mov	string_ptr_2,COMBUF+2
+	mov	dx,string_buf_ptr
 	invoke	std_printf
-	mov	BYTE PTR ES:[DI-1], 0DH
+	mov	byte [ES:DI-1], 0DH
 	jmp	DoCom
 noecho3:					; run silent, run deep...
-	assume	DS:resgroup
+	; assume	DS:resgroup
 	mov	nullflag,0			;G reset no command flag
 	push	CS
 	pop	DS
-	assume	DS:trangroup
+	; assume	DS:trangroup
 	jmp	docom1
 
 
 fornesterrj:					; no multi-loop processing... yet!
-assume	ES:resgroup
+; assume	ES:resgroup
 	call	ForOff
 	jmp	fornesterr
 
@@ -322,11 +322,11 @@ forerrorj:
 	jmp	forerror
 
 	break	$For
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 $for:
 	mov	ES, [RESSEG]
-assume	ES:resgroup
+; assume	ES:resgroup
 
 	cmp	ForFlag,0			; is another one already running?
 	jnz	fornesterrj			; if flag is set.... boom!
@@ -413,14 +413,14 @@ skip_list:
 	add	si,[bx].arglen
 	sub	si,3				; si = ptr to last char of token
 	mov	al,rparen
-	cmp	byte ptr [si],al		; Is this the last element in <list>
+	cmp	byte [si],al		; Is this the last element in <list>
 	je	for_end_list			; Yes, exit loop.
 	call	nextarg 			; No, get next arg <list>
 	jc	forerrorjj			; If no more and no rparen, error.
 	jmp	skip_list
 for_end_list:
 	mov	DI, DX				; record position of last arg in <list>
-	mov	byte ptr [si],0 		; Zap the rparen
+	mov	byte [si],0 		; Zap the rparen
 	cmp	ax,nullrparen			; Was this token only a rparen
 	jz	for_do				; Yes, continue
 	inc	di				; No, inc position of last arg
@@ -446,9 +446,9 @@ for_do:
 	push	SI
 	push	BP
 	invoke	FREE_TPA			; need to make free memory, first
-ASSUME	ES:RESGROUP
+; ASSUME	ES:RESGROUP
 	call	ForOff
-	mov	BX, SIZE for_info - SIZE arg_unit
+	mov	BX, for_info_size - arg_unit_size
 	invoke	Save_Args			; extra bytes needed for for-info
 	pushf
 	mov	[ForPtr], AX
@@ -466,7 +466,7 @@ ASSUME	ES:RESGROUP
 	push	ES				; save resgroup seg...
 	push	[ForPtr]
 	pop	ES
-assume	ES:for_segment				; make references to for-info segment
+; assume	ES:for_segment; make references to for-info segment
 
 	dec	CX				; forproc wants min pointing before
 	dec	DI				; first arg, max right at last one
@@ -477,7 +477,7 @@ assume	ES:for_segment				; make references to for-info segment
 	mov	AX, BP
 	mov	f.for_var, AH
 	pop	ES
-assume	ES:resgroup
+; assume	ES:resgroup
 
 	inc	[FORFLAG]
 	cmp	[SINGLECOM], -1
@@ -488,7 +488,7 @@ for_ret:
 
 for_alloc_err:
 	mov	msg_disp_class,ext_msg_class	;AN000; set up extended error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr     ;AC000; get extended message pointer
+	mov	dx,Extend_Buf_ptr     ;AC000; get extended message pointer
 	mov	Extend_Buf_ptr,error_not_enough_memory ;AN000; get message number in control block
 	jmp	cerror
 
@@ -497,7 +497,7 @@ nextarg:
 	cmp	DX, arg.argvcnt 		; make sure we don't run off end
 	jge	nextarg_err			; of argv[]...
 	mov	BX, DX
-	mov	AX, OFFSET TRANGROUP:arg.argv
+	mov	AX, arg.argv
 	invoke	argv_calc			; convert array index to pointer
 	mov	SI, [BX].argpointer		; load pointer to argstring
 	lodsw					; and load first two chars
@@ -508,30 +508,30 @@ nextarg_err:
 	ret
 
 
-ASSUME	DS:TRANGROUP,ES:TRANGROUP
+; ASSUME	DS:TRANGROUP,ES:TRANGROUP
 
 FORNESTERR:
 	PUSH	DS
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
-	MOV	DX,OFFSET TRANGROUP:FORNESTMES_ptr
+; ASSUME	DS:RESGROUP
+	MOV	DX,FORNESTMES_ptr
 	CMP	[SINGLECOM],0FF00H
 	JNZ	NOFORP3
 	MOV	[SINGLECOM],-1			; Cause termination
 NOFORP3:
 	POP	DS
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 	JMP	CERROR
 ;
 ; General routine called to free the for segment.  We also clear the forflag
 ; too.	Change no registers.
 ;
-PUBLIC ForOff
+global ForOff
 ForOff:
-	assume DS:NOTHING,ES:NOTHING
+	; assume DS:NOTHING,ES:NOTHING
 	SaveReg <AX,ES>
 	mov	es,ResSeg
-	assume	es:ResGroup
+	; assume	es:ResGroup
 	mov	AX,ForPtr
 	or	ax,ax
 	jz	FreeDone
@@ -546,6 +546,6 @@ FreeDone:
 	RestoreReg  <ES,AX>
 	return
 
-trancode    ends
-	    end
+; END SECTION .trancode
+	    ; end
 

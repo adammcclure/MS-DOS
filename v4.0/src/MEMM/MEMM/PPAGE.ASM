@@ -1,8 +1,8 @@
 
 
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	TITLE	PPAGE - MODULE to find mappable Physical pages
+	; TITLE	PPAGE - MODULE to find mappable Physical pages
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -32,65 +32,65 @@
 ;   It also finds a valid page frame for use.
 ;
 ;******************************************************************************
-.lfcond
-.386p
+; .lfcond
+CPU 386
 
-	page
+	; page
 ;******************************************************************************
 ;		P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 
-	public	mappable_segs
-	public	Map_tbl
-	public	max_PF
-	public	find_phys_pages
-	public	exclude_segments
-	public	is_page_mappable
+	global mappable_segs
+	global Map_tbl
+	global max_PF
+	global find_phys_pages
+	global exclude_segments
+	global is_page_mappable
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-FIRST_SYSTEM_ROM_SEG_HI =  0F000h
-FIRST_SYSTEM_ROM_SEG_LO =  0E000h
-LAST_SYSTEM_ROM_SEG	=  0FFFFh
+FIRST_SYSTEM_ROM_SEG_HI equ 0F000h
+FIRST_SYSTEM_ROM_SEG_LO equ 0E000h
+LAST_SYSTEM_ROM_SEG equ 0FFFFh
 ;
-FIRST_VIDEO_MEM_SEG	=  0A000h
-LAST_VIDEO_MEM_SEG	=  0BFFFh
+FIRST_VIDEO_MEM_SEG equ 0A000h
+LAST_VIDEO_MEM_SEG equ 0BFFFh
 ;
-FIRST_CONV_UMAP_SEG	=  00000h
-LAST_CONV_UMAP_SEG	=  03FFFh
+FIRST_CONV_UMAP_SEG equ 00000h
+LAST_CONV_UMAP_SEG equ 03FFFh
 
 
 ;******************************************************************************
 ;			INCLUDE FILES
 ;******************************************************************************
-    include  vdmseg.inc     ; segment definitions
-    include  emm386.inc     ;contains the error messages
-    include  emmdef.inc     ;contains some emm defines
+    %include "vdmseg.inc"; segment definitions
+    %include "emm386.inc";contains the error messages
+    %include "emmdef.inc";contains some emm defines
 
-	page
+	; page
 ;******************************************************************************
 ;			E X T E R N A L    R E F E R E N C E S
 ;******************************************************************************
 ;
 ;
-_DATA	segment
+SECTION ._DATA
 
-	extrn	PF_Base:word
-	extrn	msg_flag:word
+	extern PF_Base
+	extern msg_flag
 
-_DATA	ends
+; END SECTION ._DATA
 
 ;
-LAST	segment
+SECTION .LAST
 ;
-	extrn	rom_srch:near
+	extern rom_srch
 ;
-LAST	ends
+; END SECTION .LAST
 
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
@@ -102,13 +102,13 @@ LAST	ends
 ;
 ;******************************************************************************
 ;
-_TEXT	segment
-_TEXT	ends
+SECTION ._TEXT
+; END SECTION ._TEXT
 
-LAST	segment
-	assume	cs:LAST, ds:DGROUP, es:DGROUP
+SECTION .LAST
+	; assume	cs:LAST, ds:DGROUP, es:DGROUP
 
-	page
+	; page
 ;*************************************************************************
 ;
 ; initialisation data
@@ -116,12 +116,12 @@ LAST	segment
 ;*************************************************************************
 ;	table for identifying mappable pages
 ;
-mappable_segs	label	byte
+mappable_segs:
 		db	TOT_PHYS_PAGES dup(PAGE_MAPPABLE)  ;
 ;
 ;	table for PF base addresses
 ;
-Map_tbl 	label	word
+Map_tbl:
 		dw	0c000h
 		dw	0c400h
 		dw	0c800h
@@ -133,7 +133,7 @@ Map_tbl 	label	word
 max_PF		equ	(this byte - Map_tbl)
 		dw	0e000h
 
-	page
+	; page
 ;******************************************************************************
 ;	find_phys_pages: routine to find mappable phsyical pages and a page fr
 ;
@@ -147,7 +147,7 @@ max_PF		equ	(this byte - Map_tbl)
 ;	USED: none
 ;
 ;******************************************************************************
-find_phys_pages proc	near
+find_phys_pages:
 ;
 ; start out with all the pages initialised to be mappable except those excluded
 ; by explicit instruction of the command line.
@@ -184,9 +184,9 @@ find_phys_pages proc	near
 ;
 	ret
 ;
-find_phys_pages endp
+; ENDP find_phys_pages
 
-    page
+    ; page
 ;******************************************************************************
 ;   find_pf_base: routine to find a valid page frame
 ;
@@ -200,7 +200,7 @@ find_phys_pages endp
 ;	USES:  NONE
 ;
 ;******************************************************************************
-find_pf_base	proc	near
+find_pf_base:
 ;
 	push	ax
 	push	bx
@@ -331,7 +331,7 @@ pf_xit:
 	pop	ax
 	ret
 
-find_pf_base	endp
+; ENDP find_pf_base
 
 
 ;***********************************************************************;
@@ -350,7 +350,7 @@ find_pf_base	endp
 ; History:                                                              ;
 ;	ISP (isp). Wrote it.				;
 ;***********************************************************************;
-exclude_video_mem   proc    near
+exclude_video_mem:
 ;
     push    bx
     push    ax
@@ -363,7 +363,7 @@ exclude_video_mem   proc    near
     pop     bx
     ret
 ;
-exclude_video_mem   endp
+; ENDP exclude_video_mem
 
 ;***********************************************************************;
 ; exclude_system_ROM							;
@@ -381,16 +381,16 @@ exclude_video_mem   endp
 ; History:                                                              ;
 ;	ISP (isp). Wrote it.				;
 ;***********************************************************************;
-exclude_system_ROM  proc    near
+exclude_system_ROM:
 ;
     push    bx
     push    ax
 ;
-ifndef	NOHIMEM
+%ifndef NOHIMEM
     mov     bx,FIRST_SYSTEM_ROM_SEG_LO
-else
+%else
     mov     bx,FIRST_SYSTEM_ROM_SEG_HI
-endif
+%endif
 
     mov     ax,LAST_SYSTEM_ROM_SEG
     call    exclude_segments
@@ -399,7 +399,7 @@ endif
     pop     bx
     ret
 ;
-exclude_system_ROM  endp
+; ENDP exclude_system_ROM
 
 ;***********************************************************************;
 ; exclude_conv_RAM							;
@@ -413,7 +413,7 @@ exclude_system_ROM  endp
 ; History:								;
 ;	ISP (isp).  Wrote it
 ;***********************************************************************;
-exclude_conv_RAM    proc    near
+exclude_conv_RAM:
 ;
     push    bx
     push    ax
@@ -426,7 +426,7 @@ exclude_conv_RAM    proc    near
     pop     bx
     ret
 ;
-exclude_conv_RAM    endp
+; ENDP exclude_conv_RAM
 
 ;-----------------------------------------------------------------------;
 ; exclude_segments                                                      ;
@@ -445,7 +445,7 @@ exclude_conv_RAM    endp
 ; History:                                                              ;
 ;	ISP (isp). modified from ps2emm sources. 	;
 ;-----------------------------------------------------------------------;
-exclude_segments	proc	near
+exclude_segments:
 ;
 	push	cx
 	push	es
@@ -465,7 +465,7 @@ exclude_segments	proc	near
 ;
 	push	cs
 	pop	es
-	assume	es:nothing
+	; assume	es:nothing
 	lea	di, mappable_segs[bx]
 	mov	al,PAGE_NOT_MAPPABLE
 	cld
@@ -477,7 +477,7 @@ exclude_segments_done:
 	pop	cx
 	ret
 ;
-exclude_segments	endp
+; ENDP exclude_segments
 
 ;-----------------------------------------------------------------------;
 ; is_page_mappable							;
@@ -496,15 +496,15 @@ exclude_segments	endp
 ; History:                                                              ;
 ;	ISP (isp). 8/29/88				;
 ;-----------------------------------------------------------------------;
-is_page_mappable    proc    near
+is_page_mappable:
 ;
 	cmp	cs:mappable_segs[si],PAGE_MAPPABLE
 	ret
 ;
-is_page_mappable    endp
+; ENDP is_page_mappable
 
-LAST	ends				; End of segment
+; END SECTION .LAST; End of segment
 ;
 
-	end				; End of module
+	; end; End of module
 

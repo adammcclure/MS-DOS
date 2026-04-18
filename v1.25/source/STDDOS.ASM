@@ -1,8 +1,8 @@
-	TITLE	MS-DOS version 1.25 by Tim Paterson     March 3, 1982
-	PAGE	60,132
+	; TITLE	MS-DOS version 1.25 by Tim Paterson     March 3, 1982
+	; PAGE	60,132
 ; Use the following booleans to set the switches 
 FALSE	EQU	0
-TRUE	EQU	NOT FALSE
+TRUE	EQU	~FALSE
 
 ; Use the switches below to produce the standard Microsoft version of the IBM
 ; version of the operating system
@@ -18,6 +18,6 @@ HIGHMEM	EQU	FALSE
 
 DSKTEST	EQU	FALSE
 
-	INCLUDE	MSDOS.ASM
+	%include "MSDOS.ASM"
 
 

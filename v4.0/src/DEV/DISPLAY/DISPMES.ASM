@@ -1,17 +1,17 @@
-CODE	SEGMENT BYTE PUBLIC 'CODE'      ;
-	ASSUME	CS:CODE,DS:CODE 	;
+SECTION .CODE;
+	; ASSUME	CS:CODE,DS:CODE;
 					;
 CR	EQU	13			;
 LF	EQU	10			;
 					;
-	PUBLIC	ERROR_1B		;
-	PUBLIC	ERROR_1A		;
-	PUBLIC	ERROR_2 		;
-	PUBLIC	ERROR_3 		;
+	global ERROR_1B;
+	global ERROR_1A;
+	global ERROR_2;
+	global ERROR_3;
 ;;	PUBLIC	MSG_4			;
 					;
-INCLUDE DISPMES.INC
+%include "DISPMES.INC"
 					;
-CODE	ENDS				;
-	END				;
+; END SECTION .CODE;
+	; END;
 

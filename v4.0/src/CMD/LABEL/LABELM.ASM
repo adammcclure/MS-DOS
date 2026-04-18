@@ -1,5 +1,5 @@
-	PAGE	,132			;
-	TITLE	LABELM.SAL - MESSAGE HANDLER FOR LABEL UTILITY
+	; PAGE	,132;
+	; TITLE	LABELM.SAL - MESSAGE HANDLER FOR LABEL UTILITY
 ;*****************************************************************************
 ;*									     *
 ;*  MODULE NAME:       LABELM.SAL					     *
@@ -62,18 +62,18 @@
 ;*    Prolog edited					  04/88  S. Maes     *
 ;*									     *
 ;*****************************************************************************
-IF1
-	%OUT	COMPONENT=LABEL MODULE=LABELM.SAL
-	%OUT	INCLUDING SYSMSG.INC
-ENDIF
-	INCLUDE sysmsg.inc
+%if 1  ; IF1 - pass-specific
+	%warning COMPONENT=LABEL MODULE=LABELM.SAL
+	%warning INCLUDING SYSMSG.INC
+%endif
+	%include "sysmsg.inc"
 	MSG_UTILNAME <LABL>
 
-CSEG	segment public
-	assume	cs:CSEG,ds:CSEG
-	assume	es:CSEG,ss:CSEG
+SECTION .CSEG
+	; assume	cs:CSEG,ds:CSEG
+	; assume	es:CSEG,ss:CSEG
 
-	PUBLIC	SYSDISPMSG,SYSLOADMSG
+	global SYSDISPMSG,SYSLOADMSG
 
 	MSG_SERVICES <MSGDATA>
 	MSG_SERVICES <LABL.CLA,LABL.CL1,LABL.CL2> ;AN000;M Support Utility msgs
@@ -84,9 +84,9 @@ CSEG	segment public
 						  ;DEFAULT=NO DATEmsg
 						  ;DEFAULT=NO GETmsg
 	MSG_SERVICES <NEARmsg,DISPLAYmsg,CHARmsg,NUMmsg,INPUTmsg,LOADmsg>
-CSEG	ENDS					  ;AN000;M Access to svcs macro
+; END SECTION .CSEG;AN000;M Access to svcs macro
 
-	include msgdcl.inc
+	%include "msgdcl.inc"
 
-	END
+	; END
 

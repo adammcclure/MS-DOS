@@ -1,4 +1,4 @@
-page	,132					;
+; page	,132;
 ;
 
 ;*****************************************************************************
@@ -9,41 +9,41 @@ page	,132					;
 ;
 ;
 ;
-; ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-; ³EXEC_FS_FORMAT³
-; ÀÄÂÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;   ³
-;   ³ÚÄÄÄÄÄÄ¿
-;   Ã´Shrink³
-;   ³ÀÄÄÄÄÄÄÙ
-;   ³ÚÄÄÄÄÄÄÄÄÄÄ¿
-;   Ã´Setup_EXEC³
-;   ³ÀÄÄÄÄÄÄÄÄÄÄÙ
-;   ³ÚÄÄÄÄÄÄÄÄÄ¿	  ÚÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   Ã´EXEC_ArgVÃÄÄÄÄÄÄÄÄÄÄ´EXEC_Program³
-;   ³ÀÄÄÄÄÄÄÄÄÄÙ	  ÀÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;   ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿ ÚÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   Ã´EXEC_Cur_DirectoryÃÄ´EXEC_Program³
-;   ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ ÀÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;   ³ÚÄÄÄÄÄÄÄÄÄÄÄÄ¿	  ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿ ÚÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   À´EXEC_RoutineÃÄÄÄÄÄÄÄ´Build_Path_And_EXECÃÄ´EXEC_Program³
-;    ÀÄÄÄÄÄÄÄÄÄÄÄÄÙ	  ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ ÀÄÄÄÄÄÄÄÄÄÄÄÄÙ
+; ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+; Â³EXEC_FS_FORMATÂ³
+; Ã€Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³
+;   Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Â¿
+;   ÃƒÂ´ShrinkÂ³
+;   Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   ÃƒÂ´Setup_EXECÂ³
+;   Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿	  ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   ÃƒÂ´EXEC_ArgVÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´EXEC_ProgramÂ³
+;   Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™	  Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿ ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   ÃƒÂ´EXEC_Cur_DirectoryÃƒÃ„Â´EXEC_ProgramÂ³
+;   Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™ Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿	  ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿ ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   Ã€Â´EXEC_RoutineÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Â´Build_Path_And_EXECÃƒÃ„Â´EXEC_ProgramÂ³
+;    Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™	  Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™ Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ;
 ; Change List: AN000 - New code DOS 3.3 spec additions
 ;	       AC000 - Changed code DOS 3.3 spec additions
 ;*****************************************************************************
 ;*****************************************************************************
 
-title	DOS	3.30 FORMAT EXEC Module
+; title	DOS	3.30 FORMAT EXEC Module
 
-IF1
-	%OUT	ASSEMBLING: DOS 3.3 FORMAT EXEC LOADER
-	%OUT
-ENDIF
+%if 1  ; IF1 - pass-specific
+	%warning ASSEMBLING: DOS 3.3 FORMAT EXEC LOADER
+	%warning 
+%endif
 
-code	segment public para 'code'
-	assume	cs:code
-code	ends
+SECTION .code
+	; assume	cs:code
+; END SECTION .code
 
 ;
 ;*****************************************************************************
@@ -51,12 +51,12 @@ code	ends
 ;*****************************************************************************
 ;
 
-.xlist
-INCLUDE FORCHNG.INC
-INCLUDE FORMACRO.INC
-INCLUDE SYSCALL.INC
-INCLUDE FOREQU.INC
-.list
+; .xlist
+%include "FORCHNG.INC"
+%include "FORMACRO.INC"
+%include "SYSCALL.INC"
+%include "FOREQU.INC"
+; .list
 
 ;
 ;*****************************************************************************
@@ -64,7 +64,7 @@ INCLUDE FOREQU.INC
 ;*****************************************************************************
 ;
 
-	Public	Drive_Letter_Msg
+	global Drive_Letter_Msg
 
 ;
 ;*****************************************************************************
@@ -73,13 +73,13 @@ INCLUDE FOREQU.INC
 ;
 
 
-IF FSExec					;an018; dms;if /FS: desired
+%if FSExec;an018; dms;if /FS: desired
 
-	Public	EXEC_FS_Format
+	global EXEC_FS_Format
 
-ENDIF		;FSExec 			;an018; dms;end /FS: conditional
+%endif;FSExec 			;an018; dms;end /FS: conditional
 
-	Extrn	GetFSiz:near
+	extern GetFSiz
 
 
 ;
@@ -88,12 +88,12 @@ ENDIF		;FSExec 			;an018; dms;end /FS: conditional
 ;*****************************************************************************
 ;
 
-	extrn	ExitStatus:Byte
-	extrn	Fatal_Error:Byte
-	extrn	FS_String_Buffer:Byte
-	extrn	msgEXECFailure:Byte
-	extrn	PSP_Segment:Word
-	extrn	drive:byte
+	extern ExitStatus
+	extern Fatal_Error
+	extern FS_String_Buffer
+	extern msgEXECFailure
+	extern PSP_Segment
+	extern drive
 
 ;
 ;****************************************************************************
@@ -102,7 +102,7 @@ ENDIF		;FSExec 			;an018; dms;end /FS: conditional
 ;
 
 
-Exec_Block_Parms struc
+struc Exec_Block_Parms
 Segment_Env dw	0
 Offset_Command dw 0
 Segment_Command dw 0
@@ -111,7 +111,7 @@ Segment_FCB1 dw 0
 Offset_FCB2 dw	0
 Segment_FCB2 dw 0
 
-Exec_Block_Parms ends
+endstruc
 
 
 ;
@@ -133,20 +133,20 @@ Stack_Space	equ	02eh							;an000; dms; IBM addition ROM paras
 ;****************************************************************************
 ;
 
-PSP	segment public	para   'DUMMY'
+SECTION .PSP
 
 org	2Ch
-PSP_ENV_SEGMENT label word
+PSP_ENV_SEGMENT:
 
 FCB1	equ	5Ch
 
 FCB2	equ	6Ch
 
 org	80h
-Command_Line label byte
+Command_Line:
 
 
-PSP	ends
+; END SECTION .PSP
 
 ;
 ;****************************************************************************
@@ -154,16 +154,16 @@ PSP	ends
 ;****************************************************************************
 ;
 
-data	segment public para 'DATA'
-	assume	ds:data,es:nothing
+SECTION .data
+	; assume	ds:data,es:nothing
 
 Exec_Block Exec_Block_Parms <>
-EXEC_Path db	66 dup(0)
+EXEC_Path: times 66 db 0
 
 Drive_Letter_Msg db "A:",0			;Drive for exec fail message
 
-SP_Save 	dw	?			;an000; dms;
-SS_Save 	dw	?			;an000; dms;
+SP_Save: dw 0;an000; dms;
+SS_Save: dw 0;an000; dms;
 
 
 ;These next two should stay togather
@@ -194,10 +194,10 @@ Search_Format_End equ $
 
 
 
-data	ends
+; END SECTION .data
 
-code	segment public para 'code'
-	assume	cs:code,ds:data
+SECTION .code
+	; assume	cs:code,ds:data
 
 ;
 ;****************************************************************************
@@ -209,7 +209,7 @@ code	segment public para 'code'
 ;
 ;
 
-IF FSExec					;an018; dms;if /FS: desired
+%if FSExec;an018; dms;if /FS: desired
 
 
 Procedure Exec_FS_Format			;				;AC000;
@@ -243,10 +243,10 @@ Procedure Exec_FS_Format			;				;AC000;
 	      push    si			;an000;dms;save si
 	      mov     si,PSP_Segment		;an000;dms;get psp
 	      mov     ds,si			;an000;dms;put psp in ds
-	      assume  ds:PSP			;an000;dms;
+	      ; assume  ds:PSP;an000;dms;
 
 	      mov     si,FCB1			;an000;dms;ptr to 1st. FCB
-	      mov     bl,byte ptr ds:[si]	;an000;dms;get drive ID
+	      mov     bl,byte [ds:si]	;an000;dms;get drive ID
 
 	      pop     si			;an000;dms;restore si
 	      pop     ds			;an000;dms;restore ds
@@ -280,7 +280,7 @@ $$IF1:
 	mov	Fatal_Error,YES 		;Not really, indicates FS used	;AN000;
 	ret					;				;     ;
 
-Exec_FS_Format endp
+; ENDP Exec_FS_Format
 
 
 ;
@@ -299,7 +299,7 @@ Procedure Shrink				;				;AC000;
 	mov	bx,ds				;an000; dms;get data segment
 	sub	ax,bx				;an000; dms;data seg size
 	mov	bx,ax				;an000; dms;save paras
-	mov	ax,offset End_Program		;Get the offset of end of loader;     ;
+	mov	ax,End_Program		;Get the offset of end of loader;     ;
 	mov	cl,4				;Div by 16 to get para's        ;     ;
 	shr	ax,cl				;				;     ;
 	add	bx,ax				;an000; dms;add in code space
@@ -307,7 +307,7 @@ Procedure Shrink				;				;AC000;
 	add	bx,11h				;an000; dms;give PSP space
 	mov	ax,PSP_Segment
 	mov	es,ax
-	assume	es:nothing
+	; assume	es:nothing
 
 	DOS_Call SetBlock			;				;AC000;
 ;	$IF	C				;If didn't work, quit           ;AC000;
@@ -318,7 +318,7 @@ Procedure Shrink				;				;AC000;
 $$IF9:
 	ret					;				;     ;
 
-Shrink	endp					;				;AN000;
+; ENDP Shrink;				;AN000;
 
 
 ;
@@ -336,21 +336,21 @@ Procedure Setup_Exec				;				;AC000;
 	mov	ax,PSP_Segment			;Get segment of PSP		;AN000;
 	mov	ds,ax				;  "  "    "  " 		;AN000;
 						;     ;
-	assume	ds:PSP
+	; assume	ds:PSP
 						;Setup dword pointer to command line to be passed
 
 	mov	es:Exec_Block.Segment_Command,ax ;Segment for command line	 ;     ;
-	mov	es:Exec_Block.Offset_Command,offset ds:Command_Line ;		      ;     ;
+	mov	es:Exec_Block.Offset_Command,Command_Line ;		      ;     ;
 
 						;Setup dword pointer to first FCB to be passed
 
 	mov	es:Exec_Block.Segment_FCB1,ax	;Segment for FCB1		;     ;
-	mov	es:Exec_Block.Offset_FCB1,offset ds:FCB1 ;Offset of FCB at 05Ch       ;     ;
+	mov	es:Exec_Block.Offset_FCB1,FCB1 ;Offset of FCB at 05Ch       ;     ;
 
 						;Setup dword pointer to second FCB to be passed 			    ;	  ;
 
 	mov	es:Exec_Block.Segment_FCB2,ax	;Segment for FCB2		;     ;
-	mov	es:Exec_Block.Offset_FCB2,offset ds:FCB2 ;Offset of FCB at 06Ch       ;     ;
+	mov	es:Exec_Block.Offset_FCB2,FCB2 ;Offset of FCB at 06Ch       ;     ;
 
 						;Setup segment of Environment string, get from PSP			    ;	  ;
 
@@ -360,7 +360,7 @@ Procedure Setup_Exec				;				;AC000;
 	ret					;				;     ;
 
 
-Setup_EXEC endp 				;				;AN000;
+; ENDP Setup_EXEC;				;AN000;
 
 ;
 ;****************************************************************************
@@ -380,7 +380,7 @@ Procedure EXEC_Argv				;				;AC000;
 	mov	ax,Exec_Block.Segment_Env	;Get the environment		;     ;
 	mov	ds,ax				;Get addressability		;     ;
 
-	assume	ds:nothing
+	; assume	ds:nothing
 
 	xor	si,si				;Start at beginning		;     ;
 ;	$DO					;Find argv(0) location		;AN000;
@@ -388,11 +388,11 @@ $$DO11:
 ;	   $DO					;Look for 0			;AN000;
 $$DO12:
 	      inc     si			;Get character			;     ;
-	      cmp     byte ptr [si-1],0 	;Find string seperator? 	;     ;
+	      cmp     byte [si-1],0 	;Find string seperator? 	;     ;
 ;	   $ENDDO  E				;Yep				;AC000;
 	   JNE $$DO12
 	   inc	   si				;Get next char			;     ;
-	   cmp	   byte ptr [si-1],0		;Are we at Argv(0)? (00?)	;     ;
+	   cmp	   byte [si-1],0		;Are we at Argv(0)? (00?)	;     ;
 ;	$ENDDO	E				;Yes if we found double 0's     ;AC000;
 	JNE $$DO11
 	add	si,2				;Skip the word count		;     ;
@@ -400,13 +400,13 @@ $$DO12:
 ;	$DO					;Find length of Argv(0) string	;AN000;
 $$DO15:
 	   inc	   si				;Get char			;     ;
-	   cmp	   byte ptr [si-1],0		;Is it the end? 		;     ;
+	   cmp	   byte [si-1],0		;Is it the end? 		;     ;
 ;	$ENDDO	E				;End found if 0 found		;AC000;
 	JNE $$DO15
 	mov	cx,si				;Get number of bytes in string	;     ;
 	sub	cx,di				;Put in cx reg for rep count	;     ;
 	mov	si,di				;Point to path			;     ;
-	mov	di,offset es:EXEC_Path		;Point to where to put it	;     ;
+	mov	di,EXEC_Path		;Point to where to put it	;     ;
 	rep	movsb				;Move the string		;     ;
 	Set_Data_Segment			;				;AN000'
 	dec	di				;Point at end of ArgV string	;     ;
@@ -414,11 +414,11 @@ $$DO15:
 ;	$DO					;Find 'FORMAT' in ARGV string	;AC000;
 $$DO17:
 	   mov	   cx,Len_Search_FORMAT 	;Get length to compare		;AC000;
-	   mov	   si,offset Search_FORMAT_End-1 ;Look at comp string from end	 ;AC000;
+	   mov	   si,Search_FORMAT_End-1 ;Look at comp string from end	 ;AC000;
 	   repe    cmpsb			;See if same string		;AC000;
 ;	$ENDDO	E				;				;AC000;
 	JNE $$DO17
-	mov	si,offset FS_String_Buffer	;				;AN000;
+	mov	si,FS_String_Buffer	;				;AN000;
 	inc	di				;DI = replacement point-1	;AC000;
 	cld					;Set direction flag back	;AN000;
 	mov	cx,Len_FS_String_Buffer 	;Length of string to move	;AN000;
@@ -426,7 +426,7 @@ $$DO17:
 	call	EXEC_Program			;				;     ;
 	ret					;				;     ;
 
-EXEC_ArgV endp					;				;AN000;
+; ENDP EXEC_ArgV;				;AN000;
 
 ;
 ;****************************************************************************
@@ -441,17 +441,17 @@ Procedure EXEC_Program				;				;AC000;
 
 	Set_Data_Segment			;				;AN000;
 	mov	ExitStatus,No_Error		;Setup to Exec the file 	;     ;
-	mov	dx,offset Exec_Path		;				;     ;
-	mov	bx,offset Exec_Block		;				;     ;
+	mov	dx,Exec_Path		;				;     ;
+	mov	bx,Exec_Block		;				;     ;
 	mov	al,0				;				;     ;
-	mov	word ptr SP_Save,sp		;an000; dms;save sp
-	mov	word ptr SS_Save,ss		;an000; dms;save ss
+	mov	word SP_Save,sp		;an000; dms;save sp
+	mov	word SS_Save,ss		;an000; dms;save ss
 
 	DOS_Call Exec				;				;AC000;
 
 	cli					;an000; dms;turn off int's
-	mov	sp,word ptr SP_Save		;an000; dms;retrieve sp
-	mov	ss,word ptr SS_Save		;an000; dms;retrieve ss
+	mov	sp,word SP_Save		;an000; dms;retrieve sp
+	mov	ss,word SS_Save		;an000; dms;retrieve ss
 	sti					;an000; dms;turn on int's
 
 
@@ -462,7 +462,7 @@ Procedure EXEC_Program				;				;AC000;
 $$IF19:
 	ret					;				;     ;
 
-EXEC_Program endp				;				;AN000;
+; ENDP EXEC_Program;				;AN000;
 
 
 ;
@@ -482,19 +482,19 @@ Procedure EXEC_Routine				;				;AN000;
 	push	ds				;				;     ;
 	mov	ax,Exec_Block.Segment_Env	;Get the environment		;     ;
 	mov	ds,ax				;Get addressability		;     ;
-	assume	ds:nothing			;
+	; assume	ds:nothing;
 
 	xor	si,si				;Start at beginning		;     ;
 ;	$SEARCH 				;				;AC000;
 $$DO21:
-	   cmp	   word ptr ds:[si],0		;End of the Evironment? 	;     ;
+	   cmp	   word [ds:si],0		;End of the Evironment? 	;     ;
 ;	$EXITIF E				;Reached end, no more look	;AC000;
 	JNE $$IF21
 						;				;     ;
 ;	$ORELSE 				;Look for 'PATH=' in environment;AN000;
 	JMP SHORT $$SR21
 $$IF21:
-	   mov	   di,offset Path_String	;  "  "    "  " 		;AC000;
+	   mov	   di,Path_String	;  "  "    "  " 		;AC000;
 	   mov	   cx,Len_Path_String		;  "  "    "  " 		;AC000;
 	   repe    cmpsb			;  "  "    "  " 		;AC000;
 ;	$LEAVE	E				;Found if EQ			;AC000;
@@ -508,7 +508,7 @@ $$SR21:
 	pop	ds				;				;     ;
 	ret					;				;     ;
 
-EXEC_Routine endp
+; ENDP EXEC_Routine
 
 ;
 ;****************************************************************************
@@ -523,17 +523,17 @@ Procedure Build_Path_And_Exec			;				;AN000;
 
 ;	$DO					;				;AC000;
 $$DO27:
-	   cmp	   byte ptr ds:[si],0		;All path entries done? 	;     ;
+	   cmp	   byte [ds:si],0		;All path entries done? 	;     ;
 ;	   $IF	   NE				;				;AC000;
 	   JE $$IF28
-	      mov     di,offset EXEC_Path	;Point at where to put path	;     ;
-	      mov     byte ptr es:[di],0	;End path just in case		;     ;
+	      mov     di,EXEC_Path	;Point at where to put path	;     ;
+	      mov     byte [es:di],0	;End path just in case		;     ;
 ;	      $DO				;				;AC000;
 $$DO29:
-		 cmp	 byte ptr ds:[si],0	;End of Path?			;     ;
+		 cmp	 byte [ds:si],0	;End of Path?			;     ;
 ;	      $LEAVE  E 			;				;AC000;
 	      JE $$EN29
-		 cmp	 byte ptr ds:[si],';'	;End of entry?		       ;     ;
+		 cmp	 byte [ds:si],';'	;End of entry?		       ;     ;
 ;		 $if	 e			;yes				;an000; dms;
 		 JNE $$IF31
 			 inc	si		;point to next character	;an000; dms;
@@ -547,14 +547,14 @@ $$EN29:
 
 EXIT_BPE_LOOP:					;				;an000; dms;
 						;Path filled in,get backslash	;     ;
-	      cmp     byte ptr ds:[si-1],0	;Any path there?		;     ;
+	      cmp     byte [ds:si-1],0	;Any path there?		;     ;
 ;	      $IF     NE			;				;AC000;
 	      JE $$IF34
 						;Nope				;     ;
-		 cmp	 byte ptr ds:[si-1],"\" ;Need a backslash?	     ;	   ;
+		 cmp	 byte [ds:si-1],"\" ;Need a backslash?	     ;	   ;
 ;		 $IF	 NE			;				;AC000;
 		 JE $$IF35
-		    mov     byte ptr es:[di],"\" ;Yes, put one in	     ;	   ;
+		    mov     byte [es:di],"\" ;Yes, put one in	     ;	   ;
 		    inc     di			;Line it up for next stuff	;     ;
 		    inc     si			;				;     ;
 ;		 $ENDIF 			;				;AN000;
@@ -563,7 +563,7 @@ $$IF35:
 		 push	 ds			;Save segment for environment	;AN000;
 		 push	 es			;Xchange ds/es			;an000; dms;
 		 pop	 ds			;				;an000; dms;
-		 mov	 si,offset FS_String_Buffer ;Fill in filename		    ;	  ;
+		 mov	 si,FS_String_Buffer ;Fill in filename		    ;	  ;
 		 mov	 cx, Len_FS_String_Buffer ;				  ;	;
 		 rep	 movsb			;				;     ;
 		 call	 Exec_Program		;				;     ;
@@ -578,7 +578,7 @@ $$IF28:
 	JNE $$DO27
 	ret					;				;AN000;
 
-Build_Path_And_EXEC Endp			;				;AN000;
+; ENDP Build_Path_And_EXEC;				;AN000;
 
 
 
@@ -594,14 +594,14 @@ Build_Path_And_EXEC Endp			;				;AN000;
 Procedure Exec_Cur_Directory			;				;AC000;
 
 	Set_Data_Segment			;				;AN000;
-	mov	si,offset FS_String_Buffer	;Setup path for current dir	;     ;
-	mov	di,offset EXEC_Path		;				;     ;
+	mov	si,FS_String_Buffer	;Setup path for current dir	;     ;
+	mov	di,EXEC_Path		;				;     ;
 	mov	cx,Len_FS_String_Buffer 	;				;     ;
 	rep	movsb				;				;     ;
 	call	EXEC_Program			;				;     ;
 	ret					;				;     ;
 
-EXEC_Cur_Directory endp 			;				;AN000;
+; ENDP EXEC_Cur_Directory;				;AN000;
 
 ;=========================================================================
 ; Set_FCB1_Drive	: This routine sets the 1st. byte of the FCB1,
@@ -615,23 +615,23 @@ Procedure Set_FCB1_Drive			;an000;dms;set drive ID
 
 	mov	si,PSP_Segment			;an000;dms;get segment of PSP
 	mov	ds,si				;an000;dms;put it in ds
-	assume	ds:PSP				;an000;dms;
+	; assume	ds:PSP;an000;dms;
 	mov	si,FCB1 			;an000;dms;ptr to FCB1
-	mov	byte ptr ds:[si],00h		;an000;dms;set drive ID to
+	mov	byte [ds:si],00h		;an000;dms;set drive ID to
 						;      default drive
 	pop	si				;an000;dms;restore si
 	pop	ds				;an000;dms;restore ds
 	Set_Data_Segment			;an000;dms;set up segmentation
 	ret					;an000;dms;
 
-Set_FCB1_Drive	endp				;an000;dms;
+; ENDP Set_FCB1_Drive;an000;dms;
 
-ENDIF		;FSExec 			;an018; dms;end /FS: conditional
+%endif;FSExec 			;an018; dms;end /FS: conditional
 						;	    assembly
 
-public End_Program
-End_Program label byte
+global End_Program
+End_Program:
 
-code	ends
-	end
+; END SECTION .code
+	; end
 

@@ -1,11 +1,11 @@
 
- ASS_PARMS	label  dword
+ ASS_PARMS:
       dw	ASS_PARMSX
       db	1   ;list of extra delimiters
       db	3   ;0 length
       db	";+="
 
- ASS_PARMSX	label  byte
+ ASS_PARMSX:
       db	0,1
 
 ;Min 0 - no drive or switch specified
@@ -16,7 +16,7 @@
       db	1	  ;# of switches
       dw	ASS_SW1   ;switch ptr
 
-  ASS_POS1	 label	word
+  ASS_POS1:
        dw	 2010h	  ;Simple string,
 			   ;ignore colon, &
 			   ;repeat
@@ -29,7 +29,7 @@
 			   ;keyword synonyms
        db	 0	   ;alternative keyword
 
- ASS_SW1	label  word
+ ASS_SW1:
 		dw	  0	    ;20010h    ;Simple string,
 				    ;ignore colon & repeat
 				    ;allowed
@@ -43,7 +43,7 @@
  SW_Syn2	db	  "/STA",0     ;alternate keyword
 
 
- Res_CTLVAL	label  word
+ Res_CTLVAL:
       db	3	 ;List of simple strings
       db	0	 ;not in range defn.
       db	0	 ;not in numeric defn.
@@ -127,86 +127,86 @@
 			 ;value returned
       dw	DRVZ_PTR ;string ptr
 
- DRVA_PTR      LABEL	  word
+ DRVA_PTR:
       db       "A",0
 
- DRVB_PTR      LABEL	  word
+ DRVB_PTR:
       db       "B",0
 
- DRVC_PTR      LABEL	  word
+ DRVC_PTR:
       db       "C",0
 
- DRVD_PTR      LABEL	  word
+ DRVD_PTR:
       db       "D",0
 
- DRVE_PTR      LABEL	  word
+ DRVE_PTR:
       db       "E",0
 
- DRVF_PTR      LABEL	  word
+ DRVF_PTR:
       db       "F",0
 
- DRVG_PTR      LABEL	  word
+ DRVG_PTR:
       db       "G",0
 
- DRVH_PTR      LABEL	  word
+ DRVH_PTR:
       db       "H",0
 
- DRVI_PTR      LABEL	  word
+ DRVI_PTR:
       db       "I",0
 
- DRVJ_PTR      LABEL	  word
+ DRVJ_PTR:
       db       "J",0
 
- DRVK_PTR      LABEL	  word
+ DRVK_PTR:
       db       "K",0
 
- DRVL_PTR      LABEL	  word
+ DRVL_PTR:
       db       "L",0
 
- DRVM_PTR      LABEL	  word
+ DRVM_PTR:
       db       "M",0
 
- DRVN_PTR      LABEL	  word
+ DRVN_PTR:
       db       "N",0
 
- DRVO_PTR      LABEL	  word
+ DRVO_PTR:
       db       "O",0
 
- DRVP_PTR      LABEL	  word
+ DRVP_PTR:
       db       "P",0
 
- DRVQ_PTR      LABEL	  word
+ DRVQ_PTR:
       db       "Q",0
 
- DRVR_PTR      LABEL	  word
+ DRVR_PTR:
       db       "R",0
 
- DRVS_PTR      LABEL	  word
+ DRVS_PTR:
       db       "S",0
 
- DRVT_PTR      LABEL	  word
+ DRVT_PTR:
       db       "T",0
 
- DRVU_PTR      LABEL	  word
+ DRVU_PTR:
       db       "U",0
 
- DRVV_PTR      LABEL	  word
+ DRVV_PTR:
       db       "V",0
 
- DRVW_PTR      LABEL	  word
+ DRVW_PTR:
       db       "W",0
 
- DRVX_PTR      LABEL	  word
+ DRVX_PTR:
       db       "X",0
 
- DRVY_PTR      LABEL	  word
+ DRVY_PTR:
       db       "Y",0
 
- DRVZ_PTR      LABEL	  word
+ DRVZ_PTR:
       db       "Z",0
 
- RESULT_VAL	label	word
- RESULT_VALSW	label	word
+ RESULT_VAL:
+ RESULT_VALSW:
 
    RES_TYPE  db        0       ;Result_type
    RES_ITAG  db        0       ;Matched
@@ -225,12 +225,12 @@
 ;	Sublist Definition Area
 ;=========================================================================
 
-Parse_Sublist	label	word
+Parse_Sublist:
 
 		db	Sublist_Length	;sublist length 			;an002; dms;
 		db	Reserved	;reserved for future growth		;an002; dms;
-Parse_Sub_Off	dw	?		;offset of replaceable parm		;an002; dms;
-Parse_Sub_Seg	dw	?		;segment of replaceable parm		;an002; dms;
+Parse_Sub_Off: dw 0;offset of replaceable parm		;an002; dms;
+Parse_Sub_Seg: dw 0;segment of replaceable parm		;an002; dms;
 		db	0		;replaceable parm 0			;an002; dms;
 		db	Left_Align+Char_Field_ASCIIZ ;				;an002; dms;
 		db	40		;max width				;an002; dms;

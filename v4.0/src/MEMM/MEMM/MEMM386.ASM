@@ -1,8 +1,8 @@
 
 
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	title	MEMM386 - main module for MEMM
+	; title	MEMM386 - main module for MEMM
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -129,9 +129,9 @@
 ;
 ;
 ;******************************************************************************
-.lfcond
-.386p
-	page
+; .lfcond
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
@@ -139,26 +139,26 @@
 ;
 ;   R_CODE publics
 ;
-	public	strategy
-	public	interrupt
-	public	MEMM_Entry
+	global strategy
+	global interrupt
+	global MEMM_Entry
 
 ;
 ;   _TEXT publics
 ;
-	public	ELIM_EXE		; .EXE execution entry point
-	public	ELIM_link
-	public	Inst_chk		; Check to see if MEMM already installed
-	public	Inst_chk_f		; Far call version of above
+	global ELIM_EXE; .EXE execution entry point
+	global ELIM_link
+	global Inst_chk; Check to see if MEMM already installed
+	global Inst_chk_f; Far call version of above
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include	driver.equ
-	include	driver.str
-	include	vdmseg.inc
+	%include "driver.equ"
+	%include "driver.str"
+	%include "vdmseg.inc"
 
 FALSE	equ	0
 TRUE	equ	not FALSE
@@ -168,36 +168,36 @@ GET_PSP equ	62h			; get program segment prefix
 
 NULL		EQU		0FFFFH			;Null address pointer
 
-dospsp_str	struc
-		db	80h dup (?)
-cmd_len		db	?		; length of command line
-cmd_line	db	?		; commande line
-dospsp_str	ends
+struc dospsp_str
+		resb 1
+cmd_len: resb 1; length of command line
+cmd_line: resb 1; commande line
+endstruc
 
 ;******************************************************************************
 ;			E X T E R N A L    R E F E R E N C E S
 ;******************************************************************************
 ;
-abs0	segment use16 at 0000h
+SECTION .abs0
 
 	org	67h*4		; EMM function interrupt
-int67	dw	?		; offset of vector
-	dw	?		; segment of vector
-abs0	ends
+int67: dw 0; offset of vector
+	dw 0; segment of vector
+; END SECTION .abs0
 
-LAST	segment
-extrn	Init_MEMM386:far		; initializes VDM,EMM, and driver
-LAST	ends
+SECTION .LAST
+extern Init_MEMM386; initializes VDM,EMM, and driver
+; END SECTION .LAST
 
-R_CODE	segment
-extrn	ELIM_Entry:far		; general entry point for MEMM functions
-R_CODE	ends
+SECTION .R_CODE
+extern ELIM_Entry; general entry point for MEMM functions
+; END SECTION .R_CODE
 
-_TEXT	segment
-extrn	onf_func:near		; perform on, off, or auto checking for elim.exe
-_TEXT	ends
+SECTION ._TEXT
+extern onf_func; perform on, off, or auto checking for elim.exe
+; END SECTION ._TEXT
 
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T   D E F I N I T I O N
 ;******************************************************************************
@@ -208,8 +208,8 @@ _TEXT	ends
 ;
 ;******************************************************************************
 ;
-R_CODE	segment
-	assume	cs:R_CODE, ds:R_CODE, es:R_CODE, ss:R_CODE
+SECTION .R_CODE
+	; assume	cs:R_CODE, ds:R_CODE, es:R_CODE, ss:R_CODE
 
 Start:
 ;******************************************************************************
@@ -219,8 +219,8 @@ Start:
 	DW		NULL			;Null segment address
 	DW		NULL			;Null offset address
 	DW		CHAR_DEV+IOCTL_SUP	;Attribute - Char
-	DW		OFFSET STRATEGY 	;Strategy routine entry
-	DW		OFFSET INTERRUPT	;Interrupt routine entry
+	DW		STRATEGY 	;Strategy routine entry
+	DW		INTERRUPT	;Interrupt routine entry
 	DB		'EMMXXXX0'              ;Character device name
 ;
 ;******************************************************************************
@@ -229,7 +229,7 @@ Start:
 ;			functions. (e.g. ON, OFF function).
 ;******************************************************************************
 ;
-MEMM_Entry	dw	offset	ELIM_Entry		; general entry point
+MEMM_Entry	dw	ELIM_Entry		; general entry point
 
 ;******************************************************************************
 ;	       MEMM signature
@@ -237,7 +237,7 @@ MEMM_Entry	dw	offset	ELIM_Entry		; general entry point
 memmsig	db	'MICROSOFT EXPANDED MEMORY MANAGER 386'
 SIG_LENGTH	equ	(this byte - memmsig)
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   D A T A   A R E A
 ;******************************************************************************
@@ -245,7 +245,7 @@ SIG_LENGTH	equ	(this byte - memmsig)
 ;
 ;	Define the command dispatch table for the driver functions
 ;
-Cmd_Table	LABEL		NEAR
+Cmd_Table:
 	DW		Init_Call		;0 - Initialization
 	DW		Null_Exit		;1 - Media Check
 	DW		Null_Exit		;2 - Get BPB
@@ -261,12 +261,12 @@ Cmd_Table	LABEL		NEAR
 	DW		Null_Exit		;C - IOCTL output
 TBL_LENGTH	EQU		(THIS BYTE-CMD_TABLE)/2 ;Dispatch table length
 
-	public	ReqPtr
-ReqPtr		label	dword	; dword ptr to Request Header
+	global ReqPtr
+ReqPtr:; dword ptr to Request Header
 ReqOff		dw	0	; saved offset of Request Header
 ReqSeg		dw	0	; saved segment of Request Header
 
-	page
+	; page
 ;******************************************************************************
 ;	Strategy - strategy routine for MEMM
 ;
@@ -277,11 +277,11 @@ ReqSeg		dw	0	; saved segment of Request Header
 ;	USED: none
 ;
 ;******************************************************************************
-Strategy	proc		far
-	mov		CS:[ReqOff],bx 	;Save header offset
-	mov		CS:[ReqSeg],es 	;Save header segment
+Strategy:
+	mov		[CS:ReqOff],bx 	;Save header offset
+	mov		[CS:ReqSeg],es 	;Save header segment
 	ret
-Strategy	endp
+; ENDP Strategy
 
 ;******************************************************************************
 ;	Interrupt - device driver interrupt routine for MEMM
@@ -293,7 +293,7 @@ Strategy	endp
 ;	USED: none
 ;
 ;******************************************************************************
-Interrupt	proc		far
+Interrupt:
 	push	ax
 	push	bx
 	push	cx
@@ -303,23 +303,23 @@ Interrupt	proc		far
 	push	ds
 	push	es
 	cld					;All strings forward
-	lds	bx,CS:[ReqPtr]	 		;DS:BX pts to Request Header
-	mov	al,[bx.COMMAND_CODE]		;Get the command code
+	lds	bx,[CS:ReqPtr]	 		;DS:BX pts to Request Header
+	mov	al,[bx+COMMAND_CODE]		;Get the command code
 	cmp	al,TBL_LENGTH			;Check for validity
 	jae	Invalid 			;Jump if command invalid
 	cbw					;Command to a full word
 	shl	ax,1				;Compute dispatch index
-	mov	si,OFFSET Cmd_Table		;Point to dispatch table
+	mov	si,Cmd_Table		;Point to dispatch table
 	add	si,ax				;Index based on command
-	call	CS:[si] 			;Call correct routine
+	call	[CS:si] 			;Call correct routine
 
 ;
 ;   ENTRY:	AX = Status field for Request Header
 ;
 Finish:
-	lds	bx,CS:[ReqPtr] 	;Get request header ptr.
+	lds	bx,[CS:ReqPtr] 	;Get request header ptr.
 	or	ah,DON			;Set done bit in status
-	mov	DS:[bx.STATUS_WORD],ax	;Save status in header
+	mov	[DS:bx+STATUS_WORD],ax	;Save status in header
 	pop	es			;Restore the ES register
 	pop	ds
 	pop	di
@@ -334,7 +334,7 @@ Invalid:
 	mov	ah,ERR			; error
 	stc
 	jmp	SHORT Finish		;Go return to caller
-Interrupt	endp
+; ENDP Interrupt
 
 ;******************************************************************************
 ;	Null_Exit: do nothing
@@ -345,13 +345,13 @@ Interrupt	endp
 ;		CLC
 ;
 ;******************************************************************************
-Null_Exit	proc	near
+Null_Exit:
 ;
 	xor	ax,ax
 	clc
 	ret
 ;
-Null_Exit	endp
+; ENDP Null_Exit
 
 ;******************************************************************************
 ;	Init_Call - call initialization routine
@@ -361,12 +361,12 @@ Null_Exit	endp
 ;	EXIT: AX = status field for request header
 ;
 ;******************************************************************************
-Init_Call	proc	near
+Init_Call:
 ;
 	call	Init_MEMM386
 	ret
 ;
-Init_Call	endp
+; ENDP Init_Call
 
 ;******************************************************************************
 	db	'SBP'
@@ -374,24 +374,24 @@ Init_Call	endp
 ;******************************************************************************
 ;
 
-R_CODE	ends
+; END SECTION .R_CODE
 
-	page
+	; page
 ;******************************************************************************
 ;
 ;	_TEXT Code Segment
 ;
 ;******************************************************************************
-_TEXT	segment
-	assume	cs:_TEXT, ds:_TEXT, es:_TEXT, ss:_TEXT
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:_TEXT, es:_TEXT, ss:_TEXT
 
 FarLink	dd	0		; far pointer to installed memm386 entry point
 				; OK as writeable because it is only used
 				; during .EXE execution.
 
 ;
-rh	db	23,0,0,0,0,8 dup (0)
-	db	10 dup (0)
+rh	db	23,0,0,0,0,times 8 db 0
+	times 10 db 0
 ;
 MEMM:
 ;******************************************************************************
@@ -423,23 +423,23 @@ MEMM:
 ;;
 ;------------------------------------------------------------------------------
 
-ELIM_EXE	proc	near
+ELIM_EXE:
 ;
-	extrn	exe_stack:byte
+	extern exe_stack
 
 	push	seg STACK
 	pop	ss
-	mov	sp, offset STACK:exe_stack
+	mov	sp, exe_stack
 	push	cs
 	pop	ds
 	mov	ah,GET_PSP
 	int	MS_DOS
 	mov	es,bx
-	mov	di,offset cmd_line
+	mov	di,cmd_line
 
 	mov	bx,seg rh
 	mov	ds,bx
-	mov	bx,offset rh
+	mov	bx,rh
 	mov	[bx+20],es
 	mov	[bx+18],di
 
@@ -450,9 +450,9 @@ ELIM_EXE	proc	near
 
 	mov	bx,seg rh
 	mov	es,bx
-	mov	bx,offset rh
-	mov	dx,es:[bx+16]
-	sub	dx,es:[bx+20]
+	mov	bx,rh
+	mov	dx,[es:bx+16]
+	sub	dx,[es:bx+20]
 	mov	ah,31h
 	int	21h
 ;
@@ -467,7 +467,7 @@ ELIM_EXE	proc	near
 	mov	ax,4c00h		; exit to DOS
 	int	MS_DOS
 ;
-ELIM_EXE	endp
+; ENDP ELIM_EXE
 ;
 ;******************************************************************************
 ;	Inst_chk_f - call Inst_chk
@@ -479,10 +479,10 @@ ELIM_EXE	endp
 ;	USED: none
 ;
 ;******************************************************************************
-Inst_chk_f 	proc		far
+Inst_chk_f:
 	call	Inst_chk
 	ret
-Inst_chk_f	endp
+; ENDP Inst_chk_f
 
 ;******************************************************************************
 ;	Inst_chk - Check to see if MEMM is already installed
@@ -496,7 +496,7 @@ Inst_chk_f	endp
 ;	USED: none
 ;
 ;******************************************************************************
-Inst_chk 	proc		near
+Inst_chk:
 	push	di			; save di
 	push	si			; and si
 	push	ds			; and ds
@@ -505,16 +505,16 @@ Inst_chk 	proc		near
 ;
 	xor	ax,ax			; put segment 0000h in ds
 	mov	ds,ax		
-	ASSUME	DS:abs0			; assume ds is abs0
+	; ASSUME	DS:abs0; assume ds is abs0
 	mov	ax,[int67+2]		; get segment pointed to by int 67
 	mov	es,ax
-	ASSUME	ES:R_CODE
+	; ASSUME	ES:R_CODE
 
 	push	seg R_CODE
 	pop	ds			; set DS = R_CODE
-	assume	DS:R_CODE		; update assume
+	; assume	DS:R_CODE; update assume
 
-	mov	di,offset memmsig	; memm386 signature
+	mov	di,memmsig	; memm386 signature
 	mov	si,di			; save for source string
 	xor	ax,ax			; initialize to not found
 	mov	cx,SIG_LENGTH		; length to compare
@@ -522,12 +522,12 @@ Inst_chk 	proc		near
 	repe	cmpsb			; q: is the memm386 signature out there?
 	jne	not_inst		; n: return zero
 	inc	ax  			; y: return one
-	mov	word ptr CS:[FarLink+2],es	; set segment of far call
-	mov	cx,ES:[MEMM_Entry]		; get offset for far call
-	mov	word ptr CS:[FarLink],cx	; set offset of far call
+	mov	word [CS:FarLink+2],es	; set segment of far call
+	mov	cx,[ES:MEMM_Entry]		; get offset for far call
+	mov	word [CS:FarLink],cx	; set offset of far call
 not_inst:
 
-	ASSUME	DS:_TEXT, ES:_TEXT
+	; ASSUME	DS:_TEXT, ES:_TEXT
 
 	pop	cx
 	pop	es
@@ -535,7 +535,7 @@ not_inst:
 	pop	si
 	pop	di
 	ret
-Inst_chk	endp
+; ENDP Inst_chk
 
 ;******************************************************************************
 ;	ELIM_link - Link to Installed MEMM's ELIM_Entry
@@ -549,13 +549,13 @@ Inst_chk	endp
 ;	USED: none
 ;
 ;******************************************************************************
-ELIM_link	proc	near
-	call	CS:[FarLink]
+ELIM_link:
+	call	[CS:FarLink]
 	ret
-ELIM_link	endp
+; ENDP ELIM_link
 
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-	end	MEMM
+	; end	MEMM
 

@@ -1,10 +1,10 @@
-CODE	SEGMENT BYTE PUBLIC 'CODE'
-	ASSUME CS:CODE,DS:CODE
+SECTION .CODE
+	; ASSUME CS:CODE,DS:CODE
 
 	DB	13,10
 	DB	"Microsoft MS-DOS (R)  LCD Display Font File",13,10
-include copyrigh.inc
+%include "copyrigh.inc"
 	DB	1Ah
 
-CODE	ENDS
-	END
+; END SECTION .CODE
+	; END

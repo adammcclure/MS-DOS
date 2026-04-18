@@ -1,4 +1,4 @@
-TITLE   CHKDSK - MS-DOS Disk consistancy checker
+; TITLE   CHKDSK - MS-DOS Disk consistancy checker
 
 ; CHKDSK        Version 2.30
 ; Verifies and repairs MS-DOS disk directory.
@@ -32,7 +32,7 @@ TITLE   CHKDSK - MS-DOS Disk consistancy checker
 ;       CHKDSK and CHKPROC
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 DRVCHAR EQU     ":"
 
@@ -43,68 +43,68 @@ DOSVER_LOW EQU  0136H   ;1.54 in hex
 DOSVER_HIGH EQU 020BH   ;2.11 in hex
 
 
-        INCLUDE DOSSYM.ASM
+        %include "DOSSYM.ASM"
 
 FCB     EQU     5CH
 
 ;Drive parameter block from DOS header
 
-SUBTTL  Segments used in load order
+; SUBTTL  Segments used in load order
 
-CODE    SEGMENT PUBLIC
-CODE    ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST   SEGMENT PUBLIC BYTE
-CONST   ENDS
+SECTION .CONST
+; END SECTION .CONST
 
-DATA    SEGMENT PUBLIC WORD
-DATA    ENDS
+SECTION .DATA
+; END SECTION .DATA
 
-DG      GROUP   CODE,CONST,DATA
+; DG      GROUP   CODE,CONST,DATA
 
-SUBTTL  Initialized Data
-PAGE
-CONST   SEGMENT PUBLIC BYTE
+; SUBTTL  Initialized Data
+; PAGE
+SECTION .CONST
 
-        PUBLIC  HECODE,SWITCHAR,NOISY,DOFIX,CONBUF,ORPHCNT,ORPHSIZ,DOFIX
-        PUBLIC  HIDCNT,HIDSIZ,DIRCNT,DIRSIZ,FILCNT,FILSIZ,BADSIZ,LCLUS
-        PUBLIC  DOTENT,HAVFIX,SECONDPASS,NUL,ALLFILE,PARSTR,ERRSUB,LCLUS
-        PUBLIC  DIRTYFAT,BADSIZ,DDOTENT,CROSSCNT,ORPHFCB,ORPHEXT,ALLDRV
-        PUBLIC  FRAGMENT,USERDIR,DIRBUF,USERDIR,FIXMFLG,DOTMES,DIRCHAR
+        global HECODE,SWITCHAR,NOISY,DOFIX,CONBUF,ORPHCNT,ORPHSIZ,DOFIX
+        global HIDCNT,HIDSIZ,DIRCNT,DIRSIZ,FILCNT,FILSIZ,BADSIZ,LCLUS
+        global DOTENT,HAVFIX,SECONDPASS,NUL,ALLFILE,PARSTR,ERRSUB,LCLUS
+        global DIRTYFAT,BADSIZ,DDOTENT,CROSSCNT,ORPHFCB,ORPHEXT,ALLDRV
+        global FRAGMENT,USERDIR,DIRBUF,USERDIR,FIXMFLG,DOTMES,DIRCHAR
 
-        EXTRN   IDMES1:BYTE,IDPOST:BYTE,VNAME:BYTE,MONTAB:BYTE
-        EXTRN   TCHAR:BYTE,BADREAD_PRE:BYTE,BADREAD_POST:BYTE
-        EXTRN   CRLF:BYTE,BADVER:BYTE,BADSUBDIR:BYTE,CENTRY:BYTE
-        EXTRN   BADDRV:BYTE,BADCD:BYTE,BADRDMES:BYTE,OPNERR:BYTE
-        EXTRN   CONTAINS:BYTE,EXTENTS:BYTE,NOEXTENTS:BYTE
-        EXTRN   BADDRVM:BYTE,BADDRVM2:BYTE,BADIDBYT:BYTE
+        extern IDMES1,IDPOST,VNAME,MONTAB
+        extern TCHAR,BADREAD_PRE,BADREAD_POST
+        extern CRLF,BADVER,BADSUBDIR,CENTRY
+        extern BADDRV,BADCD,BADRDMES,OPNERR
+        extern CONTAINS,EXTENTS,NOEXTENTS
+        extern BADDRVM,BADDRVM2,BADIDBYT
 
 
-DIRBUF  LABEL   BYTE                    ;Entry buffer for searches
+DIRBUF:;Entry buffer for searches
 VOLID   DB      -1,0,0,0,0,0,8          ;Volume ID FCB
 VOLNAM  DB      0,"???????????"
-        DB      25 DUP(0)
+        times 25 db 0
 
 ALLFILE DB      -1,0,0,0,0,0,1EH        ;Extended FCB
 ALLDRV  DB      0,"???????????"
-        DB      25 DUP (?)
+        times 25 db 0
 
 ORPHFCB DB      0,"FILE0000"
 ORPHEXT DB      "CHK"
-        DB      25 DUP (?)
+        times 25 db 0
 
 
 ;Non-message data
 
 SWITCHAR DB     "-"
-ROOTSTR LABEL   BYTE
+ROOTSTR:
 DIRCHAR DB      "/"
 NUL     DB      0
 PARSTR  DB      "..",0
 DOTMES  DB      ".",0
 DOTENT  DB      ".          "
 DDOTENT DB      "..         "
-HECODE  DB      ?
+HECODE: db 0
 FIXMFLG DB      0                       ;Flag for printing fixmes
 ERRSUB  DW      0                       ;Flag for bad subdir error
 FRAGMENT DB     0                       ;Flag for extent processing
@@ -128,56 +128,56 @@ NOISY   DB      0                       ;flag for V switch
 USERDIR DB      "/",0                   ;Users current dir for drive
         DB      (DIRSTRLEN-1) DUP (?)
 CONBUF  DB      15,0                    ;Input buffer
-        DB      15 DUP (?)
+        times 15 db 0
 
-CONST   ENDS
+; END SECTION .CONST
 
-SUBTTL  Un-initialized Data
-PAGE
-DATA    SEGMENT PUBLIC WORD
+; SUBTTL  Un-initialized Data
+; PAGE
+SECTION .DATA
 
-        PUBLIC  ZEROTRUNC,NAMBUF,MCLUS,THISDPB,STACKLIM,ERRCNT
-        PUBLIC  SRFCBPT,ISCROSS,CSIZE,DSIZE,SSIZE,FAT,FATMAP
-        PUBLIC  HARDCH,CONTCH,USERDEV,SECBUF,DOTSNOGOOD
+        global ZEROTRUNC,NAMBUF,MCLUS,THISDPB,STACKLIM,ERRCNT
+        global SRFCBPT,ISCROSS,CSIZE,DSIZE,SSIZE,FAT,FATMAP
+        global HARDCH,CONTCH,USERDEV,SECBUF,DOTSNOGOOD
 
-HARDCH  DD      ?                       ;Pointer to real INT 24 handler
-CONTCH  DD      ?                       ;Pointer to real INT 23 handler
-THISDPB DD      ?                       ;Pointer to drive DPB
-USERDEV DB      ?                       ;Users current device
-CSIZE   DB      ?                       ;Sectors per cluster
-SSIZE   DW      ?                       ;bytes per sector
-DSIZE   DW      ?                       ;# alloc units on disk
-MCLUS   DW      ?                       ;DSIZE + 1
-NAMBUF  DB      14 DUP (?)              ;Buffer
-DOTSNOGOOD DB   ?                       ;. or .. error flag
-ZEROTRUNC DB    ?                       ;Trimming flag
-ISCROSS DB      ?                       ;Crosslink flag
-OLDCLUS DW      ?
-SRFCBPT DW      ?
-FATMAP  DW      OFFSET DG:FAT           ;Offset of FATMAP table
-SECBUF  DW      ?                       ;Offset of sector buffer
-ERRCNT  DB      ?                       ;Used by FATread and write
-STACKLIM DW     ?                       ;Stack growth limit
+HARDCH: dd 0;Pointer to real INT 24 handler
+CONTCH: dd 0;Pointer to real INT 23 handler
+THISDPB: dd 0;Pointer to drive DPB
+USERDEV: db 0;Users current device
+CSIZE: db 0;Sectors per cluster
+SSIZE: dw 0;bytes per sector
+DSIZE: dw 0;# alloc units on disk
+MCLUS: dw 0;DSIZE + 1
+NAMBUF: times 14 db 0;Buffer
+DOTSNOGOOD: db 0;. or .. error flag
+ZEROTRUNC: db 0;Trimming flag
+ISCROSS: db 0;Crosslink flag
+OLDCLUS: dw 0
+SRFCBPT: dw 0
+FATMAP  DW      FAT           ;Offset of FATMAP table
+SECBUF: dw 0;Offset of sector buffer
+ERRCNT: db 0;Used by FATread and write
+STACKLIM: dw 0;Stack growth limit
 
 INTERNATVARS    internat_block <>
                 DB      (internat_block_max - ($ - INTERNATVARS)) DUP (?)
 
-FAT     LABEL   WORD
-DATA    ENDS
+FAT:
+; END SECTION .DATA
 
 
-SUBTTL  Start of CHKDSK
+; SUBTTL  Start of CHKDSK
 
-CODE    SEGMENT PUBLIC
-ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
+SECTION .CODE
+; ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
 
-        PUBLIC  SUBERRP,DOTCOMBMES,FIGREC,FCB_TO_ASCZ,PRTCHR,EPRINT
-        PUBLIC  PRINT,DOCRLF,DISP16BITS,DISP32BITS,DISPCLUS,CHECKFILES
+        global SUBERRP,DOTCOMBMES,FIGREC,FCB_TO_ASCZ,PRTCHR,EPRINT
+        global PRINT,DOCRLF,DISP16BITS,DISP32BITS,DISPCLUS,CHECKFILES
 
-        EXTRN   RDSKERR:NEAR,SETSWITCH:NEAR,PROMPTYN:NEAR,REPORT:NEAR
-        EXTRN   PRINTCURRDIRERR:NEAR,PRINTTHISEL2:NEAR,CHECKERR:NEAR
-        EXTRN   INT_23:NEAR,INT_24:NEAR,FINDCHAIN:NEAR,DONE:NEAR,AMDONE:NEAR
-        EXTRN   FATAL:NEAR,DIRPROC:NEAR,CHKMAP:NEAR,CHKCROSS:NEAR,UNPACK:NEAR
+        extern RDSKERR,SETSWITCH,PROMPTYN,REPORT
+        extern PRINTCURRDIRERR,PRINTTHISEL2,CHECKERR
+        extern INT_23,INT_24,FINDCHAIN,DONE,AMDONE
+        extern FATAL,DIRPROC,CHKMAP,CHKCROSS,UNPACK
 
         ORG     100H
 
@@ -203,7 +203,7 @@ CHSTRT:
         CMP     AX,DOSVER_HIGH
         JBE     OKDOS
 GOTBADDOS:
-        MOV     DX,OFFSET DG:BADVER
+        MOV     DX,BADVER
         JMP     CERROR
 
 OKDOS:
@@ -212,7 +212,7 @@ OKDOS:
         MOV     DX,SP
         CMP     DX,BX
         JAE     STACKOK         ;Lots of stack
-        MOV     DX,DS:[2]       ;High break
+        MOV     DX,[DS:2]       ;High break
         MOV     CX,CS
         SUB     DX,CX
         CMP     DX,0FFFH
@@ -233,7 +233,7 @@ STACKOK:
         JNZ     FILECHK                 ;No -- check for filename
 
 DRVERR:
-        MOV     DX,OFFSET DG:BADDRV
+        MOV     DX,BADDRV
 CERROR:
         PUSH    CS                      ;Make sure DS is OK
         POP     DS
@@ -255,12 +255,12 @@ FILECHK:
         MOV     [DIRCHAR],"\"
         MOV     [USERDIR],"\"
 SLASHOK:
-        CMP     DS:(BYTE PTR FCB+1)," "         ;Filename specified?
+        CMP     DS:(byte FCB+1)," "         ;Filename specified?
         JZ      DRVCHK                          ;No -- get the correct drive
         MOV     AL,[SWITCHAR]
-        CMP     DS:(BYTE PTR FCB+1),AL          ;Filename specified?
+        CMP     DS:(byte FCB+1),AL          ;Filename specified?
         JZ      DRVCHK                          ;No -- get the correct drive
-        MOV     BYTE PTR [FRAGMENT],1           ;Set flag to perform fragment
+        MOV     byte [FRAGMENT],1           ;Set flag to perform fragment
                                                 ;check on specified files
 DRVCHK:
         CALL    SETSWITCH                       ;Look for switches
@@ -269,7 +269,7 @@ DRVCHK:
         MOV     [USERDEV],AL                    ;Save for later
         MOV     AH,AL
         INC     AH                      ;A = 1
-        MOV     BH,DS:(BYTE PTR FCB)    ;See if drive specified
+        MOV     BH,DS:(byte FCB)    ;See if drive specified
         OR      BH,BH
         JZ      SETDSK
         MOV     AL,BH
@@ -284,21 +284,21 @@ SETDSK:
         MOV     DL,AH                   ;A = 1
         MOV     AH,GET_DPB              ;Get the DPB
         INT     21H
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         CMP     AL,-1
         JNZ     DRVISOK                 ;Bad drive (should always be ok)
-        MOV     DX,OFFSET DG:BADDRV
+        MOV     DX,BADDRV
 CERROR2J: JMP    CERROR2
 
 DRVISOK:
         DEC     DL                      ;A = 0
         MOV     AH,SET_DEFAULT_DRIVE    ;Set Target
         INT     21H
-        CMP     [BX.dpb_current_dir],0
+        CMP     [BX+dpb_current_dir],0
         JZ      CURRISROOT              ;Save users current dir for target
         MOV     SI,BX
         ADD     SI,dpb_dir_text
-        MOV     DI,OFFSET DG:USERDIR + 1
+        MOV     DI,USERDIR + 1
 SETDIRLP:
         LODSB
         STOSB
@@ -306,36 +306,36 @@ SETDIRLP:
         JZ      CURRISROOT
         JMP     SHORT SETDIRLP
 CURRISROOT:
-        MOV     WORD PTR [THISDPB+2],DS
+        MOV     word [THISDPB+2],DS
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
-        MOV     WORD PTR [THISDPB],BX
+; ASSUME  DS:DG
+        MOV     word [THISDPB],BX
         MOV     AX,(GET_INTERRUPT_VECTOR SHL 8) OR 23H
         INT     21H
-        MOV     WORD PTR [CONTCH],BX
-        MOV     WORD PTR [CONTCH+2],ES
+        MOV     word [CONTCH],BX
+        MOV     word [CONTCH+2],ES
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) OR 23H
-        MOV     DX,OFFSET DG:INT_23
+        MOV     DX,INT_23
         INT     21H
         MOV     AX,(GET_INTERRUPT_VECTOR SHL 8) OR 24H
         INT     21H
-        MOV     WORD PTR [HARDCH],BX
-        MOV     WORD PTR [HARDCH+2],ES
+        MOV     word [HARDCH],BX
+        MOV     word [HARDCH+2],ES
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) OR 24H
-        MOV     DX,OFFSET DG:INT_24
+        MOV     DX,INT_24
         INT     21H
         PUSH    CS
         POP     ES
-        MOV     DX,OFFSET DG:ROOTSTR
+        MOV     DX,ROOTSTR
         MOV     AH,CHDIR                        ;Start at root
         INT     21H
-        MOV     DX,OFFSET DG:BADCD
+        MOV     DX,BADCD
         JC      CERROR2J                        ;Couldn't get there
-        MOV     DX,OFFSET DG:FAT                ;Scratch space
+        MOV     DX,FAT                ;Scratch space
         MOV     AH,SET_DMA
         INT     21H
-        MOV     DX,OFFSET DG:VOLID              ;Look for VOL ID
+        MOV     DX,VOLID              ;Look for VOL ID
         MOV     AH,DIR_SEARCH_FIRST
         INT     21H
         CMP     AL,-1
@@ -343,17 +343,17 @@ ASSUME  DS:DG
         CALL    PRINTID                         ;Have a VOL ID
 NOTVOLID:
         LDS     BX,[THISDPB]
-ASSUME  DS:NOTHING
-        MOV     AX,[BX.dpb_sector_size]
+; ASSUME  DS:NOTHING
+        MOV     AX,[BX+dpb_sector_size]
         MOV     [SSIZE],AX              ;Sector size in bytes
-        MOV     AL,[BX.dpb_cluster_mask]
+        MOV     AL,[BX+dpb_cluster_mask]
         INC     AL
         MOV     [CSIZE],AL              ;Sectros per cluster
-        MOV     AX,[BX.dpb_max_cluster]
+        MOV     AX,[BX+dpb_max_cluster]
         MOV     [MCLUS],AX              ;Bound for FAT searching
         DEC     AX
         MOV     [DSIZE],AX              ;Total data clusters on disk
-        MOV     AL,[BX.dpb_FAT_size]          ;Sectors for one fat
+        MOV     AL,[BX+dpb_FAT_size]          ;Sectors for one fat
         XOR     AH,AH
         MOV     CX,AX
         MUL     [SSIZE]                 ;Bytes for FAT
@@ -366,12 +366,12 @@ ASSUME  DS:NOTHING
         ADD     AX,20                   ;Insurance
         MOV     [STACKLIM],AX           ;Limit on recursion
         MOV     DI,CX
-        MOV     CL,[BX.dpb_FAT_count]          ;Number of FATs
-        MOV     DX,[BX.dpb_first_FAT]          ;First sector of FAT
+        MOV     CL,[BX+dpb_FAT_count]          ;Number of FATs
+        MOV     DX,[BX+dpb_first_FAT]          ;First sector of FAT
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
-        MOV     BX,OFFSET DG:FAT
+; ASSUME  DS:DG
+        MOV     BX,FAT
         MOV     AL,[ALLDRV]
         DEC     AL
         MOV     AH,'1'
@@ -385,13 +385,13 @@ RDLOOP:
         MOV     [HECODE],AL
         POP     AX                      ;Flags
         JNC     RDOK
-        MOV     DX,OFFSET DG:BADREAD_PRE    ;Barfed
+        MOV     DX,BADREAD_PRE    ;Barfed
         CALL    PRINT
         POP     AX
         PUSH    AX
         MOV     DL,AH
         CALL    PRTCHR
-        MOV     DX,OFFSET DG:BADREAD_POST
+        MOV     DX,BADREAD_POST
         CALL    PRINT
         POP     AX
         POP     CX
@@ -404,7 +404,7 @@ RDLOOP:
         JNZ     NORETRY1
         JMP     NOTVOLID
 NORETRY1:
-        MOV     BX,OFFSET DG:BADRDMES
+        MOV     BX,BADRDMES
         JMP     FATAL                   ;Couldn't read any FAT, BARF
 
 RDOK:
@@ -412,11 +412,11 @@ RDOK:
         POP     AX
         POP     AX
         POP     AX
-        MOV     SI,OFFSET DG:FAT
+        MOV     SI,FAT
         LODSB                           ;Check FAT ID byte
         CMP     AL,0F8H
         JAE     IDOK
-        MOV     DX,OFFSET DG:BADIDBYT   ;FAT ID bad
+        MOV     DX,BADIDBYT   ;FAT ID bad
         CALL    PROMPTYN                ;Ask user
         JZ      IDOK
         JMP     ALLDONE                 ;User said stop
@@ -426,7 +426,7 @@ IDOK:
         INC     CX
         XOR     AL,AL
         REP     STOSB                   ;Initialize FATMAP to all free
-        MOV     DX,OFFSET DG:DIRBUF     ;FOR ALL SEARCHING
+        MOV     DX,DIRBUF     ;FOR ALL SEARCHING
         MOV     AH,SET_DMA
         INT     21H
         XOR     AX,AX
@@ -443,10 +443,10 @@ ALLDONE:
         INT     20H                     ;Fini
 
 
-ASSUME  DS:DG
+; ASSUME  DS:DG
 
-SUBTTL  Check for extents in specified files
-PAGE
+; SUBTTL  Check for extents in specified files
+; PAGE
 CHECKFILES:
 ;Search the directory for the files specified on the command line
 ;and report the number of fragmented allocation units found in
@@ -495,12 +495,12 @@ NXTCHK:
         INC     SI
         CALL    PRINTTHISEL2
         CALL    DOCRLF
-        MOV     DX,OFFSET DG:CONTAINS   ;Print message
+        MOV     DX,CONTAINS   ;Print message
         CALL    PRINT
         POP     SI                      ;Number of fragments found
         INC     SI                      ;Number non-contig blocks
         XOR     DI,DI
-        MOV     BX,OFFSET DG:EXTENTS
+        MOV     BX,EXTENTS
         PUSH    BP
         CALL    DISP16BITS
         POP     BP
@@ -514,13 +514,13 @@ MSGCHK:
         MOV     SI,FCB + 1              ;File not found error
         CALL    PRINTTHISEL2
         CALL    DOCRLF
-        MOV     DX,OFFSET DG:OPNERR
+        MOV     DX,OPNERR
         CALL    PRINT                   ;Bad file spec
         RET
 FILSPOK:
-        CMP     BYTE PTR [FRAGMENT],2
+        CMP     byte [FRAGMENT],2
         JZ      CDONE
-        MOV     DX,OFFSET DG:NOEXTENTS
+        MOV     DX,NOEXTENTS
         CALL    PRINT
 CDONE:
         RET
@@ -529,33 +529,33 @@ CDONE:
 FIGREC:
 ;Convert cluster number in BX to sector # AH of cluster in DX
         LDS     DI,[THISDPB]
-ASSUME  DS:NOTHING
-        MOV     CL,[DI.dpb_cluster_shift]
+; ASSUME  DS:NOTHING
+        MOV     CL,[DI+dpb_cluster_shift]
         MOV     DX,BX
         DEC     DX
         DEC     DX
         SHL     DX,CL
         OR      DL,AH
-        ADD     DX,[DI.dpb_first_sector]
+        ADD     DX,[DI+dpb_first_sector]
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
         RET
 
 
-SUBTTL  PRINTID - Print Volume ID info
-PAGE
+; SUBTTL  PRINTID - Print Volume ID info
+; PAGE
 PRINTID:
-ASSUME  DS:DG
-        MOV     DX,OFFSET DG:INTERNATVARS
+; ASSUME  DS:DG
+        MOV     DX,INTERNATVARS
         MOV     AX,INTERNATIONAL SHL 8
         INT     21H
         MOV     [DISPFLG],1             ;Don't sub spaces for leading zeros
-        MOV     SI,OFFSET DG:FAT + 8
-        MOV     DI,OFFSET DG:VNAME
+        MOV     SI,FAT + 8
+        MOV     DI,VNAME
         MOV     CX,11
         REP     MOVSB
-        MOV     DX,OFFSET DG:IDMES1
+        MOV     DX,IDMES1
         CALL    PRINT                   ;Print ID message
         ADD     SI,13
         LODSW                           ;Get date
@@ -615,7 +615,7 @@ P_MONTH_NAM:
         MOV     CX,AX
         SHL     AX,1
         ADD     AX,CX                   ;Mult by 3 chars/mo
-        MOV     SI,OFFSET DG:MONTAB
+        MOV     SI,MONTAB
         ADD     SI,AX
         LODSB
         MOV     DL,AL
@@ -696,7 +696,7 @@ ISOK2:
         MOV     CX,1110H                ;Supress at most 1 leading 0
         MOV     DL,AL
         CALL    OUTBYTE                 ;Print hour
-        MOV     DL,BYTE PTR [INTERNATVARS.Time_sep]
+        MOV     DL,byte [INTERNATVARS.Time_sep]
         CALL    PRTCHR
         MOV     SI,DI
         MOV     CL,5
@@ -711,7 +711,7 @@ ISOK2:
         JNZ     NOAP                    ;24 hour time, no a or p
         CALL    PRTCHR                  ;Print a or p
 NOAP:
-        MOV     DX,OFFSET DG:IDPOST
+        MOV     DX,IDPOST
         CALL    PRINT
         MOV     [DISPFLG],0
         RET
@@ -726,8 +726,8 @@ CNVLOOP:
         LOOP    CNVLOOP
         RET
 
-SUBTTL  Misc Routines - Mostly I/O
-PAGE
+; SUBTTL  Misc Routines - Mostly I/O
+; PAGE
 CONVWRD:
         ADC     AL,AL
         DAA
@@ -745,7 +745,7 @@ UNSCALE:
         JMP     SHORT UNSCALE
 
 DISP16BITS:
-        MOV     BYTE PTR DISPFLG,1
+        MOV     byte DISPFLG,1
         JMP     SHORT DISP32BITS
 
 DISPCLUS:
@@ -776,7 +776,7 @@ CONVLP:
         LOOP    CONVLP
         ; Conversion complete
         MOV     CX,1310H        ;Print 3-digit number with 2 leading blanks
-        CMP     BYTE PTR DISPFLG,0
+        CMP     byte DISPFLG,0
         JNZ     FOURDIG
         MOV     CX,1810H        ;Print 8-digit number with 2 leading blanks
         XCHG    DX,AX
@@ -786,7 +786,7 @@ CONVLP:
 FOURDIG:
         MOV     AX,BP
         CALL    OUTWORD
-        MOV     BYTE PTR DISPFLG,0
+        MOV     byte DISPFLG,0
         POP     DX
         CALL    PRINT
         POP     BP
@@ -814,7 +814,7 @@ BLANKZER:
         AND     CL,CH
         OR      DL,30H
         SUB     DL,CL
-        CMP     BYTE PTR DISPFLG,0
+        CMP     byte DISPFLG,0
         JZ      PRTCHR
         CMP     DL,30H
         JL      RET2
@@ -836,7 +836,7 @@ EPRINT:
         JMP     SHORT PRINT
 
 DOCRLF:
-        MOV     DX,OFFSET DG:CRLF
+        MOV     DX,CRLF
 PRINT:
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
@@ -847,7 +847,7 @@ DOTCOMBMES:
         JZ      SUBERRP
         PUSH    DX
         CALL    PRINTCURRDIRERR
-        MOV     DX,OFFSET DG:CENTRY
+        MOV     DX,CENTRY
         CALL    EPRINT
         POP     DX
         CALL    EPRINT
@@ -859,9 +859,9 @@ SUBERRP:
         XCHG    AL,[ERRSUB]
         CMP     AL,0
         JNZ     RET32
-        MOV     SI,OFFSET DG:NUL
+        MOV     SI,NUL
         CALL    PRINTCURRDIRERR
-        MOV     DX,OFFSET DG:BADSUBDIR
+        MOV     DX,BADSUBDIR
         CALL    EPRINT
 RET32:  RET
 
@@ -896,6 +896,7 @@ GOTNAME:
         STOSB
         RET
 
-CODE    ENDS
-        END     CHKDSK
-                                                                                                           
+; END SECTION .CODE
+        ; END     CHKDSK
+                                                                                    
+                       

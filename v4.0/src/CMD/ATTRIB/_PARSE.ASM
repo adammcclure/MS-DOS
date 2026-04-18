@@ -1,6 +1,6 @@
-page	60,132								 ;AN000;
-name	_parse								 ;AN000;
-title	C	to PARSER interface					 ;AN000;
+; page	60,132;AN000;
+; name	_parse;AN000;
+; title	C	to PARSER interface;AN000;
 ;-------------------------------------------------------------------	 ;AN000;
 ;									 ;AN000;
 ;	MODULE: 	_parse						 ;AN000;
@@ -17,7 +17,7 @@ title	C	to PARSER interface					 ;AN000;
 ;									 ;AN000;
 ;	extrn	sysparse:far						 ;AN000;
 ;									 ;AN000;
-	public	_parse							 ;AN000;
+	global _parse;AN000;
 ;									 ;AN000;
 ;-------------------------------------------------------------------	 ;AN000;
 FarSW	equ	0			; make sysparse be a NEAR proc	 ;AN000;
@@ -34,26 +34,26 @@ Val3SW	equ	1			; Support value definition 3	 ;AN000;
 DrvSW	equ	0			; Support drive only format	 ;AN000;
 QusSW	equ	1			; Support quoted string format	 ;AN000;
 ;-------------------------------------------------------------------	 ;AN000;
-DGROUP	GROUP	_DATA
-PGROUP	GROUP	_TEXT
+; DGROUP	GROUP	_DATA
+; PGROUP	GROUP	_TEXT
 
-_DATA	segment byte public 'DATA'	;AN000;
-BASESW	=	1			;SPECIFY, PSDATA POINTED TO BY "DS"
-INCSW	=	0			;PSDATA.INC IS ALREADY INCLUDED
-	INCLUDE PSDATA.INC		;PARSER'S WORK SPACE
-_DATA	ends				;AN000;
+SECTION ._DATA;AN000;
+BASESW equ 1;SPECIFY, PSDATA POINTED TO BY "DS"
+INCSW equ 0;PSDATA.INC IS ALREADY INCLUDED
+	%include "PSDATA.INC";PARSER'S WORK SPACE
+; END SECTION ._DATA;AN000;
 
-_TEXT	segment byte public 'CODE'	;AN000;
+SECTION ._TEXT;AN000;
 
-	ASSUME	CS: PGROUP		;AN000;
-	ASSUME	DS: DGROUP		;AN000;
+	; ASSUME	CS: PGROUP;AN000;
+	; ASSUME	DS: DGROUP;AN000;
 ;-------------------------------------------------------------------	 ;AN000;
-.xlist									 ;AN000;
-include parse.asm			; include the parser		 ;AN000;
-.list									 ;AN000;
+; .xlist;AN000;
+%include "parse.asm"; include the parser		 ;AN000;
+; .list;AN000;
 ;-------------------------------------------------------------------	 ;AN000;
 ;									 ;AN000;
-_parse	proc	near							 ;AN000;
+_parse:;AN000;
 	push	bp			; save user's base pointer       ;AN000;
 	mov	bp,sp			; set bp to current sp		 ;AN000;
 	push	di			; save some registers		 ;AN000;
@@ -101,7 +101,7 @@ _parse	proc	near							 ;AN000;
 	mov	sp,bp			; restore sp			 ;AN000;
 	pop	bp			; restore user's bp              ;AN000;
 	ret								 ;AN000;
-_parse	endp								 ;AN000;
-_TEXT	ends				; end code segment		 ;AN000;
-	end								 ;AN000;
+; ENDP _parse;AN000;
+; END SECTION ._TEXT; end code segment		 ;AN000;
+	; end;AN000;
 

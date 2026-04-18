@@ -1,8 +1,8 @@
 
 
-	page	58,132
+	; page	58,132
 ;******************************************************************************
-	title	MEMMCOM - main module for MEMM.COM
+	; title	MEMMCOM - main module for MEMM.COM
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -52,32 +52,32 @@
 ;   "automatically" (depending on accesses to the EMM functions).
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	EMM386
-	public	Inst_chk
-	public	ELIM_link
+	global EMM386
+	global Inst_chk
+	global ELIM_link
 ;
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
-_TEXT	segment byte use16 public 'CODE'
-	extrn	onf_func:near
-_TEXT	ends
-abs0	segment use16 at 0000h
+SECTION ._TEXT
+	extern onf_func
+; END SECTION ._TEXT
+SECTION .abs0
 
 	org	67h*4		; EMM function interrupt
-int67	dw	?		; offset of vector
-	dw	?		; segment of vector
-abs0	ends
+int67: dw 0; offset of vector
+	dw 0; segment of vector
+; END SECTION .abs0
 
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
@@ -88,36 +88,36 @@ MSDOS		equ	21h			; MS-DOS function call
 ;
 ; Device driver header for MEMM
 ;
-emm_hdr 	STRUC
+struc emm_hdr
 ;
-	DW		?			;Null segment address
-	DW		?			;Null offset address
-	DW		?			;Attribute - Char
-	DW		?			;Strategy routine entry
-	DW		?			;Interrupt routine entry
-	DB		'EMMXXXX0'		;Character device name
+	resw 1;Null segment address
+	resw 1;Null offset address
+	resw 1;Attribute - Char
+	resw 1;Strategy routine entry
+	resw 1;Interrupt routine entry
+	resb 1;Character device name
 ;
 ; GENERAL FUNCTIONS ENTRY POINT
 ; ELIM_Entry is a entry point for executing general MEMM
 ; functions. (e.g. ON, OFF function).
 ;
-ELIM_Entry_off	dw	?		; general entry point
+ELIM_Entry_off: resw 1; general entry point
 
 ;
 ;	       MEMM signature
 ;
-memmsig db	?			; MEMM signature
+memmsig: resb 1; MEMM signature
 
-emm_hdr 	ends
+endstruc
 
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 ;
-_TEXT	segment byte use16 public 'CODE'
-	assume	cs:_TEXT, ds:_TEXT, es:_TEXT, ss:_TEXT
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:_TEXT, es:_TEXT, ss:_TEXT
 	org	81h
-cmd_line	dw	?		; pointer to command line
+cmd_line: dw 0; pointer to command line
 ;
 ;******************************************************************************
 ;			M O D U L E   E N T R Y   P O I N T
@@ -126,7 +126,7 @@ cmd_line	dw	?		; pointer to command line
 ;   Standard .COM entry conditions are assumed
 ;
 	org	100h
-EMM386	proc	near
+EMM386:
 	jmp	start
 ;******************************************************************************
 ;			L O C A L   D A T A   A R E A
@@ -138,7 +138,7 @@ SIG_LENGTH	equ	(this byte - oursig)
 ;
 ;	define double word to store segment/offset of status routine for far call
 ;
-status_loc	label	dword
+status_loc:
 entry_off	dw	0		; store offset for far call
 entry_seg	dw	0		; store segment for far call
 ;
@@ -151,20 +151,20 @@ start:
 
 ;
 	cli
-	mov	sp,offset Stack_Top
+	mov	sp,Stack_Top
 	sti
 ;
 	cld
 ;
-	mov	di,offset cmd_line	; es:di = command line pointer
+	mov	di,cmd_line	; es:di = command line pointer
 	call	onf_func		; do the on/off function
 
 	mov	ax,4C00h
 	int	MSDOS			; exit to DOS
 
-EMM386		endp
+; ENDP EMM386
 
-page
+; page
 ;******************************************************************************
 ;	ELIM_link - Call ELIM_Entry status routine via the status_loc
 ;
@@ -175,11 +175,11 @@ page
 ;	USED: none
 ;
 ;******************************************************************************
-ELIM_link	proc	near
+ELIM_link:
 	call	status_loc
 	ret
-ELIM_link	endp
-page
+; ENDP ELIM_link
+; page
 ;******************************************************************************
 ;	Inst_chk - Check to see if MEMM is already installed
 ;
@@ -194,7 +194,7 @@ page
 ;	USED: none
 ;
 ;******************************************************************************
-Inst_chk	proc		near
+Inst_chk:
 	push	di			; save di
 	push	si			; and si
 	push	ds			; and ds
@@ -203,16 +203,16 @@ Inst_chk	proc		near
 ;
 	xor	ax,ax			; put segment 0000h in ds
 	mov	ds,ax
-	assume	ds:abs0 		; assume ds is abs0
+	; assume	ds:abs0; assume ds is abs0
 	mov	ax,[int67+2]		; get segment pointed to by int 67
 	mov	es,ax
 
-	assume	ds:_TEXT			; update assume
+	; assume	ds:_TEXT; update assume
 	push	cs
 	pop	ds			; set DS = _TEXT
 
-	mov	di,offset memmsig	; MEMM signature
-	mov	si,offset oursig	; point to our signature
+	mov	di,memmsig	; MEMM signature
+	mov	si,oursig	; point to our signature
 	xor	ax,ax			; initialize to not found
 	mov	cx,SIG_LENGTH		; length to compare
 	cld				; strings foward
@@ -221,7 +221,7 @@ Inst_chk	proc		near
 	inc	ax			; y: return one
 	mov	[entry_seg],es		; save segment for far call
 	xor	di,di
-	mov	cx,es:[ELIM_Entry_off]	 ; save offset for far call
+	mov	cx,[es:ELIM_Entry_off]	 ; save offset for far call
 	mov	[entry_off],cx
 not_inst:
 	pop	cx
@@ -230,14 +230,14 @@ not_inst:
 	pop	si
 	pop	di
 	ret
-Inst_chk	endp
+; ENDP Inst_chk
 
 
 	db	100h dup (0)
 Stack_Top:
 	db	0
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-	end	EMM386
+	; end	EMM386
 

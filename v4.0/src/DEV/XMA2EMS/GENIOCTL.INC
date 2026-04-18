@@ -1,62 +1,62 @@
 
-GENERIC_IOCTL_P PROC
-;ÕÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¸
-;³ This routine handles the Generic IOCTL call.  The EMS device driver        ³
-;³ provides an interface through the Generic IOCTL call to allocate pages     ³
-;³ for the Workstation Program.  Since WSP needs memory off the 'bottom' of   ³
-;³ the XMA card in order to bank switch memory, an IOCTL call is needed to    ³
-;³ mark these pages as allocated in the Page Allocation Table.                ³
-;³                                                                            ³
-;³    The pages for EMS are taken from the linked Page Allocation List.       ³
-;³ The PAL is initialized from top down, meaning pages that correspond to     ³
-;³ the highest physical addresses on the card are at the beginning of the     ³
-;³ free list.  Therefore, WSP needs to get the pages from the end of the      ³
-;³ free list.                                                                 ³
-;³                                                                            ³
-;³    Programs may load before WSP and allocate and deallocate pages.         ³
-;³ This will work fine for WSP, since these pages will come from the 'top'    ³
-;³ using the standard function 43 allocate call.  It will even work if        ³
-;³ an application allocates these bottom pages and then deallocates to        ³
-;³ the EMS pool, since the deallocated pages are returned to the top of       ³
-;³ the free list and linked in reverse order.  The allocates and deallocates  ³
-;³ must, however, occur in a stack (LIFO) order or problems will arise.       ³
-;³ For example, suppose the system has 30 EMS pages.  Handle A allocs         ³
-;³ 20 pages that come from the 'top' of the memory card.  Handle B then       ³
-;³ allocs the bottom 10.  Handle A goes counter to LIFO order and deallocs    ³
-;³ its 20.  WSP then issues this generic IOCTL call asking for 20 pages.      ³
-;³ The pages are available, but they are not from the bottom physical         ³
-;³ blocks on the card.  For this we return error code '91'x (see below).      ³
-;³                                                                            ³
-;³ The call from WSP's loader will be function 0.  No other functions are     ³
-;³ supported at this time.  If an error is encountered, the return code       ³
-;³ is set in the request packet, but not the device driver header.  The       ³
-;³ header error is set by previous versions of the EMS driver that didn't     ³
-;³ handle the IOCTL.                                                          ³
-;³                                                                            ³
-;ÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ´
-;³ On entry: ES:BX -> Device driver request header                            ³
-;³                                                                            ³
-;³ The IOCTL code will set standard EMS return codes in the packet's function ³
-;³ field on exit.  These include:                                             ³
-;³      '00'x - Good - Requested pages reserved for WSP                       ³
-;³      '80'x - Software malfunction in EMS software                          ³
-;³      '84'x - Function code passed is not defined                           ³
-;³      '87'x - Insufficient total pages to satisfy request                   ³
-;³      '88'x - Insufficient free pages to satisfy request                    ³
-;³      '89'x - 0 pages requested                                             ³
-;³      '90'x - Parameter list has an invalid length (Not an EMS return code) ³
-;³      '91'x - Allocated pages do not correspond to                          ³
-;³               the 'bottom' blocks of XMA memory   (Not an EMS return code) ³
-;³                                                                            ³
-;ÔÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¾
+GENERIC_IOCTL_P:
+;Ã•ÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÂ¸
+;Â³ This routine handles the Generic IOCTL call.  The EMS device driver        Â³
+;Â³ provides an interface through the Generic IOCTL call to allocate pages     Â³
+;Â³ for the Workstation Program.  Since WSP needs memory off the 'bottom' of   Â³
+;Â³ the XMA card in order to bank switch memory, an IOCTL call is needed to    Â³
+;Â³ mark these pages as allocated in the Page Allocation Table.                Â³
+;Â³                                                                            Â³
+;Â³    The pages for EMS are taken from the linked Page Allocation List.       Â³
+;Â³ The PAL is initialized from top down, meaning pages that correspond to     Â³
+;Â³ the highest physical addresses on the card are at the beginning of the     Â³
+;Â³ free list.  Therefore, WSP needs to get the pages from the end of the      Â³
+;Â³ free list.                                                                 Â³
+;Â³                                                                            Â³
+;Â³    Programs may load before WSP and allocate and deallocate pages.         Â³
+;Â³ This will work fine for WSP, since these pages will come from the 'top'    Â³
+;Â³ using the standard function 43 allocate call.  It will even work if        Â³
+;Â³ an application allocates these bottom pages and then deallocates to        Â³
+;Â³ the EMS pool, since the deallocated pages are returned to the top of       Â³
+;Â³ the free list and linked in reverse order.  The allocates and deallocates  Â³
+;Â³ must, however, occur in a stack (LIFO) order or problems will arise.       Â³
+;Â³ For example, suppose the system has 30 EMS pages.  Handle A allocs         Â³
+;Â³ 20 pages that come from the 'top' of the memory card.  Handle B then       Â³
+;Â³ allocs the bottom 10.  Handle A goes counter to LIFO order and deallocs    Â³
+;Â³ its 20.  WSP then issues this generic IOCTL call asking for 20 pages.      Â³
+;Â³ The pages are available, but they are not from the bottom physical         Â³
+;Â³ blocks on the card.  For this we return error code '91'x (see below).      Â³
+;Â³                                                                            Â³
+;Â³ The call from WSP's loader will be function 0.  No other functions are     Â³
+;Â³ supported at this time.  If an error is encountered, the return code       Â³
+;Â³ is set in the request packet, but not the device driver header.  The       Â³
+;Â³ header error is set by previous versions of the EMS driver that didn't     Â³
+;Â³ handle the IOCTL.                                                          Â³
+;Â³                                                                            Â³
+;ÃƒÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â´
+;Â³ On entry: ES:BX -> Device driver request header                            Â³
+;Â³                                                                            Â³
+;Â³ The IOCTL code will set standard EMS return codes in the packet's function Â³
+;Â³ field on exit.  These include:                                             Â³
+;Â³      '00'x - Good - Requested pages reserved for WSP                       Â³
+;Â³      '80'x - Software malfunction in EMS software                          Â³
+;Â³      '84'x - Function code passed is not defined                           Â³
+;Â³      '87'x - Insufficient total pages to satisfy request                   Â³
+;Â³      '88'x - Insufficient free pages to satisfy request                    Â³
+;Â³      '89'x - 0 pages requested                                             Â³
+;Â³      '90'x - Parameter list has an invalid length (Not an EMS return code) Â³
+;Â³      '91'x - Allocated pages do not correspond to                          Â³
+;Â³               the 'bottom' blocks of XMA memory   (Not an EMS return code) Â³
+;Â³                                                                            Â³
+;Ã”ÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÂ¾
 
-GIP     EQU     ES:[DI]               ;Pointer to the Generic IOCTL packet @RH6
+GIP     EQU     [ES:DI]               ;Pointer to the Generic IOCTL packet @RH6
 
-GEN_IOCTL_PARM  STRUC                 ;                                    @RH6
-GIO_PLEN   DW      ?                  ; Length of the parameter list       @RH6
-GIO_FCNRC  DW      ?                  ; Function code on call, ret code on ret
-GIO_WSPP   DW      ?                  ; Number of pages to reserve for WSP @RH6
-GEN_IOCTL_PARM  ENDS                  ;
+struc GEN_IOCTL_PARM;                                    @RH6
+GIO_PLEN: resw 1; Length of the parameter list       @RH6
+GIO_FCNRC: resw 1; Function code on call, ret code on ret
+GIO_WSPP: resw 1; Number of pages to reserve for WSP @RH6
+endstruc;
 
 GENERIC_IOCTL:                        ;                                    @RH6
         PUSH    ES                    ;Save pointer to the request header
@@ -66,24 +66,24 @@ GENERIC_IOCTL:                        ;                                    @RH6
         PUSH    CS                    ;Set addressability to our data      @RH6
         POP     DS                    ;                                    @RH6
         XOR     AH,AH                 ;Init upper half of user's ret code  @RH6
-                        ;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-                        ;³ First insure the parameter list is long enough     ³
-                        ;³  to input the number of pages needed by WSP        ³
-                        ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+                        ;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+                        ;Â³ First insure the parameter list is long enough     Â³
+                        ;Â³  to input the number of pages needed by WSP        Â³
+                        ;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
         CMP     GIP.GIO_PLEN,4          ;If the length is 4 bytes then OK  @RH6
         JE      GIO_FCN_CHK             ;Else give invalid len ret code    @RH6
         MOV     AL,90h                  ; and error exit                   @RH6
         JMP     GIP_EXIT                ;                                  @RH6
-                        ;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-                        ;³ Check for function code 0 (only one available)     ³
-GIO_FCN_CHK:            ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+                        ;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+                        ;Â³ Check for function code 0 (only one available)     Â³
+GIO_FCN_CHK:            ;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
         CMP     GIP.GIO_FCNRC,0         ;                                  @RH6
         JE      GIO_REQNOT0_CHK         ;                                  @RH6
         MOV     AL,EMS_CODE84           ;                                  @RH6
         JMP     GIP_EXIT                ;                                  @RH6
-                        ;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-                        ;³ Parm list is OK.  Attempt to reserve WSP pages.    ³
-GIO_REQNOT0_CHK:        ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+                        ;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+                        ;Â³ Parm list is OK.  Attempt to reserve WSP pages.    Â³
+GIO_REQNOT0_CHK:        ;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
         MOV     BX,GIP.GIO_WSPP         ;BX = requested WSP pages          @RH6
         CMP     BX,0                    ;Check that request was not 0      @RH6
         JNE     GIO_NOT0                ;                                  @RH6
@@ -111,9 +111,9 @@ GIO_OKTOTAL:
         MOV     AL,EMS_CODE88           ;                                  @RH6
         JMP     GIP_EXIT                ;                                  @RH6
 
-                        ;ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-                        ;³ Remove WSP pages from the end of the free list     ³
-                        ;ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+                        ;ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+                        ;Â³ Remove WSP pages from the end of the free list     Â³
+                        ;Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 GIO_REMOVE_FREE:
         SUB     FREE_PAGES,BX
         MOV     CX,FREE_PAGES
@@ -162,6 +162,6 @@ GIP_EXIT:                                                                       
         MOV     RH.RHC_STA,STAT_DONE    ; Store done status and good return@RH6
                                         ;   code into request header       @RH6
         RET
-GENERIC_IOCTL_P ENDP
+; ENDP GENERIC_IOCTL_P
 
 

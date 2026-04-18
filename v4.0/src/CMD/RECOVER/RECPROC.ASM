@@ -1,55 +1,55 @@
-page	,132					;
-TITLE	RECPROC.SAL
+; page	,132;
+; TITLE	RECPROC.SAL
 ;*****************************************************************************
 ; Include files
 ;*****************************************************************************
-.xlist
-	include recseg.inc		;AN000;bgb
- include dossym.inc	;AN000;bgb
- INCLUDE SYSCALL.INC	;AN000;bgb
- INCLUDE RECMACRO.INC	;AN000;bgb
- include recequ.inc	;AN000;bgb
-	include pathmac.inc
-.xcref
-BREAK	MACRO	subtitle
-	SUBTTL	subtitle
-	PAGE
-ENDM
-.cref
+; .xlist
+	%include "recseg.inc";AN000;bgb
+ %include "dossym.inc";AN000;bgb
+ %include "SYSCALL.INC";AN000;bgb
+ %include "RECMACRO.INC";AN000;bgb
+ %include "recequ.inc";AN000;bgb
+	%include "pathmac.inc"
+; .xcref
+%macro BREAK 1
+	; SUBTTL	subtitle
+	; PAGE
+%endmacro
+; .cref
 ;
 ;*****************************************************************************
 ; Extrn Declarations
 ;*****************************************************************************
-data	segment PUBLIC para 'DATA'	;AC000;bgb
-	EXTRN	secs_per_64k:word
-	EXTRN	paras_per_fat:word
-	EXTRN	paras_per_64k:word
-	EXTRN	bytes_per_sector:word
-	EXTRN	sec_count:word
-	EXTRN	OFMSG_PTR:WORD
-	EXTRN	y_value_lo:WORD 	;AN000;bgb
-	EXTRN	y_value_hi:WORD 	;AN000;bgb	   ; AC000;SM
-	EXTRN	x_value_lo:WORD 	;AN000;bgb	   ; AC000;SM
-	EXTRN	x_value_hi:WORD 	;AN000;bgb	   ; AC000;SM
-	EXTRN	dbcs_vector:byte	 ;AN000;bgb	    ; AC000;SM
-	EXTRN	dbcs_vector_off:word	 ;AN000;bgb	    ; AC000;SM
-	EXTRN	dbcs_vector_seg:word	 ;AN000;bgb	    ; AC000;SM
-	EXTRN	filsiz:WORD		;AN000;bgb
-	EXTRN	read_write_relative:byte ;AN000;bgb
-data	ends				;AC000;bgb
+SECTION .data;AC000;bgb
+	extern secs_per_64k
+	extern paras_per_fat
+	extern paras_per_64k
+	extern bytes_per_sector
+	extern sec_count
+	extern OFMSG_PTR
+	extern y_value_lo;AN000;bgb
+	extern y_value_hi;AN000;bgb	   ; AC000;SM
+	extern x_value_lo;AN000;bgb	   ; AC000;SM
+	extern x_value_hi;AN000;bgb	   ; AC000;SM
+	extern dbcs_vector;AN000;bgb	    ; AC000;SM
+	extern dbcs_vector_off;AN000;bgb	    ; AC000;SM
+	extern dbcs_vector_seg;AN000;bgb	    ; AC000;SM
+	extern filsiz;AN000;bgb
+	extern read_write_relative;AN000;bgb
+; END SECTION .data;AC000;bgb
 
 ;*****************************************************************************
 ; recproc procedures
 ;*****************************************************************************
-code	segment public para 'CODE'  ;AC000;bgb
+SECTION .code;AC000;bgb
 	pathlabl recproc
-public report				       ;AN000;bgb
-public Read_Disk			;AN000;bgb
-public Write_Disk			;AN000;bgb
-public Build_String			;AN000;bgb
-public ChANge_BlANks			;AN000;bgb
-public Check_DBCS_CharACter		;AN000;bgb
-.list
+global report;AN000;bgb
+global Read_Disk;AN000;bgb
+global Write_Disk;AN000;bgb
+global Build_String;AN000;bgb
+global ChANge_BlANks;AN000;bgb
+global Check_DBCS_CharACter;AN000;bgb
+; .list
 
 ;******************************************
 ; Prints the XXX of YYY bytes recovered message.
@@ -68,7 +68,7 @@ Procedure report,near				;				;AN000;bgb
 	mov	y_value_hi,di
 	call	display_interface		; AC000;SM
 	ret
-report endp
+; ENDP report
 
 ;=========================================================================	;an005;bgb
 ; READ_DISK	:	This routine reads the logical sector count requested.	;an005;bgb
@@ -121,7 +121,7 @@ $$EN1:
 	call	read_once	    ;an000;read it				;an005;bgb
 	restorereg <es,dx,cx,bx,ax>
 	ret									;an005;bgb
-read_disk	endp								 ;an005;bgb
+; ENDP read_disk;an005;bgb
 										;an005;bgb
 										;an005;bgb
 ;*****************************************************************************	;an005;bgb
@@ -159,13 +159,13 @@ Procedure Read_once				;				;an005;bgb
 	mov	Read_Write_Relative.Buffer_Segment,bx ;Get segment		;an005;bgb
 	mov	Read_Write_Relative.Number_Sectors,cx ;Number of sec to read	;an005;bgb
 	mov	Read_Write_Relative.Start_Sector_Low,dx ;Start sector		;an005;bgb
-	mov	bx,offset Read_Write_Relative	;				;an005;bgb
+	mov	bx,Read_Write_Relative	;				;an005;bgb
 	mov	cx,0FFFFh			;Read relative sector		;an005;bgb
 	INT	25h				;Do the read			;an005;bgb
 	pop dx					;Throw away flags on stack	;an005;bgb
 	restorereg <ds,es,bp,di,si,dx,cx,bx,ax> 				;an005;bgb
 	return									;an005;bgb
- Read_once endp 								;an005;bgb
+ ; ENDP Read_once;an005;bgb
 										;an005;bgb
 										;an005;bgb
 ;=========================================================================	;an005;bgb
@@ -217,7 +217,7 @@ $$DO5:
 $$EN5:
 	call	write_once		;an000;read it				;an005;bgb
 	ret									;an005;bgb
-write_disk	endp								;an005;bgb
+; ENDP write_disk;an005;bgb
 										;an005;bgb
 ;*****************************************************************************
 ;Routine name: Write_Once
@@ -260,7 +260,7 @@ Procedure Write_once				 ;				;AN000;bgb
     pop  dx					 ;flags is returned on the stack;AN000;bgb
     restorereg <ds,es,bp,si,di,dx,cx,bx,ax>	 ;				;AN000;bgb
 	ret					 ;				;AN000;bgb
-Write_once endp 				 ;				;AN000;bgb
+; ENDP Write_once;				;AN000;bgb
 
 ;=========================================================================	;an005;bgb
 ; SEG_ADJ	:	This routine adjusts the segment:offset to prevent	;an005;bgb
@@ -284,7 +284,7 @@ procedure	seg_adj 							;an005;bgb
 	mov	bx,dx				;an000;new offset		;an005;bgb
 	restorereg <dx,cx,ax>							;an005;bgb
 	ret									;an005;bgb
-seg_adj 	endp								;an005;bgb
+; ENDP seg_adj;an005;bgb
 										;an005;bgb
 										;an005;bgb
 ;=========================================================================	;an005;bgb
@@ -311,7 +311,7 @@ procedure	calc_sp64k							;an005;bgb
 	mov	paras_per_64k,ax		; = paras per 64k		;an005;bgb
 	restorereg <dx,cx,bx,ax>		;an000;restore dx		;an005;bgb
 	ret					;an000; 			;an005;bgb
-calc_sp64k	endp				;an000; 			;an005;bgb
+; ENDP calc_sp64k;an000; 			;an005;bgb
 
 
 ;*****************************************************************************
@@ -353,7 +353,7 @@ Procedure Build_String				;				;AN000;
 	xor	cx,cx				;Init the counter		;AN000;
 ;	$DO					;Loop until entire string found ;AN000;
 $$DO9:
-	   cmp	   byte ptr [si],ASCIIZ_END	;Is next charACter 0?		;AN000;
+	   cmp	   byte [si],ASCIIZ_END	;Is next charACter 0?		;AN000;
 ;	$LEAVE	E,OR				;Yes, end loop			;AN000;
 	JE $$EN9
 	   cmp	   cx,FCB_Filename_Length	;Looked at 11 chars?		;AN000;
@@ -368,12 +368,12 @@ $$DO9:
 ;	$ENDDO					;				;AN000;
 	JMP SHORT $$DO9
 $$EN9:
-	mov	byte ptr [di],ASCIIZ_END	;Make ASCIIZ string		;AN000;
+	mov	byte [di],ASCIIZ_END	;Make ASCIIZ string		;AN000;
 	pop	si				;Get bACk pointer to string	;AN000;
 	pop	cx				;Restore regsisters		;AN000;
 	pop	ax				; "  "	  "  "			;AN000;
 	ret					;				;AN000;
-Build_String endp				;				;AN000;
+; ENDP Build_String;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: ChANge_BlANks
@@ -411,20 +411,20 @@ Build_String endp				;				;AN000;
 Procedure ChANge_BlANks 			;				;AN000;
 ;	$DO					;Do while not CR		;AN000;
 $$DO12:
-	   cmp	   byte ptr [si],Asciiz_End	;Is it end of string?		;AN000;
+	   cmp	   byte [si],Asciiz_End	;Is it end of string?		;AN000;
 ;	$LEAVE	E				;All done if so 		;AN000;
 	JE $$EN12
 	   call    Check_DBCS_CharACter 	;Test for dbcs lead byte	;AN000;
 ;	   $IF	   C				;We have a lead byte		;AN000;
 	   JNC $$IF14
-	      cmp     byte ptr [si],DBCS_Lead	;Is it a lead blANk?		;AN000;
+	      cmp     byte [si],DBCS_Lead	;Is it a lead blANk?		;AN000;
 ;	      $IF     E,AND			;If a dbcs char 		;AN000;
 	      JNE $$IF15
-	      cmp     byte ptr [si+1],DBCS_BlANk ;Is it AN AsiAN blANk?    ;AN000;
+	      cmp     byte [si+1],DBCS_BlANk ;Is it AN AsiAN blANk?    ;AN000;
 ;	      $IF     E 			;If AN AsiAN blANk		     ;AN000;
 	      JNE $$IF15
-		 mov	 byte ptr [si+1],BlANk	;set up moves		      ;AN000;
-		 mov	 byte ptr [si],BlANk	;  to replACe			;AN000;
+		 mov	 byte [si+1],BlANk	;set up moves		      ;AN000;
+		 mov	 byte [si],BlANk	;  to replACe			;AN000;
 ;	      $ENDIF				;				     ;AN000;
 $$IF15:
 	      inc     si			;Point to dbcs char		;AN000;
@@ -435,7 +435,7 @@ $$IF14:
 	JMP SHORT $$DO12
 $$EN12:
 	ret					;return to caller		;AN000;
-ChANge_BlANks endp				;				;AN000;
+; ENDP ChANge_BlANks;				;AN000;
 
 
 ;*****************************************************************************
@@ -481,13 +481,13 @@ Procedure	Check_DBCS_CharACter		      ; 			      ;AN000;
 	push	ax				; "  "	  "  "			;AN000;
 	push	ds				; "  "	  "  "			;AN000;
 	pop	es				;Establish addressability	;AN000;
-	cmp	byte ptr es:DBCS_VECTOR,Yes	;Have we set this yet?		;AN000;
+	cmp	byte es:DBCS_VECTOR,Yes	;Have we set this yet?		;AN000;
 	push	ax				;Save input charACter		;AN000;
 ;	$IF	NE				;Nope				;AN000;
 	JE $$IF19
 	   mov	   al,0 			;Get DBCS environment vectors	;AN000;
 	   DOS_Call Hongeul			;  "  "    "  " 		;AN000;
-	   mov	   byte ptr es:DBCS_VECTOR,YES	;Indicate we've got vector      ;AN000;
+	   mov	   byte es:DBCS_VECTOR,YES	;Indicate we've got vector      ;AN000;
 	   mov	   es:DBCS_Vector_Off,si	;Save the vector		;AN000;
 	   mov	   ax,ds			;				;AN000;
 	   mov	   es:DBCS_Vector_Seg,ax	;				;AN000;
@@ -499,13 +499,13 @@ $$IF19:
 	mov	si,es:DBCS_Vector_Off		;				;AN000;
 ;	$SEARCH 				;Check all the vectors		;AN000;
 $$DO21:
-	   cmp	   word ptr ds:[si],End_Of_Vector ;End of vector table? 	  ;AN000;
+	   cmp	   word [ds:si],End_Of_Vector ;End of vector table? 	  ;AN000;
 ;	$LEAVE	E				;Yes, done			;AN000;
 	JE $$EN21
-	   cmp	   al,ds:[si]			;See if char is in vector	;AN000;
+	   cmp	   al,[ds:si]			;See if char is in vector	;AN000;
 ;	$EXITIF AE,AND				;If >= to lower, ANd		;AN000;
 	JNAE $$IF21
-	   cmp	   al,ds:[si+1] 		; =< thAN higher rANge		;AN000;
+	   cmp	   al,[ds:si+1] 		; =< thAN higher rANge		;AN000;
 ;	$EXITIF BE				; then DBCS charACter		;AN000;
 	JNBE $$IF21
 	   stc					;Set CY to indicate DBCS	;AN000;
@@ -523,9 +523,9 @@ $$SR21:
 	pop	si				; "  "	  "  "			;AN000;
 	pop	ds				;Restore data segment		;AN000;
 	ret					;				;AN000;
-Check_DBCS_CharACter endp			;				;AN000;
+; ENDP Check_DBCS_CharACter;				;AN000;
 
 	pathlabl recproc
-code	ends
-	end
+; END SECTION .code
+	; end
 

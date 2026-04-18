@@ -1,5 +1,5 @@
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 IBMVER  EQU     true                   ; Set conditional switches
 MSVER   EQU     false

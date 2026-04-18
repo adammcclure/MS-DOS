@@ -1,5 +1,5 @@
 
-	PAGE	,132
+	; PAGE	,132
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -22,41 +22,41 @@
 ;;			  ++++++++++++++++++++++++
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-INCLUDE CPSPEQU.INC			;;
+%include "CPSPEQU.INC";;
 INT2F_LOW	EQU	(4*2FH) 	;; WGR interrupt 2F vector location	    ;AN000;
 INT2F_HI	EQU	(4*2FH)+2	;; WGR					    ;AN000;
 					;;
-.XLIST					;;
-INCLUDE SYSMSG.INC			;; WGR					    ;AN000;
-.LIST					;;
+; .XLIST;;
+%include "SYSMSG.INC";; WGR					    ;AN000;
+; .LIST;;
 					;;
 MSG_UTILNAME <PRINTER>			;; WGR					    ;AN000;
 					;;
-PUBLIC	INIT				;;
-PUBLIC	CODE_END			;; for MAP listing only
-PUBLIC	RESIDENT_END			;;
-PUBLIC	STACK_ALLOCATED 		;;
+global INIT;;
+global CODE_END;; for MAP listing only
+global RESIDENT_END;;
+global STACK_ALLOCATED;;
 					;;
 					;;
-EXTRN	PRINTER_DESC_NUM:WORD		;;
-EXTRN	PRINTER_DESC_TBL:WORD		;;
-EXTRN	INIT_CHK:WORD,TABLE:WORD	;;
-EXTRN	HARD_SL1:BYTE,RAM_SL1:BYTE	;;
-EXTRN	HARD_SL2:BYTE,RAM_SL2:BYTE	;;
-EXTRN	HARD_SL3:BYTE,RAM_SL3:BYTE	;;
-EXTRN	HARD_SL4:BYTE,RAM_SL4:BYTE	;;
-EXTRN	RESERVED1:WORD,RESERVED2:WORD	;;
+extern PRINTER_DESC_NUM;;
+extern PRINTER_DESC_TBL;;
+extern INIT_CHK,TABLE;;
+extern HARD_SL1,RAM_SL1;;
+extern HARD_SL2,RAM_SL2;;
+extern HARD_SL3,RAM_SL3;;
+extern HARD_SL4,RAM_SL4;;
+extern RESERVED1,RESERVED2;;
 					;;
 					;;
 					;;
-CSEG	SEGMENT PARA PUBLIC 'CODE'      ;;
-	ASSUME	CS:CSEG 		;;
+SECTION .CSEG;;
+	; ASSUME	CS:CSEG;;
 					;;
 					;;
-EXTRN	PARSER:NEAR			;; WGR					    ;AN000;
-EXTRN	ROM_INT2F:WORD			;; WGR					    ;AN000;
-EXTRN	INT2F_COM:NEAR			;; WGR					    ;AN000;
-EXTRN	ABORT:BYTE			;; WGR					    ;AN000;
+extern PARSER;; WGR					    ;AN000;
+extern ROM_INT2F;; WGR					    ;AN000;
+extern INT2F_COM;; WGR					    ;AN000;
+extern ABORT;; WGR					    ;AN000;
 
 CODE_END     EQU $			;; end of resident code
 					;;
@@ -66,7 +66,7 @@ CODE_END     EQU $			;; end of resident code
 RESIDENT_END DW  0FFFH			;; end of extended resident area
 STACK_ALLOCATED  DW -1			;; end of extended resident area
 					;;
-	     DW  150 DUP(0)		;; need some space here.
+	     times 150 dw 0;; need some space here.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;	End of resident code
@@ -104,7 +104,7 @@ STACK_ALLOCATED  DW -1			;; end of extended resident area
 ;;
 ;;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 					;;
-DEV_NUM dw	?			;;
+DEV_NUM: dw 0;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -141,7 +141,7 @@ DID_THREE EQU	  00004H		;; third  "
 DID_FOUR  EQU	  00008H		;; fourth "
 ;;maximun number of device_id = 16	;;
 					;;
-DID_BIT LABEL WORD			;;
+DID_BIT:;;
 	DW	DID_ONE 		;;
 	DW	DID_TWO 		;;
 	DW	DID_THREE		;;
@@ -153,35 +153,35 @@ DID_BIT LABEL WORD			;;
 					;; parameters defined for the device_id
 					;; in the printer description table.
 					;;
-HRMAX	LABEL	word			;; number of hwcp+cart slots supported
+HRMAX:;; number of hwcp+cart slots supported
 	DW	0			;;  did = 1
 	DW	0			;;  did = 2
 	DW	0			;;  did = 3
 	DW	0			;;  did = 4
 ;upto max  DID_MAX			;;
 					;;
-CTMAX	LABEL	word			;; number of cart slots supported
+CTMAX:;; number of cart slots supported
 	DW	0			;;  did = 1
 	DW	0			;;  did = 2
 	DW	0			;;  did = 3
 	DW	0			;;  did = 4
 ;upto max  DID_MAX			;;
 					;;
-RMMAX	LABEL	word			;; number of ram-slots supported
+RMMAX:;; number of ram-slots supported
 	DW	0			;;  did = 1
 	DW	0			;;  did = 2
 	DW	0			;;  did = 3
 	DW	0			;;  did = 4
 ;upto max  DID_MAX			;;
 					;;
-RBUMAX	LABEL	word			;; number of ram-designate slots
+RBUMAX:;; number of ram-designate slots
 	DW	0			;;  did = 1
 	DW	0			;;  did = 2
 	DW	0			;;  did = 3
 	DW	0			;;  did = 4
 ;upto max  DID_MAX			;;
 					;;
-DESCO	LABEL	word			;; offset to the description table
+DESCO:;; offset to the description table
 					;; where the device_id is defined.
 	DW	-1			;;  did = 1
 	DW	-1			;;  did = 2
@@ -189,7 +189,7 @@ DESCO	LABEL	word			;; offset to the description table
 	DW	-1			;;  did = 4
 ;upto max  DID_MAX			;;
 					;;
-FSIZE	LABEL	word			;; font size of the device
+FSIZE:;; font size of the device
 	DW	 0			;;  did = 1
 	DW	 0			;;  did = 2
 	DW	 0			;;  did = 3
@@ -207,28 +207,28 @@ FSIZE	LABEL	word			;; font size of the device
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-HARD_SLA LABEL	word			;; index in the order of device in
-	DW	OFFSET	(HARD_SL1)	;; the PARSE-talbes
-	DW	OFFSET	(HARD_SL2)	;;
-	DW	OFFSET	(HARD_SL3)	;;
-	DW	OFFSET	(HARD_SL4)	;;
+HARD_SLA:;; index in the order of device in
+	DW	(HARD_SL1)	;; the PARSE-talbes
+	DW	(HARD_SL2)	;;
+	DW	(HARD_SL3)	;;
+	DW	(HARD_SL4)	;;
 ; up to DID_MAX 			;;
 					;;
-RAM_SLA LABEL	word			;;
-	DW	OFFSET (RAM_SL1)	;;
-	DW	OFFSET (RAM_SL2)	;;
-	DW	OFFSET (RAM_SL3)	;;
-	DW	OFFSET (RAM_SL4)	;;
+RAM_SLA:;;
+	DW	(RAM_SL1)	;;
+	DW	(RAM_SL2)	;;
+	DW	(RAM_SL3)	;;
+	DW	(RAM_SL4)	;;
 ; up to DID_MAX 			;;
 					;;
 SUB_SIZE	EQU	11		;; WGR sublist size			    ;AN000;
 LEFT_ASCIIZ	EQU	00010000B	;; WGR left-aligned asciiz string	    ;AN000;
 UNLIMITED	EQU	0		;; WGR unlimited message size.		    ;AN000;
 					;; WGR					    ;AN000;
-SUBLIST LABEL	DWORD			;; WGR					    ;AN000;
+SUBLIST:;; WGR					    ;AN000;
 	DB	SUB_SIZE		;; WGR					    ;AN000;
 	DB	0			;; WGR					    ;AN000;
-MSG_PTR DW	?			;; WGR					    ;AN000;
+MSG_PTR: dw 0;; WGR					    ;AN000;
 MSG_SEG DW	SEG CSEG		;; WGR					    ;AN000;
 	DB	1			;; WGR					    ;AN000;
 	DB	LEFT_ASCIIZ		;; WGR					    ;AN000;
@@ -244,7 +244,7 @@ MSG_SEG DW	SEG CSEG		;; WGR					    ;AN000;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-INIT	PROC	NEAR			;;
+INIT:;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; parse the initialization parameters in DEVICE command
@@ -263,7 +263,7 @@ CONT_1: 				;; WGR					    ;AN000;
 	JNE	NOT_PRN 		;;
 					;;
 					;;
-	MOV	AX,OFFSET CODE_END	;; defined only once for each DEVICE
+	MOV	AX,CODE_END	;; defined only once for each DEVICE
 	XOR	CX,CX			;;
 	MOV	CL,4			;;
 	SHR	AX,CL			;;
@@ -343,7 +343,7 @@ CS_LPEND1:				;;
 	SHL	AX,1			;;
 	SHL	AX,1			;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;; get Request Header address
+	LES	DI,dword buf.rh_ptro ;; get Request Header address
 ;	MOV	RH.RH0_ENDO,AX		;;
 	MOV	RH.RH0_ENDO,0		;;
 	MOV	RH.RH0_ENDS,CX		;;
@@ -381,7 +381,7 @@ SCAN_DESC:				;;
 $$DO1:
 	    PUSH    CX			;; save device count
 	    PUSH    SI			;; pointer to printer-descn's offset
-	    MOV     SI,CS:WORD PTR[SI]	;;
+	    MOV     SI,CS:word[SI]	;;
 	    AND     CX,CX		;;
 					;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	$LEAVE	Z			;; LEAVE if no more device description
@@ -504,7 +504,7 @@ MORE_DEVICE :				;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	    MOV     CX,PSE.PAR_DNML	;; length of parsed device name
 	    LEA     DI,PSE.PAR_DNM	;; pointer to parse device name
 					;;
-	    LDS     SI,DWORD PTR BUF.DEV_HDRO ; get the offset to device-n header
+	    LDS     SI,dword BUF.DEV_HDRO ; get the offset to device-n header
 	    LEA     SI,HP.DH_NAME	;; "       offset to name of device-n
 	    REPE    CMPSB		;;
 	    POP     DI			;; get back offset to PAR_DEVOT
@@ -527,7 +527,7 @@ NAME_MATCHED :				;;
 	    PUSH    CX			;;
 					;;
 	    LEA     SI,BUF.PAR_EXTRACTO ;; was the LPT1/PRN defined before ?
-	    MOV     AX,CS:[SI].PAR_DNMO ;;
+	    MOV     AX,[CS:SI].PAR_DNMO ;;
 	    CMP     AX,0FFFFH		;;
 					;;
 	    JNE     DEV_COMPARE 	;; DI = PAR_DEVOT
@@ -535,19 +535,19 @@ NAME_MATCHED :				;;
 					;;
 					;; no device previousely defined
 	    MOV     AX,PSE.PAR_DNMO	;;
-	    MOV     CS:[SI].PAR_DNMO,AX ;; define device parameters for LPTn
+	    MOV     [CS:SI].PAR_DNMO,AX ;; define device parameters for LPTn
 					;;
 	    MOV     AX,PSE.PAR_DIDO	;;
-	    MOV     CS:[SI].PAR_DIDO,AX ;;
+	    MOV     [CS:SI].PAR_DIDO,AX ;;
 					;;
 	    MOV     AX,PSE.PAR_HWCPO	;;
-	    MOV     CS:[SI].PAR_HWCPO,AX ;;
+	    MOV     [CS:SI].PAR_HWCPO,AX ;;
 					;;
 	    MOV     AX,PSE.PAR_DESGO	;;
-	    MOV     CS:[SI].PAR_DESGO,AX ;;
+	    MOV     [CS:SI].PAR_DESGO,AX ;;
 					;;
 	    MOV     AX,PSE.PAR_PARMO	;;
-	    MOV     CS:[SI].PAR_PARMO,AX ;;
+	    MOV     [CS:SI].PAR_PARMO,AX ;;
 					;;
 					;;---------------------------------
 	    CALL    CHK_DID		;; define the STATE according to
@@ -619,7 +619,7 @@ CS_LPEND2:				;;
 	SHL	AX,1			;;
 	SHL	AX,1			;;
 					;;
-	LES	DI,dword ptr buf.rh_ptro ;; get Request Header address
+	LES	DI,dword buf.rh_ptro ;; get Request Header address
 	MOV	RH.RH0_ENDO,AX		;;
 	MOV	RH.RH0_ENDS,CX		;;
 	XOR	AX,AX			;; clear error code to be returned
@@ -695,7 +695,7 @@ CS_LPENd3:				;;
 					;;
 					;;
 CODE_STAYED :				;;
-	MOV	DI,OFFSET TABLE 	;;
+	MOV	DI,TABLE 	;;
 	push	CS			;;
 	POP	ES			;;
 					;;
@@ -727,7 +727,7 @@ MSG_LOOP :				;;
 	CLD				;; WGR					    ;AN000;
 	REPNE	SCASB			;; WGR					    ;AN000;
 	DEC	DI			;; WGR					    ;AN000;
-	MOV	BYTE PTR ES:[DI],ZERO	;; WGR					    ;AN000;
+	MOV	byte [ES:DI],ZERO	;; WGR					    ;AN000;
 					;; WGR					    ;AN000;
 	MOV	MSG_SEG,CS		;; WGR					    ;AN000;
 	MOV	MSG_PTR,SI		;; WGR					    ;AN000;
@@ -757,7 +757,7 @@ INIT_RETURN :				;;
 					;;
 	RET				;;
 					;;
-INIT	ENDP				;;
+; ENDP INIT;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Call by INIT to extract parameters for the deivce_id
@@ -770,7 +770,7 @@ INIT	ENDP				;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
 					;;
-DID_EXTRACT PROC			;;
+DID_EXTRACT:;;
 					;;
 	PUSH	DX			;;
 					;;-----------------------------
@@ -782,17 +782,17 @@ DID_EXTRACT PROC			;;
 	add	bx,bx			;; double to index [bx]
 	MOV	DX,BX			;;
 					;;
-	MOV	AX,DS:[SI].FONTSZ	;;
+	MOV	AX,[DS:SI].FONTSZ	;;
 	MOV	FSIZE[BX],AX		;; size of font buffer to be created
 					;;
-	MOV	AX,DS:[SI].HSLOTS	;;
+	MOV	AX,[DS:SI].HSLOTS	;;
 	CMP	AX,HARDSL_MAX		;;
 	JNA	LESS_HARDSL		;;
 	MOV	INIT_CHK, 0010H 	;; ERROR 0010H
 	POP	BX			;;
 	JMP	END_MATCH_BAD		;;
 LESS_HARDSL :				;;
-	CMP	AX,DS:[SI].HWCPMIN	;;
+	CMP	AX,[DS:SI].HWCPMIN	;;
 	JNB	VALID_HARDSL		;;
 	MOV	INIT_CHK, 0012H 	;; ERROR 0012H
 	POP	BX			;;
@@ -801,7 +801,7 @@ VALID_HARDSL :				;;
 	MOV	HRMAX[BX],AX		;;
 	MOV	CTMAX[BX],AX		;; will be reduced by the no. of hwcp
 					;;
-	MOV	AX,DS:[SI].RSLOTS	;;
+	MOV	AX,[DS:SI].RSLOTS	;;
 	CMP	AX,RAMSL_MAX		;;
 	JNA	LESS_RAMSL		;;
 	MOV	INIT_CHK, 0011H 	;; ERROR 0011H
@@ -826,12 +826,12 @@ HWCPgt: PUSH	DI			;; get the hwcp
 	push	bx			;;
 	mov	bx,dx			;;
 	MOV	HRMAX[BX],CX		;;
-	MOV	CX,DS:[SI].HWCPMIN	;;
+	MOV	CX,[DS:SI].HWCPMIN	;;
 	SUB	CTMAX[BX],CX		;; what is left becomes cartridge slot
 	pop	bx			;;
 	JMP	DESIGN			;;
 					;; hwcp to be defined
-chk_hwcp: MOV	AX,DS:[SI].HSLOTS	;; defined in printer_desc
+chk_hwcp: MOV	AX,[DS:SI].HSLOTS	;; defined in printer_desc
 	CMP	CX,AX			;;
 	JA	BAD_MATCH2		;;
 	CMP	CX,HARDSL_MAX		;;
@@ -851,9 +851,9 @@ HWCP_GOOD:				;; there are sufficient hard-slot for
 	MOV	AX,CTMAX[BX]		;;
 					;;
 	PUSH	CX			;; calculate what is left for cart_slot
-	CMP	CX,DS:[SI].HWCPMIN	;;
+	CMP	CX,[DS:SI].HWCPMIN	;;
 	JNB	MORE_THAN_HWCPMIN	;;
-	MOV	CX,DS:[SI].HWCPMIN	;;
+	MOV	CX,[DS:SI].HWCPMIN	;;
 MORE_THAN_HWCPMIN :			;;
 	SUB	AX,CX			;;
 	POP	CX			;;
@@ -876,13 +876,13 @@ FILL_HWCP:				;;
 	JZ	DESIGN_P		;;
 	INC	DI			;; next code page in PARSE table
 	INC	DI			;;
-	MOV	AX,ES:[DI]		;; get code page value
+	MOV	AX,[ES:DI]		;; get code page value
 					;;
 					;; IF THERE IS ANY REPETITIVE HWCP
 	push	dx			;;
 	push	bx			;;
 hwcp_norep :				;;
-	cmp	ax,cs:[bx].slt_cp	;;
+	cmp	ax,[cs:bx].slt_cp	;;
 	jne	hwcp_repnext		;;
 	pop	bx			;;
 	pop	dx			;;
@@ -901,11 +901,11 @@ hwcp_repnext:				;;
 	pop	bx			;;
 	pop	dx			;;
 					;;
-	MOV	CS:[SI].SLT_CP,AX	;;
-	MOV	AX,CS:[SI].SLT_AT	;; get the attributes
+	MOV	[CS:SI].SLT_CP,AX	;;
+	MOV	AX,[CS:SI].SLT_AT	;; get the attributes
 	OR	AX,AT_OCC		;; occupied
 	OR	AX,AT_HWCP		;; hwcp slot
-	MOV	CS:[SI].SLT_AT,AX	;;
+	MOV	[CS:SI].SLT_AT,AX	;;
 	INC	SI			;;
 	INC	SI			;; next slot
 	INC	SI			;; next slot
@@ -931,7 +931,7 @@ DESIGN: POP	DI			;; get the designate no.
 	AND	AX,AX			;;
 	JZ	DEF_RBUFMAX		;;
 					;;
-	CMP	CS:[SI].CLASS,1 	;;
+	CMP	[CS:SI].CLASS,1 	;;
 	JNE	DESIG_NOt_CLASS1	;;
 					;;
 	PUSH	BX			;; if there is any cartridge slot ?
@@ -994,7 +994,7 @@ END_MATCH_BAD : 			;;
 					;;
 	RET				;;
 					;;
-DID_EXTRACT ENDP			;;
+; ENDP DID_EXTRACT;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1004,7 +1004,7 @@ DID_EXTRACT ENDP			;;
 ;; at entry :  CX = device order in parse table
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CHK_DID PROC				;;
+CHK_DID:;;
 					;;
 	push	cx			;;
 	push	di			;;
@@ -1029,7 +1029,7 @@ DEFINE_BUFFER : 			;;
 					;;
 	PUSH	DI			;;
 	MOV	DI,AX			;;
-	MOV	AX,CS:[DI].CLASS	;;
+	MOV	AX,[CS:DI].CLASS	;;
 	MOV	BUF.PCLASS,AX		;;
 	POP	DI			;;
 					;;
@@ -1135,9 +1135,9 @@ MULTIPLE_DONE : 			;;
 	POP	DS			;;
 	MOV	BUF.RBUFMX,0		;;
 	MOV	SI,BUF.PDESCO		;;
-	MOV	SI,CS:[SI].SELH_O	;;
+	MOV	SI,[CS:SI].SELH_O	;;
 	XOR	CX,CX			;;
-	MOV	CL,CS:BYTE PTR [SI]	;;
+	MOV	CL,CS:byte [SI]	;;
 	INC	CX			;; including the length byte
 					;;
 	MOV	DI,BUF.FTSTART		;; control template
@@ -1167,8 +1167,8 @@ DEF_FThwcp :				;;
 	POP	ES			;;
 	MOV	DI,CTL5202_OFFS 	;; offset to the HWCP words
 					;;
-	MOV	AX,CS:[SI].SLT_CP	;;
-	MOV	ES:WORD PTR [DI],AX	;;
+	MOV	AX,[CS:SI].SLT_CP	;;
+	MOV	ES:word [DI],AX	;;
 					;;
 	INC	SI			;;
 	INC	SI			;;
@@ -1222,7 +1222,7 @@ RET_CHK_DID:				;;
 					;;
 	RET				;;
 					;;
-CHK_DID ENDP				;;
+; ENDP CHK_DID;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1235,7 +1235,7 @@ CHK_DID ENDP				;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
-DEV_CHECK PROC				;;
+DEV_CHECK:;;
 					;;
 	LEA	SI,BUF.PAR_EXTRACTO	;;
 					;;
@@ -1348,7 +1348,7 @@ DEV_CHECK_RET : 			;;
 	RET				;;
 					;;
 					;;
-DEV_CHECK ENDP				;;
+; ENDP DEV_CHECK;;
 					;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					;;
@@ -1372,7 +1372,7 @@ DEV_CHECK ENDP				;;
 
 SEMAPHORE  DB	  0								    ;AN000;
 										    ;AN000;
-LOAD_INT2F PROC   NEAR								    ;AN000;
+LOAD_INT2F:;AN000;
 	   CMP	  CS:SEMAPHORE,0		   ; already loaded?		    ;AN000;
 	   JNE	  LI_1				   ; yes.....exit		    ;AN000;
 	   PUSH   ES				   ; no...load. 		    ;AN000;
@@ -1380,37 +1380,37 @@ LOAD_INT2F PROC   NEAR								    ;AN000;
 	   PUSH   AX				   ;				    ;AN000;
 	   XOR	  AX,AX 			   ; point ES to low..		    ;AN000;
 	   MOV	  ES,AX 			   ; memory.			    ;AN000;
-	   MOV	  AX,ES:WORD PTR INT2F_LOW	   ; store original..		    ;AN000;
+	   MOV	  AX,ES:word INT2F_LOW	   ; store original..		    ;AN000;
 	   MOV	  CS:ROM_INT2F,AX		   ; interrupt 2Fh..		    ;AN000;
-	   MOV	  CX,ES:WORD PTR INT2F_HI	   ; location.. 		    ;AN000;
+	   MOV	  CX,ES:word INT2F_HI	   ; location.. 		    ;AN000;
 	   MOV	  CS:ROM_INT2F+2,CX		   ;				    ;AN000;
 	   OR	  AX,CX 			   ; check if old int2F..	    ;AN000;
 	   JNZ	  LI_0				   ; is 0.			    ;AN000;
-	   MOV	  AX,OFFSET ABORT		   ; yes....point to..		    ;AN000;
+	   MOV	  AX,ABORT		   ; yes....point to..		    ;AN000;
 	   MOV	  CS:ROM_INT2F,AX		   ; IRET.			    ;AN000;
 	   MOV	  AX,CS 			   ;				    ;AN000;
 	   MOV	  CS:ROM_INT2F+2,AX		   ;				    ;AN000;
 LI_0:						   ;				    ;AN000;
 	   CLI					   ;				    ;AN000;
-	   MOV	  ES:WORD PTR INT2F_LOW,OFFSET INT2F_COM ; replace vector..	    ;AN000;
-	   MOV	  ES:WORD PTR INT2F_HI,CS	   ; with our own..		    ;AN000;
+	   MOV	  ES:word INT2F_LOW,INT2F_COM ; replace vector..	    ;AN000;
+	   MOV	  ES:word INT2F_HI,CS	   ; with our own..		    ;AN000;
 	   STI					   ;				    ;AN000;
 	   POP	  AX				   ;				    ;AN000;
 	   POP	  CX				   ;				    ;AN000;
 	   POP	  ES				   ;				    ;AN000;
 	   MOV	  CS:SEMAPHORE,1		   ; now loaded.		    ;AN000;
 LI_1:	   RET					   ;				    ;AN000;
-LOAD_INT2F ENDP
+; ENDP LOAD_INT2F
 
-.XLIST
+; .XLIST
 MSG_SERVICES <MSGDATA>			  ; WGR 				    ;AN000;
 MSG_SERVICES <DISPLAYmsg,LOADmsg,CHARmsg> ; WGR 				    ;AN000;
 MSG_SERVICES <PRINTER.CL1>		  ; WGR 				    ;AN000;
 MSG_SERVICES <PRINTER.CL2>		  ; WGR 				    ;AN000;
 MSG_SERVICES <PRINTER.CLA>		  ; WGR 				    ;AN000;
-.LIST
+; .LIST
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-CSEG	ENDS
-	END
+; END SECTION .CSEG
+	; END

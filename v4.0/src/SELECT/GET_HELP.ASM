@@ -1,7 +1,7 @@
-PAGE 55,132				;AN000;
-NAME	SELECT				;AN000;
-TITLE	SELECT - GET_HELP_ID		;AN000;
-SUBTTL	Get_Help.asm			;AN000;
+; PAGE 55,132;AN000;
+; NAME	SELECT;AN000;
+; TITLE	SELECT - GET_HELP_ID;AN000;
+; SUBTTL	Get_Help.asm;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	GET_HELP_ID
@@ -14,8 +14,8 @@ SUBTTL	Get_Help.asm			;AN000;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	SEGMENT PARA PUBLIC 'SELECT'    ;AN000;segment for far routine
-	ASSUME	CS:SELECT		;AN000;
+SECTION .SELECT;AN000;segment for far routine
+	; ASSUME	CS:SELECT;AN000;
 					;
 					;
 INP_HELP_ID	DW     12,10,10 	;AN000; help_id  1, row', col'   STR_DOS_LOC
@@ -145,8 +145,8 @@ SCR_HELP_ID_LEN EQU    28		;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 THREE	DW	3			;AN000;
 					;
-	PUBLIC	GET_HELP_ID		;AN000;
-GET_HELP_ID	PROC			;AN000;
+	global GET_HELP_ID;AN000;
+GET_HELP_ID:;AN000;
 	CMP	AX,1			;AN000;
 	JNE	GH_8			;AN000;
 					;
@@ -160,9 +160,9 @@ GET_HELP_ID	PROC			;AN000;
 	MOV	BX,INP_HELP_ID_ELE*2	;AN000;
 	MUL	BX			;AN000;
 	MOV	BX,AX			;AN000;
-	MOV	AX,CS:[BX].INP_HELP_ID	;AN000;
-	MOV	CX,CS:[BX+2].INP_HELP_ID;AN000;
-	MOV	DX,CS:[BX+4].INP_HELP_ID;AN000;
+	MOV	AX,[CS:BX].INP_HELP_ID	;AN000;
+	MOV	CX,[CS:BX+2].INP_HELP_ID;AN000;
+	MOV	DX,[CS:BX+4].INP_HELP_ID;AN000;
 	XCHG	CH,CL			;AN000;
 	MOV	DH,CH			;AN000;
 	POP	CX			;AN000;
@@ -190,7 +190,7 @@ GH_8:	CMP	AX,2			;AN000;
 					;
 GH_9:	CMP	DX,BX			;AN000;
 	JE	GH_10			;AN000;
-	MOV	AX,CS:[SI]+SCR_HELP_ID	;AN000; get number of help screens
+	MOV	AX,[CS:SI]+SCR_HELP_ID	;AN000; get number of help screens
 	PUSH	DX			;AN000;
 	MUL	THREE			;AN000;
 	POP	DX			;AN000;
@@ -202,7 +202,7 @@ GH_9:	CMP	DX,BX			;AN000;
 	JBE	GH_9			;AC000; JW Changed to JBE
 	JMP	GH_15			;AN000;
 					;
-GH_10:	CMP	CX,CS:[SI]+SCR_HELP_ID	;AN000; check for index out of range?
+GH_10:	CMP	CX,[CS:SI]+SCR_HELP_ID	;AN000; check for index out of range?
 	JBE	GH_11			;AN000;  then
 	MOV	CX,1			;AN000;  set to first help_id....
 					;
@@ -212,22 +212,22 @@ GH_11:	MOV	AX,CX			;AN000; scroll_id found!!!!
 	INC	AX			;AN000;
 	SHL	AX,1			;AN000;
 	ADD	SI,AX			;AN000;
-	MOV	AX,CS:[SI]+SCR_HELP_ID	;AN000;
-	MOV	CX,CS:[SI+2].SCR_HELP_ID;AN000;
-	MOV	DX,CS:[SI+4].SCR_HELP_ID;AN000;
+	MOV	AX,[CS:SI]+SCR_HELP_ID	;AN000;
+	MOV	CX,[CS:SI+2].SCR_HELP_ID;AN000;
+	MOV	DX,[CS:SI+4].SCR_HELP_ID;AN000;
 	XCHG	CH,CL			;AN000;
 	MOV	DH,CH			;AN000;
 GH_15:	POP	SI			;AN000;
 	POP	CX			;AN000;
 GH_20:					;AN000;
 	RET				;AN000;
-GET_HELP_ID	ENDP			;AN000;
+; ENDP GET_HELP_ID;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SELECT	ENDS				;AN000;
-	END	GET_HELP_ID		;AN000;
+; END SECTION .SELECT;AN000;
+	; END	GET_HELP_ID;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

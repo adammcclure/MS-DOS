@@ -1,46 +1,46 @@
-	TITLE	Message texts for FLUSH13
+	; TITLE	Message texts for FLUSH13
 
-PAGE	58,132
+; PAGE	58,132
 
-CONST	SEGMENT WORD PUBLIC 'DATA'
-CONST	ENDS
+SECTION .CONST
+; END SECTION .CONST
 
-_BSS	SEGMENT WORD PUBLIC 'DATA'
-_BSS	ENDS
+SECTION ._BSS
+; END SECTION ._BSS
 
-_DATA	SEGMENT WORD PUBLIC 'DATA'
-_DATA	ENDS
+SECTION ._DATA
+; END SECTION ._DATA
 
-DGROUP	    GROUP   CONST, _BSS, _DATA
+; DGROUP	    GROUP   CONST, _BSS, _DATA
 
-ASSUME	DS:DGROUP
+; ASSUME	DS:DGROUP
 
-_DATA	 SEGMENT
+SECTION ._DATA
 
-	public	_SWTCH_CONF
-	public	_BAD_PARM
-	public	_NO_DEV_MESS
-	public	_IOCTL_BAD_MESS
-	public	_STATUS_MES1
-	public	_STATUS_MES2
-	public	_DISSTRING
-	public	_ENSTRING
-	public	_OFFSTRING
-	public	_ONSTRING
-	public	_LOCKSTRING
-	public	_UNLSTRING
-	public	_REBOOT_MES
-	public	_STATUS_3R
-	public	_STATUS_3W
-	public	_STATUS_3T
-	public	_CACHE_MES
-	public	_WT_MES
-	public	_WB_MES
-	public	_L_MES
-	public	_C_MES
-	public	_T_MES
-	public	_STATUS_4
-	public	_STATUS_5
+	global _SWTCH_CONF
+	global _BAD_PARM
+	global _NO_DEV_MESS
+	global _IOCTL_BAD_MESS
+	global _STATUS_MES1
+	global _STATUS_MES2
+	global _DISSTRING
+	global _ENSTRING
+	global _OFFSTRING
+	global _ONSTRING
+	global _LOCKSTRING
+	global _UNLSTRING
+	global _REBOOT_MES
+	global _STATUS_3R
+	global _STATUS_3W
+	global _STATUS_3T
+	global _CACHE_MES
+	global _WT_MES
+	global _WB_MES
+	global _L_MES
+	global _C_MES
+	global _T_MES
+	global _STATUS_4
+	global _STATUS_5
 
 ;
 ; Messages
@@ -82,5 +82,5 @@ _STATUS_4    DB  "    %3u Total tracks, %3u are used, %3u are locked, %3u are di
 
 _STATUS_5    DB  "    %4u - Current Size, %4u - Initial Size, %4u - Minimum Size",13,10,0
 
-_DATA	 ENDS
-	END
+; END SECTION ._DATA
+	; END

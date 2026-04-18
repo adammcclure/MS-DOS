@@ -19,26 +19,26 @@
 ;;              - this macro has been invoked more than twice with same parm
 ;;              - issue error message
 ;;***********************************************************************
-IF1
-    %OUT COMPONENT=COMMON, MODULE=PATHMAC.INC ...
-ENDIF
+%if 1  ; IF1 - pass-specific
+    %warning COMPONENT=COMMON, MODULE=PATHMAC.INC ...
+%endif
 
-pathlabl MACRO pnam
-IFNDEF LBL_&pnam                        ;;IF THIS IS THE FIRST TIME,
+%macro pathlabl 1
+%ifndef LBL_;;IF THIS IS THE FIRST TIME,
     LBL_&pnam = 0                       ;;DEFINE IT, INITIALLY ZERO
-ELSE                                    ;;SINCE IT IS DEFINED
-    IF (LBL_&pnam GT 3)                 ;;IF USED TOO MANY TIMES,
-        .ERR NON-UNIQUE OPERAND ON PATHLABL
+%else;;SINCE IT IS DEFINED
+    %if (LBL_&pnam GT 3);;IF USED TOO MANY TIMES,
+        ; .ERR NON-UNIQUE OPERAND ON PATHLABL
         EXITM                           ;;ABORT THIS GENERATION
-    ENDIF
-ENDIF
+    %endif
+%endif
 
-IF (LBL_&pnam EQ 0) OR (LBL_&pnam EQ 2) ;;ready for START?
+%if (LBL_&pnam EQ 0) OR (LBL_&pnam EQ 2);;ready for START?
     $$A_START_&pnam:                    ;;create START label
-    PUBLIC $$A_START_&pnam              ;;make it public
-ELSE                                    ;;SINCE SWITCH MAY BE 1 OR 3,
+    global $$A_START_&pnam;;make it public
+%else;;SINCE SWITCH MAY BE 1 OR 3,
     $$A_STOP_&pnam:                     ;;create STOP label
-    PUBLIC $$A_STOP_&pnam               ;;make it public
-ENDIF
+    global $$A_STOP_&pnam;;make it public
+%endif
 LBL_&pnam = LBL_&pnam + 1               ;;INCREMENT SWITCH
-ENDM
+%endmacro

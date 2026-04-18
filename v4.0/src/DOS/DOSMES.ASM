@@ -9,42 +9,42 @@
 ;	  A000	  version 4.00  Jan. 1988
 ;
 
-IFNDEF	KANJI
+%ifndef KANJI
 KANJI	EQU	FALSE
-ENDIF
+%endif
 
-IFNDEF	Rainbow
+%ifndef Rainbow
 Rainbow EQU FALSE
-ENDIF
+%endif
 
-include dossym.inc
-include dosmac.inc
-include doscntry.inc
+%include "dossym.inc"
+%include "dosmac.inc"
+%include "doscntry.inc"
 
-CONSTANTS	SEGMENT WORD PUBLIC 'CONST'
+SECTION .CONSTANTS
 
-    PUBLIC  UserNum, OEMNum
-    Public DMES001S,DMES001E
-DMES001S Label byte
-USERNUM DW	?			; 24 bit user number
-	DB	?
-IF	IBM
-	IF	IBMCOPYRIGHT
+    global UserNum, OEMNum
+    global DMES001S,DMES001E
+DMES001S:
+USERNUM: dw 0; 24 bit user number
+	db 0
+%if IBM
+	%if IBMCOPYRIGHT
 	OEMNUM	DB	0			; 8 bit OEM number
-	ELSE
+	%else
 	OEMNUM	DB	0FFH			; 8 bit OEM number
-	ENDIF
-ELSE
+	%endif
+%else
 OEMNUM	DB	0FFH
-ENDIF
+%endif
 
 
-DMES001E label byte
-CONSTANTS	ENDS
+DMES001E:
+; END SECTION .CONSTANTS
 
-TABLE		SEGMENT BYTE PUBLIC 'TABLE'
-Public DMES002S
-DMES002S  label byte
+SECTION .TABLE
+global DMES002S
+DMES002S:
 
 
 ; The following table is used for DOS 3.3
@@ -53,32 +53,32 @@ DMES002S  label byte
 ;The initial value for ccDosCodepage is 850.
 ;
 ;
-		   PUBLIC  COUNTRY_CDPG,UCASE_TAB,FILE_UCASE_TAB
-		   PUBLIC  FILE_CHAR_TAB
+		   global COUNTRY_CDPG,UCASE_TAB,FILE_UCASE_TAB
+		   global FILE_CHAR_TAB
 ;
 ; country and code page infomation
 ;
-COUNTRY_CDPG  label  byte
+COUNTRY_CDPG:
 
 	 db   0,0,0,0,0,0,0,0	      ; reserved words
 	 db   '\COUNTRY.SYS',0        ; path name of country.sys
-	 db   51 dup (?)
+	 times 51 db 0
 	 dw   437		      ; system code page id
 	 dw   6 		      ; number of entries
 	 db   SetUcase		      ; Ucase type
-	 dw   OFFSET DOSGROUP:UCASE_TAB    ;pointer to upper case table
+	 dw   UCASE_TAB    ;pointer to upper case table
 	 dw   0 			   ; segment of poiter
 	 db   SetUcaseFile	      ; Ucase file char type
-	 dw   OFFSET DOSGROUP:FILE_UCASE_TAB	;pointer to file upper case table
+	 dw   FILE_UCASE_TAB	;pointer to file upper case table
 	 dw   0 			   ; segment of poiter
 	 db   SetFileList	      ; valid file chars type
-	 dw   OFFSET DOSGROUP:FILE_CHAR_TAB   ;pointer to valid file char tab
+	 dw   FILE_CHAR_TAB   ;pointer to valid file char tab
 	 dw   0 			   ; segment of poiter
 	 db   SetCollate	      ; collate type
-	 dw   OFFSET DOSGROUP:COLLATE_TAB  ;pointer to collate table
+	 dw   COLLATE_TAB  ;pointer to collate table
 	 dw   0 			   ; segment of poiter
 	 db   SetDBCS		      ;AN000; DBCS Ev			  2/12/KK
-	 dw   OFFSET DOSGROUP:DBCS_TAB ;AN000;;pointer to DBCS Ev table   2/12/KK
+	 dw   DBCS_TAB ;AN000;;pointer to DBCS Ev table   2/12/KK
 	 dw   0 		       ;AN000; segment of poiter	 2/12/KK
 	 db   SetCountryInfo	      ; country info type
 	 dw   NEW_COUNTRY_SIZE	      ; extended country info size
@@ -93,7 +93,7 @@ COUNTRY_CDPG  label  byte
 	 db   0 		      ; currency format flag
 	 db   2 		      ; # of disgit in currency
 	 db   0 		      ; time format
-	 dw   OFFSET DOSGROUP:MAP_CASE	;mono case routine entry point
+	 dw   MAP_CASE	;mono case routine entry point
 	 dw   0 			; segment of entry point
 	 db   ',',0                    ; data list separator
 	 dw   0,0,0,0,0 	       ; reserved
@@ -107,7 +107,7 @@ COUNTRY_CDPG  label  byte
 ;
 ; upper case table
 ;
-UCASE_TAB    label   byte
+UCASE_TAB:
 		    dw	128
 		    db	128,154,069,065,142,065,143,128
 		    db	069,069,069,073,073,073,142,143
@@ -129,7 +129,7 @@ UCASE_TAB    label   byte
 ;
 ; file upper case table
 ;
-FILE_UCASE_TAB	label  byte
+FILE_UCASE_TAB:
 		    dw	128
 		    db	128,154,069,065,142,065,143,128
 		    db	069,069,069,073,073,073,142,143
@@ -151,16 +151,16 @@ FILE_UCASE_TAB	label  byte
 ;
 ; file char list
 ;
-FILE_CHAR_TAB  label  byte
+FILE_CHAR_TAB:
 		dw	22				; length
 		db	1,0,255 			; include all
 		db	0,0,20h 			; exclude 0 - 20h
 		db	2,14,'."/\[]:|<>+=;,'           ; exclude 14 special
-		db	24 dup (?)			; reserved
+		times 24 db 0; reserved
 ;
 ; collate table
 ;
-COLLATE_TAB    label   byte
+COLLATE_TAB:
 		dw	256
 	db	0,1,2,3,4,5,6,7
 	db	8,9,10,11,12,13,14,15
@@ -200,10 +200,10 @@ COLLATE_TAB    label   byte
 ;		   DBCS_TAB	    CC_DBCS <>
 ;
 ; DBCS for DOS 4.00			   2/12/KK
-   PUBLIC    DBCS_TAB
-DBCS_TAB	label byte		;AN000;  2/12/KK
+   global DBCS_TAB
+DBCS_TAB:;AN000;  2/12/KK
 		dw	0		;AN000;  2/12/KK      max number
-		db	16 dup(0)	;AN000;  2/12/KK
+		times 16 db 0;AN000;  2/12/KK
 
 ;		dw	6		;  2/12/KK
 ;		db	081h,09fh	;  2/12/KK
@@ -211,13 +211,13 @@ DBCS_TAB	label byte		;AN000;  2/12/KK
 ;		db	0,0		;  2/12/KK
 ;
 ;
-include divmes.asm
-include yesno.asm
+%include "divmes.asm"
+%include "yesno.asm"
 
-TABLE		ENDS
+; END SECTION .TABLE
 
-CODE		SEGMENT BYTE PUBLIC 'CODE'
-ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+SECTION .CODE
+; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ;CASE MAPPER ROUTINE FOR 80H-FFH character range, DOS 3.3
 ;     ENTRY: AL = Character to map
@@ -235,33 +235,33 @@ Map1:
 	SUB	AL,80H		;Turn into index value
 	PUSH	DS
 	PUSH	BX
-	MOV	BX,OFFSET DOSGROUP:UCASE_TAB + 2
+	MOV	BX,UCASE_TAB + 2
 FINISH:
 	PUSH	CS		;Move to DS
 	POP	DS
-	XLAT	ds:[bx] 	;Get upper case character
+	XLAT	[ds:bx] 	;Get upper case character
 	POP	BX
 	POP	DS
 L_RET:	RET
 EndProc MAP_CASE
 
-SUBTTL EDIT FUNCTION ASSIGNMENTS AND HEADERS
-PAGE
+; SUBTTL EDIT FUNCTION ASSIGNMENTS AND HEADERS
+; PAGE
 ; The following two tables implement the current buffered input editing
 ; routines.  The tables are pairwise associated in reverse order for ease
 ; in indexing.	That is; The first entry in ESCTAB corresponds to the last
 ; entry in ESCFUNC, and the last entry in ESCTAB to the first entry in ESCFUNC.
 
 
-TABLE	SEGMENT
-	PUBLIC	CANCHAR
+SECTION .TABLE
+	global CANCHAR
 CANCHAR DB	CANCEL			;Cancel line character
-	PUBLIC	ESCCHAR
+	global ESCCHAR
 ESCCHAR DB	ESCCH			;Lead-in character for escape sequences
-	IF	NOT Rainbow
-ESCTAB	LABEL BYTE
-	IF	NOT IBM
-	IF	WANG
+	%if ~Rainbow
+ESCTAB:
+	%if ~IBM
+	%if WANG
 	DB	0C0h			; ^Z inserter
 	DB	0C1H			; Copy one char
 	DB	0C1H			; Copy one char
@@ -276,7 +276,7 @@ ESCTAB	LABEL BYTE
 	DB	0D6H			; Exit insert mode
 	DB	0C6H			; Escape character
 	DB	0C6H			; End of table
-	ELSE
+	%else
 					; VT52 equivalences
 	DB	"Z"                     ; ^Z inserter
 	DB	"S"                     ; F1 Copy one char
@@ -292,9 +292,9 @@ ESCTAB	LABEL BYTE
 	DB	"Q"                     ; RED Exit insert mode
 	DB	"R"                     ; GRAY Escape character
 	DB	"R"                     ; End of table
-	ENDIF
-	ENDIF
-	IF	IBM
+	%endif
+	%endif
+	%if IBM
 	DB	64			; Ctrl-Z - F6
 	DB	77			; Copy one char - -->
 	DB	59			; Copy one char - F1
@@ -309,11 +309,11 @@ ESCTAB	LABEL BYTE
 	DB	82			; Exit insert mode - INS (toggle)
 	DB	65			; Escape character - F7
 	DB	65			; End of table
-	ENDIF
-ESCEND LABEL BYTE
+	%endif
+ESCEND:
 ESCTABLEN EQU	ESCEND-ESCTAB
 
-ESCFUNC LABEL	WORD
+ESCFUNC:
 	short_addr  GETCH		; Ignore the escape sequence
 	short_addr  TWOESC
 	short_addr  EXITINS
@@ -328,8 +328,8 @@ ESCFUNC LABEL	WORD
 	short_addr  COPYONE
 	short_addr  COPYONE
 	short_addr  CTRLZ
-	ENDIF
-TABLE	ENDS
+	%endif
+; END SECTION .TABLE
 
 ;
 ; OEMFunction key is expected to process a single function
@@ -357,32 +357,32 @@ TABLE	ENDS
 ;	    AX, CX, BP
 
 Procedure   OEMFunctionKey,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING,SS:DOSGROUP
- IF  DBCS				;AN000;
-extrn	intCNE0:near			;AN000; 2/17/KK
+	; ASSUME	DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+ %if DBCS;AN000;
+extern intCNE0;AN000; 2/17/KK
 	CALL	intCNE0 		;AN000; 2/17/KK
- ELSE					;AN000;
+ %else;AN000;
 	invoke	$std_con_input_no_echo	; Get the second byte of the sequence
- ENDIF					;AN000;
-	IF NOT Rainbow
+ %endif;AN000;
+	%if ~Rainbow
 	MOV	CL,ESCTABLEN		; length of table for scan
 	PUSH	DI			; save DI (cannot change it!)
-	MOV	DI,OFFSET DOSGROUP:ESCTAB   ; offset of second byte table
+	MOV	DI,ESCTAB   ; offset of second byte table
 	REPNE	SCASB			; Look it up in the table
 	POP	DI			; restore DI
 	SHL	CX,1			; convert byte offset to word
 	MOV	BP,CX			; move to indexable register
-	JMP	[BP+OFFSET DOSGROUP:ESCFUNC]	; Go to the right routine
-	ENDIF
-	IF Rainbow
+	JMP	[BP+ESCFUNC]	; Go to the right routine
+	%endif
+	%if Rainbow
 
-TransferIf  MACRO   value,address
-	local	a
+%macro TransferIf 2
+	; LOCAL a
 	CMP	AL,value
 	JNZ	a
 	transfer    address
 a:
-ENDM
+%endmacro
 
 	CMP	AL,'['                  ; is it second lead char
 	JZ	EatParm 		; yes, go walk tree
@@ -433,10 +433,10 @@ EatAlpha:
 EatPQRS:
 	invoke	$std_con_input_no_echo	; eat char after O
 	JMP	GoGetCh
-	ENDIF
+	%endif
 
 EndProc OEMFunctionKey
 
-CODE		ENDS
+; END SECTION .CODE
 
-	END
+	; END

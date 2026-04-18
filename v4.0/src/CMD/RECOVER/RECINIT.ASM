@@ -1,82 +1,82 @@
 					;AN000;bgb
-page	,132				;
-TITLE	RECINIT.SAL - MS-DOS File/Disk Recovery Utility
+; page	,132;
+; TITLE	RECINIT.SAL - MS-DOS File/Disk Recovery Utility
 ;*****************************************************************************
 ;*****************************************************************************
 ; Include files
 ;*****************************************************************************
 ;
- .xlist
-	include pathmac.inc
- INCLUDE RECSEG.INC			;AN000;bgb
-	INCLUDE DOSSYM.INC		;AN000;BGB
-INCLUDE SYSCALL.INC			;AN000;BGB
-INCLUDE RECEQU.INC			;AN000;BGB
-INCLUDE RECMACRO.INC			;AN000;BGB
-INCLUDE RECPARSE.INC			;AN000;BGB
- .list
+ ; .xlist
+	%include "pathmac.inc"
+ %include "RECSEG.INC";AN000;bgb
+	%include "DOSSYM.INC";AN000;BGB
+%include "SYSCALL.INC";AN000;BGB
+%include "RECEQU.INC";AN000;BGB
+%include "RECMACRO.INC";AN000;BGB
+%include "RECPARSE.INC";AN000;BGB
+ ; .list
 
 ;
 ;*****************************************************************************
 ; External Data Declarations
 ;*****************************************************************************
-data	segment public para 'Data'	 ;an000;bgb
-	EXTRN	movsi:word  ;move si pointer here for display of invalid parm	;an031;bgb
-	extrn	command_line_buffer:byte ;AN000;bgb
-	extrn	ExitStatus:Byte 	;AN000;bgb
-	Extrn	FATTbl:byte
-	Extrn	SubstErr:Byte
-	Extrn	NotNetM:Byte
-	Extrn	User_Drive:Byte 	;AN000;BGB
-	Extrn	Baddrv:Byte
-	Extrn	Drive_Letter_Msg:Byte	;AN000;BGB
-	Extrn	Parse_Error_Msg:Byte
-	extrn	fname_buffer:byte	;AN000;BGB
-	extrn	PSP_Segment:word	;AN000;bgb
-	extrn	fatal_error:byte	;AN000;bgb
-	extrn	found:byte		;AN000;bgb
-	extrn	done:byte	       ;AN000;bgb
-	extrn	bpb_buffer:byte        ;AN000;bgb
-	extrn	data_start_low:word	;AN000;bgb
-	extrn	data_start_high:word	 ;AN000;bgb
-	extrn	driveletter:byte	      ;AN000;bgb
-	extrn	drive:byte		;AN000;bgb
-	extrn	transrc:byte		  ;AN000;bgb
-	extrn	int_23_old_off:word	;AN000;bgb
-	extrn	int_23_old_seg:word	;AN000;bgb
-	extrn	int_24_old_off:word	;AN000;bgb
-	extrn	int_24_old_seg:word	;AN000;bgb
-	extrn	append:byte		 ;AN000;bgb
-ifdef fsexec
-	extrn	fat12_string:byte	;AN000;bgb
-	extrn	fat16_string:byte	;AN000;bgb
-	extrn	media_id_buffer:byte	;AN000;bgb
-	extrn	fs_not_fat:byte 	;AN000;bgb				;an022;bgb
-	extrn	FS_String_Buffer:Byte	;AN011;bgb				;an022;bgb
-	extrn	FS_String_end:Byte   ;AN011;bgb 				;an022;bgb
-endif
-data	ends ;an000;bgb
+SECTION .data;an000;bgb
+	extern movsi;move si pointer here for display of invalid parm	;an031;bgb
+	extern command_line_buffer;AN000;bgb
+	extern ExitStatus;AN000;bgb
+	extern FATTbl
+	extern SubstErr
+	extern NotNetM
+	extern User_Drive;AN000;BGB
+	extern Baddrv
+	extern Drive_Letter_Msg;AN000;BGB
+	extern Parse_Error_Msg
+	extern fname_buffer;AN000;BGB
+	extern PSP_Segment;AN000;bgb
+	extern fatal_error;AN000;bgb
+	extern found;AN000;bgb
+	extern done;AN000;bgb
+	extern bpb_buffer;AN000;bgb
+	extern data_start_low;AN000;bgb
+	extern data_start_high;AN000;bgb
+	extern driveletter;AN000;bgb
+	extern drive;AN000;bgb
+	extern transrc;AN000;bgb
+	extern int_23_old_off;AN000;bgb
+	extern int_23_old_seg;AN000;bgb
+	extern int_24_old_off;AN000;bgb
+	extern int_24_old_seg;AN000;bgb
+	extern append;AN000;bgb
+%ifdef fsexec
+	extern fat12_string;AN000;bgb
+	extern fat16_string;AN000;bgb
+	extern media_id_buffer;AN000;bgb
+	extern fs_not_fat;AN000;bgb				;an022;bgb
+	extern FS_String_Buffer;AN011;bgb				;an022;bgb
+	extern FS_String_end;AN011;bgb 				;an022;bgb
+%endif
+; END SECTION .data;an000;bgb
 
 
-code	segment public para 'CODE'	 ;an000;bgb
+SECTION .code;an000;bgb
 	pathlabl recinit
 ;*****************************************************************************
 ; recinit procedures
 ;*****************************************************************************
-public	Main_Init, Init_Io, Preload_Messages, Parse_recover
-public	Parse_good, Parse_err, Validate_Target_Drive
-public	 Check_Target_Drive, Check_For_Network, Check_Translate_Drive
-public	 Hook_interrupts, Clear_Append_X, RECOVER_IFS, Reset_Append_X
-public	exitpgm 								;an026;bgb
+global Main_Init, Init_Io, Preload_Messages, Parse_recover
+global Parse_good, Parse_err, Validate_Target_Drive
+global Check_Target_Drive, Check_For_Network, Check_Translate_Drive
+global Hook_interrupts, Clear_Append_X, RECOVER_IFS, Reset_Append_X
+global exitpgm;an026;bgb
 ;*****************************************************************************
 ; External Routine Declarations
 ;*****************************************************************************
 ;	Extrn	EXEC_FS_Recover:Near						;an022;bgb
-	 Extrn	 SysLoadMsg:Near
-	Extrn	SysDispMsg:Near
-	Extrn	Main_Routine:Near
-	Extrn	INT_23:Near
-	Extrn	INT_24:Near
+	 extern SysLoadMsg
+	extern SysDispMsg
+	extern Main_Routine
+	extern INT_23
+	extern INT_24
 
 ;*****************************************************************************
 ;Routine name:	MAIN_INIT
@@ -139,7 +139,7 @@ exitpgm: mov	 al,ExitStatus		 ;Get Errorlevel		 ;AN000;
 	DOS_Call Exit			;Exit program			;AN000;
 	int	20h			;If other exit fails		;AN000;
 
-Main_Init endp				;				;AN000;
+; ENDP Main_Init;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: get_psp
@@ -170,17 +170,17 @@ Procedure get_psp			;;AN000;
 ; get command line from psp							;AN000;bgb
 	mov	cx,PSP_Segment		;point ds to data seg			;AN000;bgb
 	mov	ds,cx			;  "   "   "   "    "                   ;AN000;bgb
-	assume	ds:NOTHING,es:dg	;  "   "   "   "    "                   ;AN000;bgb
+	; assume	ds:NOTHING,es:dg;  "   "   "   "    "                   ;AN000;bgb
 	mov	si,Command_Line_Parms	;ds:si --> old area in psp		;AN000;bgb
 	LEA	di,command_line_buffer ; es:di -> new area in data
 	mov	cx,128			; do for 128 bytes
 	rep	movsb			; mov 1 byte until cx=0
 ; get the drive number of the target from the psp (0=default, a=1, b=2, c=3) ;AN000;bgb
-	mov	bl,ds:[FCB1]	    ;Get target drive from FCB -74	    ;AN000;
+	mov	bl,[ds:FCB1]	    ;Get target drive from FCB -74	    ;AN000;
 	Set_Data_Segment	    ;Set DS,ES to Data segment		    ;AN000;bgb
 	call	get_drive
 	ret
-get_psp   endp				;				;AN000;
+; ENDP get_psp;				;AN000;
 
 
 ;*****************************************************************************
@@ -230,7 +230,7 @@ $$EN7:
 	    mov     Drive_Letter_Msg,al ;Save it in message		;AN000;
 	    mov     User_Drive,al	;Put it into path strings	;     ;
 	ret
-get_drive endp				;				;AN000;
+; ENDP get_drive;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Init_Io
@@ -265,7 +265,7 @@ get_drive endp				;				;AN000;
 Procedure Init_IO			;;AN000;
 ; load the error messages from the system					;an022;bgb
 	call	Preload_Messages	;Load up message retriever	;AN000;
-ifdef fsexec									;an022;bgb
+%ifdef fsexec;an022;bgb
 	mov	FS_Not_FAT,No							;an022;bgb
 	cmp	Fatal_Error,YES 	;Quit?				;AN000; ;an022;bgb
 ;	$IF	NE			;Nope, keep going		;AN000; ;an022;bgb
@@ -295,12 +295,12 @@ ifdef fsexec									;an022;bgb
 ;	    $IF     E			; is it new 16-bit fat? 	;AN000; ;an022;bgb
 	    JNE $$IF11
 $$LL11:
-endif										;an022;bgb
+%endif;an022;bgb
 ; file system is fat based, continue (old or new)				;an022;bgb
 		call	Parse_Recover	;Yes, go sort out syntax		;an022;bgb
 ;										;an022;bgb
 ; non-fat based system								;an022;bgb
-ifdef fsexec									;an022;bgb
+%ifdef fsexec;an022;bgb
 ;	    $ELSE			;We got FS other than FAT	;AN000; ;an022;bgb
 	    JMP SHORT $$EN11
 $$IF11:
@@ -316,7 +316,7 @@ $$DO13:
 		    inc     di		;next char				;an022;bgb;an011;bgb
 ;		$STRTDO 		;start loop here			;an022;bgb;an011;bgb
 $$SD13:
-		    cmp     byte ptr [di],' '	 ;end of string ?		;an022;bgb	   ;an011;bgb
+		    cmp     byte [di],' '	 ;end of string ?		;an022;bgb	   ;an011;bgb
 ;		$ENDDO	E		;end loop when eol found		;an022;bgb;an011;bgb
 		JNE $$DO13
 		lea	si,fs_string_end ;get end of string - rec.exe		;an022;bgb;an011;bgb
@@ -326,9 +326,9 @@ $$SD13:
 $$EN11:
 ;	$ENDIF				; no error from msg retreiver	   ;AN00;an022;bgb0;
 $$IF10:
-endif										;an022;bgb
+%endif;an022;bgb
 	ret				;				;AN000;
-Init_Io 	  endp			;				;AN000;
+; ENDP Init_Io;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Preload_Messages
@@ -362,7 +362,7 @@ Procedure Preload_Messages		;;AN000;						 ;
 $$IF18:
 	ret				;				;AN000;
 
-Preload_Messages endp			;				;AN000;
+; ENDP Preload_Messages;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Parse_Command_Line
@@ -441,7 +441,7 @@ $$EN20:
 	pop	ds			;					;AN000;bgb
 	ret				;					;AN000;bgb
 					;					;AN000;bgb
-Parse_recover endp			;					;AN000;bgb
+; ENDP Parse_recover;					;AN000;bgb
 					;					;AN000;bgb
 					;AN000;bgb
 ;*****************************************************************************
@@ -479,7 +479,7 @@ Procedure Parse_good			;				;AN000;bgb
 	cmp	parse_type,$p_drive  ; 6 if data=drive ;AN000;bgb
 ;	$IF	E			; not eol, good syntax, drive entered ;AN000;bgb
 	JNE $$IF27
-	    mov     bl,byte ptr parse_addr ;AN000;bgb
+	    mov     bl,byte parse_addr ;AN000;bgb
 	    dec     bl			;Make drive 0 based		;AN000;bgb
 	    mov     drive,bl		;AN000;bgb
 	    add     bl,'A'		;make it character		;AN000;bgb
@@ -516,7 +516,7 @@ $$EN29:
 $$EN27:
 	ret				;					;aN000;bgb
 					;AN000;bgb
-parse_good endp 			;				;AN000;bgb
+; ENDP parse_good;				;AN000;bgb
 
 					;AN000;bgb
 ;*****************************************************************************
@@ -556,19 +556,19 @@ Procedure Parse_err			;					;AN000;bgb
 ;	$ELSE									;AN000;bgb
 	JMP SHORT $$EN33
 $$IF33:
-	   mov	   byte ptr [si],00	;zero terminate display string	;an031;bgb
+	   mov	   byte [si],00	;zero terminate display string	;an031;bgb
 	   dec	   si			;look at previous char			;an031;bgb
 nextsi:
-public nextsi
+global nextsi
 	   dec	   si			;look at previous char			;an031;bgb
-	   cmp	   byte ptr [si],' '	;find parm separator			;an031;bgb
+	   cmp	   byte [si],' '	;find parm separator			;an031;bgb
 	   jnz	   nextsi		;loop until begin of parm found
 	   mov	   movsi,si		;mov si into display parms		;an031;bgb
 	    parse_message		;no- display parse message ;AN000;bgb	;AN000;bgb
 ;	$ENDIF									;AN000;bgb
 $$EN33:
 	ret				;					;AN000;bgb
-parse_err endp				;					;AN000;bgb
+; ENDP parse_err;					;AN000;bgb
 
 
 ;*****************************************************************************
@@ -613,7 +613,7 @@ Procedure Validate_Target_Drive 	;				;AN000;
 $$IF36:
 	ret				;				;AN000;
 
-Validate_Target_Drive endp		;				;AN000;
+; ENDP Validate_Target_Drive;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Check_Target_Drive
@@ -673,7 +673,7 @@ Procedure Check_Target_Drive		;				;AN000;
 	mov	Data_Start_Low,ax	;Save it			;AN000;
 	mov	Data_Start_High,dx	;				;AN000;
 	ret				;And we're outa here            ;AN000;
-Check_Target_Drive endp 		;				;AN000;
+; ENDP Check_Target_Drive;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Check_For_Network
@@ -743,7 +743,7 @@ $$EN40:
 $$EN38:
 	ret				;				;AN000;
 
-Check_For_Network endp			;				;AN000;
+; ENDP Check_For_Network;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Check_Translate_Drive
@@ -782,8 +782,8 @@ Procedure Check_Translate_Drive 	;				;AN000;
 	DOS_Call xNameTrans		;Get real path			;AC000;
 ;	$IF	NC								;an017;bgb
 	JC $$IF46
-	    mov     bl,byte ptr [TranSrc]   ;Get drive letter from path     ;	  ;
-	    cmp     bl,byte ptr [Fattbl]    ;Did drive letter change?	    ;	  ;
+	    mov     bl,byte [TranSrc]   ;Get drive letter from path     ;	  ;
+	    cmp     bl,byte [Fattbl]    ;Did drive letter change?	    ;	  ;
 ;	    $IF     NE			    ;If not the same, it be bad     ;AC000;
 	    JE $$IF47
 		Message SubstErr	    ;Tell user			    ;AC000;
@@ -802,7 +802,7 @@ $$IF46:
 $$EN46:
 	ret				;				;AN000;
 
-Check_Translate_Drive endp		;				;AN000;
+; ENDP Check_Translate_Drive;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Hook_Interrupts
@@ -830,9 +830,9 @@ Check_Translate_Drive endp		;				;AN000;
  Procedure Hook_Interrupts		 ;				 ;AN000;
 	mov	al,23h
 	DOS_Call Get_Interrupt_Vector	;Get the INT 23h handler	;AC000;
-	mov	word ptr INT_23_Old_Off,bx ;
+	mov	word INT_23_Old_Off,bx ;
 	mov	bx,es			;				;AN000;
-	mov	word ptr INT_23_Old_Seg,bx ;				   ;AN000;
+	mov	word INT_23_Old_Seg,bx ;				   ;AN000;
 	mov	al,23h			;Specify CNTRL handler		;     ;
 	lea	dx, INT_23	 ;Point at it			 ;     ;
 	push	ds			;Save data seg			;     ;
@@ -842,9 +842,9 @@ Check_Translate_Drive endp		;				;AN000;
 	pop	ds			;Get Data degment back		;     ;
 	mov	al,24h			;
 	DOS_Call Get_Interrupt_Vector	;Get the INT 24h handler	;AC000;
-	mov	word ptr INT_24_Old_Off,bx ;Save it
+	mov	word INT_24_Old_Off,bx ;Save it
 	mov	bx,es			;				;AN000;
-	mov	word ptr INT_24_Old_Seg,bx ;
+	mov	word INT_24_Old_Seg,bx ;
 	mov	al,24h			;Specify handler		 ;     ;
 	lea	dx, INT_24	 ;Point at it			 ;     ;
 	push	ds			;Save data seg			;     ;
@@ -854,7 +854,7 @@ Check_Translate_Drive endp		;				;AN000;
 	pop	ds			;Get Data degment back		;     ;
 	ret				;				;AN000;
 
- Hook_Interrupts endp			 ;				 ;AN000;
+ ; ENDP Hook_Interrupts;				 ;AN000;
 
 ;*****************************************************************************
 ;Routine name: Hook_CNTRL_C
@@ -938,7 +938,7 @@ Procedure Clear_Append_X		;				 ;AN000;
 $$IF51:
 	ret				;				;AN000;
 
-Clear_Append_X endp			;				;AN000;
+; ENDP Clear_Append_X;				;AN000;
 
 
 ;*****************************************************************************
@@ -968,21 +968,21 @@ Clear_Append_X endp			;				;AN000;
 ;*****************************************************************************
 ;
 Procedure RECOVER_IFS			;				;AN000;
-ifdef fsexec									;an022;bgb
+%ifdef fsexec;an022;bgb
 ;	cmp	FS_Not_Fat,YES		;Is the target FS a FAT?	;AN000; ;an022;bgb
 ;	$IF	E			;No, so need to exec the	;AN000; ;an022;bgb
 ;	    call    EXEC_FS_RECOVER	; file system specific prog.	;AN000; ;an022;bgb
 ;	$ELSE				;It's a FAT                     ;AN000; ;an022;bgb
-endif										;an022;bgb
+%endif;an022;bgb
 	    call    clear_append_x	;BGB
 	    call    Main_Routine	;Use canned code!		;AN000;
 	    call    reset_append_x	;BGB
-ifdef fsexec									;an022;bgb
+%ifdef fsexec;an022;bgb
 ;	$ENDIF				;				;AN000; ;an022;bgb
-endif										;an022;bgb
+%endif;an022;bgb
 	ret				;				;AN000;
 
-RECOVER_IFS endp			;				;AN000;
+; ENDP RECOVER_IFS;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Reset_Append_X
@@ -1019,10 +1019,10 @@ Procedure Reset_Append_X		;				;AN000;
 $$IF53:
 	ret				;				;AN000;
 
-Reset_Append_X endp			;				;AN000;
+; ENDP Reset_Append_X;				;AN000;
 
 	pathlabl recinit
-code	ends
-	end main_init ;AC000;bgb
+; END SECTION .code
+	; end main_init;AC000;bgb
 
 

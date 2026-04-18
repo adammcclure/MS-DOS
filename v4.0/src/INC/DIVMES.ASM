@@ -1,11 +1,11 @@
 ; THIS IS THE ONLY DOS "MESSAGE". IT DOES NOT NEED A TERMINATOR.
-	PUBLIC	DIVMES
-Public DIVM001S,DIVM001E
-DIVM001S	label byte
+	global DIVMES
+global DIVM001S,DIVM001E
+DIVM001S:
 
-include msdos.cl1
+%include "msdos.cl1"
 
-	PUBLIC	DivMesLen
+	global DivMesLen
 DivMesLen   DW	$-DivMes	; Length of the above message in bytes
-DIVM001E	label byte
+DIVM001E:
 

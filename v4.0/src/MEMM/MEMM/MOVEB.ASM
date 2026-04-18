@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	MOVEB - move block emulator
+	; title	MOVEB - move block emulator
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -31,29 +31,29 @@ page	58,132
 ; 07/06/86  0.04	changed assume to DGROUP
 ; 07/10/86  0.05	Added Real Mode patch code
 ;*************************************************************************
-.386p
+CPU 386
 
 
 ;****************************************
 ;	P U B L I C S
 ;****************************************
-	public	Move_Block
-	public	MB_Exit
-	public	MB_Stat
-	public	i15_Entry
-	public	MB_Flag
-	public	i15_Old
+	global Move_Block
+	global MB_Exit
+	global MB_Stat
+	global i15_Entry
+	global MB_Flag
+	global i15_Old
 
-	page
+	; page
 ;****************************************
 ;	D E F I N E S
 ;****************************************
-	include vdmseg.inc
-	include vdmsel.inc
-	include desc.inc
-	include instr386.inc
-	include oemdep.inc
-	include vm386.inc
+	%include "vdmseg.inc"
+	%include "vdmsel.inc"
+	%include "desc.inc"
+	%include "instr386.inc"
+	%include "oemdep.inc"
+	%include "vm386.inc"
 
 TRUE	equ	0FFh
 FALSE	equ	00h
@@ -65,23 +65,23 @@ FLAGS_ZF	equ	0040h
 FLAGS_IF	equ	0200h
 
 	; 386 data descriptor format
-DATA_DESC_386	struc
-DD386_Limit_lo	dw	?		; low word of seg limit
-DD386_Base_lo	dw	?		; low 24 bits of seg base addr
-		db	?		;
-DD386_Access	db	?		; access byte
-DD386_L_Stat	db	?		; high 4 bits of seg limit
+struc DATA_DESC_386
+DD386_Limit_lo: resw 1; low word of seg limit
+DD386_Base_lo: resw 1; low 24 bits of seg base addr
+		resb 1;
+DD386_Access: resb 1; access byte
+DD386_L_Stat: resb 1; high 4 bits of seg limit
 					; and futher status
-DD386_Base_hi	db	?		; high 8 bits of seg base addr
-DATA_DESC_386	ends
+DD386_Base_hi: resb 1; high 8 bits of seg base addr
+endstruc
 
 	; format of move block descriptor table passed on entry
-MB_GDT	struc
-MG_dummy	dd 2 dup (?)		; dummy descriptor entry
-MG_GDT		dd 2 dup (?)		; GDT entry
-MG_Source	dd 2 dup (?)		; source segment entry
-MG_Target	dd 2 dup (?)		; target segment entry
-MB_GDT	ends
+struc MB_GDT
+MG_dummy: resb 8; dummy descriptor entry
+MG_GDT: resb 8; GDT entry
+MG_Source: resb 8; source segment entry
+MG_Target: resb 8; target segment entry
+endstruc
 
 ;************************************************************
 ;	DescrMap - map address in descriptor
@@ -89,59 +89,59 @@ MB_GDT	ends
 ;	EXIT:  descriptor's address is mapped by MapLinear
 ;	USED:	EAX
 ;************************************************************
-DescrMap	MACRO
-	mov	ah,ES:[di.DD386_Base_hi]	; ah = high 8 bits of address
-	mov	al,byte ptr ES:[di.DD386_Base_lo+2] ; al = bits 16-23 of addr
+%macro DescrMap 0
+	mov	ah,[ES:di+DD386_Base_hi]	; ah = high 8 bits of address
+	mov	al,byte [ES:di+DD386_Base_lo+2] ; al = bits 16-23 of addr
 	OP32
 	shl	ax,16				; high addr word into high EAX
-	mov	ax,ES:[di.DD386_Base_lo]	; EAX = 32 bit address
+	mov	ax,[ES:di+DD386_Base_lo]	; EAX = 32 bit address
 	call	MapLinear			; map linear address
-	mov	ES:[di.DD386_Base_lo],ax	; store low word of address
+	mov	[ES:di+DD386_Base_lo],ax	; store low word of address
 	OP32
 	shr	ax,16				; ax = high word of address
-	mov	byte ptr ES:[di.DD386_Base_lo+2],al	;   store
-	mov	ES:[di.DD386_Base_hi],ah		;  high word of address
-	ENDM
+	mov	byte [ES:di+DD386_Base_lo+2],al	;   store
+	mov	[ES:di+DD386_Base_hi],ah		;  high word of address
+	%endmacro
 
 ;*******************************************************************************
 ;	 E X T E R N A L   R E F E R E N C E S
 ;*******************************************************************************
-_TEXT	segment
+SECTION ._TEXT
 
-	extrn	MapLinear:near
-	extrn	Set_Par_Vect:near
-	extrn	Rest_Par_Vect:near
-	extrn	togl_A20:near
-	extrn	get_a20_state:near
+	extern MapLinear
+	extern Set_Par_Vect
+	extern Rest_Par_Vect
+	extern togl_A20
+	extern get_a20_state
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-_DATA	segment
+SECTION ._DATA
 
-	extrn	Active_Status:byte	; non-zero if in VM
+	extern Active_Status; non-zero if in VM
 
-_DATA	ends
+; END SECTION ._DATA
 
 
-	page
+	; page
 ;*******************************************************************************
 ;	D A T A   S E G M E N T
 ;*******************************************************************************
-_DATA	segment
+SECTION ._DATA
 
 MB_Stat 	db	0		; move block status
 Toggle_st	db	0
 
-_DATA	ends
+; END SECTION ._DATA
 
-	page
+	; page
 ;****************************************
 ;	C O D E    S E G M E N T   _TEXT
 ;****************************************
-_TEXT	segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP
 
-	page
+	; page
 ;*************************************************************************
 ;***	Move_Block - Mimics the 286 ROM function Move Block ( int15h AH=87h ).
 ;		    Move a block of data (copy it) to/from anywhere in
@@ -181,7 +181,7 @@ _TEXT	segment
 ;			+-------------------------------+
 ;
 ;*************************************************************************
-Move_Block	proc	near
+Move_Block:
 ;
 	push	ds
 	push	es
@@ -211,12 +211,12 @@ MB_chk_length:
 	shl	ax,1			; AX = # of bytes to transfer(0=>8000h)
 	dec	ax			; convert to seg limit type value
 					;  ( 0FFFFh => 64K )
-	cmp	ax,ES:[si.MG_Source.DD386_Limit_lo] ;Q: source seg limit low ?
+	cmp	ax,[ES:si+MG_Source.DD386_Limit_lo] ;Q: source seg limit low ?
 	jbe	MB_chk_tarl		;	       N: chk target length
 	jmp	MB_Excp_Error		;	       Y: return excp error.
 
 MB_chk_tarl:
-	cmp	ax,ES:[si.MG_Target.DD386_Limit_lo] ;Q: tar seg too small ?
+	cmp	ax,[ES:si+MG_Target.DD386_Limit_lo] ;Q: tar seg too small ?
 	jbe	MB_setup		;	       N: seg limits OK.
 	jmp	MB_Excp_Error		;	       Y: return excp error
 ;
@@ -232,7 +232,7 @@ MB_setup:
 	mov	es,ax		; ES:0 pts to GDT
 	mov	di,MBSRC_GSEL	; ES:DI pts to source work descriptor in GDT
 	push	si		; save input descr table ptr
-	lea	si,[si.MG_Source]; DS:SI pts to input source descr
+	lea	si,[si+MG_Source]; DS:SI pts to input source descr
 	mov	cx,4
 	rep movsw		; set move block source work descr
 	pop	si		; restore input descr table ptr
@@ -242,7 +242,7 @@ MB_setup:
 
 	mov	di,MBTAR_GSEL	; ES:DI pts to target work descr in GDT
 	push	si		; save input descr table ptr
-	lea	si,[si.MG_Target] ; DS:SI pts to input target descr
+	lea	si,[si+MG_Target] ; DS:SI pts to input target descr
 	mov	cx,4
 	rep movsw		; set move blk target work descr
 	pop	si		; restore input descr table ptr
@@ -322,12 +322,12 @@ a20_restored:
 	mov	[toggle_st],0		; clear this flag
 
 	jmp	MB_Exit
-Move_Block	endp
+; ENDP Move_Block
 
 ;*************************************************************************
 ; This is special JUMP entry point for parity handler
 ;
-MB_Exit proc	near
+MB_Exit:
 ;
 ;  reset NMI handler
 ;
@@ -345,30 +345,30 @@ MB_leave:
 ;
 ; set client's flags to no error
 ;
-	or	[bp.VTFOE+VMTF_EFLAGS],FLAGS_ZF 	; ZF
-	and	[bp.VTFOE+VMTF_EFLAGS],NOT FLAGS_CY	; NC
+	or	[bp+VTFOE+VMTF_EFLAGS],FLAGS_ZF 	; ZF
+	and	[bp+VTFOE+VMTF_EFLAGS],NOT FLAGS_CY	; NC
 
 	or	ah,ah		;Q: error occured ?
 	jz	MB_ret		;  N: continue
 				;  Y: set error in client's flags
-	and	[bp.VTFOE+VMTF_EFLAGS],NOT FLAGS_ZF	; NZ
-	or	[bp.VTFOE+VMTF_EFLAGS],FLAGS_CY 	; CY
+	and	[bp+VTFOE+VMTF_EFLAGS],NOT FLAGS_ZF	; NZ
+	or	[bp+VTFOE+VMTF_EFLAGS],FLAGS_CY 	; CY
 ;
 MB_ret:
 	pop	es
 	pop	ds
 	ret
 ;
-MB_Exit endp
+; ENDP MB_Exit
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-	page
+	; page
 ;****************************************
 ;	C O D E    S E G M E N T   R_CODE
 ;****************************************
-R_CODE	segment
-	assume	cs:R_CODE, ds:DGROUP, es:DGROUP
+SECTION .R_CODE
+	; assume	cs:R_CODE, ds:DGROUP, es:DGROUP
 
 ;*************************************************************************
 ;		local	data
@@ -385,7 +385,7 @@ ext_mem_size	dw	0		; we are using new int 15 allocation
 					; in allocmem.asm fills in the approp.
 					; size here.
 
-	page
+	; page
 ;*************************************************************************
 ;	i15_Entry - real/virtual mode patch code for int 15h
 ;
@@ -426,7 +426,7 @@ i15_cs		equ	4
 i15_ip		equ	2
 i15_bp		equ	0
 
-i15_Entry	proc	near
+i15_Entry:
 ;
 	cli				;  in case of pushf/call far
 	pushf				; save entry flags
@@ -439,7 +439,7 @@ i15_Entry	proc	near
 ;  Implement int15 allocation scheme by reporting a lowered value of extended
 ;  memory.
 	popf
-	mov	ax,cs:[ext_mem_size]	; report new extended memory size
+	mov	ax,[cs:ext_mem_size]	; report new extended memory size
 	iret				;
 ;
 ;  Checking for move block call
@@ -454,7 +454,7 @@ chk_blk_move:
 	pop	ds			; reset DS
 	je	i15_jmpf		;	N: jmp to old code
 					;	Y: VM move block
-	mov	CS:[MB_Flag],TRUE	;		let MEMM have it ...
+	mov	[CS:MB_Flag],TRUE	;		let MEMM have it ...
 	popf				; retrieve entry flags (IF cleared!!!)
 	int	15h			;  give it to MEMM
 					; MEMM will reset MB_Flag
@@ -475,18 +475,18 @@ chk_blk_move:
 ;
 i15_jmpf:
 	popf				; retrieve entry flags
-	jmp	CS:[i15_Old]
+	jmp	[CS:i15_Old]
 ;
-i15_Entry	endp
+; ENDP i15_Entry
 
-R_CODE	ends
+; END SECTION .R_CODE
 
 
-LAST	SEGMENT
+SECTION .LAST
 ;
-    ASSUME  CS:LAST
+    ; ASSUME  CS:LAST
 ;
-public	set_ext
+global set_ext
 ;
 ;*************************************************************************
 ;	set_ext  - to fill up size of extended memory reported by int 15
@@ -505,9 +505,9 @@ public	set_ext
 ;
 ;*************************************************************************
 
-set_ext     proc    near
+set_ext:
 ;
-    ASSUME  DS:NOTHING,ES:NOTHING
+    ; ASSUME  DS:NOTHING,ES:NOTHING
 
     push    ax
     push    ds
@@ -515,19 +515,19 @@ set_ext     proc    near
     mov     ax,seg R_CODE
     mov     ds,ax
 ;
-    ASSUME  DS:R_CODE
+    ; ASSUME  DS:R_CODE
 ;
     mov     [ext_mem_size],bx
 ;
     pop     ds
     pop     ax
 ;
-    ASSUME  DS:NOTHING
+    ; ASSUME  DS:NOTHING
 ;
     ret
 ;
-set_ext     endp
+; ENDP set_ext
 ;
 
-LAST ENDS
-	end
+; END SECTION .LAST
+	; end

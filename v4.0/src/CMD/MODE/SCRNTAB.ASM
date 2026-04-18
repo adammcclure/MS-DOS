@@ -1,73 +1,73 @@
-.SALL
-	PAGE	,132			;
-	TITLE	SCRNTABL.ASM - SCREEN SHIFT TABLE CONTROL FOR MODE COMMAND
+; .SALL
+	; PAGE	,132;
+	; TITLE	SCRNTABL.ASM - SCREEN SHIFT TABLE CONTROL FOR MODE COMMAND
 
 
-;ษออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-SET	MACRO	REG,VALUE		;SET REG TO VALUE. DON'T SPECIFY AX FOR REG
+%macro SET 2;SET REG TO VALUE. DON'T SPECIFY AX FOR REG
 
 	PUSH	AX
 	MOV	AX,VALUE
 	MOV	REG,AX
 	POP	AX
 
-ENDM
+%endmacro
 
-;บ											  บ
-;ศออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 ROM_BIOS_SEG EQU 0F000H 		;USED TO ADDRESS INIT TABLE IN ROM
 VIDEO_VECTOR EQU 74H			;OFFSET INTO VECTOR TABLE (SEG=0)
 					;TO DOUBLE WORD POINTER TO VIDEO PARMS
 VIDEO_PARMS_WORD_LEN EQU 32		;NO. WORDS IN VIDEO PARM AREA
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-PRINTF_CODE SEGMENT PUBLIC
-	ASSUME	DS:NOTHING, CS:PRINTF_CODE
+SECTION .PRINTF_CODE
+	; ASSUME	DS:NOTHING, CS:PRINTF_CODE
 
 
-;ษอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-EXTRN	MODELOAD:NEAR
-EXTRN	RESSEG:DWORD			;ADD OF POINTER TO RESIDENT CODE
-EXTRN	NEW_SCRNTABL:ABS		;OFFSET OF INIT TABLE WITHIN THE RESIDENT CODE
-EXTRN	NEW_VIDEO_PARMS_OFFSET:WORD
-EXTRN	NEW_VIDEO_PARMS_SEGMENT:WORD
+extern MODELOAD
+extern RESSEG;ADD OF POINTER TO RESIDENT CODE
+extern NEW_SCRNTABL;OFFSET OF INIT TABLE WITHIN THE RESIDENT CODE
+extern NEW_VIDEO_PARMS_OFFSET
+extern NEW_VIDEO_PARMS_SEGMENT
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออผ
-
-
-;ษอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
-ROM_BIOS SEGMENT AT 0F000H
+
+
+SECTION .ROM_BIOS
 
 	ORG	0FFFEH
 
-	MACHINE_TYPE LABEL   BYTE	;MACHINE TYPE BURNED IN ROM
+	MACHINE_TYPE:;MACHINE TYPE BURNED IN ROM
 
-ROM_BIOS ENDS
+; END SECTION .ROM_BIOS
 
-PAGE
+; PAGE
 ;*********************************************************************************************
 
-SCRNTAB PROC	NEAR
-PUBLIC	SCRNTAB
+SCRNTAB:
+global SCRNTAB
 ;	 GO TO THE 64 BYTES POINTED TO BY THE VECTOR AT 0:74H AND MOVE A COPY
 ;	 OF THESE BYTES TO THE MODE COMMAND RESIDENT AREA LEAVING DS POINTING TO
 ;	 THE SEGMENT OF THE TABLE, AND BX CONTAINING THE OFFSET OF THE TABLE.
@@ -87,10 +87,10 @@ PUBLIC	SCRNTAB
     CALL    MODELOAD	    ;LOAD RESIDENT CODE OVERLAYING PSP
     POP     DS		    ;RESTORE TO SEGMENT 0
 			    ;Save address of resident code
-    SET     CS:NEW_VIDEO_PARMS_SEGMENT,< WORD PTR DS:RESSEG+2 >
-    MOV     AX,WORD PTR DS:RESSEG	;AX=offset of MODETO within resident code
+    SET     CS:NEW_VIDEO_PARMS_SEGMENT,< word DS:RESSEG+2 >
+    MOV     AX,word DS:RESSEG	;AX=offset of MODETO within resident code
     ADD     AX,NEW_SCRNTABL		;AX=OFFSET OF VIDEO PARMS FROM RES CODE SEG
-    MOV     WORD PTR CS:NEW_VIDEO_PARMS_OFFSET,AX ;SEE "RESCODE"
+    MOV     word CS:NEW_VIDEO_PARMS_OFFSET,AX ;SEE "RESCODE"
 
     MOV     DI,AX	;DI=NEW_VIDEO_PARMS_OFFSET, SET UP ES:DI FOR MOVSW INSTRUCTION
     MOV     AX,CS:NEW_VIDEO_PARMS_SEGMENT
@@ -113,9 +113,9 @@ $$IF1:
  POP	 ES			 ;RESTORE ADDR OF PROGRAM HEADER PREFIX
  RET				 ;RETURN TO MODESCRN PROC
 
-SCRNTAB ENDP
+; ENDP SCRNTAB
 
 
-PRINTF_CODE ENDS
-	END
+; END SECTION .PRINTF_CODE
+	; END
 

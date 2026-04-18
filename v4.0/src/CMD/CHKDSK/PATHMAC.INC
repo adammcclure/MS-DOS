@@ -15,18 +15,18 @@
 ;              else create stop label
 ;                   - same as start except name
 ;***********************************************************************
-.LALL
-pathlabl MACRO pnam
-IF1                                     ;if pass 1
-    IFNDEF LBL_&pnam                    ;switch not defined if first creation
+; .LALL
+%macro pathlabl 1
+%if 1  ; IF1 - pass-specific;if pass 1
+    %ifndef LBL_;switch not defined if first creation
         $$A_START_&pnam:                ;create label
-        PUBLIC $$A_START_&pnam          ;make it public
+        global $$A_START_&pnam;make it public
         LBL_&pnam = 1                   ;set switch
-    ELSE                                ;start label already created
+    %else;start label already created
         $$A_STOP_&pnam:                 ;create stop label
-        PUBLIC $$A_STOP_&pnam           ;make it public
-    ENDIF
-ENDIF
-ENDM
+        global $$A_STOP_&pnam;make it public
+    %endif
+%endif
+%endmacro
 
 

@@ -2,14 +2,14 @@
 ; xlat tables for case conversion
 ;
 
-.xlist
-include	version.inc
-include cmacros.inc
-.list
+; .xlist
+%include "version.inc"
+%include "cmacros.inc"
+; .list
 
 sBegin	data
 
-public	_XLTab, _XUTab
+global _XLTab, _XUTab
 
 assumes ds,data
 
@@ -17,7 +17,7 @@ assumes ds,data
 ; table for lowercase translation
 ;
 
-_XLTab	 LABEL BYTE
+_XLTab:
 
     db	000h, 001h, 002h, 003h, 004h, 005h, 006h, 007h
     db	008h, 009h, 00Ah, 00Bh, 00Ch, 00Dh, 00Eh, 00Fh
@@ -60,7 +60,7 @@ _XLTab	 LABEL BYTE
     db	0F0h, 0F1h, 0F2h, 0F3h, 0F4h, 0F5h, 0F6h, 0F7h
     db	0F8h, 0F9h, 0FAh, 0FBh, 0FCh, 0FDh, 0FEh, 0FFh
 
-_XUTab	 LABEL	 BYTE
+_XUTab:
 
     db	000h, 001h, 002h, 003h, 004h, 005h, 006h, 007h
     db	008h, 009h, 00Ah, 00Bh, 00Ch, 00Dh, 00Eh, 00Fh
@@ -97,4 +97,4 @@ _XUTab	 LABEL	 BYTE
 
 sEnd
 
-end
+; end

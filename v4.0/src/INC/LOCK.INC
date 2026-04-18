@@ -14,11 +14,11 @@ Lock_add	    equ    6
 ;
 ;Structure for Lock buffer
 
-LockBuf    STRUC
+struc LockBuf
 
-   Lock_position DD    ?	    ; file position for LOCK
-   Lock_length	 DD    ?	    ; number of bytes to LOCK
+   Lock_position: resd 1; file position for LOCK
+   Lock_length: resd 1; number of bytes to LOCK
 
-LockBuf    ENDS
+endstruc
 ;
 

@@ -3,15 +3,15 @@
 ; Standard device IO for MSDOS (first 12 function calls)
 ;
 debug=0
-.xlist
-.xcref
-include mssw.asm
-include dosseg.asm
-.cref
-.list
+; .xlist
+; .xcref
+%include "mssw.asm"
+%include "dosseg.asm"
+; .cref
+; .list
 
-TITLE   IBMDOSMES - DOS OEM dependancies
-NAME    IBMDOSMES
+; TITLE   IBMDOSMES - DOS OEM dependancies
+; NAME    IBMDOSMES
 
-include dosmes.asm
+%include "dosmes.asm"
 

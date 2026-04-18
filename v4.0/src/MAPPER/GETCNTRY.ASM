@@ -1,14 +1,14 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS DosGetCtryInfo mapper
+; title CP/DOS DosGetCtryInfo mapper
 
-Buffer  segment word public 'buffer'
+SECTION .Buffer
 CountryInfo     db      64
-Buffer  ends
+; END SECTION .Buffer
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -27,61 +27,61 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dosgetctryinfo
-            .sall
-            include  macros.inc
+            global dosgetctryinfo
+            ; .sall
+            %include "macros.inc"
 
 
-str         struc
-old_bp          dw      ?
-return          dd      ?
-ReturnLength    dd      ?
-BufferPtr       dd      ?
-CountryCodePtr  dd      ?
-BufferLength    dw      ?
-str         ends
+struc str
+old_bp: resw 1
+return: resd 1
+ReturnLength: resd 1
+BufferPtr: resd 1
+CountryCodePtr: resd 1
+BufferLength: resw 1
+endstruc
 
 
-cntry       struc                       ;country info. sturctrue
-ctry_code       dw      ?
-code_page       dw      ?
-dformat         dw      ?
-curr_sym        db      5  dup(?)
-thous_sep       dw      ?
-decimal_sep     dw      ?
-date_sep        dw      ?
-time_sep        dw      ?
-bit_field       db      ?
-curr_cents      db      ?
-tformat         db      ?
-map_call        dd      ?
-data_sep        dw      ?
-ra              db      5  dup(?)
-cntry       ends
+struc cntry;country info. sturctrue
+ctry_code: resw 1
+code_page: resw 1
+dformat: resw 1
+curr_sym: resb 5
+thous_sep: resw 1
+decimal_sep: resw 1
+date_sep: resw 1
+time_sep: resw 1
+bit_field: resb 1
+curr_cents: resb 1
+tformat: resb 1
+map_call: resd 1
+data_sep: resw 1
+ra: resb 5
+endstruc
 
 
-Doscntry       struc                       ;country info. sturctrue
- Ddformat         dw      ?
- Dcurr_sym        db      5  dup(?)
- Dthous_sep       dw      ?
- Ddecimal_sep     dw      ?
- Ddate_sep        dw      ?
- Dtime_sep        dw      ?
- Dbit_field       db      ?
- Dsig_digit       db      ?
- Dtformat         db      ?
- Dmap_call        dd      ?
- Ddata_sep        dw      ?
- DResv            db      5  dup(?)
-Doscntry       ends
+struc Doscntry;country info. sturctrue
+ Ddformat: resw 1
+ Dcurr_sym: resb 5
+ Dthous_sep: resw 1
+ Ddecimal_sep: resw 1
+ Ddate_sep: resw 1
+ Dtime_sep: resw 1
+ Dbit_field: resb 1
+ Dsig_digit: resb 1
+ Dtformat: resb 1
+ Dmap_call: resd 1
+ Ddata_sep: resw 1
+ DResv: resb 5
+endstruc
 
 
-dosgetctryinfo  proc far
+dosgetctryinfo:
 
         Enter   Dosgetcntryinfo       ; save registers
 
         lds     si,[bp].CountryCodePtr
-        mov     ax,ds:[si]            ; get country code pointer
+        mov     ax,[ds:si]            ; get country code pointer
 
         cmp     ax,256                ; 16 bit country code
         jc      getinfo
@@ -92,24 +92,24 @@ dosgetctryinfo  proc far
 getinfo:
         mov     dx,seg buffer
         mov     ds,dx
-        assume  ds:buffer
-        mov     dx,offset buffer:CountryInfo
+        ; assume  ds:buffer
+        mov     dx,CountryInfo
 
         mov     ah,38h          ; remember: the al value was set above!!!
         int     21h             ; get country information
         jc      ErrorExit
 
-        mov     si,offset buffer:CountryInfo     ;pointer to DOS cntry infor
+        mov     si,CountryInfo     ;pointer to DOS cntry infor
         les     di,[bp].BufferPtr                ;pointer to return data area
 
         mov     ax,[si].ddformat                 ;copy date format
-        mov     es:[di].dformat,ax
+        mov     [es:di].dformat,ax
         mov     ax,[si].ddate_sep                ;copy date seperator
-        mov     es:[di].date_sep,ax
+        mov     [es:di].date_sep,ax
         mov     ax,[si].dtime_sep                ;copy time separator
-        mov     es:[di].time_sep,ax
+        mov     [es:di].time_sep,ax
         mov     al,[si].dtformat                 ;copy time format
-        mov     es:[di].tformat,al
+        mov     [es:di].tformat,al
 
         mov     cx,[bp].BufferLength  ;was buffer larger than pc-dos gave us?
         sub     cx,34
@@ -126,10 +126,10 @@ NoFillNecessary:
 ErrorExit:
         Mexit                         ; pop registers
 
-        ret     size str - 6          ; return
+        ret     str_size - 6          ; return
 
-dosgetctryinfo endp
+; ENDP dosgetctryinfo
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

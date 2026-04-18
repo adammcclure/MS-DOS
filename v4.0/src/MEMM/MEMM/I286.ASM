@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	TITLE	i286.asm - Support Routines for protected mode system
+	; TITLE	i286.asm - Support Routines for protected mode system
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -80,32 +80,32 @@ page	58,132
 ;	WARNING This code is 286 specific, it will NOT run on an 8088.
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 
 
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
 
 ;******************************************************************************
 ;		E X T E R N A L  R E F E R E N C E S
 ;******************************************************************************
-GDT	segment
-	extrn	GDTLEN:abs
-GDT	ends
+SECTION .GDT
+	extern GDTLEN
+; END SECTION .GDT
 
-IDT	segment
-	extrn	IDTLEN:abs
-IDT	ends
+SECTION .IDT
+	extern IDTLEN
+; END SECTION .IDT
 
-TSS	segment
-	extrn	TSSLEN:abs
-TSS	ends
+SECTION .TSS
+	extern TSSLEN
+; END SECTION .TSS
 
-LAST SEGMENT
+SECTION .LAST
 
-    assume cs:LAST
+    ; assume cs:LAST
 
 ;**	SetDescInfo - set descriptor information
 ;
@@ -125,26 +125,26 @@ LAST SEGMENT
 ;	WARNING This code only works on a 286. It can be called in
 ;		either mode.
 
-	public SetDescInfo
-SetDescInfo proc near
+	global SetDescInfo
+SetDescInfo:
 	push	bx			; save selector
 	and	bl,SEL_LOW_MASK
 
 ;	fill in the limit field
 
-	mov	es:[bx],cx
+	mov	[es:bx],cx
 
 ;	fill in base address
 
-	mov	es:[bx + 2],dx
-	mov	es:[bx + 4],al
+	mov	[es:bx + 2],dx
+	mov	[es:bx + 4],al
 
 ;	fill in access rights byte
 
-	mov	es:[bx + 5],ah
+	mov	[es:bx + 5],ah
 	pop	bx
 	ret
-SetDescInfo endp
+; ENDP SetDescInfo
 
 
 ;**	SetSegDesc - set segment descriptor information
@@ -165,13 +165,13 @@ SetDescInfo endp
 ;	WARNING This code only works on a 286. It can be called in
 ;		either mode.
 
-	public SetSegDesc
-SetSegDesc proc near
+	global SetSegDesc
+SetSegDesc:
 	dec	cx			; convert size to limit
 	call	SetDescInfo		; set descriptor information
 	inc	cx			; restore size
 	ret
-SetSegDesc endp
+; ENDP SetSegDesc
 
 
 ;**	SegTo24 - convert segment to 24 bit physical address
@@ -184,14 +184,14 @@ SetSegDesc endp
 ;
 ;	WARNING This code only works on a 286, it can be called in
 ;		either mode.
-	public	SegTo24
-SegTo24 proc near
+	global SegTo24
+SegTo24:
 	mov	dl,ah
 	shr	dl,4			; DH = high byte of 24 bit addr
 	xchg	ax,dx			; AH = high byte, DX = segment
 	shl	dx,4			; DX = low word of 24 bit addr
 	ret
-SegTo24 endp
+; ENDP SegTo24
 
 
 ;**	SegOffTo24 - convert seg:off to 24 bit physical address
@@ -207,8 +207,8 @@ SegTo24 endp
 ;	WARNING This code only works on a 286. It can be called in
 ;		either mode.
 
-	public SegOffTo24
-SegOffTo24 proc near
+	global SegOffTo24
+SegOffTo24:
 	push	cx
 
 ;	Convert AX:DX into 24 bit addr in AL, DX
@@ -222,10 +222,10 @@ SegOffTo24 proc near
 
 	pop	cx
 	ret
-SegOffTo24 endp
+; ENDP SegOffTo24
 
 
-	page
+	; page
 ;******************************************************************************
 ;   IS286 - return type of processor (286 vs. 8088/86).  386 returns 286.
 ;	This routine relies on the documented behaviour of the PUSH SP
@@ -239,8 +239,8 @@ SegOffTo24 endp
 ;   USED:   flags
 ;   STACK:  6 bytes
 ;------------------------------------------------------------------------------
-	public	Is286
-Is286	proc	near
+	global Is286
+Is286:
 	push	bp
 	push	sp
 	mov	bp,sp
@@ -248,8 +248,8 @@ Is286	proc	near
 	pop	bp			; clean SP off stack
 	pop	bp			; restore BP
 	ret				; *** RETURN ***
-Is286	endp
-	page
+; ENDP Is286
+	; page
 ;******************************************************************************
 ;   Is386 - return type of processor (386 vs. 8088/86/286).
 ;	This routine relies on Intel-approved code that takes advantage
@@ -271,8 +271,8 @@ Is286	endp
 ;   USED:   none
 ;   STACK:  6 bytes
 ;------------------------------------------------------------------------------
-	public	Is386
-Is386	proc	FAR
+	global Is386
+Is386:
 	push	ax
 	pushf				; save entry flags
 ;
@@ -304,9 +304,9 @@ I386_exit:
 	pop	ax
 	ret				; *** RETURN ***
 
-Is386	endp
+; ENDP Is386
 
-LAST	ends
+; END SECTION .LAST
 
 
-	end
+	; end

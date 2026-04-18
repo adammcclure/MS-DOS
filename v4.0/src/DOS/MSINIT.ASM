@@ -3,9 +3,9 @@
 ; AN000 version 4.0 Jan. 1988
 ; AN007 PTM 3957 - fake version for IBMCACHE.COM
 ; AN008 PTM 4070 - fake version for MS WINDOWS
-include sysvar.inc
-include doscntry.inc
-include fastopen.inc
+%include "sysvar.inc"
+%include "doscntry.inc"
+%include "fastopen.inc"
 
 	I_need	DMAAdd,DWORD		; current dma address
 	I_need	DPBHead,DWORD		; long pointer to DPB chain
@@ -46,44 +46,44 @@ include fastopen.inc
 	I_need	SWAP_ALWAYS,BYTE	 ; swap always addr	    ;AN000;
 	I_need	Hash_Temp,WORD		 ; temporary Hash table     ;AN000;
 
-CODE		SEGMENT BYTE PUBLIC 'CODE'
-	Extrn	IRETT:NEAR,INT2F:NEAR,CALL_ENTRY:NEAR,QUIT:NEAR,IFS_DOSCALL:FAR
-	Extrn	COMMAND:NEAR,ABSDRD:NEAR,ABSDWRT:NEAR
-CODE		ENDS
+SECTION .CODE
+	extern IRETT,INT2F,CALL_ENTRY,QUIT,IFS_DOSCALL
+	extern COMMAND,ABSDRD,ABSDWRT
+; END SECTION .CODE
 
-DATA	SEGMENT WORD PUBLIC 'DATA'
+SECTION .DATA
 	ORG	0			; reset to beginning of data segment
 
-Public MSINI001S,MSINI001E
-MSINI001S label byte
+global MSINI001S,MSINI001E
+MSINI001S:
 INITBLOCK DB	110H DUP(0)	; Allow for segment round up
 
-INITSP	DW	?
-INITSS	DW	?
-MSINI001E label byte
+INITSP: dw 0
+INITSS: dw 0
+MSINI001E:
 
-ASSUME	CS:DOSGROUP,SS:NOTHING
+; ASSUME	CS:DOSGROUP,SS:NOTHING
 
 MOVDPB:
 	DOSAssume   CS,<DS,ES>,"MovDPB"
 ; This section of code is safe from being overwritten by block move
-	MOV	SS,CS:[INITSS]
-	MOV	SP,CS:[INITSP]
-	REP	MOVS	BYTE PTR [DI],[SI]
+	MOV	SS,[CS:INITSS]
+	MOV	SP,[CS:INITSP]
+	REP	movsb
 	CLD
-	MOV	WORD PTR ES:[DMAADD+2],DX
-	MOV	SI,WORD PTR [DPBHEAD]	; Address of first DPB
-	MOV	WORD PTR ES:[DPBHEAD+2],ES
-	MOV	WORD PTR ES:[sft_addr+2],ES
+	MOV	word [ES:DMAADD+2],DX
+	MOV	SI,word [DPBHEAD]	; Address of first DPB
+	MOV	word [ES:DPBHEAD+2],ES
+	MOV	word [ES:sft_addr+2],ES
 	MOV	CL,[NUMIO]	; Number of DPBs
 	XOR	CH,CH
 SETFINDPB:
-	MOV	WORD PTR ES:[SI.dpb_next_dpb+2],ES
-	MOV	ES:[SI.dpb_first_access],-1	 ; Never accessed before
+	MOV	word [ES:SI+dpb_next_dpb+2],ES
+	MOV	[ES:SI+dpb_first_access],-1	 ; Never accessed before
 	ADD	SI,DPBSIZ	; Point to next DPB
 	LOOP	SETFINDPB
 	SUB	SI,DPBSIZ
-	MOV	WORD PTR ES:[SI.dpb_next_dpb+2],-1
+	MOV	word [ES:SI+dpb_next_dpb+2],-1
 
 ;;	PUSH	ES
 ;;	MOV	DI,OFFSET DOSGroup:SYSBUF + 0Fh
@@ -108,12 +108,12 @@ SETFINDPB:
 ;;	MOV	WORD PTR ES:[DI.buf_prev],DI  ;;;1/19/88
 
 ;;	POP	ES
-	MOV	SI,OFFSET DOSGROUP:Version_Fake_Table ;MS.;AN007;move special
-	MOV	DI,ES:[Special_Entries] 	      ;MS.;AN007;entries
-	MOV	CX,ES:[Temp_Var]		      ;MS.;AN007;
+	MOV	SI,Version_Fake_Table ;MS.;AN007;move special
+	MOV	DI,[ES:Special_Entries] 	      ;MS.;AN007;entries
+	MOV	CX,[ES:Temp_Var]		      ;MS.;AN007;
 	REP	MOVSB				      ;MS.;AN007;
 
-	ASSUME	ES:DOSGroup
+	; ASSUME	ES:DOSGroup
 
 	PUSH	ES
 	INC	DX			    ; Leave enough room for the ARENA
@@ -121,7 +121,7 @@ SETFINDPB:
 	invoke	$Dup_PDB
 ;	MOV	BYTE PTR [CreatePDB],0FFh   ; create jfns and set CurrentPDB
 ;	invoke	$CREATE_PROCESS_DATA_BLOCK     ; Set up segment
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	POP	ES
 	DOSAssume   CS,<ES>,"INIT/CreateProcess"
 ;
@@ -132,47 +132,47 @@ ASSUME	DS:NOTHING,ES:NOTHING
 ; about references off of CS.
 ;
 	MOV	AX,[CurrentPDB]
-	MOV	ES:[CurrentPDB],AX	   ; Put it in the REAL location
-	MOV	BYTE PTR ES:[CreatePDB],0h ; reset flag in REAL location
+	MOV	[ES:CurrentPDB],AX	   ; Put it in the REAL location
+	MOV	byte [ES:CreatePDB],0h ; reset flag in REAL location
 	DEC	AX
-	MOV	ES:[arena_head],AX
+	MOV	[ES:arena_head],AX
 	PUSH	DS
 	MOV	DS,AX
-	MOV	DS:[arena_signature],arena_signature_end
-	MOV	DS:[arena_owner],arena_owner_system
-	SUB	AX,ES:[ENDMEM]
+	MOV	[DS:arena_signature],arena_signature_end
+	MOV	[DS:arena_owner],arena_owner_system
+	SUB	AX,[ES:ENDMEM]
 	NEG	AX
 	DEC	AX
-	MOV	DS:[arena_size],AX
+	MOV	[DS:arena_size],AX
 	POP	DS
 
-	MOV	DI,OFFSET DOSGROUP:sftabl + SFTable   ; Point to sft 0
+	MOV	DI,sftabl + SFTable   ; Point to sft 0
 	MOV	AX,3
 	STOSW		; Adjust Refcount
-	MOV	DI,OFFSET DOSGROUP:SySInitTable
+	MOV	DI,SySInitTable
 
-	IF	NOT Installed
+	%if ~Installed
 	invoke	NETWINIT
 ;	ELSE
 ;	invoke	NETWINIT
 ;	%OUT Random NETWINIT done at install
-	ENDIF
+	%endif
 
 procedure XXX,FAR
 	RET
 EndProc XXX
-DATA	ENDS
+; END SECTION .DATA
 
 ; the next segment defines a new class that MUST appear last in the link map.
 ; This defines several important locations for the initialization process that
 ; must be the first available locations of free memory.
 
-LAST	SEGMENT PARA PUBLIC 'LAST'
-	PUBLIC	SYSBUF
-	PUBLIC	MEMSTRT
+SECTION .LAST
+	global SYSBUF
+	global MEMSTRT
 
-SYSBUF	LABEL	WORD
-ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+SYSBUF:
+; ASSUME	CS:DOSGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 INITIRET:			; Temp IRET instruction
 	IRET
@@ -185,26 +185,26 @@ INITIRET:			; Temp IRET instruction
 	MOV	[INITSS],SS
 	MOV	AX,CS
 	MOV	SS,AX
-ASSUME	SS:DOSGROUP
-	MOV	SP,OFFSET DOSGROUP:INITSTACK
-	MOV	WORD PTR [NULDEV+2],DS
-	MOV	WORD PTR [NULDEV],SI   ; DS:SI Points to CONSOLE Device
+; ASSUME	SS:DOSGROUP
+	MOV	SP,INITSTACK
+	MOV	word [NULDEV+2],DS
+	MOV	word [NULDEV],SI   ; DS:SI Points to CONSOLE Device
 
 	PUSH	DS		; Need Crit vector inited to use DEVIOCALL
 	XOR	AX,AX
 	MOV	DS,AX
-	MOV	AX,OFFSET DOSGROUP:INITIRET
-	MOV	DS:[addr_int_IBM],AX
+	MOV	AX,INITIRET
+	MOV	[DS:addr_int_IBM],AX
 	MOV	AX,CS
-	MOV	DS:[addr_int_IBM+2],AX
+	MOV	[DS:addr_int_IBM+2],AX
 	POP	DS
 
 	CALL	CHARINIT
 	PUSH	SI			; Save pointer to header
 	PUSH	CS
 	POP	ES
-	ASSUME	ES:DOSGROUP
-	MOV	DI,OFFSET DOSGROUP:sftabl + SFTable   ; Point to sft 0
+	; ASSUME	ES:DOSGROUP
+	MOV	DI,sftabl + SFTable   ; Point to sft 0
 	MOV	AX,3
 	STOSW		; Refcount
 	DEC	AL
@@ -244,27 +244,27 @@ ASSUME	SS:DOSGROUP
 	MOV	AL," "
 	REP	STOSB	; Extension
 	POP	SI	; Get back pointer to header
-	OR	BYTE PTR [SI.SDEVATT],ISCIN OR ISCOUT
-	MOV	WORD PTR [BCON],SI
-	MOV	WORD PTR [BCON+2],DS
+	OR	byte [SI+SDEVATT],ISCIN OR ISCOUT
+	MOV	word [BCON],SI
+	MOV	word [BCON+2],DS
 CHAR_INIT_LOOP:
-	LDS	SI,DWORD PTR [SI]		; AUX device
+	LDS	SI,dword [SI]		; AUX device
 	CALL	CHARINIT
-	TEST	BYTE PTR [SI.SDEVATT],ISCLOCK
+	TEST	byte [SI+SDEVATT],ISCLOCK
 	JZ	CHAR_INIT_LOOP
-	MOV	WORD PTR [BCLOCK],SI
-	MOV	WORD PTR [BCLOCK+2],DS
-	MOV	BP,OFFSET DOSGROUP:MEMSTRT	; ES:BP points to DPB
+	MOV	word [BCLOCK],SI
+	MOV	word [BCLOCK+2],DS
+	MOV	BP,MEMSTRT	; ES:BP points to DPB
 PERDRV:
-	LDS	SI,DWORD PTR [SI]		; Next device
+	LDS	SI,dword [SI]		; Next device
 	CMP	SI,-1
 	JZ	CONTINIT
 	CALL	CHARINIT
-	TEST	[SI.SDEVATT],DEVTYP
+	TEST	[SI+SDEVATT],DEVTYP
 	JNZ	PERDRV				; Skip any other character devs
 	MOV	CL,[CALLUNIT]
 	XOR	CH,CH
-	MOV	[SI.SDEVNAME],CL		; Number of units in name field
+	MOV	[SI+SDEVNAME],CL		; Number of units in name field
 	MOV	DL,[NUMIO]
 	XOR	DH,DH
 	ADD	[NUMIO],CL
@@ -275,13 +275,13 @@ PERUNIT:
 	MOV	SI,[BX] 		; DS:SI Points to BPB
 	INC	BX
 	INC	BX			; On to next BPB
-	MOV	ES:[BP.dpb_drive],DL
-	MOV	ES:[BP.dpb_UNIT],DH
+	MOV	[ES:BP+dpb_drive],DL
+	MOV	[ES:BP+dpb_UNIT],DH
 	PUSH	BX
 	PUSH	CX
 	PUSH	DX
 	invoke	$SETDPB
-	MOV	AX,ES:[BP.dpb_sector_size]
+	MOV	AX,[ES:BP+dpb_sector_size]
 	CMP	AX,[MAXSEC]
 	JBE	NOTMAX
 	MOV	[MAXSEC],AX
@@ -293,8 +293,8 @@ NOTMAX:
 	MOV	AX,DS			; Save DS
 	POP	SI
 	POP	DS
-	MOV	WORD PTR ES:[BP.dpb_driver_addr],SI
-	MOV	WORD PTR ES:[BP.dpb_driver_addr+2],DS
+	MOV	word [ES:BP+dpb_driver_addr],SI
+	MOV	word [ES:BP+dpb_driver_addr+2],DS
 	PUSH	DS
 	PUSH	SI
 	INC	DH
@@ -309,7 +309,7 @@ NOTMAX:
 CONTINIT:
 	PUSH	CS
 	POP	DS
-ASSUME	DS:DOSGROUP
+; ASSUME	DS:DOSGROUP
 ;
 ; BP has the current offset to the allocated DPBs.  Calculate true address of
 ; buffers, FATs, free space
@@ -323,20 +323,20 @@ ASSUME	DS:DOSGROUP
 ; aligned.
 ;
 ;;;	MOV	BP,[MAXSEC]		; get size of buffer
-	MOV	AX,OFFSET DOSGROUP:SYSBUF
+	MOV	AX,SYSBUF
 ;
 ; Compute location of DPBs
 ;
 ;;;	ADD	AX,BP			; One I/O buffer
 ;;;	ADD	AX,BUFINSIZ
-	MOV	WORD PTR [DPBHEAD],AX	; True start of DPBs
+	MOV	word [DPBHEAD],AX	; True start of DPBs
 	MOV	DX,AX
-	SUB	DX,OFFSET DOSGROUP:SYSBUF
+	SUB	DX,SYSBUF
 	MOV	BP,DX
 	ADD	BP,DI			; Allocate buffer space
 	SUB	BP,ADJFAC		; True address of free memory
 	PUSH	BP
-	MOV	DI,OFFSET DOSGROUP:MEMSTRT    ; Current start of DPBs
+	MOV	DI,MEMSTRT    ; Current start of DPBs
 	ADD	DI,dpb_next_dpb 	; Point at dpb_next_dpb field
 	MOV	CL,[NUMIO]
 	XOR	CH,CH
@@ -350,7 +350,7 @@ TRUEDPBAD:
 	STOSW			; End of list
 
 	MOV	[Special_Entries],BP ;MS.;AN007 save starting address of Special entries
-	MOV	SI,OFFSET DOSGROUP:Version_Fake_Table	;MS.;AN007
+	MOV	SI,Version_Fake_Table	;MS.;AN007
 	MOV	DX,SI		     ;MS.;AN007
 	XOR	AH,AH		     ;MS.;AN007
 NextEntry:			     ;MS.;AN007
@@ -376,45 +376,45 @@ endlist:			     ;MS.;AN007
 	MOV	BX,0FH
 	MOV	CX,[ENDMEM]
 
-	IF	HIGHMEM
+	%if HIGHMEM
 	SUB	CX,BP
 	MOV	BP,CX		; Segment of DOS
 	MOV	DX,CS		; Program segment
-	ENDIF
+	%endif
 
-	IF	NOT HIGHMEM
+	%if ~HIGHMEM
 	MOV	BP,CS
-	ENDIF
+	%endif
 
 ; BP has segment of DOS (whether to load high or run in place)
 ; DX has program segment (whether after DOS or overlaying DOS)
 ; CX has size of memory in paragraphs (reduced by DOS size if HIGHMEM)
 	MOV	[ENDMEM],CX
 	MOV	ES,BP
-ASSUME	ES:DOSGROUP
+; ASSUME	ES:DOSGROUP
 
-	IF	HIGHMEM
+	%if HIGHMEM
 	XOR	SI,SI
 	MOV	DI,SI
-	MOV	CX,OFFSET DOSGROUP:SYSBUF  ;# bytes to move
+	MOV	CX,SYSBUF  ;# bytes to move
 	SHR	CX,1		;# words to move (carry set if odd)
 	REP MOVSW		; Move DOS to high memory
 	JNC	NOTODD
 	MOVSB
 NOTODD:
-	ENDIF
+	%endif
 
-	MOV	WORD PTR ES:[DSKCHRET+3],ES
+	MOV	word [ES:DSKCHRET+3],ES
 	XOR	AX,AX
 	MOV	DS,AX
 	MOV	ES,AX
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	MOV	DI,INTBASE+2
 	MOV	AX,BP		; Final DOS segment to AX
 
-	EXTRN	DIVOV:near
-	MOV	WORD PTR DS:[0],OFFSET DOSGROUP:DIVOV	; Set default divide trap address
-	MOV	DS:[2],AX
+	extern DIVOV
+	MOV	word [DS:0],DIVOV	; Set default divide trap address
+	MOV	[DS:2],AX
 
 ; Set vectors 20-28 and 2A-3F to point to IRET.
 
@@ -428,7 +428,7 @@ ASSUME	DS:NOTHING,ES:NOTHING
 				;   Sets segs for vectors 2AH-3FH
 
 	MOV	DI,INTBASE
-	MOV	AX,OFFSET DOSGROUP:IRETT
+	MOV	AX,IRETT
 	MOV	CX,9		; Set 9 offsets (skip 2 between each)
 				;   Sets offsets for INTs 20H-28H
 
@@ -449,41 +449,41 @@ ISET2:
 
 	MOV	AX,BP		; Final DOS segment to AX
 
-IF installed
+%if installed
 ; the following two are in the Code segment, thus the CS
 ; overrides
-	MOV	WORD PTR DS:[02FH * 4],OFFSET DOSGROUP:INT2F
-ENDIF
+	MOV	word [DS:02FH * 4],INT2F
+%endif
 
 ; Set up entry point call at vectors 30-31H
-	MOV	BYTE PTR DS:[ENTRYPOINT],mi_Long_JMP
-	MOV	WORD PTR DS:[ENTRYPOINT+1],OFFSET DOSGROUP:CALL_ENTRY
-	MOV	WORD PTR DS:[ENTRYPOINT+3],AX
+	MOV	byte [DS:ENTRYPOINT],mi_Long_JMP
+	MOV	word [DS:ENTRYPOINT+1],CALL_ENTRY
+	MOV	word [DS:ENTRYPOINT+3],AX
 
-	IF	ALTVECT
+	%if ALTVECT
 	MOV	DI,ALTBASE+2
 	MOV	CX,15
 	REP	STOSW		; Set 8 segments (skip 2 between each)
-	ENDIF
+	%endif
 
-	MOV	WORD PTR DS:[addr_int_abort],OFFSET DOSGROUP:QUIT
-	MOV	WORD PTR DS:[addr_int_command],OFFSET DOSGROUP:COMMAND
-	MOV	WORD PTR DS:[addr_int_terminate],100H
-	MOV	WORD PTR DS:[addr_int_terminate+2],DX
-	MOV	WORD PTR DS:[addr_int_disk_read],OFFSET DOSGROUP:ABSDRD   ; INT 25
-	MOV	WORD PTR DS:[addr_int_disk_write],OFFSET DOSGROUP:ABSDWRT  ; INT 26
-	EXTRN	Stay_resident:NEAR
-	MOV	WORD PTR DS:[addr_int_keep_process],OFFSET DOSGROUP:Stay_resident
+	MOV	word [DS:addr_int_abort],QUIT
+	MOV	word [DS:addr_int_command],COMMAND
+	MOV	word [DS:addr_int_terminate],100H
+	MOV	word [DS:addr_int_terminate+2],DX
+	MOV	word [DS:addr_int_disk_read],ABSDRD   ; INT 25
+	MOV	word [DS:addr_int_disk_write],ABSDWRT  ; INT 26
+	extern Stay_resident
+	MOV	word [DS:addr_int_keep_process],Stay_resident
 
 	PUSH	CS
 	POP	DS
 	PUSH	CS
 	POP	ES
-ASSUME	DS:DOSGROUP,ES:DOSGROUP
+; ASSUME	DS:DOSGROUP,ES:DOSGROUP
 ;
 ; Initialize the jump table for the sharer...
 ;
-	MOV	DI,OFFSET DOSGroup:JShare
+	MOV	DI,JShare
 	MOV	AX,CS
 	MOV	CX,15
 JumpTabLoop:
@@ -491,7 +491,7 @@ JumpTabLoop:
 	STOSW				; drop in segment
 	LOOP	JumpTabLoop
 
-	MOV	AX,OFFSET DOSGROUP:INITBLOCK
+	MOV	AX,INITBLOCK
 	ADD	AX,0Fh			; round to a paragraph
 	MOV	CL,4
 	SHR	AX,CL
@@ -505,10 +505,10 @@ JumpTabLoop:
 	MOV	DX,DI
 
 	invoke	SETMEM		; Basic Header
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 	PUSH	CS
 	POP	DS
-ASSUME	DS:DOSGROUP
+; ASSUME	DS:DOSGROUP
 	MOV	DI,PDB_JFN_Table
 	XOR	AX,AX
 	STOSW
@@ -518,17 +518,17 @@ ASSUME	DS:DOSGROUP
 	REP	STOSB		; Rest are unused
 	PUSH	CS
 	POP	ES
-ASSUME	ES:DOSGROUP
-	MOV	WORD PTR [sft_addr+2],DS     ; Must be set to print messages
+; ASSUME	ES:DOSGROUP
+	MOV	word [sft_addr+2],DS     ; Must be set to print messages
 
 ; After this points the char device functions for CON will work for
 ; printing messages
 
-	IF	(NOT IBM) OR (DEBUG)
-	IF	NOT ALTVECT
-	MOV	SI,OFFSET DOSGROUP:HEADER
+	%if (~IBM) OR (DEBUG)
+	%if ~ALTVECT
+	MOV	SI,HEADER
 OUTMES:
-	LODS	CS:BYTE PTR [SI]
+	lodsb
 	CMP	AL,"$"
 	JZ	OUTDONE
 	invoke	OUT
@@ -538,61 +538,61 @@ OUTDONE:
 	POP	DS
 	PUSH	CS
 	POP	ES
-	ENDIF
-	ENDIF
+	%endif
+	%endif
 
 ;F.C Modification start  DOS 3.3
-	MOV	SI,OFFSET DOSGROUP:COUNTRY_CDPG  ;F.C. for DOS 3.3 country info
+	MOV	SI,COUNTRY_CDPG  ;F.C. for DOS 3.3 country info
 						 ; table address
-	MOV	WORD PTR ES:[SI.ccUcase_ptr + 2],ES    ; initialize double word
-	MOV	WORD PTR ES:[SI.ccFileUcase_ptr + 2],ES ; pointers with DOSGROUP
-	MOV	WORD PTR ES:[SI.ccFileChar_ptr + 2],ES
-	MOV	WORD PTR ES:[SI.ccCollate_ptr + 2],ES
-	MOV	WORD PTR ES:[SI.ccMono_ptr + 2],ES
-	MOV	WORD PTR ES:[SI.ccDBCS_ptr + 2],ES	; 2/16/KK
+	MOV	word [ES:SI+ccUcase_ptr + 2],ES    ; initialize double word
+	MOV	word [ES:SI+ccFileUcase_ptr + 2],ES ; pointers with DOSGROUP
+	MOV	word [ES:SI+ccFileChar_ptr + 2],ES
+	MOV	word [ES:SI+ccCollate_ptr + 2],ES
+	MOV	word [ES:SI+ccMono_ptr + 2],ES
+	MOV	word [ES:SI+ccDBCS_ptr + 2],ES	; 2/16/KK
 
-	MOV	SI,OFFSET DOSGROUP:SysInitTable
-	MOV	WORD PTR ES:[SI.SYSI_Country_Tab + 2],ES
-	MOV	WORD PTR ES:[SI.SYSI_InitVars + 2],ES
+	MOV	SI,SysInitTable
+	MOV	word [ES:SI+SYSI_Country_Tab + 2],ES
+	MOV	word [ES:SI+SYSI_InitVars + 2],ES
 
-	MOV	WORD PTR ES:[BUFFHEAD+2],ES	  ;LB. DOS 4.00 buffer head pointer ;AN000;
-	MOV	SI,OFFSET DOSGROUP:HASHINITVAR	  ;LB. points to Hashinitvar	   ;AN000;
-	MOV	WORD PTR ES:[BUFFHEAD],SI	  ;LB.				   ;AN000;
-	MOV	WORD PTR ES:[BUF_HASH_PTR+2],ES   ;LB.				   ;AN000;
-	MOV	SI,OFFSET DOSGROUP:Hash_Temp	  ;LB.				   ;AN000;
-	MOV	WORD PTR ES:[BUF_HASH_PTR],SI	  ;LB.				   ;AN000;
+	MOV	word [ES:BUFFHEAD+2],ES	  ;LB. DOS 4.00 buffer head pointer ;AN000;
+	MOV	SI,HASHINITVAR	  ;LB. points to Hashinitvar	   ;AN000;
+	MOV	word [ES:BUFFHEAD],SI	  ;LB.				   ;AN000;
+	MOV	word [ES:BUF_HASH_PTR+2],ES   ;LB.				   ;AN000;
+	MOV	SI,Hash_Temp	  ;LB.				   ;AN000;
+	MOV	word [ES:BUF_HASH_PTR],SI	  ;LB.				   ;AN000;
 
-	MOV	SI,OFFSET DOSGROUP:FastOpenTable
-	MOV	WORD PTR ES:[SI.FASTOPEN_NAME_CACHING + 2],ES
-	MOV	ES:[FETCHI_TAG],22642	  ; TAG for IBM,
+	MOV	SI,FastOpenTable
+	MOV	word [ES:SI+FASTOPEN_NAME_CACHING + 2],ES
+	MOV	[ES:FETCHI_TAG],22642	  ; TAG for IBM,
 					  ; Fetchi's serial # = 822642
-	MOV	WORD PTR ES:[IFS_DOS_CALL+2],ES   ;IFS. 			;AN000;
-	MOV	SI,OFFSET DOSGROUP:IFS_DOSCALL	  ;IFS. 			;AN000;
-	MOV	WORD PTR ES:[IFS_DOS_CALL],SI	  ;IFS. 			;AN000;
+	MOV	word [ES:IFS_DOS_CALL+2],ES   ;IFS. 			;AN000;
+	MOV	SI,IFS_DOSCALL	  ;IFS. 			;AN000;
+	MOV	word [ES:IFS_DOS_CALL],SI	  ;IFS. 			;AN000;
 
-	MOV	DI,OFFSET DOSGROUP:SWAP_START	  ;IFS. 			;AN000;
-	MOV	CX,OFFSET DOSGROUP:SWAP_END	  ;IFS. 			;AN000;
-	MOV	DX,OFFSET DOSGroup:Swap_Always	  ;IFS. 			;AN000;
+	MOV	DI,SWAP_START	  ;IFS. 			;AN000;
+	MOV	CX,SWAP_END	  ;IFS. 			;AN000;
+	MOV	DX,Swap_Always	  ;IFS. 			;AN000;
 	MOV	BP,CX			;IFS.					;AN000;
 	SUB	BP,DI			;IFS.					;AN000;
 	SHR	BP,1			;IFS. div by 2, remainder in carry	;AN000;
 	ADC	BP,0			;IFS. div by 2 + round up		;AN000;
 	SHL	BP,1			;IFS. round up to 2 boundary.		;AN000;
-	MOV	ES:[SWAP_AREA_LEN],BP	;IFS.					;AN000;
+	MOV	[ES:SWAP_AREA_LEN],BP	;IFS.					;AN000;
 
 	SUB	CX,DX			;IFS.					;AN000;
 	SUB	DX,DI			;IFS.					;AN000;
 	SHR	CX,1			;IFS. div by 2, remainder in carry	;AN000;
 	ADC	CX,0			;IFS. div by 2 + round up		;AN000;
 	SHL	CX,1			;IFS. round up to 2 boundary.		;AN000;
-	MOV	ES:[SWAP_IN_DOS_LEN],CX 	    ;IFS.			;AN000;
-	MOV	WORD PTR ES:[SWAP_ALWAYS_AREA],DI   ;IFS.			;AN000;
-	MOV	WORD PTR ES:[SWAP_ALWAYS_AREA+2],ES ;IFS.			;AN000;
+	MOV	[ES:SWAP_IN_DOS_LEN],CX 	    ;IFS.			;AN000;
+	MOV	word [ES:SWAP_ALWAYS_AREA],DI   ;IFS.			;AN000;
+	MOV	word [ES:SWAP_ALWAYS_AREA+2],ES ;IFS.			;AN000;
 	OR	DX,8000H			    ;IFS.			;AN000;
-	MOV	ES:[SWAP_ALWAYS_AREA_LEN],DX	    ;IFS.			;AN000;
-	MOV	DI,OFFSET DOSGroup:Swap_Always	    ;IFS.			;AN000;
-	MOV	WORD PTR ES:[SWAP_IN_DOS],DI	    ;IFS.			;AN000;
-	MOV	WORD PTR ES:[SWAP_IN_DOS+2],ES	    ;IFS.			;AN000;
+	MOV	[ES:SWAP_ALWAYS_AREA_LEN],DX	    ;IFS.			;AN000;
+	MOV	DI,Swap_Always	    ;IFS.			;AN000;
+	MOV	word [ES:SWAP_IN_DOS],DI	    ;IFS.			;AN000;
+	MOV	word [ES:SWAP_IN_DOS+2],ES	    ;IFS.			;AN000;
 
 
 
@@ -602,8 +602,8 @@ OUTDONE:
 	POP	DX			; Restore COMMAND address
 	POP	BP
 	POP	CX			; True address of free memory
-	MOV	SI,OFFSET DOSGROUP:MEMSTRT	; Place to move DPBs from
-	MOV	DI,WORD PTR [DPBHEAD]	; Place to move DPBs to
+	MOV	SI,MEMSTRT	; Place to move DPBs from
+	MOV	DI,word [DPBHEAD]	; Place to move DPBs to
 	SUB	CX,DI			; Total length of DPBs
 	CMP	DI,SI
 	JBE	MOVJMP			; Are we moving to higher or lower memory?
@@ -614,11 +614,11 @@ OUTDONE:
 	STD
 MOVJMP:
 	MOV	ES,BP
-ASSUME	ES:DOSGROUP
+; ASSUME	ES:DOSGROUP
 	JMP	MOVDPB
 
 CHARINIT:
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 ; DS:SI Points to device header
 	MOV	[DEVCALL.REQLEN],DINITHL
 	MOV	[DEVCALL.REQUNIT],0
@@ -627,7 +627,7 @@ ASSUME	DS:NOTHING,ES:NOTHING
 	PUSH	ES
 	PUSH	BX
 	PUSH	AX
-	MOV	BX,OFFSET DOSGROUP:DEVCALL
+	MOV	BX,DEVCALL
 	PUSH	CS
 	POP	ES
 	invoke	DEVIOCALL2
@@ -636,12 +636,12 @@ ASSUME	DS:NOTHING,ES:NOTHING
 	POP	ES
 	RET
 
-Public MSINI002S,MSINI002E
-MSINI002S label byte
+global MSINI002S,MSINI002E
+MSINI002S:
 
 	DB	100H DUP(?)
-INITSTACK LABEL BYTE
-	DW	?
+INITSTACK:
+	dw 0
 	DB	"ADD SPECIAL ENTRIES",0     ;AN007  tiltle
 ;The following entries don't expect version 4.0
 ;The entry format: name_length, name, expected version, fake count
@@ -658,10 +658,10 @@ Version_Fake_Table:			    ;AN007  starting address for special
 	DB	 8,"ISAM.EXE"    ,3,40,255  ;AN008  basic        7
 	DB	 9,"ISAM2.EXE"   ,3,40,255  ;AN008  basic        8
 	DB	12,"DFIA0MOD.SYS",3,40,255  ;AN008  lan support  9
-	DB	20  dup(0)		    ;AN007
+	times 20 db 0;AN007
 
-MEMSTRT LABEL	WORD
-MSINI002E label byte
+MEMSTRT:
+MSINI002E:
 ADJFAC	EQU	MEMSTRT-SYSBUF
 
-LAST	ENDS
+; END SECTION .LAST

@@ -1,5 +1,5 @@
 
-Title	E2BINIT(EXE2BIN)
+; Title	E2BINIT(EXE2BIN)
 
 ;*****************************************************************************
 ;   Loader for EXE files under 86-DOS
@@ -23,11 +23,11 @@ Title	E2BINIT(EXE2BIN)
 ;*****************************************************************************
 
 
-INCLUDE SYSMSG.INC
+%include "SYSMSG.INC"
 MSG_UTILNAME <EXE2BIN>							;AN000;
 
-	subttl	Main Code Area						;AN000;
-	page
+	; subttl	Main Code Area;AN000;
+	; page
 
 
 ; The following switch allows use with the "old linker", which put a version
@@ -38,20 +38,20 @@ MSG_UTILNAME <EXE2BIN>							;AN000;
 
 OLDLINK EQU	0			;1 to enable, 0 to disable
 
-CODE	SEGMENT PARA PUBLIC 'CODE'					;AN000;
-CODE	ENDS								;AN000;
-DATA	SEGMENT PARA PUBLIC 'DATA'					;AN000;
-DATA	ENDS								;AN000;
-STACK	SEGMENT PARA PUBLIC 'STACK'					;AN000;
-STACK	ENDS								;AN000;
-ZLOAD	SEGMENT PARA PUBLIC 'ZLOAD'					;AN000;
-ZLOAD	ENDS								;AN000;
+SECTION .CODE;AN000;
+; END SECTION .CODE;AN000;
+SECTION .DATA;AN000;
+; END SECTION .DATA;AN000;
+SECTION .STACK;AN000;
+; END SECTION .STACK;AN000;
+SECTION .ZLOAD;AN000;
+; END SECTION .ZLOAD;AN000;
 
-DATA	SEGMENT PARA PUBLIC 'DATA'					;AN000;
+SECTION .DATA;AN000;
 
 MSG_SERVICES <MSGDATA>							;AN000;
 
-Command_Line_Buffer db 128 dup(0)					;AN000;
+Command_Line_Buffer: times 128 db 0;AN000;
 Command_Line_Length equ $ - Command_Line_Buffer 			;AN000;
 
 Fatal_Error db	0							;AN000;
@@ -74,57 +74,57 @@ update	equ	0							;AN000;
 noupdate equ	-1							;AN000;
 
 file1	db	(64+13) dup(?)
-fnptr	dw	offset file1		; Ptr to filename in file1
-handle1 dw	1 dup(?)
+fnptr	dw	file1		; Ptr to filename in file1
+handle1: times 1 dw 0
 
 file2	db	(64+13) dup(?)
-f2cspot dw	offset file2		; Ptr to spot in file2, file1 maybe added
-handle2 dw	1 dup(?)
+f2cspot dw	file2		; Ptr to spot in file2, file1 maybe added
+handle2: times 1 dw 0
 
 dma_buf db	80h dup(0)		; DMA transfer buffer
 
 INBUF	DB	5,0
-	DB	5 DUP(?)
+	times 5 db 0
 
 ;The following locations must be defined for storing the header:
 
-RUNVAR	LABEL	BYTE			;Start of RUN variables
-RELPT	DW	?
-LASTP	LABEL	WORD
-RELSEG	DW	?
-SIZ	LABEL	WORD			;Share these locations
-PAGES	DW	?
-RELCNT	DW	?
-HEADSIZ DW	?
-	DW	?
-LOADLOW DW	?
-INITSS	DW	?
-INITSP	DW	?
-	DW	?
-INITIP	DW	?
-INITCS	DW	?
-RELTAB	DW	?
+RUNVAR:;Start of RUN variables
+RELPT: dw 0
+LASTP:
+RELSEG: dw 0
+SIZ:;Share these locations
+PAGES: dw 0
+RELCNT: dw 0
+HEADSIZ: dw 0
+	dw 0
+LOADLOW: dw 0
+INITSS: dw 0
+INITSP: dw 0
+	dw 0
+INITIP: dw 0
+INITCS: dw 0
+RELTAB: dw 0
 RUNVARSIZ EQU	$-RUNVAR
 
 DBCS_Vector_Off dw 0							;AN000;
 DBCS_Vector_Seg dw 0							;AN000;
 
-parse_ptr DW	?
+parse_ptr: dw 0
 
-DATA	ENDS
+; END SECTION .DATA
 
 
-STACK	SEGMENT PARA PUBLIC 'STACK'
+SECTION .STACK
 	DB	(362 - 80h) + 80H DUP (?) ; (362 - 80h) is IBMs ROM requirement
 					; (New - Old) == size of growth
-STACK	ENDS
+; END SECTION .STACK
 ;
 
 
 
-ZLOAD	SEGMENT PARA PUBLIC 'ZLOAD'
-	db	?
-ZLOAD	ENDS
+SECTION .ZLOAD
+	db 0
+; END SECTION .ZLOAD
 LOAD	EQU	ZLOAD
 ;
 
@@ -136,28 +136,28 @@ LOAD	EQU	ZLOAD
 ;*****************************************************************************
 ;
 
-.xlist
-INCLUDE DOSSYM.INC			; also versiona.inc		;AN000;
-INCLUDE SYSCALL.INC							;AN000;
-INCLUDE E2BMACRO.INC							;AN000;
-INCLUDE E2BEQU.INC							;AN000;
-INCLUDE E2BTABLE.INC							;AN000;
-INCLUDE E2BPARSE.INC							;AN000;
-include version.inc
-.list
+; .xlist
+%include "DOSSYM.INC"; also versiona.inc		;AN000;
+%include "SYSCALL.INC";AN000;
+%include "E2BMACRO.INC";AN000;
+%include "E2BEQU.INC";AN000;
+%include "E2BTABLE.INC";AN000;
+%include "E2BPARSE.INC";AN000;
+%include "version.inc"
+; .list
 
 
 
-CODE	SEGMENT PARA PUBLIC 'CODE'
-	assume	cs:CODE,ds:DATA,es:NOTHING,SS:STACK			;AN000;
+SECTION .CODE
+	; assume	cs:CODE,ds:DATA,es:NOTHING,SS:STACK;AN000;
 
-psp_ptr dw	1 dup(?)						;AN000;
+psp_ptr: times 1 dw 0;AN000;
 ;
 ;*****************************************************************************
 ; SysDisplayMsg Declarations
 ;*****************************************************************************
 ;
-.xlist
+; .xlist
 MSG_SERVICES <LOADmsg>							;AN000;
 MSG_SERVICES <DISPLAYmsg,CHARmsg>					;AN000;
 MSG_SERVICES <EXE2BIN.CLA,EXE2BIN.CLB>					;AN000;
@@ -165,7 +165,7 @@ MSG_SERVICES <EXE2BIN.CL1,EXE2BIN.CL2>					;AN000;
 MSG_SERVICES <EXE2BIN.CTL>						;AN000;
 
 
-.list
+; .list
 
 ;
 ;*****************************************************************************
@@ -173,8 +173,8 @@ MSG_SERVICES <EXE2BIN.CTL>						;AN000;
 ;*****************************************************************************
 ;
 
-	public	SysDispMsg						;AN000;
-	public	SysLoadMsg						;AN000;
+	global SysDispMsg;AN000;
+	global SysLoadMsg;AN000;
 
 
 ;*****************************************************************************
@@ -199,8 +199,8 @@ MSG_SERVICES <EXE2BIN.CTL>						;AN000;
 
 procedure Main_Init near		;				;AN000;
 
-	ASSUME	DS:NOTHING		; THIS IS WHAT dos GIVES YOU	;AN000;
-	ASSUME	ES:NOTHING						;AN000;
+	; ASSUME	DS:NOTHING; THIS IS WHAT dos GIVES YOU	;AN000;
+	; ASSUME	ES:NOTHING;AN000;
 
 	PUSH	DS							;AN000;
 	mov	psp_ptr,ds						;AN000;
@@ -209,7 +209,7 @@ procedure Main_Init near		;				;AN000;
 
 	MOV	AX,SEG DATA		;SET UP ADDRESSABILITY TO	;AN000;
 	MOV	DS,AX			; THE DATA SEGMENT		;AN000;
-	ASSUME	DS:DATA 		;TELL ASSEMBLER WHAT I JUST DID ;AN000;
+	; ASSUME	DS:DATA;TELL ASSEMBLER WHAT I JUST DID ;AN000;
 
 	mov	Fatal_Error,No		;Init the error flag		;AN000;
 	call	Init_Input_Output	;Setup messages and parse	;AN000;
@@ -223,7 +223,7 @@ $$IF1:
 	Dos_call Exit							;AN000;
 	int	20h			;If other exit fails		;AN000;
 
-Main_Init endp								;AN000;
+; ENDP Main_Init;AN000;
 
 ;*****************************************************************************
 ;Routine name: Init_Input_Output
@@ -258,7 +258,7 @@ procedure Init_Input_Output near					;AN000;
 $$IF3:
 	ret								;AN000;
 
-Init_Input_Output endp							;AN000;
+; ENDP Init_Input_Output;AN000;
 
 ;*****************************************************************************
 ;Routine name: Preload_Messages
@@ -287,7 +287,7 @@ procedure Preload_Messages near 					;AN000;
 ;	$ENDIF								;AN000;
 $$IF5:
 	ret								;AN000;
-Preload_Messages endp							;AN000;
+; ENDP Preload_Messages;AN000;
 
 
 ;*****************************************************************************
@@ -312,13 +312,13 @@ Procedure Parse_Command_Line						;AN000;
 
 	push	ds							;AN000;
 	mov	ds,psp_ptr						;AN000;
-	ASSUME	DS:NOTHING						;AN000;
+	; ASSUME	DS:NOTHING;AN000;
 	mov	si,Command_Line_Parms					;AN000;
 	mov	ax,seg command_line_table				;AN000;
 	push	es							;AN000;
 	mov	es,ax							;AN000;
-	ASSUME	ES:NOTHING						;AN000;
-	mov	di,offset Command_Line_Table				;AN000;
+	; ASSUME	ES:NOTHING;AN000;
+	mov	di,Command_Line_Table				;AN000;
 	xor	cx,cx							;AN000;
 
 ;	$DO								;AN000;
@@ -345,21 +345,21 @@ $$DO7:
 
 		    mov     ax,seg rb_string1_off			;AN000;
 		    mov     ds,ax					;AN000;
-		    ASSUME  DS:NOTHING					;AN000;
-		    mov     si,offset rb_string1_off			;AN000;
-		    mov     ax,ds:[si]					;AN000;
+		    ; ASSUME  DS:NOTHING;AN000;
+		    mov     si,rb_string1_off			;AN000;
+		    mov     ax,[ds:si]					;AN000;
 		    mov     bx,ax					;AN000;
 
 
-		    mov     ax,ds:[si+2]				;AN000;
+		    mov     ax,[ds:si+2]				;AN000;
 		    mov     ds,ax					;AN000;
-		    ASSUME  DS:NOTHING					;AN000;
+		    ; ASSUME  DS:NOTHING;AN000;
 		    mov     si,bx					;AN000;
 
 		    mov     ax,seg file1				;AN000;
 		    mov     es,ax					;AN000;
-		    ASSUME  ES:NOTHING					;AN000;
-		    mov     di,offset file1				;AN000;
+		    ; ASSUME  ES:NOTHING;AN000;
+		    mov     di,file1				;AN000;
 		    call    copyfs					;AN000;
 
 ;		$ELSE							;AN000;
@@ -368,21 +368,21 @@ $$IF9:
 
 		    mov     ax,seg rb_string2_off			;AN000;
 		    mov     ds,ax					;AN000;
-		    ASSUME  DS:NOTHING					;AN000;
-		    mov     si,offset rb_string2_off			;AN000;
-		    mov     ax,ds:[si]					;AN000;
+		    ; ASSUME  DS:NOTHING;AN000;
+		    mov     si,rb_string2_off			;AN000;
+		    mov     ax,[ds:si]					;AN000;
 		    mov     bx,ax					;AN000;
 
 
-		    mov     ax,ds:[si+2]				;AN000;
+		    mov     ax,[ds:si+2]				;AN000;
 		    mov     ds,ax					;AN000;
-		    ASSUME  DS:NOTHING					;AN000;
+		    ; ASSUME  DS:NOTHING;AN000;
 		    mov     si,bx					;AN000;
 
 		    mov     ax,seg file2				;AN000;
 		    mov     es,ax					;AN000;
-		    ASSUME  ES:NOTHING					;AN000;
-		    mov     di,offset file2				;AN000;
+		    ; ASSUME  ES:NOTHING;AN000;
+		    mov     di,file2				;AN000;
 		    call    copyfs					;AN000;
 
 ;		$ENDIF							;AN000;
@@ -391,9 +391,9 @@ $$EN9:
 		pop	di						;AN000;
 		pop	si						;AN000;
 		pop	es						;AN000;
-		ASSUME	ES:NOTHING					;AN000;
+		; ASSUME	ES:NOTHING;AN000;
 		pop	ds						;AN000;
-		ASSUME	DS:NOTHING					;AN000;
+		; ASSUME	DS:NOTHING;AN000;
 		pop	bx						;AN000;
 		pop	ax						;AN000;
 
@@ -412,7 +412,7 @@ $$IF8:
 		mov	ax,es:parse_ptr 				;AN001;
 		mov	es:parsoff,ax					;AN001;
 		mov	es:parseg,ds					;AN001;
-		mov	byte ptr ds:[si],0				;AN001;
+		mov	byte [ds:si],0				;AN001;
 		pop	ax						;AN001;
 		parse_message		       ;Must enter file name	;AN000;
 		mov	es:Fatal_Error,YES     ;Indicate death! 	;AN000;
@@ -420,17 +420,17 @@ $$IF8:
 $$IF14:
 
 	pop	es							;AN000;
-	ASSUME	ES:NOTHING						;AN000;
+	; ASSUME	ES:NOTHING;AN000;
 	pop	ds							;AN000;
-	ASSUME	DS:DATA 						;AN000;
+	; ASSUME	DS:DATA;AN000;
 
 	ret								;AN000;
 
-Parse_Command_Line endp 						;AN000;
+; ENDP Parse_Command_Line;AN000;
 
 ;*****************************************************************************
 
-INCLUDE PARSE.ASM
+%include "PARSE.ASM"
 
 ;*****************************************************************************
 
@@ -438,17 +438,17 @@ INCLUDE PARSE.ASM
 procedure LOCATE near
 
 	push	ds							;AN000;
-	ASSUME	ES:NOTHING		; THIS IS THE WAY IT GETS HERE! ;AN000;
+	; ASSUME	ES:NOTHING; THIS IS THE WAY IT GETS HERE! ;AN000;
 	mov	ax,es			; ES -> PSP			;AN000;
 	mov	ds,ax			; DS -> PSP			;AN000;
-	ASSUME	DS:NOTHING						;AN000;
+	; ASSUME	DS:NOTHING;AN000;
 
-	MOV	SI,offset file1
+	MOV	SI,file1
 	MOV	BX,SEG DATA
 	MOV	ES,BX
-	assume	es:data 						;AN000;
+	; assume	es:data;AN000;
 
-	MOV	BX,WORD PTR DS:[2]	;Get size of memory
+	MOV	BX,word [DS:2]	;Get size of memory
 
 
 ;-----------------------------------------------------------------------;
@@ -468,12 +468,12 @@ procedure LOCATE near
 ;----- Get the first file name
 	push	ds							;AN000;
 	push	es							;AN000;
-	ASSUME	ES:DATA 						;AN000;
+	; ASSUME	ES:DATA;AN000;
 	pop	ds							;AN000;
-	ASSUME	DS:DATA 						;AN000;
+	; ASSUME	DS:DATA;AN000;
 
 sj01:
-	mov	si,offset file1 	;   d = file1;
+	mov	si,file1 	;   d = file1;
 	mov	per11,0 		;   assume no extension on file1;AC000;
 
 ;******************************************************************************
@@ -500,23 +500,23 @@ checkper1:
 
 sj1:
 
-IF IBMCOPYRIGHT
-ELSE
+%if IBMCOPYRIGHT
+%else
 	cmp	al,'*'
 	je	File1_Err
 	cmp	al,'?'
 	je	File1_Err
-ENDIF
+%endif
 
 	jmp	short sj0		;	}
 
-IF IBMCOPYRIGHT
-ELSE
+%if IBMCOPYRIGHT
+%else
 File1_Err:
 	stc
-	mov	dx, offset file1
+	mov	dx, file1
 	jmp	DosError
-ENDIF
+%endif
 
 dbcs_1: 				;				;AN000;
 	lodsb				; load another character and got to ;AN000;
@@ -527,15 +527,15 @@ dbcs_1: 				;				;AN000;
 sj2:
 get_second:
 ;----- Get the second file name
-	MOV	SI,offset file1
-	mov	di,offset file2 	;   d = file2
+	MOV	SI,file1
+	mov	di,file2 	;   d = file2
 
 ;******************************************************************************
 
 sj3:
-	cmp	word ptr [di],00	;   check to see if first character of
+	cmp	word [di],00	;   check to see if first character of
 	je	sj32			;   file2 is a null.		;AN000;
-	mov	si,offset file2 	;   set pointer to file2
+	mov	si,file2 	;   set pointer to file2
 
 ;******************************************************************************
 
@@ -562,23 +562,23 @@ checkper4:				;   there is an extension already.
 
 sj33:					;
 
-IF IBMCOPYRIGHT
-ELSE
+%if IBMCOPYRIGHT
+%else
 	cmp	al,'*'
 	je	File2_Err
 	cmp	al,'?'
 	je	File2_Err
-ENDIF
+%endif
 
 	jmp	short sj31		;
 
-IF IBMCOPYRIGHT
-ELSE
+%if IBMCOPYRIGHT
+%else
 File2_Err:
 	stc
-	mov	dx, offset file2
+	mov	dx, file2
 	jmp	DosError
-ENDIF
+%endif
 
 
 dbcs_2:
@@ -622,10 +622,10 @@ dbcs_3:
 sj5:
 ;	mov	byte ptr es:[di],00h	;   *d = 0;
 	mov	ah,Set_DMA		; Use find_first to see if file2 is
-	mov	dx,offset dma_buf	; a directory.	If it isn't, go to
+	mov	dx,dma_buf	; a directory.	If it isn't, go to
 	int	21h			; set f2cspot to point to the spot
 	mov	ah,Find_First		; right after the backslash, and
-	mov	dx,offset file2 	; fall through to no_second so that
+	mov	dx,file2 	; fall through to no_second so that
 	mov	cx,-1			; file1's name will be added to file2.
 	int	21h
 	jc	check_ext
@@ -648,20 +648,20 @@ SetSecond:
 check_ext:
 	cmp	per11,noupdate		;   if (per1 == NULL) { 	;AC000;
 	jz	file1_ok
-	mov	di,offset file1 	;	d = file1;
-	mov	si,offset file1_ext	;	s = ".EXE";
+	mov	di,file1 	;	d = file1;
+	mov	si,file1_ext	;	s = ".EXE";
 	call	strcat			;	strcat (d, s);
 file1_ok:				;	}
 	cmp	per2,noupdate		;   if (per2 != NULL) { 	;AC000;
 	je	file2_ok
-	mov	di,offset file2 	;	d = file2;
-	mov	si,offset file2_ext	;	s = ".BIN";
+	mov	di,file2 	;	d = file2;
+	mov	si,file2_ext	;	s = ".BIN";
 	call	strcat			;	strcap (d, s);
 	jmp	short file2_ok		;	}
 
 ;-----------------------------------------------------------------------;
 file2_ok:
-	mov	dx,offset file1
+	mov	dx,file1
 	mov	ax,(open SHL 8) + 0	;for reading only
 	INT	21H			;Open input file
 	jc	bad_file
@@ -673,7 +673,7 @@ bad_file:
 
 BADEXE:
 	pop	ds
-	ASSUME	DS:nothing						;AN000;
+	; ASSUME	DS:nothing;AN000;
 	MESSAGE msgNoConvert						;AC000;
 	jmp	getout							;AN000;
 
@@ -681,8 +681,8 @@ ReadError:
 	jmp	DosError
 
 EXELOAD:
-	ASSUME	DS:DATA 						;AN000;
-	MOV	DX,OFFSET RUNVAR	;Read header in here
+	; ASSUME	DS:DATA;AN000;
+	MOV	DX,RUNVAR	;Read header in here
 	MOV	CX,RUNVARSIZ		;Amount of header info we need
 	push	bx
 	mov	bx,[handle1]
@@ -728,10 +728,10 @@ EXELOAD:
 	OR	AX,AX			;If zero, use all of last page
 	JZ	WHOLEP
 
-	IF	OLDLINK
+	%if OLDLINK
 	    CMP     AX,4		;Produced by old linker?
 	    JZ	    WHOLEP		;If so, use all of last page too
-	ENDIF
+	%endif
 
 	SUB	DX,200H 		;Subtract last page
 	ADD	DX,AX			;Add in byte count for last page
@@ -750,7 +750,7 @@ WHOLEP:
 
 TOOBIG:
 	pop	ds
-	ASSUME	DS:NOTHING						;AN000;
+	; ASSUME	DS:NOTHING;AN000;
 	MESSAGE msgOutOfMemory						;AN000;
 	jmp	getout							;AN000;
 
@@ -759,7 +759,7 @@ LseekError:
 
 
 ERRORNZ:
-	ASSUME	DS:DATA 						;AN000;
+	; ASSUME	DS:DATA;AN000;
 	jz	xj
 	JMP	BADEXE			;AC000; For ptm P475;
 xj:	MOV	AX,[INITIP]
@@ -794,18 +794,18 @@ BINFIX:
 	JZ	LOADEXE
 GETSEG:
 	pop	ds
-	ASSUME	DS:NOTHING						;AN000;
+	; ASSUME	DS:NOTHING;AN000;
 	MESSAGE msgFixUp						;AN000;
 	PUSH	DS
 	PUSH	ES
 	POP	DS
-	ASSUME	DS:DATA 						;AN000;
+	; ASSUME	DS:DATA;AN000;
 	MOV	AH,STD_CON_STRING_INPUT
-	MOV	DX,OFFSET INBUF
+	MOV	DX,INBUF
 	INT	21H			;Get user response
-	MOV	SI,OFFSET INBUF+2
+	MOV	SI,INBUF+2
 ;;dcl;; MOV	BYTE PTR [SI-1],0	;Any digits?
-	cmp	BYTE PTR [SI-1],0	;Any digits?			;AC000;
+	cmp	byte [SI-1],0	;Any digits?			;AC000;
 	JZ	GETSEG
 DIGLP:
 	LODSB
@@ -828,7 +828,7 @@ HAVDIG:
 	JMP	DIGLP
 
 DIGERR:
-	CMP	BYTE PTR [SI-1],0DH	;Is last char. a CR?
+	CMP	byte [SI-1],0DH	;Is last char. a CR?
 	JNZ	GETSEG
 LOADEXE:
 	XCHG	BX,BP			;BX has LOAD, BP has fixup
@@ -839,14 +839,14 @@ LOADEXE:
 	mov	di,[handle1]
 	PUSH	DS
 	MOV	DS,BX
-	ASSUME	DS:NOTHING						;AN000;
+	; ASSUME	DS:NOTHING;AN000;
 	XOR	DX,DX
 	push	bx
 	mov	bx,di
 	INT	21H			;Read in up to 64K
 	pop	bx
 	POP	DS
-	ASSUME	DS:DATA 						;AN000;
+	; ASSUME	DS:DATA;AN000;
 	pop	di
 	Jnc	HAVEXE			;Did we get it all?
 
@@ -856,7 +856,7 @@ LseekError2:
 	jmp	DosError
 
 HAVEXE:
-	ASSUME	DS:DATA 						;AN000;
+	; ASSUME	DS:DATA;AN000;
 	CMP	[RELCNT],0		;Any fixups to do?
 	JZ	STORE
 	MOV	AX,[RELTAB]		;Get position of table
@@ -877,9 +877,9 @@ HAVEXE:
 	pop	cx
 	pop	dx
 
-	MOV	DX,OFFSET RELPT 	;4-byte buffer for relocation address
+	MOV	DX,RELPT 	;4-byte buffer for relocation address
 RELOC:
-	MOV	DX,OFFSET RELPT 	;4-byte buffer for relocation address
+	MOV	DX,RELPT 	;4-byte buffer for relocation address
 	MOV	CX,4
 	MOV	AH,read
 	push	bx
@@ -893,13 +893,13 @@ RDCMP:
 	MOV	AX,[RELSEG]		;Get segment
 	ADD	AX,BX			;Bias segment with actual load segment
 	MOV	ES,AX
-	ASSUME	ES:NOTHING						;AN000;
-	ADD	ES:[DI],BP		;Relocate
+	; ASSUME	ES:NOTHING;AN000;
+	ADD	[ES:DI],BP		;Relocate
 	DEC	[RELCNT]		;Count off
 	JNZ	RELOC
 STORE:
 	MOV	AH,CREAT
-	MOV	DX,OFFSET file2
+	MOV	DX,file2
 	xor	cx,cx
 	INT	21H
 	Jc	MKERR
@@ -910,14 +910,14 @@ STORE:
 	mov	di,[handle2]
 	PUSH	DS
 	MOV	DS,BX
-	ASSUME	DS:NOTHING						;AN000;
+	; ASSUME	DS:NOTHING;AN000;
 	XOR	DX,DX			;Address 0 in segment
 	push	bx
 	mov	bx,di
 	INT	21H
 	pop	bx
 	POP	DS
-	ASSUME	DS:DATA 						;AN000;
+	; ASSUME	DS:DATA;AN000;
 	pop	di
 	Jc	WRTERR			;Must be zero if more to come
 	cmp	AX,CX
@@ -930,14 +930,14 @@ STORE:
 	pop	bx
 	pop	ds
 	pop	ds
-	ASSUME	DS:NOTHING						;AN000;
+	; ASSUME	DS:NOTHING;AN000;
 
 	RET
 
 ;*******************************************************************************
 
 NOROOM: 				;				     ;AN000;
-	ASSUME	DS:DATA 						;AN000;
+	; ASSUME	DS:DATA;AN000;
 	MOV	AH,CLOSE		; Close the file here		     ;AN000;
 	push	bx			;				     ;AN000;
 	mov	bx,[handle2]		;				     ;AN000;
@@ -945,11 +945,11 @@ NOROOM: 				;				     ;AN000;
 	jc	CloseError		; If error let extend messages get it;AN000;
 	pop	bx			;				     ;AN000;
 	mov	ah,UNLINK		; Delete the file because it did     ;AN000;
-	MOV	DX,OFFSET file2 	; not get written correctly.	     ;AN000;
+	MOV	DX,file2 	; not get written correctly.	     ;AN000;
 	INT	21H			;				     ;AN000;
 	jc	CloseError		; If error let extend messages get it;AN000;
 	pop	ds			;				     ;AN000;
-	ASSUME	DS:NOTHING		;				     ;AN000;
+	; ASSUME	DS:NOTHING;				     ;AN000;
 	message msgNoDiskSpace		; Put out insufficient disk space    ;AN000;
 	jmp	getout			; message			     ;AN000;
 	RET				; return to main_init		     ;AN000;
@@ -960,7 +960,7 @@ WRTERR: 								;AN000;
 MKERR:									;AN000;
 CloseError:								;AN000;
 
-	public	DosError						;AN000;
+	global DosError;AN000;
 DosError:								;AN000;
 	mov	es:FileNameSegment,ds	   ; save for opens, creates,	;AN000;
 	mov	es:FileNameOffset,dx					;AN000;
@@ -969,22 +969,22 @@ DosError:								;AN000;
 	mov	ah,059h 						;AN000;
 	int	21h							;AN000;
 
-	mov	si,offset ds:Sublist_msg_exterror			;AC001;
+	mov	si,Sublist_msg_exterror			;AC001;
 	extend_message							;AN001;
 	pop	ds							;AN001;
 
 getout: 								;AN000;
 	pop	ds							;AN000;
-	ASSUME	DS:NOTHING						;AN000;
+	; ASSUME	DS:NOTHING;AN000;
 
 	ret								;AN000;
 
 
-LOCATE	ENDP
+; ENDP LOCATE
 
 ;----- concatenate two strings
-strcat	proc	near			;   while (*d)
-	cmp	byte ptr [di],0
+strcat:;   while (*d)
+	cmp	byte [di],0
 	jz	atend
 	inc	di			;	d++;
 	jmp	strcat
@@ -994,10 +994,10 @@ atend:					;   while (*d++ = *s++)
 	or	al,al			;	;
 	jnz	atend
 	ret
-strcat	endp
+; ENDP strcat
 
 ;----- Find the first non-ignorable char, return carry if CR found
-kill_bl proc	near
+kill_bl:
 	cld
 sj10:					;   while ( *p != 13 &&
 	lodsb
@@ -1013,9 +1013,9 @@ BreakOut:
 	stc
 sj11:
 	ret
-kill_bl endp
+; ENDP kill_bl
 
-IsBlank proc	near
+IsBlank:
 	cmp	al,00							;AN000;
 	retz								;AN000;
 	cmp	al,13
@@ -1034,7 +1034,7 @@ IsBlank proc	near
 	retz
 	cmp	al,'='			; equal sign
 	return
-IsBlank Endp
+; ENDP IsBlank
 
 
 procedure copyfs near
@@ -1057,7 +1057,7 @@ $$EN16:
 	pop	ax							;AN000;
 
 	ret								;AN000;
-copyfs	endp								;AN000;
+; ENDP copyfs;AN000;
 
 
 procedure dbcs_check near
@@ -1067,13 +1067,13 @@ procedure dbcs_check near
 	push	ax				; "  "	  "  "		;AC000;
 	push	ds				; "  "	  "  "		;AC000;
 	pop	es				;Establish addressability;AC000;
-	cmp	byte ptr es:DBCS_VECTOR,Yes	;Have we set this yet?	;AC000;
+	cmp	byte es:DBCS_VECTOR,Yes	;Have we set this yet?	;AC000;
 	push	ax				;Save input character	;AC000;
 ;	$IF	NE				;Nope			;AN000;
 	JE $$IF19
 	   mov	   al,0 			;Get DBCS environment vectors;AC000;
 	   DOS_Call Hongeul			;  "  "    "  " 	;AC000;
-	   mov	   byte ptr es:DBCS_VECTOR,YES	;Indicate we've got vector;AC000;
+	   mov	   byte es:DBCS_VECTOR,YES	;Indicate we've got vector;AC000;
 	   mov	   es:DBCS_Vector_Off,si	;Save the vector	;AC000;
 	   mov	   ax,ds			;			;AC000;
 	   mov	   es:DBCS_Vector_Seg,ax	;			;AC000;
@@ -1085,13 +1085,13 @@ $$IF19:
 	mov	si,es:DBCS_Vector_Off		;			;AC000;
 ;	$SEARCH 				;Check all the vectors	;AC000;
 $$DO21:
-	   cmp	   word ptr ds:[si],End_Of_Vector ;End of vector table? ;AC000;
+	   cmp	   word [ds:si],End_Of_Vector ;End of vector table? ;AC000;
 ;	$LEAVE	E				;Yes, done		;AC000;
 	JE $$EN21
-	   cmp	   al,ds:[si]			;See if char is in vector;AC000;
+	   cmp	   al,[ds:si]			;See if char is in vector;AC000;
 ;	$EXITIF AE,AND				;If >= to lower, and	;AC000;
 	JNAE $$IF21
-	   cmp	   al,ds:[si+1] 		; =< than higher range	;AC000;
+	   cmp	   al,[ds:si+1] 		; =< than higher range	;AC000;
 ;	$EXITIF BE				; then DBCS character	;AC000;
 	JNBE $$IF21
 	   stc					;Set CY to indicate DBCS;AC000;
@@ -1111,13 +1111,13 @@ $$SR21:
 	ret					;			;AC000;
 
 	ret								;AN000;
-dbcs_check  endp							;AN000;
+; ENDP dbcs_check;AN000;
 
 
 
-CODE	ends
+; END SECTION .CODE
 
 
-	end	main_init						;AC000;
+	; end	main_init;AC000;
 
 

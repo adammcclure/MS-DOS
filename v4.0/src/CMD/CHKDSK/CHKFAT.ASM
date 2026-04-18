@@ -1,65 +1,65 @@
-TITLE	CHKFAT	- procedures that acces the fat and/or fatmap
-page	,132					;
+; TITLE	CHKFAT	- procedures that acces the fat and/or fatmap
+; page	,132;
 
-	.xlist
-	include chkseg.inc							;an005;bgb
-	INCLUDE CHKCHNG.inc
-	INCLUDE DOSSYM.inc
-	INCLUDE CHKEQU.inc
-	INCLUDE CHKMACRO.inc
-	include pathmac.inc
+	; .xlist
+	%include "chkseg.inc";an005;bgb
+	%include "CHKCHNG.inc"
+	%include "DOSSYM.inc"
+	%include "CHKEQU.inc"
+	%include "CHKMACRO.inc"
+	%include "pathmac.inc"
 
 
-CONST	SEGMENT PUBLIC PARA  'DATA'
-	EXTRN	CREATMES:byte,FIXMES_ARG:word
-	EXTRN	FREEMES:byte
-	EXTRN	BADW_ARG:word,FATAL_END:word
-	EXTRN	badrw_num:word,BADRW_STR:WORD,HAVFIX:byte
-	EXTRN	FREEBYMES1:byte,FREEBYMES2:byte
-	EXTRN	FREE_ARG1:WORD,FREE_ARG2:WORD,FREE_ARG3:WORD,ORPHCNT:dword
-	EXTRN	DIRTYFAT:byte,CROSSCNT:dword,DOFIX:byte,SECONDPASS:byte
-	EXTRN	BADSIZ:word,ORPHSIZ:word,LCLUS:word,ORPHFCB:byte
-	EXTRN	HECODE:byte,USERDIR:byte,FRAGMENT:byte
-	EXTRN	ORPHEXT:byte,ALLDRV:byte,FIXMFLG:byte,DIRCHAR:byte
-	EXTRN	BIGFAT:byte,EOFVAL:word,BADVAL:word
-	extrn	fTrunc:BYTE, rarg1:word 					;an018;bgb
-	extrn	temp_dd:dword						      ;an049;bgb
-CONST	ENDS
+SECTION .CONST
+	extern CREATMES,FIXMES_ARG
+	extern FREEMES
+	extern BADW_ARG,FATAL_END
+	extern badrw_num,BADRW_STR,HAVFIX
+	extern FREEBYMES1,FREEBYMES2
+	extern FREE_ARG1,FREE_ARG2,FREE_ARG3,ORPHCNT
+	extern DIRTYFAT,CROSSCNT,DOFIX,SECONDPASS
+	extern BADSIZ,ORPHSIZ,LCLUS,ORPHFCB
+	extern HECODE,USERDIR,FRAGMENT
+	extern ORPHEXT,ALLDRV,FIXMFLG,DIRCHAR
+	extern BIGFAT,EOFVAL,BADVAL
+	extern fTrunc, rarg1;an018;bgb
+	extern temp_dd;an049;bgb
+; END SECTION .CONST
 
-DATA	SEGMENT PUBLIC PARA 'DATA'
-	extrn	fatcnt:byte							;an005;bgb
-	EXTRN	THISDPB:dword,NUL_ARG:byte
-	EXTRN	NAMBUF:byte,SRFCBPT:word,FATMAP:word
-	EXTRN	MCLUS:word,CSIZE:byte,SSIZE:word
-	EXTRN	DSIZE:word,ARG1:word,ARG_BUF:byte,ERRCNT:byte
-	EXTRN	USERDEV:byte,HARDCH:dword,CONTCH:dword
-	EXTRN	ExitStatus:Byte,Read_Write_Relative:Byte
-	extrn	bytes_per_sector:word, fattbl:word				;an005;bgb
-	extrn	sec_count:word, secs_per_64k:word, paras_per_64k:word		  ;an005;bgb
-	extrn	fattbl_seg:word, fatsiz:word, paras_per_fat:word		    ;an005;bgb
-	extrn	end_of_fatmap:word						;an030;bgb
-	extrn	root_entries:word						;ac048;bgb;an047;bgb
-DATA	ENDS
+SECTION .DATA
+	extern fatcnt;an005;bgb
+	extern THISDPB,NUL_ARG
+	extern NAMBUF,SRFCBPT,FATMAP
+	extern MCLUS,CSIZE,SSIZE
+	extern DSIZE,ARG1,ARG_BUF,ERRCNT
+	extern USERDEV,HARDCH,CONTCH
+	extern ExitStatus,Read_Write_Relative
+	extern bytes_per_sector, fattbl;an005;bgb
+	extern sec_count, secs_per_64k, paras_per_64k;an005;bgb
+	extern fattbl_seg, fatsiz, paras_per_fat;an005;bgb
+	extern end_of_fatmap;an030;bgb
+	extern root_entries;ac048;bgb;an047;bgb
+; END SECTION .DATA
 
-CODE	SEGMENT PUBLIC PARA 'CODE'
-ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
-	EXTRN	PRINTF_CRLF:NEAR,FCB_TO_ASCZ:NEAR, recover:near
-	EXTRN	EPRINT:NEAR, makorphnam:near
-	EXTRN	DOINT26:NEAR,PROMPTYN:NEAR,CHECKFILES:NEAR,DIRPROC:NEAR
-	EXTRN	DOCRLF:NEAR, getfilsiz:near, fatal:near, write_disk:near
-	EXTRN	GETENT:NEAR,CHECKNOFMES:NEAR, systime:near
-	EXTRN	multiply_32_bits:near					     ;an049;bgb
+SECTION .CODE
+; ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
+	extern PRINTF_CRLF,FCB_TO_ASCZ, recover
+	extern EPRINT, makorphnam
+	extern DOINT26,PROMPTYN,CHECKFILES,DIRPROC
+	extern DOCRLF, getfilsiz, fatal, write_disk
+	extern GETENT,CHECKNOFMES, systime
+	extern multiply_32_bits;an049;bgb
 
-public calc_fatmap_seg, MARKMAP, CHKMAP, CHKMAPLP, ORPHAN, CONTLP, RET18
-public PromptRecover, NOCHAINREC, CHKMAPLP2, NEXTCLUS
-public DISPFRB, FINDCHAIN, CHKMAPLP3, CHAINLP, INSERTEOF, FAT12_4, CHKCHHEAD
-public ADDCHAIN, CHGOON, NEXTCLUS2,
-public CHAINREC, MAKFILLP, GOTENT, OPAGAIN, GOTORPHNAM, ENTMADE, NEXTENT
-public NXTORP, RET100, nextorph
-public AMDONE, REWRITE, WRTLOOP
-public WRTOK, NOWRITE, DONE, CROSSCHK, calc_fat_addr, pack, unpack
-	.list
-PHONEY_STACK DW 5 DUP(0)							;ac048;bgb
+global calc_fatmap_seg, MARKMAP, CHKMAP, CHKMAPLP, ORPHAN, CONTLP, RET18
+global PromptRecover, NOCHAINREC, CHKMAPLP2, NEXTCLUS
+global DISPFRB, FINDCHAIN, CHKMAPLP3, CHAINLP, INSERTEOF, FAT12_4, CHKCHHEAD
+global ADDCHAIN, CHGOON, NEXTCLUS2,
+global CHAINREC, MAKFILLP, GOTENT, OPAGAIN, GOTORPHNAM, ENTMADE, NEXTENT
+global NXTORP, RET100, nextorph
+global AMDONE, REWRITE, WRTLOOP
+global WRTOK, NOWRITE, DONE, CROSSCHK, calc_fat_addr, pack, unpack
+	; .list
+PHONEY_STACK: times 5 dw 0;ac048;bgb
 
 	pathlabl chkfat
 ;*****************************************************************************	;an005;bgb
@@ -124,7 +124,7 @@ EndProc calc_fat_addr								;an005;bgb
 ;	       else (its already shifted right)
 ;		    set the zero flag
 ;=========================================================================
-UNPACK	proc	near				;ac005; dms;unpack FAT
+UNPACK:;ac005; dms;unpack FAT
 	push	es								;an005;bgb
 	mov	es,fattbl_seg			;point to FAT in memory 	;an005;bgb
 	mov	DI,SI				;put cluster number in DI
@@ -132,14 +132,14 @@ UNPACK	proc	near				;ac005; dms;unpack FAT
 ;	$IF	nz				;yes
 	JZ $$IF1
 		call	calc_fat_addr		;calc addr of cluster		;an005;bgb
-		mov	di,word ptr es:[di]	;es:bx points to fat cluster	;an005;bgb
+		mov	di,word [es:di]	;es:bx points to fat cluster	;an005;bgb
 		or	DI,DI			; Set zero
 ;	$ELSE					;small fat
 	JMP SHORT $$EN1
 $$IF1:
 	       SHR     DI,1
 	       ADD     DI,SI			; Mult by 1.5
-	       mov     DI,word ptr es:[di]
+	       mov     DI,word [es:di]
 	       TEST    SI,1			;is the cluster number odd?
 ;	       $IF     nz	     ;last bit is non-zero; means it is odd
 	       JZ $$IF3
@@ -158,7 +158,7 @@ $$EN3:
 $$EN1:
 	pop	es
 	return
-UNPACK	endp					;ac005; dms;
+; ENDP UNPACK;ac005; dms;
 
 ;=========================================================================
 ; PACK		: This routine puts data into the FAT.
@@ -181,7 +181,7 @@ UNPACK	endp					;ac005; dms;
 ;	       else (its already shifted right)
 ;		    set the zero flag
 ;=========================================================================
-PACK	proc	near				;ac005; dms;
+PACK:;ac005; dms;
 	savereg <si,di,es>							;ac048;bgb
 	mov	[DIRTYFAT],1			;Set FAT dirty byte
 	mov	[HAVFIX],1			;Indicate a fix
@@ -191,14 +191,14 @@ PACK	proc	near				;ac005; dms;
 ;	$IF	nz				;ac005; dms;big fat?
 	JZ $$IF7
 		call	calc_fat_addr		;calc addr of cluster		;an005;bgb
-		mov	es:[di],dx		;move dx into cluster		;an005;bgb
+		mov	[es:di],dx		;move dx into cluster		;an005;bgb
 ;	$ELSE
 	JMP SHORT $$EN7
 $$IF7:
 		shr	di,1		;offset = clus-num * 1.5
 		add	di,si		;offset = clus-num * 1.5
 		push	di		;save cluster offset
-		mov	DI,es:[di]	;get previous value, 4 nibbles
+		mov	DI,[es:di]	;get previous value, 4 nibbles
 		test	si,1			;is the cluster number odd?
 ;		$IF	nz	      ;last bit is non-zero; means it is odd
 		JZ $$IF9
@@ -215,12 +215,12 @@ $$IF9:
 $$EN9:
 		or	DI,dx			;put new value in with old
 		pop	si			;get cluster offset
-		mov	es:[SI],DI
+		mov	[es:SI],DI
 ;	$ENDIF
 $$EN7:
 	restorereg <es,di,si>							;ac048;bgb
 	ret
-PACK	endp					;ac005; dms;
+; ENDP PACK;ac005; dms;
 
 ;=========================================================================	;an005;bgb
 ; CROSSCHK	: this proc gets the value of the fatmap entry that is pointed	;an005;bgb
@@ -237,7 +237,7 @@ procedure	CROSSCHK							;an005;bgb
 	mov	es,fatmap							;an005;bgb
 	xor	di,di								;an005;bgb
 	ADD	DI,SI
-	mov	ah,es:[di]							;an005;bgb
+	mov	ah,[es:di]							;an005;bgb
 	TEST	AH,10H
 	pop	es
 	ret
@@ -266,7 +266,7 @@ Procedure init_fatmap,Near		   ;AN000;bgb				   ;an005;bgb
     mov     cx,[MCLUS]			;do once for each cluster
     xor     AL,AL			;zero means free
     REP     STOSB		    ;Initialize fatmap to all free
-    mov     byte ptr es:[di],al 			   ;			;an010;bgb
+    mov     byte [es:di],al 			   ;			;an010;bgb
     restorereg <cx,ax,di,es>
     return
 endproc init_fatmap			    ;				    ;AN000;
@@ -368,11 +368,11 @@ endproc calc_fatmap_seg 		    ;				    ;AN000;
 ;	4. write the dir entry out to disk.					;ac048;bgb
 ;*****************************************************************************	;ac048;bgb
 procedure fix_entry,near							;ac048;bgb
-    mov     ds:[DI+26],SI		;move 1st clus num into dir entry	;ac048;bgb	   ;an005;bgb
+    mov     [ds:DI+26],SI		;move 1st clus num into dir entry	;ac048;bgb	   ;an005;bgb
     savereg <ax,dx,bx>			;Save INT 26 data			;ac048;bgb
 ;make sure this name is unique							;ac048;bgb
     DOS_Call Disk_Reset 		;func 0d - flush buffers	  ;AC000;ac048;bgb;
-    mov     dx,OFFSET DG:ORPHFCB	;point to filename file0000.chk 	;ac048;bgb
+    mov     dx,ORPHFCB	;point to filename file0000.chk 	;ac048;bgb
     mov     AH,FCB_OPEN 		;open the file just put into the dir	;ac048;bgb
 OPAGAIN:									;ac048;bgb
 ;   $do 									;ac048;bgb
@@ -386,7 +386,7 @@ $$DO13:
     JMP SHORT $$DO13
 $$EN13:
 GOTORPHNAM:				 ;di still points to entry		;ac048;bgb
-	mov	SI,OFFSET DG:ORPHFCB + 1 ;ORPHFCB Now has good name		;ac048;bgb
+	mov	SI,ORPHFCB + 1 ;ORPHFCB Now has good name		;ac048;bgb
 	mov	cx,11			 ;move filename, ext			;ac048;bgb
 	REP	MOVSB								;ac048;bgb
 	call	MAKORPHNAM		 ;Make next name			;ac048;bgb
@@ -400,7 +400,7 @@ GOTORPHNAM:				 ;di still points to entry		;ac048;bgb
 	mov	ax,dx								;ac048;bgb
 	STOSW				; Date					;ac048;bgb
 	pop	dx			;restore starting sector number 	;ac048;bgb ;an045;bgb
-	mov	SI,ds:[DI]		;get starting cluster number		;ac048;bgb			     ;an005;bgb
+	mov	SI,[ds:DI]		;get starting cluster number		;ac048;bgb			     ;an005;bgb
 	inc	DI			;skip firstclus in entry		;ac048;bgb
 	inc	DI								;ac048;bgb
 	PUSH	DI			;save it from getfilsiz 		;ac048;bgb
@@ -462,7 +462,7 @@ procedure NEXTORPH,near 						      ;a;ac048;bgbn047;bgb
     mov     es,[FATMAP] 		;point to fat map			;ac048;bgb
 ;   $do 									;ac048;bgb
 $$DO16:
-loopno: mov	al,byte ptr es:[si]	;get the indicated fatmap entry 	;ac048;bgb   ;an005;bgb
+loopno: mov	al,byte [es:si]	;get the indicated fatmap entry 	;ac048;bgb   ;an005;bgb
 	inc	si			;point to the next one			;ac048;bgb   ;an005;bgb
 	inc	di			;point to the next one			;ac048;bgb   ;an005;bgb
 	cmp	AL,89H			;stop when you find an	89		;ac048;bgb
@@ -500,18 +500,18 @@ endproc nextorph								;ac048;bgb
 markmap: savereg <si,es>			 ;Save registers		 ;AN000;
 	xor	si,si				;Get addr of map		;an005;bgb
 	mov	es,[FATMAP]			;Get addr of map		;an005;bgb
-	mov	ah,es:[di]			   ;Get entry at that spot	;an005;bgb
+	mov	ah,[es:di]			   ;Get entry at that spot	;an005;bgb
 	or	ah,ah				;Is it zero?			;     ;
 ;	$IF	NZ ;already found - mark crossed;If not, we got crosslink	;AC000;
 	JZ $$IF19
-	   add	   word ptr crosscnt,1		;Count the crosslink		;     ;
-	   adc	   word ptr crosscnt+2,0	;Count the crosslink		;     ;
-	   or	   byte ptr es:[di],10H 	;Resets zero in map		;An005;bgb
+	   add	   word crosscnt,1		;Count the crosslink		;     ;
+	   adc	   word crosscnt+2,0	;Count the crosslink		;     ;
+	   or	   byte [es:di],10H 	;Resets zero in map		;An005;bgb
 	   stc					;Indicate crosslink on ret	;     ;
 ;	$ELSE	  ;not found - mark found	;No crosslink			;     ;
 	JMP SHORT $$EN19
 $$IF19:
-	   mov	es:[di],al			;Set mark in map		;Ac005;bgb
+	   mov	[es:di],al			;Set mark in map		;Ac005;bgb
 	   clc					;Indicate things okay		;     ;
 ;	$ENDIF					;				;AN000;
 $$EN19:
@@ -556,7 +556,7 @@ CHKMAP:
 ;do for all the clusters on the disk
     mov     cx,[DSIZE]		    ;loop for the number of clusters on the disk
 CHKMAPLP:
-    mov     al,es:[si]			;move a byte from the fatmap to al	;an005;bgb
+    mov     al,[es:si]			;move a byte from the fatmap to al	;an005;bgb
     or	    al,al			;is the cluster found already?
 ;   $IF     Z				;fatmap cell is zero
     JNZ $$IF22
@@ -567,12 +567,12 @@ CHKMAPLP:
 ;	    $IF     Z			; yes
 	    JNZ $$IF24
 		inc  [badsiz]		  ;inc the bad sector counter
-		mov  byte ptr es:[si],4 	      ;Flag the map		;an005;bgb
+		mov  byte [es:si],4 	      ;Flag the map		;an005;bgb
 ;	    $ELSE			; no, not a bad sector
 	    JMP SHORT $$EN24
 $$IF24:
 orphan: 	inc  [orphsiz]		; then its an orphan
-		mov  byte ptr es:[si],8 	      ;Flag it			;an005;bgb
+		mov  byte [es:si],8 	      ;Flag it			;an005;bgb
 ;	    $ENDIF
 $$EN24:
 ;	$ENDIF
@@ -607,7 +607,7 @@ RET18:	ret
 ;	-
 ;***************************************************************************
 PromptRecover:
-    mov     dx,OFFSET DG:FREEMES
+    mov     dx,FREEMES
     call    PROMPTYN			    ;Ask user
 ;   $IF     Z
     JNZ $$IF31
@@ -620,7 +620,7 @@ NOCHAINREC:
 	mov	cx,[dsize]
 	xor	dx,dx	     ;dx is the new value (free)
 CHKMAPLP2:
-	mov	al,es:[si]	 ;get next byte from fatmap into al
+	mov	al,[es:si]	 ;get next byte from fatmap into al
 	TEST	AL,8		 ; is it an orphan?
 ;	$IF	NZ		 ;yes
 	JZ $$IF33
@@ -632,11 +632,11 @@ NEXTCLUS:
 	loop	CHKMAPLP2
 	xor	ax,ax
 	XCHG	ax,[ORPHSIZ]		;number of orphans = zero
-	mov	cx,OFFSET DG:FREEBYMES1 ;print msg
+	mov	cx,FREEBYMES1 ;print msg
 	cmp	[DOFIX],0
 ;	$IF	Z
 	JNZ $$IF35
-	    mov     cx,OFFSET DG:FREEBYMES2
+	    mov     cx,FREEBYMES2
 	    mov     [LCLUS],ax		 ;move number of lost clust would be ;an049;bgb
 ;	$ENDIF
 $$IF35:
@@ -650,8 +650,8 @@ DISPFRB:				 ;ax=lost clusters (1-fff6)
 	mov	bx,dx			 ;move high word for call	     ;an049;bgb
 	mov	cx,ssize		 ;word to mult with		     ;an049;bgb
 	call	multiply_32_bits	 ;bx:ax is result		     ;an049;bgb
-	mov	word ptr rarg1,ax	 ;low word into low word	     ;an049;bgb
-	mov	word ptr rarg1+2,bx	 ;hi  word into hi  word	      ;an049;bgb
+	mov	word rarg1,ax	 ;low word into low word	     ;an049;bgb
+	mov	word rarg1+2,bx	 ;hi  word into hi  word	      ;an049;bgb
 	mov	[free_arg1],ax
 	mov	[free_arg2],bx						     ;an049;bgb
 	mov	[free_arg3],cx
@@ -685,7 +685,7 @@ FINDCHAIN:
 	mov	dx,si			; point to fatmap
 	mov	cx,[DSIZE]		;get total number of clusters on disk
 CHKMAPLP3:
-	mov	al,es:[si]		;get next fatmap entry
+	mov	al,[es:si]		;get next fatmap entry
 	inc	si			;point to next fatmap entry
 			;has to be an orphan(08)
 	TEST	AL,8				;Orphan?
@@ -696,15 +696,15 @@ CHKMAPLP3:
 ;recover this chain
 	savereg <si,cx,dx>			;Save search environment
 	dec	SI
-	or	byte ptr es:[si],81H		;Mark as seen and head
+	or	byte [es:si],81H		;Mark as seen and head
 
 
-	IF	LOSTDEB 		;is this private build version?
+	%if LOSTDEB;is this private build version?
 	    call lostdisp		;display lost cluster numbers
-	 ENDIF
+	 %endif
 
-	add	word ptr orphcnt,1		;Found a chain
-	adc	word ptr orphcnt+2,0		;Found a chain
+	add	word orphcnt,1		;Found a chain
+	adc	word orphcnt+2,0		;Found a chain
 	mov	SI,dx			;point to the next fatmap entry
 CHAINLP:
 	call	UNPACK			;si = fat cell
@@ -743,15 +743,15 @@ FAT12_4:
 CHKCHHEAD:
 	TEST	AH,80H				;Previosly marked head?
 	jz	ADDCHAIN			;Nope
-	AND	BYTE PTR es:[DI],NOT 80H	   ;Turn off head bit
-	sub	word ptr orphcnt,1		;Wasn't really a head
-	sbb	word ptr orphcnt+2,0		;Wasn't really a head
+	AND	byte [es:DI],NOT 80H	   ;Turn off head bit
+	sub	word orphcnt,1		;Wasn't really a head
+	sbb	word orphcnt+2,0		;Wasn't really a head
 	POP	DI				;Clean stack
 	jmp	SHORT CHGOON
 ADDCHAIN:
 	TEST	AH,1				;Previosly seen?
 	jnz	INSERTEOF			;Yup, don't make a cross link
-	or	BYTE PTR es:[DI],1		   ;Mark as seen
+	or	byte [es:DI],1		   ;Mark as seen
 	POP	DI				;Clean stack
 	jmp	CHAINLP 			;Follow chain
 CHGOON:
@@ -818,21 +818,21 @@ NEXTCLUS2:
 	savereg <si,di> 		;save orphan, orphan+1			;ac048;bgb
 	mov	SI,DI			;si point to orphan			;ac048;bgb
 	xor	ax,ax		 ;set count of dir entries processed to zero;ac048;bgb
-	mov	dx,word ptr orphcnt	;get low word of lost clusters		  ;ac048;bgb;an049;bgb
-	mov	word ptr temp_dd,dx	;get low word of lost clusters	     ;an049;bgb
-	mov	dx,word ptr orphcnt+2	;get hi  word of lost clusters		  ;an049;bgb
-	mov	word ptr temp_dd+2,dx	;get hi  word of lost clusters	     ;an049;bgb
-	mov	BP,OFFSET DG:PHONEY_STACK ;Set BP to point to "root"		;ac048;bgb
+	mov	dx,word orphcnt	;get low word of lost clusters		  ;ac048;bgb;an049;bgb
+	mov	word temp_dd,dx	;get low word of lost clusters	     ;an049;bgb
+	mov	dx,word orphcnt+2	;get hi  word of lost clusters		  ;an049;bgb
+	mov	word temp_dd+2,dx	;get hi  word of lost clusters	     ;an049;bgb
+	mov	BP,PHONEY_STACK ;Set BP to point to "root"		;ac048;bgb
 ;do for all dir entries:							;ac048;bgb
 MAKFILLP:									;ac048;bgb
 ;   $DO 				;do for all root entries		;ac048;bgb
 $$DO37:
 	savereg <ax>		  ;cnt of entries processed, num orphans  ;ac048;bgb;an049;bgb
 	call	GETENT			;DI points to entry			;ac048;bgb
-	cmp	BYTE PTR ds:[DI],0E5H	;is this dir entry erased?	     ;an;ac048;bgb005;bgb
+	cmp	byte [ds:DI],0E5H	;is this dir entry erased?	     ;an;ac048;bgb005;bgb
 ;	$if	z,or								;ac048;bgb
 	JZ $$LL38
-	cmp	BYTE PTR ds:[DI],0	;is this dir entry empty?	     ;an;ac048;bgb005;bgb
+	cmp	byte [ds:DI],0	;is this dir entry empty?	     ;an;ac048;bgb005;bgb
 ;	$if	z								;ac048;bgb
 	JNZ $$IF38
 $$LL38:
@@ -844,12 +844,12 @@ GOTENT:     mov     [HAVFIX],1		;Making a fix				;ac048;bgb
 ;	    $endif								;ac048;bgb
 $$IF39:
 ENTMADE:    restorereg <ax,di,si>					     ;ac048;bgb;an049;bgb
-	    sub     word ptr temp_dd,1	 ;finished with one orphan		 ;ac048;bgb;an049;bgb
-	    sbb     word ptr temp_dd+2,0 ;finished with one orphan		 ;ac048;bgb;an049;bgb
-	    cmp     word ptr temp_dd,0	;is that the last one?			;ac048;bgb;an049;bgb
+	    sub     word temp_dd,1	 ;finished with one orphan		 ;ac048;bgb;an049;bgb
+	    sbb     word temp_dd+2,0 ;finished with one orphan		 ;ac048;bgb;an049;bgb
+	    cmp     word temp_dd,0	;is that the last one?			;ac048;bgb;an049;bgb
 ;	    $IF     Z,AND		;no, check the hi word		     ;an049;bgb
 	    JNZ $$IF41
-	    cmp     word ptr temp_dd+2,0;is that the last one?			;ac048;bgb;an049;bgb
+	    cmp     word temp_dd+2,0;is that the last one?			;ac048;bgb;an049;bgb
 ;	    $IF     Z			;neither are zero		     ;an049;bgb
 	    JNZ $$IF41
 		jmp	RET100		    ; yes,we are done			    ;ac048;bgb;an049;bgb
@@ -872,10 +872,10 @@ NXTORP: inc	ax								;ac048;bgb
     JMP SHORT $$DO37
 $$EN37:
 	restorereg <ax,ax>			;Clean Stack from si,di 	;ac048;bgb
-	sub	word ptr orphcnt,dx		;Couldn't make them all         ;ac048;bgb
-	sbb	word ptr orphcnt+2,0		;Couldn't make them all         ;ac048;bgb
-	mov	dx,OFFSET DG:CREATMES						;ac048;bgb
-	mov	byte ptr [arg_buf],0						;ac048;bgb
+	sub	word orphcnt,dx		;Couldn't make them all         ;ac048;bgb
+	sbb	word orphcnt+2,0		;Couldn't make them all         ;ac048;bgb
+	mov	dx,CREATMES						;ac048;bgb
+	mov	byte [arg_buf],0						;ac048;bgb
 	call	EPRINT								;ac048;bgb
 RET100: pop	es			;restore es				;ac048;bgb
 	ret									;ac048;bgb
@@ -885,25 +885,25 @@ RET100: pop	es			;restore es				;ac048;bgb
 
 ;*****************************************************************************
 ;*****************************************************************************
-SUBTTL	AMDONE	- Finish up routine
-PAGE
-Public	AmDone
+; SUBTTL	AMDONE	- Finish up routine
+; PAGE
+global AmDone
 AMDONE:
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	cmp	[DIRTYFAT],0
 	jz	NOWRITE 			;FAT not dirty
 	cmp	[DOFIX],0
 	jz	NOWRITE 			;Not supposed to fix
 REWRITE:
 	LDS	bx,[THISDPB]
-ASSUME	DS:NOTHING
-	mov	cx,[bx.dpb_FAT_size]		;Sectors for one fat (DCR)	;AC000;
+; ASSUME	DS:NOTHING
+	mov	cx,[bx+dpb_FAT_size]		;Sectors for one fat (DCR)	;AC000;
 	mov	DI,cx
-	mov	CL,[bx.dpb_FAT_count]		;Number of FATs
-	mov	dx,[bx.dpb_first_FAT]		;First sector of FAT
+	mov	CL,[bx+dpb_FAT_count]		;Number of FATs
+	mov	dx,[bx+dpb_first_FAT]		;First sector of FAT
 	PUSH	CS
 	POP	DS
-ASSUME	DS:DG
+; ASSUME	DS:DG
 	mov	[ERRCNT],0
 ; set up to write to the disk
 	xor	bx,bx		     ;offset of the fat-table ;an005;bgb
@@ -929,7 +929,7 @@ WRTLOOP:
 	xchg	al,ah				; Fat # to AL
 	xor	ah,ah				; Make it a word
 	mov	[badrw_num],ax
-	mov	dx,offset dg:badw_arg
+	mov	dx,badw_arg
 	call	PRINTf_crlf
 WRTOK:
 	POP	ax
@@ -950,15 +950,15 @@ $$IF47:
 ;we can come here after a ctl - break has happened. so point to them w/ cs:
 NOWRITE:
 	DOS_Call Disk_Reset			;				;AC000;
-	mov	dx,OFFSET DG:USERDIR		;Recover users directory
+	mov	dx,USERDIR		;Recover users directory
 	DOS_Call ChDir				;				;AC000;
-	cmp	BYTE PTR cs:[FRAGMENT],1      ;Check for any fragmented files?	;an029;bgb
+	cmp	byte [cs:FRAGMENT],1      ;Check for any fragmented files?	;an029;bgb
 	jnz	DONE				;No -- we're finished
 	call	CHECKFILES			;Yes -- report any fragments
-Public	Done
+global Done
 DONE:
-ASSUME	DS:NOTHING
-	mov	DL,cs:[USERDEV] 		   ;Recover users drive 	;an029;bgb
+; ASSUME	DS:NOTHING
+	mov	DL,[cs:USERDEV] 		   ;Recover users drive 	;an029;bgb
 	DOS_Call Set_Default_Drive		;				;AC000;
 	ret
 
@@ -970,7 +970,7 @@ ASSUME	DS:NOTHING
 
 
 
-	IF	LOSTDEB 		;is this private build version?
+	%if LOSTDEB;is this private build version?
 Procedure lostdisp,near 						   ;an005;bgb
     savereg <ax,bx,cx,dx,si,di> 	     ;						 ;an005;bgb
 	    mov  ax,dx	;save orig value
@@ -1053,12 +1053,12 @@ $$EN58:
     restorereg <di,si,dx,bx,cx,ax>							 ;an005;bgb
   return									;an005;bgb
 EndProc lostdisp								;an005;bgb
-ENDIF
+%endif
 
 
 	pathlabl chkfat
 
 
-CODE	ENDS
-	END
+; END SECTION .CODE
+	; END
 

@@ -1,8 +1,8 @@
 
 
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	TITLE	SHIPHI -  MODULE to ship a segment up hi
+	; TITLE	SHIPHI -  MODULE to ship a segment up hi
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -33,22 +33,22 @@
 ;   shipping a segment up hi
 ;
 ;******************************************************************************
-.lfcond
-.386p
+; .lfcond
+CPU 386
 
-	page
+	; page
 ;******************************************************************************
 ;		P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
-	public	set_src_selector	; Routines and data(GDT) for move block
-	public	set_dest_selector
-	public	moveb
-	public	memreq
+	global set_src_selector; Routines and data(GDT) for move block
+	global set_dest_selector
+	global moveb
+	global memreq
 
-	public	gdt_mb
+	global gdt_mb
 
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
@@ -57,21 +57,21 @@
 ;******************************************************************************
 ;			INCLUDE FILES
 ;******************************************************************************
-    include  vdmseg.inc     ; segment definitions
-    include  desc.inc	    ;
-    include  page.inc
+    %include "vdmseg.inc"; segment definitions
+    %include "desc.inc";
+    %include "page.inc"
 
-	page
+	; page
 ;******************************************************************************
 ;			E X T E R N A L    R E F E R E N C E S
 ;******************************************************************************
 ;
 ;
-LAST	SEGMENT
-	extrn	    get_buffer:near
-LAST	ENDS
+SECTION .LAST
+	extern get_buffer
+; END SECTION .LAST
 
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
@@ -82,20 +82,20 @@ LAST	ENDS
 ;
 ;*************************************************************************
 
-_DATA	SEGMENT
-	ASSUME	CS:DGROUP,DS:DGROUP
+SECTION ._DATA
+	; ASSUME	CS:DGROUP,DS:DGROUP
 ;
-_DATA	ENDS
+; END SECTION ._DATA
 
 
 
 
-LAST   SEGMENT
-ASSUME	CS:LAST,DS:DGROUP,ES:DGROUP
+SECTION .LAST
+; ASSUME	CS:LAST,DS:DGROUP,ES:DGROUP
 
 ;  GDT for ROM Move Block calls
 ;
-gdt_mb	label	word
+gdt_mb:
 ;
 gdt0_mb:	GDT_ENTRY 0,0,1,0		; Dummy   seg descriptor
 gdt1_mb:	GDT_ENTRY 0,0,1,0		; GDT	  seg descriptor
@@ -105,15 +105,15 @@ gdt4_mb:	GDT_ENTRY 0,0,1,0		; Bios cs seg descriptor
 gdt5_mb:	GDT_ENTRY 0,0,1,0		; Bios ss seg descriptor
 ;
 
-LAST   ENDS
+; END SECTION .LAST
 
 ;*************************************************************************
 ;
 ; CODE
 ;
 ;*************************************************************************
-LAST   SEGMENT
-ASSUME	CS:LAST,DS:DGROUP,ES:DGROUP
+SECTION .LAST
+; ASSUME	CS:LAST,DS:DGROUP,ES:DGROUP
 
 ;******************************************************************************
 ;   SHIPHI - routine to ship a segment up hi				      ;
@@ -131,7 +131,7 @@ ASSUME	CS:LAST,DS:DGROUP,ES:DGROUP
 ;   AUTHOR:  ISP (ISP) Sep 2, 1988			      ;
 ;									      ;
 ;*****************************************************************************;
-SHIPHI	    proc    near
+SHIPHI:
     ;
 	push	di
     ;
@@ -148,7 +148,7 @@ SHIPHI	    proc    near
 	pop	di
     ;
 	ret
-SHIPHI	    endp
+; ENDP SHIPHI
 
 
 
@@ -172,7 +172,7 @@ SHIPHI	    endp
 ;*****************************************************************************;
 
 
-MOVEB	proc	near
+MOVEB:
 	push	es
 	push	dx
 	push	ax
@@ -201,7 +201,7 @@ MOVEB	proc	near
     ;
 	mov	si,seg LAST
 	mov	es,si
-	mov	si,offset LAST:gdt_mb ; ES:SI -> global descriptor table
+	mov	si,gdt_mb ; ES:SI -> global descriptor table
     ;
     ; convert count to number of words
     ;
@@ -220,9 +220,9 @@ MOVEB	proc	near
 	pop	es
 					;   N: return Z
 	ret
-MOVEB	endp
+; ENDP MOVEB
 
-	page
+	; page
 ;******************************************************************************
 ;
 ;	set_src_selector
@@ -239,22 +239,22 @@ MOVEB	endp
 ;
 ;******************************************************************************
 ;
-set_src_selector	proc	near
+set_src_selector:
 ;
 	push	di
-	mov	di,offset LAST:gdt2_mb ; cs:di -> source seg descriptor
+	mov	di,gdt2_mb ; cs:di -> source seg descriptor
 set_entry:
-	mov	cs:[di.BASE_LOW],ax	   ; Store base address bits 15:00
-	mov	cs:[di.BASE_HIGH],dl	   ; Store base address bits 23:16
-	mov	cs:[di.LIMIT],cx	   ; Store size
-	sub	cs:[di.LIMIT],1 	   ; subtract 1 => convert to limit
+	mov	[cs:di+BASE_LOW],ax	   ; Store base address bits 15:00
+	mov	[cs:di+BASE_HIGH],dl	   ; Store base address bits 23:16
+	mov	[cs:di+LIMIT],cx	   ; Store size
+	sub	[cs:di+LIMIT],1 	   ; subtract 1 => convert to limit
 ;
 	pop	di
 	ret				; *** Return ***
 ;
-set_src_selector	endp		; End of procedure
+; ENDP set_src_selector; End of procedure
 ;
-	page
+	; page
 ;******************************************************************************
 ;
 ;	set_dest_selector
@@ -272,16 +272,16 @@ set_src_selector	endp		; End of procedure
 ;
 ;******************************************************************************
 ;
-set_dest_selector	proc	near
+set_dest_selector:
 ;
 	push	di
-	mov	di,offset LAST:gdt3_mb	; cs:di -> source seg descriptor
-	mov	cs:[di.BASE_XHI],dh	; bits 24-31
+	mov	di,gdt3_mb	; cs:di -> source seg descriptor
+	mov	[cs:di+BASE_XHI],dh	; bits 24-31
 	jmp	set_entry		; set this entry in gdt_mb
 ;
 	ret				; *** Return ***
 ;
-set_dest_selector	endp		; End of procedure
+; ENDP set_dest_selector; End of procedure
 
 
 
@@ -302,7 +302,7 @@ set_dest_selector	endp		; End of procedure
 ;   AUTHOR:  ISP (ISP) Sep 2, 1988			      ;
 ;									      ;
 ;*****************************************************************************;
-MEMREQ	    proc    near
+MEMREQ:
 ;
 	push	ax
 ;
@@ -318,8 +318,8 @@ MEMREQ	    proc    near
 ;
 	pop	ax
 	ret
-MEMREQ	    endp
+; ENDP MEMREQ
 
-LAST   ENDS
+; END SECTION .LAST
 
-	end
+	; end

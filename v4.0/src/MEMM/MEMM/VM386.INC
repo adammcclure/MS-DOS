@@ -30,124 +30,124 @@
 ;   07/01/86  0.03	Added structures for accessing memory
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 ;
 ;   Structures for accessing memory
 ;
-WordS	struc
-	LowByte 	db	?
-	HighByte	db	?
-WordS	ends
+struc WordS
+	LowByte: resb 1
+	HighByte: resb 1
+endstruc
 
-DwordS	struc
-	LowWord 	dw	?
-	HighWord	dw	?
-DwordS	ends
+struc DwordS
+	LowWord: resw 1
+	HighWord: resw 1
+endstruc
 
 ;
 ;   Structure for accessing stack frame pushed during trap exit from VM
 ;
 
-VM_TRAP_FRAME	struc
-VMTF_EIP	dw	?		; EIP (low)
-		dw	?		; EIP (high)
-VMTF_CS 	dw	?		; CS
-		dw	?		;   (padding)
-VMTF_EFLAGS	dw	?		; EFLAGS (low)
-VMTF_EFLAGShi	dw	?		; EFLAGS (high)
-VMTF_ESP	dw	?		; ESP (low)
-		dw	?		; ESP (high)
-VMTF_SS 	dw	?		; SS
-		dw	?		;   (padding)
-VMTF_ES 	dw	?		; ES
-		dw	?		;   (padding)
-VMTF_DS 	dw	?		; DS
-		dw	?		;   (padding)
-VMTF_FS 	dw	?		; FS
-		dw	?		;   (padding)
-VMTF_GS 	dw	?		; GS
-		dw	?		;   (padding)
-VM_TRAP_FRAME	ends
+struc VM_TRAP_FRAME
+VMTF_EIP: resw 1; EIP (low)
+		resw 1; EIP (high)
+VMTF_CS: resw 1; CS
+		resw 1;   (padding)
+VMTF_EFLAGS: resw 1; EFLAGS (low)
+VMTF_EFLAGShi: resw 1; EFLAGS (high)
+VMTF_ESP: resw 1; ESP (low)
+		resw 1; ESP (high)
+VMTF_SS: resw 1; SS
+		resw 1;   (padding)
+VMTF_ES: resw 1; ES
+		resw 1;   (padding)
+VMTF_DS: resw 1; DS
+		resw 1;   (padding)
+VMTF_FS: resw 1; FS
+		resw 1;   (padding)
+VMTF_GS: resw 1; GS
+		resw 1;   (padding)
+endstruc
 ;
 					; Used in EmMovCDTR (vminst.asm)
-MOV_CDTR_FRAME	 struc
-MCF_WBP 	dw	?		; Work BP
-MCF_WES 	dw	?		; Work ES
-MCF_EAX 	dw	?		; EAXlo
-		dw	?		; EAXhi
-MCF_ESI 	dw	?		; ESIlo
-		dw	?		; ESIhi
-MCF_EBX 	dw	?		; EBXlo
-		dw	?		; EBXhi
-MCF_EBP 	dw	?		; EBPlo
-		dw	?		; EBPhi
-MCF_VMERR	dw	?		; VM Error Code (low)
-		dw	?		; VM Error Code (high)
-MCF_VMEIP	dw	?		; VM EIP (low)
-		dw	?		; VM EIP (high)
-MCF_VMCS	dw	?		; VM CS
-		dw	?		;   (padding)
-MCF_VMEFLAGS	dw	?		; VM EFLAGS (low)
-MCF_VMEFLAGShi	dw	?		; VM EFLAGS (high)
-MCF_VMESP	dw	?		; VM ESP (low)
-		dw	?		; VM ESP (high)
-MCF_VMSS	dw	?		; VM SS
-		dw	?		;   (padding)
-MCF_VMES	dw	?		; VM ES
-		dw	?		;   (padding)
-MCF_VMDS	dw	?		; VM DS
-		dw	?		;   (padding)
-MCF_VMFS	dw	?		; VM FS
-		dw	?		;   (padding)
-MCF_VMGS	dw	?		; VM GS
-		dw	?		;   (padding)
-MOV_CDTR_FRAME	 ends
+struc MOV_CDTR_FRAME
+MCF_WBP: resw 1; Work BP
+MCF_WES: resw 1; Work ES
+MCF_EAX: resw 1; EAXlo
+		resw 1; EAXhi
+MCF_ESI: resw 1; ESIlo
+		resw 1; ESIhi
+MCF_EBX: resw 1; EBXlo
+		resw 1; EBXhi
+MCF_EBP: resw 1; EBPlo
+		resw 1; EBPhi
+MCF_VMERR: resw 1; VM Error Code (low)
+		resw 1; VM Error Code (high)
+MCF_VMEIP: resw 1; VM EIP (low)
+		resw 1; VM EIP (high)
+MCF_VMCS: resw 1; VM CS
+		resw 1;   (padding)
+MCF_VMEFLAGS: resw 1; VM EFLAGS (low)
+MCF_VMEFLAGShi: resw 1; VM EFLAGS (high)
+MCF_VMESP: resw 1; VM ESP (low)
+		resw 1; VM ESP (high)
+MCF_VMSS: resw 1; VM SS
+		resw 1;   (padding)
+MCF_VMES: resw 1; VM ES
+		resw 1;   (padding)
+MCF_VMDS: resw 1; VM DS
+		resw 1;   (padding)
+MCF_VMFS: resw 1; VM FS
+		resw 1;   (padding)
+MCF_VMGS: resw 1; VM GS
+		resw 1;   (padding)
+endstruc
 ;
 					; Used in EmProtIns (vminst.asm)
-PROT_INS_FRAME	 struc
-PIF_WBP 	dw	?		; Work BP
-PIF_WES 	dw	?		; Work ES
-PIF_AX		dw	?		; EAXlo
-PIF_DX		dw	?		; EDXlo
-PIF_ESI 	dw	?		; ESIlo
-		dw	?		; ESIhi
-PIF_EBX 	dw	?		; EBXlo
-		dw	?		; EBXhi
-PIF_EBP 	dw	?		; EBPlo
-		dw	?		; EBPhi
-PIF_VMERR	dw	?		; VM Error Code (low)
-		dw	?		; VM Error Code (high)
-PIF_VMEIP	dw	?		; VM EIP (low)
-		dw	?		; VM EIP (high)
-PIF_VMCS	dw	?		; VM CS
-		dw	?		;   (padding)
-PIF_VMEFLAGS	dw	?		; VM EFLAGS (low)
-PIF_VMEFLAGShi	dw	?		; VM EFLAGS (high)
-PIF_VMESP	dw	?		; VM ESP (low)
-		dw	?		; VM ESP (high)
-PIF_VMSS	dw	?		; VM SS
-		dw	?		;   (padding)
-PIF_VMES	dw	?		; VM ES
-		dw	?		;   (padding)
-PIF_VMDS	dw	?		; VM DS
-		dw	?		;   (padding)
-PIF_VMFS	dw	?		; VM FS
-		dw	?		;   (padding)
-PIF_VMGS	dw	?		; VM GS
-		dw	?		;   (padding)
-PROT_INS_FRAME	 ends
+struc PROT_INS_FRAME
+PIF_WBP: resw 1; Work BP
+PIF_WES: resw 1; Work ES
+PIF_AX: resw 1; EAXlo
+PIF_DX: resw 1; EDXlo
+PIF_ESI: resw 1; ESIlo
+		resw 1; ESIhi
+PIF_EBX: resw 1; EBXlo
+		resw 1; EBXhi
+PIF_EBP: resw 1; EBPlo
+		resw 1; EBPhi
+PIF_VMERR: resw 1; VM Error Code (low)
+		resw 1; VM Error Code (high)
+PIF_VMEIP: resw 1; VM EIP (low)
+		resw 1; VM EIP (high)
+PIF_VMCS: resw 1; VM CS
+		resw 1;   (padding)
+PIF_VMEFLAGS: resw 1; VM EFLAGS (low)
+PIF_VMEFLAGShi: resw 1; VM EFLAGS (high)
+PIF_VMESP: resw 1; VM ESP (low)
+		resw 1; VM ESP (high)
+PIF_VMSS: resw 1; VM SS
+		resw 1;   (padding)
+PIF_VMES: resw 1; VM ES
+		resw 1;   (padding)
+PIF_VMDS: resw 1; VM DS
+		resw 1;   (padding)
+PIF_VMFS: resw 1; VM FS
+		resw 1;   (padding)
+PIF_VMGS: resw 1; VM GS
+		resw 1;   (padding)
+endstruc
 ;
-GPFAULT_FRAME	struc
-GPF_ESI 	dw	?		; ESIlo
-		dw	?		; ESIhi
-GPF_EBX 	dw	?		; EBXlo
-		dw	?		; EBXhi
-GPF_EBP 	dw	?		; EBPlo
-		dw	?		; EBPhi
-GPFAULT_FRAME	ends
+struc GPFAULT_FRAME
+GPF_ESI: resw 1; ESIlo
+		resw 1; ESIhi
+GPF_EBX: resw 1; EBXlo
+		resw 1; EBXhi
+GPF_EBP: resw 1; EBPlo
+		resw 1; EBPhi
+endstruc
 ;
 ;   The following constants define the offset of the Virtual Mode trap stack
 ;   frame (from current SP assuming BP has been pushed) for the two cases:
@@ -159,14 +159,14 @@ VTFOE		equ	VTFO + 4	; as above, but including error code
 ;   These constants are used to sanity-check the value of SP when one of
 ;   the exception handlers has been entered:
 ;
-STACK	segment
-	extrn	kstack_top:byte
-STACK	ends
+SECTION .STACK
+	extern kstack_top
+; END SECTION .STACK
 
   ; Trap/no error
-VMT_STACK	equ	offset STACK:kstack_top - size VM_TRAP_FRAME - VTFO
+VMT_STACK	equ	kstack_top - VM_TRAP_FRAME_size - VTFO
   ; Trap w/error
-VMTERR_STACK	equ	offset STACK:kstack_top - size VM_TRAP_FRAME - VTFOE
+VMTERR_STACK	equ	kstack_top - VM_TRAP_FRAME_size - VTFOE
 
 ;******************************************************************************
 ;			    E R R O R	 C O D E S
@@ -203,4 +203,4 @@ ErrWrite	equ	0020h	    ; Attempt to write to protected area
 ErrDMA		equ	0021h	    ; Attempt to DMA into page frame (not for user)
 ErrINTProt	equ	0022h	    ; General Protected interrupt error
 
-.list	; end of VM386.INC
+; .list; end of VM386.INC

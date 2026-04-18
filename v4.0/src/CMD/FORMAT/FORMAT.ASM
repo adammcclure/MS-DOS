@@ -1,4 +1,4 @@
-page   84,132
+; page   84,132
 ;
 ;	SCCSID = @(#)format.asm 1.26 85/10/20
 ;	SCCSID = @(#)format.asm 1.26 85/10/20
@@ -47,265 +47,265 @@ page   84,132
 
 
 
-code	segment public para 'CODE'
-code	ends
+SECTION .code
+; END SECTION .code
 
 
 
-data	segment public para 'DATA'
-data	ends
+SECTION .data
+; END SECTION .data
 
-End_Of_Memory segment public para 'BUFFERS'
-End_Of_Memory ends
+SECTION .End_Of_Memory
+; END SECTION .End_Of_Memory
 
 
-code	segment public	para	'CODE'
+SECTION .code
 
-	assume	cs:code,ds:nothing,es:nothing
+	; assume	cs:code,ds:nothing,es:nothing
 
 ;-------------------------------------------------------------------------------
 ; Define as public for debugging
 
 ; procedures
-	public	GetSize
-	public	AddToSystemSize
-	public	Phase1Initialisation
-	public	SetStartSector
-	public	SetfBigFat
-	public	Phase2Initialisation
-	public	DiskFormat
-	public	BadSector
-	public	DisplayCurrentTrack
-	public	WriteFileSystem
-	public	Done
-	public	CurrentLogicalSector
-	public	PrintErrorAbort
-	public	GetDeviceParameters
-	public	SetDeviceParameters
-	public	Multiply_32_Bits
+	global GetSize
+	global AddToSystemSize
+	global Phase1Initialisation
+	global SetStartSector
+	global SetfBigFat
+	global Phase2Initialisation
+	global DiskFormat
+	global BadSector
+	global DisplayCurrentTrack
+	global WriteFileSystem
+	global Done
+	global CurrentLogicalSector
+	global PrintErrorAbort
+	global GetDeviceParameters
+	global SetDeviceParameters
+	global Multiply_32_Bits
 
-	public	START
-	public	FatAllocated
-	public	MEMERRJ
-	public	MEM_OK
-	public	RDFRST
-	public	NEEDSYS
-	public	INITCALL
-	public	SWITCHCHK
-	public	SYSLOOP
-	public	FRMTPROB
-	public	GETTRK
-	public	TRKFND
-	public	CLRTEST
-	public	CMPTRKS
-	public	BadClus
+	global START
+	global FatAllocated
+	global MEMERRJ
+	global MEM_OK
+	global RDFRST
+	global NEEDSYS
+	global INITCALL
+	global SWITCHCHK
+	global SYSLOOP
+	global FRMTPROB
+	global GETTRK
+	global TRKFND
+	global CLRTEST
+	global CMPTRKS
+	global BadClus
 ;	public	DoBig
 ;	public	DoSet
-	public	DRTFAT
-	public	CLEARED
-	public	LOUSE
-	public	LOUSEP
-	public	FATWRT
-	public	SYSOK
-	public	STATUS
-	public	REPORTC
-	public	ONCLUS
-	public	MORE
-	public	FEXIT
-	public	SYSPRM
-	public	fexitJ
-	public	DoPrompt
-	public	TARGPRM
-	public	IsRemovable
-	public	CheckRemove
-	public	IsRemove
-	public	NotRemove
-	public	DSKPRM
-	public	GOPRNIT
-	public	crlf
-	public	PrintString
-	public	std_printf
-	public	READDOS
-	public	RDFILS
-	public	FILESDONE
-	public	CLSALL
-	public	GOTBIOS
-	public	GOTDOS
-	public	CLSALLJ
-	public	GOTCOM
-	public	WRITEDOS
-	public	GOTALLBIO
-	public	BIOSDONE
-	public	GOTNDOS
-	public	PARTDOS
-	public	GOTALLDOS
-	public	DOSDONE
-	public	PARTCOM
-	public	GOTALLCOM
-	public	COMDONE
-	public	MAKEFIL
-	public	CheckMany
-	public	CLOSETARG
-	public	IOLOOP
-	public	GOTTARG
-	public	GSYS
-	public	TESTSYS
-	public	GETOFFS
+	global DRTFAT
+	global CLEARED
+	global LOUSE
+	global LOUSEP
+	global FATWRT
+	global SYSOK
+	global STATUS
+	global REPORTC
+	global ONCLUS
+	global MORE
+	global FEXIT
+	global SYSPRM
+	global fexitJ
+	global DoPrompt
+	global TARGPRM
+	global IsRemovable
+	global CheckRemove
+	global IsRemove
+	global NotRemove
+	global DSKPRM
+	global GOPRNIT
+	global crlf
+	global PrintString
+	global std_printf
+	global READDOS
+	global RDFILS
+	global FILESDONE
+	global CLSALL
+	global GOTBIOS
+	global GOTDOS
+	global CLSALLJ
+	global GOTCOM
+	global WRITEDOS
+	global GOTALLBIO
+	global BIOSDONE
+	global GOTNDOS
+	global PARTDOS
+	global GOTALLDOS
+	global DOSDONE
+	global PARTCOM
+	global GOTALLCOM
+	global COMDONE
+	global MAKEFIL
+	global CheckMany
+	global CLOSETARG
+	global IOLOOP
+	global GOTTARG
+	global GSYS
+	global TESTSYS
+	global GETOFFS
 ;	public	TESTSYSDISK		; dcl 8/23/86
-	public	SETBIOS
-	public	BIOSCLS
-	public	SETBIOSSIZ
-	public	DOSOPNOK
-	public	DOSCLS
-	public	SETDOSSIZ
-	public	GotComHand
-	public	COMCLS
-	public	SETCOMSIZ
-	public	GETFSIZ
-	public	READFILE
-	public	WRITEFILE
-	public	FILIO
-	public	NORMIO
-	public	IORETP
-	public	IORET
-	public	NORMALIZE
-	public	GotDeviceParameters
-	public	LoadSectorTable
-	public	NotBigTotalSectors
-	public	NotBig
-	public	FormatLoop
-	public	FormatDone
-	public	ContinueFormat
-	public	ReportBadTrack
-	public	NoMoreTracks
-	public	WriteDIRloop
-	public	Main_Routine
-	public	ControlC_Handler
+	global SETBIOS
+	global BIOSCLS
+	global SETBIOSSIZ
+	global DOSOPNOK
+	global DOSCLS
+	global SETDOSSIZ
+	global GotComHand
+	global COMCLS
+	global SETCOMSIZ
+	global GETFSIZ
+	global READFILE
+	global WRITEFILE
+	global FILIO
+	global NORMIO
+	global IORETP
+	global IORET
+	global NORMALIZE
+	global GotDeviceParameters
+	global LoadSectorTable
+	global NotBigTotalSectors
+	global NotBig
+	global FormatLoop
+	global FormatDone
+	global ContinueFormat
+	global ReportBadTrack
+	global NoMoreTracks
+	global WriteDIRloop
+	global Main_Routine
+	global ControlC_Handler
 
 ; bytes
-	public	fBigFat
-	public	formatError
-	public	ROOTSTR
-	public	DBLFLG
-	public	DRIVE
-	public	FILSTAT
-	public	USERDIRS
-	public	VOLFCB
-	public	VOLNAM
-	public	TRANSRC
-	public	TRANDST
-	public	INBUFF
-	public	driveLetter
-	public	systemDriveLetter
-	public	CommandFile
-	public	ExitStatus
-	public	VolDrive
-	public	DelFCB
-	public	DelDrive
+	global fBigFat
+	global formatError
+	global ROOTSTR
+	global DBLFLG
+	global DRIVE
+	global FILSTAT
+	global USERDIRS
+	global VOLFCB
+	global VOLNAM
+	global TRANSRC
+	global TRANDST
+	global INBUFF
+	global driveLetter
+	global systemDriveLetter
+	global CommandFile
+	global ExitStatus
+	global VolDrive
+	global DelFCB
+	global DelDrive
 
 ; words
-	public	startSector
-	public	fatSpace
-	public	firstHead
-	public	firstCylinder
-	public	tracksLeft
-	public	tracksPerDisk
-	public	sectorsInRootDirectory
-	public	directorySector
-	public	printStringPointer
-	public	MSTART
-	public	MSIZE
-	public	TempHandle
-	public	BEGSEG
-	public	SWITCHMAP
-	public	SWITCHCOPY
-	public	FAT
-	public	CLUSSIZ
-	public	SECSIZ
-	public	SYSTRKS
-	public	SECTORS
-	public	currentHead
-	public	currentCylinder
-	public	PercentComplete
-	public	Formatted_Tracks_High
-	public	Formatted_Tracks_Low
+	global startSector
+	global fatSpace
+	global firstHead
+	global firstCylinder
+	global tracksLeft
+	global tracksPerDisk
+	global sectorsInRootDirectory
+	global directorySector
+	global printStringPointer
+	global MSTART
+	global MSIZE
+	global TempHandle
+	global BEGSEG
+	global SWITCHMAP
+	global SWITCHCOPY
+	global FAT
+	global CLUSSIZ
+	global SECSIZ
+	global SYSTRKS
+	global SECTORS
+	global currentHead
+	global currentCylinder
+	global PercentComplete
+	global Formatted_Tracks_High
+	global Formatted_Tracks_Low
 
 ; other
-	public	deviceParameters
-	public	Disk_Access
-	public	formatPacket
+	global deviceParameters
+	global Disk_Access
+	global formatPacket
 ;-------------------------------------------------------------------------------
 
-data	segment public	para	'DATA'
-	extrn	msgAssignedDrive:byte
-	extrn	msgBadDosVersion:byte
-	extrn	msgDirectoryWriteError:byte
-	extrn	msgFormatComplete:byte
-	extrn	msgFormatNotSupported:byte
-	extrn	msgFATwriteError:byte
-	extrn	msgInvalidDeviceParameters:byte
-	extrn	msgLabelPrompt:byte
-	extrn	msgNeedDrive:byte
-	extrn	msgNoSystemFiles:byte
-	extrn	msgNetDrive:byte
-	extrn	msgInsertDisk:byte
-	extrn	msgHardDiskWarning:byte
-	extrn	msgSystemTransfered:byte
-	extrn	msgFormatAnother?:byte
-	extrn	msgBadCharacters:byte
-	extrn	msgBadDrive:byte
-	extrn	msgInvalidParameter:byte
-	extrn	msgParametersNotSupported:byte
-	extrn	msgReInsertDisk:byte
-	extrn	msgInsertDosDisk:byte
-	extrn	msgFormatFailure:byte
-	extrn	ContinueMsg:Byte
-	extrn	msgNotSystemDisk:byte
-	extrn	msgDiskUnusable:byte
-	extrn	msgOutOfMemory:byte
-	extrn	msgCurrentTrack:byte
-	extrn	msgWriteProtected:byte
-	extrn	msgInterrupt:byte
-	extrn	msgCRLF:byte
-	extrn	Fatal_Error:Byte
-	extrn	Read_Write_Relative:Byte
-	extrn	PSP_Segment:Word
-	extrn	Parse_Error_Msg:Byte
-	extrn	Extended_Error_Msg:Byte
-	extrn	MsgVerify:Byte
+SECTION .data
+	extern msgAssignedDrive
+	extern msgBadDosVersion
+	extern msgDirectoryWriteError
+	extern msgFormatComplete
+	extern msgFormatNotSupported
+	extern msgFATwriteError
+	extern msgInvalidDeviceParameters
+	extern msgLabelPrompt
+	extern msgNeedDrive
+	extern msgNoSystemFiles
+	extern msgNetDrive
+	extern msgInsertDisk
+	extern msgHardDiskWarning
+	extern msgSystemTransfered
+	extern msgFormatAnother?
+	extern msgBadCharacters
+	extern msgBadDrive
+	extern msgInvalidParameter
+	extern msgParametersNotSupported
+	extern msgReInsertDisk
+	extern msgInsertDosDisk
+	extern msgFormatFailure
+	extern ContinueMsg
+	extern msgNotSystemDisk
+	extern msgDiskUnusable
+	extern msgOutOfMemory
+	extern msgCurrentTrack
+	extern msgWriteProtected
+	extern msgInterrupt
+	extern msgCRLF
+	extern Fatal_Error
+	extern Read_Write_Relative
+	extern PSP_Segment
+	extern Parse_Error_Msg
+	extern Extended_Error_Msg
+	extern MsgVerify
 
-data	ends
+; END SECTION .data
 
 
 debug	equ	0
-	.xlist
-	INCLUDE VERSIONA.INC
-	INCLUDE DOSMAC.INC
-	INCLUDE SYSCALL.INC
-	INCLUDE ERROR.INC
-	INCLUDE DPB.INC
-	INCLUDE CPMFCB.INC
-	INCLUDE DIRENT.INC
-	INCLUDE CURDIR.INC
-	INCLUDE PDB.INC
-	INCLUDE BPB.INC
-	INCLUDE FOREQU.INC
-	INCLUDE FORMACRO.INC
-	INCLUDE IOCTL.INC
-	INCLUDE FORSWTCH.INC
-	INCLUDE SYSVAR.INC
-	.list
+	; .xlist
+	%include "VERSIONA.INC"
+	%include "DOSMAC.INC"
+	%include "SYSCALL.INC"
+	%include "ERROR.INC"
+	%include "DPB.INC"
+	%include "CPMFCB.INC"
+	%include "DIRENT.INC"
+	%include "CURDIR.INC"
+	%include "PDB.INC"
+	%include "BPB.INC"
+	%include "FOREQU.INC"
+	%include "FORMACRO.INC"
+	%include "IOCTL.INC"
+	%include "FORSWTCH.INC"
+	%include "SYSVAR.INC"
+	; .list
 
 
 ;-------------------------------------------------------------------------------
 ; And this is the actual data
 
-data	segment public	para	'DATA'
-	public	deviceParameters
-	public	bios
-	public	dos
-	public	command
-	public	FAT_Flag
+SECTION .data
+	global deviceParameters
+	global bios
+	global dos
+	global command
+	global FAT_Flag
 
 validSavedDeviceParameters db 0
 savedDeviceParameters a_DeviceParameters <>
@@ -315,34 +315,34 @@ Disk_Access	A_DiskAccess_Control <> 					;an000; dms;
 
 formatPacket a_FormatPacket <>
 RWPacket     a_TrackReadWritePacket <>
-RW_TRF_Area	db    512     dup(0)
+RW_TRF_Area: times 512 db 0
 
-startSector dw	?
-fatSpace dd	?
+startSector: dw 0
+fatSpace: dd 0
 fBigFat db	FALSE
 
-firstHead dw	?
-firstCylinder dw ?
-tracksLeft dw	?
-tracksPerDisk dw ?
+firstHead: dw 0
+firstCylinder: dw 0
+tracksLeft: dw 0
+tracksPerDisk: dw 0
 
 Formatted_Tracks_Low dw 0
 Formatted_Tracks_High dw 0
 
 
-public	NumSectors ,TrackCnt
+global NumSectors ,TrackCnt
 NumSectors dw	0FFFFh
 TrackCnt dw	0FFFFh
 PercentComplete dw 0FFFFh			;Init non-zero so msg will display first time
 
-public	Old_Dir
+global Old_Dir
 Old_Dir db	FALSE
 
-public	fLastChance
+global fLastChance
 fLastChance db	FALSE				; Flags reinvocation from
 						;   LastChanceToSaveIt. Used by DSKPRM
 
-sectorsInRootDirectory dw ?
+sectorsInRootDirectory: dw 0
 
 directorySector dd 0
 
@@ -359,14 +359,14 @@ ExitNo			equ	5
 ExitDriveNotReady	equ	6						;an017; dms;drive not ready error
 ExitWriteProtect	equ	7						;an017; dms;write protect error
 
-ROOTSTR DB	?
+ROOTSTR: db 0
 	DB	":\",0
 DBLFLG	DB	0				;Initialize flags to zero
-IOCNT	DD	?
-MSTART	DW	?				; Start of sys file buffer (para#)
-MSIZE	DW	?				; Size of above in paragraphs
-TempHandle DW	?
-FILSTAT DB	?				; In memory status of files
+IOCNT: dd 0
+MSTART: dw 0; Start of sys file buffer (para#)
+MSIZE: dw 0; Size of above in paragraphs
+TempHandle: dw 0
+FILSTAT: db 0; In memory status of files
 						; XXXXXX00B BIOS not in
 						; XXXXXX01B BIOS partly in
 						; XXXXXX10B BIOS all in
@@ -377,7 +377,7 @@ FILSTAT DB	?				; In memory status of files
 						; XX01XXXXB COMMAND partly in
 						; XX10XXXXB COMMAND all in
 
-USERDIRS DB	DIRSTRLEN+3 DUP(?)		; Storage for users current directory
+USERDIRS DB	DIRSTRLEN+times 3 db 0		; Storage for users current directory
 
 Paras_Per_Fat	dw	0000h			;an000;holds fat para count
 Fat_Init_Value	dw	0000h			;an000;initializes the FAT
@@ -391,7 +391,7 @@ DosAttributes EQU attr_hidden + attr_system + attr_read_only
 command a_FileStructure <>
 CommandAttributes EQU 0
 CommandFile DB	"X:\COMMAND.COM",0
-CommandFile_Buffer	DB	127	dup(0)	;an000;allow room for copy
+CommandFile_Buffer: times 127 db 0;an000;allow room for copy
 
 Command_Com		DB	"COMMAND.COM",0
 
@@ -399,44 +399,44 @@ VOLFCB	DB	-1,0,0,0,0,0,8
 VOLDRIVE DB	0
 VOLNAM	DB	"           "
 	DB	8
-	DB	26 DUP(?)
+	times 26 db 0
 
 DelFCB	DB	-1,0,0,0,0,0,8
 DelDRIVE DB	0
 DelNAM	DB	"???????????"
 	DB	8
-	DB	26 DUP(?)
+	times 26 db 0
 
 TRANSRC DB	"A:CON",0,0			; Device so we don't hit the drive
 TRANDST DB	"A:\",0,0,0,0,0,0,0,0,0,0
 
-BEGSEG	DW	?
-SWITCHMAP DW	?
-SWITCHCOPY DW	?
-FAT	DW	?
-	DW	?
-CLUSSIZ DW	?
-SECSIZ	DW	?
-SYSTRKS DW	?
-SECTORS DW	?
+BEGSEG: dw 0
+SWITCHMAP: dw 0
+SWITCHCOPY: dw 0
+FAT: dw 0
+	dw 0
+CLUSSIZ: dw 0
+SECSIZ: dw 0
+SYSTRKS: dw 0
+SECTORS: dw 0
 INBUFF	DB	80,0
-	DB	80 DUP(?)
+	times 80 db 0
 
 
 drive	db	0
 driveLetter db	"x"
 systemDriveLetter db "x"
 
-CTRL_BREAK_VECTOR	dd	?		;ac010; dms;Holds CTRL-Break
+CTRL_BREAK_VECTOR: dd 0;ac010; dms;Holds CTRL-Break
 						;	    vector
 
-Command_Path	dd	?			;an011; dms;hold pointer to
+Command_Path: dd 0;an011; dms;hold pointer to
 						;	    COMMAND's path
 
 Comspec_ID	db	"COMSPEC=",00		;an011; dms;Comspec target
 
 
-Environ_Segment dw	?			;an011; dms;hold segment of
+Environ_Segment: dw 0;an011; dms;hold segment of
 						;	    environ. vector
 ;======== Disk Table ========== 		;an012; dms;
 ;Used if NumberOfFATs in BPB
@@ -448,55 +448,55 @@ DiskTable	dw	0,	32680,	0803h,	512,	0
 		dw	10h,	0000h,	1004h,	512,	Fbig
 		dw	20h,	0000h,	2005h,	512,	Fbig
 
-public		Org_AX				;an000; dms;make it known
-Org_AX		dw	?			;an000; dms;AX on entry
+global Org_AX;an000; dms;make it known
+Org_AX: dw 0;an000; dms;AX on entry
 
-Cluster_Boundary_Adj_Factor	dw	?	;an000; dms;
-Cluster_Boundary_SPT_Count	dw	?	;an000; dms;
+Cluster_Boundary_Adj_Factor: dw 0;an000; dms;
+Cluster_Boundary_SPT_Count: dw 0;an000; dms;
 Cluster_Boundary_Flag		db	False	;an000; dms;
-Cluster_Boundary_Buffer_Seg	dw	?	;an000; dms;
+Cluster_Boundary_Buffer_Seg: dw 0;an000; dms;
 
-Relative_Sector_Low		dw	?	;an000; dms;
-Relative_Sector_High		dw	?	;an000; dms;
+Relative_Sector_Low: dw 0;an000; dms;
+Relative_Sector_High: dw 0;an000; dms;
 
-FAT_Flag			db	?	;an000; dms;
-Tracks_To_Format		dw	?	;an015; dms;
-Track_Count			dw	?	;an015; dms;
+FAT_Flag: db 0;an000; dms;
+Tracks_To_Format: dw 0;an015; dms;
+Track_Count: dw 0;an015; dms;
 Format_End			db	FALSE	;an015; dms;
 
-public Msg_Allocation_Unit_Val
+global Msg_Allocation_Unit_Val
 
-Msg_Allocation_Unit_Val 	dd	?	;an019; dms;
+Msg_Allocation_Unit_Val: dd 0;an019; dms;
 
 
-data	ends
+; END SECTION .data
 
 ;For FORPROC and FORMES modules
 
-	public	secsiz,clussiz,inbuff
+	global secsiz,clussiz,inbuff
 
-	PUBLIC	crlf,std_printf
+	global crlf,std_printf
 
-	public	switchmap,drive,driveLetter,fatSpace
-	public	fBigFat, PrintString,currentHead,currentCylinder
-	extrn	CheckSwitches:near,LastChanceToSaveIt:near
-	extrn	Volid:near
-	extrn	WriteBootSector:near,OemDone:near
-	extrn	AccessDisk:near
-	extrn	Main_Init:near
-	extrn	Read_Disk:near
-	extrn	Write_Disk:near
+	global switchmap,drive,driveLetter,fatSpace
+	global fBigFat, PrintString,currentHead,currentCylinder
+	extern CheckSwitches,LastChanceToSaveIt
+	extern Volid
+	extern WriteBootSector,OemDone
+	extern AccessDisk
+	extern Main_Init
+	extern Read_Disk
+	extern Write_Disk
 
-data	segment public	para	'DATA'
-	extrn	BiosFile:byte,DosFile:byte
-data	ends
+SECTION .data
+	extern BiosFile,DosFile
+; END SECTION .data
 
 ;For FORPROC module
 
-	EXTRN	FormatAnother?:near,Yes?:near,REPORT:NEAR,USER_STRING:NEAR
-data	segment public	para	'DATA'
-	extrn	syssiz:dword,biosiz:dword
-data	ends
+	extern FormatAnother?,Yes?,REPORT,USER_STRING
+SECTION .data
+	extern syssiz,biosiz
+; END SECTION .data
 
 DOSVER_LOW EQU	0300H+20
 DOSVER_HIGH EQU 0300H+20
@@ -588,9 +588,9 @@ SWITCHCHK:
 SYSLOOP:
 	;Must intialize for each iteration
 
-	MOV	WORD PTR SYSSIZ,0
-	MOV	WORD PTR SYSSIZ+2,0
-	MOV	BYTE PTR DBLFLG,0
+	MOV	word SYSSIZ,0
+	MOV	word SYSSIZ+2,0
+	MOV	byte DBLFLG,0
 	mov	ExitStatus, ExitOK
 	MOV	DX,SWITCHCOPY
 	MOV	SWITCHMAP,DX			;Restore original Switches
@@ -619,7 +619,7 @@ GETTRK:
 	JNZ	TRKFND				;No - check error conditions
 	JMP	DRTFAT				;Yes
 TRKFND:
-	mov	bx,word ptr Relative_Sector_Low ;get the low word of the sector ;an000; dms;
+	mov	bx,word Relative_Sector_Low ;get the low word of the sector ;an000; dms;
 	CMP	BX,STARTSECTOR			;Are any sectors in the system area bad?
 	JAE	CLRTEST 			; MZ 2.26 unsigned compare
 	Message msgDiskUnusable 		;				;AC000;
@@ -628,30 +628,30 @@ CLRTEST:
 	MOV	SECTORS,AX			;Save the number of sectors on the track
 	TEST	SWITCHMAP,SWITCH_S		;If system requested calculate size
 	JZ	BAD100
-	CMP	BYTE PTR DBLFLG,0		;Have we already calculated System space?
+	CMP	byte DBLFLG,0		;Have we already calculated System space?
 	JNZ	CMPTRKS 			;Yes -- all ready for the compare
-	INC	BYTE PTR DBLFLG 		;No -- set the flag
+	INC	byte DBLFLG 		;No -- set the flag
 	CALL	GETBIOSIZE			; Get the size of the BIOS
-	MOV	DX,WORD PTR SYSSIZ+2
-	MOV	AX,WORD PTR SYSSIZ
-	MOV	WORD PTR BIOSIZ+2,DX
-	MOV	WORD PTR BIOSIZ,AX
+	MOV	DX,word SYSSIZ+2
+	MOV	AX,word SYSSIZ
+	MOV	word BIOSIZ+2,DX
+	MOV	word BIOSIZ,AX
 	CALL	GETDOSSIZE
 	CALL	GETCMDSIZE
-	MOV	DX,WORD PTR BIOSIZ+2
-	MOV	AX,WORD PTR BIOSIZ
+	MOV	DX,word BIOSIZ+2
+	MOV	AX,word BIOSIZ
 	DIV	deviceParameters.DP_BPB.BPB_BytesPerSector
 	ADD	AX,STARTSECTOR
 	MOV	SYSTRKS,AX			;Space FAT,Dir,and system files require
 CMPTRKS:
-	mov	bx,word ptr Relative_Sector_Low ;get the low word of the sector ;an000; dms;
+	mov	bx,word Relative_Sector_Low ;get the low word of the sector ;an000; dms;
 	CMP	BX,SYSTRKS
 	JA	BAD100				; MZ 2.26 unsigned compare
 	mov	ExitStatus, ExitFatal
 	Message msgNotSystemDisk		;				;AC000;
 	AND	SWITCHMAP,NOT SWITCH_S		;Turn off system transfer switch
-	MOV	WORD PTR SYSSIZ+2,0		;No system to transfer
-	MOV	WORD PTR SYSSIZ,0		;No system to transfer
+	MOV	word SYSSIZ+2,0		;No system to transfer
+	MOV	word SYSSIZ,0		;No system to transfer
 BAD100:
 
 	CMP	deviceParameters.DP_DeviceType, DEV_HARDDISK			;an000; dms;hard disk?
@@ -684,7 +684,7 @@ $$EN5:
 ;			ZR set if cluster already marked bad
 ;=========================================================================
 
-BadClus 	proc		near		;an000; mark bad clusters
+BadClus:;an000; mark bad clusters
 
 	push	di				;an000; save affected regs
 	push	ax
@@ -693,7 +693,7 @@ BadClus 	proc		near		;an000; mark bad clusters
 	push	dx
 	push	es
 
-	mov	es, word ptr fatSpace + 2	;an005; obtain seg of FAT
+	mov	es, word fatSpace + 2	;an005; obtain seg of FAT
 	CMP	fBigFat,TRUE			;an005; 16 bit fat?
 ;	$if	ne				;an005; no - 12-bit fat
 	JE $$IF8
@@ -706,7 +706,7 @@ BadClus 	proc		near		;an000; mark bad clusters
 		add	ax,di			;an000; add in low word of result
 		adc	dx,si			;an000; pick up low word carry
 						;cluster = cluster * 1.5
-		add	ax,word ptr fatspace	;an005; add 0
+		add	ax,word fatspace	;an005; add 0
 		adc	dx,0			;an000; pick up carry
 
 		mov	bx,dx			;an000; get high word for adjust
@@ -750,12 +750,12 @@ $$IF8:
 ;	$endif
 $$EN8:
 
-	MOV	CX,es:[SI]			;an005; get contents of fat cell
+	MOV	CX,[es:SI]			;an005; get contents of fat cell
 	AND	CX,AX				;an005; make it 12 or 16 bit
 						;	depending on value in AX
 	NOT	AX				;an005; set AX to 0
-	AND	es:[SI],AX			;an005; clear FAT entry
-	OR	es:[SI],DX			;an005; flag it a bad cluster
+	AND	[es:SI],AX			;an005; clear FAT entry
+	OR	[es:SI],DX			;an005; flag it a bad cluster
 	CMP	DX,CX				;   return op == badval;
 
 	pop	es
@@ -766,14 +766,14 @@ $$EN8:
 	pop	di
 	return
 
-badclus 	endp
+; ENDP badclus
 
 DRTFAT:
 	TEST	SWITCHMAP,SWITCH_S		;If system requested, calculate size
 	JZ	CLEARED
-	CMP	BYTE PTR DBLFLG,0		;Have we already calculated System space?
+	CMP	byte DBLFLG,0		;Have we already calculated System space?
 	JNZ	CLEARED 			;Yes
-	INC	BYTE PTR DBLFLG 		;No -- set the flag
+	INC	byte DBLFLG 		;No -- set the flag
 	CALL	GETSIZE 			;Calculate the system size
 CLEARED:
 	call	Ctrl_Break_Save 		;ac010; dms;save CTRL-Break
@@ -802,8 +802,8 @@ FATWRT:
 	INT	21H
 	CMP	AL,-1
 	JZ	LOUSEP				;Something BAD has happened
-	MOV	[BX.dpb_next_free],0		; Reset allocation to start of disk
-	MOV	[BX.dpb_free_cnt],-1		; Force free space to be computed
+	MOV	[BX+dpb_next_free],0		; Reset allocation to start of disk
+	MOV	[BX+dpb_free_cnt],-1		; Force free space to be computed
 	POP	DS
 	TEST	SWITCHMAP,SWITCH_S		;System desired
 	JZ	STATUS
@@ -812,8 +812,8 @@ FATWRT:
 	CALL	WRITEDOS			;Write the BIOS & DOS
 	JNC	SYSOK
 	Message msgNotSystemDisk		;				;AC000;
-	MOV	WORD PTR SYSSIZ+2,0		;No system transfered
-	MOV	WORD PTR SYSSIZ,0		;No system transfered
+	MOV	word SYSSIZ+2,0		;No system transfered
+	MOV	word SYSSIZ,0		;No system transfered
 	JMP	SHORT STATUS
 
 SYSOK:
@@ -864,37 +864,37 @@ $$IF17:
 ; Calculate the size in bytes of the system rounded up to sector and
 ;   cluster boundries, Answer in SYSSIZ
 
-GetSize proc	near
+GetSize:
 	call	GetBioSize
 	call	GetDosSize
 	call	GetCmdSize
 	return
-GetSize endp
+; ENDP GetSize
 
-GetBioSize proc near
-	MOV	AX,WORD PTR bios.fileSizeInBytes
-	MOV	DX,WORD PTR bios.fileSizeInBytes+2
+GetBioSize:
+	MOV	AX,word bios.fileSizeInBytes
+	MOV	DX,word bios.fileSizeInBytes+2
 	CALL	AddToSystemSize
 	return
-GetBioSize endp
+; ENDP GetBioSize
 
-GetDosSize proc near
-	MOV	AX,WORD PTR dos.fileSizeInBytes
-	MOV	DX,WORD PTR dos.fileSizeInBytes+2
+GetDosSize:
+	MOV	AX,word dos.fileSizeInBytes
+	MOV	DX,word dos.fileSizeInBytes+2
 	CALL	AddToSystemSize
 	return
-GetDosSize endp
+; ENDP GetDosSize
 
-GetCmdSize proc near
-	MOV	AX,WORD PTR command.fileSizeInBytes
-	MOV	DX,WORD PTR command.fileSizeInBytes+2
+GetCmdSize:
+	MOV	AX,word command.fileSizeInBytes
+	MOV	DX,word command.fileSizeInBytes+2
 	call	AddToSystemSize
 	return
-GetCmdSize endp
+; ENDP GetCmdSize
 
 ;Calculate the number of sectors used for the system
-PUBLIC	AddToSystemSize
-AddToSystemSize proc near
+global AddToSystemSize
+AddToSystemSize:
 	push	bx
 	DIV	deviceParameters.DP_BPB.BPB_BytesPerSector
 	OR	DX,DX
@@ -915,11 +915,11 @@ FNDSIZ0:
 						;	boundry
 ONCLUS:
 	MUL	deviceParameters.DP_BPB.BPB_BytesPerSector
-	ADD	WORD PTR SYSSIZ,AX
-	ADC	WORD PTR SYSSIZ+2,DX
+	ADD	word SYSSIZ,AX
+	ADC	word SYSSIZ+2,DX
 	pop	bx
 	return
-AddToSystemSize endp
+; ENDP AddToSystemSize
 
 MORE:
 
@@ -970,7 +970,7 @@ SYSPRM:
 ; if drive A is removable too.
 ;
 	MOV	AL,"A"
-	MOV	BYTE PTR [systemDriveLetter],AL
+	MOV	byte [systemDriveLetter],AL
 	MOV	[BiosFile],AL
 	MOV	[DosFile],AL
 	MOV	[CommandFile],AL
@@ -1104,7 +1104,7 @@ ControlC_Handler:
 
 crlf:
 						;lea	 dx, msgCRLF
-	mov	dx,offset msgCRLF		;CR,LF added to message 	;AC000;
+	mov	dx,msgCRLF		;CR,LF added to message 	;AC000;
 PrintString:
 						;mov	 printStringPointer, dx
 						;lea	 dx, PrintStringPointer
@@ -1129,7 +1129,7 @@ READDOS:
 
 	mov	ah,Get_In_Vars			;Find out boot drive		;an025; dms;
 	int	21h				;				;an025; dms;
-	mov	al,byte ptr es:[bx].SysI_Boot_Drive ;get 1 based drive ID	;an025; dms;
+	mov	al,byte [es:bx].SysI_Boot_Drive ;get 1 based drive ID	;an025; dms;
 	add	al,40h				;Make it ASCII			;an025; dms;
 	mov	[BiosFile],al			;Stuff it in file specs.	;an025; dms;
 	mov	[DosFile],al			;				;an025; dms;
@@ -1144,7 +1144,7 @@ READDOS:
 	return
 
 RDFILS:
-	MOV	BYTE PTR [FILSTAT],0
+	MOV	byte [FILSTAT],0
 	MOV	BX,[bios.fileHandle]
 	MOV	AX,[MSTART]
 	MOV	DX,AX
@@ -1154,23 +1154,23 @@ RDFILS:
 	ADD	AX,CX
 	CMP	AX,DX
 	JBE	GOTBIOS
-	MOV	BYTE PTR [FILSTAT],00000001B	; Got part of BIOS
+	MOV	byte [FILSTAT],00000001B	; Got part of BIOS
 	MOV	SI,[MSIZE]
 	XOR	DI,DI
 	CALL	DISIX4
 	push	ds
 	MOV	DS,[bios.fileStartSegment]
-	assume	ds:nothing
+	; assume	ds:nothing
 	CALL	READFILE
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 	JC	CLSALL
 	XOR	DX,DX
 	MOV	CX,DX
 	MOV	AX,(LSEEK SHL 8) OR 1
 	INT	21H
-	MOV	WORD PTR [bios.fileOffset],AX
-	MOV	WORD PTR [bios.fileOffset+2],DX
+	MOV	word [bios.fileOffset],AX
+	MOV	word [bios.fileOffset+2],DX
 FILESDONE:
 	CLC
 CLSALL:
@@ -1181,17 +1181,17 @@ CLSALL:
 	return
 
 GOTBIOS:
-	MOV	BYTE PTR [FILSTAT],00000010B	; Got all of BIOS
+	MOV	byte [FILSTAT],00000010B	; Got all of BIOS
 	push	es
 	LES	SI,[bios.fileSizeInBytes]
 	MOV	DI,ES
 	pop	es
 	push	ds
 	MOV	DS,[bios.fileStartSegment]
-	assume	ds:nothing
+	; assume	ds:nothing
 	CALL	READFILE
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 	JC	CLSALL
 
 	push	ax				; dcl 8/23/86
@@ -1214,38 +1214,38 @@ Found_IBMDOS:					;mt 12/8/86
 	ADD	AX,CX
 	CMP	AX,DX
 	JBE	GOTDOS
-	OR	BYTE PTR [FILSTAT],00000100B	; Got part of DOS
+	OR	byte [FILSTAT],00000100B	; Got part of DOS
 	SUB	DX,[dos.fileStartSegment]
 	MOV	SI,DX
 	XOR	DI,DI
 	CALL	DISIX4
 	push	ds
 	MOV	DS,[dos.fileStartSegment]
-	assume	ds:nothing
+	; assume	ds:nothing
 	CALL	READFILE
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 	JC	CLSALL
 	XOR	DX,DX
 	MOV	CX,DX
 	MOV	AX,(LSEEK SHL 8) OR 1
 	INT	21H
-	MOV	WORD PTR [dos.fileOffset],AX
-	MOV	WORD PTR [dos.fileOffset+2],DX
+	MOV	word [dos.fileOffset],AX
+	MOV	word [dos.fileOffset+2],DX
 	JMP	FILESDONE
 
 GOTDOS:
-	OR	BYTE PTR [FILSTAT],00001000B	; Got all of DOS
+	OR	byte [FILSTAT],00001000B	; Got all of DOS
 	push	es
 	LES	SI,[dos.fileSizeInBytes]
 	MOV	DI,ES
 	pop	es
 	push	ds
 	MOV	DS,[dos.fileStartSegment]
-	assume	ds:nothing
+	; assume	ds:nothing
 	CALL	READFILE
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 
 CLSALLJ: JNC	NOTCLSALL			;PTM P894  mt 12/8/86
 	jmp	clsall				;
@@ -1274,47 +1274,47 @@ Found_COMMAND:					;mt 12/8/86
 	ADD	AX,CX
 	CMP	AX,DX
 	JBE	GOTCOM
-	OR	BYTE PTR [FILSTAT],00010000B	; Got part of COMMAND
+	OR	byte [FILSTAT],00010000B	; Got part of COMMAND
 	SUB	DX,[command.fileStartSegment]
 	MOV	SI,DX
 	XOR	DI,DI
 	CALL	DISIX4
 	push	ds
 	MOV	DS,[command.fileStartSegment]
-	assume	ds:nothing
+	; assume	ds:nothing
 	CALL	READFILE
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 	JC	CLSALLJ
 	XOR	DX,DX
 	MOV	CX,DX
 	MOV	AX,(LSEEK SHL 8) OR 1
 	INT	21H
-	MOV	WORD PTR [command.fileOffset],AX
-	MOV	WORD PTR [command.fileOffset+2],DX
+	MOV	word [command.fileOffset],AX
+	MOV	word [command.fileOffset+2],DX
 	JMP	FILESDONE
 
 GOTCOM:
-	OR	BYTE PTR [FILSTAT],00100000B	; Got all of COMMAND
+	OR	byte [FILSTAT],00100000B	; Got all of COMMAND
 	push	es
 	LES	SI,[command.fileSizeInBytes]
 	MOV	DI,ES
 	pop	es
 	push	ds
 	MOV	DS,[command.fileStartSegment]
-	assume	ds:nothing
+	; assume	ds:nothing
 	CALL	READFILE
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 	JMP	CLSALL
 
 ;**************************************************
 ;Write BIOS DOS COMMAND to the newly formatted disk.
 
-ASSUME	DS:DATA
+; ASSUME	DS:DATA
 WRITEDOS:
 	MOV	CX,BiosAttributes
-	MOV	DX,OFFSET BiosFile
+	MOV	DX,BiosFile
 	push	es
 	LES	SI,[bios.fileSizeInBytes]
 	MOV	DI,ES
@@ -1323,7 +1323,7 @@ WRITEDOS:
 	retc
 
 	MOV	[TempHandle],BX
-	TEST	BYTE PTR FILSTAT,00000010B
+	TEST	byte FILSTAT,00000010B
 	JNZ	GOTALLBIO
 	call	Get_BIOS			; dcl 8/23/86
 	jnc	Got_WBIOS			;mt 12/8/86  P894
@@ -1335,9 +1335,9 @@ Got_WBIOS:
 	LES	SI,[bios.fileOffset]
 	MOV	DI,ES
 	pop	es
-	MOV	WORD PTR [IOCNT],SI
-	MOV	WORD PTR [IOCNT+2],DI
-	MOV	BP,OFFSET bios
+	MOV	word [IOCNT],SI
+	MOV	word [IOCNT+2],DI
+	MOV	BP,bios
 	CALL	GOTTARG
 	retc
 	JMP	SHORT BIOSDONE
@@ -1349,17 +1349,17 @@ GOTALLBIO:
 	pop	es
 	push	ds
 	MOV	DS,[bios.fileStartSegment]
-	assume	ds:nothing
+	; assume	ds:nothing
 	CALL	WRITEFILE
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 BIOSDONE:
 	MOV	BX,[TempHandle]
 	MOV	CX,bios.fileTime
 	MOV	DX,bios.fileDate
 	CALL	CLOSETARG
 	MOV	CX,DosAttributes
-	MOV	DX,OFFSET DosFile
+	MOV	DX,DosFile
 	push	es
 	LES	SI,[dos.fileSizeInBytes]
 	MOV	DI,ES
@@ -1369,18 +1369,18 @@ BIOSDONE:
 
 GOTNDOS:
 	MOV	[TempHandle],BX
-	TEST	BYTE PTR FILSTAT,00001000B
+	TEST	byte FILSTAT,00001000B
 	JNZ	GOTALLDOS
 	call	Get_DOS 			; dcl 8/23/86
 	jnc	Got_WDOS			;mt 12/8/86  P894
 	ret
 
 Got_WDOS:
-	MOV	BP,OFFSET dos
-	TEST	BYTE PTR FILSTAT,00000100B
+	MOV	BP,dos
+	TEST	byte FILSTAT,00000100B
 	JNZ	PARTDOS
-	MOV	WORD PTR [dos.fileOffset],0
-	MOV	WORD PTR [dos.fileOffset+2],0
+	MOV	word [dos.fileOffset],0
+	MOV	word [dos.fileOffset+2],0
 	CALL	GETSYS3
 	retc
 	JMP	SHORT DOSDONE
@@ -1390,8 +1390,8 @@ PARTDOS:
 	LES	SI,[dos.fileOffset]
 	MOV	DI,ES
 	pop	es
-	MOV	WORD PTR [IOCNT],SI
-	MOV	WORD PTR [IOCNT+2],DI
+	MOV	word [IOCNT],SI
+	MOV	word [IOCNT+2],DI
 	CALL	GOTTARG
 	retc
 	JMP	SHORT DOSDONE
@@ -1403,10 +1403,10 @@ GOTALLDOS:
 	pop	es
 	push	ds
 	MOV	DS,[dos.fileStartSegment]
-	assume	ds:nothing
+	; assume	ds:nothing
 	CALL	WRITEFILE
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 DOSDONE:
 	MOV	BX,[TempHandle]
 	MOV	CX,dos.fileTime
@@ -1415,7 +1415,7 @@ DOSDONE:
 	MOV	CX,CommandAttributes
 	call	Command_Root			;an011; dms;adjust path for
 						;COMMAND.COM creation
-	MOV	DX,OFFSET CommandFile
+	MOV	DX,CommandFile
 	push	es
 	LES	SI,[command.fileSizeInBytes]
 	MOV	DI,ES
@@ -1424,18 +1424,18 @@ DOSDONE:
 	retc
 
 	MOV	[TempHandle],BX
-	TEST	BYTE PTR FILSTAT,00100000B
+	TEST	byte FILSTAT,00100000B
 	JNZ	GOTALLCOM
 	call	Get_COMMAND			; dcl 8/23/86
 	jnc	Got_WCOM			;mt 12/8/86  P894
 	ret
 
 Got_WCOM:
-	MOV	BP,OFFSET command
-	TEST	BYTE PTR FILSTAT,00010000B
+	MOV	BP,command
+	TEST	byte FILSTAT,00010000B
 	JNZ	PARTCOM
-	MOV	WORD PTR [command.fileOffset],0
-	MOV	WORD PTR [command.fileOffset+2],0
+	MOV	word [command.fileOffset],0
+	MOV	word [command.fileOffset+2],0
 	CALL	GETSYS3
 	retc
 	JMP	SHORT COMDONE
@@ -1445,8 +1445,8 @@ PARTCOM:
 	LES	SI,[command.fileOffset]
 	MOV	DI,ES
 	pop	es
-	MOV	WORD PTR [IOCNT],SI
-	MOV	WORD PTR [IOCNT+2],DI
+	MOV	word [IOCNT],SI
+	MOV	word [IOCNT+2],DI
 	CALL	GOTTARG
 	retc
 	JMP	SHORT COMDONE
@@ -1458,10 +1458,10 @@ GOTALLCOM:
 	pop	es
 	push	ds
 	MOV	DS,[command.fileStartSegment]
-	assume	ds:nothing
+	; assume	ds:nothing
 	CALL	WRITEFILE
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 COMDONE:
 	MOV	BX,[TempHandle]
 	MOV	CX,command.fileTime
@@ -1494,12 +1494,12 @@ COMDONE:
 
 MAKEFIL:
 	MOV	BX,DX
-	PUSH	WORD PTR [BX]
+	PUSH	word [BX]
 	MOV	AL,DriveLetter
 	MOV	[BX],AL
 	MOV	AH,CREAT
 	INT	21H
-	POP	WORD PTR [BX]
+	POP	word [BX]
 	MOV	BX,AX
 	JC	CheckMany
 	MOV	CX,DI
@@ -1552,26 +1552,26 @@ IOLOOP:
 	CALL	TARGPRM 			;Get target disk
 
 GOTTARG:
-ASSUME	DS:DATA
+; ASSUME	DS:DATA
 ;Enter here if some of file is already in buffer, IOCNT must be set
 ; to size already in buffer.
 	MOV	BX,[TempHandle]
-	MOV	SI,WORD PTR [IOCNT]
-	MOV	DI,WORD PTR [IOCNT+2]
+	MOV	SI,word [IOCNT]
+	MOV	DI,word [IOCNT+2]
 	push	ds
-	MOV	DS,ds:[BP.fileStartSegment]
-	assume	ds:nothing
+	MOV	DS,[ds:BP+fileStartSegment]
+	; assume	ds:nothing
 	CALL	WRITEFILE			; Write next part
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 	retc
 
 	push	es
-	LES	AX,ds:[BP.fileOffset]
-	CMP	AX,WORD PTR ds:[BP.fileSizeInBytes]
+	LES	AX,[ds:BP+fileOffset]
+	CMP	AX,word [ds:BP+fileSizeInBytes]
 	JNZ	GETSYS3
 	MOV	AX,ES
-	CMP	AX,WORD PTR ds:[BP.fileSizeInBytes+2]
+	CMP	AX,word [ds:BP+fileSizeInBytes+2]
 	JNZ	GETSYS3
 	pop	es
 	return					; Carry clear from CMP
@@ -1582,7 +1582,7 @@ GETSYS3:
 	MOV	AH,DISK_RESET
 	INT	21H
 	MOV	AX,[MSTART]			;Furthur IO done starting here
-	MOV	ds:[BP.fileStartSegment],AX	;point to start of buffer
+	MOV	[ds:BP+fileStartSegment],AX	;point to start of buffer
 	MOV	AL,[systemDriveLetter]		;see if we have system disk
 	CMP	AL,[DriveLetter]
 	JNZ	TESTSYS
@@ -1593,9 +1593,9 @@ GSYS:
 TESTSYS:
 ;	CALL	TESTSYSDISK			; dcl 8/23/86
 	JC	GSYS
-	MOV	BX,word ptr DS:[BP.fileHandle]	; CS over ARR 2.30
+	MOV	BX,word [DS:BP+fileHandle]	; CS over ARR 2.30
 	push	es
-	LES	DX,dword ptr DS:[BP.fileOffset] ; CS over ARR 2.30
+	LES	DX,dword [DS:BP+fileOffset] ; CS over ARR 2.30
 	MOV	CX,ES
 	pop	es
 	PUSH	DX
@@ -1603,7 +1603,7 @@ TESTSYS:
 	INT	21H
 	POP	DX
 	push	es
-	LES	SI,dword ptr DS:[BP.fileSizeInBytes] ; CS over ARR 2.30
+	LES	SI,dword [DS:BP+fileSizeInBytes] ; CS over ARR 2.30
 	MOV	DI,ES				;put high word in di
 	pop	es
 	SUB	SI,DX				;get low word value
@@ -1622,14 +1622,14 @@ TESTSYS:
 	XOR	DI,DI
 	CALL	DISIX4
 GOTSIZ2:
-	MOV	WORD PTR [IOCNT],SI		;save byte count for read
-	MOV	WORD PTR [IOCNT+2],DI
+	MOV	word [IOCNT],SI		;save byte count for read
+	MOV	word [IOCNT+2],DI
 	push	ds
 	MOV	DS,[MSTART]
-	assume	ds:nothing
+	; assume	ds:nothing
 	CALL	READFILE
 	pop	ds
-	assume	ds:data
+	; assume	ds:data
 	JNC	GETOFFS
 	CALL	CLSALL
 	JMP	GSYS
@@ -1638,8 +1638,8 @@ GETOFFS:
 	MOV	CX,DX				;clear cx
 	MOV	AX,(LSEEK SHL 8) OR 1
 	INT	21H
-	MOV	WORD PTR DS:[BP.fileOffset],AX	; CS over ARR 2.30
-	MOV	WORD PTR DS:[BP.fileOffset+2],DX ; CS over ARR 2.30
+	MOV	word [DS:BP+fileOffset],AX	; CS over ARR 2.30
+	MOV	word [DS:BP+fileOffset+2],DX ; CS over ARR 2.30
 ;;;;;;	CALL	CLSALL
 	JMP	IOLOOP
 
@@ -1653,7 +1653,7 @@ CRET12:
 ;TESTSYSDISK:					; dcl 8/23/86
 Get_BIOS:					; dcl 8/23/86
 	MOV	AX,OPEN SHL 8
-	MOV	DX,OFFSET BiosFile
+	MOV	DX,BiosFile
 	INT	21H
 	JNC	SETBIOS
 ;	call	CheckMany			; dcl 8/23/86
@@ -1676,8 +1676,8 @@ BIOSCLS:
 
 SETBIOSSIZ:
 	MOV	[bios.fileSizeInParagraphs],AX
-	MOV	WORD PTR [bios.fileSizeInBytes],SI
-	MOV	WORD PTR [bios.fileSizeInBytes+2],DI
+	MOV	word [bios.fileSizeInBytes],SI
+	MOV	word [bios.fileSizeInBytes+2],DI
 	MOV	[bios.fileDate],DX
 	MOV	[bios.fileTime],CX
 	clc
@@ -1685,7 +1685,7 @@ SETBIOSSIZ:
 
 Get_DOS:					; dcl 8/23/86
 	MOV	AX,OPEN SHL 8
-	MOV	DX,OFFSET DosFile
+	MOV	DX,DosFile
 	INT	21H
 	JNC	DOSOPNOK
 ;	call	CheckMany			; dcl 8/23/86
@@ -1710,8 +1710,8 @@ DOSCLS:
 
 SETDOSSIZ:
 	MOV	[dos.fileSizeInParagraphs],AX
-	MOV	WORD PTR [dos.fileSizeInBytes],SI
-	MOV	WORD PTR [dos.fileSizeInBytes+2],DI
+	MOV	word [dos.fileSizeInBytes],SI
+	MOV	word [dos.fileSizeInBytes+2],DI
 	MOV	[dos.fileDate],DX
 	MOV	[dos.fileTime],CX
 	clc
@@ -1721,7 +1721,7 @@ SETDOSSIZ:
 
 Get_COMMAND:
 	MOV	AX,OPEN SHL 8
-	MOV	DX,OFFSET CommandFile
+	MOV	DX,CommandFile
 	INT	21H
 	JNC	GotComHand
 ;	call	CheckMany		; dcl 8/23/86
@@ -1745,8 +1745,8 @@ COMCLS:
 
 SETCOMSIZ:
 	MOV	[command.fileSizeInParagraphs],AX
-	MOV	WORD PTR [command.fileSizeInBytes],SI
-	MOV	WORD PTR [command.fileSizeInBytes+2],DI
+	MOV	word [command.fileSizeInBytes],SI
+	MOV	word [command.fileSizeInBytes+2],DI
 	MOV	[command.fileDate],DX
 	MOV	[command.fileTime],CX
 	CLC
@@ -1930,7 +1930,7 @@ NORMALIZE:
 ;	Calculate start sector (first sector not used by DOS)
 ;	fBigFat = (((Total Sectors - StartSector)/Sectors Per Cluster) >= 4086)
 ;
-Phase1Initialisation proc near
+Phase1Initialisation:
 
 ; Get device parameters
 	lea	dx, deviceParameters
@@ -1946,7 +1946,7 @@ GotDeviceParameters:
 ; Save the device parameters for when we exit
 	lea	si, deviceParameters
 	lea	di, savedDeviceParameters
-	mov	cx, size a_DeviceParameters
+	mov	cx, a_DeviceParameters_size
 	push	ds
 	pop	es
 	rep	movsb
@@ -1967,7 +1967,7 @@ SetMTsupp:
 	call	CheckSwitches
 	retc
 
-IF ShipDisk
+%if ShipDisk
 
 	test	SwitchMap,Switch_Z						;an000; dms;1 sector/cluster disk?
 ;	$if	nz								;an000; dms;yes
@@ -1977,7 +1977,7 @@ IF ShipDisk
 ;	$endif									;an000; dms;
 $$IF19:
 
-ENDIF
+%endif
 
 
 	cmp	deviceParameters.DP_TrackTableEntries, 0
@@ -2010,9 +2010,9 @@ TrackLayoutSet:
 	mov	ah, Alloc
 	int	21H
 	retc
-	mov	word ptr directorySector+2, ax
+	mov	word directorySector+2, ax
 	xor	ax,ax
-	mov	word ptr directorySector, ax
+	mov	word directorySector, ax
 
 ;
 ; fatSpace = malloc( Bytes Per Sector * Sectors Per FAT )
@@ -2029,9 +2029,9 @@ TrackLayoutSet:
 	mov	ah,Alloc
 	int	21H
 	retc
-	mov	word ptr fatSpace+2,ax
+	mov	word fatSpace+2,ax
 	xor	ax,ax
-	mov	word ptr fatSpace,ax
+	mov	word fatSpace,ax
 
 	call	SetStartSector
 	call	SetfBigFat
@@ -2039,11 +2039,11 @@ TrackLayoutSet:
 	clc
 	return
 
-Phase1Initialisation endp
+; ENDP Phase1Initialisation
 
 ;-------------------------------------------------------------------------------
 
-SetStartSector proc near
+SetStartSector:
 
 ; startSector = number of reserved sectors
 ;	 + number of FAT Sectors	( Number of FATS * Sectors Per FAT )
@@ -2052,7 +2052,7 @@ SetStartSector proc near
 
 ; Calculate the number of directory sectors
 	mov	ax, deviceParameters.DP_BPB.BPB_RootEntries
-	mov	bx, size dir_entry
+	mov	bx, dir_entry_size
 	mul	bx
 	add	ax, deviceParameters.DP_BPB.BPB_bytesPerSector
 	dec	ax
@@ -2070,11 +2070,11 @@ SetStartSector proc near
 
 	return
 
-SetStartSector endp
+; ENDP SetStartSector
 
 ;-------------------------------------------------------------------------------
 
-SetfBigFat proc near
+SetfBigFat:
 ;
 ; fBigFat = ( ( (Total Sectors - Start Sector) / Sectors Per Cluster) >= 4086 )
 ;
@@ -2109,7 +2109,7 @@ $$IF25:
 $$EN21:
 	return
 
-SetfBigFat endp
+; ENDP SetfBigFat
 
 ;-------------------------------------------------------------------------------
 ;
@@ -2123,7 +2123,7 @@ SetfBigFat endp
 ;	Calculate the total bytes on the disk and save for later printout
 ;	First initialise the directory buffer
 ;
-Phase2Initialisation proc near
+Phase2Initialisation:
 
 ; Calculate first track/head to format (round up - kludge)
 	mov	ax, deviceParameters.DP_BPB.BPB_HiddenSectors
@@ -2160,7 +2160,7 @@ NotBigTotalSectors:
 
 	mov	ax, deviceParameters.DP_BPB.BPB_BytesPerSector
 	xor	dx, dx
-	mov	bx, size dir_entry
+	mov	bx, dir_entry_size
 	div	bx
 	mov	cx, ax
 
@@ -2171,13 +2171,13 @@ NotBigTotalSectors:
 	jne	StickE5
 	mov	al, 0e5H
 StickE5:
-	mov	es:[bx], al
-	add	bx, size dir_entry
+	mov	[es:bx], al
+	add	bx, dir_entry_size
 	loop	stickE5
 
 	ret
 
-Phase2Initialisation endp
+; ENDP Phase2Initialisation
 
 ;-------------------------------------------------------------------------------
 ;
@@ -2188,7 +2188,7 @@ Phase2Initialisation endp
 ;      drive
 ;      dx - pointer to device parameters
 ;
-SetDeviceParameters proc near
+SetDeviceParameters:
 
 	mov	ax, (IOCTL shl 8) or GENERIC_IOCTL
 	mov	bl, drive
@@ -2197,7 +2197,7 @@ SetDeviceParameters proc near
 	int	21H
 	return
 
-SetDeviceParameters endp
+; ENDP SetDeviceParameters
 
 ;-------------------------------------------------------------------------------
 ;
@@ -2208,7 +2208,7 @@ SetDeviceParameters endp
 ;      drive
 ;      dx - pointer to device parameters
 ;
-GetDeviceParameters proc near
+GetDeviceParameters:
 
 	mov	ax, (IOCTL shl 8) or GENERIC_IOCTL
 	mov	bl, drive
@@ -2217,7 +2217,7 @@ GetDeviceParameters proc near
 	int	21H
 	return
 
-GetDeviceParameters endp
+; ENDP GetDeviceParameters
 
 ;-------------------------------------------------------------------------------
 ;
@@ -2239,7 +2239,7 @@ GetDeviceParameters endp
 ;	      return
 ;	   next track
 
-DiskFormat proc near
+DiskFormat:
 
 
 ;
@@ -2251,9 +2251,9 @@ DiskFormat proc near
 
 	call	Fat_Init			;an000; initialize the FAT
 
-	mov	di, word ptr fatspace+2 	;an000; get segment of FAT
+	mov	di, word fatspace+2 	;an000; get segment of FAT
 	mov	es, di				;an000; place it in es
-	mov	di, word ptr fatSpace		;Should be 0
+	mov	di, word fatSpace		;Should be 0
 	mov	al, deviceParameters.DP_BPB.BPB_MediaDescriptor
 	mov	ah, 0ffH
 	stosw
@@ -2270,7 +2270,7 @@ NotBig: stosw
 	jmp	FormatDone			;FormatDone is to far away
 
 Keep_Going:
-foofoo	=	INSTALL_FAKE_BPB or TRACKLAYOUT_IS_GOOD
+foofoo equ INSTALL_FAKE_BPB or TRACKLAYOUT_IS_GOOD
 	mov	deviceParameters.DP_SpecialFunctions, foofoo
 	lea	dx, deviceParameters
 
@@ -2396,7 +2396,7 @@ FormatDone:
 	clc
 	return
 
-DiskFormat endp
+; ENDP DiskFormat
 
 
 ;-------------------------------------------------------------------------------
@@ -2426,7 +2426,7 @@ DiskFormat endp
 ;	      next track
 ;	   return 0
 
-BadSector proc	near
+BadSector:
 
 
 ; don't bother to do the formatting if /c was given
@@ -2487,19 +2487,19 @@ $$IF52:
 	clc
 	return
 
-BadSector endp
+; ENDP BadSector
 
 
 
 ;-------------------------------------------------------------------------------
 
-data	segment public	para 'DATA'
+SECTION .data
 
 ;ptr_msgCurrentTrack dw offset msgCurrentTrack
 currentHead dw	0
 currentCylinder dw 0
 
-data	ends
+; END SECTION .data
 
 ;=========================================================================
 ; Calc_Current_Head_Cyl : Obtain the current head and cylinder of the
@@ -2519,10 +2519,10 @@ Procedure Calc_Current_Head_Cyl 						;an000; dms;
 	pop	cx								;an000; dms;restore cx
 	ret									;an000; dms;
 
-Calc_Current_Head_Cyl	endp							;an000; dms;
+; ENDP Calc_Current_Head_Cyl;an000; dms;
 
 
-DisplayCurrentTrack proc near
+DisplayCurrentTrack:
 
 	push	dx				;				;AN000;
 	push	cx				;				;AN000;
@@ -2550,7 +2550,7 @@ $$IF54:
 	pop	dx				;				;AN000;
 	return
 
-DisplayCurrentTrack endp
+; ENDP DisplayCurrentTrack
 
 
 ;-------------------------------------------------------------------------------
@@ -2561,7 +2561,7 @@ DisplayCurrentTrack endp
 ;	   carry set if error is fatal
 ;	   Message printed if Not Ready or Write Protect
 ;
-CheckError proc near
+CheckError:
 	cmp	ax, error_write_protect
 	je	WriteProtectError
 	cmp	ax, error_not_ready
@@ -2630,7 +2630,7 @@ BadTrackZero:
 	stc
 	ret
 
-CheckError endp
+; ENDP CheckError
 
 ;-------------------------------------------------------------------------------
 ;    WriteFileSystem:
@@ -2638,7 +2638,7 @@ CheckError endp
 ;	Clear the directory sectors to zero
 ;
 
-WriteFileSystem proc near
+WriteFileSystem:
 
 
 	call	WriteBootSector
@@ -2651,14 +2651,14 @@ WriteFileSystem proc near
 	mov	cl, es:deviceParameters.DP_BPB.BPB_numberOfFATs ;		;AC000;
 	mov	dx, es:deviceParameters.DP_BPB.BPB_ReservedSectors ;		;AC000;
 	mov	al, es:drive			;				;AC000;
-	mov	bx,word ptr es:FatSpace+2	;Get segment of memory Fat	;AC000;
+	mov	bx,word es:FatSpace+2	;Get segment of memory Fat	;AC000;
 	mov	ds,bx				;				;AN000;
-	mov	bx,word ptr es:FatSpace 	;				;AN000;
+	mov	bx,word es:FatSpace 	;				;AN000;
 
 	mov	si,bx				;ac005; dms;set up for add. calc
 	call	SEG_ADJ 			;ac005; dms;get adjusted seg:off
 	mov	bx,si				;ac005; dms;get new off
-	assume	ds:nothing,es:data		;				;AN000;
+	; assume	ds:nothing,es:data;				;AN000;
 
 ;	$do					;ac005; dms;while FATS > 0
 $$DO62:
@@ -2687,7 +2687,7 @@ $$IF64:
 $$EN62:
 
 	pop	ds				;ac005; dms;restore ds
-	assume	ds:data 			;ac005; dms;
+	; assume	ds:data;ac005; dms;
 
 
 ; Clear the directory
@@ -2711,7 +2711,7 @@ WriteDIRloop:
 	mov	cx, 1
 	lds	bx, es:directorySector		;				;AC000;
 
-	assume	ds:nothing,es:data		;				;AN000;
+	; assume	ds:nothing,es:data;				;AN000;
 
 ;Assume dir is alway contined in first 32mb of partition
 
@@ -2739,7 +2739,7 @@ Dir_OK: 					;				;AN000;
 	return
 
 
-WriteFileSystem endp
+; ENDP WriteFileSystem
 
 ;=========================================================================
 ; WRITE_FAT	:	This routine writes the logical sector count requested.
@@ -2797,7 +2797,7 @@ $$EN67:
 
 	ret
 
-write_fat	endp
+; ENDP write_fat
 
 ;=========================================================================
 ; SEG_ADJ	:	This routine adjusts the segment:offset to prevent
@@ -2833,18 +2833,18 @@ $$IF73:
 	pop	ax
 	ret
 
-seg_adj 	endp
+; ENDP seg_adj
 
 ;-------------------------------------------------------------------------------
 ;	format is done... so clean up the disk!
 ;
-Done	proc	near
+Done:
 
 
 	call	OemDone
 	return
 
-Done	endp
+; ENDP Done
 
 ;-------------------------------------------------------------------------------
 ;    CurrentLogicalSector:
@@ -2858,7 +2858,7 @@ Done	endp
 ;	BX = logical sector number of the first sector in the track we
 ;	     just tried to format
 ;
-CurrentLogicalSector proc near
+CurrentLogicalSector:
 
 	push	ax								;an000; dms;save regs
 	push	bx								;an000; dms;
@@ -2868,8 +2868,8 @@ CurrentLogicalSector proc near
 	sub	ax, tracksLeft
 	xor	dx,dx								;an000; dms;clear dx
 	mul	deviceParameters.DP_BPB.BPB_SectorsPerTrack
-	mov	word ptr Relative_Sector_High,dx				;an000; dms;save high word of sector #
-	mov	word ptr Relative_Sector_Low,ax 				;an000; dms;save low word of sector #
+	mov	word Relative_Sector_High,dx				;an000; dms;save high word of sector #
+	mov	word Relative_Sector_Low,ax 				;an000; dms;save low word of sector #
 
 	pop	dx								;an000; dms;restore regs
 	pop	bx								;an000; dms;
@@ -2877,7 +2877,7 @@ CurrentLogicalSector proc near
 
 	return
 
-CurrentLogicalSector endp
+; ENDP CurrentLogicalSector
 
 ;-------------------------------------------------------------------------------
 ;    PrintErrorAbort:
@@ -2886,7 +2886,7 @@ CurrentLogicalSector endp
 ;    Input:
 ;	dx - Pointer to error message string
 ;
-PrintErrorAbort proc near
+PrintErrorAbort:
 
 	push	dx
 	call	crlf
@@ -2895,7 +2895,7 @@ PrintErrorAbort proc near
 
 	jmp	fexit
 
-PrintErrorAbort endp
+; ENDP PrintErrorAbort
 
 
 
@@ -2936,8 +2936,8 @@ PrintErrorAbort endp
 ;	ret
 ;*****************************************************************************
 
-Public Multiply_32_Bits
-Multiply_32_Bits proc				;				;AN000;
+global Multiply_32_Bits
+Multiply_32_Bits:;				;AN000;
 
 	push	di				;				;AN000;
 	push	si				;				;AN000;
@@ -2988,7 +2988,7 @@ $$EN75:
 	pop	di				;				;AN000;
 	ret					;				;AN000;
 
-Multiply_32_Bits endp
+; ENDP Multiply_32_Bits
 
 
 ;=========================================================================
@@ -3023,7 +3023,7 @@ Procedure Divide_32_Bits							;an000; dms;
 
 	ret									;an000; dms;
 
-Divide_32_Bits	endp								;an000; dms;
+; ENDP Divide_32_Bits;an000; dms;
 
 
 
@@ -3040,17 +3040,17 @@ Divide_32_Bits	endp								;an000; dms;
 ; output - fat space is initialized
 ;
 ;=========================================================================
-Public		Fat_Init
-Fat_Init	proc	near
+global Fat_Init
+Fat_Init:
 
 	push	es
 	push	di
 	push	ax
 	push	bx
 	push	cx
-	mov	di, word ptr FatSpace+2 	;Get segment of Fat space	;AC000;
+	mov	di, word FatSpace+2 	;Get segment of Fat space	;AC000;
 	mov	es,di				;				;AN000;
-	mov	di, word ptr FatSpace		;				;AN000;
+	mov	di, word FatSpace		;				;AN000;
 	mov	bx,Paras_Per_Fat		;an000;get number of paras
 	mov	ax,fat_init_value		;an000;
 	push	dx				;an000;save bx
@@ -3078,7 +3078,7 @@ $$EN87:
 
 	ret					;an000;
 
-Fat_Init	endp				;an000;
+; ENDP Fat_Init;an000;
 
 
 ;=========================================================================
@@ -3102,7 +3102,7 @@ Ctrl_Break_Write:				;ac010; dms;
 ;	Outputs : CTRL_BREAK_VECTOR - holds address of INT 23h routine
 ;=========================================================================
 
-Ctrl_Break_Save 	proc	near		;ac010; dms;
+Ctrl_Break_Save:;ac010; dms;
 
 	push	es				;ac010; dms;save es
 	push	bx				;ac010; dms;save bx
@@ -3112,8 +3112,8 @@ Ctrl_Break_Save 	proc	near		;ac010; dms;
 						;	    interrupt vector
 	int	21h				;ac010; dms;
 
-	mov	word ptr Ctrl_Break_Vector,bx	;ac010; dms;get vector offset
-	mov	word ptr Ctrl_Break_Vector+2,es ;ac010; dms;get vector segment
+	mov	word Ctrl_Break_Vector,bx	;ac010; dms;get vector offset
+	mov	word Ctrl_Break_Vector+2,es ;ac010; dms;get vector segment
 
 	pop	ax				;ac010; dms;restore ax
 	pop	bx				;ac010; dms;restore bx
@@ -3122,7 +3122,7 @@ Ctrl_Break_Save 	proc	near		;ac010; dms;
 	ret					;ac010; dms;
 
 
-Ctrl_Break_Save 	endp			;ac010; dms;
+; ENDP Ctrl_Break_Save;ac010; dms;
 
 
 ;=========================================================================
@@ -3134,7 +3134,7 @@ Ctrl_Break_Save 	endp			;ac010; dms;
 ;	Outputs : CTRL_BREAK_VECTOR - holds address of INT 23h routine
 ;=========================================================================
 
-Set_Ctrl_Break		proc	near		;ac010; dms;
+Set_Ctrl_Break:;ac010; dms;
 
 	push	ds				;ac010; dms;save ds
 	push	ax				;ac010; dms;save ax
@@ -3144,7 +3144,7 @@ Set_Ctrl_Break		proc	near		;ac010; dms;
 	push	cs				;ac010; dms;swap cs with ds
 	pop	ds				;an000; dms;point to code seg
 
-	mov	dx,offset Ctrl_Break_Write	;ac010; dms;get interrupt vec.
+	mov	dx,Ctrl_Break_Write	;ac010; dms;get interrupt vec.
 	mov	ax,2523h			;ac010; dms;set CTRL-BREAK
 						;	    interrupt vector
 	int	21h				;ac010; dms;
@@ -3157,7 +3157,7 @@ Set_Ctrl_Break		proc	near		;ac010; dms;
 	ret					;ac010; dms;
 
 
-Set_Ctrl_Break		endp			;ac010; dms;
+; ENDP Set_Ctrl_Break;ac010; dms;
 
 
 ;=========================================================================
@@ -3169,15 +3169,15 @@ Set_Ctrl_Break		endp			;ac010; dms;
 ;	Outputs : none
 ;=========================================================================
 
-Reset_Ctrl_Break	proc	near		;ac010; dms;
+Reset_Ctrl_Break:;ac010; dms;
 
 	push	ds				;ac010; dms;save ds
 	push	ax				;ac010; dms;save ax
 	push	bx				;ac010; dms;save bx
 	push	dx				;ac010; dms;save ds
 
-	mov	ax,word ptr Ctrl_Break_Vector+2 ;ac010; dms;get seg. of vector
-	mov	bx,word ptr Ctrl_Break_Vector	;ac010; dms;get off. of vector
+	mov	ax,word Ctrl_Break_Vector+2 ;ac010; dms;get seg. of vector
+	mov	bx,word Ctrl_Break_Vector	;ac010; dms;get off. of vector
 	mov	ds,ax				;ac010; dms;get seg.
 	mov	dx,bx				;ac010; dms;get off.
 	mov	ax,2523h			;ac010; dms;set CTRL-BREAK
@@ -3192,7 +3192,7 @@ Reset_Ctrl_Break	proc	near		;ac010; dms;
 	ret					;ac010; dms;
 
 
-Reset_Ctrl_Break	endp			;ac010; dms;
+; ENDP Reset_Ctrl_Break;ac010; dms;
 
 ;=========================================================================
 ; Get_Command_Path		: This routine finds the path where
@@ -3218,10 +3218,10 @@ Procedure	Get_Command_Path		;an011; dms;
 	mov	ax,es:Environ_Segment		;an011; dms; get seg. of
 						;	     environ. vector
 	mov	ds,ax				;an011; dms; put it in DS
-	assume	ds:nothing			;an011; dms;
+	; assume	ds:nothing;an011; dms;
 	xor	si,si				;an011; dms; clear si
 	mov	bx,si				;an011; dms; save si
-	mov	di,offset Comspec_ID		;an011; dms; point to target
+	mov	di,Comspec_ID		;an011; dms; point to target
 	mov	cx,127				;an011; dms; loop 127 times
 ;	$do					;an011; dms; while cx not 0
 $$DO90:
@@ -3237,7 +3237,7 @@ $$DO90:
 ;		$if	z			;an011; dms; yes
 		JNZ $$IF92
 			push	di		;an011; dms; save di
-			mov	di,offset es:CommandFile   ;an011; dms
+			mov	di,CommandFile   ;an011; dms
 			lodsb			;an011; dms; priming read
 			mov	dl,al		;an011; dms; prepare for capitalization
 			call	Cap_Char	;an011; dms; capitalize character in DL
@@ -3265,7 +3265,7 @@ $$IF92:
 ;		$leave	e			;an011; dms; yes
 		JE $$EN90
 
-		mov	di,offset Comspec_ID	;an011; dms; point to target
+		mov	di,Comspec_ID	;an011; dms; point to target
 		mov	si,bx			;an011; dms; restore si
 		inc	si			;an011; dms; point to next byte
 		mov	bx,si			;an011; dms; save si
@@ -3280,7 +3280,7 @@ $$EN90:
 
 	ret					;an011; dms;
 
-Get_Command_Path	endp			;an011; dms;
+; ENDP Get_Command_Path;an011; dms;
 
 
 ;
@@ -3298,7 +3298,7 @@ Procedure Get_PSP_Parms 			;				;AC000;
 	mov	ax,PSP_Segment			;Get segment of PSP		;AN000;
 	mov	ds,ax				;  "  "    "  " 		;AN000;
 						;     ;
-	assume	ds:nothing
+	; assume	ds:nothing
 						;Setup segment of Environment string, get from PSP			    ;	  ;
 
 	mov	ax,ds:PSP_Environ		;				;     ;
@@ -3307,7 +3307,7 @@ Procedure Get_PSP_Parms 			;				;AC000;
 	ret					;				;     ;
 
 
-Get_PSP_Parms endp				;				;AN000;
+; ENDP Get_PSP_Parms;				;AN000;
 
 
 ;=========================================================================
@@ -3332,9 +3332,9 @@ Procedure	Command_Root			;an011; dms;
 	push	cx				;an011; dms; save cx
 	Set_Data_Segment			;an011;
 
-	mov	di,offset CommandFile+3 	;an011; dms; point to path
+	mov	di,CommandFile+3 	;an011; dms; point to path
 						;	     past drive spec
-	mov	si,offset Command_Com		;an011; dms; holds the literal
+	mov	si,Command_Com		;an011; dms; holds the literal
 						;	     COMMAND.COM
 	mov	cx,000ch			;an011; dms; len. of literal
 	rep	movsb				;an011; dms; move it
@@ -3347,7 +3347,7 @@ Procedure	Command_Root			;an011; dms;
 
 	ret					;an011; dms;
 
-Command_Root	endp				;an011; dms;
+; ENDP Command_Root;an011; dms;
 
 
 ;=========================================================================
@@ -3367,9 +3367,9 @@ Procedure Set_BPB_Info								;an012; dms;calc new BPB
 ;	$if	e								;an012; dms;yes, 0 FATS specified
 	JNE $$IF101
 		call	Scan_Disk_Table 					;an012; dms;access disk table
-		mov	bl,byte ptr ds:[si+8]					;an012; dms;get FAT type
-		mov	cx,word ptr ds:[si+4]					;an012; dms;get sectors/cluster
-		mov	dx,word ptr ds:[si+6]					;an012; dms;number of entries for the root DIR
+		mov	bl,byte [ds:si+8]					;an012; dms;get FAT type
+		mov	cx,word [ds:si+4]					;an012; dms;get sectors/cluster
+		mov	dx,word [ds:si+6]					;an012; dms;number of entries for the root DIR
 
 		mov	DeviceParameters.DP_BPB.BPB_RootEntries,dx		;an012; dms;save root entries
 		mov	DeviceParameters.DP_BPB.BPB_SectorsPerCluster,ch	;an012; dms;save sectors/cluster
@@ -3392,7 +3392,7 @@ $$IF101:
 
 	ret									;an012; dms;
 
-Set_BPB_Info	endp								;an012; dms;
+; ENDP Set_BPB_Info;an012; dms;
 
 
 
@@ -3413,22 +3413,22 @@ Procedure Scan_Disk_Table							;an012; dms;
 ;	$if	ne								;an012; dms;yes
 	JE $$IF106
 		mov	dx,00h							;an012; dms;set high to 0
-		mov	ax,word ptr DeviceParameters.DP_BPB.BPB_TotalSectors	;an012; dms;get sector count
+		mov	ax,word DeviceParameters.DP_BPB.BPB_TotalSectors	;an012; dms;get sector count
 ;	$else									;an012; dms;
 	JMP SHORT $$EN106
 $$IF106:
-		mov	dx,word ptr DeviceParameters.DP_BPB.BPB_BigTotalSectors[+2]	;an012; dms;get high count
-		mov	ax,word ptr DeviceParameters.DP_BPB.BPB_BigTotalSectors[+0]	;an012; dms;get low count
+		mov	dx,word DeviceParameters.DP_BPB.BPB_BigTotalSectors[+2]	;an012; dms;get high count
+		mov	ax,word DeviceParameters.DP_BPB.BPB_BigTotalSectors[+0]	;an012; dms;get low count
 ;	$endif									;an012; dms;
 $$EN106:
 
-	mov	si,offset DiskTable						;an012; dms;point to disk data
+	mov	si,DiskTable						;an012; dms;point to disk data
 Scan:
 
-	cmp	dx,word ptr ds:[si]						;an012; dms;below?
+	cmp	dx,word [ds:si]						;an012; dms;below?
 	jb	Scan_Disk_Table_Exit						;an012; dms;yes, exit
 	ja	Scan_Next							;an012; dms;no, continue
-	cmp	ax,word ptr ds:[si+2]						;an012; dms;below or equal?
+	cmp	ax,word [ds:si+2]						;an012; dms;below or equal?
 	jbe	Scan_Disk_Table_Exit						;an012; dms;yes, exit
 
 Scan_Next:
@@ -3440,7 +3440,7 @@ Scan_Disk_Table_Exit:
 
 	ret									;an012; dms;
 
-Scan_Disk_Table endp								;an012; dms;
+; ENDP Scan_Disk_Table;an012; dms;
 
 
 
@@ -3459,12 +3459,12 @@ Procedure Calc_Big_FAT								;an012; dms;
 ;	$if	ne								;an012; dms;yes
 	JE $$IF109
 		mov	dx,00h							;an012; dms;set high to 0
-		mov	ax,word ptr DeviceParameters.DP_BPB.BPB_TotalSectors	;an012; dms;get sector count
+		mov	ax,word DeviceParameters.DP_BPB.BPB_TotalSectors	;an012; dms;get sector count
 ;	$else									;an012; dms;
 	JMP SHORT $$EN109
 $$IF109:
-		mov	dx,word ptr DeviceParameters.DP_BPB.BPB_BigTotalSectors[+2]	;an012; dms;get high count
-		mov	ax,word ptr DeviceParameters.DP_BPB.BPB_BigTotalSectors[+0]	;an012; dms;get low count
+		mov	dx,word DeviceParameters.DP_BPB.BPB_BigTotalSectors[+2]	;an012; dms;get high count
+		mov	ax,word DeviceParameters.DP_BPB.BPB_BigTotalSectors[+0]	;an012; dms;get low count
 ;	$endif									;an012; dms;
 $$EN109:
 
@@ -3485,10 +3485,10 @@ $$EN109:
 	sbb	dx,0								;an012; dms;
 	div	bx								;an012; dms; sec/FAT = CEIL((TOTAL-DIR-RES)/
 										;			    (256*SECPERCLUS+2)
-	mov	word ptr DeviceParameters.DP_BPB.BPB_SectorsPerFAT,ax		;an012; dms;Sectors/cluster
+	mov	word DeviceParameters.DP_BPB.BPB_SectorsPerFAT,ax		;an012; dms;Sectors/cluster
 	ret									;an012; dms;
 
-Calc_Big_FAT	endp								;an012; dms;
+; ENDP Calc_Big_FAT;an012; dms;
 
 
 ;=========================================================================
@@ -3506,12 +3506,12 @@ Procedure Calc_Small_FAT							;an012; dms;
 ;	$if	ne								;an012; dms;yes
 	JE $$IF112
 		mov	dx,00h							;an012; dms;set high to 0
-		mov	ax,word ptr DeviceParameters.DP_BPB.BPB_TotalSectors	;an012; dms;get sector count
+		mov	ax,word DeviceParameters.DP_BPB.BPB_TotalSectors	;an012; dms;get sector count
 ;	$else									;an012; dms;
 	JMP SHORT $$EN112
 $$IF112:
-		mov	dx,word ptr DeviceParameters.DP_BPB.BPB_BigTotalSectors[+2]	;an012; dms;get high count
-		mov	ax,word ptr DeviceParameters.DP_BPB.BPB_BigTotalSectors[+0]	;an012; dms;get low count
+		mov	dx,word DeviceParameters.DP_BPB.BPB_BigTotalSectors[+2]	;an012; dms;get high count
+		mov	ax,word DeviceParameters.DP_BPB.BPB_BigTotalSectors[+0]	;an012; dms;get low count
 ;	$endif									;an012; dms;
 $$EN112:
 
@@ -3532,7 +3532,7 @@ $$EN112:
 	mov	DeviceParameters.DP_BPB.BPB_SectorsPerFAT,ax			;an012; dms;save sectors/FAT
 	ret									;an012; dms;
 
-Calc_Small_FAT	endp								;an012; dms;
+; ENDP Calc_Small_FAT;an012; dms;
 
 ;=========================================================================
 ; Get_Bad_Sector_Hard	: Determine the bad sector.
@@ -3573,13 +3573,13 @@ $$DO115:
 		JNE $$IF117
 			call	Calc_Cluster_Boundary				;an000; dms;see if on boundary
 			mov	ax,Cluster_Boundary_Buffer_Seg
-			mov	word ptr RWPacket.TRWP_TransferAddress[0],0	;an000; dms;point to transfer area
-			mov	word ptr RWPacket.TRWP_TransferAddress[2],ax	;an000; dms;
+			mov	word RWPacket.TRWP_TransferAddress[0],0	;an000; dms;point to transfer area
+			mov	word RWPacket.TRWP_TransferAddress[2],ax	;an000; dms;
 ;		$else								;an000; dms;default to internal buffer
 		JMP SHORT $$EN117
 $$IF117:
-			mov	word ptr RWPacket.TRWP_TransferAddress[0],offset RW_TRF_Area  ;an000; dms;point to transfer area
-			mov	word ptr RWPacket.TRWP_TransferAddress[2],DS	;an000; dms;
+			mov	word RWPacket.TRWP_TransferAddress[0],RW_TRF_Area  ;an000; dms;point to transfer area
+			mov	word RWPacket.TRWP_TransferAddress[2],DS	;an000; dms;
 ;		$endif								;an000; dms;
 $$EN117:
 
@@ -3623,7 +3623,7 @@ $$EN115:
 
 	ret									;an000; dms;
 
-Get_Bad_Sector_Hard	endp							;an000; dms;
+; ENDP Get_Bad_Sector_Hard;an000; dms;
 
 
 ;=========================================================================
@@ -3651,13 +3651,13 @@ Procedure	Verify_Structure_Set_Up 					;an019; dms;set up verify structure
 	mov	RWPacket.TRWP_SectorsToReadWrite,ax				;an000; dms;read only # sector(s)
 
 	call	Calc_Cluster_Position						;an019; dms;determine cluster number
-	mov	word ptr Msg_Allocation_Unit_Val[+2],dx 			;an019; dms;save high word of cluster
-	mov	word ptr Msg_Allocation_Unit_Val[+0],ax 			;an019; dms;save low word of cluster
+	mov	word Msg_Allocation_Unit_Val[+2],dx 			;an019; dms;save high word of cluster
+	mov	word Msg_Allocation_Unit_Val[+0],ax 			;an019; dms;save low word of cluster
 	message MsgVerify
 
 	ret
 
-Verify_Structure_Set_Up endp							;an019; dms;
+; ENDP Verify_Structure_Set_Up;an019; dms;
 
 
 ;=========================================================================
@@ -3697,7 +3697,7 @@ $$EN123:
 
 	ret									;an000; dms;
 
-Get_Bad_Sector_Floppy	endp							;an000; dms;
+; ENDP Get_Bad_Sector_Floppy;an000; dms;
 
 
 ;=========================================================================
@@ -3716,8 +3716,8 @@ Procedure Calc_Cluster_Position 						;an000; dms;
 	push	si								;an000; dms;
 
 	xor	dx,dx								;an000; dms;clear high word
-	mov	dx,word ptr Relative_Sector_High				;an000; dms;get the high sector word
-	mov	ax,word ptr Relative_Sector_Low 				;an000; dms;get the low sector word
+	mov	dx,word Relative_Sector_High				;an000; dms;get the high sector word
+	mov	ax,word Relative_Sector_Low 				;an000; dms;get the low sector word
 	sub	ax,StartSector							;an000; dms;get relative sector #
 	sbb	dx,0								;an000; dms;pick up borrow
 
@@ -3738,7 +3738,7 @@ Procedure Calc_Cluster_Position 						;an000; dms;
 
 	ret									;an000 ;dms;
 
-Calc_Cluster_Position	endp							;an000; dms;
+; ENDP Calc_Cluster_Position;an000; dms;
 
 
 ;=========================================================================
@@ -3758,7 +3758,7 @@ Procedure Cap_Char								;an011; dms;
 	pop	ax								;an011; dms;restore ax
 	ret									;an011; dms;
 
-Cap_Char	endp								;an011; dms;
+; ENDP Cap_Char;an011; dms;
 
 ;=========================================================================
 ; Set_Disk_Access_On_Off: This routine will either turn access on or off
@@ -3798,7 +3798,7 @@ $$IF126:
 
 	ret									;an014; dms;
 
-Set_Disk_Access_On_Off	endp							;an014; dms;
+; ENDP Set_Disk_Access_On_Off;an014; dms;
 
 
 ;=========================================================================
@@ -3847,7 +3847,7 @@ $$IF128:
 
 	ret									;an014; dms;
 
-Get_Disk_Access 	endp							;an014; dms;
+; ENDP Get_Disk_Access;an014; dms;
 
 ;=========================================================================
 ; Calc_Cluster_Boundary : This routine will determine where, within a
@@ -3873,8 +3873,8 @@ Procedure Calc_Cluster_Boundary 						;an000; dms;
 	push	di								;an000; dms;
 
 	xor	dx,dx								;an000; dms;clear high word
-	mov	dx,word ptr Relative_Sector_High				;an000; dms;get the high sector word
-	mov	ax,word ptr Relative_Sector_Low 				;an000; dms;get the low sector word
+	mov	dx,word Relative_Sector_High				;an000; dms;get the high sector word
+	mov	ax,word Relative_Sector_Low 				;an000; dms;get the low sector word
 	sub	ax,StartSector							;an000; dms;get relative sector #
 	sbb	dx,0								;an000; dms;pick up borrow
 
@@ -3926,7 +3926,7 @@ $$IF135:
 
 	ret									;an000; dms;
 
-Calc_Cluster_Boundary	endp							;an000; dms;
+; ENDP Calc_Cluster_Boundary;an000; dms;
 
 ;=========================================================================
 ; Cluster_Buffer_Allocate	: This routine will allocate a buffer
@@ -3985,7 +3985,7 @@ $$EN137:
 
 	ret									;an000; dms;
 
-Cluster_Buffer_Allocate endp							;an000; dms;
+; ENDP Cluster_Buffer_Allocate;an000; dms;
 
 
 ;=========================================================================
@@ -4009,7 +4009,7 @@ Procedure Set_CDS_Off								;an000; dms;
 
 	ret									;an000; dms;
 
-Set_CDS_Off	endp								;an000; dms;
+; ENDP Set_CDS_Off;an000; dms;
 
 
 ;=========================================================================
@@ -4056,7 +4056,7 @@ $$IF145:
 
 	ret									;an000; dms;
 
-Format_Access_Wrap_Up	endp							;an000; dms;
+; ENDP Format_Access_Wrap_Up;an000; dms;
 
 ;=========================================================================
 ; BadClus_Address_Adjust	- This routine adjusts the segment and
@@ -4096,7 +4096,7 @@ Procedure BadClus_Address_Adjust						;an000; dms;
 
 	ret									;an000; dms;
 
-BadClus_Address_Adjust	endp							;an000; dms;
+; ENDP BadClus_Address_Adjust;an000; dms;
 
 
 
@@ -4157,7 +4157,7 @@ $$EN149:
 
 	ret									;an015; dms;
 
-NextTrack	endp								;an015; dms;
+; ENDP NextTrack;an015; dms;
 
 ;=========================================================================
 ; Determine_Format_Type : This routine determines the type of format
@@ -4185,7 +4185,7 @@ $$IF158:
 $$EN158:
 	ret									;an015; dms;
 
-Determine_Format_Type	endp							;an015; dms;
+; ENDP Determine_Format_Type;an015; dms;
 
 
 ;=========================================================================
@@ -4223,7 +4223,7 @@ $$IF161:
 
 	ret									;an015; dms;
 
-FormatTrack	endp								;an015; dms;
+; ENDP FormatTrack;an015; dms;
 
 
 ;=========================================================================
@@ -4256,7 +4256,7 @@ $$EN163:
 
 	ret									;an015; dms;
 
-Determine_Track_Count	endp							;an015;dms;
+; ENDP Determine_Track_Count;an015;dms;
 
 
 ;=========================================================================
@@ -4295,7 +4295,7 @@ $$IF166:
 
 	ret									;an015; dms;
 
-Calc_Track_Count	endp							;an015; dms;
+; ENDP Calc_Track_Count;an015; dms;
 
 ;=========================================================================
 ; Calc_Max_Tracks_To_Format	: This routine determines the maximum
@@ -4329,7 +4329,7 @@ Procedure Calc_Max_Tracks_To_Format
 
 	ret
 
-Calc_Max_Tracks_To_Format	endp
+; ENDP Calc_Max_Tracks_To_Format
 
 
 
@@ -4370,7 +4370,7 @@ $$EN168:
 
 	ret									;an015; dms;
 
-Format_Track_Retry	endp							;an015; dms;
+; ENDP Format_Track_Retry;an015; dms;
 
 ;=========================================================================
 ; Format_Loop			: This routine provides the main template
@@ -4440,7 +4440,7 @@ $$IF180:
 $$EN173:
 	ret									;an015; dms;
 
-Format_Loop	endp								;an015; dms;
+; ENDP Format_Loop;an015; dms;
 
 ;=========================================================================
 ; Adj_Track_Count	: This routine adjusts the track count by the
@@ -4462,7 +4462,7 @@ Procedure Adj_Track_Count							;an015; dms;
 	pop	ax								;an015; dms; restore regs
 	ret									;an015; dms;
 
-Adj_Track_Count endp								;an015; dms;
+; ENDP Adj_Track_Count;an015; dms;
 
 ;=========================================================================
 ; Prompt_User_For_Disk		: This routine prompts the user for the
@@ -4501,9 +4501,9 @@ $$IF188:
 
 	ret									;an016;dms;
 
-Prompt_User_For_Disk	endp							;an016;dms;
+; ENDP Prompt_User_For_Disk;an016;dms;
 
 
-code	ends
-	END	START
+; END SECTION .code
+	; END	START
 

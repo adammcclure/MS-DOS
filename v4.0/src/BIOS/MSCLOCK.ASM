@@ -1,4 +1,4 @@
-	TITLE MSCLOCK - DOS 3.3
+	; TITLE MSCLOCK - DOS 3.3
 ;----------------------------------------------------------------
 ;								:
 ;		    CLOCK DEVICE DRIVER 			:
@@ -24,42 +24,42 @@
 
 
 	itest=0
-	INCLUDE MSGROUP.INC	;DEFINE CODE SEGMENT
-	INCLUDE MSMACRO.INC
+	%include "MSGROUP.INC";DEFINE CODE SEGMENT
+	%include "MSMACRO.INC"
 
-	EXTRN EXIT:NEAR
+	extern EXIT
 ;
 ; DAYCNT is the number of days since 1-1-80.
 ; Each time the clock is read it is necessary to check if another day has
 ; passed.  The ROM only returns the day rollover once so if it is missed
 ; the time will be off by a day.
 ;
-	EXTRN DAYCNT:WORD	;MSDATA
+	extern DAYCNT;MSDATA
 
 ;;Rev 3.30 Modification ------------------------------------------------
 ; variables for real time clock setting
-	public	HaveCMOSClock
+	global HaveCMOSClock
 HaveCMOSClock	db	0	;set by MSINIT.
-	public	base_century
+	global base_century
 base_century	db	19
-	public	base_year
+	global base_year
 base_year	db	80
-	public	month_tab
+	global month_tab
 month_tab	db	31,28,31,30,31,30,31,31,30,31,30,31
 
 ; The following are indirect intra-segment call addresses. The
 ;procedures are defined in MSINIT for relocation.  MSINIT will set these
 ;address when the relocation is done.
-	public	BinToBCD
+	global BinToBCD
 BinToBCD	dw	0	;should point to Bin_To_BCD proc in MSINIT
-	public	DaycntToDay
+	global DaycntToDay
 DaycntToDay	dw	0	;should point to Daycnt_to_day in MSINIT
 
 ;********************************************************************
 ; Indirect call address of TIME_TO_TICKS procedure.
 ;This will be used by the relocatable portable suspend/resume code.
 
-	public	TimeToTicks
+	global TimeToTicks
 TimeToTicks	dw	Time_To_Ticks
 
 ;;End of Modification ------------------------------------------------
@@ -78,22 +78,22 @@ TimeToTicks	dw	Time_To_Ticks
 ;
 ; Each number has been checked for the correct range.
 ;
-	PUBLIC TIM$WRIT
-TIM$WRIT PROC	NEAR
-	ASSUME	DS:CODE
-	mov	AX,WORD PTR ES:[DI]
+	global TIM$WRIT
+TIM$WRIT:
+	; ASSUME	DS:CODE
+	mov	AX,word [ES:DI]
 	push	AX		;DAYCNT. We need to set this at the very
 				;  end to avoid tick windows.
 ;;Rev 3.30 Modification
 	cmp	HaveCMOSClock, 0
 	je	No_CMOS_1
-	mov	al,es:[di+3]		;get binary hours
+	mov	al,[es:di+3]		;get binary hours
 	call	BinToBCD		;convert to BCD
 	mov	ch,al			;CH = BCD hours
-	mov	al,es:[di+2]		;get binary minutes
+	mov	al,[es:di+2]		;get binary minutes
 	call	BinToBCD		;convert to BCD
 	mov	cl,al			;CL = BCD minutes
-	mov	al,es:[di+5]		;get binary seconds
+	mov	al,[es:di+5]		;get binary seconds
 	call	BinToBCD		;convert to BCD
 	mov	dh,al			;DH = BCD seconds
 	mov	dl,0			;DL = 0 (ST) or 1 (DST)
@@ -104,8 +104,8 @@ TIM$WRIT PROC	NEAR
 
 ;;End of Modification
 No_CMOS_1:
-	mov	CX,WORD PTR ES:[DI+2]
-	mov	DX,WORD PTR ES:[DI+4]
+	mov	CX,word [ES:DI+2]
+	mov	DX,word [ES:DI+4]
 ;;Rev 3.30 Modification
 	call	time_to_ticks	; convert time to ticks
 				;CX:DX now has time in ticks
@@ -126,7 +126,7 @@ No_CMOS_1:
 
 No_CMOS_2:
 	jmp	EXIT
-TIM$WRIT ENDP
+; ENDP TIM$WRIT
 ;;End of Modification
 
 
@@ -136,8 +136,8 @@ TIM$WRIT ENDP
 ; input : time in CX and DX
 ; ticks returned in CX:DX
 ;
-public time_to_ticks
-TIME_TO_TICKS PROC NEAR
+global time_to_ticks
+TIME_TO_TICKS:
 
 		; first convert from Hour,min,sec,hund. to
 		; total number of 100th of seconds
@@ -180,7 +180,7 @@ TIME_TO_TICKS PROC NEAR
 	MOV	DX,AX
 			; CX:DX is now number of ticks in time
 	ret
-TIME_TO_TICKS ENDP
+; ENDP TIME_TO_TICKS
 ;;End of Modification
 
 
@@ -194,8 +194,8 @@ TIME_TO_TICKS ENDP
 ;	ES:[DI+4]=seconds
 ;	ES:[DI+5]=hundredths of seconds
 ;
-	PUBLIC TIM$READ
-TIM$READ PROC	NEAR
+	global TIM$READ
+TIM$READ:
 				; read the clock
 	xor	AH, AH		; set command to read clock
 	int	1Ah		; call rom-bios to get time
@@ -290,7 +290,7 @@ NOADJ:
 	stosw
 	jmp	EXIT
 
-TIM$READ ENDP
-CODE	ENDS
-	END
+; ENDP TIM$READ
+; END SECTION .CODE
+	; END
 

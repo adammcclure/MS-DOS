@@ -2,20 +2,20 @@
 ; FAT operations for MSDOS
 ;
 
-INCLUDE DOSSEG.ASM
+%include "DOSSEG.ASM"
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-        ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+        ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.xlist
-.xcref
-INCLUDE DOSSYM.ASM
-INCLUDE DEVSYM.ASM
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.ASM"
+%include "DEVSYM.ASM"
+; .cref
+; .list
 
-TITLE   FAT - FAT maintenance routines
-NAME    FAT
+; TITLE   FAT - FAT maintenance routines
+; NAME    FAT
 
         i_need  CURBUF,DWORD
         i_need  CLUSSPLIT,BYTE
@@ -29,12 +29,12 @@ NAME    FAT
         i_need  CALLXAD,DWORD
         i_need  CALLBPB,DWORD
 
-SUBTTL UNPACK -- UNPACK FAT ENTRIES
-PAGE
+; SUBTTL UNPACK -- UNPACK FAT ENTRIES
+; PAGE
 
-ASSUME  SS:DOSGROUP
+; ASSUME  SS:DOSGROUP
         procedure   UNPACK,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       BX = Cluster number
@@ -44,10 +44,10 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
 ;       Zero set means DI=0 (free cluster)
 ; SI Destroyed, No other registers affected. Fatal error if cluster too big.
 
-        CMP     BX,ES:[BP.dpb_max_cluster]
+        CMP     BX,[ES:BP+dpb_max_cluster]
         JA      HURTFAT
         CALL    MAPCLUSTER
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     DI,[DI]
         JNC     HAVCLUS
         PUSH    CX
@@ -68,12 +68,12 @@ HURTFAT:
         invoke  FATAL
         POP     AX              ; Try to ignore bad FAT
         return
-UNPACK  ENDP
+; ENDP UNPACK
 
-SUBTTL PACK -- PACK FAT ENTRIES
-PAGE
+; SUBTTL PACK -- PACK FAT ENTRIES
+; PAGE
         procedure   PACK,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       BX = Cluster number
@@ -85,7 +85,7 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
 ;       No other registers affected
 
         CALL    MAPCLUSTER
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     SI,[DI]
         JNC     ALIGNED
         PUSH    CX
@@ -100,34 +100,34 @@ PACKIN:
         OR      SI,DX
         MOV     [DI],SI
         LDS     SI,[CURBUF]
-        MOV     [SI.BUFDIRTY],1
-        CMP     BYTE PTR [CLUSSPLIT],0
+        MOV     [SI+BUFDIRTY],1
+        CMP     byte [CLUSSPLIT],0
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         retz
         PUSH    AX
         PUSH    BX
         PUSH    CX
         MOV     AX,[CLUSSAVE]
-        MOV     DS,WORD PTR [CURBUF+2]
-ASSUME  DS:NOTHING
+        MOV     DS,word [CURBUF+2]
+; ASSUME  DS:NOTHING
         ADD     SI,BUFINSIZ
         MOV     [SI],AH
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         PUSH    AX
         MOV     DX,[CLUSSEC]
         MOV     SI,1
         XOR     AL,AL
         invoke  GETBUFFRB
         LDS     DI,[CURBUF]
-ASSUME  DS:NOTHING
-        MOV     [DI.BUFDIRTY],1
+; ASSUME  DS:NOTHING
+        MOV     [DI+BUFDIRTY],1
         ADD     DI,BUFINSIZ
         DEC     DI
-        ADD     DI,ES:[BP.dpb_sector_size]
+        ADD     DI,[ES:BP+dpb_sector_size]
         POP     AX
         MOV     [DI],AL
         PUSH    SS
@@ -136,12 +136,12 @@ ASSUME  DS:NOTHING
         POP     BX
         POP     AX
         return
-PACK    ENDP
+; ENDP PACK
 
-SUBTTL MAPCLUSTER - BUFFER A FAT SECTOR
-PAGE
+; SUBTTL MAPCLUSTER - BUFFER A FAT SECTOR
+; PAGE
         procedure   MAPCLUSTER,NEAR
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Inputs:
 ;       ES:BP Points to DPB
@@ -154,7 +154,7 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
 ;       Carry set if cluster data is in high 12 bits of word
 ; No other registers effected
 
-        MOV     BYTE PTR [CLUSSPLIT],0
+        MOV     byte [CLUSSPLIT],0
         PUSH    AX
         PUSH    BX
         PUSH    CX
@@ -163,9 +163,9 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         SHR     AX,1
         ADD     AX,BX
         XOR     DX,DX
-        MOV     CX,ES:[BP.dpb_sector_size]
+        MOV     CX,[ES:BP+dpb_sector_size]
         DIV     CX              ; AX is FAT sector # DX is sector index
-        ADD     AX,ES:[BP.dpb_first_FAT]
+        ADD     AX,[ES:BP+dpb_first_FAT]
         DEC     CX
         PUSH    AX
         PUSH    DX
@@ -175,8 +175,8 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
         MOV     SI,1
         invoke  GETBUFFRB
         LDS     SI,[CURBUF]
-ASSUME  DS:NOTHING
-        LEA     DI,[SI.BufInSiz]
+; ASSUME  DS:NOTHING
+        LEA     DI,[SI+BufInSiz]
         POP     CX
         POP     AX
         POP     DX
@@ -186,23 +186,23 @@ ASSUME  DS:NOTHING
         MOV     AL,[DI]
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
-        INC     BYTE PTR [CLUSSPLIT]
-        MOV     BYTE PTR [CLUSSAVE],AL
+; ASSUME  DS:DOSGROUP
+        INC     byte [CLUSSPLIT]
+        MOV     byte [CLUSSAVE],AL
         MOV     [CLUSSEC],DX
         INC     DX
         XOR     AL,AL
         MOV     SI,1
         invoke  GETBUFFRB
         LDS     SI,[CURBUF]
-ASSUME  DS:NOTHING
-        LEA     DI,[SI.BufInSiz]
+; ASSUME  DS:NOTHING
+        LEA     DI,[SI+BufInSiz]
         MOV     AL,[DI]
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
-        MOV     BYTE PTR [CLUSSAVE+1],AL
-        MOV     DI,OFFSET DOSGROUP:CLUSSAVE
+; ASSUME  DS:DOSGROUP
+        MOV     byte [CLUSSAVE+1],AL
+        MOV     DI,CLUSSAVE
 MAPRET:
         POP     DX
         POP     CX
@@ -211,21 +211,21 @@ MAPRET:
         SHR     AX,1
         POP     AX
         return
-MAPCLUSTER  ENDP
+; ENDP MAPCLUSTER
 
-SUBTTL FATREAD -- CHECK DRIVE GET FAT
-PAGE
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; SUBTTL FATREAD -- CHECK DRIVE GET FAT
+; PAGE
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
         procedure   FAT_operation,NEAR
 FATERR:
         AND     DI,STECODE      ; Put error code in DI
         MOV     AH,2            ; While trying to read FAT
-        MOV     AL,BYTE PTR [THISDRV]    ; Tell which drive
+        MOV     AL,byte [THISDRV]    ; Tell which drive
         invoke  FATAL1
 
         entry   FATREAD
-ASSUME  DS:DOSGROUP,ES:NOTHING
+; ASSUME  DS:DOSGROUP,ES:NOTHING
 
 ; Function:
 ;       If disk may have been changed, FAT is read in and buffers are
@@ -234,60 +234,60 @@ ASSUME  DS:DOSGROUP,ES:NOTHING
 ;       ES:BP = Base of drive parameters
 ; All other registers destroyed
 
-        MOV     AL,BYTE PTR [THISDRV]
+        MOV     AL,byte [THISDRV]
         invoke  GETBP
         MOV     AL,DMEDHL
-        MOV     AH,ES:[BP.dpb_UNIT]
-        MOV     WORD PTR [DEVCALL],AX
-        MOV     BYTE PTR [DEVCALL.REQFUNC],DEVMDCH
+        MOV     AH,[ES:BP+dpb_UNIT]
+        MOV     word [DEVCALL],AX
+        MOV     byte [DEVCALL.REQFUNC],DEVMDCH
         MOV     [DEVCALL.REQSTAT],0
-        MOV     AL,ES:[BP.dpb_media]
-        MOV     BYTE PTR [CALLMED],AL
+        MOV     AL,[ES:BP+dpb_media]
+        MOV     byte [CALLMED],AL
         PUSH    ES
         PUSH    DS
-        MOV     BX,OFFSET DOSGROUP:DEVCALL
-        LDS     SI,ES:[BP.dpb_driver_addr]       ; DS:SI Points to device header
-ASSUME  DS:NOTHING
+        MOV     BX,DEVCALL
+        LDS     SI,[ES:BP+dpb_driver_addr]       ; DS:SI Points to device header
+; ASSUME  DS:NOTHING
         POP     ES                      ; ES:BX Points to call header
         invoke  DEVIOCALL2
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         POP     ES                      ; Restore ES:BP
         MOV     DI,[DEVCALL.REQSTAT]
         TEST    DI,STERR
         JNZ     FATERR
         XOR     AH,AH
-        XCHG    AH,ES:[BP.dpb_first_access]      ; Reset dpb_first_access
-        MOV     AL,BYTE PTR [THISDRV]    ; Use physical unit number
-        OR      AH,BYTE PTR [CALLRBYT]
+        XCHG    AH,[ES:BP+dpb_first_access]      ; Reset dpb_first_access
+        MOV     AL,byte [THISDRV]    ; Use physical unit number
+        OR      AH,byte [CALLRBYT]
         JS      NEWDSK          ; new disk or first access?
         JZ      CHKBUFFDIRT
         return                  ; If Media not changed
 CHKBUFFDIRT:
         INC     AH              ; Here if ?Media..Check buffers
         LDS     DI,[BUFFHEAD]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
 NBUFFER:                        ; Look for dirty buffers
-        CMP     AX,WORD PTR [DI.BUFDRV]
+        CMP     AX,word [DI+BUFDRV]
         retz                    ; There is a dirty buffer, assume Media OK
-        LDS     DI,[DI.NEXTBUF]
+        LDS     DI,[DI+NEXTBUF]
         CMP     DI,-1
         JNZ     NBUFFER
 ; If no dirty buffers, assume Media changed
 NEWDSK:
         invoke  SETVISIT
 NXBUFFER:
-        MOV     [DI.VISIT],1
-        CMP     AL,[DI.BUFDRV]       ; For this drive?
+        MOV     [DI+VISIT],1
+        CMP     AL,[DI+BUFDRV]       ; For this drive?
         JNZ     SKPBUFF
-        MOV     WORD PTR [DI.BUFDRV],00FFH  ; Free up buffer
+        MOV     word [DI+BUFDRV],00FFH  ; Free up buffer
         invoke  SCANPLACE
 SKPBUFF:
         invoke  SKIPVISIT
         JNZ     NXBUFFER
-        LDS     DI,ES:[BP.dpb_driver_addr]
-        TEST    [DI.SDEVATT],ISFATBYDEV
+        LDS     DI,[ES:BP+dpb_driver_addr]
+        TEST    [DI+SDEVATT],ISFATBYDEV
         JNZ     GETFREEBUF
         context DS
         MOV     BX,2
@@ -295,7 +295,7 @@ SKPBUFF:
         LDS     DI,[CURBUF]
         JMP     SHORT GOTGETBUF
 GETFREEBUF:
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         PUSH    ES                      ; Get a free buffer for BIOS to use
         PUSH    BP
         LDS     DI,[BUFFHEAD]
@@ -304,59 +304,59 @@ ASSUME  DS:NOTHING
         POP     ES
 GOTGETBUF:
         ADD     DI,BUFINSIZ
-        MOV     WORD PTR [CALLXAD+2],DS
+        MOV     word [CALLXAD+2],DS
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
-        MOV     WORD PTR [CALLXAD],DI
+; ASSUME  DS:DOSGROUP
+        MOV     word [CALLXAD],DI
         MOV     AL,DBPBHL
-        MOV     AH,BYTE PTR ES:[BP.dpb_UNIT]
-        MOV     WORD PTR [DEVCALL],AX
-        MOV     BYTE PTR [DEVCALL.REQFUNC],DEVBPB
+        MOV     AH,byte [ES:BP+dpb_UNIT]
+        MOV     word [DEVCALL],AX
+        MOV     byte [DEVCALL.REQFUNC],DEVBPB
         MOV     [DEVCALL.REQSTAT],0
-        MOV     AL,BYTE PTR ES:[BP.dpb_media]
+        MOV     AL,byte [ES:BP+dpb_media]
         MOV     [CALLMED],AL
         PUSH    ES
         PUSH    DS
-        PUSH    WORD PTR ES:[BP.dpb_driver_addr+2]
-        PUSH    WORD PTR ES:[BP.dpb_driver_addr]
-        MOV     BX,OFFSET DOSGROUP:DEVCALL
+        PUSH    word [ES:BP+dpb_driver_addr+2]
+        PUSH    word [ES:BP+dpb_driver_addr]
+        MOV     BX,DEVCALL
         POP     SI
         POP     DS                      ; DS:SI Points to device header
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         POP     ES                      ; ES:BX Points to call header
         invoke  DEVIOCALL2
         POP     ES                      ; Restore ES:BP
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     DI,[DEVCALL.REQSTAT]
         TEST    DI,STERR
         JNZ     FATERRJ
-        MOV     AL,BYTE PTR ES:[BP.dpb_media]
+        MOV     AL,byte [ES:BP+dpb_media]
         LDS     SI,[CALLBPB]
-ASSUME  DS:NOTHING
-        CMP     AL,BYTE PTR [SI.BPMEDIA]
+; ASSUME  DS:NOTHING
+        CMP     AL,byte [SI+BPMEDIA]
         JZ      DPBOK
         invoke  $SETDPB
         LDS     DI,[CALLXAD]            ; Get back buffer pointer
-        MOV     AL,BYTE PTR ES:[BP.dpb_FAT_count]
-        MOV     AH,BYTE PTR ES:[BP.dpb_FAT_size]
-        MOV     WORD PTR [DI.BUFWRTCNT-BUFINSIZ],AX   ;Correct buffer info
+        MOV     AL,byte [ES:BP+dpb_FAT_count]
+        MOV     AH,byte [ES:BP+dpb_FAT_size]
+        MOV     word [DI+BUFWRTCNT-BUFINSIZ],AX   ;Correct buffer info
 DPBOK:
         context ds
         MOV     AX,-1
-        TEST    ES:[BP.dpb_current_dir],AX
+        TEST    [ES:BP+dpb_current_dir],AX
         retz                            ; If root, leave as root
-        MOV     ES:[BP.dpb_current_dir],AX    ; Path may be bad, mark invalid
+        MOV     [ES:BP+dpb_current_dir],AX    ; Path may be bad, mark invalid
         return
 
 FATERRJ: JMP    FATERR
 
-FAT_operation   ENDP
+; ENDP FAT_operation
 
 do_ext
 
-CODE    ENDS
-    END
+; END SECTION .CODE
+    ; END
                                      

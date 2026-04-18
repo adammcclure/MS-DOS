@@ -1,4 +1,4 @@
-.XLIST
+; .XLIST
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -20,34 +20,34 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                               ;;
-        EXTRN    KEYB_COMMAND        :NEAR    ;;
+        extern KEYB_COMMAND;;
                                               ;;
-        EXTRN    KEYBSYS_FILE_HANDLE:WORD     ;;
-        EXTRN    CP_TAB_OFFSET:DWORD          ;;
-        EXTRN    STATE_LOGIC_OFFSET:DWORD     ;;
-        EXTRN    SYS_CODE_PAGE:WORD           ;;
-        EXTRN    KEYBCMD_LANG_ENTRY_PTR:DWORD ;;
-        EXTRN    DESIG_CP_BUFFER:WORD         ;;
-        EXTRN    DESIG_CP_OFFSET:WORD         ;;
-        EXTRN    NUM_DESIG_CP:WORD            ;;
-        EXTRN    TB_RETURN_CODE:WORD          ;;
-	EXTRN	 FILE_BUFFER_SIZE:ABS
-        EXTRN    FILE_BUFFER:WORD             ;;
+        extern KEYBSYS_FILE_HANDLE;;
+        extern CP_TAB_OFFSET;;
+        extern STATE_LOGIC_OFFSET;;
+        extern SYS_CODE_PAGE;;
+        extern KEYBCMD_LANG_ENTRY_PTR;;
+        extern DESIG_CP_BUFFER;;
+        extern DESIG_CP_OFFSET;;
+        extern NUM_DESIG_CP;;
+        extern TB_RETURN_CODE;;
+	extern FILE_BUFFER_SIZE
+        extern FILE_BUFFER;;
 ;****************CNS****************************
-        EXTRN    ID_PTR_SIZE:WORD             ;;
+        extern ID_PTR_SIZE;;
 ;****************CNS****************************
-        EXTRN    LANG_PTR_SIZE:WORD           ;;
-        EXTRN    CP_PTR_SIZE:WORD             ;;
+        extern LANG_PTR_SIZE;;
+        extern CP_PTR_SIZE;;
 ;****************CNS****************************
-        EXTRN    NUM_ID:WORD                  ;;
+        extern NUM_ID;;
 ;****************CNS****************************
-        EXTRN    NUM_LANG:WORD                ;;
-        EXTRN    NUM_CP:WORD                  ;;
-        EXTRN    SHARED_AREA_PTR:DWORD        ;;
-        EXTRN    SD_SOURCE_PTR:BYTE           ;;
-        EXTRN    TEMP_SHARED_DATA:BYTE        ;;
+        extern NUM_LANG;;
+        extern NUM_CP;;
+        extern SHARED_AREA_PTR;;
+        extern SD_SOURCE_PTR;;
+        extern TEMP_SHARED_DATA;;
                                               ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.LIST
+; .LIST
 
 

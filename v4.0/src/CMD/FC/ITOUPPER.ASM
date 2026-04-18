@@ -1,7 +1,7 @@
-.xlist
-include version.inc
-include cmacros.inc
-.list
+; .xlist
+%include "version.inc"
+%include "cmacros.inc"
+; .list
 
 sBegin  code
 assumes cs,code
@@ -58,8 +58,8 @@ cBegin
 	push	ds
         mov     ax,6300h                ;make Get Lead Byte call
         int     21h
-        mov     ss:[bx],si		;si didn't change if non ECS dos
-        mov     ss:[bx+2],ds            ;store segment
+        mov     [ss:bx],si		;si didn't change if non ECS dos
+        mov     [ss:bx+2],ds            ;store segment
 	pop	ds
 	pop	es
         pop     di
@@ -116,4 +116,4 @@ cEnd
 
 sEnd
 
-end
+; end

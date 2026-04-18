@@ -1,18 +1,18 @@
 ;*************************************
 ; COMMAND EQUs which are switch dependant
 
-IF1
-    IF IBM
-        %OUT IBM version
-    ELSE
-        %OUT Normal version
-    ENDIF
+%if 1  ; IF1 - pass-specific
+    %if IBM
+        %warning IBM version
+    %else
+        %warning Normal version
+    %endif
 
-    IF   HIGHMEM
-        %OUT Highmem version
-    ENDIF
+    %if HIGHMEM
+        %warning Highmem version
+    %endif
 
-    IF   KANJI
-        %OUT Kanji version
-    ENDIF
-ENDIF
+    %if KANJI
+        %warning Kanji version
+    %endif
+%endif

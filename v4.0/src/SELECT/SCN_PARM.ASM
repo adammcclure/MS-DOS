@@ -5,57 +5,57 @@
 ; parameter is specified, additional information is read from the disk.
 ;
 ;********************************************************************************
-.ALPHA					;AN000;
-.XLIST					;AN000;
-INCLUDE  MACROS.INC			;AN000;
-INCLUDE  STRUC.INC			;AN000;
-INCLUDE  EXT.INC			;AN000;
-.LIST					;AN000;
+; .ALPHA;AN000;
+; .XLIST;AN000;
+%include "MACROS.INC";AN000;
+%include "STRUC.INC";AN000;
+%include "EXT.INC";AN000;
+; .LIST;AN000;
 
 
-PUBLIC	 SCAN_PARAMETERS_ROUTINE	;AN000;
-EXTRN	 SYSPARSE:FAR			;AN000;
-EXTRN	 POS_ZERO:FAR			;AN000;
-EXTRN	 HOOK_INT_24:FAR		;AN000;
-EXTRN	 RESTORE_INT_24:FAR		;AN000;
-EXTRN	 CLOSE_FILE_ROUTINE:FAR 	;AN000;
+global SCAN_PARAMETERS_ROUTINE;AN000;
+extern SYSPARSE;AN000;
+extern POS_ZERO;AN000;
+extern HOOK_INT_24;AN000;
+extern RESTORE_INT_24;AN000;
+extern CLOSE_FILE_ROUTINE;AN000;
 
 
-DATA	 SEGMENT   BYTE PUBLIC	  'DATA';AN000;
+SECTION .DATA;AN000;
 
-PARMS	 LABEL	   BYTE 		;AN000;
+PARMS:;AN000;
     PAR_EXTEN	   DW	PARMSX		 ;AN000; Offset of the PARMS EXTENSION BLOCK
     PAR_NUM	   DB	0		 ;AN000; The number of further definitions
 
 ; The PARMS EXTENSION BLOCK
-PARMSX	 LABEL	   BYTE 		 ;AN000;
+PARMSX:;AN000;
     PAX_MINP	   DB	1		 ;AN000;
     PAX_MAXP	   DB	1		 ;AN000;
-		   DW	OFFSET CONTROL_P1;AN000;
+		   DW	CONTROL_P1;AN000;
     PAX_MAX_SW	   DB	0		 ;AN000;
     PAX_MAX_K1	   DB	0		 ;AN000;
 
-CONTROL_P1    LABEL	BYTE		 ;AN000;
+CONTROL_P1:;AN000;
 		   DW	02000H		 ;AN000;
 		   DW	0000H		 ;AN000;
 		   DW	RESULT_P1	 ;AN000;
 		   DW	VALUE_LIST_P1	 ;AN000;
 		   DB	0		 ;AN000;
 
-VALUE_LIST_P1	   LABEL     BYTE	 ;AN000;
+VALUE_LIST_P1:;AN000;
 		   DB	3		 ;AN000; Number of value definitions
 		   DB	0		 ;AN000; Number of range definitions
 		   DB	0		 ;AN000; Number of actual value definitions
 		   DB	2		 ;AN000; Number of string definitions
 		   DB	0		 ;AN000; Value to be returned if this string is matched
-		   DW	OFFSET KEYWORD_MENU;AN000;
+		   DW	KEYWORD_MENU;AN000;
 		   DB	1		 ;AN000; Value to be returned if this string is matched
-		   DW	OFFSET KEYWORD_FDISK ;AN000;
+		   DW	KEYWORD_FDISK ;AN000;
 
 KEYWORD_MENU  DB   'MENU',0       ;AN000;
 KEYWORD_FDISK DB   'FDISK',0      ;AN000;
 
-RESULT_P1	   LABEL     BYTE ;AN000;
+RESULT_P1:;AN000;
 		   DB	0	  ;AN000; Type of operand returned
 		   DB	0	  ;AN000; Matched item tag
 		   DW	0	  ;AN000; Offset of synonym returned
@@ -69,11 +69,11 @@ OPTION_2      DW   0		  ;AN000;
 OPTION_3      DW   0		  ;AN033;SEH
 FILE_HANDLE   DW   0		  ;AN000;
 
-DATA	 ENDS			  ;AN000;
+; END SECTION .DATA;AN000;
 
-CODE_FAR SEGMENT   BYTE PUBLIC	  'CODE' ;AN000;
+SECTION .CODE_FAR;AN000;
 
-    ASSUME    CS:CODE_FAR, DS:DATA, ES:DATA ;AN000;
+    ; ASSUME    CS:CODE_FAR, DS:DATA, ES:DATA;AN000;
 
 ;****************************************************************************
 ;
@@ -118,7 +118,7 @@ CODE_FAR SEGMENT   BYTE PUBLIC	  'CODE' ;AN000;
     BUFFER    EQU  [BP+8]			 ;AN000;
     BUFF_SIZE EQU  [BP+6]			 ;AN000;
 						 ;
-SCAN_PARAMETERS_ROUTINE PROC FAR		 ;AN000;
+SCAN_PARAMETERS_ROUTINE:;AN000;
     PUSH BP					 ;AN000;
     MOV  BP, SP 				 ;AN000;
 						 ;
@@ -128,7 +128,7 @@ SCAN_PARAMETERS_ROUTINE PROC FAR		 ;AN000;
     PUSH ES					 ;AN000; Save the extra register
     MOV  AX, DATA				 ;AN000; ES contain control block segment
     MOV  ES, AX 				 ;AN000;
-    MOV  DI, OFFSET PARMS			 ;AN000; DI contains offset of control block
+    MOV  DI, PARMS			 ;AN000; DI contains offset of control block
     MOV  SI, 0081H				 ;AN000; SI contains offset of command line
     MOV  DX, 0					 ;AN000; DX and CX must be zero
     MOV  CX, 0					 ;AN000;
@@ -144,7 +144,7 @@ NEXT_PARSE:					 ;AN000;
     CALL SYSPARSE				 ;AN000; Parse the command line
     POP  DS					 ;AN000; Restore the data segment
 						 ;
-    .IF < AX EQ 0 >				 ;AN000; Were there any errors?
+    ; .IF < AX EQ 0 >;AN000; Were there any errors?
 	 MOV  BX, DX				 ;AN000; No! Get the address of the result block
 	 MOV  AL, [BX]+1			 ;AN000; Yes! Get the returned value
 	 MOV  AH, 0				 ;AN000; Zero the high byte
@@ -154,13 +154,13 @@ NEXT_PARSE:					 ;AN000;
 	 MOV  MODE, E_SELECT_INV		 ;AN000; Return that the values are invalid
 	 MOV  OPTION_1, E_SELECT_INV		 ;AN000;
 	 MOV  OPTION_2, E_SELECT_INV		 ;AN000;
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     POP  AX					 ;AN000; Take the PSP segment off the stack
     MOV  AX,MODE				 ;AN000; Store the result
     POP  ES					 ;AN000;
     POP  BP					 ;AN000;
     RET 					 ;AN000;
-SCAN_PARAMETERS_ROUTINE ENDP			 ;AN000;
+; ENDP SCAN_PARAMETERS_ROUTINE;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;   SCAN_INFO_FILE_ROUTINE: Scan SELECT.TMP file for parameters.
@@ -190,8 +190,8 @@ SCAN_PARAMETERS_ROUTINE ENDP			 ;AN000;
 ;	   = 0FFh: Parameter is invalid (not 1, 2)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	PUBLIC	SCAN_INFO_FILE_ROUTINE		 ;AN000;
-SCAN_INFO_FILE_ROUTINE	PROC	FAR		 ;AN000;
+	global SCAN_INFO_FILE_ROUTINE;AN000;
+SCAN_INFO_FILE_ROUTINE:;AN000;
     CALL HOOK_INT_24				 ;AN000;
 						 ;
     PUSH BP					 ;AN000;
@@ -202,38 +202,38 @@ SCAN_INFO_FILE_ROUTINE	PROC	FAR		 ;AN000;
     MOV  OPTION_3, E_SELECT_INV 		 ;AN033;SEH
     PUSH ES					 ;AN000; Save the extra register
 						 ;
-    .IF < MODE NE E_SELECT_INV> AND NEAR	 ;AN000; If no error has occured yet,
-    .IF < MODE EQ 1 >	NEAR			 ;AN000;   and if the parameter was FDISK...
+    ; .IF < MODE NE E_SELECT_INV> AND NEAR;AN000; If no error has occured yet,
+    ; .IF < MODE EQ 1 >	NEAR;AN000;   and if the parameter was FDISK...
 	 MOV  DI, FILENAME			 ;AN000; Get the offset of the filename
 	 CALL POS_ZERO				 ;AN000; Make into an ASCII-Z string
 	 MOV  DX, DI				 ;AN000; Load filename offset again
 	 ADD  DX, 2				 ;AN000; Adjust pointer past the length word
 	 MOV  AX, 3D00H 			 ;AN000; Fn call for opening a file for reading
 	 DOSCALL				 ;AN000; Open the file
-	 .IF < C >				 ;AN000; If there was as error, do not continue
+	 ; .IF < C >;AN000; If there was as error, do not continue
 	      JMP  FILE_ERROR			 ;AN000; Return INVALID parameters to the caller
-	 .ENDIF 				 ;AN000;
+	 ; .ENDIF;AN000;
 	 MOV  FILE_HANDLE, AX			 ;AN000; Save the returned file handle
 	 MOV  AH, 3FH				 ;AN000; DOS Fn for reading from a file
 	 MOV  DX, BUFFER			 ;AN000; Get the offset of the data buffer
 	 MOV  CX, BUFF_SIZE			 ;AN000; Get the number of bytes in the buffer
 	 MOV  BX, FILE_HANDLE			 ;AN000; Get the file handle for the opened file
 	 DOSCALL				 ;AN000; Read from the file
-	 .IF < C >				 ;AN000; If there was an error, do not continue
+	 ; .IF < C >;AN000; If there was an error, do not continue
 	      JMP  FILE_ERROR			 ;AN000; Return INVALID parameters to the caller
-	 .ENDIF 				 ;AN000;
+	 ; .ENDIF;AN000;
 	 MOV  SI, BUFFER			 ;AN000; Get the offset of the data buffer
 	 MOV  BH, 0				 ;AN000; Zero the high byte
-	 MOV  BL, BYTE PTR [SI] 		 ;AN000; Get the first byte from the file
+	 MOV  BL, byte [SI] 		 ;AN000; Get the first byte from the file
 	 SUB  BL, '0'                            ;AN000; Turn into a binary number
 	 MOV  OPTION_0, BX			 ;AN000; Save this as the first option
-	 MOV  BL, BYTE PTR [SI+3] 		 ;AN000; Get the first byte from the file
+	 MOV  BL, byte [SI+3] 		 ;AN000; Get the first byte from the file
 	 SUB  BL, '0'                            ;AN000; Turn into a binary number
 	 MOV  OPTION_1, BX			 ;AN000; Save this as the first option
-	 MOV  BL, BYTE PTR [SI+6]		 ;AN000; Get the second option in the file
+	 MOV  BL, byte [SI+6]		 ;AN000; Get the second option in the file
 	 SUB  BL, '0'                            ;AN000; Make into a binary value
 	 MOV  OPTION_2, BX			 ;AN000; Save this second option
-	 MOV  BL, BYTE PTR [SI+9]		 ;AN033; SEH Get the third option in the file
+	 MOV  BL, byte [SI+9]		 ;AN033; SEH Get the third option in the file
 	 SUB  BL, '0'                            ;AN033; SEH Make into a binary value
 	 MOV  OPTION_3, BX			 ;AN033; SEH Save this third option
 	 MOV  SI, BUFFER			 ;AN000; Get the offset of the data buffer
@@ -244,33 +244,33 @@ SCAN_INFO_FILE_ROUTINE	PROC	FAR		 ;AN000;
 						 ; AX contains the number of characters read from the file
 	 SUB  AX, 12				 ;AC033; SEH Number of characters left in the buffer
 	 MOV  CX, 0				 ;AN000; Number of characters in the path string
-	 MOV  WORD PTR [BX], 0			 ;AN000; Zero the string length to begin
-	 .WHILE < AX GT 0 >			 ;AN000; Continue while there are characters left
+	 MOV  word [BX], 0			 ;AN000; Zero the string length to begin
+	 ; .WHILE < AX GT 0 >;AN000; Continue while there are characters left
 	      MOV  DL, [SI]			 ;AN000; Get the character from the buffer
-	      .IF < DL EQ E_CR > OR		 ;AN000; See if this is the end of the line
-	      .IF < DL EQ E_LF >		 ;AN000;
+	      ; .IF < DL EQ E_CR > OR;AN000; See if this is the end of the line
+	      ; .IF < DL EQ E_LF >;AN000;
 		   MOV	[BX], CX		 ;AN000; Store the length of path
 		   .LEAVE			 ;AN000;
-	      .ENDIF				 ;AN000;
+	      ; .ENDIF;AN000;
 	      MOV  [DI], DL			 ;AN000; Store the byte in the path
 	      INC  DI				 ;AN000; Increment the path pointer
 	      INC  SI				 ;AN000; Increment the source pointer
 	      INC  CX				 ;AN000; Increment the count of characters
 	      DEC  AX				 ;AN000; Decrement the numbers of characters left
-	      .IF < CX A M_INSTALL_PATH >	 ;AN000; If more then 40 characters then an error
+	      ; .IF < CX A M_INSTALL_PATH >;AN000; If more then 40 characters then an error
 		   JMP	FILE_ERROR		 ;AN000;
-	      .ENDIF				 ;AN000;
+	      ; .ENDIF;AN000;
 	 .ENDWHILE				 ;AN000;
-	 .IF < OPTION_1 AE 1 > AND		 ;AN000; If option is 1 or 2 then a path is needed
-	 .IF < OPTION_1 BE 3 >			 ;AN000;
-	      .IF < <WORD PTR [BX]> EQ 0 >	 ;AN000; If the path length was 0, return error
+	 ; .IF < OPTION_1 AE 1 > AND;AN000; If option is 1 or 2 then a path is needed
+	 ; .IF < OPTION_1 BE 3 >;AN000;
+	      ; .IF < <WORD PTR [BX]> EQ 0 >;AN000; If the path length was 0, return error
 		   JMP	FILE_ERROR		 ;AN000;
-	      .ENDIF				 ;AN000;
-	 .ELSE					 ;AN000;
-	      .IF < <WORD PTR [BX]> NE 0 >	 ;AN000; If option is 3 and there is a path, error
+	      ; .ENDIF;AN000;
+	 ; .ELSE;AN000;
+	      ; .IF < <WORD PTR [BX]> NE 0 >;AN000; If option is 3 and there is a path, error
 		   JMP	FILE_ERROR		 ;AN000;
-	      .ENDIF				 ;AN000;
-	 .ENDIF 				 ;AN000;
+	      ; .ENDIF;AN000;
+	 ; .ENDIF;AN000;
 	 JMP  CLOSE_THE_FILE			 ;AN000;
 FILE_ERROR:					 ;AN000; Here if there has been an error
 	 MOV  MODE, E_SELECT_INV		 ;AN000;
@@ -278,11 +278,11 @@ FILE_ERROR:					 ;AN000; Here if there has been an error
 	 MOV  OPTION_2, E_SELECT_INV		 ;AN000;
 	 MOV  OPTION_3, E_SELECT_INV		 ;AN033; SEH
 	 MOV  BX, PATH				 ;AN000;
-	 MOV  WORD PTR [BX], 0			 ;AN000;
+	 MOV  word [BX], 0			 ;AN000;
 CLOSE_THE_FILE: 				 ;AN000; Close the file
 	 MOV  BX, FILE_HANDLE			 ;AN000; Get the file handle
 	 CLOSE_FILE BX				 ;AN000; Close the file
-    .ENDIF					 ;AN000;
+    ; .ENDIF;AN000;
     MOV  AX, option_0				 ;AN000; Return the parameters
     MOV  BX, OPTION_1				 ;AN000;
     MOV  CX, OPTION_2				 ;AN000;
@@ -292,8 +292,8 @@ CLOSE_THE_FILE: 				 ;AN000; Close the file
     POP  BP					 ;AN000;
     CALL RESTORE_INT_24 			 ;AN000;
     RET  8					 ;AN000;
-SCAN_INFO_FILE_ROUTINE	ENDP			 ;AN000;
+; ENDP SCAN_INFO_FILE_ROUTINE;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CODE_FAR ENDS					 ;AN000;
+; END SECTION .CODE_FAR;AN000;
 						 ;
-END						 ;AN000;
+; END;AN000;

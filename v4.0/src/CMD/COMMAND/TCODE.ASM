@@ -1,106 +1,106 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tcode.asm	1.1 85/05/14
 ;	SCCSID = @(#)tcode.asm	1.1 85/05/14
-TITLE	Part1 COMMAND Transient Routines
+; TITLE	Part1 COMMAND Transient Routines
 
-	INCLUDE comsw.asm
-.xlist
-.xcref
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-.list
-.cref
+	%include "comsw.asm"
+; .xlist
+; .xcref
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
-CODERES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	EXEC_WAIT:NEAR
-CODERES ENDS
+SECTION .CODERES;AC000;
+	extern EXEC_WAIT
+; END SECTION .CODERES
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BATCH:WORD
-	EXTRN	CALL_BATCH_FLAG:byte
-	EXTRN	CALL_FLAG:BYTE
-	EXTRN	ECHOFLAG:BYTE
-	EXTRN	envirseg:word
-	EXTRN	EXTCOM:BYTE
-	EXTRN	FORFLAG:BYTE
-	EXTRN	IFFLAG:BYTE
-	EXTRN	next_batch:word
-	EXTRN	nullflag:byte
-	EXTRN	PIPEFILES:BYTE
-	EXTRN	PIPEFLAG:BYTE
-	EXTRN	RE_OUT_APP:BYTE
-	EXTRN	RE_OUTSTR:BYTE
-	EXTRN	RESTDIR:BYTE
-	EXTRN	SINGLECOM:WORD
-	EXTRN	VERVAL:WORD
-DATARES ENDS
+SECTION .DATARES;AC000;
+	extern BATCH
+	extern CALL_BATCH_FLAG
+	extern CALL_FLAG
+	extern ECHOFLAG
+	extern envirseg
+	extern EXTCOM
+	extern FORFLAG
+	extern IFFLAG
+	extern next_batch
+	extern nullflag
+	extern PIPEFILES
+	extern PIPEFLAG
+	extern RE_OUT_APP
+	extern RE_OUTSTR
+	extern RESTDIR
+	extern SINGLECOM
+	extern VERVAL
+; END SECTION .DATARES
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BadNam_Ptr:word 	;AC000;
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern BadNam_Ptr;AC000;
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	APPEND_EXEC:BYTE	;AN041;
-	EXTRN	ARG1S:WORD
-	EXTRN	ARG2S:WORD
-	EXTRN	ARGTS:WORD
-	EXTRN	BYTCNT:WORD
-	EXTRN	COMBUF:BYTE
-	EXTRN	COMSW:WORD
-	EXTRN	CURDRV:BYTE
-	EXTRN	HEADCALL:DWORD
-	EXTRN	IDLEN:BYTE
-	EXTRN	INTERNATVARS:BYTE
-	EXTRN	PARM1:BYTE
-	EXTRN	PARM2:BYTE
-	EXTRN	RE_INSTR:BYTE
-	EXTRN	RESSEG:WORD
-	EXTRN	SPECDRV:BYTE
-	EXTRN	STACK:WORD
-	EXTRN	SWITCHAR:BYTE
-	EXTRN	TPA:WORD
-	EXTRN	UCOMBUF:BYTE
-	EXTRN	USERDIR1:BYTE
-	IF  IBM
-	EXTRN	ROM_CALL:BYTE
-	EXTRN	ROM_CS:WORD
-	EXTRN	ROM_IP:WORD
-	ENDIF
+SECTION .TRANSPACE;AC000;
+	extern APPEND_EXEC;AN041;
+	extern ARG1S
+	extern ARG2S
+	extern ARGTS
+	extern BYTCNT
+	extern COMBUF
+	extern COMSW
+	extern CURDRV
+	extern HEADCALL
+	extern IDLEN
+	extern INTERNATVARS
+	extern PARM1
+	extern PARM2
+	extern RE_INSTR
+	extern RESSEG
+	extern SPECDRV
+	extern STACK
+	extern SWITCHAR
+	extern TPA
+	extern UCOMBUF
+	extern USERDIR1
+	%if IBM
+	extern ROM_CALL
+	extern ROM_CS
+	extern ROM_IP
+	%endif
 
-TRANSPACE	ENDS
+; END SECTION .TRANSPACE
 
 ; ********************************************************************
 ; START OF TRANSIENT PORTION
 ; This code is loaded at the end of memory and may be overwritten by
 ; memory-intensive user programs.
 
-TRANCODE	SEGMENT PUBLIC BYTE	;AC000;
+SECTION .TRANCODE;AC000;
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	EXTRN	$EXIT:NEAR
-	EXTRN	DRVBAD:NEAR
-	EXTRN	EXTERNAL:NEAR
-	EXTRN	FNDCOM:NEAR
-	EXTRN	FORPROC:NEAR
-	EXTRN	PIPEPROC:NEAR
-	EXTRN	PIPEPROCSTRT:NEAR
+	extern $EXIT
+	extern DRVBAD
+	extern EXTERNAL
+	extern FNDCOM
+	extern FORPROC
+	extern PIPEPROC
+	extern PIPEPROCSTRT
 
-	PUBLIC	COMMAND
-	PUBLIC	DOCOM
-	PUBLIC	DOCOM1
-	PUBLIC	NOPIPEPROC
-	PUBLIC	TCOMMAND
+	global COMMAND
+	global DOCOM
+	global DOCOM1
+	global NOPIPEPROC
+	global TCOMMAND
 
-	IF  IBM
-	PUBLIC	ROM_EXEC
-	PUBLIC	ROM_SCAN
-	ENDIF
+	%if IBM
+	global ROM_EXEC
+	global ROM_SCAN
+	%endif
 
 	ORG	0
-ZERO	=	$
+ZERO equ $
 
 	ORG	100H				; Allow for 100H parameter area
 
@@ -114,7 +114,7 @@ SETDRV:
 
 TCOMMAND:
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	MOV	AX,-1
 	XCHG	AX,[VERVAL]
 	CMP	AX,-1
@@ -132,7 +132,7 @@ $EXITPREP:
 	PUSH	CS
 	POP	DS
 	JMP	$EXIT				; Have finished the single command
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 ;
 ; Main entry point from resident portion.
 ;
@@ -146,24 +146,24 @@ COMMAND:
 ; We are not always sure of the state of the world at this time.  We presume
 ; worst case and initialize the relevant registers: segments and stack.
 ;
-	ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	CLD
 	MOV	AX,CS
 	CLI
 	MOV	SS,AX
-ASSUME	SS:TRANGROUP
-	MOV	SP,OFFSET TRANGROUP:STACK
+; ASSUME	SS:TRANGROUP
+	MOV	SP,STACK
 	STI
 	MOV	ES,AX
 	MOV	DS,AX				;AN000; set DS to transient
-ASSUME	ES:TRANGROUP,DS:TRANGROUP		;AC000;
+; ASSUME	ES:TRANGROUP,DS:TRANGROUP;AC000;
 	invoke	TSYSLOADMSG			;AN000; preload messages
 	invoke	SETSTDINOFF			;AN026; turn off critical error on STDIN
 	invoke	SETSTDOUTOFF			;AN026; turn off critical error on STDOUT
 	mov	append_exec,0			;AN041; set internal append state off
 
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 
 	MOV	[UCOMBUF],COMBUFLEN		; Init UCOMBUF
 	MOV	[COMBUF],COMBUFLEN		; Init COMBUF (Autoexec doing DATE)
@@ -176,7 +176,7 @@ ASSUME	DS:RESGROUP
 ;
 	OR	BP,BP				; See if just read
 	JZ	TESTRDIR			; Not read, check user directory
-	MOV	WORD PTR [UCOMBUF+1],0D01H	; Reset buffer
+	MOV	word [UCOMBUF+1],0D01H	; Reset buffer
 	JMP	SHORT NOSETBUF
 
 TESTRDIR:
@@ -192,12 +192,12 @@ TESTRDIR:
 	MOV	[RESTDIR],0			; Flag users dirs OK
 	PUSH	CS
 	POP	DS
-ASSUME	DS:TRANGROUP
-	MOV	DX,OFFSET TRANGROUP:USERDIR1
+; ASSUME	DS:TRANGROUP
+	MOV	DX,USERDIR1
 	MOV	AH,CHDIR
 	INT	int_command			; Restore users directory
 	POP	DS
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 
 NOSETBUF:
 	CMP	[PIPEFILES],0
@@ -210,10 +210,10 @@ NOPCLOSE:
 	MOV	[EXTCOM],0			; Flag internal command
 	MOV	AX,CS				; Get segment we're in
 	MOV	DS,AX
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 
 	PUSH	AX
-	MOV	DX,OFFSET TRANGROUP:INTERNATVARS
+	MOV	DX,INTERNATVARS
 	MOV	AX,INTERNATIONAL SHL 8
 	INT	21H
 	POP	AX
@@ -238,7 +238,7 @@ SAVSIZ:
 GotSize:
 	MOV	[BYTCNT],AX			; Max no. of bytes that can be buffered
 	MOV	DS,[RESSEG]			; All batch work must use resident seg.
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 
 	TEST	[ECHOFLAG],1
 	JZ	GETCOM				; Don't do the CRLF
@@ -293,7 +293,7 @@ TESTFORBAT:
 	mov	di,batfile			;AN000; get batch file name
 	push	cs				;AN000; get local segment to DS
 	pop	ds				;AN000;
-	mov	dx,offset trangroup:combuf	;AN000; pass communications buffer
+	mov	dx,combuf	;AN000; pass communications buffer
 	int	2fh				;AN000; call the shell
 	cmp	al,shell_action 		;AN000; does shell have a commmand?
 	pop	ds				;AN000; restore DS
@@ -321,7 +321,7 @@ ISNOBAT:
 	JZ	REGCOM
 	MOV	SI,-1
 	XCHG	SI,[SINGLECOM]
-	MOV	DI,OFFSET TRANGROUP:COMBUF + 2
+	MOV	DI,COMBUF + 2
 	XOR	CX,CX
 
 SINGLELOOP:
@@ -333,7 +333,7 @@ SINGLELOOP:
 	DEC	CX
 	PUSH	CS
 	POP	DS
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 	MOV	[COMBUF + 1],CL
 ;
 ; do NOT issue a trailing CRLF...
@@ -356,21 +356,21 @@ REGCOM:
 
 	PUSH	CS
 	POP	DS				; Need local segment to point to buffer
-	MOV	DX,OFFSET TRANGROUP:UCOMBUF
+	MOV	DX,UCOMBUF
 	MOV	AH,STD_CON_STRING_INPUT
 	INT	int_command			; Get a command
 	MOV	CL,[UCOMBUF]
 	XOR	CH,CH
 	ADD	CX,3
-	MOV	SI,OFFSET TRANGROUP:UCOMBUF
-	MOV	DI,OFFSET TRANGROUP:COMBUF
+	MOV	SI,UCOMBUF
+	MOV	DI,COMBUF
 	REP	MOVSB				; Transfer it to the cooked buffer
 
 ;---------------
 
-transpace   segment
-    extrn   arg:byte				; the arg structure!
-transpace   ends
+SECTION .transpace
+    extern arg; the arg structure!
+; END SECTION .transpace
 ;---------------
 
 
@@ -392,7 +392,7 @@ NOPIPEPROC:
 BadParse:
 	PUSH	CS
 	POP	DS
-	MOV	DX,OFFSET TRANGROUP:BADNAM_ptr
+	MOV	DX,BADNAM_ptr
 	INVOKE	std_eprintf
 	JMP	TCOMMAND
 
@@ -404,15 +404,15 @@ OkParse:
 	cmp	arg.argv[0].arglen, 0		; probably an unnecessary check...
 	jz	nullcomj			; guarantees argv[0] at least x<NULL>
 
-	MOV	SI,OFFSET TRANGROUP:COMBUF+2
-	MOV	DI,OFFSET TRANGROUP:IDLEN
+	MOV	SI,COMBUF+2
+	MOV	DI,IDLEN
 	MOV	AX,(PARSE_FILE_DESCRIPTOR SHL 8) OR 01H ; Make FCB with blank scan-off
 	INT	int_command
 	mov	BX, arg.argv[0].argpointer
-	cmp	BYTE PTR [BX+1],':'             ; was a drive specified?
+	cmp	byte [BX+1],':'             ; was a drive specified?
 	jne	short drvgd			; no, use default of zero...
 
-	mov	DL, BYTE PTR [BX]		; pick-up drive letter
+	mov	DL, byte [BX]		; pick-up drive letter
 	and	DL, NOT 20H			; uppercase the sucker
 	sub	DL, capital_A			; convert it to a drive number, A=0
 
@@ -420,7 +420,7 @@ OkParse:
 	JZ	drvbadj2			; It was invalid.
 
 	mov	DI, arg.argv[0].argstartel
-	cmp	BYTE PTR [DI], 0		; is there actually a command there?
+	cmp	byte [DI], 0		; is there actually a command there?
 	jnz	drvgd				; if not, we have:  "d:", "d:\", "d:/"
 	jmp	setdrv				; and set drive to new drive spec
 
@@ -440,7 +440,7 @@ DRVGD:
 	MOV	DI,81H
 	PUSH	SI
 
-	mov	si, OFFSET TRANGROUP:COMBUF+2	; Skip over all leading delims
+	mov	si, COMBUF+2	; Skip over all leading delims
 	invoke	scanoff
 
 do_skipcom:
@@ -464,7 +464,7 @@ COMTAIL:
 	DEC	DI
 	MOV	BP,DI
 	NOT	CL
-	MOV	BYTE PTR DS:[80H],CL
+	MOV	byte [DS:80H],CL
 	POP	SI
 
 ;-----
@@ -476,7 +476,7 @@ COMTAIL:
 
 	mov	DI, arg.argv[0].argsw_word
 	mov	[COMSW], DI			; ah yes, the old addressing mode problem...
-	mov	SI, arg.argv[1 * SIZE argv_ele].argpointer  ; s = argv[1];
+	mov	SI, arg.argv[1 * argv_ele_size].argpointer  ; s = argv[1];
 	OR	SI,SI				;   if (s == NULL)
 	JNZ	DoParse
 	MOV	SI,BP				;	s = bp; (buffer end)
@@ -487,9 +487,9 @@ DoParse:
 	INT	int_command
 	MOV	[PARM1],AL			; Save result of parse
 
-	mov	DI, arg.argv[1*SIZE argv_ele].argsw_word
+	mov	DI, arg.argv[1*argv_ele_size].argsw_word
 	mov	[ARG1S], DI
-	mov	SI, arg.argv[2*SIZE argv_ele].argpointer    ; s = argv[2];
+	mov	SI, arg.argv[2*argv_ele_size].argpointer    ; s = argv[2];
 	OR	SI,SI				;   if (s == NULL)
 	JNZ	DoParse2
 	MOV	SI,BP				;	s = bp; (bufend)1
@@ -500,7 +500,7 @@ DoParse2:
 	INT	int_command			; Parse file name
 	MOV	[PARM2],AL			; Save result
 
-	mov	DI, arg.argv[2*SIZE argv_ele].argsw_word
+	mov	DI, arg.argv[2*argv_ele_size].argsw_word
 	mov	[ARG2S], DI
 	mov	DI, arg.argv[0].argsw_word
 	not	DI				; ARGTS doesn't include the flags
@@ -519,7 +519,7 @@ externalj1:
 
 nullcom:
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	TEST	[BATCH], -1			;G Are we in a batch file?
 	JZ	nosetflag			;G only set flag if in batch
 	mov	nullflag,nullcommand		;G set flag to indicate no command
@@ -532,9 +532,9 @@ nosetflag:
 EXITJ:
 	JMP	$EXITPREP
 
-IF IBM
-	include mshalo.asm
-ENDIF
+%if IBM
+	%include "mshalo.asm"
+%endif
 
-TRANCODE	ENDS
-	END
+; END SECTION .TRANCODE
+	; END

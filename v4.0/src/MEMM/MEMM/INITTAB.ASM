@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	InitTab - OEM init routines to init tables
+	; title	InitTab - OEM init routines to init tables
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -45,88 +45,88 @@ page	58,132
 ;   Diagnostics byte segment.
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	InitTab
+	global InitTab
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
 OEM_MEM_HI	equ	80c0h		; Upper 16 bits of high mem physical adr
 
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include page.inc
-	include instr386.inc
-	include oemdep.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "page.inc"
+	%include "instr386.inc"
+	%include "oemdep.inc"
 ;
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 ;
 
-GDT	segment
-	extrn	GDTLEN:abs
-GDT	ends
+SECTION .GDT
+	extern GDTLEN
+; END SECTION .GDT
 
-IDT	segment
-	extrn	IDTLEN:abs
-IDT	ends
+SECTION .IDT
+	extern IDTLEN
+; END SECTION .IDT
 
-TSS	segment
-	extrn	TSSLEN:abs
-TSS	ends
+SECTION .TSS
+	extern TSSLEN
+; END SECTION .TSS
 
-PAGESEG segment
-	extrn	P_TABLE_CNT:abs
-PAGESEG ends
+SECTION .PAGESEG
+	extern P_TABLE_CNT
+; END SECTION .PAGESEG
 
 
-_DATA	segment
-	extrn	TEXT_Seg:word		; segment for TEXT
-	extrn	STACK_Seg:word		; segment for STACK
-	extrn	GDT_Seg:word		; segment for GDT
-	extrn	IDT_Seg:word		; segment for IDT
-	extrn	TSS_Seg:word		; segment for TSS
-	extrn	PageD_Seg:word		; segment for page dir
-	extrn	PageT_Seg:word		; segment for page table
-	extrn	Page_Dir:word		; 32 bit address for Page directory
-	extrn	driver_end:dword	; ending address for MEMM.EXE
-	extrn	_emm_brk:word		; break address for EMM data
+SECTION ._DATA
+	extern TEXT_Seg; segment for TEXT
+	extern STACK_Seg; segment for STACK
+	extern GDT_Seg; segment for GDT
+	extern IDT_Seg; segment for IDT
+	extern TSS_Seg; segment for TSS
+	extern PageD_Seg; segment for page dir
+	extern PageT_Seg; segment for page table
+	extern Page_Dir; 32 bit address for Page directory
+	extern driver_end; ending address for MEMM.EXE
+	extern _emm_brk; break address for EMM data
 
-_DATA	ends
+; END SECTION ._DATA
 
-LAST	segment
-ifndef	NOHIMEM
-	extrn	HiSysAlloc:near 	; allocate high system memory
-	extrn	UnLockROM:near
-	extrn	LockROM:near
-endif
-	extrn	SegTo24:near
-	extrn	SetSegDesc:near
-	extrn	SetPageEntry:near
-	extrn	moveb:near
-	extrn	get_buffer:near
+SECTION .LAST
+%ifndef NOHIMEM
+	extern HiSysAlloc; allocate high system memory
+	extern UnLockROM
+	extern LockROM
+%endif
+	extern SegTo24
+	extern SetSegDesc
+	extern SetPageEntry
+	extern moveb
+	extern get_buffer
 
-LAST	ends
+; END SECTION .LAST
 
-_TEXT	segment
-	extrn	Real_Seg:word	; fixup for _TEXT in RetReal (retreal.asm)
-_TEXT	ends
+SECTION ._TEXT
+	extern Real_Seg; fixup for _TEXT in RetReal (retreal.asm)
+; END SECTION ._TEXT
 
-R_CODE	segment
-	extrn	EFunTab:word	; table of ELIM functions
-	extrn	EFUN_CNT:abs	; # of entries in table
-	extrn	EMM_rEfix:near	; far call to EMM function dispatcher in _TEXT
-R_CODE	ends
+SECTION .R_CODE
+	extern EFunTab; table of ELIM functions
+	extern EFUN_CNT; # of entries in table
+	extern EMM_rEfix; far call to EMM function dispatcher in _TEXT
+; END SECTION .R_CODE
 
 
 ;******************************************************************************
@@ -134,9 +134,9 @@ R_CODE	ends
 ;******************************************************************************
 ;
 ;------------------------------------------------------------------------------
-LAST	segment
-	assume	cs:LAST, ds:DGROUP, es:DGROUP, ss:DGROUP
-	page
+SECTION .LAST
+	; assume	cs:LAST, ds:DGROUP, es:DGROUP, ss:DGROUP
+	; page
 ;******************************************************************************
 ;   InitTab - init tables & 32 bit address
 ;
@@ -176,9 +176,9 @@ LAST	segment
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-InitTab proc	 near
+InitTab:
 ;
-ifndef	NOHIMEM
+%ifndef NOHIMEM
 
 	PUSH_EAX
 	push	di
@@ -202,7 +202,7 @@ ifndef	NOHIMEM
 	mov	ah,D_DATA0		; data segment
 	mov	bx,OEM0_GSEL
 	call	SetSegDesc		; Set up GDT alias descriptor
-	mov	ES:[bx.BASE_XHI],01h	; set high 8 bits of address
+	mov	[ES:bx+BASE_XHI],01h	; set high 8 bits of address
 
 ;
 ;------------------------------------------------------------------------------
@@ -249,9 +249,9 @@ IT_move_pt:				;
 ;
 ;   reset break address for driver
 ;
-	mov	word ptr [driver_end],0
+	mov	word [driver_end],0
 	mov	ax,[PageD_Seg]
-	mov	word ptr [driver_end+2],ax
+	mov	word [driver_end+2],ax
 
 ;
 ;			reset page dir/table pointers
@@ -269,8 +269,8 @@ IT_move_pt:				;
 ;
 ;  reset page directory entries
 ;
-	mov	ax,word ptr [Page_Dir]	; DX,AX = 32 bit addr of Page Directory
-	mov	dx,word ptr [Page_Dir+2]	; save it
+	mov	ax,word [Page_Dir]	; DX,AX = 32 bit addr of Page Directory
+	mov	dx,word [Page_Dir+2]	; save it
 ;
 ;   get addr of Page Table for Page Directory entry
 ;
@@ -313,7 +313,7 @@ IT_pdir:
 	db	66h
 	mov	ax,[Page_Dir]			; EAX = page dir 32 bit addr
 	db	66h
-	mov	word ptr ES:[di.TSS386_CR3],ax	; mov EAX into CR3 spot in TSS
+	mov	word [ES:di+TSS386_CR3],ax	; mov EAX into CR3 spot in TSS
 ;
 ;------------------------------------------------------------------------------
 ;  move _TEXT, GDT,IDT, & TSS up to high system memory
@@ -427,7 +427,7 @@ IT_move_tables:
 	mov	[STACK_seg],ax		; save it
 
 	call	SegTo24
-	mov	cx,offset STACK0_SIZE	; length of stack
+	mov	cx,STACK0_SIZE	; length of stack
 	mov	ah,D_DATA0
 	mov	bx,VDMS_GSEL
 	call	SetSegDesc		; Set up STACK segment GDT entry
@@ -439,7 +439,7 @@ IT_move_tables:
 ;	   far call pointers in ELIM function table
 	mov	ax,seg R_CODE
 	mov	es,ax				; ES -> R_CODE
-	mov	di,offset R_CODE:EFunTab+2	; ES:DI -> 1st seg in func tab
+	mov	di,EFunTab+2	; ES:DI -> 1st seg in func tab
 	mov	cx,EFUN_CNT			; CX = # of dword entries
 	mov	ax,[TEXT_Seg]
 IT_Tloop:
@@ -449,21 +449,21 @@ IT_Tloop:
 	loop	IT_Tloop
 
 ;	   ELIM_rEntry far call
-	mov	di,offset R_CODE:EMM_rEfix	; point to far call
-	mov	ES:[di+3],ax			; set seg portion of call
+	mov	di,EMM_rEfix	; point to far call
+	mov	[ES:di+3],ax			; set seg portion of call
 
 ;	   Far jump in return to real code
 	mov	es,ax				; ES -> new TEXT seg
-	mov	di,offset _TEXT:Real_Seg	; ES:DI -> seg of far jmp
-	mov	ES:[di],ax			; fix it
+	mov	di,Real_Seg	; ES:DI -> seg of far jmp
+	mov	[ES:di],ax			; fix it
 
 ;
 ;   reset break address for driver - throw away _TEXT seg and all after it
 ;
-	mov	word ptr [driver_end],10h	; just in case
+	mov	word [driver_end],10h	; just in case
 	mov	ax,[STACK_Seg]			; begin of new stack location
 	add	ax,STACK0_SIZE/10h		; add in size of stack
-	mov	word ptr [driver_end+2],ax	; set break seg to end of stack
+	mov	word [driver_end+2],ax	; set break seg to end of stack
 
 ;
 ;  OK, now lock high system RAM
@@ -478,7 +478,7 @@ IT_quit:
 	pop	ds
 	pop	di
 	POP_EAX
-else
+%else
 
 	push	es
 	push	di
@@ -557,8 +557,8 @@ set_entries:
     ;
     ; move succeded, fix page directory address and driver_end
     ;
-	mov	word ptr [Page_Dir],ax	; DX,AX = 32 bit addr of Page Directory
-	mov	word ptr [Page_Dir+2],dx	; save it
+	mov	word [Page_Dir],ax	; DX,AX = 32 bit addr of Page Directory
+	mov	word [Page_Dir+2],dx	; save it
 ;
 ;  reset PAGET_GSEL descriptor
 ;
@@ -583,8 +583,8 @@ set_entries:
 	add	ax,15			; round up to next paragraph
 	shr	ax,4
 	add	ax,seg DGROUP		; AX = end address for driver
-	mov	word ptr [driver_end],10h   ; just in case, para offset
-	mov	word ptr [driver_end+2],ax  ; segment
+	mov	word [driver_end],10h   ; just in case, para offset
+	mov	word [driver_end+2],ax  ; segment
 
 
 no_mem:
@@ -621,12 +621,12 @@ restore_entries:
 	loop	restore_entries
     ;
 	jmp	no_mem
-endif
+%endif
 end_inittab:
 	ret
 ;
-InitTab endp
+; ENDP InitTab
 ;
-LAST	ends				; end of segment
+; END SECTION .LAST; end of segment
 ;
-	end				; end of module
+	; end; end of module

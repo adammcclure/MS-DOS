@@ -2,21 +2,21 @@
 ; blindingly fast assembly help for Z
 ;
 
-.xlist
-include	version.inc
-include cmacros.inc
-.list
+; .xlist
+%include "version.inc"
+%include "cmacros.inc"
+; .list
 
 sBegin  data
 assumes ds,data
 
-bufstart    dd     ?
+bufstart: dd 0
 staticW bufsrc,?
 staticW buflen,?
 staticW buflength,?
 staticW buffh,?
 globalB fGetlCR,?
-bufpos      dd      ?
+bufpos: dd 0
 
 sEnd
 sBegin code
@@ -28,8 +28,8 @@ assumes cs,code
 ;
 cProc   getlpos,<PUBLIC>
 cBegin
-        mov     dx,word ptr bufpos+2
-        mov     ax,word ptr bufpos
+        mov     dx,word bufpos+2
+        mov     ax,word bufpos
 cEnd
 
 ;
@@ -41,16 +41,16 @@ parmW   len
 parmW   fh
 cBegin
         mov     ax,off_buf
-        mov     word ptr bufstart,ax
+        mov     word bufstart,ax
         mov     ax,seg_buf
-        mov     word ptr bufstart+2,ax
+        mov     word bufstart+2,ax
         mov     ax,fh
         mov     buffh,ax
         mov     ax,len
         mov     buflength,ax
         mov     buflen,0
-        mov     word ptr bufpos,0
-        mov     word ptr bufpos+2,0
+        mov     word bufpos,0
+        mov     word bufpos+2,0
         mov     fGetlCR,0
 cEnd
 
@@ -65,7 +65,7 @@ cBegin
         cld
         push    ds
         pop     es
-        mov     ds,word ptr bufstart+2
+        mov     ds,word bufstart+2
         assumes ds,nothing
         mov     si,bufsrc
         mov     di,dst
@@ -88,17 +88,17 @@ fin1:   xor     ax,ax
         mov     bufsrc,si           ; length moved = buflen - cx
         xchg    buflen,cx
         sub     cx,buflen
-        add     word ptr bufpos,cx
-        adc     word ptr bufpos+2,0
+        add     word bufpos,cx
+        adc     word bufpos+2,0
         not     ax
         jmp     short getldone
 
 fill:
         mov     cx, buflen          ; add length moved to bufpos
-        add     word ptr bufpos,cx
-        adc     word ptr bufpos+2,0
+        add     word bufpos,cx
+        adc     word bufpos+2,0
         push    dx
-        mov     dx,word ptr bufstart
+        mov     dx,word bufstart
         mov     cx,buflength
         mov     bx,buffh
         mov     ah,3Fh
@@ -143,4 +143,4 @@ cEnd
 
 sEnd
 
-end
+; end

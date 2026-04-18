@@ -1,7 +1,7 @@
-PAGE    60,132
-TITLE   INDEPAT - 80386 XMA Emulator - Patch area
+; PAGE    60,132
+; TITLE   INDEPAT - 80386 XMA Emulator - Patch area
 
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *                                                                             *
 * MODULE NAME     : INDEPAT                                                   *
@@ -54,21 +54,21 @@ COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #
 
-SUBTTL     Patch Area
-PAGE
+; SUBTTL     Patch Area
+; PAGE
 
-PROG       SEGMENT PARA PUBLIC  'PROG'
+SECTION .PROG
 
-           ASSUME  CS:PROG
-           ASSUME  SS:NOTHING
-           ASSUME  DS:PROG
-           ASSUME  ES:NOTHING
+           ; ASSUME  CS:PROG
+           ; ASSUME  SS:NOTHING
+           ; ASSUME  DS:PROG
+           ; ASSUME  ES:NOTHING
 
-           PUBLIC  INDEPAT
+           global INDEPAT
 
-INDEPAT    LABEL   NEAR
+INDEPAT:
 
-           DB      512 DUP(0EEH)
+           times 512 db 0EEH
 
-PROG       ENDS
-           END
+; END SECTION .PROG
+           ; END

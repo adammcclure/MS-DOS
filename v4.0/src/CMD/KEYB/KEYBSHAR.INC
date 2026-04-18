@@ -1,4 +1,4 @@
-.XLIST
+; .XLIST
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -57,7 +57,7 @@ US_MODE     EQU   0                    ;;  hot key is active => US
 LANG_MODE   EQU   0FFH                 ;;  hot key is inactive
                                        ;;
                                        ;; -----------------------------------
-SHARED_DATA_STR     STRUC              ;; SHARED DATA AREA
+struc SHARED_DATA_STR;; SHARED DATA AREA
                                        ;;
 OLD_INT_9           DD    0            ;; saved int 9 vector
 OLD_INT_2F          DD    0            ;; saved int 2F vector
@@ -68,7 +68,7 @@ TABLE_OK            DB    0            ;; flag to INT 9 that table is built
 JR_KB_FLAG          DB    0            ;; flag for special PCjr processing
 TIMING_FACTOR       DW    1            ;; Scale factor for INT 9 timing loops
                                        ;;  PC_AT = 1
-                    DB    2 DUP(0)     ;; reserved
+                    resb 2;; reserved
                                        ;;
                                        ;; Table copy begins here:
 ACTIVE_LANGUAGE     DB    'US'         ;; language code
@@ -79,17 +79,17 @@ FIRST_XLAT_PTR      DW    -1           ;; ptr to first Specific Translate Sect
 RESIDENT_END        DW    0ffffh       ;; offset of last byte in resident mem
 LOGIC_PTR           DW    -1           ;; ptr to State Logic
 COMMON_XLAT_PTR     DW    -1           ;; ptr to Common Translate Section
-SPECIAL_FEATURES    DW    ?            ;; special Features
+SPECIAL_FEATURES: resw 1;; special Features
 TABLE_OVERFLOW      DB    0            ;; overflow flag for table rebuild
-HOT_KEY_ON_SCAN     DB    ?            ;; scan codes to use with ALT+CTRL
-HOT_KEY_OFF_SCAN    DB    ?            ;;  to turn hot key on and off
-                    DB    4 DUP(0)     ;; reserved
-TABLE_AREA          DB    ?            ;; tables loaded here:
+HOT_KEY_ON_SCAN: resb 1;; scan codes to use with ALT+CTRL
+HOT_KEY_OFF_SCAN: resb 1;;  to turn hot key on and off
+                    resb 4;; reserved
+TABLE_AREA: resb 1;; tables loaded here:
                                        ;;  State Logic
                                        ;;  Common Translate Section
                                        ;;  Specific Translate Sections for
                                        ;;   each code page
-SHARED_DATA_STR     ENDS               ;;
+endstruc;;
                                        ;;
                                        ;;
                                        ;;
@@ -100,13 +100,13 @@ SHARED_DATA_STR     ENDS               ;;
 ;; State Logic command macros are defined in KEYBMAC.INC
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-STATE_LOGIC_STR STRUC                  ;;
+struc STATE_LOGIC_STR;;
                                        ;;
-SL_LOGIC_LEN    DW   ?                 ;; length of state logic
-SL_SPECIAL_FEATURES   DW   ?           ;;
+SL_LOGIC_LEN: resw 1;; length of state logic
+SL_SPECIAL_FEATURES: resw 1;;
 SL_LOGIC_CMDS   DB   0                 ;; state logic commands begin here
                                        ;;
-STATE_LOGIC_STR ENDS                   ;;
+endstruc;;
                                        ;;
                                        ;;
 NUM_BIOS_FLAGS      EQU   4            ;;
@@ -206,14 +206,14 @@ P12_KB               EQU   0400H       ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-XLAT_SECT_STR       STRUC              ;;
+struc XLAT_SECT_STR;;
                                        ;;
-XS_NEXT_SECT_PTR       DW    ?         ;; Pointer to next Specific Translate
+XS_NEXT_SECT_PTR: resw 1;; Pointer to next Specific Translate
                                        ;;  Section
-XS_CP_ID               DW    ?         ;; code page id
-XS_FIRST_STATE         DB    ?         ;;
+XS_CP_ID: resw 1;; code page id
+XS_FIRST_STATE: resb 1;;
                                        ;;
-XLAT_SECT_STR       ENDS               ;;
+endstruc;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; State structure.
@@ -221,15 +221,15 @@ XLAT_SECT_STR       ENDS               ;;
 ;; XS_STATE_LEN field with a value of 0.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-STATE_STR           STRUC              ;;
+struc STATE_STR;;
                                        ;;
-XS_STATE_LEN     DW    ?               ;; length of state section
-XS_STATE_ID      DB    ?               ;; State ID
-XS_KBD_TYPE      DW    ?               ;; Keyboard Type
-XS_ERROR_CHAR    DW    ?               ;; Buffer entry for error character
-XS_FIRST_TAB     DB    ?               ;;
+XS_STATE_LEN: resw 1;; length of state section
+XS_STATE_ID: resb 1;; State ID
+XS_KBD_TYPE: resw 1;; Keyboard Type
+XS_ERROR_CHAR: resw 1;; Buffer entry for error character
+XS_FIRST_TAB: resb 1;;
                                        ;;
-STATE_STR           ENDS               ;;
+endstruc;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Translate Table structures.
@@ -262,27 +262,27 @@ DEFAULT_TAB_2_ENT_SZ   EQU   3         ;;
 ASC_ONLY_TAB_2_ENT_SZ  EQU   2         ;;
                                        ;;
                                        ;;
-XLAT_STR            STRUC              ;;
+struc XLAT_STR;;
                                        ;;
-XLAT_TAB_SIZE       DW    ?            ;; Size in bytes of this table -
+XLAT_TAB_SIZE: resw 1;; Size in bytes of this table -
                                        ;;  includes this field, options etc.
-XLAT_OPTIONS        DB    ?            ;; xlat options
+XLAT_OPTIONS: resb 1;; xlat options
                                        ;; XLAT TABLE IS HERE
-XLAT_STR            ENDS               ;;
+endstruc;;
                                        ;;
-XLAT_TYPE_1_STR     STRUC              ;; use scan code as index into table
-                    DB TYPE XLAT_STR DUP(?)   ;; filler
-XLAT_SCAN_LO        DB    ?            ;; Scan code
-XLAT_SCAN_HI        DB    ?            ;;  range
-XLAT_1_BUF_ENTRY    DB    ?            ;; The table itself
-XLAT_TYPE_1_STR     ENDS               ;;
+struc XLAT_TYPE_1_STR;; use scan code as index into table
+                    resb 1;; filler
+XLAT_SCAN_LO: resb 1;; Scan code
+XLAT_SCAN_HI: resb 1;;  range
+XLAT_1_BUF_ENTRY: resb 1;; The table itself
+endstruc;;
                                        ;;
-XLAT_TYPE_2_STR     STRUC              ;; search table for scan
-                    DB TYPE XLAT_STR DUP(?)   ;; filler
-XLAT_NUM            DB    ?            ;; number of scans
-XLAT_SCAN           DB    ?            ;; Scan code
-XLAT_2_BUF_ENTRY    DB    ?            ;; The table itself
-XLAT_TYPE_2_STR     ENDS               ;;
+struc XLAT_TYPE_2_STR;; search table for scan
+                    resb 1;; filler
+XLAT_NUM: resb 1;; number of scans
+XLAT_SCAN: resb 1;; Scan code
+XLAT_2_BUF_ENTRY: resb 1;; The table itself
+endstruc;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Set_Flag Tables.
@@ -293,15 +293,15 @@ XLAT_TYPE_2_STR     ENDS               ;;
                                        ;;
 SF_ENT_SZ     EQU   3                  ;; size of entry
                                        ;;
-SET_FLAG_STR        STRUC              ;;
+struc SET_FLAG_STR;;
                                        ;;
 SF_NUM              DB    0            ;; Number of entries
 SF_SCAN_CODE        DB    0            ;; scan code
 SF_FLAG_ID          DB    0            ;; flag id
 SF_FLAG_MASK        DB    0            ;; flag mask
                                        ;;
-SET_FLAG_STR        ENDS               ;;
+endstruc;;
                                        ;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.LIST
+; .LIST

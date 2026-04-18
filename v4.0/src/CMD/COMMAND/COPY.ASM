@@ -1,7 +1,7 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)copy.asm	1.1 85/05/14
 ;	SCCSID = @(#)copy.asm	1.1 85/05/14
-TITLE	COMMAND COPY routines.
+; TITLE	COMMAND COPY routines.
 
 ; MODIFICATION HISTORY
 ;
@@ -32,115 +32,115 @@ TITLE	COMMAND COPY routines.
 ;		 destination are not equal.
 
 
-.xlist
-.xcref
-	INCLUDE comsw.asm
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-.list
-.cref
+; .xlist
+; .xcref
+	%include "comsw.asm"
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	VERVAL:WORD
-	EXTRN	RSRC_XA_SEG:WORD	;AN030;
-DATARES ENDS
+SECTION .DATARES;AC000;
+	extern VERVAL
+	extern RSRC_XA_SEG;AN030;
+; END SECTION .DATARES
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BADCD_ptr:word
-	EXTRN	COPIED_ptr:word
-	EXTRN	Extend_buf_ptr:word	;AN000;
-	EXTRN	Extend_buf_sub:byte	;AN000;
-	EXTRN	file_name_ptr:word
-	EXTRN	INBDEV_ptr:word 	;AC000;
-	EXTRN	msg_disp_class:byte	;AN000;
-	EXTRN	overwr_ptr:word
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern BADCD_ptr
+	extern COPIED_ptr
+	extern Extend_buf_ptr;AN000;
+	extern Extend_buf_sub;AN000;
+	extern file_name_ptr
+	extern INBDEV_ptr;AC000;
+	extern msg_disp_class;AN000;
+	extern overwr_ptr
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	ALLSWITCH:WORD
-	EXTRN	ARGC:BYTE
-	EXTRN	ASCII:BYTE
-	EXTRN	BINARY:BYTE
-	EXTRN	BYTCNT:WORD
-	EXTRN	CFLAG:BYTE
-	EXTRN	comma:byte
-	EXTRN	CONCAT:BYTE
-	EXTRN	concat_xa:byte		;AN000;
-	EXTRN	copy_num:word		;AC000;
-	EXTRN	CPDATE:WORD
-	EXTRN	CPTIME:WORD
-	EXTRN	cpyflag:byte		;AC000;
-	EXTRN	CURDRV:BYTE
-	EXTRN	DESTBUF:BYTE
-	EXTRN	DestClosed:BYTE
-	EXTRN	DESTFCB:BYTE
-	EXTRN	DESTFCB2:BYTE
-	EXTRN	DESTHAND:WORD
-	EXTRN	DESTINFO:BYTE
-	EXTRN	DESTISDIR:BYTE
-	EXTRN	DESTSIZ:BYTE
-	EXTRN	DESTSWITCH:WORD
-	EXTRN	DESTTAIL:WORD
-	EXTRN	DESTVARS:BYTE
-	EXTRN	DIRBUF:BYTE
-	EXTRN	expand_star:byte
-	EXTRN	FILECNT:WORD
-	EXTRN	FIRSTDEST:BYTE
-	EXTRN	FRSTSRCH:BYTE
-	EXTRN	INEXACT:BYTE
-	EXTRN	MELCOPY:BYTE
-	EXTRN	MELSTART:WORD
-	EXTRN	msg_flag:byte		;AN022;
-	EXTRN	NOWRITE:BYTE
-	EXTRN	NXTADD:WORD
-	EXTRN	objcnt:byte
-	EXTRN	one_char_val:byte	;AN000;
-	EXTRN	parse_last:word 	;AN018;
-	EXTRN	PLUS:BYTE
-	EXTRN	plus_comma:byte
-	EXTRN	RDEOF:BYTE
-	EXTRN	RESSEG:WORD
-	EXTRN	SCANBUF:BYTE
-	EXTRN	SDIRBUF:BYTE
-	EXTRN	src_xa_size:word	;AN000;
-	EXTRN	src_xa_seg:word 	;AN000;
-	EXTRN	SRCBUF:BYTE
-	EXTRN	SRCHAND:WORD
-	EXTRN	SRCINFO:BYTE
-	EXTRN	SRCISDEV:BYTE
-	EXTRN	SRCPT:WORD
-	EXTRN	SRCSIZ:BYTE
-	EXTRN	SRCTAIL:WORD
-	EXTRN	SRCVARS:BYTE
-	EXTRN	srcxname:byte
-	EXTRN	STARTEL:WORD
-	EXTRN	string_ptr_2:word
-	EXTRN	TERMREAD:BYTE
-	EXTRN	TPA:WORD
-	EXTRN	USERDIR1:BYTE
-	EXTRN	WRITTEN:WORD
-	EXTRN	xa_cp_out:byte		;AN030;
-	EXTRN	xa_list_attr:word	;AC030;
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern ALLSWITCH
+	extern ARGC
+	extern ASCII
+	extern BINARY
+	extern BYTCNT
+	extern CFLAG
+	extern comma
+	extern CONCAT
+	extern concat_xa;AN000;
+	extern copy_num;AC000;
+	extern CPDATE
+	extern CPTIME
+	extern cpyflag;AC000;
+	extern CURDRV
+	extern DESTBUF
+	extern DestClosed
+	extern DESTFCB
+	extern DESTFCB2
+	extern DESTHAND
+	extern DESTINFO
+	extern DESTISDIR
+	extern DESTSIZ
+	extern DESTSWITCH
+	extern DESTTAIL
+	extern DESTVARS
+	extern DIRBUF
+	extern expand_star
+	extern FILECNT
+	extern FIRSTDEST
+	extern FRSTSRCH
+	extern INEXACT
+	extern MELCOPY
+	extern MELSTART
+	extern msg_flag;AN022;
+	extern NOWRITE
+	extern NXTADD
+	extern objcnt
+	extern one_char_val;AN000;
+	extern parse_last;AN018;
+	extern PLUS
+	extern plus_comma
+	extern RDEOF
+	extern RESSEG
+	extern SCANBUF
+	extern SDIRBUF
+	extern src_xa_size;AN000;
+	extern src_xa_seg;AN000;
+	extern SRCBUF
+	extern SRCHAND
+	extern SRCINFO
+	extern SRCISDEV
+	extern SRCPT
+	extern SRCSIZ
+	extern SRCTAIL
+	extern SRCVARS
+	extern srcxname
+	extern STARTEL
+	extern string_ptr_2
+	extern TERMREAD
+	extern TPA
+	extern USERDIR1
+	extern WRITTEN
+	extern xa_cp_out;AN030;
+	extern xa_list_attr;AC030;
+; END SECTION .TRANSPACE
 
 
 ; ******************************************
 ; COPY CODE
 ;
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-	EXTRN	CERROR:NEAR
-	EXTRN	COPERR:NEAR
-	EXTRN	TCOMMAND:NEAR
+	extern CERROR
+	extern COPERR
+	extern TCOMMAND
 
-	PUBLIC	COPY
+	global COPY
 
-ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
 	break	Copy
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 COPY:
 ; First order of buisness is to find out about the destination
@@ -187,12 +187,12 @@ COPY:
 	mov	[MELCOPY],al			; Not a Mel Hallerman copy
 	mov	[concat_xa],al			;AN000; initialize flag for concatenation XA
 	mov	MelStart,ax			; Not a Mel Hallerman copy
-	mov	word ptr [SCANBUF],ax		; Init buffer
-	mov	word ptr [DESTBUF],ax		; Init buffer
-	mov	word ptr [SRCBUF],ax		; Init buffer
-	mov	word ptr [SDIRBUF],ax		; Init buffer
-	mov	word ptr [DIRBUF],ax		; Init buffer
-	mov	word ptr [DESTFCB],ax		; Init buffer
+	mov	word [SCANBUF],ax		; Init buffer
+	mov	word [DESTBUF],ax		; Init buffer
+	mov	word [SRCBUF],ax		; Init buffer
+	mov	word [SDIRBUF],ax		; Init buffer
+	mov	word [DIRBUF],ax		; Init buffer
+	mov	word [DESTFCB],ax		; Init buffer
 	mov	objcnt,al			; Init command line object count
 	dec	ax
 	mov	DestHand,AX			; destination has never been opened
@@ -202,12 +202,12 @@ COPY:
 	mov	src_xa_seg,ax			;AN000; initialize attribute segment to -1
 	mov	si,81H
 	mov	bl,plus_chr			; include '+' as a delimiter
-	inc	byte ptr [expand_star]		; want to include * expansion in cparse
+	inc	byte [expand_star]		; want to include * expansion in cparse
 	mov	cpyflag,1			; Turn "CPARSE called from COPY flag" on
 
 DESTSCAN:
 	xor	bp,bp				; no switches
-	mov	di,offset trangroup:SCANBUF
+	mov	di,SCANBUF
 	mov	parse_last,si			;AN018; save start of parsed string
 	invoke	CPARSE
 	PUSHF					; save flags
@@ -251,9 +251,9 @@ TESTP2:
 GOTPLUS:
 	push	SI
 	mov	ax,[STARTEL]
-	mov	SI,offset trangroup:SCANBUF	; Adjust to copy
+	mov	SI,SCANBUF	; Adjust to copy
 	sub	ax,SI
-	mov	DI,offset trangroup:DESTBUF
+	mov	DI,DESTBUF
 	add	ax,DI
 	mov	[DESTTAIL],AX
 	mov	[DESTSIZ],cl			; Save its size
@@ -271,7 +271,7 @@ CHECKDONE:
 	jnz	cdcont
 	cmp	objcnt,2
 	jnz	cdcont
-	mov	dx,offset trangroup:overwr_ptr
+	mov	dx,overwr_ptr
 	jmp	coperr
 cdcont:
 	mov	al,[PLUS]
@@ -282,14 +282,14 @@ cdcont:
 	mov	al,[ARGC]
 	or	al,al				; Good number of args?
 	jnz	TRY_TOO_MANY			;AC000; there are args, see if too many
-	MOV	DX,OFFSET TranGroup:Extend_Buf_ptr  ;AC000; get extended message pointer
+	MOV	DX,Extend_Buf_ptr  ;AC000; get extended message pointer
 	mov	Extend_Buf_ptr,LessArgs_ptr	;AN000; get "Required parameters missing" message number
 	jmp	short cerror_parsej		;AN000; exit
 
 TRY_TOO_MANY:
 	cmp	al,2
 	jbe	ACOUNTOK
-	MOV	DX,OFFSET TranGroup:Extend_Buf_ptr  ;AC000; get extended message pointer
+	MOV	DX,Extend_Buf_ptr  ;AC000; get extended message pointer
 	mov	Extend_Buf_ptr,MoreArgs_ptr	;AN000; get "Too many parameters" message number
 
 CERROR_PARSEJ:
@@ -298,39 +298,39 @@ CERROR4J:
 	jmp	CERROR				; no, too many
 
 ACOUNTOK:
-	mov	bp,offset trangroup:DESTVARS
+	mov	bp,DESTVARS
 	cmp	al,1
 	jnz	GOT2ARGS
 	mov	al,[CURDRV]			; Dest is default drive:*.*
 	add	al,capital_A
 	mov	ah,':'
-	mov	[bp.SIZ],2
-	mov	di,offset trangroup:DESTBUF
+	mov	[bp+SIZ],2
+	mov	di,DESTBUF
 	stosw
 	mov	[DESTSWITCH],0			; no switches on dest
-	mov	[bp.INFO],2			; Flag dest is ambig
-	mov	[bp.ISDIR],0			; Know destination specs file
+	mov	[bp+INFO],2			; Flag dest is ambig
+	mov	[bp+ISDIR],0			; Know destination specs file
 	invoke	SETSTARS
 GOT2ARGS:
-	cmp	[bp.SIZ],2
+	cmp	[bp+SIZ],2
 	jnz	NOTSHORTDEST
 	mov	al,':'
 	cmp	[DESTBUF+1],al
 	jnz	NOTSHORTDEST			; Two char file name
-	or	[bp.INFO],2			; Know dest is d:
-	mov	di,offset trangroup:DESTBUF + 2
-	mov	[bp.ISDIR],0			; Know destination specs file
+	or	[bp+INFO],2			; Know dest is d:
+	mov	di,DESTBUF + 2
+	mov	[bp+ISDIR],0			; Know destination specs file
 	invoke	SETSTARS
 NOTSHORTDEST:
-	mov	di,[bp.TTAIL]
-	cmp	byte ptr [DI],0
+	mov	di,[bp+TTAIL]
+	cmp	byte [DI],0
 	jnz	CHKSWTCHES
-	mov	dx,offset trangroup:BADCD_ptr
+	mov	dx,BADCD_ptr
 	mov	al,':'
-	cmp	byte ptr [DI-2],al
+	cmp	byte [DI-2],al
 	jnz	CERROR4J			; Trailing '/' error
-	mov	[bp.ISDIR],2			; Know destination is d:/
-	or	[bp.INFO],6
+	mov	[bp+ISDIR],2			; Know destination is d:/
+	or	[bp+INFO],6
 	invoke	SETSTARS
 CHKSWTCHES:
 ;AD018; mov	ax,[ALLSWITCH]
@@ -343,20 +343,20 @@ CHKSWTCHES:
 ; Now know most of the information needed about the destination
 
 ;AD018; NOT_BAD_SWITCH:
-if not ibmcopyright
+%if not ibmcopyright
 	mov	ax, [allswitch]			; Which switches were requested?  Hmmm?
-endif
+%endif
 	TEST	AX,SwitchV			; Verify requested?
 	JZ	NOVERIF 			; No
 	MOV	AH,GET_VERIFY_ON_WRITE
 	INT	int_command			; Get current setting
 	PUSH	DS
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	XOR	AH,AH
 	MOV	[VERVAL],AX			; Save current setting
 	POP	DS
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 	MOV	AX,(SET_VERIFY_ON_WRITE SHL 8) OR 1 ; Set verify
 	INT	int_command
 NOVERIF:
@@ -364,7 +364,7 @@ NOVERIF:
 	mov	si,81H
 	mov	bl,plus_chr			; include '+' as a delimiter
 SCANFSRC:
-	mov	di,offset trangroup:SCANBUF
+	mov	di,SCANBUF
 	invoke	CPARSE				; Parse first source name
 	test	bh,1				; Switch?
 	jnz	SCANFSRC			; Yes, try again
@@ -380,14 +380,14 @@ NOSETCASC:
 	call	FRSTSRC
 	jmp	FIRSTENT
 
-PUBLIC	EndCopy
+global EndCopy
 ENDCOPY:
 	CALL	CLOSEDEST
 ENDCOPY2:
 	call	deallocate_src_xa		;AN030; deallocate xa segment
 	invoke	free_tpa			;AN000; Make sure work area
 	invoke	alloc_tpa			;AN000;   is reset properly
-	MOV	DX,OFFSET TRANGROUP:COPIED_ptr
+	MOV	DX,COPIED_ptr
 	MOV	SI,[FILECNT]
 	mov	copy_num,si
 	invoke	std_printf
@@ -397,9 +397,9 @@ SRCNONEXIST:
 	cmp	[CONCAT],0
 	jnz	NEXTSRC 			; If in concat mode, ignore error
 	mov	msg_disp_class,ext_msg_class	     ;AN000; set up extended error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr   ;AC000; get extended message pointer
+	mov	dx,Extend_Buf_ptr   ;AC000; get extended message pointer
 	mov	Extend_Buf_ptr,error_file_not_found  ;AN000; get message number in control block
-	mov	string_ptr_2,offset trangroup:srcbuf ;AC046; get address of failed string
+	mov	string_ptr_2,srcbuf ;AC046; get address of failed string
 	mov	Extend_buf_sub,one_subst	     ;AC046; put number of subst in control block
 	jmp	COPERR
 
@@ -414,8 +414,8 @@ FRSTSRC:
 	mov	DestClosed,AL
 LEAVECFLAG:
 	mov	[SRCPT],SI			; remember where we are
-	mov	di,offset trangroup:USERDIR1
-	mov	bp,offset trangroup:SRCVARS
+	mov	di,USERDIR1
+	mov	bp,SRCVARS
 	invoke	BUILDPATH			; Figure out everything about the source
 	mov	si,[SRCTAIL]			; Create the search FCB
 	return
@@ -430,7 +430,7 @@ MORECP:
 	mov	si,[SRCPT]
 	mov	bl,plus_chr			; include '+' as a delimiter
 SCANSRC:
-	mov	di,offset trangroup:SCANBUF
+	mov	di,SCANBUF
 	invoke	CPARSE				; Parse first source name
 	JC	EndCopyJ2			; if error, then end (trailing + case)
 	test	bh,80H
@@ -448,16 +448,16 @@ FIRSTENT:
 	mov	di,FCB
 	mov	ax,PARSE_FILE_DESCRIPTOR SHL 8
 	INT	int_command
-	CMP	BYTE PTR [SI],0 		; parse everything?
+	CMP	byte [SI],0 		; parse everything?
 	JNZ	SrchDone			; no, error, simulate no more search
-	mov	ax,word ptr [SRCBUF]		; Get drive
+	mov	ax,word [SRCBUF]		; Get drive
 	cmp	ah,':'
 	jz	DRVSPEC1
 	mov	al,'@'
 DRVSPEC1:
 	or	al,20h
 	sub	al,60h
-	mov	ds:[FCB],al
+	mov	[ds:FCB],al
 	mov	ah,DIR_SEARCH_FIRST
 	call	SEARCH
 SrchDone:
@@ -473,14 +473,14 @@ NEXTAMBIG0:
 	jz	NEXTAMBIG
 SETNMEL:
 	mov	cx,12
-	mov	di,OFFSET TRANGROUP:SDIRBUF
-	mov	si,OFFSET TRANGROUP:DIRBUF
+	mov	di,SDIRBUF
+	mov	si,DIRBUF
 	rep	movsb				; Save very first source name
 NEXTAMBIG:
 	xor	al,al
 	mov	[NOWRITE],al			; Turn off NOWRITE
 	mov	di,[SRCTAIL]
-	mov	si,offset trangroup:DIRBUF + 1
+	mov	si,DIRBUF + 1
 	invoke	FCB_TO_ASCZ			; SRCBUF has complete name
 MELDO:
 	cmp	[CONCAT],0
@@ -488,7 +488,7 @@ MELDO:
 	test	[SRCINFO],2			; Show name if multi
 	jz	DOREAD
 SHOWCPNAM:
-	mov	dx,offset trangroup:file_name_ptr
+	mov	dx,file_name_ptr
 	invoke	std_printf
 	invoke	CRLF2
 DOREAD:
@@ -525,7 +525,7 @@ CONTMEL:
 	mov	si,[SRCPT]
 	mov	bl,plus_chr
 SCANSRC2:
-	mov	di,OFFSET TRANGROUP:SCANBUF
+	mov	di,SCANBUF
 	invoke	CPARSE
 	test	bh,80H
 	jz	NEXTMEL 			; Go back to start
@@ -533,11 +533,11 @@ SCANSRC2:
 	jnz	SCANSRC2			; Yes
 	call	SOURCEPROC
 	invoke	RESTUDIR1
-	mov	di,OFFSET TRANGROUP:DESTFCB2
+	mov	di,DESTFCB2
 	mov	ax,PARSE_FILE_DESCRIPTOR SHL 8
 	INT	int_command
-	mov	bx,OFFSET TRANGROUP:SDIRBUF + 1
-	mov	si,OFFSET TRANGROUP:DESTFCB2 + 1
+	mov	bx,SDIRBUF + 1
+	mov	si,DESTFCB2 + 1
 	mov	di,[SRCTAIL]
 	invoke	BUILDNAME
 	cmp	[CONCAT],0			; Are we concatenating?
@@ -576,7 +576,7 @@ SEARCHNEXT:
 SEARCH:
 	PUSH	AX
 	MOV	AH,SET_DMA
-	MOV	DX,OFFSET TRANGROUP:DIRBUF
+	MOV	DX,DIRBUF
 	INT	int_command			; Put result of search in DIRBUF
 	POP	AX				; Restore search first/next command
 	MOV	DX,FCB
@@ -585,8 +585,8 @@ SEARCH:
 	return
 
 DOCOPY:
-	mov	si,offset trangroup:SRCBUF	;g do name translate of source
-	mov	di,offset trangroup:SRCXNAME	;g save for name comparison
+	mov	si,SRCBUF	;g do name translate of source
+	mov	di,SRCXNAME	;g save for name comparison
 	mov	ah,xnametrans			;g
 	int	int_command			;g
 
@@ -663,17 +663,17 @@ get_src_xa:
 	mov	[src_xa_seg], AX		;AN000; save new segment
 	push	ds				;AN030; get resident segment
 	mov	ds,[resseg]			;AN030;   and save copy of xa
-	assume	ds:resgroup			;AN030;   segment in resident
+	; assume	ds:resgroup;AN030;   segment in resident
 	mov	[rsrc_xa_seg],ax		;AN030;   in case user breaks
 	pop	ds				;AN030;   out or has critical
-	assume	ds:trangroup			;AN030;   error
+	; assume	ds:trangroup;AN030;   error
 	invoke	alloc_tpa			;AN000; reallocate the work area
 	popf					;AN000; restore flags
 	pop	bx				;AN000; restore handle
 	jnc	Alloc_for_xa_okay		;AN000; no carry - everything okay
 	call	closesrc			;AN000; close the source file
 	mov	msg_disp_class,ext_msg_class	       ;AN000; set up extended error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr     ;AC000; get extended message pointer
+	mov	dx,Extend_Buf_ptr     ;AC000; get extended message pointer
 	mov	Extend_Buf_ptr,error_not_enough_memory ;AN000; get message number in control block
 	jmp	cerror				;AN000; exit
 
@@ -691,7 +691,7 @@ Alloc_for_xa_okay:
 
 error_on_source:				;AN022; we have a BAD error
 	invoke	set_ext_error_msg		;AN022; set up the error message
-	mov	string_ptr_2,offset trangroup:srcbuf ;AN022; get address of failed string
+	mov	string_ptr_2,srcbuf ;AN022; get address of failed string
 	mov	Extend_buf_sub,one_subst	;AN022; put number of subst in control block
 	invoke	std_Eprintf			;AN022; print it
 	cmp	[srchand],0			;AN022; did we open the file?
@@ -712,7 +712,7 @@ no_copy_xa:
 	jz	COPYLP				; Source not a device
 	cmp	[BINARY],0
 	jz	COPYLP				; ASCII device OK
-	mov	dx,offset trangroup:INBDEV_ptr	; Cannot do binary input
+	mov	dx,INBDEV_ptr	; Cannot do binary input
 	jmp	COPERR
 
 COPYLP:
@@ -728,11 +728,11 @@ COPYLP:
 GOTROOM:
 	push	ds
 	mov	ds,[TPA]
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 	mov	ah,READ
 	INT	int_command
 	pop	ds
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 	jc	error_on_source 		;AC022; Give up if error
 	mov	cx,ax				; Get count
 	jcxz	CLOSESRC			; No more to read
@@ -782,7 +782,7 @@ CLOSESRC:
 CLOSEDEST:
 	cmp	[DESTCLOSED],0
 	retnz					; Don't double close
-	MOV	AL,BYTE PTR [DESTSWITCH]
+	MOV	AL,byte [DESTSWITCH]
 	invoke	SETASC				; Check for B or A switch on destination
 	JZ	BINCLOS
 	MOV	BX,[NXTADD]
@@ -798,7 +798,7 @@ NOCONC:
 PUTZ:
 	PUSH	DS
 	MOV	DS,[TPA]
-	MOV	WORD PTR [BX],1AH		; Add End-of-file mark (Ctrl-Z)
+	MOV	word [BX],1AH		; Add End-of-file mark (Ctrl-Z)
 	POP	DS
 	INC	[NXTADD]
 	MOV	[NOWRITE],0			; Make sure our ^Z gets written
@@ -852,7 +852,7 @@ DODCLOSE:
 	jc	xa_cleanup_err			;AN022; handle error
 
 	mov	ax,(file_times SHL 8)+set_XA	;AN000; set code page
-	mov	di,offset trangroup:xa_cp_out	;AC030; offset of attr list
+	mov	di,xa_cp_out	;AC030; offset of attr list
 	int	int_command			;AN000;
 	jc	xa_cleanup_err			;AN030; exit if error
 
@@ -906,18 +906,18 @@ FORGETIT:
 	JMP	RET50
 
 DestDelete:
-	MOV	DX,OFFSET TRANGROUP:DESTBUF
+	MOV	DX,DESTBUF
 	MOV	AH,UNLINK
 	INT	int_command			; And delete it
 	return
 
-source_set	proc near
+source_set:
 
 	push	SI
 	mov	ax,[STARTEL]
-	mov	SI,offset trangroup:SCANBUF	; Adjust to copy
+	mov	SI,SCANBUF	; Adjust to copy
 	sub	ax,SI
-	mov	DI,offset trangroup:SRCBUF
+	mov	DI,SRCBUF
 	add	ax,DI
 	mov	[SRCTAIL],AX
 	mov	[SRCSIZ],cl			; Save its size
@@ -931,7 +931,7 @@ source_set	proc near
 	invoke	SETASC				; Set
 	return
 
-source_set	endp
+; ENDP source_set
 
 
 ;****************************************************************
@@ -947,18 +947,18 @@ source_set	endp
 ;*
 ;****************************************************************
 
-cleanuperr	proc	near			;AN022;
+cleanuperr:;AN022;
 
 	cmp	msg_flag,0			;AN022; have we already issued a message?
 	jnz	cleanuperr_cont 		;AN022; yes - don't issue duplicate error
 	invoke	set_ext_error_msg		;AN022; set up error message
-	mov	string_ptr_2,offset trangroup:destbuf ;AN022; get address of failed string
+	mov	string_ptr_2,destbuf ;AN022; get address of failed string
 	mov	Extend_buf_sub,one_subst	;AN022; put number of subst in control block
 	invoke	std_eprintf			;AN022; issue the error message
 cleanuperr_cont:				;AN022;
 
 	ret					;AN022; return to caller
-cleanuperr	endp				;AN022;
+; ENDP cleanuperr;AN022;
 
 ;****************************************************************
 ;*
@@ -974,7 +974,7 @@ cleanuperr	endp				;AN022;
 ;*
 ;****************************************************************
 
-Deallocate_Src_XA  proc    near 		;AN030;
+Deallocate_Src_XA:;AN030;
 
 	cmp	[src_xa_seg],no_xa_seg		;AN030; has any XA segment been allocated
 	jz	no_src_xa			;AN030; no - continue
@@ -986,16 +986,16 @@ Deallocate_Src_XA  proc    near 		;AN030;
 	mov	[src_xa_seg],no_xa_seg		;AN030; reset to no segment
 	push	ds				;AN030; reinitialize resident
 	mov	ds,[resseg]			;AN030;   copy of xa segment
-	assume	ds:resgroup			;AN030;
+	; assume	ds:resgroup;AN030;
 	mov	[rsrc_xa_seg],no_xa_seg 	;AN030; reset to no segment
 	pop	ds				;AN030;
-	assume	ds:trangroup			;AN030;
+	; assume	ds:trangroup;AN030;
 no_src_xa:					;AN030;
 
 	ret					;AN030; return to caller
-Deallocate_Src_XA  endp 			;AN030;
+; ENDP Deallocate_Src_XA;AN030;
 
 
-TRANCODE	ENDS
-	END
+; END SECTION .TRANCODE
+	; END
 

@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)create.asm 1.6 85/08/19
-TITLE	DOS_CREATE/DOS_CREATE_NEW - Internal CREATE calls for MS-DOS
-NAME	DOS_CREATE
+; TITLE	DOS_CREATE/DOS_CREATE_NEW - Internal CREATE calls for MS-DOS
+; NAME	DOS_CREATE
 ; Internal Create and Create new to create a local or NET file and SFT.
 ;
 ;   DOS_CREATE
@@ -17,20 +17,20 @@ NAME	DOS_CREATE
 ;
 ; get the appropriate segment definitions
 ;
-.xlist
-include dosseg.asm
+; .xlist
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-include version.inc
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+%include "version.inc"
+; .cref
+; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	NoSetDir,BYTE
 	i_need	THISSFT,DWORD
@@ -84,7 +84,7 @@ Installed = TRUE
 
 	procedure   DOS_Create,NEAR
 	DOSAssume   CS,<DS>,"DOS_Create"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	XOR	AH,AH		; Truncate is OK
 Create_inter:
@@ -125,24 +125,24 @@ IFS_extopen:				    ;AN000;EO.
 NOEXTOP:				    ;AN000;
 ;Extended open hooks
 
-IF NOT Installed
+%if ~Installed
 	transfer NET_SEQ_CREATE
-ELSE
+%else
 	PUSH	AX
 	MOV	AX,(multNET SHL 8) OR 24
 	INT	2FH
 	POP	BX			; BX is trashed anyway
 	return
-ENDIF
+%endif
 
 TEST_RE_NET:
-	TEST	ES:[SI.curdir_flags],curdir_isnet
+	TEST	[ES:SI+curdir_flags],curdir_isnet
 	POP	ES
 	JZ	LOCAL_CREATE
 
 	CALL	Set_EXT_mode		    ;AN000;EO.
 	JC	SHORT dochk		    ;AN000;EO.
-	OR	ES:[DI.sf_mode],sharing_compat + open_for_both ;IFS.
+	OR	[ES:DI+sf_mode],sharing_compat + open_for_both ;IFS.
 dochk:
  ;	invoke	IFS_SHARE_CHECK 	    ;AN000;IFS. check share
  ;	JC	nomore			    ;AN000;IFS. share violation
@@ -152,21 +152,21 @@ dochk:
 	JNZ	IFS_extopen		    ;AN000;EO. yes, issue extended open
 ;Extended open hooks
 
-IF NOT Installed
+%if ~Installed
 	transfer NET_CREATE
-ELSE
+%else
 	PUSH	AX
 	MOV	AX,(multNET SHL 8) OR 23
 	INT	2FH
 	POP	BX			; BX is trashed anyway
 nomore:
 	return
-ENDIF
+%endif
 
 LOCAL_CREATE:
 	CALL	Set_EXT_mode	       ;AN000;EO. set mode if from extended open
 	JC	setdone 	       ;AN000;EO.
-	OR	ES:[DI].sf_mode,sharing_compat+open_for_both
+	OR	[ES:DI].sf_mode,sharing_compat+open_for_both
 setdone:
 	EnterCrit   critDisk
 	invoke	MakeNode
@@ -176,21 +176,21 @@ setdone:
 
 	entry	SET_MKND_ERR
 	DOSAssume   CS,<DS>,"Set_MkNd_Err"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 ; Looks up MakeNode errors and converts them. AL is MakeNode
 ; error, SI is GetPath bad spot return if path_not_found error.
 
-	MOV	BX,OFFSET DOSGROUP:CRTERRTAB
+	MOV	BX,CRTERRTAB
 	XLAT
 CreatBadRet:
 	STC
 	return
 
-TABLE	SEGMENT
-Public CREAT001S,CREAT001E
-CREAT001S  label  byte
-CRTERRTAB LABEL BYTE		; Lookup table for MakeNode returns
-	DB	?			; none
+SECTION .TABLE
+global CREAT001S,CREAT001E
+CREAT001S:
+CRTERRTAB:; Lookup table for MakeNode returns
+	db 0; none
 	DB	error_access_denied	; MakeNode error 1
 	DB	error_cannot_make	; MakeNode error 2
 	DB	error_file_exists	; MakeNode error 3
@@ -198,8 +198,8 @@ CRTERRTAB LABEL BYTE		; Lookup table for MakeNode returns
 	DB	error_access_denied	; MakeNode error 5
 	DB	error_sharing_violation ; MakeNode error 6
 	DB	error_file_not_found	; MakeNode error 7
-CREAT001E  label byte
-TABLE	ENDS
+CREAT001E:
+; END SECTION .TABLE
 
 ;
 ; We have just created a new file.  This results in the truncation of old
@@ -217,7 +217,7 @@ Create_ok:
 	test	al,attr_volume_id
 	jz	NoVolLabel
 	LES	DI,[THISCDS]
-	mov	ah,byte ptr ES:[DI]	; get drive letter
+	mov	ah,byte [ES:DI]	; get drive letter
 	sub	ah,'A'                  ; convert to drive letter
 	mov	[VOLCHNG_FLAG],ah	;Set flag to indicate volid change
 	MOV	BH,1			;AN000;>32mb set volume id to boot record
@@ -229,11 +229,11 @@ Create_ok:
 NoVolLabel:
 	MOV	ax,2
 	LES	DI,ThisSFT
-if installed
+%if installed
 	call	JShare + 14 * 4
-else
+%else
 	Call	ShSU
-endif
+%endif
 	LeaveCrit   critDisk
 	transfer SET_SFT_MODE
 
@@ -272,7 +272,7 @@ EndProc DOS_Create
 
 	procedure   DOS_Create_New,NEAR
 	DOSAssume   CS,<DS>,"DOS_Create_New"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	MOV	AH,1		; Truncate is NOT OK
 	JMP	Create_inter
@@ -295,7 +295,7 @@ EndProc DOS_Create_New
 
 	procedure   Set_Media_ID,NEAR		   ;AN000;
 	DOSAssume   CS,<DS>,"DOS_Create_New"       ;AN000;
-	ASSUME	ES:NOTHING			   ;AN000;
+	; ASSUME	ES:NOTHING;AN000;
 
 	PUSH	AX		;AN000;;>32mb
 	PUSH	ES		;AN000;;>32mb
@@ -305,7 +305,7 @@ EndProc DOS_Create_New
 	MOV	BL,AH		;AN000;;>32mb  bl=drive # (A=1,B=2,,,)
 	MOV	AL,0DH		;AN000;;>32mb  generic IOCTL
 	MOV	CX,0866H	;AN001;;>32mb  get media id
-	MOV	DX,OFFSET DOSGROUP:PACKET_TEMP	;AN000;>32mb
+	MOV	DX,PACKET_TEMP	;AN000;>32mb
 
 	PUSH	BX		;AN000;;>32mb
 	PUSH	DX		;AN000;;>32mb
@@ -318,10 +318,10 @@ EndProc DOS_Create_New
 
 	OR	BH,BH		;AN000;;>32mb delete volume id
 	JZ	NoName		;AN000;>32mb yes
-	MOV	SI,OFFSET DOSGROUP:NAME1   ;AN000;>32mb
+	MOV	SI,NAME1   ;AN000;>32mb
 	JMP	SHORT doset	;AN000;>32mb yes
 Noname: 			;AN000;
-	MOV	SI,OFFSET DOSGROUP:NO_NAME_ID  ;AN000;>32mb
+	MOV	SI,NO_NAME_ID  ;AN000;>32mb
 doset:					       ;AN000;
 	MOV	DI,DX		;AN000;;>32mb
 	ADD	DI,MEDIA_LABEL	;AN000;;>32mb
@@ -356,18 +356,18 @@ EndProc Set_Media_ID		;AN000;
 ;	carry set,mode is set if from Extended Open
 ;	carry clear, mode not set yet
 
-IF	NOT IBMCOPYRIGHT
-	public Set_EXT_mode
-ENDIF
+%if ~IBMCOPYRIGHT
+	global Set_EXT_mode
+%endif
 
 	procedure   Set_EXT_mode,NEAR	    ;AN000;
-	ASSUME	ES:NOTHING,DS:NOTHING	    ;AN000;
+	; ASSUME	ES:NOTHING,DS:NOTHING;AN000;
 
 	TEST	[EXTOPEN_ON],ext_open_on    ;AN000;EO. from extnded open
 	JZ	NOTEX			    ;AN000;EO. no, do normal
 	PUSH	AX			    ;AN000;EO.
 	MOV	AX,[SAVE_BX]		    ;AN000;EO.
-	OR	ES:[DI.sf_mode],AX	    ;AN000;EO.
+	OR	[ES:DI+sf_mode],AX	    ;AN000;EO.
 	POP	AX			    ;AN000;EO.
 	STC				    ;AN000;EO.
 NOTEX:					    ;AN000;
@@ -375,6 +375,6 @@ NOTEX:					    ;AN000;
 
 EndProc Set_EXT_mode			    ;AN000;
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END
 

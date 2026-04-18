@@ -1,5 +1,5 @@
-	PAGE	,132
-	TITLE	DOS - KEYB Command  -  Copy Shared_Data_Area
+	; PAGE	,132
+	; TITLE	DOS - KEYB Command  -  Copy Shared_Data_Area
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -42,18 +42,18 @@
 ;; 3/24/88
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-	PUBLIC	SD_DEST_PTR	       ;;
-	PUBLIC	COPY_SD_AREA	       ;;
-	PUBLIC	SHARED_DATA	       ;;
+	global SD_DEST_PTR;;
+	global COPY_SD_AREA;;
+	global SHARED_DATA;;
 				       ;;
-	INCLUDE STRUC.INC
-	INCLUDE KEYBSHAR.INC	       ;;
-	INCLUDE KEYBCMD.INC	       ;;
-	INCLUDE KEYBTBBL.INC	       ;;
+	%include "STRUC.INC"
+	%include "KEYBSHAR.INC";;
+	%include "KEYBCMD.INC";;
+	%include "KEYBTBBL.INC";;
 				       ;;
-CODE	SEGMENT PUBLIC 'CODE'          ;;
+SECTION .CODE;;
 				       ;;
-	ASSUME	CS:CODE,DS:CODE        ;;
+	; ASSUME	CS:CODE,DS:CODE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -77,14 +77,14 @@ TSD		EQU  TEMP_SHARED_DATA  ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 					       ;;
-COPY_SD_AREA	PROC   NEAR		       ;;
+COPY_SD_AREA:;;
 					       ;;
-	REP	MOVS ES:BYTE PTR [DI],DS:[SI]  ;; Copy SHARED_DATA_AREA to
+	REP	movsbDS:[SI]  ;; Copy SHARED_DATA_AREA to
 
 		  push	  ax			  ;AN004;save existing values
 		  push	  es			  ;AN004;;
 		  xor	  ax,ax 		  ;AN004;clear out ax
-		  mov	  ax,cs:[2ch]		  ;AN004;check offset for address containin environ.
+		  mov	  ax,[cs:2ch]		  ;AN004;check offset for address containin environ.
 		  cmp	  ax,0			  ;AN004;
 		  je	  NO_FREEDOM		  ;AN004;
 		  mov	  es,ax 		  ;AN004;
@@ -101,28 +101,28 @@ NO_FREEDOM:
 
 						  ;AN004;     ;Terminate and stay resident
 	     mov     bx,4			  ;AN004;     ;1st close file handles
-	 .REPEAT				  ;AN004;     ;STDIN,STDOUT,STDERR
+	 ; .REPEAT;AN004;     ;STDIN,STDOUT,STDERR
 	     mov  ah,3eh			  ;AN004;     ;
 	     int  21h				  ;AN004;     ;
 	     dec  bx				  ;AN004;     ;
-	.UNTIL <BX eq 0>			  ;AN004;     ;
+	; .UNTIL <BX eq 0>;AN004;     ;
 
 		 pop	 bx			  ;AN004;
 		 pop	 ax			  ;AN004;
 						  ;AN004;	 new part of memory
-	MOV	BYTE PTR ES:SD.TABLE_OK,1	  ;; Activate processing flag
+	MOV	byte ES:SD.TABLE_OK,1	  ;; Activate processing flag
 	INT	21H				  ;; Exit
 					       ;;
 					       ;;
-COPY_SD_AREA	ENDP			       ;;
+; ENDP COPY_SD_AREA;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
  db 'SHARED DATA'                      ;;
-SD_DEST_PTR	LABEL	BYTE	       ;;
+SD_DEST_PTR:;;
 				       ;;
 SHARED_DATA   SHARED_DATA_STR <>       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CODE   ENDS
-       END
+; END SECTION .CODE
+       ; END

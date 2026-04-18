@@ -1,25 +1,25 @@
 ;      SCCSID = @(#)d_gctrcd.asm        1.1 86/06/03
-.xlist
+; .xlist
 ;  include struc.inc
-include nlsapi.inc
-.list
+%include "nlsapi.inc"
+; .list
 
-DGROUP  group   _DATA
+; DGROUP  group   _DATA
 
-_TEXT   segment word public 'CODE'
-_TEXT   ends
+SECTION ._TEXT
+; END SECTION ._TEXT
 
-_DATA   segment word public 'DATA'
-        EXTRN   _ApiSel:WORD
-_DATA   ends
+SECTION ._DATA
+        extern _ApiSel
+; END SECTION ._DATA
 
-_TEXT   segment
+SECTION ._TEXT
 
-EXTRN   W_NLS_APIS:near
+extern W_NLS_APIS
 
-public  DOSGETCTRYINFO
-DOSGETCTRYINFO    proc    far
-        assume  cs:_TEXT
+global DOSGETCTRYINFO
+DOSGETCTRYINFO:
+        ; assume  cs:_TEXT
 
 
         mov     AX,BP               ; Add 4 bytes of dummy parameters to the
@@ -40,8 +40,8 @@ DOSGETCTRYINFO    proc    far
 ;       pop     bp
 ;       ret     14
 
-DOSGETCTRYINFO endp
+; ENDP DOSGETCTRYINFO
 
-_TEXT   ENDS
-        END
+; END SECTION ._TEXT
+        ; END
 

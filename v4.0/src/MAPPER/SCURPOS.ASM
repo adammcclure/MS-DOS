@@ -1,10 +1,10 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS VioSetCurPos mapper
+; title CP/DOS VioSetCurPos mapper
 ;
-vioxxx  segment byte public 'vio'
-        assume  cs:vioxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .vioxxx
+        ; assume  cs:vioxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -24,23 +24,23 @@ vioxxx  segment byte public 'vio'
 ; *
 ; *************************************************************************
 
-        public  viosetcurpos
-        .sall
-        .xlist
-        include macros.inc
-        .list
+        global viosetcurpos
+        ; .sall
+        ; .xlist
+        %include "macros.inc"
+        ; .list
 
 error_bvs_parameter equ    0002h
 
-str     struc
-old_bp  dw      ?
-return  dd      ?
-handle  dw      ?           ; vio handle
-column  dw      ?           ; column value
-row     dw      ?           ; row value
-str     ends
+struc str
+old_bp: resw 1
+return: resd 1
+handle: resw 1; vio handle
+column: resw 1; column value
+row: resw 1; row value
+endstruc
 
-viosetcurpos proc   far
+viosetcurpos:
         Enter   viosetcurpos            ; push registers
 
         mov     bh,0
@@ -65,8 +65,8 @@ viosetcurpos proc   far
 
 error:  mov     ax,error_bvs_parameter  ; set error return code
 exit:   Mexit                           ; pop registers
-        ret     size str - 6            ; return
+        ret     str_size - 6            ; return
 
-viosetcurpos endp
-vioxxx  ends
-        end
+; ENDP viosetcurpos
+; END SECTION .vioxxx
+        ; end

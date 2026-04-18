@@ -1,105 +1,105 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tcmd1b.asm 1.1 85/05/14
 ;	SCCSID = @(#)tcmd1b.asm 1.1 85/05/14
-TITLE	PART4 COMMAND Transient routines.
+; TITLE	PART4 COMMAND Transient routines.
 
 ;	Internal commands DIR,PAUSE,ERASE,TYPE,VOL,VER
 
-.xlist
-.xcref
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comsw.asm		;AC000;
-	INCLUDE comequ.asm
-	INCLUDE ioctl.inc		;AN000;
-	INCLUDE ea.inc			;AN030;
-.list
-.cref
+; .xlist
+; .xcref
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comsw.asm";AC000;
+	%include "comequ.asm"
+	%include "ioctl.inc";AN000;
+	%include "ea.inc";AN030;
+; .list
+; .cref
 
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	badcpmes_ptr:word	;AC022;
-	EXTRN	Extend_buf_ptr:word	;AC000;
-	EXTRN	Extend_buf_sub:byte	;AN000;
-	EXTRN	inornot_ptr:word
-	EXTRN	msg_disp_class:byte	;AC000;
-	EXTRN	parse_erase:byte	;AC000;
-	EXTRN	parse_mrdir:byte	;AC000;
-	EXTRN	parse_rename:byte	;AC000;
-	EXTRN	parse_vol:byte		;AC000;
-	EXTRN	PauseMes_ptr:word
-	EXTRN	renerr_ptr:word
-	EXTRN	slash_p_syn:word	;AC000;
-	EXTRN	volmes_ptr:word 	;AC000;
-	EXTRN	volmes_ptr_2:word	;AC000;
-	EXTRN	volsermes_ptr:word	;AC000;
-	EXTRN	xa_cp:byte		;AN030;
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern badcpmes_ptr;AC022;
+	extern Extend_buf_ptr;AC000;
+	extern Extend_buf_sub;AN000;
+	extern inornot_ptr
+	extern msg_disp_class;AC000;
+	extern parse_erase;AC000;
+	extern parse_mrdir;AC000;
+	extern parse_rename;AC000;
+	extern parse_vol;AC000;
+	extern PauseMes_ptr
+	extern renerr_ptr
+	extern slash_p_syn;AC000;
+	extern volmes_ptr;AC000;
+	extern volmes_ptr_2;AC000;
+	extern volsermes_ptr;AC000;
+	extern xa_cp;AN030;
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	bytcnt:word
-	EXTRN	charbuf:byte
-	EXTRN	comsw:word
-	EXTRN	cpyflag:byte		;AC000;
-	EXTRN	curdrv:byte
-	EXTRN	destinfo:byte
-	EXTRN	destisdir:byte
-	EXTRN	dirbuf:byte
-	EXTRN	msg_numb:word		;AN022;
-	EXTRN	one_char_val:byte
-	EXTRN	parse1_addr:dword	;AN000;
-	EXTRN	parse1_syn:word 	;AN000;
-	EXTRN	srcbuf:byte		;AN000;
-	EXTRN	string_ptr_2:word	;AN000;
-	EXTRN	TPA:word
-	EXTRN	vol_drv:byte
-	EXTRN	vol_ioctl_buf:byte	;AC000;
-	EXTRN	vol_label:byte		;AC000;
-	EXTRN	vol_serial:dword	;AC000;
-	EXTRN	xa_cp_out:byte		;AN030;
-	EXTRN	xa_cp_length:word	;AN030;
-	EXTRN	xa_list_attr:word	;AC030;
-	EXTRN	zflag:byte
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern bytcnt
+	extern charbuf
+	extern comsw
+	extern cpyflag;AC000;
+	extern curdrv
+	extern destinfo
+	extern destisdir
+	extern dirbuf
+	extern msg_numb;AN022;
+	extern one_char_val
+	extern parse1_addr;AN000;
+	extern parse1_syn;AN000;
+	extern srcbuf;AN000;
+	extern string_ptr_2;AN000;
+	extern TPA
+	extern vol_drv
+	extern vol_ioctl_buf;AC000;
+	extern vol_label;AC000;
+	extern vol_serial;AC000;
+	extern xa_cp_out;AN030;
+	extern xa_cp_length;AN030;
+	extern xa_list_attr;AC030;
+	extern zflag
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ;---------------
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg:byte		; the arg structure!
-transpace   ends
+SECTION .TRANSPACE;AC000;
+	extern arg; the arg structure!
+; END SECTION .transpace
 ;---------------
 
-	EXTRN	cerror:near
-	EXTRN	error_output:near
-	EXTRN	notest2:near
-	EXTRN	slashp_erase:near	;AN000;
-	EXTRN	std_printf:near
-	EXTRN	tcommand:near
+	extern cerror
+	extern error_output
+	extern notest2
+	extern slashp_erase;AN000;
+	extern std_printf
+	extern tcommand
 
-	PUBLIC	badpath_err		;AN022;
-	PUBLIC	crename
-	PUBLIC	erase
-	PUBLIC	extend_setup		;AN022;
-	PUBLIC	Get_ext_error_number	;AN022;
-	PUBLIC	Get_file_code_page_tag	;AN000;
-	PUBLIC	pause
-	PUBLIC	Set_ext_error_msg	;AN000;
-	PUBLIC	set_file_code_page	;AN000;
-	PUBLIC	typefil
-	PUBLIC	volume
+	global badpath_err;AN022;
+	global crename
+	global erase
+	global extend_setup;AN022;
+	global Get_ext_error_number;AN022;
+	global Get_file_code_page_tag;AN000;
+	global pause
+	global Set_ext_error_msg;AN000;
+	global set_file_code_page;AN000;
+	global typefil
+	global volume
 
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 	break	Pause
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 PAUSE:
-	mov	dx,offset trangroup:pausemes_ptr
+	mov	dx,pausemes_ptr
 	call	std_printf
 	invoke	GetKeystroke
 	invoke	crlf2
@@ -125,12 +125,12 @@ PAUSE:
 ;*
 ;****************************************************************
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 ERASE:
 	mov	si,81H				;AC000; get command line
 	mov	comsw,0 			;AN000; clear switch indicator
-	mov	di,offset trangroup:parse_erase ;AN000; Get adderss of PARSE_erase
+	mov	di,parse_erase ;AN000; Get adderss of PARSE_erase
 	xor	cx,cx				;AN000; clear cx,dx
 
 erase_scan:
@@ -141,7 +141,7 @@ erase_scan:
 	cmp	ax,result_no_error		;AC000; did we have an error?
 	jnz	errj2				;AC000; yes exit
 
-	cmp	parse1_syn,offset trangroup:slash_p_syn ;AN000; was /P entered?
+	cmp	parse1_syn,slash_p_syn ;AN000; was /P entered?
 	je	set_erase_prompt		;AN000; yes - go set prompt
 
 ;
@@ -149,9 +149,9 @@ erase_scan:
 ;
 	push	si				;AC000; save position in line
 	lds	si,parse1_addr			;AC000; get address of filespec
-	cmp	byte ptr[si+1],colon_char	;AC000; drive specified?
+	cmp	byte[si+1],colon_char	;AC000; drive specified?
 	jnz	Erase_drive_ok			;AC000; no - continue
-	cmp	byte ptr[si+2],end_of_line_out	;AC000; was only drive entered?
+	cmp	byte[si+2],end_of_line_out	;AC000; was only drive entered?
 	jnz	erase_drive_ok			;AC000; no - continue
 	mov	ax,error_file_not_found 	;AN022; get message number in control block
 	jmp	short extend_setup		;AC000; exit
@@ -194,7 +194,7 @@ badpath_err:					;AN022; "Path not found" message
 
 extend_setup:					;AN022;
 	mov	msg_disp_class,ext_msg_class	;AN022; set up extended error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr ;AC022; get extended message pointer
+	mov	dx,Extend_Buf_ptr ;AC022; get extended message pointer
 	mov	Extend_Buf_ptr,ax		;AN022; get message number in control block
 errj2:						;AC022; exit jump
 	jmp	Cerror				;AN022;
@@ -217,12 +217,12 @@ errj2:						;AC022; exit jump
 ; *
 ; ****************************************************************
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 CRENAME:
 
 	mov	si,81H				;AC000; Point to command line
-	mov	di,offset trangroup:parse_rename;AN000; Get adderss of PARSE_RENAME
+	mov	di,parse_rename;AN000; Get adderss of PARSE_RENAME
 	xor	cx,cx				;AN000; clear cx,dx
 	xor	dx,dx				;AN000;
 	invoke	parse_with_msg			;AC018; call parser
@@ -254,7 +254,7 @@ crename_no_parse_error:
 	cmp	[si+1],al			;AC000; Does the 2nd parm have a drive spec?
 	jnz	ren_no_drive			;AN000; Yes, error
 	mov	msg_disp_class,parse_msg_class	;AN000; set up parse error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr  ;AC000; get extended message pointer
+	mov	dx,Extend_Buf_ptr  ;AC000; get extended message pointer
 	mov	Extend_Buf_ptr,BadParm_ptr	;AN000; get "Invalid parameter" message number
 
 	pop	si				;AN000;
@@ -279,12 +279,12 @@ ren_no_drive:
 ; We have source and target.  See if any args beyond.
 ;
 
-	mov	di,offset trangroup:parse_rename;AC000; get address of parse_rename
+	mov	di,parse_rename;AC000; get address of parse_rename
 	invoke	parse_check_eol 		;AC000; are we at end of line?
 	jnz	crename_parse_error		;AN000; no, fail.
 
 	invoke	pathcrunch
-	mov	dx,offset trangroup:badcpmes_ptr
+	mov	dx,badcpmes_ptr
 	jz	errj2				; If 1st parm a dir, print error msg
 	jnc	notest3
 	mov	ax,[msg_numb]			;AN022; get message number
@@ -296,7 +296,7 @@ ren_no_drive:
 
 notest3:
 	mov	al,one_char_val 		;AN000; move char into AX
-	mov	dx,offset trangroup:inornot_ptr ; Load invalid fname error ptr
+	mov	dx,inornot_ptr ; Load invalid fname error ptr
 	invoke	pathchrcmp			; Is the char in al a path sep?
 	jz	errj				; Yes, error - 2nd arg must be
 						;  filename only.
@@ -326,7 +326,7 @@ renameok:
 	jmp	extend_setup			;AN022; need long jump - use extended error
 
 use_renerr:
-	mov	dx,offset trangroup:RenErr_ptr	;AC022;
+	mov	dx,RenErr_ptr	;AC022;
 
 ERRJ:
 	jmp	Cerror
@@ -351,11 +351,11 @@ ret56:	ret
 ;*
 ;****************************************************************
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 TYPEFIL:
 	mov	si,81H
-	mov	di,offset trangroup:parse_mrdir ;AN000; Get adderss of PARSE_MRDIR
+	mov	di,parse_mrdir ;AN000; Get adderss of PARSE_MRDIR
 	xor	cx,cx				;AN000; clear cx,dx
 	xor	dx,dx				;AN000;
 	invoke	parse_with_msg			;AC018; call parser
@@ -366,7 +366,7 @@ TYPEFIL:
 	lds	si,parse1_addr			;AC000; get address of filespec
 	invoke	move_to_srcbuf			;AC000; move to srcbuf
 	pop	si				;AC000; get position back
-	mov	di,offset trangroup:parse_mrdir ;AC000; get address of parse_mrdir
+	mov	di,parse_mrdir ;AC000; get address of parse_mrdir
 	invoke	parse_check_eol 		;AC000; are we at end of line?
 	jz	gottarg 			;AC000; yes - continue
 
@@ -377,7 +377,7 @@ gottarg:
 	invoke	setpath
 	test	[destinfo],00000010b		; Does the filespec contain wildcards
 	jz	nowilds 			; No, continue processing
-	mov	dx,offset trangroup:inornot_ptr ; Yes, report error
+	mov	dx,inornot_ptr ; Yes, report error
 	jmp	Cerror
 nowilds:
 	mov	ax,ExtOpen SHL 8		;AC000; open the file
@@ -385,7 +385,7 @@ nowilds:
 	xor	cx,cx				;AN000; no special files
 	mov	dx,read_open_flag		;AN000; set up open flags
 	mov	di,-1				;AN030; no parm list
-	mov	si,offset trangroup:srcbuf	;AN030; get file name
+	mov	si,srcbuf	;AN030; get file name
 	int	int_command
 	jnc	typecont			; If open worked, continue. Otherwise load
 
@@ -395,7 +395,7 @@ Typerr: 					;AN022;
 	invoke	set_ext_error_msg		;AN022;
 
 Typerr2:					;AN022;
-	mov	string_ptr_2,offset trangroup:srcbuf ;AC022; get address of failed string
+	mov	string_ptr_2,srcbuf ;AC022; get address of failed string
 	mov	Extend_buf_sub,one_subst	;AC022; put number of subst in control block
 	jmp	cerror				;AC022; exit
 
@@ -408,12 +408,12 @@ typecont:
 	mov	zflag,0 			; Reset ^Z flag
 	mov	ds,[TPA]
 	xor	dx,dx
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 
 typelp:
-	cmp	cs:[zflag],0			;AC050; Is the ^Z flag set?
+	cmp	[cs:zflag],0			;AC050; Is the ^Z flag set?
 	retnz					; Yes, return
-	mov	cx,cs:[bytcnt]			;AC056; No, continue
+	mov	cx,[cs:bytcnt]			;AC056; No, continue
 	mov	ah,read
 	int	int_command
 	jc	typerr				;AN022; Exit if error
@@ -421,7 +421,7 @@ typelp:
 	jcxz	typelp_ret			;AC000; exit if nothing read
 	push	ds
 	pop	es				; Check to see if a ^Z was read.
-assume es:nothing
+; assume es:nothing
 	xor	di,di
 	push	ax
 	mov	al,1ah
@@ -430,7 +430,7 @@ assume es:nothing
 	xchg	ax,cx
 	cmp	ax,0
 	jnz	foundz				; Yes, handle it
-	cmp	byte ptr [di-1],1ah		; No, double check
+	cmp	byte [di-1],1ah		; No, double check
 	jnz	typecont2			; No ^Z, continue
 
 foundz:
@@ -438,7 +438,7 @@ foundz:
 	dec	cx				;  bytes up to but NOT including the ^Z
 	push	cs				;  will be typed.
 	pop	es
-assume es:trangroup
+; assume es:trangroup
 	not	zflag				; Turn on ^Z flag so that the routine
 
 typecont2:					;  will quit after this write.
@@ -466,7 +466,7 @@ typelp_ret:
 	ret
 
 	break	Volume
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 ;
 ; VOLUME command displays the volume ID on the specified drive
@@ -474,7 +474,7 @@ assume	ds:trangroup,es:trangroup
 VOLUME:
 
 	mov	si,81H
-	mov	di,offset trangroup:parse_vol	;AN000; Get adderss of PARSE_VOL
+	mov	di,parse_vol	;AN000; Get adderss of PARSE_VOL
 	xor	cx,cx				;AN000; clear cx,dx
 	xor	dx,dx				;AN000;
 	invoke	parse_with_msg			;AC018; call parser
@@ -486,7 +486,7 @@ VOLUME:
 ; We have parsed off the drive.  See if there are any more chars left
 ;
 
-	mov	di,offset trangroup:parse_vol	;AC000; get address of parse_vol
+	mov	di,parse_vol	;AC000; get address of parse_vol
 	xor	dx,dx				;AC000;
 	invoke	parse_check_eol 		;AC000; call parser
 	jz	OkVolArg			;AC000; yes, end of road
@@ -498,7 +498,7 @@ badvolarg:
 ;
 ; Find the Volume ID on the disk.
 ;
-PUBLIC	OkVolArg
+global OkVolArg
 OKVOLARG:
 	invoke	crlf2
 	mov	al,blank			;AN051; Print out a blank
@@ -526,7 +526,7 @@ OKVOLARG:
 ;
 ; Set up transfer address (destination of search first information)
 ;
-	mov	dx,offset trangroup:dirbuf
+	mov	dx,dirbuf
 	mov	ah,set_DMA
 	int	int_command
 ;
@@ -540,7 +540,7 @@ OKVOLARG:
 ; Print volume ID info
 
 	push	ax				;AC000; AX return from SEARCH_FIRST for VOL ID
-	mov	al,DS:[FCB]			;AC000; get drive letter
+	mov	al,[DS:FCB]			;AC000; get drive letter
 	add	al,'@'
 	cmp	al,'@'
 	jnz	drvok
@@ -551,19 +551,19 @@ drvok:
 	pop	ax				;AC000; get return code back
 	or	al,al				;AC000; volume label found?
 	jz	Get_vol_name			;AC000; volume label exists - go get it
-	mov	dx,offset trangroup:VolMes_ptr_2 ;AC000; set up no volume message
+	mov	dx,VolMes_ptr_2 ;AC000; set up no volume message
 	jmp	short print_serial		;AC000; go print it
 
 Get_vol_name:
-	mov	di,offset trangroup:charbuf
+	mov	di,charbuf
 	mov	dx,di
-	mov	si,offset trangroup:dirbuf + 8	;AN000;  3/3/KK
+	mov	si,dirbuf + 8	;AN000;  3/3/KK
 	mov	cx,11				;AN000;  3/3/KK
 	rep	movsb				;AN000;  3/3/KK
 
 	xor	al,al				;AC000; store a zero to terminate the string
 	stosb
-	mov	dx,offset trangroup:VolMes_ptr	;AC000; set up message
+	mov	dx,VolMes_ptr	;AC000; set up message
 
 PRINT_SERIAL:
 
@@ -574,15 +574,15 @@ PRINT_SERIAL:
 
 	push	dx				;AN000; save message offset
 	mov	ax,(GetSetMediaID SHL 8)	;AC036; Get the volume serial info
-	mov	bl,DS:[FCB]			;AN000; get drive number from FCB
-	mov	dx,offset trangroup:vol_ioctl_buf ;AN000;target buffer
+	mov	bl,[DS:FCB]			;AN000; get drive number from FCB
+	mov	dx,vol_ioctl_buf ;AN000;target buffer
 	int	int_command			;AN000; do the call
 	pop	dx				;AN000; get message offset back
 	jc	printvol_end			;AN000; if error, just go print label
 	call	std_printf			;AC000; go print volume message
 	mov	al,blank			;AN051; Print out a blank
 	invoke	print_char			;AN051;   before volume message
-	mov	dx,offset trangroup:VolSerMes_ptr ;AN000; get serial number message
+	mov	dx,VolSerMes_ptr ;AN000; get serial number message
 
 printvol_end:
 	jmp	std_printf			;AC000; go print and exit
@@ -606,7 +606,7 @@ printvol_end:
 ;*
 ;****************************************************************
 
-Set_file_code_page proc near			;AN000;
+Set_file_code_page:;AN000;
 
 	push	bx				;AN000; save registers
 	push	di				;AN000;
@@ -619,7 +619,7 @@ Set_file_code_page proc near			;AN000;
 
 already_have_cp:				;AN000; See what was returned.
 	mov	ax,(file_times SHL 8)+set_XA	;AC030; set code page
-	mov	di,offset trangroup:xa_cp_out	;AC030; offset of attr list
+	mov	di,xa_cp_out	;AC030; offset of attr list
 	mov	bx,cx				;AN000; get handle of output device
 	int	int_command			;AN000;
 	jnc	set_file_cp_end 		;AN000; all okay - return
@@ -637,7 +637,7 @@ set_file_cp_exit:
 
 	ret					;AN000; return
 
-Set_file_code_page endp 			;AN000;
+; ENDP Set_file_code_page;AN000;
 
 
 ;****************************************************************
@@ -656,15 +656,15 @@ Set_file_code_page endp 			;AN000;
 ;****************************************************************
 
 
-Get_file_code_page_tag proc near		;AN000;
+Get_file_code_page_tag:;AN000;
 
 	push	cx				;AN030;
 	push	si				;AN030;
 	push	di				;AN030;
 	mov	xa_list_attr,0			;AN030; initialize code page
 	mov	ax,(file_times SHL 8)+get_XA	;AC030; get extended attributes
-	mov	si,offset trangroup:xa_cp	;AN030; get xa request buffer
-	mov	di,offset trangroup:xa_cp_out	;AC030; get xa output buffer
+	mov	si,xa_cp	;AN030; get xa request buffer
+	mov	di,xa_cp_out	;AC030; get xa output buffer
 	mov	cx,xa_cp_length 		;AN030; length of buffer
 	int	int_command			;AN000;
 	pop	di				;AN030;
@@ -673,7 +673,7 @@ Get_file_code_page_tag proc near		;AN000;
 
 	ret					;AN000; return
 
-Get_file_code_page_tag endp			;AN000;
+; ENDP Get_file_code_page_tag;AN000;
 
 
 ;****************************************************************
@@ -689,17 +689,17 @@ Get_file_code_page_tag endp			;AN000;
 ;*
 ;****************************************************************
 
-Set_ext_error_msg proc near			;AN000;
+Set_ext_error_msg:;AN000;
 
 	call	get_ext_error_number		;AC022; get the extended error
 	mov	msg_disp_class,ext_msg_class	;AN000; set up extended error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr ;AC000; get extended message pointer
+	mov	dx,Extend_Buf_ptr ;AC000; get extended message pointer
 	mov	Extend_Buf_ptr,ax		;AN000; get message number in control block
 	stc					;AN000; make sure carry is set
 
 	ret					;AN000; return
 
-Set_ext_error_msg endp				;AN000;
+; ENDP Set_ext_error_msg;AN000;
 
 ;****************************************************************
 ;*
@@ -713,7 +713,7 @@ Set_ext_error_msg endp				;AN000;
 ;*
 ;****************************************************************
 
-Get_ext_error_number proc near			;AN022;
+Get_ext_error_number:;AN022;
 
 	SaveReg <BX,CX,DX,SI,DI,BP,ES,DS>	;AN022; save registers
 	mov	ah,GetExtendedError		;AN022; get extended error
@@ -723,8 +723,8 @@ Get_ext_error_number proc near			;AN022;
 
 	ret					;AN022; return
 
-Get_ext_error_number endp			;AN022;
+; ENDP Get_ext_error_number;AN022;
 
-trancode    ends
-	    end
+; END SECTION .trancode
+	    ; end
 

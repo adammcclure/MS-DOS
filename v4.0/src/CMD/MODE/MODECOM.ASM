@@ -1,37 +1,37 @@
-PAGE ,132 ;														   ;AN000;
-TITLE MODECOM.ASM - RS232 SUPPORT FOR THE MODE COMMAND									   ;AN000;
+; PAGE ,132;														   ;AN000;
+; TITLE MODECOM.ASM - RS232 SUPPORT FOR THE MODE COMMAND;AN000;
 															   ;AN000;
-.XLIST															   ;AN000;
-INCLUDE STRUC.INC													   ;AN000;
-.LIST															   ;AN000;
+; .XLIST;AN000;
+%include "STRUC.INC";AN000;
+; .LIST;AN000;
 
-;ษออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออป				   ;AN000;
-;บ											  บ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
 															   ;AN000;
 ;  AC000 - P2852: Loading resident code trashed CX which was used as a shift
 ;		  count.
 
 ;  AC001 - P3540: PS/2 only parms other than baud not being treated properly.
 
-;บ											  บ				   ;AN000;
-;ศออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออผ				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ				   ;AN000;
 															   ;AN000;
 															   ;AN000;
-DISPLAY MACRO	MESSAGE 												   ;AN000;
-	MOV	DX,OFFSET MESSAGE											   ;AN000;
+%macro DISPLAY 1;AN000;
+	MOV	DX,MESSAGE											   ;AN000;
 	CALL	PRINTF													   ;AN000;
-ENDM															   ;AN000;
+%endmacro;AN000;
 															   ;AN000;
 ;------------------------------------------------------------------------						   ;AN000;
 															   ;AN000;
-ABORT	MACRO														   ;AN000;
+%macro ABORT 0;AN000;
 	JMP	ENDIF01 												   ;AN000;
-ENDM															   ;AN000;
+%endmacro;AN000;
 															   ;AN000;
 															   ;AN000;
 ;------------------------------------------------------------------------						   ;AN000;
 															   ;AN000;
-INCLUDE  common.stc	   ;contains the following structure								   ;AN000;
+%include "common.stc";contains the following structure								   ;AN000;
 															   ;AN000;
 															   ;AN000;
 ;parm_list_entry   STRUC		   ;used by parse_parameters and invoke 					   ;AN000;
@@ -46,11 +46,11 @@ INCLUDE  common.stc	   ;contains the following structure								   ;AN000;
 															   ;AN000;
 															   ;AN000;
 															   ;AN000;
-;ษอออออออออออออออออออออออออออออออ E Q U A T E S ออออออออออออออออออออออออออออออออออออออออป				   ;AN000;
-;บ											บ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร E Q U A T E S รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป				   ;AN000;
+;ยบ											ยบ				   ;AN000;
 															   ;AN000;
 
-INCLUDE modequat.inc		 ;AN000;include definition of false, machine types
+%include "modequat.inc";AN000;include definition of false, machine types
 
 															   ;AN000;
 AT_family   EQU 0FCH		 ;model byte for 286 boxes								   ;AN000;
@@ -69,116 +69,116 @@ true	    EQU 0FFH													   ;AN000;
 ;Wrangler    EQU 0F8H		  ;primary model byte									    ;AN000;
 															   ;AN000;
 															   ;AN000;
-;บ											  บ				   ;AN000;
-;ศอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออผ				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ				   ;AN000;
 
 				; BEGINNING OF PROC MODETO)								   ;AN000;
-ROM    SEGMENT AT 0													   ;AN000;
+SECTION .ROM;AN000;
     ORG    50H														   ;AN000;
-VECT14H    LABEL  DWORD 	;RS232 CALL, POINTS TO PROC MODETO WHEN 						   ;AN000;
+VECT14H:;RS232 CALL, POINTS TO PROC MODETO WHEN 						   ;AN000;
 				; WHEN CODE IS RESIDENT 								   ;AN000;
     ORG    400H 													   ;AN000;
-SERIAL_BASE	LABEL	WORD	;SERIAL PORT ADDRESSES									   ;AN000;
+SERIAL_BASE:;SERIAL PORT ADDRESSES									   ;AN000;
 	ORG	530H													   ;AN000;
-RESSEG	LABEL	DWORD		;VECTOR OF MODETO, WHEN RESIDENT							   ;AN000;
-ROM	   ENDS 													   ;AN000;
-PAGE															   ;AN000;
-PRINTF_CODE	   SEGMENT  PUBLIC											   ;AN000;
-	   ASSUME CS:PRINTF_CODE,DS:PRINTF_CODE 									   ;AN000;
+RESSEG:;VECTOR OF MODETO, WHEN RESIDENT							   ;AN000;
+; END SECTION .ROM;AN000;
+; PAGE;AN000;
+SECTION .PRINTF_CODE;AN000;
+	   ; ASSUME CS:PRINTF_CODE,DS:PRINTF_CODE;AN000;
 															   ;AN000;
-;ษอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออป				   ;AN000;
-;บ											  บ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
 															   ;AN000;
-EXTRN  B_item_tag:ABS		 ;see modepars										   ;AN000;
-EXTRN  baud_19200:BYTE													   ;AN000;
-EXTRN  busy_retry_active:ABS	 ;see invoke.asm									   ;AN000;
-EXTRN  E_item_tag:ABS		 ;see modepars										   ;AN000;
-EXTRN  eight_item_tag:ABS	 ;see modepars										   ;AN000;
-EXTRN  ERR1:WORD													   ;AN000;
-EXTRN  even_item_tag:ABS	 ;see modepars										   ;AN000;
-EXTRN  error_retry_active:ABS	 ;see invoke.asm									   ;AN000;
-EXTRN  five_item_tag:ABS	 ;see modepars										   ;AN000;
-EXTRN  fourtyeighthundred_item_tag:ABS	   ;see modepars.asm								   ;AN000;
-EXTRN  fourtyeighthundred_str:BYTE											   ;AN000;
-EXTRN  illegal_device_ptr:WORD	  ;see modesubs.inc									   ;AN000;
-EXTRN  INITMSG:BYTE,DEVICE:BYTE,PPARITY:BYTE,PDATA:BYTE,PSTOP:BYTE,PPARM:BYTE						   ;AN000;
-EXTRN  keyword:ABS													   ;AN000;
-EXTRN  machine_type:BYTE	 ;see 'rescode'                                                                            ;AN000;
-EXTRN  mark_item_tag:ABS	 ;see modepars										   ;AN000;
-EXTRN  MODELOAD:NEAR													   ;AN000;
-EXTRN  MODETO:WORD													   ;AN000;
-EXTRN  new_com_initialize:BYTE		     ;flag indicating that a PS/2 only parm was specified			   ;AC001;
-EXTRN  nineteentwohundred_item_tag:ABS	     ;see modepars.asm								   ;AN000;
-EXTRN  nineteentwohundred_str:BYTE	;see modepars.asm								   ;AN000;
-EXTRN  ninetysixhundred_item_tag:ABS											   ;AC001;
-EXTRN  ninetysixhundred_str:BYTE											   ;AN000;
-EXTRN  no_retry_active:ABS	 ;see invoke.asm									   ;AN000;
-EXTRN  noerror:byte		 ;boolean indicating success of previous actions					   ;AN000;
-EXTRN  none_item_tag:ABS	 ;see modepars										   ;AN000;
-EXTRN  onefifty_str:BYTE												   ;AN000;
-EXTRN  oneten_item_tag:ABS	 ;see modepars.asm									   ;AN000;
-EXTRN  oneten_str:BYTE													   ;AN000;
-EXTRN  onefifty_item_tag:ABS	 ;see modepars.asm									   ;AN000;
-EXTRN  one_point_five_item_tag:ABS     ;see modepars.asm								   ;AN000;
-EXTRN  one_point_five_str:BYTE	  ;see modesubs.inc									   ;AN000;
-EXTRN  p_item_tag:ABS		 ;see modepars.asm									   ;AN000;
-EXTRN  parm_lst:BYTE		 ;parm_list_entry  max_pos_parms DUP (<>)						   ;AN000;
-EXTRN  parms_form:BYTE													   ;AN000;
-EXTRN  pstop_ptr:WORD		;see modedefs.inc									  ;AN000;
-EXTRN  odd_item_tag:ABS 	 ;see modepars										   ;AN000;
-EXTRN  one_item_tag:ABS 	 ;see modepars										   ;AN000;
-EXTRN  PBAUD_ptr:WORD		 ;see 'modemes'                                                                            ;AN000;
-EXTRN  PRINTF:NEAR													   ;AN000;
-EXTRN  PARM1:BYTE,PARM2:BYTE,PARM3:BYTE,MODE:BYTE,FLAG:BYTE								   ;AN000;
+extern B_item_tag;see modepars										   ;AN000;
+extern baud_19200;AN000;
+extern busy_retry_active;see invoke.asm									   ;AN000;
+extern E_item_tag;see modepars										   ;AN000;
+extern eight_item_tag;see modepars										   ;AN000;
+extern ERR1;AN000;
+extern even_item_tag;see modepars										   ;AN000;
+extern error_retry_active;see invoke.asm									   ;AN000;
+extern five_item_tag;see modepars										   ;AN000;
+extern fourtyeighthundred_item_tag;see modepars.asm								   ;AN000;
+extern fourtyeighthundred_str;AN000;
+extern illegal_device_ptr;see modesubs.inc									   ;AN000;
+extern INITMSG,DEVICE,PPARITY,PDATA,PSTOP,PPARM;AN000;
+extern keyword;AN000;
+extern machine_type;see 'rescode'                                                                            ;AN000;
+extern mark_item_tag;see modepars										   ;AN000;
+extern MODELOAD;AN000;
+extern MODETO;AN000;
+extern new_com_initialize;flag indicating that a PS/2 only parm was specified			   ;AC001;
+extern nineteentwohundred_item_tag;see modepars.asm								   ;AN000;
+extern nineteentwohundred_str;see modepars.asm								   ;AN000;
+extern ninetysixhundred_item_tag;AC001;
+extern ninetysixhundred_str;AN000;
+extern no_retry_active;see invoke.asm									   ;AN000;
+extern noerror;boolean indicating success of previous actions					   ;AN000;
+extern none_item_tag;see modepars										   ;AN000;
+extern onefifty_str;AN000;
+extern oneten_item_tag;see modepars.asm									   ;AN000;
+extern oneten_str;AN000;
+extern onefifty_item_tag;see modepars.asm									   ;AN000;
+extern one_point_five_item_tag;see modepars.asm								   ;AN000;
+extern one_point_five_str;see modesubs.inc									   ;AN000;
+extern p_item_tag;see modepars.asm									   ;AN000;
+extern parm_lst;parm_list_entry  max_pos_parms DUP (<>)						   ;AN000;
+extern parms_form;AN000;
+extern pstop_ptr;see modedefs.inc									  ;AN000;
+extern odd_item_tag;see modepars										   ;AN000;
+extern one_item_tag;see modepars										   ;AN000;
+extern PBAUD_ptr;see 'modemes'                                                                            ;AN000;
+extern PRINTF;AN000;
+extern PARM1,PARM2,PARM3,MODE,FLAG;AN000;
 ;PARM1	DB	10 DUP(0)												   ;AN000;
 ;PARM2	DB	0													   ;AN000;
 ;PARM3	DB	0													   ;AN000;
 ;MODE	DB	0													   ;AN000;
 ;FLAG	DB	0													   ;AN000;
-EXTRN  R_item_tag:ABS													   ;AN000;
-EXTRN  RATEMSG:WORD	  ;CR,LF,"Invalid baud rate specified",BEEP,CR,LF,"$"                                              ;AN000;
-EXTRN  ready_retry_active:ABS	 ;see invoke.asm									   ;AN000;
+extern R_item_tag;AN000;
+extern RATEMSG;CR,LF,"Invalid baud rate specified",BEEP,CR,LF,"$"                                              ;AN000;
+extern ready_retry_active;see invoke.asm									   ;AN000;
 ;EXTRN	RES_MODEFLAG:ABS	;RETRY FLAG IN RESIDENT CODE, (OFFSET FROM						   ;AN000;
-EXTRN  res_com_retry_type:ABS	 ;retry type flag, displacement from address pointed to by 50:30 when code is resident, see rescode
-EXTRN  seven_item_tag:ABS	  ;see modepars 									   ;AN000;
-EXTRN  sixhundred_item_tag:ABS	   ;see modepars.asm									   ;AN000;
-EXTRN  sixhundred_str:BYTE												   ;AN000;
-EXTRN  six_item_tag:ABS       ;see modepars										   ;AN000;
-EXTRN  space_item_tag:ABS     ;see modepars										   ;AN000;
-EXTRN  submodel_byte:BYTE     ;see 'rescode'                                                                               ;AN000;
-EXTRN  threehundred_item_tag:ABS     ;see modepars.asm									   ;AN000;
-EXTRN  threehundred_str:BYTE												   ;AN000;
-EXTRN  twelvehundred_item_tag:ABS     ;see modepars.asm 								   ;AN000;
-EXTRN  twelvehundred_str:BYTE												   ;AN000;
-EXTRN  twentyfourhundred_str:BYTE											   ;AN000;
-EXTRN  twentyfourhundred_item_tag:ABS	  ;see modepars.asm								   ;AN000;
-EXTRN  two_item_tag:ABS 	;see modepars										   ;AN000;
+extern res_com_retry_type;retry type flag, displacement from address pointed to by 50:30 when code is resident, see rescode
+extern seven_item_tag;see modepars 									   ;AN000;
+extern sixhundred_item_tag;see modepars.asm									   ;AN000;
+extern sixhundred_str;AN000;
+extern six_item_tag;see modepars										   ;AN000;
+extern space_item_tag;see modepars										   ;AN000;
+extern submodel_byte;see 'rescode'                                                                               ;AN000;
+extern threehundred_item_tag;see modepars.asm									   ;AN000;
+extern threehundred_str;AN000;
+extern twelvehundred_item_tag;see modepars.asm 								   ;AN000;
+extern twelvehundred_str;AN000;
+extern twentyfourhundred_str;AN000;
+extern twentyfourhundred_item_tag;see modepars.asm								   ;AN000;
+extern two_item_tag;see modepars										   ;AN000;
 															   ;AN000;
 															   ;AN000;
-;บ											  บ				   ;AN000;
-;ศอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออผ				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ				   ;AN000;
 															   ;AN000;
 															   ;AN000;
-;ษอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออป				   ;AN000;
-;บ											  บ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
 															   ;AN000;
-PUBLIC	baud_index		;holder of the index in the parm list of the baud rate requested			   ;AN000;
-PUBLIC	data_bits_index 	;set by invoke										   ;AN000;
-PUBLIC	MODECOM 													   ;AN000;
-PUBLIC	parity_index		;set by invoke										   ;AN000;
-PUBLIC	SERIAL_BASE		;Make available to RESCODE and MAIN							   ;AN000;
-PUBLIC	retry_index		;make available to analyze_and_invoke							   ;AN000;
-PUBLIC	setcom			;get it listed in the link map								   ;AN000;
-PUBLIC	setto			;get it listed in link map for debugging						   ;AN000;
-PUBLIC	stop_bits_index 	;set by invoke										   ;AN000;
+global baud_index;holder of the index in the parm list of the baud rate requested			   ;AN000;
+global data_bits_index;set by invoke										   ;AN000;
+global MODECOM;AN000;
+global parity_index;set by invoke										   ;AN000;
+global SERIAL_BASE;Make available to RESCODE and MAIN							   ;AN000;
+global retry_index;make available to analyze_and_invoke							   ;AN000;
+global setcom;get it listed in the link map								   ;AN000;
+global setto;get it listed in link map for debugging						   ;AN000;
+global stop_bits_index;set by invoke										   ;AN000;
 															   ;AN000;
-;บ											  บ				   ;AN000;
-;ศอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออผ				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ				   ;AN000;
 															   ;AN000;
 															   ;AN000;
 															   ;AN000;
-;ษอออออออออออออออออออออออออออออออออออ  D A T A	ออออออออออออออออออออออออออออออออออออออออออป				   ;AN000;
-;บ											  บ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  D A T A	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
 															   ;AN000;
 															   ;AN000;
 ;THESE FOLLOWING BAUD RATES REPRESENT THE 1ST 2 CHAR									   ;AN000;
@@ -204,78 +204,78 @@ retry_index	DW   0													   ;AN000;
 ;	    DB	  CR,LF,"$"    ;END OF 'INITMSG'                                                                           ;AN000;
 															   ;AN000;
 															   ;AN000;
-;บ											  บ				   ;AN000;
-;ศอออออออออออออออออออออออออออออออออออ  D A T A	ออออออออออออออออออออออออออออออออออออออออออผ				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  D A T A	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ				   ;AN000;
 															   ;AN000;
 															   ;AN000;
-SUBTTL SET UP FOR SERIAL RETRY												   ;AN000;
-PAGE															   ;AN000;
+; SUBTTL SET UP FOR SERIAL RETRY;AN000;
+; PAGE;AN000;
 ;
 ;
 ;-------------------------------------------------------------------------------
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ									       ณ
-;ณ SETTO								       ณ
-;ณ -----								       ณ
-;ณ									       ณ
-;ณ  Set the resident retry flag to type of retry active for comx.	       ณ
-;ณ									       ณ
-;ณ  INPUT:  device - holds '1', '2', '3' or '4' (ascii) for x of lptx.         ณ
-;ณ	    retry_index - holds index value for the parsed retry parameter.    ณ
-;ณ	    resseg - holds offset of resident code in memory		       ณ
-;ณ	    res_com_retry_type - holds offset of com retry flag in resident    ณ
-;ณ	      code.							       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  RETURN: pparm - set to 'P', 'B', 'R', 'E', or '-' for type of retry active.ณ
-;ณ	    flag in resident code set					       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  MESSAGES: none.							       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  REGISTER								       ณ
-;ณ  USAGE:	AL - new setting for resident flag. (see RESCODE.SAL for       ณ
-;ณ		     format)						       ณ
-;ณ		CL - shift bit count					       ณ
-;ณ		ES - holds segment of resident code			       ณ
-;ณ		BP - offset of parameter list				       ณ
-;ณ		DI - offset of retry index within parameter list	       ณ
-;ณ		DL - current resident flag setting			       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  PSUEDO CODE:							       ณ
-;ณ									       ณ
-;ณ	SAVE REGISTERS							       ณ
-;ณ	SET UP SEGMENT REGISTER AND BIT MASKS				       ณ
-;ณ	IF <RETRY REQUESTED>						       ณ
-;ณ	   SET UP PARAMETER LIST STRUCTURE				       ณ
-;ณ	   SET BIT MASK FOR TYPE OF RETRY AND SET pparm TO PROPER LETTER       ณ
-;ณ	   IF <RESIDENT CODE IS NOT LOADED>				       ณ
-;ณ	      LOAD RESIDENT CODE					       ณ
-;ณ	   ENDIF							       ณ
-;ณ	   GET CURRENT com_lpt_retry_type				       ณ
-;ณ	   SET AND STORE NEW com_lpt_retry_type 			       ณ
-;ณ	ELSEIF <RESIDENT CODE ALREADY LOADED>				       ณ
-;ณ	   GET CURRENT com_lpt_retry_type				       ณ
-;ณ	   IF <POSITIONAL PARAMETER SPECIFIED>				       ณ
-;ณ	      SET FLAG TO ZERO, SET pparm TO PROPER LETTER		       ณ
-;ณ	   ELSE 							       ณ
-;ณ	      SET pparm TO PROPER LETTER FOR CURRENT SETTING		       ณ
-;ณ	   ENDIF							       ณ
-;ณ	ELSE								       ณ
-;ณ	   SET pparm TO '-'                                                    ณ
-;ณ	ENDIF								       ณ
-;ณ	RESTORE REGISTERS						       ณ
-;ณ	RETURN								       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  SIDE EFFECT: Loads resident code if it is needed and has not been loaded.  ณ
-;ณ									       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ									       ยณ
+;ยณ SETTO								       ยณ
+;ยณ -----								       ยณ
+;ยณ									       ยณ
+;ยณ  Set the resident retry flag to type of retry active for comx.	       ยณ
+;ยณ									       ยณ
+;ยณ  INPUT:  device - holds '1', '2', '3' or '4' (ascii) for x of lptx.         ยณ
+;ยณ	    retry_index - holds index value for the parsed retry parameter.    ยณ
+;ยณ	    resseg - holds offset of resident code in memory		       ยณ
+;ยณ	    res_com_retry_type - holds offset of com retry flag in resident    ยณ
+;ยณ	      code.							       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  RETURN: pparm - set to 'P', 'B', 'R', 'E', or '-' for type of retry active.ยณ
+;ยณ	    flag in resident code set					       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  MESSAGES: none.							       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  REGISTER								       ยณ
+;ยณ  USAGE:	AL - new setting for resident flag. (see RESCODE.SAL for       ยณ
+;ยณ		     format)						       ยณ
+;ยณ		CL - shift bit count					       ยณ
+;ยณ		ES - holds segment of resident code			       ยณ
+;ยณ		BP - offset of parameter list				       ยณ
+;ยณ		DI - offset of retry index within parameter list	       ยณ
+;ยณ		DL - current resident flag setting			       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  PSUEDO CODE:							       ยณ
+;ยณ									       ยณ
+;ยณ	SAVE REGISTERS							       ยณ
+;ยณ	SET UP SEGMENT REGISTER AND BIT MASKS				       ยณ
+;ยณ	IF <RETRY REQUESTED>						       ยณ
+;ยณ	   SET UP PARAMETER LIST STRUCTURE				       ยณ
+;ยณ	   SET BIT MASK FOR TYPE OF RETRY AND SET pparm TO PROPER LETTER       ยณ
+;ยณ	   IF <RESIDENT CODE IS NOT LOADED>				       ยณ
+;ยณ	      LOAD RESIDENT CODE					       ยณ
+;ยณ	   ENDIF							       ยณ
+;ยณ	   GET CURRENT com_lpt_retry_type				       ยณ
+;ยณ	   SET AND STORE NEW com_lpt_retry_type 			       ยณ
+;ยณ	ELSEIF <RESIDENT CODE ALREADY LOADED>				       ยณ
+;ยณ	   GET CURRENT com_lpt_retry_type				       ยณ
+;ยณ	   IF <POSITIONAL PARAMETER SPECIFIED>				       ยณ
+;ยณ	      SET FLAG TO ZERO, SET pparm TO PROPER LETTER		       ยณ
+;ยณ	   ELSE 							       ยณ
+;ยณ	      SET pparm TO PROPER LETTER FOR CURRENT SETTING		       ยณ
+;ยณ	   ENDIF							       ยณ
+;ยณ	ELSE								       ยณ
+;ยณ	   SET pparm TO '-'                                                    ยณ
+;ยณ	ENDIF								       ยณ
+;ยณ	RESTORE REGISTERS						       ยณ
+;ยณ	RETURN								       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  SIDE EFFECT: Loads resident code if it is needed and has not been loaded.  ยณ
+;ยณ									       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 ;
-SETTO	 PROC	 NEAR													   ;AN663;
+SETTO:;AN663;
 															   ;AN663;
       PUSH ES			;save registers 									   ;AN663;
       PUSH DI														   ;AN663;
@@ -291,7 +291,7 @@ SETTO	 PROC	 NEAR													   ;AN663;
       MOV  DH,11111100B 	;set bit mask to clear old flag setting 						   ;AN663;
       ROL  DH,CL													   ;AN663;
 															   ;AN663;
-      .IF <retry_index NE 0> THEN			;retry specified, set						   ;AN663;
+      ; .IF <retry_index NE 0> THEN;retry specified, set						   ;AN663;
 							;  byte in resident code					   ;AN663;
 	 MOV  DI,retry_index				;  to proper setting.						   ;AN663;
 							;  if code is not loaded,					   ;AN663;
@@ -310,31 +310,31 @@ SETTO	 PROC	 NEAR													   ;AN663;
 	    MOV  pparm,'r'                                                                                                 ;AN663;
 	 .ENDSELECT													   ;AN663;
 															   ;AN663;
-	 .IF <<WORD PTR ES:resseg> EQ 0000H> THEN									   ;AN663;
+	 ; .IF <<WORD PTR ES:resseg> EQ 0000H> THEN;AN663;
 	    PUSH  CX					;save shift count
 	    CALL modeload				;load the resident code 					   ;AN663;
 	    POP   CX					;restore shift count
-	 .ENDIF 													   ;AN663;
+	 ; .ENDIF;AN663;
 															   ;AN663;
-	 MOV  ES,ES:WORD PTR resseg[2]											   ;AN663;
-	 MOV  DL,BYTE PTR ES:res_com_retry_type 									   ;AN663;
+	 MOV  ES,ES:word resseg[2]											   ;AN663;
+	 MOV  DL,byte ES:res_com_retry_type 									   ;AN663;
 							;get the old setting						   ;AN663;
 	 ROL  AL,CL													   ;AN663;
 	 AND  DL,DH													   ;AN663;
 	 OR   DL,AL													   ;AN663;
-	 MOV  BYTE PTR ES:res_com_retry_type,DL 	;store the new setting						   ;AN663;
+	 MOV  byte ES:res_com_retry_type,DL 	;store the new setting						   ;AN663;
 															   ;AN663;
-      .ELSEIF <<WORD PTR ES:resseg> NE 0000H> THEN	;if code is loaded but no					   ;AN663;
+      .ELSEIF <<word ES:resseg> NE 0000H> THEN	;if code is loaded but no					   ;AN663;
 							;  retry is specified then					   ;AN663;
-	 MOV  ES,ES:WORD PTR resseg[2]											   ;AN663;
-	 MOV  DL,BYTE PTR ES:res_com_retry_type 									   ;AN663;
+	 MOV  ES,ES:word resseg[2]											   ;AN663;
+	 MOV  DL,byte ES:res_com_retry_type 									   ;AN663;
 															   ;AN663;
-	 .IF <parms_form NE keyword>			;if 'NONE' was specified                                           ;AN663;
+	 ; .IF <parms_form NE keyword>;if 'NONE' was specified                                           ;AN663;
 							;  with positional parameter					   ;AN663;
 	    AND  DL,DH					;  set bits to zero						   ;AN663;
-	    MOV  BYTE PTR ES:res_com_retry_type,DL									   ;AN663;
+	    MOV  byte ES:res_com_retry_type,DL									   ;AN663;
 															   ;AN663;
-	 .ELSE						;else update pparm with 					   ;AN663;
+	 ; .ELSE;else update pparm with 					   ;AN663;
 							;  current retry type						   ;AN663;
 	    NOT  DH													   ;AN663;
 	    AND  DL,DH													   ;AN663;
@@ -351,13 +351,13 @@ SETTO	 PROC	 NEAR													   ;AN663;
 	       MOV  pparm,'r'                                                                                              ;AN663;
 	    .ENDSELECT													   ;AN663;
 															   ;AN663;
-	 .ENDIF 													   ;AN663;
+	 ; .ENDIF;AN663;
 															   ;AN663;
-      .ELSE						;no retry, no code resident					   ;AN663;
+      ; .ELSE;no retry, no code resident					   ;AN663;
 															   ;AN663;
 	 MOV  pparm,'-'                                                                                                    ;AN663;
 															   ;AN663;
-      .ENDIF														   ;AN663;
+      ; .ENDIF;AN663;
 															   ;AN663;
       POP  DX														   ;AN663;
       POP  AX			;restore registers									   ;AN663;
@@ -365,53 +365,53 @@ SETTO	 PROC	 NEAR													   ;AN663;
       POP  ES														   ;AN663;
       RET														   ;AN663;
 															   ;AN663;
-SETTO ENDP														   ;AN663;
+; ENDP SETTO;AN663;
 
 
 
-SUBTTL SET SERIAL PROTOCOL
-PAGE
+; SUBTTL SET SERIAL PROTOCOL
+; PAGE
 
 ;------------------------------------------------------------------------------
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ									       ณ
-;ณ SETCOM								       ณ
-;ณ ------								       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  INPUT:								       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  RETURN:								       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  MESSAGES: none.							       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  REGISTER								       ณ
-;ณ  USAGE:								       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  ASSUMPTIONS: All parms have been checked for validity as being possible andณ
-;ณ		 supported on the machine.				       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ									       ณ
-;ณ  SIDE EFFECT:							       ณ
-;ณ									       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ									       ยณ
+;ยณ SETCOM								       ยณ
+;ยณ ------								       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  INPUT:								       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  RETURN:								       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  MESSAGES: none.							       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  REGISTER								       ยณ
+;ยณ  USAGE:								       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  ASSUMPTIONS: All parms have been checked for validity as being possible andยณ
+;ยณ		 supported on the machine.				       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ									       ยณ
+;ยณ  SIDE EFFECT:							       ยณ
+;ยณ									       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 
-SETCOM PROC    NEAR													   ;AN000;
+SETCOM:;AN000;
 															   ;AN000;
 															 ;AN000;
-MOV   BP,OFFSET parm_lst   ;address the parm list via parm_list which is [BP]						;AN000;
+MOV   BP,parm_lst   ;address the parm list via parm_list which is [BP]						;AN000;
 MOV    DI,baud_index	    ;DI=index into parm list of the baud rate entry						;AN000;
 
 .SELECT 		   ;prepare AL for old init and CL for new init 						;AC001;
@@ -419,44 +419,44 @@ MOV    DI,baud_index	    ;DI=index into parm list of the baud rate entry						;A
    .WHEN <parm_list[DI].item_tag EQ oneten_item_tag>									;AC001;
       MOV   AL,0													;AN000;
       MOV   CL,0
-      MOV   pbaud_ptr,OFFSET oneten_str 										;AN000;
+      MOV   pbaud_ptr,oneten_str 										;AN000;
    .WHEN <parm_list[DI].item_tag EQ onefifty_item_tag> THEN							      ;AN000;
       MOV   AL,00100000B												;AN000;
       MOV   CL,1
-      MOV   pbaud_ptr,OFFSET onefifty_str										;AN000;
+      MOV   pbaud_ptr,onefifty_str										;AN000;
    .WHEN <parm_list[DI].item_tag EQ threehundred_item_tag> THEN 						      ;AN000;
       MOV   AL,01000000B												;AN000;
       MOV   CL,2
-      MOV   pbaud_ptr,OFFSET threehundred_str										;AN000;
+      MOV   pbaud_ptr,threehundred_str										;AN000;
    .WHEN <parm_list[DI].item_tag EQ sixhundred_item_tag> THEN							      ;AN000;
       MOV   AL,01100000B												;AN000;
       MOV   CL,3
-      MOV   pbaud_ptr,OFFSET sixhundred_str										;AN000;
+      MOV   pbaud_ptr,sixhundred_str										;AN000;
    .WHEN <parm_list[DI].item_tag EQ twelvehundred_item_tag> THEN						      ;AN000;
       MOV   AL,10000000B												;AN000;
       MOV   CL,4
-      MOV   pbaud_ptr,OFFSET twelvehundred_str										;AN000;
+      MOV   pbaud_ptr,twelvehundred_str										;AN000;
    .WHEN <parm_list[DI].item_tag EQ twentyfourhundred_item_tag> THEN						      ;AN000;
       MOV   AL,10100000B												;AN000;
       MOV   CL,5
-      MOV   pbaud_ptr,OFFSET twentyfourhundred_str									;AN000;
+      MOV   pbaud_ptr,twentyfourhundred_str									;AN000;
    .WHEN <parm_list[DI].item_tag EQ fourtyeighthundred_item_tag> THEN						      ;AN000;
       MOV   AL,11000000B												;AN000;
       MOV   CL,6
-      MOV   pbaud_ptr,OFFSET fourtyeighthundred_str									;AN000;
+      MOV   pbaud_ptr,fourtyeighthundred_str									;AN000;
    .WHEN <parm_list[DI].item_tag EQ ninetysixhundred_item_tag> THEN							;AN000;
       MOV   AL,11100000B												;AN000;
       MOV   CL,7
-      MOV   pbaud_ptr,OFFSET ninetysixhundred_str									;AN000;
+      MOV   pbaud_ptr,ninetysixhundred_str									;AN000;
    .WHEN <parm_list[DI].item_tag EQ nineteentwohundred_item_tag> NEAR THEN   ;handle 19200 case if 19, 19200, 19.2 or 19.2K specified
       MOV   CL,8	      ;value for 19200 baud, no old equivalent							;AC001;
-      MOV   pbaud_ptr,OFFSET nineteentwohundred_str									;AC001;
+      MOV   pbaud_ptr,nineteentwohundred_str									;AC001;
 
 .ENDSELECT													     ;AC001;
 ;	   AL IS:  XXX00000 for the baud rate, CL has appropriate value for baud
 
 MOV   DI,parity_index												  ;AN000;
-.IF <parm_list[DI].item_tag EQ none_item_tag> THEN								  ;AN000;
+; .IF <parm_list[DI].item_tag EQ none_item_tag> THEN;AN000;
    MOV PPARITY,"n"          ;set up message for no PARITY                                                       ;AN000;
    MOV	 BH,0		    ;AL already set properly for old init						  ;AN000;
 .ELSEIF <parm_list[DI].item_tag EQ odd_item_tag> THEN								  ;AN000;
@@ -469,14 +469,14 @@ MOV   DI,parity_index												  ;AN000;
 .ELSEIF <parm_list[DI].item_tag EQ mark_item_tag> THEN								  ;AN000;
    MOV PPARITY,"m"          ;set up message for mark PARITY                                                       ;AN000;
    MOV	 BH,3		    ;MARK parity not supported in old init						  ;AN000;
-.ELSE			   ;not specified or asked for even							  ;AN000;
+; .ELSE;not specified or asked for even							  ;AN000;
    MOV PPARITY,"e"          ;set up message for even PARITY, the default if not specified                        ;AN000;
    OR	 AL,18H 	    ;PUT THE 000XX000 BITS TO AL PARM WHERE XX=11 FOR PARITY=EVEN			 ;AN000
    MOV	 BH,2			 ;even parity for new initialize						 ;AN000;
-.ENDIF														  ;AN000;
+; .ENDIF;AN000;
 
 MOV   DI,data_bits_index											  ;AN000;
-.IF <parm_list[DI].item_tag EQ five_item_tag> THEN								  ;AN000;
+; .IF <parm_list[DI].item_tag EQ five_item_tag> THEN;AN000;
    MOV	 pdata,"5"            ;set up message for 5 bits                                                         ;AN000;
    MOV	 CH,0		      ;not old init for 5 data bits							  ;AN000;
 .ELSEIF <parm_list[DI].item_tag EQ six_item_tag> THEN								  ;AN000;
@@ -486,10 +486,10 @@ MOV   DI,data_bits_index											  ;AN000;
    MOV	 pdata,"8"            ;set up message for 8 bits                                                         ;AN000;
    OR	 AL,03H 	    ;IN THE 000000XX POSITION, SET XX=11 TO MEAN 8 DATA BITS				     ;AN000;
    MOV	 CH,3													  ;AN000;
-.ELSE			      ;asked for 7 or skipped the parm and will get 7 as default			  ;AN000;
+; .ELSE;asked for 7 or skipped the parm and will get 7 as default			  ;AN000;
    OR	 AL,02H 	    ;IN THE 000000XX POSITION, SET XX=10 TO MEAN 7 DATA BITS				     ;AN000;
    MOV	 CH,2		      ;message already set up for 7 bits						  ;AN000;
-.ENDIF														  ;AN000;
+; .ENDIF;AN000;
 
 ;PUT THE NO. STOP BITS TO AL PARM IN THE 00000X00 POSITION and BL for new init						     ;AN000
 MOV   DI,stop_bits_index											  ;AN000;
@@ -501,26 +501,26 @@ MOV   BL,0		      ;assume stop bits was 1, message already set up				      ;AN00
       MOV   BL,1	      ;value for two or 1.5								    ;AN000;
 
    .WHEN <parm_list[DI].item_tag EQ one_point_five_item_tag>		     ;AN000;				  ;AN000;
-      MOV   pstop_ptr,OFFSET one_point_five_str 	       ;set up message for 1.5 stop bits		  ;AN000;
+      MOV   pstop_ptr,one_point_five_str 	       ;set up message for 1.5 stop bits		  ;AN000;
       MOV   BL,1	      ;new init for 1.5 								;AN000;
 
    .WHEN <stop_bits_index EQ not_specified>		 ;if stop bits not specified			   ;AN000;
       MOV   DI,baud_index												;AC000;
-      .IF <parm_list[DI].item_tag EQ oneten_item_tag>	  ;BAUD=110 SPECIFIED THEN SET DEFAULT STOP BITS TO TWO 	;AC000;
+      ; .IF <parm_list[DI].item_tag EQ oneten_item_tag>;BAUD=110 SPECIFIED THEN SET DEFAULT STOP BITS TO TWO 	;AC000;
 	 OR    AL,04H		  ;TURN ON BIT IN 00000X00 POSITION TO REQUEST 2 STOP BITS		 ;AN000;
 	 MOV   pstop,"2"         ;set up message for 2 stop bits                                         ;AN000;
-      .ENDIF			 ;FOR STOPBITS=1, LEAVE THAT BIT OFF, message already set by modecom	;AN000;
+      ; .ENDIF;FOR STOPBITS=1, LEAVE THAT BIT OFF, message already set by modecom	;AN000;
 
 ;  .OTHERWISE specified 1, everything set up
 
 .ENDSELECT		   ;IF not 1.5 or two, already set up for 1						;AN000;
 														  ;AN000;
-.IF <new_com_initialize EQ true> THEN										     ;AC001;
+; .IF <new_com_initialize EQ true> THEN;AC001;
    XOR	 AL,AL		   ;ask for no break									     ;AN000;
    MOV	 AH,4		   ;new set baud BIOS call								     ;AN001;
-.ELSE			   ;old style com initialization						    ;AN000;	 ;AC001;
+; .ELSE;old style com initialization						    ;AN000;	 ;AC001;
    XOR	 AH,AH		   ;AH=0 requests initialization								 ;AC001;
-.ENDIF															 ;AC001;
+; .ENDIF;AC001;
 
 														      ;AN000;
 ;SET DX PARM TO REQUEST WHICH COM DEVICE									   ;AN000;
@@ -531,25 +531,25 @@ MOV   BL,0		      ;assume stop bits was 1, message already set up				      ;AN00
 ;	    AH ALREADY IS 0 or 4, WHICH REQUESTS								      ;AN000;
 ;	    INITIALIZATION OF THE RS232 									      ;AN000;
 ;	    ACCORDING TO PARMS IN AL and/or BX and CX.								      ;AN000;
- .IF <noerror EQ true> THEN											      ;AN000;
+ ; .IF <noerror EQ true> THEN;AN000;
     INT 14H		       ;INIT THE RS232									      ;AN000;
 ;														      ;AN000;
 ;	    NOW THAT THE RS232 IS INITIALIZED,									      ;AN000;
     CALL    SETTO	 ;LOOK AT P PARM, MAYBE TIMEOUT TO BE RETRIED						      ;AN000;
 ;														      ;AN000;
     DISPLAY INITMSG	       ;TELL USER RS232 IS INITIALIZED							      ;AN000;
- .ENDIF 													      ;AN000;
+ ; .ENDIF;AN000;
 
      RET														   ;AN000;
-SETCOM ENDP														   ;AN000;
+; ENDP SETCOM;AN000;
 															   ;AN000;
 															   ;AN000;
-SUBTTL															   ;AN000;
-PAGE															   ;AN000;
+; SUBTTL;AN000;
+; PAGE;AN000;
 															   ;AN000;
 															   ;AN000;
 
-MODECOM PROC	NEAR
+MODECOM:
 
 
        MOV    AL,DEVICE 	  ;AL= DEVICE ID OF "1", "2", "3" or "4"
@@ -561,11 +561,11 @@ MODECOM PROC	NEAR
        XOR    AL,AL		  ;CLEAR AX
        PUSH   DS
        MOV    DS,AX
-       CMP    WORD PTR DS:SERIAL_BASE[SI],0	  ;SEE IF THE COM PORT EXISTS
+       CMP    word DS:SERIAL_BASE[SI],0	  ;SEE IF THE COM PORT EXISTS
        POP    DS
        JNE    THEN01A
 	  MOV	DI,0			  ;the device name is always the first parm					    ;AN000;
-	  MOV	BP,OFFSET parm_lst   ;address the parm list via parm_list which is [BP] 				 ;AN000;
+	  MOV	BP,parm_lst   ;address the parm list via parm_list which is [BP] 				 ;AN000;
 	  MOV	CX,parm_list[DI].value1 						    ;AN000;
 	  MOV  illegal_device_ptr,CX
 	  DISPLAY err1			 ;AN000;"Illegal device name - COMX"
@@ -587,6 +587,6 @@ THEN01A:
 ;    : ELSE ,SINCE COUNT WAS NOT BIG ENUF
 ENDIF01:			 ;jump to here if the port does not exist
      RET			  ;RETURN TO MODE MAIN ROUTINE
-MODECOM ENDP
-PRINTF_CODE	ENDS
-    END
+; ENDP MODECOM
+; END SECTION .PRINTF_CODE
+    ; END

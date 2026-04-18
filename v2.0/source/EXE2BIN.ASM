@@ -1,4 +1,4 @@
-        title   LOCATE (EXE2BIN)
+        ; title   LOCATE (EXE2BIN)
 
 ;Loader for EXE files under 86-DOS
 
@@ -21,27 +21,27 @@
 ;    10/27/82   Added the DOS version check
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 OLDLINK EQU     0                  ;1 to enable, 0 to disable
 
-        .xlist
-        INCLUDE DOSSYM.ASM
-        .list
+        ; .xlist
+        %include "DOSSYM.ASM"
+        ; .list
 
 
-        subttl  Main Code Area
-        page
+        ; subttl  Main Code Area
+        ; page
 
 
-code    segment byte
-code    ends
+SECTION .code
+; END SECTION .code
 
-DATA    SEGMENT PUBLIC BYTE
+SECTION .DATA
 
 
-        EXTRN   bad_vers_err:BYTE,NOTFND:BYTE,NOROOM:BYTE,DIRFULL:BYTE
-        EXTRN   CANTFIX:BYTE,RDBAD:BYTE,FULL:BYTE,PROMPT:BYTE,CRLF:BYTE
+        extern bad_vers_err,NOTFND,NOROOM,DIRFULL
+        extern CANTFIX,RDBAD,FULL,PROMPT,CRLF
 
 make    db      "MAUlloa/Microsoft/V20"
 rev     db      "2"
@@ -52,51 +52,51 @@ file2_ext db    ".BIN",00h
 per1    db      0
 per2    db      0
 
-file1   db      64 dup(?)
-handle1 dw      1 dup(?)
+file1: times 64 db 0
+handle1: times 1 dw 0
 
-file2   db      64 dup(?)
-handle2 dw      1 dup(?)
+file2: times 64 db 0
+handle2: times 1 dw 0
 
 
 INBUF   DB      5,0
-        DB      5 DUP(?)
+        times 5 db 0
 
 ;The following locations must be defined for storing the header:
 
-RUNVAR  LABEL   BYTE            ;Start of RUN variables
-RELPT   DW      ?
-LASTP   LABEL   WORD
-RELSEG  DW      ?
-SIZ     LABEL   WORD            ;Share these locations
-PAGES   DW      ?
-RELCNT  DW      ?
-HEADSIZ DW      ?
-        DW      ?
-LOADLOW DW      ?
-INITSS  DW      ?
-INITSP  DW      ?
-        DW      ?
-INITIP  DW      ?
-INITCS  DW      ?
-RELTAB  DW      ?
+RUNVAR:;Start of RUN variables
+RELPT: dw 0
+LASTP:
+RELSEG: dw 0
+SIZ:;Share these locations
+PAGES: dw 0
+RELCNT: dw 0
+HEADSIZ: dw 0
+        dw 0
+LOADLOW: dw 0
+INITSS: dw 0
+INITSP: dw 0
+        dw 0
+INITIP: dw 0
+INITCS: dw 0
+RELTAB: dw 0
 RUNVARSIZ       EQU     $-RUNVAR
 
-DATA    ENDS
+; END SECTION .DATA
 
-STACK   SEGMENT WORD STACK
+SECTION .STACK
         DB      80H DUP (?)
-STACK   ENDS
+; END SECTION .STACK
 
-ZLOAD   SEGMENT
-ZLOAD   ENDS
+SECTION .ZLOAD
+; END SECTION .ZLOAD
 LOAD    EQU     ZLOAD
 
-CODE    SEGMENT BYTE
+SECTION .CODE
 
-        ASSUME  CS:CODE
+        ; ASSUME  CS:CODE
 
-LOCATE  PROC    FAR
+LOCATE:
         JMP     SHORT LOCSTRT
 
 HEADER  DB      "Vers 2.00"
@@ -124,7 +124,7 @@ LOCSTRT:
         push    ds
         mov     dx,data
         mov     ds,dx
-        mov     dx,offset bad_vers_err
+        mov     dx,bad_vers_err
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         pop     ds
@@ -134,11 +134,11 @@ LOCSTRT:
 vers_ok:
 
 
-        MOV     BX,WORD PTR DS:2        ;Get size of memory
+        MOV     BX,word DS:2        ;Get size of memory
         MOV     DX,DATA
         MOV     ES,DX
 
-        assume  es:data
+        ; assume  es:data
 
 ;-----------------------------------------------------------------------;
 
@@ -148,7 +148,7 @@ vers_ok:
         mov     ds,dx
         jmp     bad_file
 sj01:
-        mov     di,offset file1
+        mov     di,file1
 sj0:
         lodsb                           ;get character of file name
         cmp     al,' '
@@ -157,18 +157,18 @@ sj0:
         je      sj2
         cmp     al,'.'                  ;an extension separator found?
         jne     sj1
-        mov     es:[per1],-1
+        mov     [es:per1],-1
 sj1:
         stosb
         jmp     short sj0
 sj2:
         dec     si
-        mov     byte ptr es:[di],00h    ;nul terminate the filename
+        mov     byte [es:di],00h    ;nul terminate the filename
         call    kill_bl
         jc      no_second
 
 ;----- Get the second file name
-        mov     di,offset file2
+        mov     di,file2
 sj3:
         lodsb                           ;get character of file name
         cmp     al,' '
@@ -177,22 +177,22 @@ sj3:
         je      sj5
         cmp     al,'.'                  ;an extension separator found?
         jne     sj4
-        mov     es:[per2],-1
+        mov     [es:per2],-1
 sj4:
         stosb
         jmp     short sj3
 sj5:
-        mov     byte ptr es:[di],00h     ;nul terminate
+        mov     byte [es:di],00h     ;nul terminate
         jmp     short check_ext
 
 ;----- Copy file1 to file2
 no_second:
         mov     ds,dx
 
-        assume  ds:data
+        ; assume  ds:data
 
-        mov     si,offset file1
-        mov     di,offset file2
+        mov     si,file1
+        mov     di,file2
 sj6:
         lodsb
         cmp     al,'.'
@@ -202,48 +202,48 @@ sj6:
         stosb
         jmp     short sj6
 sj7:
-        mov     byte ptr [di],00h
+        mov     byte [di],00h
 
 ;----- Check that files have an extension, otherwise set default
 check_ext:
         mov     ds,dx
 
-        assume  ds:data
+        ; assume  ds:data
 
         cmp     [per1],-1
         je      file1_ok
-        mov     si,offset file1
+        mov     si,file1
 sj8:
         lodsb
         cmp     al,00h
         jne     sj8
         mov     di,si
-        mov     si,offset file1_ext
+        mov     si,file1_ext
         call    put_ext
 
 file1_ok:
         cmp     [per2],-1
         je      file2_ok
-        mov     si,offset file2
+        mov     si,file2
 sj9:
         lodsb
         cmp     al,00h
         jne     sj9
         mov     di,si
-        mov     si,offset file2_ext
+        mov     si,file2_ext
         call    put_ext
         jmp     short file2_ok
 
 ;----- Fill in the default extent
-put_ext proc    near
+put_ext:
         dec     di
         mov     cx,5                    ;move extent: period,extent,null
         rep     movsb
         ret
-put_ext endp
+; ENDP put_ext
 
 ;----- Find the first non-blank
-kill_bl proc    near
+kill_bl:
         cld
 sj10:
         lodsb
@@ -256,13 +256,13 @@ sj10:
         stc
 sj11:
         ret
-kill_bl endp
+; ENDP kill_bl
 
 file2_ok:
 
 ;-----------------------------------------------------------------------;
 
-        mov     dx,offset file1
+        mov     dx,file1
         mov     ah,open
         mov     al,0                    ;ror reading only
         INT     21H                     ;Open input file
@@ -271,20 +271,20 @@ file2_ok:
         jmp     exeload
 
 bad_file:
-        MOV     DX,OFFSET NOTFND
+        MOV     DX,NOTFND
 xERROR:
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         RET                             ;FAR return to MS-DOS
 TOOBIG:
-        MOV     DX,OFFSET NOROOM
+        MOV     DX,NOROOM
         JMP     xERROR
 BADEXE:
-        MOV     DX,OFFSET CANTFIX
+        MOV     DX,CANTFIX
 ERRORJ: JMP     xERROR
 
 EXELOAD:
-        MOV     DX,OFFSET RUNVAR        ;Read header in here
+        MOV     DX,RUNVAR        ;Read header in here
         MOV     CX,RUNVARSIZ            ;Amount of header info we need
         push    bx
         mov     bx,[handle1]
@@ -328,10 +328,10 @@ EXELOAD:
         OR      AX,AX                   ;If zero, use all of last page
         JZ      WHOLEP
 
-        IF      OLDLINK
+        %if OLDLINK
         CMP     AX,4                    ;Produced by old linker?
         JZ      WHOLEP                  ;If so, use all of last page too
-        ENDIF
+        %endif
 
         SUB     DX,200H                 ;Subtract last page
         ADD     DX,AX                   ;Add in byte count for last page
@@ -343,7 +343,7 @@ WHOLEP:
         ADD     DX,BP                   ;Size + start = minimum memory (paragr.)
         CMP     DX,BX                   ;Enough memory?
         JA      TOOBIG
-        MOV     DX,OFFSET CANTFIX
+        MOV     DX,CANTFIX
         MOV     AX,[INITSS]
         OR      AX,[INITSP]
         OR      AX,[INITCS]
@@ -380,17 +380,17 @@ BINFIX:
         CMP     [RELCNT],0
         JZ      LOADEXE
 GETSEG:
-        MOV     DX,OFFSET PROMPT
+        MOV     DX,PROMPT
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         MOV     AH,STD_CON_STRING_INPUT
-        MOV     DX,OFFSET INBUF
+        MOV     DX,INBUF
         INT     21H                      ;Get user response
-        MOV     DX,OFFSET CRLF
+        MOV     DX,CRLF
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
-        MOV     SI,OFFSET INBUF+2
-        MOV     BYTE PTR [SI-1],0       ;Any digits?
+        MOV     SI,INBUF+2
+        MOV     byte [SI-1],0       ;Any digits?
         JZ      GETSEG
 DIGLP:
         LODSB
@@ -413,7 +413,7 @@ HAVDIG:
         JMP     DIGLP
 
 DIGERR:
-        CMP     BYTE PTR [SI-1],0DH     ;Is last char. a CR?
+        CMP     byte [SI-1],0DH     ;Is last char. a CR?
         JNZ     GETSEG
 LOADEXE:
         XCHG    BX,BP                   ;BX has LOAD, BP has fixup
@@ -432,7 +432,7 @@ LOADEXE:
         POP     DS
         pop     di
         Jnc     HAVEXE                  ;Did we get it all?
-        MOV     DX,OFFSET RDBAD
+        MOV     DX,RDBAD
         jmp     xERROR                   ;Non fatal, print warning
 HAVEXE:
         CMP     [RELCNT],0              ;Any fixups to do?
@@ -454,9 +454,9 @@ HAVEXE:
         pop     cx
         pop     dx
 
-        MOV     DX,OFFSET RELPT         ;4-byte buffer for relocation address
+        MOV     DX,RELPT         ;4-byte buffer for relocation address
 RELOC:
-        MOV     DX,OFFSET RELPT         ;4-byte buffer for relocation address
+        MOV     DX,RELPT         ;4-byte buffer for relocation address
         MOV     CX,4
         MOV     AH,read
         push    bx
@@ -470,12 +470,12 @@ RDCMP:
         MOV     AX,[RELSEG]             ;Get segment
         ADD     AX,BX                   ;Bias segment with actual load segment
         MOV     ES,AX
-        ADD     ES:[DI],BP              ;Relocate
+        ADD     [ES:DI],BP              ;Relocate
         DEC     [RELCNT]                ;Count off
         JNZ     RELOC
 STORE:
         MOV     AH,CREAT
-        MOV     DX,OFFSET file2
+        MOV     DX,file2
         xor     cx,cx
         INT     21H
         Jc      MKERR
@@ -502,13 +502,13 @@ STORE:
         RET
 
 WRTERR:
-        MOV     DX,OFFSET FULL
+        MOV     DX,FULL
         JMP     xERROR
 MKERR:
-        MOV     DX,OFFSET DIRFULL
+        MOV     DX,DIRFULL
         JMP     xERROR
 
-LOCATE  ENDP
-CODE    ENDS
-        END     LOCATE
+; ENDP LOCATE
+; END SECTION .CODE
+        ; END     LOCATE
                                                                                     

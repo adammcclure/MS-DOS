@@ -1,4 +1,4 @@
-TITLE   DEBUGger for MS-DOS
+; TITLE   DEBUGger for MS-DOS
 ; DEBUG-86 8086 debugger runs under 86-DOS       version 2.30
 ;
 ; Modified 5/4/82 by AaronR to do all I/O direct to devices
@@ -22,86 +22,86 @@ TITLE   DEBUGger for MS-DOS
 
 
 
-.xlist
-.xcref
-        INCLUDE DEBEQU.ASM
-        INCLUDE DOSSYM.ASM
-.cref
-.list
+; .xlist
+; .xcref
+        %include "DEBEQU.ASM"
+        %include "DOSSYM.ASM"
+; .cref
+; .list
 
-        IF      SYSVER
+        %if SYSVER
 
 ; Structure for system call 72
 
-SYSINITVAR  STRUC
-DPBHEAD     DD      ?                   ; Pointer to head of DPB-FAT list
-sft_addr    DD      ?                   ; Pointer to first FCB table
+struc SYSINITVAR
+DPBHEAD: resd 1; Pointer to head of DPB-FAT list
+sft_addr: resd 1; Pointer to first FCB table
 ; The following address points to the CLOCK device
-BCLOCK      DD      ?
+BCLOCK: resd 1
 ; The following address is used by DISKSTATCHK it is always
 ; points to the console input device header
-BCON        DD      ?                   ; Console device entry points
+BCON: resd 1; Console device entry points
 NUMIO       DB      0                   ; Number of disk tables
 MAXSEC      DW      0                   ; Maximum allowed sector size
-BUFFHEAD    DD      ?
-DEVHEAD     DD      ?
-SYSINITVAR  ENDS
+BUFFHEAD: resd 1
+DEVHEAD: resd 1
+endstruc
 
-        ENDIF
-
-
-CODE    SEGMENT PUBLIC 'CODE'
-CODE    ENDS
-
-CONST   SEGMENT PUBLIC BYTE
-
-        EXTRN   USER_PROC_PDB:WORD,STACK:BYTE,CSSAVE:WORD,DSSAVE:WORD
-        EXTRN   SPSAVE:WORD,IPSAVE:WORD,LINEBUF:BYTE,QFLAG:BYTE
-        EXTRN   NEWEXEC:BYTE,HEADSAVE:WORD,LBUFSIZ:BYTE,BACMES:BYTE
-        EXTRN   BADVER:BYTE,ENDMES:BYTE,CARRET:BYTE,ParityMes:BYTE
-
-        IF  IBMVER
-        EXTRN   DSIZ:BYTE,NOREGL:BYTE,DISPB:WORD
-        ENDIF
-
-        IF      SYSVER
-        EXTRN   CONFCB:BYTE,POUT:DWORD,COUT:DWORD,CIN:DWORD,IOBUFF:BYTE
-        EXTRN   IOADDR:DWORD,IOCALL:BYTE,IOCOM:BYTE,IOSTAT:WORD,IOCNT:WORD
-        EXTRN   IOSEG:WORD,COLPOS:BYTE,BADDEV:BYTE,BADLSTMES:BYTE
-        EXTRN   LBUFFCNT:BYTE,PFLAG:BYTE
-        ENDIF
-
-CONST   ENDS
-
-DATA    SEGMENT PUBLIC BYTE
-
-        EXTRN   PARSERR:BYTE,DATAEND:WORD,ParityFlag:BYTE,DISADD:BYTE
-        EXTRN   ASMADD:BYTE,DEFDUMP:BYTE,BYTEBUF:BYTE
-
-DATA    ENDS
-
-DG      GROUP   CODE,CONST,DATA
+        %endif
 
 
-CODE    SEGMENT PUBLIC 'CODE'
-ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
+SECTION .CODE
+; END SECTION .CODE
 
-        PUBLIC  RESTART,SET_TERMINATE_VECTOR,DABORT,TERMINATE,COMMAND
-        PUBLIC  FIND_DEBUG,CRLF,BLANK,TAB,OUT,INBUF,SCANB,SCANP
-        PUBLIC  PRINTMES,RPRBUF,HEX,OUTSI,OUTDI,OUT16,DIGIT,BACKUP,RBUFIN
+SECTION .CONST
 
-        IF  SYSVER
-        PUBLIC  SETUDEV,DEVIOCALL
-        EXTRN   DISPREG:NEAR,IN:NEAR
-        ENDIF
+        extern USER_PROC_PDB,STACK,CSSAVE,DSSAVE
+        extern SPSAVE,IPSAVE,LINEBUF,QFLAG
+        extern NEWEXEC,HEADSAVE,LBUFSIZ,BACMES
+        extern BADVER,ENDMES,CARRET,ParityMes
 
-        EXTRN   PERR:NEAR,COMPARE:NEAR,DUMP:NEAR,ENTER:NEAR,FILL:NEAR
-        EXTRN   GO:NEAR,INPUT:NEAR,LOAD:NEAR,MOVE:NEAR,NAME:NEAR
-        EXTRN   REG:NEAR,SEARCH:NEAR,DWRITE:NEAR,UNASSEM:NEAR,ASSEM:NEAR
-        EXTRN   OUTPUT:NEAR,ZTRACE:NEAR,TRACE:NEAR,GETHEX:NEAR,GETEOL:NEAR
+        %if IBMVER
+        extern DSIZ,NOREGL,DISPB
+        %endif
 
-        EXTRN   PREPNAME:NEAR,DEFIO:NEAR,SKIP_FILE:NEAR,DEBUG_FOUND:NEAR
-        EXTRN   TrapParity:NEAR,ReleaseParity:NEAR
+        %if SYSVER
+        extern CONFCB,POUT,COUT,CIN,IOBUFF
+        extern IOADDR,IOCALL,IOCOM,IOSTAT,IOCNT
+        extern IOSEG,COLPOS,BADDEV,BADLSTMES
+        extern LBUFFCNT,PFLAG
+        %endif
+
+; END SECTION .CONST
+
+SECTION .DATA
+
+        extern PARSERR,DATAEND,ParityFlag,DISADD
+        extern ASMADD,DEFDUMP,BYTEBUF
+
+; END SECTION .DATA
+
+; DG      GROUP   CODE,CONST,DATA
+
+
+SECTION .CODE
+; ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
+
+        global RESTART,SET_TERMINATE_VECTOR,DABORT,TERMINATE,COMMAND
+        global FIND_DEBUG,CRLF,BLANK,TAB,OUT,INBUF,SCANB,SCANP
+        global PRINTMES,RPRBUF,HEX,OUTSI,OUTDI,OUT16,DIGIT,BACKUP,RBUFIN
+
+        %if SYSVER
+        global SETUDEV,DEVIOCALL
+        extern DISPREG,IN
+        %endif
+
+        extern PERR,COMPARE,DUMP,ENTER,FILL
+        extern GO,INPUT,LOAD,MOVE,NAME
+        extern REG,SEARCH,DWRITE,UNASSEM,ASSEM
+        extern OUTPUT,ZTRACE,TRACE,GETHEX,GETEOL
+
+        extern PREPNAME,DEFIO,SKIP_FILE,DEBUG_FOUND
+        extern TrapParity,ReleaseParity
 
         ORG     100H
 
@@ -119,7 +119,7 @@ DOSVER_HIGH     EQU  0200H              ; 2.00 in hex
         CMP     AX,DOSVER_HIGH
         JAE     OKDOS
 GOTBADDOS:
-        MOV     DX,OFFSET DG:BADVER
+        MOV     DX,BADVER
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         INT     20H
@@ -130,30 +130,30 @@ OKDOS:
         INT     21H
         MOV     [USER_PROC_PDB],BX      ; Initially set to DEBUG
 
-        IF      SYSVER
+        %if SYSVER
         MOV     [IOSEG],CS
-        ENDIF
+        %endif
 
-        MOV     SP,OFFSET DG:STACK
+        MOV     SP,STACK
         MOV     [PARSERR],AL
         MOV     AH,GET_IN_VARS
         INT     21H
 
 
-        IF      SYSVER
-        LDS     SI,ES:[BX.BCON]
-        MOV     WORD PTR CS:[CIN+2],DS
-        MOV     WORD PTR CS:[CIN],SI
-        MOV     WORD PTR CS:[COUT+2],DS
-        MOV     WORD PTR CS:[COUT],SI
+        %if SYSVER
+        LDS     SI,[ES:BX+BCON]
+        MOV     word [CS:CIN+2],DS
+        MOV     word [CS:CIN],SI
+        MOV     word [CS:COUT+2],DS
+        MOV     word [CS:COUT],SI
         PUSH    CS
         POP     DS
-        MOV     DX,OFFSET DG:CONFCB
+        MOV     DX,CONFCB
         MOV     AH,FCB_OPEN
         INT     21H
         OR      AL,AL
         JZ      GOTLIST
-        MOV     DX,OFFSET DG:BADLSTMES
+        MOV     DX,BADLSTMES
         CALL    RPRBUF
         CALL    RBUFIN
         CALL    CRLF
@@ -161,33 +161,33 @@ OKDOS:
         OR      CL,CL
         JZ      NOLIST1                 ; User didn't specify one
         XOR     CH,CH
-        MOV     DI,OFFSET DG:(CONFCB + 1)
-        MOV     SI,OFFSET DG:LINEBUF
+        MOV     DI,(CONFCB + 1)
+        MOV     SI,LINEBUF
         REP     MOVSB
-        MOV     DX,OFFSET DG:CONFCB
+        MOV     DX,CONFCB
         MOV     AH,FCB_OPEN
         INT     21H
         OR      AL,AL
         JZ      GOTLIST                 ; GOOD
-        MOV     DX,OFFSET DG:BADDEV
+        MOV     DX,BADDEV
         CALL    RPRBUF
 NOLIST1:
-        MOV     WORD PTR [POUT+2],CS
-        MOV     WORD PTR [POUT],OFFSET DG:LONGRET
+        MOV     word [POUT+2],CS
+        MOV     word [POUT],LONGRET
         JMP     NOLIST
 
-XXX     PROC FAR
+XXX:
 LONGRET:RET
-XXX     ENDP
-        ENDIF
+; ENDP XXX
+        %endif
 
 GOTLIST:
-        IF      SYSVER
+        %if SYSVER
         MOV     SI,DX
-        LDS     SI,DWORD PTR DS:[SI.fcb_FIRCLUS]
-        MOV     WORD PTR CS:[POUT+2],DS
-        MOV     WORD PTR CS:[POUT],SI
-        ENDIF
+        LDS     SI,dword [DS:SI+fcb_FIRCLUS]
+        MOV     word [CS:POUT+2],DS
+        MOV     word [CS:POUT],SI
+        %endif
 NOLIST:
         MOV     AX,CS
         MOV     DS,AX
@@ -199,14 +199,14 @@ NOLIST:
 
         CALL    SET_TERMINATE_VECTOR
 
-        IF      SETCNTC
+        %if SETCNTC
         MOV     AL,23H                  ; Set vector 23H
-        MOV     DX,OFFSET DG:DABORT
+        MOV     DX,DABORT
         INT     21H
-        ENDIF
+        %endif
 
         MOV     DX,CS                   ; Get DEBUG's segment
-        MOV     AX,OFFSET DG:DATAEND + 15   ; End of debug
+        MOV     AX,DATAEND + 15   ; End of debug
         SHR     AX,1                    ; Convert to segments
         SHR     AX,1
         SHR     AX,1
@@ -215,33 +215,33 @@ NOLIST:
         MOV     AH,CREATE_PROCESS_DATA_BLOCK    ; create program segment just after DEBUG
         INT     21H
         MOV     AX,DX
-        MOV     DI,OFFSET DG:DSSAVE
+        MOV     DI,DSSAVE
         CLD
         STOSW
         STOSW
         STOSW
         STOSW
-        MOV     WORD PTR [DISADD+2],AX
-        MOV     WORD PTR [ASMADD+2],AX
-        MOV     WORD PTR [DEFDUMP+2],AX
+        MOV     word [DISADD+2],AX
+        MOV     word [ASMADD+2],AX
+        MOV     word [DEFDUMP+2],AX
         MOV     AX,100H
-        MOV     WORD PTR[DISADD],AX
-        MOV     WORD PTR[ASMADD],AX
-        MOV     WORD PTR [DEFDUMP],AX
+        MOV     word[DISADD],AX
+        MOV     word[ASMADD],AX
+        MOV     word [DEFDUMP],AX
         MOV     DS,DX
         MOV     ES,DX
         MOV     DX,80H
         MOV     AH,SET_DMA
         INT     21H                     ; Set default DMA address to 80H
-        MOV     AX,WORD PTR DS:[6]
+        MOV     AX,word [DS:6]
         MOV     BX,AX
         CMP     AX,0FFF0H
         PUSH    CS
         POP     DS
         JAE     SAVSTK
-        MOV     AX,WORD PTR DS:[6]
+        MOV     AX,word [DS:6]
         PUSH    BX
-        MOV     BX,OFFSET DG:DATAEND + 15
+        MOV     BX,DATAEND + 15
         AND     BX,0FFF0H               ; Size of DEBUG in bytes (rounded up to PARA)
         SUB     AX,BX
         POP     BX
@@ -250,26 +250,26 @@ SAVSTK:
         DEC     AX
         DEC     AX
         MOV     BX,AX
-        MOV     WORD PTR [BX],0
+        MOV     word [BX],0
         POP     BX
         MOV     SPSAVE,AX
         DEC     AH
-        MOV     ES:WORD PTR [6],AX
+        MOV     ES:word [6],AX
         SUB     BX,AX
         MOV     CL,4
         SHR     BX,CL
-        ADD     ES:WORD PTR [8],BX
+        ADD     ES:word [8],BX
 
-        IF IBMVER
+        %if IBMVER
         ; Get screen size and initialize display related variables
         MOV     AH,15
         INT     10H
         CMP     AH,40
         JNZ     PARSCHK
-        MOV     BYTE PTR DSIZ,7
-        MOV     BYTE PTR NOREGL,4
+        MOV     byte DSIZ,7
+        MOV     byte NOREGL,4
         MOV     DISPB,64
-        ENDIF
+        %endif
 
 PARSCHK:
 ; Copy rest of command line to test program's parameter area
@@ -283,35 +283,35 @@ PARSCHK:
         POP     ES
 FILECHK:
         MOV     DI,80H
-        CMP     BYTE PTR ES:[DI],0      ; ANY STUFF FOUND?
+        CMP     byte [ES:DI],0      ; ANY STUFF FOUND?
         JZ      COMMAND                 ; NOPE
 FILOOP: INC     DI
-        CMP     BYTE PTR ES:[DI],13     ; COMMAND LINE JUST SPACES?
+        CMP     byte [ES:DI],13     ; COMMAND LINE JUST SPACES?
         JZ      COMMAND
-        CMP     BYTE PTR ES:[DI]," "
+        CMP     byte [ES:DI]," "
         JZ      FILOOP
-        CMP     BYTE PTR ES:[DI],9
+        CMP     byte [ES:DI],9
         JZ      FILOOP
 
         CALL    DEFIO                   ; WELL READ IT IN
         MOV     AX,CSSAVE
-        MOV     WORD PTR DISADD+2,AX
-        MOV     WORD PTR ASMADD+2,AX
+        MOV     word DISADD+2,AX
+        MOV     word ASMADD+2,AX
         MOV     AX,IPSAVE
-        MOV     WORD PTR DISADD,AX
-        MOV     WORD PTR ASMADD,AX
+        MOV     word DISADD,AX
+        MOV     word ASMADD,AX
 COMMAND:
         CLD
         MOV     AX,CS
         MOV     DS,AX
         MOV     ES,AX
         MOV     SS,AX
-        MOV     SP,OFFSET DG:STACK
+        MOV     SP,STACK
         STI
         CMP     [ParityFlag],0          ; did we detect a parity error?
         JZ      GoPrompt                ; nope, go prompt
         MOV     [ParityFlag],0          ; reset flag
-        MOV     DX,OFFSET DG:ParityMes  ; message to print
+        MOV     DX,ParityMes  ; message to print
         MOV     AH,STD_CON_STRING_OUTPUT; easy way out
         INT     21h                     ; blam
 GoPrompt:
@@ -331,31 +331,31 @@ GoPrompt:
         SHL     AL,1                    ; Times two
         CBW                             ; Now a 16-bit quantity
         XCHG    BX,AX                   ; In BX we can address with it
-        CALL    CS:[BX+COMTAB]          ; Execute command
+        CALL    [CS:BX+COMTAB]          ; Execute command
         JMP     SHORT COMMAND           ; Get next command
 ERR1:   JMP     PERR
 
 SET_TERMINATE_VECTOR:
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) OR 22H  ; Set vector 22H
-        MOV     DX,OFFSET DG:TERMINATE
+        MOV     DX,TERMINATE
         INT     21H
         RET
 
 TERMINATE:
-        CMP     BYTE PTR CS:[QFLAG],0
+        CMP     byte [CS:QFLAG],0
         JNZ     QUITING
-        MOV     CS:[USER_PROC_PDB],CS
-        CMP     BYTE PTR CS:[NEWEXEC],0
+        MOV     [CS:USER_PROC_PDB],CS
+        CMP     byte [CS:NEWEXEC],0
         JZ      NORMTERM
         MOV     AX,CS
         MOV     DS,AX
         MOV     SS,AX
-        MOV     SP,OFFSET DG:STACK
+        MOV     SP,STACK
         MOV     AX,[HEADSAVE]
         JMP     DEBUG_FOUND
 
 NORMTERM:
-        MOV     DX,OFFSET DG:ENDMES
+        MOV     DX,ENDMES
         JMP     SHORT RESTART
 
 QUITING:
@@ -363,54 +363,54 @@ QUITING:
         INT     21H
 
 DABORT:
-        MOV     DX,OFFSET DG:CARRET
+        MOV     DX,CARRET
 RESTART:
         MOV     AX,CS
         MOV     DS,AX
         MOV     SS,AX
-        MOV     SP,OFFSET DG:STACK
+        MOV     SP,STACK
         CALL    RPRBUF
         JMP     COMMAND
 
-        IF      SYSVER
+        %if SYSVER
 SETUDEV:
-        MOV     DI,OFFSET DG:CONFCB
+        MOV     DI,CONFCB
         MOV     AX,(PARSE_FILE_DESCRIPTOR SHL 8) OR 01H
         INT     21H
         CALL    USERDEV
         JMP     DISPREG
 
 USERDEV:
-        MOV     DX,OFFSET DG:CONFCB
+        MOV     DX,CONFCB
         MOV     AH,FCB_OPEN
         INT     21H
         OR      AL,AL
         JNZ     OPENERR
         MOV     SI,DX
-        TEST    BYTE PTR [SI.fcb_DEVID],080H    ; Device?
+        TEST    byte [SI+fcb_DEVID],080H    ; Device?
         JZ      OPENERR                 ; NO
-        LDS     SI,DWORD PTR [CONFCB.fcb_FIRCLUS]
-        MOV     WORD PTR CS:[CIN],SI
-        MOV     WORD PTR CS:[CIN+2],DS
-        MOV     WORD PTR CS:[COUT],SI
-        MOV     WORD PTR CS:[COUT+2],DS
+        LDS     SI,dword [CONFCB.fcb_FIRCLUS]
+        MOV     word [CS:CIN],SI
+        MOV     word [CS:CIN+2],DS
+        MOV     word [CS:COUT],SI
+        MOV     word [CS:COUT+2],DS
         PUSH    CS
         POP     DS
         RET
 
 
 OPENERR:
-        MOV     DX,OFFSET DG:BADDEV
+        MOV     DX,BADDEV
         CALL    RPRBUF
         RET
-        ENDIF
+        %endif
 
 ; Get input line. Convert all characters NOT in quotes to upper case.
 
 INBUF:
         CALL    RBUFIN
-        MOV     SI,OFFSET DG:LINEBUF
-        MOV     DI,OFFSET DG:BYTEBUF
+        MOV     SI,LINEBUF
+        MOV     DI,BYTEBUF
 CASECHK:
         LODSB
         CMP     AL,'a'
@@ -438,7 +438,7 @@ KILLSTR:
         JMP     SHORT CASECHK
 
 INDONE:
-        MOV     SI,OFFSET DG:BYTEBUF
+        MOV     SI,BYTEBUF
 
 ; Output CR/LF sequence
 
@@ -451,12 +451,12 @@ CRLF:
 ; Physical backspace - blank, backspace, blank
 
 BACKUP:
-        MOV     SI,OFFSET DG:BACMES
+        MOV     SI,BACMES
 
 ; Print ASCII message. Last char has bit 7 set
 
 PRINTMES:
-        LODS    CS:BYTE PTR [SI]        ; Get char to print
+        lodsb        ; Get char to print
         CALL    OUT
         SHL     AL,1                    ; High bit set?
         JNC     PRINTMES
@@ -466,7 +466,7 @@ PRINTMES:
 
 SCANP:
         CALL    SCANB                   ; Get first non-blank
-        CMP     BYTE PTR [SI],","       ; One comma between params OK
+        CMP     byte [SI],","       ; One comma between params OK
         JNE     EOLCHK                  ; If not comma, we found param
         INC     SI                      ; Skip over comma
 
@@ -483,7 +483,7 @@ SCANNEXT:
         DEC     SI                      ; Back to first non-blank
         POP     AX
 EOLCHK:
-        CMP     BYTE PTR [SI],13
+        CMP     byte [SI],13
         RET
 
 ; Hex addition and subtraction
@@ -556,7 +556,7 @@ DIGIT:
 ; Console output of character in AL. No registers affected but bit 7
 ; is reset before output.
 
-        IF      SYSVER
+        %if SYSVER
 OUT:
         PUSH    AX
         AND     AL,7FH
@@ -577,16 +577,16 @@ NOTDEL:
         CALL    DOCONOUT
         MOV     AL,8
         CALL    DOCONOUT
-        CMP     BYTE PTR CS:[COLPOS],0
+        CMP     byte [CS:COLPOS],0
         JZ      NOTINC
-        DEC     BYTE PTR CS:[COLPOS]
+        DEC     byte [CS:COLPOS]
         JMP     NOTINC
 ZEROPOS:
-        MOV     BYTE PTR CS:[COLPOS],0FFH
+        MOV     byte [CS:COLPOS],0FFH
 OOKRET:
-        INC     BYTE PTR CS:[COLPOS]
+        INC     byte [CS:COLPOS]
 NOTINC:
-        TEST    BYTE PTR CS:[PFLAG],1
+        TEST    byte [CS:PFLAG],1
         JZ      POPRET
         CALL    LISTOUT
 POPRET:
@@ -594,7 +594,7 @@ POPRET:
         RET
 
 TABDO:
-        MOV     AL,CS:[COLPOS]
+        MOV     AL,[CS:COLPOS]
         OR      AL,0F8H
         NEG     AL
         PUSH    CX
@@ -616,10 +616,10 @@ DOCONOUT:
         PUSH    SI
         PUSH    AX
 CONOWAIT:
-        LDS     SI,CS:[COUT]
+        LDS     SI,[CS:COUT]
         MOV     AH,10
         CALL    DEVIOCALL
-        MOV     AX,CS:[IOSTAT]
+        MOV     AX,[CS:IOSTAT]
         AND     AX,200H
         JNZ     CONOWAIT
         POP     AX
@@ -637,10 +637,10 @@ LISTOUT:
         PUSH    SI
         PUSH    AX
 LISTWAIT:
-        LDS     SI,CS:[POUT]
+        LDS     SI,[CS:POUT]
         MOV     AH,10
         CALL    DEVIOCALL
-        MOV     AX,CS:[IOSTAT]
+        MOV     AX,[CS:IOSTAT]
         AND     AX,200H
         JNZ     LISTWAIT
         POP     AX
@@ -657,23 +657,23 @@ DEVIOCALL:
         PUSH    BX
         PUSH    CS
         POP     ES
-        MOV     BX,OFFSET DG:IOCALL
-        MOV     CS:[IOCOM],AH
-        MOV     WORD PTR CS:[IOSTAT],0
-        MOV     WORD PTR CS:[IOCNT],1
-        MOV     CS:[IOBUFF],AL
-        MOV     WORD PTR CS:[IOADDR+2],DS
+        MOV     BX,IOCALL
+        MOV     [CS:IOCOM],AH
+        MOV     word [CS:IOSTAT],0
+        MOV     word [CS:IOCNT],1
+        MOV     [CS:IOBUFF],AL
+        MOV     word [CS:IOADDR+2],DS
         MOV     AX,[SI+6]
-        MOV     WORD PTR CS:[IOADDR],AX
-        CALL    DWORD PTR CS:[IOADDR]
+        MOV     word [CS:IOADDR],AX
+        CALL    dword [CS:IOADDR]
         MOV     AX,[SI+8]
-        MOV     WORD PTR CS:[IOADDR],AX
-        CALL    DWORD PTR CS:[IOADDR]
-        MOV     AL,CS:[IOBUFF]
+        MOV     word [CS:IOADDR],AX
+        CALL    dword [CS:IOADDR]
+        MOV     AL,[CS:IOBUFF]
         POP     BX
         POP     ES
         RET
-        ELSE
+        %else
 
 OUT:
         PUSH    DX
@@ -685,18 +685,18 @@ OUT:
         POP     AX
         POP     DX
         RET
-        ENDIF
+        %endif
 
 
-        IF      SYSVER
+        %if SYSVER
 RBUFIN:
         PUSH    AX
         PUSH    ES
         PUSH    DI
         PUSH    CS
         POP     ES
-        MOV     BYTE PTR [LBUFFCNT],0
-        MOV     DI,OFFSET DG:LINEBUF
+        MOV     byte [LBUFFCNT],0
+        MOV     DI,LINEBUF
 FILLBUF:
         CALL    IN
         CMP     AL,0DH
@@ -705,10 +705,10 @@ FILLBUF:
         JZ      ECHR
         CMP     AL,7FH
         JZ      ECHR
-        CMP     BYTE PTR [LBUFFCNT],BUFLEN
+        CMP     byte [LBUFFCNT],BUFLEN
         JAE     BFULL
         STOSB
-        INC     BYTE PTR [LBUFFCNT]
+        INC     byte [LBUFFCNT]
         JMP     SHORT FILLBUF
 
 BDONE:
@@ -726,26 +726,26 @@ BFULL:
         JMP     SHORT FILLBUF
 
 ECHR:
-        CMP     DI,OFFSET DG:LINEBUF
+        CMP     DI,LINEBUF
         JZ      FILLBUF
         DEC     DI
-        DEC     BYTE PTR [LBUFFCNT]
+        DEC     byte [LBUFFCNT]
         JMP     SHORT FILLBUF
-        ELSE
+        %else
 
 RBUFIN:
         PUSH    AX
         PUSH    DX
         MOV     AH,10
-        MOV     DX,OFFSET DG:LBUFSIZ
+        MOV     DX,LBUFSIZ
         INT     21H
         POP     DX
         POP     AX
         RET
-        ENDIF
+        %endif
 
 
-        IF      SYSVER
+        %if SYSVER
 RPRBUF:
         PUSHF
         PUSH    AX
@@ -762,13 +762,13 @@ PRTDONE:
         POP     AX
         POPF
         RET
-        ELSE
+        %else
 
 RPRBUF:
         MOV     AH,9
         INT     21H
         RET
-        ENDIF
+        %endif
 
 ; Output one space
 
@@ -801,11 +801,11 @@ COMTAB  DW      ASSEM                   ; A
         DW      MOVE                    ; M
         DW      NAME                    ; N
         DW      OUTPUT                  ; O
-        IF      ZIBO
+        %if ZIBO
         DW      ZTRACE
-        ELSE
+        %else
         DW      PERR                    ; P
-        ENDIF
+        %endif
         DW      QUIT                    ; Q (QUIT)
         DW      REG                     ; R
         DW      SEARCH                  ; S
@@ -813,26 +813,26 @@ COMTAB  DW      ASSEM                   ; A
         DW      UNASSEM                 ; U
         DW      PERR                    ; V
         DW      DWRITE                  ; W
-        IF      SYSVER
+        %if SYSVER
         DW      SETUDEV                 ; X
-        ELSE
+        %else
         DW      PERR
-        ENDIF
+        %endif
         DW      PERR                    ; Y
         DW      PERR                    ; Z
 
 QUIT:
-        INC     BYTE PTR [QFLAG]
+        INC     byte [QFLAG]
         MOV     BX,[USER_PROC_PDB]
 FIND_DEBUG:
-IF  NOT SYSVER
+%if ~SYSVER
         MOV     AH,SET_CURRENT_PDB
         INT     21H
-ENDIF
+%endif
         CALL    ReleaseParity           ; let system do normal parity stuff
         MOV     AX,(EXIT SHL 8)
         INT     21H
 
-CODE    ENDS
-        END START
+; END SECTION .CODE
+        ; END START
                                    

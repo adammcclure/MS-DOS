@@ -1,4 +1,4 @@
-.XLIST
+; .XLIST
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -20,11 +20,11 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                        ;;
-        EXTRN    FIND_SYS_TYPE   :NEAR ;;
-        EXTRN    FIND_KEYB_TYPE  :NEAR ;;
+        extern FIND_SYS_TYPE;;
+        extern FIND_KEYB_TYPE;;
                                        ;;
-        EXTRN    HW_TYPE         :WORD ;;
+        extern HW_TYPE;;
                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-.LIST
+; .LIST

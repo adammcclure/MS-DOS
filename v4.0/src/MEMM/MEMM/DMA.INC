@@ -33,9 +33,9 @@
 ;                       - Jaywant H Bharadwaj
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 ;
 ;
 ; DMA related ports
@@ -96,30 +96,30 @@ DMA_M_WRITE	equ	4		; Write
 ;   386 code is dependent on this structure being 16 bytes long.
 ;
 
-DMARegRec	struc
+struc DMARegRec
 DMALinAdr	dd	00000000	; Channel Linear Base Register
 DMAPhyAdr	dd	00000000	; Channel Physical Base Register
 DMACount	dd	00000000	; Channel Count Register
-DMAPagePort	db	?		; byte addr of page reg
-DMABasePort	db	?		; byte addr of base addr reg
-DMACntPort	db	?		; byte addr of cnt addr reg
-DMAMode 	db	?		; Mode register
-DMARegRec	ends
+DMAPagePort: resb 1; byte addr of page reg
+DMABasePort: resb 1; byte addr of base addr reg
+DMACntPort: resb 1; byte addr of cnt addr reg
+DMAMode: resb 1; Mode register
+endstruc
 
-DMARegBuf	struc
-Chnl0	db	(size DMARegRec - 4) dup (00), DMA_P0, DMA_B0, DMA_C0, 0
-Chnl1	db	(size DMARegRec - 4) dup (00), DMA_P1, DMA_B1, DMA_C1, 0
-Chnl2	db	(size DMARegRec - 4) dup (00), DMA_P2, DMA_B2, DMA_C2, 0
-Chnl3	db	(size DMARegRec - 4) dup (00), DMA_P3, DMA_B3, DMA_C3, 0
-Chnl4	db	(size DMARegRec - 4) dup (00), DMA_P4, DMA_B4, DMA_C4, DMA_M_16BIT
-Chnl5	db	(size DMARegRec - 4) dup (00), DMA_P5, DMA_B5, DMA_C5, DMA_M_16BIT
-Chnl6	db	(size DMARegRec - 4) dup (00), DMA_P6, DMA_B6, DMA_C6, DMA_M_16BIT
-Chnl7	db	(size DMARegRec - 4) dup (00), DMA_P7, DMA_B7, DMA_C7, DMA_M_16BIT
+struc DMARegBuf
+Chnl0	db	(DMARegRec_size - 4) dup (00), DMA_P0, DMA_B0, DMA_C0, 0
+Chnl1	db	(DMARegRec_size - 4) dup (00), DMA_P1, DMA_B1, DMA_C1, 0
+Chnl2	db	(DMARegRec_size - 4) dup (00), DMA_P2, DMA_B2, DMA_C2, 0
+Chnl3	db	(DMARegRec_size - 4) dup (00), DMA_P3, DMA_B3, DMA_C3, 0
+Chnl4	db	(DMARegRec_size - 4) dup (00), DMA_P4, DMA_B4, DMA_C4, DMA_M_16BIT
+Chnl5	db	(DMARegRec_size - 4) dup (00), DMA_P5, DMA_B5, DMA_C5, DMA_M_16BIT
+Chnl6	db	(DMARegRec_size - 4) dup (00), DMA_P6, DMA_B6, DMA_C6, DMA_M_16BIT
+Chnl7	db	(DMARegRec_size - 4) dup (00), DMA_P7, DMA_B7, DMA_C7, DMA_M_16BIT
 DMAFF1	db	00		; Controller 1 FlipFlop State
 DMAFF2	db	00		; Controller 2 FlipFlop State
 DMA_Xfun	db	0	; Extended Operation Function
 DMA_Xchn	db	0	; Extended Operation Channel
-DMARegBuf	ends
+endstruc
 
 DMAREG_CTRL2_INDEX	equ	4 * 2	; 2 * 1st channel # on 2nd cntlr
 
@@ -152,9 +152,9 @@ RBMI_CompaqPortable	equ	000h
 ;
 ;   USED:
 ;------------------------------------------------------------------------------
-DMA_WADDR_TO_BADDR	MACRO
-	LOCAL	Not_AT
-extrn	ROM_BIOS_Machine_ID:byte
+%macro DMA_WADDR_TO_BADDR 0
+	; LOCAL Not_AT
+extern ROM_BIOS_Machine_ID
 
 	cmp	[ROM_BIOS_Machine_ID], RBMI_Sys80
 	jbe	short Not_AT			; If running on EBIOS machine
@@ -165,7 +165,7 @@ extrn	ROM_BIOS_Machine_ID:byte
 						; 'A0' offset
 Not_At:
 	shl	ecx, 1				; Adjust for word units
-	ENDM
+	%endmacro
 
 
 ;******************************************************************************
@@ -180,9 +180,9 @@ Not_At:
 ;
 ;   USED:
 ;------------------------------------------------------------------------------
-DMA_BADDR_TO_WADDR	MACRO
-	LOCAL	Not_AT
-extrn	ROM_BIOS_Machine_ID:byte
+%macro DMA_BADDR_TO_WADDR 0
+	; LOCAL Not_AT
+extern ROM_BIOS_Machine_ID
 
 	cmp	[ROM_BIOS_Machine_ID], RBMI_Sys80
 	jbe	short Not_AT			; If running on EBIOS machine
@@ -193,7 +193,7 @@ extrn	ROM_BIOS_Machine_ID:byte
 	shl	eax, 1				; Adjust for unused Pg Reg D0
 	pop	ax				; Restore A16-A1
 Not_At:
-	ENDM
+	%endmacro
 
 
 
@@ -230,5 +230,5 @@ Not_At:
 ;******************************************************************************
 
 
-.list	; end of ELIM.INC
+; .list; end of ELIM.INC
 

@@ -1,11 +1,11 @@
-page 80,132
+; page 80,132
 
-title CP/DOS DosSetSigHandler  mapper
+; title CP/DOS DosSetSigHandler  mapper
 
-        include msc.inc
+        %include "msc.inc"
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -25,34 +25,34 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dossetsighandler
-            .sall
-            .xlist
-            include  macros.inc
-            .list
+            global dossetsighandler
+            ; .sall
+            ; .xlist
+            %include "macros.inc"
+            ; .list
 
-str         struc
-old_bp      dw       ?
-return      dd       ?
-Signumber   dw       ?          ; signal number
-Action      dw       ?          ; action code
-Prevaction  dd       ?          ; previous action code
-Prevadrs    dd       ?          ; previous vector address
-Routineadrs dd       ?          ; interrupt handler address
-str         ends
+struc str
+old_bp: resw 1
+return: resd 1
+Signumber: resw 1; signal number
+Action: resw 1; action code
+Prevaction: resd 1; previous action code
+Prevadrs: resd 1; previous vector address
+Routineadrs: resd 1; interrupt handler address
+endstruc
 
 ; While we hate to do this, we have to.  The following data areas are
 ; expected to be in the CODE segment.
 
-NextControlBreakHandler         label   dword
+NextControlBreakHandler:
 NextControlBreakHandlerOffset   dw      DummyControlBreakHandler
 NextControlBreakHandlerSegment  dw      dosxxx
 
-NextCriticalErrorHandler        label   dword
+NextCriticalErrorHandler:
 NextCriticalErrorHandlerOffset  dw      DummyCriticalErrorHandler
 NextCriticalErrorHandlerSegment dw      dosxxx
 
-dossetsighandler  proc  far
+dossetsighandler:
 
         Enter    dossetsighandler       ; push registers
 
@@ -75,8 +75,8 @@ cntrlc: mov      ax,03523h
         int      21h                    ; get old vector address
 
         lds      si,[bp].prevadrs       ; previous handler pointer
-        mov      word ptr [si],bx       ; save it in prevsdrs
-        mov      word ptr [si]+2,es
+        mov      word [si],bx       ; save it in prevsdrs
+        mov      word [si]+2,es
 
         lds      dx,[bp].routineadrs    ; get address of signal  handler
 
@@ -85,7 +85,7 @@ cntrlc: mov      ax,03523h
 
         mov     dx,cs
         mov     ds,dx
-        mov     dx,offset RealControlBreakHandler
+        mov     dx,RealControlBreakHandler
 
         mov      ax,02523H
         int      21h                   ; set signal handler addrs in vector
@@ -93,11 +93,11 @@ cntrlc: mov      ax,03523h
         sub      ax,ax                 ; set good return code
 
 exit:   mexit                          ; pop registers
-        ret      size str - 6          ; return
+        ret      str_size - 6          ; return
 
-dossetsighandler  endp
+; ENDP dossetsighandler
 
-        page
+        ; page
 
 ;------------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ dossetsighandler  endp
 ;  sure that the environment is acceptable prior to calling the new
 ;  handler.  NOTE: we expect the new handler to be written in MicroSoft 'C'
 
-RealControlBreakHandler         proc    far
+RealControlBreakHandler:
 
         push    ds
         push    es
@@ -137,9 +137,9 @@ RealControlBreakHandler         proc    far
 
         iret
 
-RealControlBreakHandler         endp
+; ENDP RealControlBreakHandler
 
-        page
+        ; page
 
 ;------------------------------------------------------------------------------
 
@@ -147,7 +147,7 @@ RealControlBreakHandler         endp
 ;  sure that the environment is acceptable prior to calling the new
 ;  handler.  NOTE: we expect the new handler to be written in MicroSoft 'C'
 
-RealCriticalErrorHandler        proc    far
+RealCriticalErrorHandler:
 
         push    ds
         push    es
@@ -179,26 +179,26 @@ RealCriticalErrorHandler        proc    far
 
         iret
 
-RealCriticalErrorHandler        endp
+; ENDP RealCriticalErrorHandler
 
-        page
+        ; page
 
 ;------------------------------------------------------------------------------
 
-DummyControlBreakHandler        proc    far
+DummyControlBreakHandler:
 
                 iret
 
-DummyControlBreakHandler        endp
+; ENDP DummyControlBreakHandler
 
-DummyCriticalErrorHandler       proc    far
+DummyCriticalErrorHandler:
 
                 iret
 
-DummyCriticalErrorHandler       endp
+; ENDP DummyCriticalErrorHandler
 
 
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

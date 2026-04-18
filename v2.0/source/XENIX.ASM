@@ -2,24 +2,24 @@
 ; xenix file calls for MSDOS
 ;
 
-INCLUDE DOSSEG.ASM
+%include "DOSSEG.ASM"
 
-IFNDEF  KANJI
+%ifndef KANJI
 KANJI   EQU     0       ;FALSE
-ENDIF
+%endif
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-        ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+        ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.xlist
-.xcref
-INCLUDE DOSSYM.ASM
-INCLUDE DEVSYM.ASM
-.cref
-.list
+; .xlist
+; .xcref
+%include "DOSSYM.ASM"
+%include "DEVSYM.ASM"
+; .cref
+; .list
 
-TITLE   XENIX - IO system to mimic UNIX
-NAME    XENIX
+; TITLE   XENIX - IO system to mimic UNIX
+; NAME    XENIX
 
         i_need  NoSetDir,BYTE
         i_need  CURDRV,BYTE
@@ -44,24 +44,24 @@ NAME    XENIX
 
 BREAK <Local data>
 
-CODE        ENDS
-DATA        SEGMENT BYTE PUBLIC 'DATA'
+; END SECTION .CODE
+SECTION .DATA
 
-open_name   DW  ?
-            DW  ?
-open_access DB  ?
-open_jfn    DW  ?                       ; accessed as DD
-open_jfn_b  DW  ?                       ; accessed as DD with above
-open_sfn    DW  ?
-open_sfoff  DW  ?                       ; accessed as DD
-open_sfn_b  DW  ?                       ; accessed as DD with above
-open_devid  DB  ?
-Cr_read_only    DB  ?
-rename_source   DD  ?
-rename_dest     DD  ?
+open_name: dw 0
+            dw 0
+open_access: db 0
+open_jfn: dw 0; accessed as DD
+open_jfn_b: dw 0; accessed as DD with above
+open_sfn: dw 0
+open_sfoff: dw 0; accessed as DD
+open_sfn_b: dw 0; accessed as DD with above
+open_devid: db 0
+Cr_read_only: db 0
+rename_source: dd 0
+rename_dest: dd 0
 
-DATA        ENDS
-CODE        SEGMENT BYTE PUBLIC 'CODE'
+; END SECTION .DATA
+SECTION .CODE
 
 BREAK <Validate_path - check to see if there are meta characters in path>
 
@@ -71,7 +71,7 @@ BREAK <Validate_path - check to see if there are meta characters in path>
 ;           Zero is set if the only problem is that meta-characters
 ;               are present in the last element of the path
 procedure Validate_path,near
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         PUSH    AX
         PUSH    CX
         PUSH    SI
@@ -82,20 +82,20 @@ procedure Validate_path,near
         JZ      validate_malformed      ; NUL path
         CMP     AH,':'
         JNZ     validate_loop           ; OK so far
-        CMP     BYTE PTR [SI+2],0
+        CMP     byte [SI+2],0
         JZ      validate_malformed      ; NUL path (just d:)
 validate_loop:
         LODSB
 validate_loop1:
 
-        IF      KANJI
+        %if KANJI
         invoke  TESTKANJ
         JZ      NOTKANJ6
         INC     SI
         JMP     validate_loop
 
 NOTKANJ6:
-        ENDIF
+        %endif
 
         OR      AL,AL
         JZ      validate_end
@@ -128,7 +128,7 @@ validate_checktslsh:
         CMP     SI,4
         JNZ     validate_malformed      ;Four chars, "D:/<NUL>"
         MOV     SI,DX
-        CMP     BYTE PTR [SI+1],':'
+        CMP     byte [SI+1],':'
         JNZ     validate_malformed      ;Second char must be a ':'
 
 validate_end:
@@ -141,7 +141,7 @@ validate_ok:
         POP     CX
         POP     AX
         return
-validate_path   ENDP
+; ENDP validate_path
 
 BREAK <Access_path - determine if file found>
 
@@ -151,7 +151,7 @@ BREAK <Access_path - determine if file found>
 ;         carry set - AL has error code
 ;
         procedure   Access_path,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         CALL    Validate_path
         JC      access_no_path
         MOV     SI,DX
@@ -165,7 +165,7 @@ access_no_path:
 access_ret:
         STC
         return
-access_path ENDP
+; ENDP access_path
 
 BREAK <Find_free_jfn - return a free jfn in users PDB>
 ;
@@ -188,7 +188,7 @@ BREAK <Find_free_jfn - return a free jfn in users PDB>
 ;               ES,DI indeterminate
 ;
         procedure   Find_free_jfn,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         PUSH    AX
         PUSH    CX
         MOV     AL,0FFh
@@ -204,7 +204,7 @@ Find_jfn_ret:
         POP     CX
         POP     AX
         return
-Find_free_jfn   ENDP
+; ENDP Find_free_jfn
 
 BREAK <find_free_sfn - return a free sfn and sf pointer>
 ;
@@ -220,7 +220,7 @@ BREAK <find_free_sfn - return a free sfn and sf pointer>
 ; links = -1 means end of list
 ;
         procedure   Find_free_sfn,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         PUSH    BX
         PUSH    CX
         LES     BX,sft_addr             ; head of chain of tables
@@ -231,15 +231,15 @@ Find_sfn_in_table:
         CMP     BX,-1                   ; end of chain
         JZ      Find_no_free_sfns
         MOV     DI,sft_table            ; offset to sf entry
-        MOV     CX,ES:[BX].sft_count    ; count of fcbs in table
+        MOV     CX,[ES:BX].sft_count    ; count of fcbs in table
 
 Find_sfn:
-        CMP     ES:BYTE PTR [BX+DI].sf_ref_count,0h
+        CMP     ES:byte [BX+DI].sf_ref_count,0h
         JZ      Find_got_sfn            ; ref count is 0 -> free entry
-        ADD     DI,SIZE sf_entry        ; look to next entry
+        ADD     DI,sf_entry_size        ; look to next entry
         INC     SI                      ; bump sfn
         LOOP    Find_sfn
-        LES     BX,ES:[BX].sft_link     ; link to next
+        LES     BX,[ES:BX].sft_link     ; link to next
         JMP     SHORT Find_sfn_in_table ; look for more
 
 Find_no_free_sfns:
@@ -252,7 +252,7 @@ Find_ret:
         POP     CX
         POP     BX
         RET
-Find_free_sfn   ENDP
+; ENDP Find_free_sfn
 
 BREAK <$Open - open a file handle>
 ;
@@ -276,7 +276,7 @@ BREAK <$Open - open a file handle>
 ;
 
         procedure   $Open,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         MOV     [Cr_read_only],0
 Open_create:
         CMP     AL,open_for_both        ; validate access
@@ -310,20 +310,20 @@ OPEN_file:
 ; open the file
 ;
         PUSH    DS
-        LDS     DX,DWORD PTR [open_name]
-        ASSUME  DS:NOTHING
+        LDS     DX,dword [open_name]
+        ; ASSUME  DS:NOTHING
         CALL    access_path
         POP     DS
-        ASSUME  DS:DOSGROUP
+        ; ASSUME  DS:DOSGROUP
         JNC     open_check_access       ; carry set -> error
         transfer    SYS_RET_ERR
 
 open_check_access:
-        MOV     ES,WORD PTR [CURBUF+2]           ; get buffer location
+        MOV     ES,word [CURBUF+2]           ; get buffer location
         MOV     open_devid,AH
         TEST    AH,080h
         JNZ     open_set_FCB_dev        ;is a device
-        MOV     AL,ES:[BX].dir_attr
+        MOV     AL,[ES:BX].dir_attr
         TEST    AL,attr_directory       ; can't open directories
         JZ      open_try_volid
 
@@ -354,49 +354,49 @@ open_set_FCB:
         PUSH    ES
         MOV     ES,open_sfn_b           ; ES:DI is dest
         POP     DS                      ; DS:SI is source
-        ASSUME  DS:NOTHING
+        ; ASSUME  DS:NOTHING
 ;
 ; need to save attribute for the close operation
 ;
-        MOV     AH,DS:[BX.dir_attr]     ; save attribute for close
-        MOV     ES:[DI.sf_attr],AH
+        MOV     AH,[DS:BX+dir_attr]     ; save attribute for close
+        MOV     [ES:DI+sf_attr],AH
 
         ADD     DI,sf_fcb+1             ; point to name
 
-        IF      KANJI
+        %if KANJI
         MOVSB
-        CMP     BYTE PTR ES:[DI-1],5
+        CMP     byte [ES:DI-1],5
         JNZ     NOTKTRAN
-        MOV     BYTE PTR ES:[DI-1],0E5H
+        MOV     byte [ES:DI-1],0E5H
 NOTKTRAN:
         DEC     CX
-        ENDIF
+        %endif
 
         REP     MOVSB                   ; move in parsed name
         POP     DS
-        ASSUME  DS:DOSGROUP
+        ; ASSUME  DS:DOSGROUP
         POP     SI
-        LES     DI,DWORD PTR [open_sfoff]
+        LES     DI,dword [open_sfoff]
         ADD     DI,sf_fcb               ; offset on fcb in sf entry
         MOV     AH,open_devid
         invoke  DOOPEN                  ; let open code fill in blanks
         context DS
-        LES     DI,DWORD PTR [open_sfoff]
-        INC     ES:[DI].sf_ref_count    ; reference this FCB
+        LES     DI,dword [open_sfoff]
+        INC     [ES:DI].sf_ref_count    ; reference this FCB
         MOV     AL,open_access          ; stash the access
-        MOV     ES:BYTE PTR [DI].sf_mode,AL
+        MOV     ES:byte [DI].sf_mode,AL
         XOR     AX,AX
-        MOV     ES:WORD PTR [DI.sf_FCB.fcb_RR],AX       ; beginning of file
-        MOV     ES:WORD PTR [DI.sf_FCB.fcb_RR+2],AX
+        MOV     ES:word [DI+sf_FCB.fcb_RR],AX       ; beginning of file
+        MOV     ES:word [DI+sf_FCB.fcb_RR+2],AX
         INC     AX
-        MOV     ES:WORD PTR [DI.sf_FCB.fcb_RECSIZ],AX   ; byte io only
-        LES     DI,DWORD PTR [open_jfn]
+        MOV     ES:word [DI+sf_FCB.fcb_RECSIZ],AX   ; byte io only
+        LES     DI,dword [open_jfn]
         MOV     AX,open_sfn
-        MOV     ES:BYTE PTR [DI],AL     ; stash sfn in PDB
+        MOV     ES:byte [DI],AL     ; stash sfn in PDB
         SUB     DI,PDB_jfn_table        ; get jfn for user
         MOV     AX,DI
         transfer    SYS_RET_OK
-$Open   ENDP
+; ENDP $Open
 
 
 BREAK <$UNLINK - delete a file entry>
@@ -411,23 +411,23 @@ BREAK <$UNLINK - delete a file entry>
 ;              = error_access_denied
 ;
         procedure   $UNLINK,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         CALL    access_path
         JNC     unlink_check_attr
         transfer    SYS_RET_ERR
 
 unlink_check_attr:
         JZ      unlink_dir
-        LDS     DI,DWORD PTR [CURBUF]   ; get directory entry
-        TEST    DS:[BX.dir_attr],attr_read_only
+        LDS     DI,dword [CURBUF]   ; get directory entry
+        TEST    [DS:BX+dir_attr],attr_read_only
         JZ      unlink_doit
 
 unlink_dir:
         error   error_access_denied
 
 unlink_doit:
-        MOV     BYTE PTR DS:[BX.dir_name],0E5h  ; delete dir entry
-        MOV     BYTE PTR DS:[DI.BUFDIRTY],1     ; dirty the buffer
+        MOV     byte [DS:BX+dir_name],0E5h  ; delete dir entry
+        MOV     byte [DS:DI+BUFDIRTY],1     ; dirty the buffer
         LODSW
         MOV     BX,AX
         AND     BX,0FFFh
@@ -435,10 +435,10 @@ unlink_doit:
         JZ      unlink_flush
         invoke  RELEASE
 unlink_flush:
-        MOV     AL,BYTE PTR ES:[BP.DPB_drive]
+        MOV     AL,byte [ES:BP+DPB_drive]
         invoke  FLUSHBUF
         transfer    SYS_RET_OK
-$UNLINK ENDP
+; ENDP $UNLINK
 
 BREAK <$CREAT - creat a new file and open him for input>
 ;
@@ -457,7 +457,7 @@ BREAK <$CREAT - creat a new file and open him for input>
 
 
         procedure   $CREAT,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         CALL    Validate_path
         JNC     unlink_do_make
         error   error_path_not_found
@@ -465,16 +465,16 @@ unlink_do_make:
         PUSH    DX
         PUSH    DS
         context DS
-        MOV     WORD PTR [CREATING],0E5FFh
-        MOV     WORD PTR [ThisFCB+2],SS
-        MOV     WORD PTR [ThisFCB],OFFSET DOSGROUP:AUXSTACK-40
+        MOV     word [CREATING],0E5FFh
+        MOV     word [ThisFCB+2],SS
+        MOV     word [ThisFCB],AUXSTACK-40
         MOV     SI,DX
         MOV     AL,CL
         AND     CL,attr_read_only
         MOV     [Cr_read_only],CL
         POP     DS
         PUSH    DS
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         invoke  MakeNode
         POP     DS
         POP     DX
@@ -488,7 +488,7 @@ creat_open:
         MOV     AL,open_for_both
         JMP     Open_create
 
-$CREAT ENDP
+; ENDP $CREAT
 
 
 BREAK <$DUP - duplicate a jfn>
@@ -502,7 +502,7 @@ BREAK <$DUP - duplicate a jfn>
 ;           AX = dup_invalid_handle
 ;              = dup_too_many_open_files
         procedure   $DUP,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         context DS
         invoke  Find_free_jfn
         JC      dup_no_free_handles
@@ -516,7 +516,7 @@ dup_force:
         JC      dup_bad_handle
         ; ES:DI is pointer to sf entry
         ; DS:DI is pointer to jfn
-        INC     ES:[DI].sf_ref_count    ; another jfn reference...
+        INC     [ES:DI].sf_ref_count    ; another jfn reference...
         MOV     AL,[BX].PDB_JFN_table   ; get old sfn
         MOV     [SI],AL                 ; store in new place
         SUB     SI,PDB_JFN_table        ; get jfn
@@ -528,7 +528,7 @@ dup_no_free_handles:
 
 dup_bad_handle:
         error   error_invalid_handle
-$DUP    ENDP
+; ENDP $DUP
 
 BREAK <$DUP2 - force a dup on a particular jfn>
 ;
@@ -541,7 +541,7 @@ BREAK <$DUP2 - force a dup on a particular jfn>
 ;           AX = error_invalid_handle
 ;
         procedure   $DUP2,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         XCHG    BX,CX                   ; BX < destination jfn
         PUSH    BX
         PUSH    CX
@@ -554,7 +554,7 @@ BREAK <$DUP2 - force a dup on a particular jfn>
         JNC     dup_force
 lseek_bad_handle:
         error   error_invalid_handle
-$DUP2   ENDP
+; ENDP $DUP2
 
 
 BREAK <$CHMOD - change file attributes>
@@ -568,7 +568,7 @@ BREAK <$CHMOD - change file attributes>
 ;           AX = error_access_denied
 ;
         procedure   $CHMOD,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         CMP     AL,1
         JBE     chmod_save
         error   error_invalid_function
@@ -594,19 +594,19 @@ chmod_try_file:
         context DS
         OR      DL,DL
         JZ      chmod_fetch
-        AND     BYTE PTR ES:[BX].dir_attr,NOT attr_changeable
-        OR      BYTE PTR ES:[BX].dir_attr,CL
-        MOV     ES:[DI.BUFDIRTY],1
+        AND     byte [ES:BX].dir_attr,NOT attr_changeable
+        OR      byte [ES:BX].dir_attr,CL
+        MOV     [ES:DI+BUFDIRTY],1
         MOV     AL,-1
         invoke  FlushBuf
         transfer    SYS_RET_OK
 chmod_fetch:
         XOR     CX,CX
-        MOV     CL,BYTE PTR ES:[BX].dir_attr
+        MOV     CL,byte [ES:BX].dir_attr
         invoke  Get_user_stack
-        MOV     [SI.user_CX],CX
+        MOV     [SI+user_CX],CX
         transfer    SYS_RET_OK
-$chmod  ENDP
+; ENDP $chmod
 
 BREAK <$CURRENT_DIR - dump the current directory into user space>
 ;
@@ -620,7 +620,7 @@ BREAK <$CURRENT_DIR - dump the current directory into user space>
 ;           AX = error_invalid_drive
 ;
 procedure   $CURRENT_DIR,NEAR
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         PUSH    DS
         PUSH    BX
         PUSH    SI
@@ -637,13 +637,13 @@ procedure   $CURRENT_DIR,NEAR
 
 current_copy:
         POP     DI              ; where to move to
-        POP     [SI.user_BX]    ; restore old BX
+        POP     [SI+user_BX]    ; restore old BX
         POP     BX
-        MOV     [SI.user_DS],BX ; and restore old DS
+        MOV     [SI+user_DS],BX ; and restore old DS
 ;
 ; ES:BP is pointer to DPB. BX:DI is pointer to destination
 ;
-        CMP     ES:[BP.dpb_current_dir],-1
+        CMP     [ES:BP+dpb_current_dir],-1
         JNZ     current_ok
         PUSH    BX
         PUSH    DI
@@ -656,9 +656,9 @@ current_ok:
         PUSH    ES
         POP     DS              ; DS:SI is source
         MOV     ES,BX           ; ES:DI is destination
-        CMP     [SI.dpb_current_dir],0
+        CMP     [SI+dpb_current_dir],0
         JNZ     current_move
-        MOV     BYTE PTR [SI.dpb_dir_text],0
+        MOV     byte [SI+dpb_dir_text],0
 
 current_move:
         ADD     SI,dpb_dir_text
@@ -669,7 +669,7 @@ current_loop:
         OR      AL,AL
         LOOPNZ  current_loop
         transfer    SYS_RET_OK
-$CURRENT_DIR    ENDP
+; ENDP $CURRENT_DIR
 
 
 BREAK <$RENAME - move directory entries around>
@@ -686,24 +686,24 @@ BREAK <$RENAME - move directory entries around>
 ;              = error_access_denied
 procedure   $RENAME,near
 
-        MOV     WORD PTR [rename_source],DX
-        MOV     WORD PTR [rename_source+2],DS
-        MOV     WORD PTR [rename_dest],DI
-        MOV     WORD PTR [rename_dest+2],ES
+        MOV     word [rename_source],DX
+        MOV     word [rename_source+2],DS
+        MOV     word [rename_dest],DI
+        MOV     word [rename_dest+2],ES
         CALL    Access_path
         JNC     rename_check_dir
         transfer    SYS_RET_ERR
 
 rename_check_dir:
         JZ      rename_no_access
-        MOV     DS,WORD PTR [CurBuf+2]
-        PUSH    [BX.dir_date]
-        PUSH    [BX.dir_first]
-        PUSH    [BX.dir_size_h]
-        PUSH    [BX.dir_size_l]
-        PUSH    [BX.dir_time]
-        PUSH    WORD PTR [BX.dir_attr]
-        PUSH    WORD PTR [ThisDrv]
+        MOV     DS,word [CurBuf+2]
+        PUSH    [BX+dir_date]
+        PUSH    [BX+dir_first]
+        PUSH    [BX+dir_size_h]
+        PUSH    [BX+dir_size_l]
+        PUSH    [BX+dir_time]
+        PUSH    word [BX+dir_attr]
+        PUSH    word [ThisDrv]
         LDS     SI,[rename_dest]
         invoke  GetPath
         POP     AX
@@ -721,31 +721,31 @@ rename_create:
         LDS     SI,[rename_dest]
         POP     AX
         PUSH    AX
-        MOV     WORD PTR [Creating],0E5FFh
-        MOV     WORD PTR [ThisFCB+2],SS
-        MOV     WORD PTR [ThisFCB],OFFSET DOSGROUP:AUXStack-40
+        MOV     word [Creating],0E5FFh
+        MOV     word [ThisFCB+2],SS
+        MOV     word [ThisFCB],AUXStack-40
         invoke  MakeNode
         JC      rename_bad_access
         LDS     SI,[CurBuf]
         POP     AX
-        MOV     [BX.dir_attr],AL
-        POP     [BX.dir_time]
-        POP     [BX.dir_size_l]
-        POP     [BX.dir_size_h]
-        POP     [BX.dir_first]
-        POP     [BX.dir_date]
-        MOV     [SI.BUFDIRTY],1
+        MOV     [BX+dir_attr],AL
+        POP     [BX+dir_time]
+        POP     [BX+dir_size_l]
+        POP     [BX+dir_size_h]
+        POP     [BX+dir_first]
+        POP     [BX+dir_date]
+        MOV     [SI+BUFDIRTY],1
         LDS     SI,[rename_source]
         invoke  GetPath
         LDS     SI,[CurBuf]
-        MOV     BYTE PTR [BX],0E5h
-        MOV     [SI.BUFDIRTY],1
+        MOV     byte [BX],0E5h
+        MOV     [SI+BUFDIRTY],1
         context DS
         MOV     AL,0FFh
         invoke  FlushBuf
         transfer    SYS_RET_OK
 
-$RENAME ENDP
+; ENDP $RENAME
 
 BREAK <$FIND_FIRST - find first matching xenix filename>
 ;
@@ -761,7 +761,7 @@ BREAK <$FIND_FIRST - find first matching xenix filename>
 ;              = error_no_more_files
 ;
 procedure   $FIND_FIRST,near
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         CALL    Validate_path
         JNC     find_get
         JZ      find_get
@@ -769,8 +769,8 @@ procedure   $FIND_FIRST,near
 find_get:
         MOV     SI,DX
         PUSH    CX
-        INC     BYTE PTR [NoSetDir] ; if we find a dir, don't change to it
-        MOV     WORD PTR [Creating],0E500h
+        INC     byte [NoSetDir] ; if we find a dir, don't change to it
+        MOV     word [Creating],0E500h
         CALL    GetPath
         POP     CX
         MOV     [Attrib],CL
@@ -779,8 +779,8 @@ find_check:
 find_no_more:
         error   error_no_more_files
 find_check_attr:
-        MOV     DS,WORD PTR [CURBUF+2]
-        MOV     CH,[BX.dir_attr]
+        MOV     DS,word [CURBUF+2]
+        MOV     CH,[BX+dir_attr]
         invoke  MatchAttributes
         JZ      found_it
         PUSH    [LastEnt]
@@ -794,27 +794,27 @@ found_it:
         STOSB                           ; find_buf 1 = drive
         MOV     CX,11
         PUSH    BX
-        MOV     SI,OFFSET DOSGROUP:NAME1; find_buf 2 = formatted name
+        MOV     SI,NAME1; find_buf 2 = formatted name
         PUSH    DS
         PUSH    SS
         POP     DS
 
-        IF      KANJI
+        %if KANJI
         MOVSB
-        CMP     BYTE PTR ES:[DI-1],5
+        CMP     byte [ES:DI-1],5
         JNZ     NOTKANJB
-        MOV     BYTE PTR ES:[DI-1],0E5H
+        MOV     byte [ES:DI-1],0E5H
 NOTKANJB:
         DEC     CX
-        ENDIF
+        %endif
 
         REP     MOVSB
         POP     DS
         MOV     AX,[LastEnt]
         STOSW                           ; find_buf 13 = LastEnt
-        MOV     AX,WORD PTR [ThisDPB]
+        MOV     AX,word [ThisDPB]
         STOSW                           ; find_buf 15 = ThisDPB
-        MOV     AX,WORD PTR [ThisDPB+2]
+        MOV     AX,word [ThisDPB+2]
         STOSW
         MOV     AX,[DirStart]
         STOSW                           ; find_buf 19 = DirStart
@@ -839,7 +839,7 @@ find_loop_name:
         DEC     DI
 find_check_dot:
         ADD     SI,CX
-        CMP     BYTE PTR [SI]," "
+        CMP     byte [SI]," "
         JZ      find_done
         MOV     AL,"."
         STOSB
@@ -855,7 +855,7 @@ find_done:
         XOR     AL,AL
         STOSB
         transfer    SYS_RET_OK
-$FIND_FIRST ENDP
+; ENDP $FIND_FIRST
 
 BREAK <$FIND_NEXT - scan for match in directory>
 ;
@@ -869,7 +869,7 @@ BREAK <$FIND_NEXT - scan for match in directory>
 ;           AX = error_no_more_files
 ;
 procedure   $FIND_NEXT,near
-        ASSUME  DS:NOTHING,ES:NOTHING
+        ; ASSUME  DS:NOTHING,ES:NOTHING
         LDS     SI,[DMAADD]
         MOV     DX,SI
         INC     DX
@@ -880,28 +880,28 @@ procedure   $FIND_NEXT,near
 findnext_no_more:
         error   error_no_more_files
 find_load:
-        MOV     AX,[SI.find_buf_LastEnt]
-        LES     BP,[SI.find_buf_ThisDPB]
+        MOV     AX,[SI+find_buf_LastEnt]
+        LES     BP,[SI+find_buf_ThisDPB]
         OR      AX,AX
         JS      findnext_no_more
-        MOV     BX,[SI.find_buf_DirStart]
-        MOV     DL,[SI.find_buf_sattr]
+        MOV     BX,[SI+find_buf_DirStart]
+        MOV     DL,[SI+find_buf_sattr]
         MOV     [Attrib],DL
         PUSH    AX
-        MOV     WORD PTR [ThisDPB],BP
-        MOV     WORD PTR [ThisDPB+2],ES
+        MOV     word [ThisDPB],BP
+        MOV     word [ThisDPB+2],ES
 find_it_next:
         invoke  SetDirSrch
-        ASSUME  DS:DOSGROUP
+        ; ASSUME  DS:DOSGROUP
         POP     AX
         MOV     [ENTLAST],-1
         invoke  GetEnt
         invoke  NextEnt
         JMP     find_check
-$find_next  ENDP
+; ENDP $find_next
 
 do_ext
 
-CODE    ENDS
-    END
+; END SECTION .CODE
+    ; END
                                                                                                        

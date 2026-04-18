@@ -1,71 +1,71 @@
 ;*******************************************************************
 ; Parser include file
 ;*******************************************************************
-IF1					;AN000;
-	%OUT	INCLUDING COMP=COMMON DSN=PSDATA.INC...;AN000;
-ENDIF					;AN000;
+%if 1  ; IF1 - pass-specific;AN000;
+	%warning INCLUDING COMP=COMMON DSN=PSDATA.INC...;AN000;
+%endif;AN000;
 ;
 ;**** Default assemble switches definition *************************
 
-IFNDEF	FarSW				;AN000;
+%ifndef FarSW;AN000;
 FarSW	equ	0			;AN000; Near call expected
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	DateSW				;AN000;
+%ifndef DateSW;AN000;
 DateSW	equ	1			;AN000; Check date format
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	TimeSW				;AN000;
+%ifndef TimeSW;AN000;
 TimeSW	equ	1			;AN000; Check time format
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	FileSW				;AN000;
+%ifndef FileSW;AN000;
 FileSW	equ	1			;AN000; Check file specification
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	CAPSW				;AN000;
+%ifndef CAPSW;AN000;
 CAPSW	equ	1			;AN000; Perform CAPS if specified
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	CmpxSW				;AN000;
+%ifndef CmpxSW;AN000;
 CmpxSW	equ	1			;AN000; Check complex list
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	NumSW				;AN000;
+%ifndef NumSW;AN000;
 NumSW	equ	1			;AN000; Check numeric value
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	KeySW				;AN000;
+%ifndef KeySW;AN000;
 KeySW	equ	1			;AN000; Support keywords
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	SwSW				;AN000;
+%ifndef SwSW;AN000;
 SwSW	equ	1			;AN000; Support switches
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	Val1SW				;AN000;
+%ifndef Val1SW;AN000;
 Val1SW	equ	1			;AN000; Support value definition 1
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	Val2SW				;AN000;
+%ifndef Val2SW;AN000;
 Val2SW	equ	1			;AN000; Support value definition 2
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	Val3SW				;AN000;
+%ifndef Val3SW;AN000;
 Val3SW	equ	1			;AN000; Support value definition 3
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	DrvSW				;AN000;
+%ifndef DrvSW;AN000;
 DrvSW	equ	1			;AN000; Support drive only format
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	QusSW				;AN000;
+%ifndef QusSW;AN000;
 QusSW	equ	1			;AN000; Support quoted string format
-ENDIF					;AN000;
+%endif;AN000;
 
-IFNDEF	LFEOLSW 			;AN028;
+%ifndef LFEOLSW;AN028;
 LFEOLSW EQU	1			;AN028; Accept Line feed (0AH) as end of line
-ENDIF					;AN028;
+%endif;AN028;
 
 ;**** Equation field
 ;-------- Character code definition
@@ -95,25 +95,25 @@ $P_ASCII80	   equ	80h		;AN000; ASCII 80h character code
 $P_Make_Lower	   equ	20h		;AN000; make lower case character
 $P_Make_Upper	   equ	0ffh-$P_Make_Lower ;AN000; make upper case character
 
-		   PAGE 		   ;AN000;
+		   ; PAGE;AN000;
 ;-------- DOS function call related equs
 
 $P_DOS_Get_CDI	   equ	3800h		;AN000; get country dependent information
 					; by this call, following information
-$P_CDI		   struc		;AN000; is returned.
+struc $P_CDI;AN000; is returned.
 $P_CDI_DateF	   dw	0		;AN000;
 $P_CDI_Money	   db	0,0,0,0,0	;AN000;
 $P_CDI_1000	   db	0,0		;AN000;
 $P_CDI_Dec	   db	0,0		;AN000;
 $P_CDI_DateS	   db	0,0		;AN000;
 $P_CDI_TimeS	   db	0,0		;AN000;
-		   db	0		;AN000;
-		   db	0		;AN000;
+		   resb 1;AN000;
+		   resb 1;AN000;
 $P_CDI_TimeF	   db	0		;AN000;
-		   dw	0,0		;AN000;
-		   db	0,0		;AN000;
-		   dw	5 dup(0)	;AN000;
-$P_CDI		   ends 		;AN000;
+		   resw 1;AN000;
+		   resb 1;AN000;
+		   resb 10;AN000;
+endstruc;AN000;
 
 $P_Date_MDY	   equ	0		;AN000;
 $P_Date_DMY	   equ	1		;AN000;
@@ -131,12 +131,12 @@ $P_DOSTBL_File	   equ	4		;AN000; get file uppercase table
 $P_DOSTBL_Char	   equ	2		;AN000; get character uppercase table
 					; By this call following information
 					; is returned.
-$P_DOS_TBL	   struc		;AN000;
+struc $P_DOS_TBL;AN000;
 $P_DOS_InfoID	   db	0		;AN000; information id for the table
 $P_DOS_TBL_Off	   dw	0		;AN000; offset address of the table
 $P_DOS_TBL_Seg	   dw	0		;AN000; segment address of the table
-$P_DOS_TBL	   ends 		;AN000;
-		   PAGE 		;AN000;
+endstruc;AN000;
+		   ; PAGE;AN000;
 ;---------------------------------------------------------------------------------------------------------
 ; PARMS 	LABEL	BYTE
 ;		DW	PARMSX
@@ -150,11 +150,11 @@ $P_DOS_TBL	   ends 		;AN000;
 ;---------------------------------------------------------------------------------------------------------
 
 ;-------------------------------- PARMS block structure
-$P_PARMS_Blk	   struc		;AN000;
+struc $P_PARMS_Blk;AN000;
 $P_PARMSX_Address  dw	0		;AN000; Address of PARMSX
 $P_Num_Extra	   db	0		;AN000; Number of extra stuff
 $P_Len_Extra_Delim db	0		;AN000; Length of extra delimiter
-$P_PARMS_Blk	   ends 		;AN000;
+endstruc;AN000;
 
 $P_Len_PARMS	   equ	4		;AN000;
 $P_I_Use_Default   equ	0		;AN000; no extra stuff specified
@@ -175,12 +175,12 @@ $P_I_Have_EOL	   equ	2		;AN000; extra EOL specified
 ;---------------------------------------------------------------------------------------------------------
 
 ;-------------------------------- PARMSX block structure
-$P_PARMSX_Blk	   struc		;AN000;
+struc $P_PARMSX_Blk;AN000;
 $P_MinP 	   db	0		;AN000; Minimum positional number
 $P_Maxp 	   db	0		;AN000; Maximum positional number
 $P_1st_Control	   dw	0		;AN000; Address of the 1st CONTROL block
-$P_PARMSX_Blk	   ends 		;AN000;
-		   PAGE 		;AN000;
+endstruc;AN000;
+		   ; PAGE;AN000;
 ;---------------------------------------------------------------------------------------------------------
 ; << Control field definition  >>
 ;
@@ -274,33 +274,33 @@ $P_Rm_Colon	   equ	0010h		;AN000; Remove ":" at the end
 $P_colon_is_not_necessary equ 0020h	;AN000;(tm10) /+10 and /+:10
 
 ;-------------------------------- Control block structure
-$P_Control_Blk	   struc		;AN000;
+struc $P_Control_Blk;AN000;
 $P_Match_Flag	   dw	0		;AN000; Controls type matched
 $P_Function_Flag   dw	0		;AN000; Function should be taken
 $P_Result_Buf	   dw	0		;AN000; Result buffer address
 $P_Value_List	   dw	0		;AN000; Value list address
 $P_nid		   db	0		;AN000; # of keyword/SW synonyms
 $P_KeyorSW	   db	0		;AN000; keyword or sw
-$P_Control_Blk	   ends 		;AN000;
-		   PAGE 		;AN000;
+endstruc;AN000;
+		   ; PAGE;AN000;
 ;---------------------------------------------------------------------------------------------------------
 ; << Value List Definition >>
 ;
 ;VALUES 	LABEL	BYTE
 ;		DB	nval			; NUMBER OF VALUE DEFINITIONS (0 - 3)
-;	     Ú
-;	     ³	DB	nrng			; NUMBER OF RANGES
-;	     ³ ÚDB	ITEM_TAG		; RETURN VALUE IF RANGE MATCHED
-;	     ³ ÀDD	X,Y			; RANGE OF VALUES
-;	     ³	:
-;	     ³	DB	nnval			; NUMBER OF CHOICES
-;	     ³ ÚDB	ITEM_TAG		; RETURN VALUE IF NUMBER CHOICE MATCHED
-;	     ³ ÀDD	VALUE			; SPECIFIC CHOICE IF NUMBER
-;	     ³	:
-;	     ³	DB	nstrval 		; NUMBER OF CHOICES
-;	     ³ ÚDB	ITEM_TAG		; RETURN VALUE IF STRING CHOICE MATCHED
-;	     ³ ÀDW	STRING			; SPECIFIC CHOICE IF STING
-;	     À	:
+;	     Ãš
+;	     Â³	DB	nrng			; NUMBER OF RANGES
+;	     Â³ ÃšDB	ITEM_TAG		; RETURN VALUE IF RANGE MATCHED
+;	     Â³ Ã€DD	X,Y			; RANGE OF VALUES
+;	     Â³	:
+;	     Â³	DB	nnval			; NUMBER OF CHOICES
+;	     Â³ ÃšDB	ITEM_TAG		; RETURN VALUE IF NUMBER CHOICE MATCHED
+;	     Â³ Ã€DD	VALUE			; SPECIFIC CHOICE IF NUMBER
+;	     Â³	:
+;	     Â³	DB	nstrval 		; NUMBER OF CHOICES
+;	     Â³ ÃšDB	ITEM_TAG		; RETURN VALUE IF STRING CHOICE MATCHED
+;	     Â³ Ã€DW	STRING			; SPECIFIC CHOICE IF STING
+;	     Ã€	:
 ;
 ;STRING 	DB	"...",0                 ; ASCIIZ STRING IMAGE
 ;
@@ -322,14 +322,14 @@ $P_Len_Value	   equ	5		;AN000; Length of a value choice(one DD plus one DB)
 $P_Len_String	   equ	3		;AN000; Length of a string choice(one DW plus one DB)
 $P_No_nrng	   equ	0		;AN000; (tm07) no nrng. nnval must not be 0.
 
-$P_Val_List	   struc		;AN000;
+struc $P_Val_List;AN000;
 $P_NumofList	   db	0		;AN000; number of following choice
 $P_Val_XL	   dw	0		;AN000; lower word of value
 $P_Val_XH	   dw	0		;AN000; higher word of value
 $P_Val_YL	   dw	0		;AN000; lower word of another value
 $P_Val_YH	   dw	0		;AN000; higher word of another value
-$P_Val_List	   ends 		;AN000;
-		   PAGE 		;AN000;
+endstruc;AN000;
+		   ; PAGE;AN000;
 ;---------------------------------------------------------------------------------------------------------
 ; << Result Buffer Definition  >>
 ;
@@ -345,24 +345,24 @@ $P_Val_List	   ends 		;AN000;
 ;		dw	synonym@		; es:@ points to found SYNONYM if provided.
 ;
 ;
-;	    Ú	DD	n			; VALUE IF NUMBER
-;	    ³ or
-;	    ³	DW	i			; INDEX (OFFSET) INTO VALUE LIST
-;	    ³					; (ES presents Segment address)
-;	    ³ or
-;	    ³	DD	STRING			; OFFSET OF STRING VALUE
-;	    ³ or
-;	    ³	DB	drv			; DRIVE NUMBER (1-A, 2-B,..., 26-Z)
-;	    ³ or
-;	    ³	DW	YEAR	   ;(1980-2099)  IN CASE OF DATE
-;	    ³	DB	MONTH	   ;(1-12)	 Note: Range check is not performed.
-;	    ³	DB	DATE	   ;(1-31)	       0 is filled when the corresponding field was not specified.
-;	    ³ or
-;	    ³	DB	HOUR	   ;(0-23)	  IN CASE OF TIME
-;	    ³	DB	MINUTES    ;(0-59)	  Note: Range check is not performed .
-;	    ³	DB	SECONDS    ;(0-59)		0 is filled when the corresponding field was not specified .
-;	    ³	DB	HUNDREDTHS ;(0-99)
-;	    À
+;	    Ãš	DD	n			; VALUE IF NUMBER
+;	    Â³ or
+;	    Â³	DW	i			; INDEX (OFFSET) INTO VALUE LIST
+;	    Â³					; (ES presents Segment address)
+;	    Â³ or
+;	    Â³	DD	STRING			; OFFSET OF STRING VALUE
+;	    Â³ or
+;	    Â³	DB	drv			; DRIVE NUMBER (1-A, 2-B,..., 26-Z)
+;	    Â³ or
+;	    Â³	DW	YEAR	   ;(1980-2099)  IN CASE OF DATE
+;	    Â³	DB	MONTH	   ;(1-12)	 Note: Range check is not performed.
+;	    Â³	DB	DATE	   ;(1-31)	       0 is filled when the corresponding field was not specified.
+;	    Â³ or
+;	    Â³	DB	HOUR	   ;(0-23)	  IN CASE OF TIME
+;	    Â³	DB	MINUTES    ;(0-59)	  Note: Range check is not performed .
+;	    Â³	DB	SECONDS    ;(0-59)		0 is filled when the corresponding field was not specified .
+;	    Â³	DB	HUNDREDTHS ;(0-99)
+;	    Ã€
 ;
 ;
 ;Note: ITEM_TAG is 0FFH when the caller does not specify the choice
@@ -374,12 +374,12 @@ $P_Val_List	   ends 		;AN000;
 ;---------------------------------------------------------------------------------------------------------
 
 ;-------------------------------- Result block structure
-$P_Result_Blk	   struc		;AN000;
+struc $P_Result_Blk;AN000;
 $P_Type 	   db	0		;AN000; Type returned
 $P_Item_Tag	   db	0		;AN000; Matched item tag
 $P_SYNONYM_Ptr	   dw	0		;AN000; pointer to Synonym list returned
 $P_Picked_Val	   db	0,0,0,0 	;AN000; value
-$P_Result_Blk	   ends 		;AN000;
+endstruc;AN000;
 ;--------------------------------
 ;**** values for the type field in the result block
 
@@ -410,7 +410,7 @@ $P_Not_In_Str	   equ	8		;AN000; Not in string list provided
 $P_Syntax	   equ	9		;AN000; Syntax error
 $P_RC_EOL	   equ	-1		;AN000; End of command line
 
-		   PAGE 		;AN000;
+		   ; PAGE;AN000;
 ;********************** Local Data *************************************
 $P_ORDINAL	   dw	0		;AN000; Operand ordinal save area
 $P_RC		   dw	0		;AN000; Return code from parser
@@ -420,8 +420,8 @@ $P_Terminator	   db	0		;AN000; Terminator code (ASCII)
 $P_DBCSEV_OFF	   dw	0		;AN000; Offset of DBCS EV
 $P_DBCSEV_SEG	   dw	0		;AN000; Segment of DBCS EV
 $P_Flags	   dw	0		;AN000; Parser internal flags
-$P_Flags1	   equ	byte ptr $P_Flags ;AN038; to reference first byte flags
-$P_Flags2	   equ	byte ptr $P_Flags+1 ;AN038; to reference second byte flags only
+$P_Flags1	   equ	byte $P_Flags ;AN038; to reference first byte flags
+$P_Flags2	   equ	byte $P_Flags+1 ;AN038; to reference second byte flags only
 
 ;in second byte of $P_Flags, referenced as $P_Flags2:
 $P_equ		   equ	01h	      ;AN000; "=" packed in string buffet
@@ -442,14 +442,14 @@ $P_KEYorSW_Ptr	   dw	0		;AN000; points next to "=" or ":" code
 $P_Save_EOB	   dw	0		;AN000; save pointer to EOB
 $P_Found_SYNONYM   dw	0		;AN000; es:@ points to found synonym
 
-$P_STRING_BUF	   db	128 dup(0)	;AN000; Pick a operand from command line
+$P_STRING_BUF: times 128 db 0;AN000; Pick a operand from command line
 $P_STRING_BUF_END  equ	$		;AN000;
-IF		   TimeSw		;AN039; For TIME only
+%if TimeSw;AN039; For TIME only
 $P_ORIG_ORD	   DW	0		;AN039; ORIGINAL ORDINAL FROM CX
 $P_ORIG_STACK	   DW	0		;AN039; ORIGINAL VALUE OF STACK FROM SP
 $P_ORIG_SI	   DW	0		;AN039; ORIGINAL START PARSE POINTER FROM SI
-ENDIF					;AN039;
-IF		   DateSw+TimeSw	;AN000;(Check if date or time format is supported)
+%endif;AN039;
+%if DateSw+TimeSw;AN000;(Check if date or time format is supported)
 ;------------------------------
 ;
 $P_Got_Time	   db	0		;AN023; if 1, use Time delimiters
@@ -462,25 +462,25 @@ $P_2nd_Val	   dw	0		;AN000; used when process date or time
 $P_3rd_Val	   dw	0		;AN000; used when process date or time
 $P_4th_Val	   dw	0		;AN000; used when process date or time
 ;------------------------------
-ENDIF					;AN000;(of DateSW+TimeSW)
+%endif;AN000;(of DateSW+TimeSW)
 $P_Char_CAP_Ptr    db	0ffh		;AN000; info id
 		   dw	0		;AN000; offset	of char case map table
 		   dw	0		;AN000; segment of char case map table
-IF		   CAPSW		;AN000;(Check if uppercase conversion is supported)
+%if CAPSW;AN000;(Check if uppercase conversion is supported)
 $P_File_CAP_Ptr    db	0ffh		;AN000; info id
 		   dw	0		;AN000; offset	of file case map table
 		   dw	0		;AN000; segment of file case map table
-ENDIF					;AN000;(of CAPSW)
+%endif;AN000;(of CAPSW)
 ; (tm06) IF	   FileSW		;AN000;(Check if file spec is supported)
-IF		   FileSW+DrvSW 	;AN000;(Check if file spec is supported)
+%if FileSW+DrvSW;AN000;(Check if file spec is supported)
 $P_FileSp_Char	   db	'[]|<>+=;"'     ;AN000; delimitter of file spec
 $P_FileSp_Len	   equ	$-$P_FileSp_Char ;AN000;
-ENDIF					;AN000;(of FileSW)
+%endif;AN000;(of FileSW)
 ; (tm05) IF	   QusSW		;AN000;(Check if quoted string is supported)
 ;(deleted ;AN025;) IF		      QusSW+CmpxSW	   ; (tm05) ;AN000;(Check if quoted string is supported)
 ;(deleted ;AN025;) $P_SorD_Quote      db   0		   ;AN000; keep double or single quote
 ;(deleted ;AN025;) ENDIF				   ;AN000;(of QueSW)
-IF		   KeySW		;AN029; if keywords supported
+%if KeySW;AN029; if keywords supported
 $P_count_to_eol    dw	0		;AN029; count of chars not including EOL
 ;	REGISTER EQUATES - SPECIAL USAGE FOR REGISTERS
 $P_REG_BH_CG_SW    EQU	BH		;AN029;0="NO CHANGES MADE", FF=CHANGES MADE
@@ -491,7 +491,7 @@ $P_BL_EQ	   EQU	" ="            ;AN029;
 $P_EQ_BL	   EQU	"= "            ;AN029;
 $P_TB_EQ	   EQU	093DH		;AN029; ;"<TAB>="
 $P_EQ_TB	   EQU	3D09H		;AN029; ;"=<TAB>"
-ENDIF					;AN029; IF KeySW Supported
+%endif;AN029; IF KeySW Supported
 
 ; delimiter parsing
 $P_colon_period    equ	01		;AN032; check for colon & period

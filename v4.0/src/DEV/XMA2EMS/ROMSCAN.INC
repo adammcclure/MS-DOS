@@ -1,5 +1,5 @@
 
-	page
+	; page
 ;-------------------------------------------------------------------
 ;
 ;	This file contains the code to do a pseudo-rom scan looking
@@ -9,7 +9,7 @@
 
 
 
-romscan proc	near
+romscan:
 
 	push	ax
 	push	dx
@@ -51,10 +51,10 @@ check_segs:
 	push	dx
 	push	di
 
-	MOV	DI,OFFSET confl_address ; ascii string page frame
+	MOV	DI,confl_address ; ascii string page frame
 	CALL	CNVHEXAT
 
-	MOV	DX,OFFSET conflict_msg	; start of message
+	MOV	DX,conflict_msg	; start of message
 	MOV	AH,9			; dos prt string
 	INT	21H			;
 
@@ -74,7 +74,7 @@ segment_ok:
 
 ;------------------------
 
-	MOV	DX,OFFSET CRLF		; skip a blank line
+	MOV	DX,CRLF		; skip a blank line
 	MOV	AH,9			; dos prt string
 	INT	21H			;
 
@@ -83,11 +83,11 @@ segment_ok:
 ;	display no pages message
 
 no_pages_spec:
-	MOV	DX,OFFSET NO_PAGES_MSG	; skip a blank line
+	MOV	DX,NO_PAGES_MSG	; skip a blank line
 	MOV	AH,9			; dos prt string
 	INT	21H
 
-	MOV	DX,OFFSET CRLF		; skip a blank line
+	MOV	DX,CRLF		; skip a blank line
 	MOV	AH,9			; dos prt string
 	INT	21H			;
 
@@ -173,7 +173,7 @@ clean_exit:
 
 	ret
 
-romscan endp
+; ENDP romscan
 
 
 
@@ -183,7 +183,7 @@ romscan endp
 ;
 ;-------------------------------------------------------------------
 
-FoundBlock	proc	near
+FoundBlock:
 
 	push	ax
 	push	dx
@@ -196,10 +196,10 @@ FoundBlock	proc	near
 	push	cs
 	pop	ds
 
-	MOV	DI,OFFSET hole_address	; ascii string page frame
+	MOV	DI,hole_address	; ascii string page frame
 	CALL	CNVHEXAT
 
-	MOV	DX,OFFSET hole_msg	; start of message
+	MOV	DX,hole_msg	; start of message
 	MOV	AH,9			; dos prt string
 	INT	21H			;
 
@@ -211,7 +211,7 @@ FoundBlock	proc	near
 
 	ret
 
-FoundBlock	endp
+; ENDP FoundBlock
 
 ;-------------------------------------------------------------------
 ;
@@ -219,7 +219,7 @@ FoundBlock	endp
 ;
 ;-------------------------------------------------------------------
 
-FoundFrame	proc	near
+FoundFrame:
 
 	push	ax
 	push	dx
@@ -232,10 +232,10 @@ FoundFrame	proc	near
 	push	cs
 	pop	ds
 
-	MOV	DI,OFFSET frame_address  ; ascii string page frame
+	MOV	DI,frame_address  ; ascii string page frame
 	CALL	CNVHEXAT
 
-	MOV	DX,OFFSET frame_msg	 ; start of message
+	MOV	DX,frame_msg	 ; start of message
 	MOV	AH,9			; dos prt string
 	INT	21H			;
 
@@ -247,7 +247,7 @@ FoundFrame	proc	near
 
 	ret
 
-FoundFrame	endp
+; ENDP FoundFrame
 
 
 
@@ -285,7 +285,7 @@ ROM_SCAN	EQU	0AA55H
 CARD_SEL_PORT	EQU	091h		; CARD SELECTED LATCH PORT
 
 
-CHK_FREE_SEGMENT    PROC  NEAR
+CHK_FREE_SEGMENT:
 
 	PUSH	AX			; Save work registers
 	PUSH	BX
@@ -306,7 +306,7 @@ CHK_FREE_NEXT:
 
 					;	CHECK FOR ROM BLOCK SIGNATURE
 	MOV	ES,DX			; Change to new ROM segment
-	CMP	ES:WORD PTR [0],ROM_SCAN; Check if a ROM module is present
+	CMP	ES:word [0],ROM_SCAN; Check if a ROM module is present
 	JE	CHK_FREE_SIZE		; Go check length if ROM SCAN signature
 
 	CMP	BX,DX			; Check if into the target segment yet
@@ -334,7 +334,7 @@ CHK_FREE_NEXT:
 
 CHK_FREE_SIZE:				;	CHECK LENGTH INTO 16K SEGMENT
 	push	cx			; gga
-	MOV	AL,ES:BYTE PTR [2]	; Get ROM module length in 512 bytes
+	MOV	AL,ES:byte [2]	; Get ROM module length in 512 bytes
 	MOV	AH,0			; Clear high byte
 	mov	cl,5			; gga
 	SHL	AX,cl			; gga convert to segment length (16 byte)
@@ -354,7 +354,7 @@ CHK_FREE_OK:
 	POP	AX
 	RET				; EXIT (NC) if segment free to test
 
-CHK_FREE_SEGMENT    ENDP
+; ENDP CHK_FREE_SEGMENT
 
 
 ;------------------------------------------------------------------------

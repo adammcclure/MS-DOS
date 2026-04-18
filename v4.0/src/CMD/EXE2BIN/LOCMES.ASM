@@ -1,23 +1,23 @@
 ;	SCCSID = @(#)locmes.asm	1.1 85/06/13
-	title   LOCATE (EXE2BIN) Messages
+	; title   LOCATE (EXE2BIN) Messages
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
-addr macro sym,name
-    public name
-    ifidn <name>,<>
-	dw offset sym
-    else
-    public name
-name    dw  offset sym
-    endif
-endm
+%macro addr 2
+    global name
+    %ifidn <name>,<>
+	dw sym
+    %else
+    global name
+; name    dw  offset sym
+    %endif
+%endmacro
 
 
-DATA    SEGMENT PUBLIC BYTE
+SECTION .DATA
 
-	PUBLIC  bad_vers
+	global bad_vers
 
 bad_vers    db    "Incorrect DOS version$"
 
@@ -51,5 +51,5 @@ rdbad       db      "WARNING - Read error on EXE file.",13,10
 	    addr    rdbad,rdbad_ptr
 
 
-DATA    ENDS
-	END
+; END SECTION .DATA
+	; END

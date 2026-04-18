@@ -1,5 +1,5 @@
 
-.XLIST
+; .XLIST
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -20,7 +20,7 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-PARM_LIST	 STRUC		       ;;
+struc PARM_LIST;;
 ;*******************CNS******************
 ;*******************CNS******************
     RET_CODE_1	    DB	 0	       ;;  \
@@ -29,22 +29,22 @@ PARM_LIST	 STRUC		       ;;
 ;*******************CNS******************
     RET_CODE_4	    DB	 0	       ;;  |;AN000;
 ;*******************CNS******************
-    LANGUAGE_PARM   DW	 ?	       ;;   }  PARAMETER
-    CODE_PAGE_PARM  DW	 ?	       ;;  |	    LIST
-    PATH_OFFSET     DW	 ?	       ;;  |
+    LANGUAGE_PARM: resw 1;;   }  PARAMETER
+    CODE_PAGE_PARM: resw 1;;  |	    LIST
+    PATH_OFFSET: resw 1;;  |
     PATH_LENGTH     DW	 0	       ;;  /
 ;*******************CNS******************
-    ID_PARM	    DW	 ?	       ;AN000;
+    ID_PARM: resw 1;AN000;
 ;*******************CNS******************
-PARM_LIST	 ENDS		       ;;
+endstruc;;
 				       ;;
-DESIG_CP_STRUC	 STRUC		       ;;
-    NUM_DESIGNATES  DW	 ?	       ;;
-    NUM_FONTS	    DW	 ?	       ;;
-    NUM_HW_CPS	    DW	 ?	       ;;
-    DESIG_CP_ENTRY  DW	 ?	       ;;
-DESIG_CP_STRUC	  ENDS		       ;;
+struc DESIG_CP_STRUC;;
+    NUM_DESIGNATES: resw 1;;
+    NUM_FONTS: resw 1;;
+    NUM_HW_CPS: resw 1;;
+    DESIG_CP_ENTRY: resw 1;;
+endstruc;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.LIST
+; .LIST
 

@@ -1,5 +1,5 @@
         procedure   $STD_CON_STRING_INPUT,NEAR   ;System call 10
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX Point to an input buffer
@@ -19,7 +19,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         MOV     BH,CH           ;Init template counter
         CMP     AL,BL
         JBE     NOEDIT          ;If length of buffer inconsistent with contents
-        CMP     BYTE PTR [BX+SI],c_CR
+        CMP     byte [BX+SI],c_CR
         JZ      EDITON          ;If CR correctly placed EDIT is OK
 NOEDIT:
         MOV     BL,CH           ;Reset buffer
@@ -30,7 +30,7 @@ NEWLIN:
         MOV     AL,[CARPOS]
         MOV     [STARTPOS],AL   ;Remember position in raw buffer
         PUSH    SI
-        MOV     DI,OFFSET DOSGROUP:INBUF        ;Build the new line here
+        MOV     DI,INBUF        ;Build the new line here
         MOV     [INSMODE],CH    ;Insert mode off
         MOV     BH,CH           ;No chars from template yet
         MOV     DH,CH           ;No chars to new line yet
@@ -60,7 +60,7 @@ SAVCH:
         STOSB
         INC     DH              ;Got a char
         invoke  BUFOUT          ;Print control chars nicely
-        CMP     BYTE PTR [INSMODE],0
+        CMP     byte [INSMODE],0
         JNZ     GETCH           ;In insert mode, get more chars
         CMP     BH,BL
         JAE     GETCH           ;We are out of chars in template
@@ -89,7 +89,7 @@ COPYNEW:
         MOV     BX,DS
         MOV     ES,BX
         MOV     DS,BP
-        MOV     SI,OFFSET DOSGROUP:INBUF
+        MOV     SI,INBUF
         MOV     CL,DH
         REP     MOVSB           ;Copy final line to user buffer
         return                  ;All done
@@ -122,14 +122,14 @@ PUTNEW:
         OR      DH,DH
         JZ      OLDBAK          ;No chars in line, do nothing to line
         CALL    BACKUP          ;Do the backup
-        MOV     AL,ES:[DI]      ;Get the deleted char
+        MOV     AL,[ES:DI]      ;Get the deleted char
         CMP     AL," "
         JAE     OLDBAK          ;Was a normal char
         CMP     AL,c_HT
         JZ      BAKTAB          ;Was a tab, fix up users display
         CALL    BACKMES         ;Was a control char, zap the '^'
 OLDBAK:
-        CMP     BYTE PTR [INSMODE],0
+        CMP     byte [INSMODE],0
         JNZ     GETCH1          ;In insert mode, get more chars
         OR      BH,BH
         JZ      GETCH1          ;Not advanced in template, stay where we are
@@ -150,7 +150,7 @@ BAKTAB:
 FNDPOS:
         SCASB                   ;Look back
         JNA     CHKCNT
-        CMP     BYTE PTR ES:[DI+1],9
+        CMP     byte [ES:DI+1],9
         JZ      HAVTAB          ;Found a tab
         DEC     BL              ;Back one char if non tab control char
 CHKCNT:
@@ -201,7 +201,7 @@ BACKMES:
         MOV     CL,1
 ;Copy CX chars from template to line
 COPYEACH:
-        MOV     BYTE PTR [INSMODE],0    ;All copies turn off insert mode
+        MOV     byte [INSMODE],0    ;All copies turn off insert mode
         CMP     DH,DL
         JZ      GETCH2                  ;At end of line, can't do anything
         CMP     BH,BL
@@ -282,11 +282,11 @@ NOTFND:
 
         entry   EXITINS
         entry   ENTERINS
-        NOT     BYTE PTR [INSMODE]
+        NOT     byte [INSMODE]
         JMP     GETCH
 
 ;Put a real live ^Z in the buffer (embedded)
         entry   CTRLZ
         MOV     AL,"Z"-"@"
         JMP     SAVCH
-$STD_CON_STRING_INPUT   ENDP
+; ENDP $STD_CON_STRING_INPUT

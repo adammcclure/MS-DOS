@@ -1,9 +1,9 @@
 
 
 ;
-	page	58,132
+	; page	58,132
 ;******************************************************************************
-	title	ROM_SRCH - search for option ROMs
+	; title	ROM_SRCH - search for option ROMs
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -32,7 +32,7 @@
 ;  08/01/88		 Updated to identify mappable segs between C000 and E000
 ;
 ;******************************************************************************
-	page
+	; page
 ;******************************************************************************
 ;
 ;  Functional description:
@@ -58,49 +58,49 @@
 ;	roms (C000:0 to C000:7800 in 2K increments).
 ;
 ;******************************************************************************
-	page
-.386P
+	; page
+CPU 386
 ;
 ;******************************************************************************
 ;  	Public Declarations
 ;******************************************************************************
 ;
-	public	rom_srch		; Search and Vector to option ROMs.
+	global rom_srch; Search and Vector to option ROMs.
 ;******************************************************************************
 ;  	Externs
 ;******************************************************************************
-LAST	segment
-	extrn	Map_tbl:word
-	extrn	max_PF:abs
-	extrn	mappable_segs:byte
-	extrn	exclude_segments:near
+SECTION .LAST
+	extern Map_tbl
+	extern max_PF
+	extern mappable_segs
+	extern exclude_segments
 
-LAST	ends
+; END SECTION .LAST
 ;
 ;******************************************************************************
 ;  	Equates
 ;******************************************************************************
 ;					   
-FIRST_ROM	=	0C800H		; Segment address of first option ROM.
-LAST_ROM	=	0EF80H		; Segment address of last option ROM.
-FIRST_VDU_ROM	=	0C000H		; Seg address of first VDU option ROM.
-LAST_VDU_ROM	=	0C780H		; Seg address of last VDU option ROM.
-FIRST_RAM	=	0C000H		; Seg address of 1st possible RAM addr
-LAST_RAM	=	0EF80H		; Seg addr of last possible RAM addr
-NOT_FOUND_INCR  =	0800H		; Amount to skip if no ROM found.
+FIRST_ROM equ 0C800H; Segment address of first option ROM.
+LAST_ROM equ 0EF80H; Segment address of last option ROM.
+FIRST_VDU_ROM equ 0C000H; Seg address of first VDU option ROM.
+LAST_VDU_ROM equ 0C780H; Seg address of last VDU option ROM.
+FIRST_RAM equ 0C000H; Seg address of 1st possible RAM addr
+LAST_RAM equ 0EF80H; Seg addr of last possible RAM addr
+NOT_FOUND_INCR equ 0800H; Amount to skip if no ROM found.
 ;
-	include emmdef.inc
-	include	vdmseg.inc
-	include	romstruc.equ		; Option ROM structure.
+	%include "emmdef.inc"
+	%include "vdmseg.inc"
+	%include "romstruc.equ"; Option ROM structure.
 PF_LENGTH	equ	0400h		; length of a page frame (*16)
 ;
 ;******************************************************************************
 ;		S E G M E N T S
 ;******************************************************************************
-LAST	segment
-	ASSUME	CS:LAST, DS:DGROUP
+SECTION .LAST
+	; ASSUME	CS:LAST, DS:DGROUP
 ;
-	page
+	; page
 ;******************************************************************************
 ;
 ;	ROM_SRCH - Search for option ROMs.
@@ -119,7 +119,7 @@ LAST	segment
 ;
 ;
 ;******************************************************************************
-rom_srch	proc	near		; Entry point.
+rom_srch:; Entry point.
 	push	bx
 ;
 ; search for option ROMs
@@ -163,8 +163,8 @@ not_fndr:
 ;
 	pop	bx
 	ret	
-rom_srch endp
-	page
+; ENDP rom_srch
+	; page
 ;
 ;******************************************************************************
 ;	OPT_ROM - This routine looks at the ROM located at the segment address
@@ -182,7 +182,7 @@ rom_srch endp
 ;
 ;******************************************************************************
 ;
-opt_rom	proc near	      
+opt_rom:
 	push	bx
 	push	cx
 	push	si
@@ -190,14 +190,14 @@ opt_rom	proc near
 ;
 	mov	ds,ax			; DS=ROM segment address.
 	xor	bx,bx			; Index uses less code than absolute.
-	cmp	[bx.ROM_RECOGNITION],0AA55H ;Q: Looks like a ROM?
+	cmp	[bx+ROM_RECOGNITION],0AA55H ;Q: Looks like a ROM?
 	jne	rs_3			;  No, Skip down
 ;
 ;	Compute checksum over ROM.
 ;
 	xor	si,si			; DS:SI=ROM Pointer; Start at beg.
 	xor	cx,cx			; Prepare to accept byte into word.
-	mov	ch,[bx.ROM_LEN]		; CH=byte count/512 (CX=byte count/2)
+	mov	ch,[bx+ROM_LEN]		; CH=byte count/512 (CX=byte count/2)
 	shl	cx,1			; CX=adjusted byte count.
 	mov	dx,cx			; Extract size.
 rs_2:
@@ -226,8 +226,8 @@ rs_exit:
 	pop	bx
 	ret				; *** RETURN ***
 ;
-opt_rom	endp
-	page
+; ENDP opt_rom
+	; page
 ;
 ;******************************************************************************
 ;	RAM_SRCH - This routine looks at the address range potentially used    
@@ -243,7 +243,7 @@ opt_rom	endp
 ;
 ;******************************************************************************
 ;
-ram_srch	proc	near
+ram_srch:
 
 	push	bx
 	push	ds
@@ -280,8 +280,8 @@ ram_exit:
 	pop	bx
 ;
 	ret
-ram_srch	endp
-	page
+; ENDP ram_srch
+	; page
 ;
 
 ;******************************************************************************
@@ -298,7 +298,7 @@ ram_srch	endp
 ;	 Written: 8/1/88 ISP
 ;	 Modif:   8/25/88 ISP to make use of exclude_segments
 ;******************************************************************************
-upd_seg proc	near
+upd_seg:
 ;
 	push	bx
 	push	ax
@@ -312,6 +312,6 @@ upd_seg proc	near
 	pop	ax
 	pop	bx
 	ret
-upd_seg endp
-LAST	ENDS
-	END
+; ENDP upd_seg
+; END SECTION .LAST
+	; END

@@ -1,35 +1,35 @@
- TITLE	 CHKDSK - MS-DOS Disk consistancy checker ;
-page	,132					;
+ ; TITLE	 CHKDSK - MS-DOS Disk consistancy checker;
+; page	,132;
 
-	.xlist
-	include chkseg.inc							;an005;bgb
-	INCLUDE CHKCHNG.INC
-	INCLUDE DOSSYM.INC
-	INCLUDE syscall.inc							;an041;bgb
-	INCLUDE ioctl.inc							;an041;bgb;an041;bgb
-	INCLUDE CHKEQU.INC
-	INCLUDE CHKMACRO.INC
-	include chkdata.inc							;an005;bgb
-	include pathmac.inc
+	; .xlist
+	%include "chkseg.inc";an005;bgb
+	%include "CHKCHNG.INC"
+	%include "DOSSYM.INC"
+	%include "syscall.inc";an041;bgb
+	%include "ioctl.inc";an041;bgb;an041;bgb
+	%include "CHKEQU.INC"
+	%include "CHKMACRO.INC"
+	%include "chkdata.inc";an005;bgb
+	%include "pathmac.inc"
 
-CODE	SEGMENT PUBLIC PARA 'CODE'
-ASSUME	CS:DG,DS:NOTHING,ES:DG,SS:dg
- EXTRN	INT_23:NEAR,   readft:near	    ;an005;bgb
- EXTRN	FATAL:NEAR, PROMPTYN:NEAR, GET_CURRDIR:NEAR
- extrn	calc_fatmap_seg:near, FINDCHAIN:NEAR, CHECKERR:NEAR, DIRPROC:NEAR
- extrn	CHKMAP:NEAR, Main_Init:Near					     ;an049;bgb
- EXTRN	CHKCROSS:NEAR, AMDONE:NEAR, UNPACK:NEAR, GET_THISEL2:NEAR
- EXTRN	PRINTF_CRLF:NEAR, DOCRLF:NEAR, REPORT:NEAR
- extrn	init_fatmap:near, CHKPRMT_END:near					;an005;bgb
- extrn	hook_interrupts:near
- extrn	CHECK_DBCS_CHARACTER:NEAR						;an055;bgb
+SECTION .CODE
+; ASSUME	CS:DG,DS:NOTHING,ES:DG,SS:dg
+ extern INT_23,   readft;an005;bgb
+ extern FATAL, PROMPTYN, GET_CURRDIR
+ extern calc_fatmap_seg, FINDCHAIN, CHECKERR, DIRPROC
+ extern CHKMAP, Main_Init;an049;bgb
+ extern CHKCROSS, AMDONE, UNPACK, GET_THISEL2
+ extern PRINTF_CRLF, DOCRLF, REPORT
+ extern init_fatmap, CHKPRMT_END;an005;bgb
+ extern hook_interrupts
+ extern CHECK_DBCS_CHARACTER;an055;bgb
 
-public SETSTACK, OkDrive, DRVISOK, Root_CD_Ok, NOTVOLID, fat16b, SMALLFAT
-public BAD_STACK, RDLOOP, NORETRY1, RDOK, IDOK, ALLDONE, CHECKFILES, GotPath
-public IS_ROOT_DIR, NOT_ROOT_DIR, VALID_PATH, ParseName, ScanFile, FRAGCHK
-public EACHCLUS, LASTCLUS, NXTCHK, GETNXT, MSGCHK, FILSPOK, CDONE, CDONE1
-public PRINTID, FIGREC, Main_Routine, checkit
-	.list
+global SETSTACK, OkDrive, DRVISOK, Root_CD_Ok, NOTVOLID, fat16b, SMALLFAT
+global BAD_STACK, RDLOOP, NORETRY1, RDOK, IDOK, ALLDONE, CHECKFILES, GotPath
+global IS_ROOT_DIR, NOT_ROOT_DIR, VALID_PATH, ParseName, ScanFile, FRAGCHK
+global EACHCLUS, LASTCLUS, NXTCHK, GETNXT, MSGCHK, FILSPOK, CDONE, CDONE1
+global PRINTID, FIGREC, Main_Routine, checkit
+	; .list
 
 
 	pathlabl chkdsk1
@@ -43,9 +43,9 @@ CHKDSK:
     DOS_Call GetCurrentPSP		    ;Get PSP segment address		;Ac034;bgb
     mov     cs:psp_segment,bx							   ;ac034;bgb
     mov     ds,bx			    ;ds points to the psp		;Ac034;bgb
-    Assume  DS:Nothing
-    MOV     DX,DS:[2]			    ;High break
-    mov     cs:[mem_size],dx		    ;move it into data area		;an054;bgb
+    ; Assume  DS:Nothing
+    MOV     DX,[DS:2]			    ;High break
+    mov     [cs:mem_size],dx		    ;move it into data area		;an054;bgb
     MOV     BX,0FFFFH			    ;need at least 64k bytes
     MOV     CX,CS	    ;get segment of where we are
     SUB     DX,CX	    ;top-of-mem  -  pgm  =  # para left in alloc block
@@ -61,7 +61,7 @@ SETSTACK:	       ;***Set_Memory*********
     CLI
     PUSH    CS
     POP     SS
-ASSUME	SS:DG
+; ASSUME	SS:DG
     MOV     SP,BX
     STI
     PUSH    AX
@@ -90,7 +90,7 @@ OkDrive:
 ;get the dpb addr  from this drive
     mov      dl,AllDrv			     ;Get drive number		     ;AN000;
     DOS_Call Get_DPB		 ;func 32    ;Get DPB pointer		     ;AC000;
-    ASSUME  DS:NOTHING,cs:DG
+    ; ASSUME  DS:NOTHING,cs:DG
     CMP     AL,-1			   ;is this a good drive?
 ;   $IF  Z
     JNZ $$IF3
@@ -103,9 +103,9 @@ OkDrive:
 	ret					;Go back to Main_Init		;AC000;
 ;   $ENDIF
 $$IF3:
-    MOV     WORD PTR CS:[THISDPB+2],DS	    ;get the dpb segment
+    MOV     word [CS:THISDPB+2],DS	    ;get the dpb segment
     set_data_segment			    ;reset ds to the pgm
-    MOV     WORD PTR [THISDPB],BX	    ;get the dpb offset
+    MOV     word [THISDPB],BX	    ;get the dpb offset
 
 ;**Set_Drive_Info*************************************************************
 DRVISOK:
@@ -131,7 +131,7 @@ DRVISOK:
 ;   $IF     C				;will this ever happen?
     JNC $$IF5
 ;;;;;;;;jnc	Root_CD_Ok			;				;AN000;
-	MOV	DX,OFFSET DG:BADCD_arg
+	MOV	DX,BADCD_arg
 	call	display_interface		       ;			       ;AC000;
 	mov	ExitStatus,Bad_Exit	;Get return code		       ;AC000;
 	ret					;Go back to Main_Init	       ;AC000;
@@ -140,36 +140,36 @@ $$IF5:
 
 ;get the dpb info
     LDS     BX,[THISDPB]		;ds:bx--> dpb area
-    ASSUME  DS:NOTHING
-    MOV     AX,[BX.dpb_sector_size]	;Bytes/sector
+    ; ASSUME  DS:NOTHING
+    MOV     AX,[BX+dpb_sector_size]	;Bytes/sector
     MOV     [SSIZE],AX			;Sector size in bytes
-    MOV     AL,[BX.dpb_cluster_mask]
+    MOV     AL,[BX+dpb_cluster_mask]
     INC     AL
     MOV     [CSIZE],AL			;Sectors per cluster
-    MOV     AX,[BX.dpb_max_cluster]	; number of clusters in the disk
+    MOV     AX,[BX+dpb_max_cluster]	; number of clusters in the disk
     MOV     [MCLUS],AX			;Bound for FAT searching
     DEC     AX			    ;ax= max clusters - 1			;an005;bgb
     MOV     [DSIZE],AX		    ;Total data clusters on disk		;an005;bgb
     CMP     AX,4096-8			;Big or little FAT?
 ;   $IF     NB
     JB $$IF7
-fat16b: INC	es:[BIGFAT]		   ;set 16-bit fat flag to true
-	MOV	es:[EOFVAL],0FFF8H	   ;set 16-bit compare fields for fat
-	MOV	es:[CHAIN_END],0FFFFh		   ;Marker for end of chain	   ;AC000;
-	MOV	es:[BADVAL],0FFF7H	   ;set 16-bit compare fields for fat
+fat16b: INC	[es:BIGFAT]		   ;set 16-bit fat flag to true
+	MOV	[es:EOFVAL],0FFF8H	   ;set 16-bit compare fields for fat
+	MOV	[es:CHAIN_END],0FFFFh		   ;Marker for end of chain	   ;AC000;
+	MOV	[es:BADVAL],0FFF7H	   ;set 16-bit compare fields for fat
 ;   $ENDIF
 $$IF7:
-    mov     ax,[bx.dpb_FAT_size]    ;Sectors for one fat (DCR)			;an005;bgb
+    mov     ax,[bx+dpb_FAT_size]    ;Sectors for one fat (DCR)			;an005;bgb
     mov     fatsiz,ax		    ;Sectors for one fat (DCR)			;an005;bgb
-    MOV     CL,[BX.dpb_FAT_count]	   ;Number of FATs			;an005;bgb
+    MOV     CL,[BX+dpb_FAT_count]	   ;Number of FATs			;an005;bgb
     mov     fatcnt,cl								;an005;bgb
-    MOV     DX,[BX.dpb_first_FAT]	   ;First sector of FAT 		;an005;bgb
+    MOV     DX,[BX+dpb_first_FAT]	   ;First sector of FAT 		;an005;bgb
     MOV     firstfat,dx 		   ;First sector of FAT 		;an005;bgb
-    MOV     DX,[BX.dpb_first_sector]	   ;First sector of data		;ac048;bgb
+    MOV     DX,[BX+dpb_first_sector]	   ;First sector of data		;ac048;bgb
     MOV     firstsec,dx 		   ;First sector of data		;ac048;bgb
-    MOV     DX,[BX.dpb_dir_sector]	 ;First sector of dir			;ac048;bgb
+    MOV     DX,[BX+dpb_dir_sector]	 ;First sector of dir			;ac048;bgb
     MOV     dirsec,dx			 ;First sector of dir			;ac048;bgb
-    MOV     DX,[BX.dpb_root_entries]	 ;First sector of dir			;ac048;bgb
+    MOV     DX,[BX+dpb_root_entries]	 ;First sector of dir			;ac048;bgb
     MOV     root_entries,dx			 ;First sector of dir		;ac048;bgb
     set_data_segment			;reset ds to point to data area
 
@@ -193,7 +193,7 @@ Root_CD_Ok:					 ;				;AN000;
     cmp     ax,end_of_fatmap	     ;mem_size must be greater or equal
 ;   $IF     B			     ; if not, display error msg
     JNB $$IF9
-	MOV	DX,OFFSET DG:no_mem_arg
+	MOV	DX,no_mem_arg
 	invoke	printf_crlf
 	jmp	alldone 	     ;finished with pgm
 ;   $ENDIF
@@ -222,7 +222,7 @@ NOTVOLID:
 ;;;;ADD     AX,[MCLUS]	    ;5000    ;fatmap seg + num of clusters?					      ;an005;bgb
 ;;;;ADD     AX,2	    ;5002   ;Insurance					;an005;bgb
 ;;;;MOV     [SECBUF],AX 	    ;Allocate fatmap space			;an005;bgb
-    mov     ax, offset dg:chkprmt_end ;this label must be the last thing in the code segment
+    mov     ax, chkprmt_end ;this label must be the last thing in the code segment
     mov     [secbuf],AX 	    ;location of read/write buffer for dir entries ;an005;bgb
 ;;;;ADD     AX,[SSIZE]	    ;5202						;an005;bgb
 ;;;;ADD     AX,20	    ;5216   ;Insurance					;an005;bgb
@@ -239,7 +239,7 @@ NOTVOLID:
     JNB $$IF13
 ;;;;;;;;JB	BAD_STACK		; Already in trouble
 BAD_STACK:
-	MOV	BX,OFFSET DG:STACKMES	;Out of stack
+	MOV	BX,STACKMES	;Out of stack
 	PUSH	CS
 	POP	DS
 	JMP	FATAL
@@ -263,9 +263,9 @@ RDLOOP:
     call    readft		    ;	readft ();				;AN005;bgb
 ;   $IF     C			    ; could the fat be read from disk?		;AN005;bgb
     JNC $$IF15
-	inc	byte ptr [nul_arg]						;an005;bgb
+	inc	byte [nul_arg]						;an005;bgb
 ;;;;;;;;mov	[fatal_arg2],offset dg:baddrvm					;an005;bgb
-	mov	[fatmsg2],offset dg:baddrvm				     ;an005;bgb
+	mov	[fatmsg2],baddrvm				     ;an005;bgb
 	lea	BX,badread							;an022;bgb
 	JMP	FATAL			;Couldn't read any FAT, BARF            ;an005;bgb
 ;   $ENDIF			    ;fat could be read from disk		;AN005;bgb
@@ -300,7 +300,7 @@ RDOK:	;**Check_for_FAT_ID**********************************************
     mov     es,fattbl_seg	     ;segment of fat-table			;an005;bgb
     xor     si,si		     ;offset of first byte in fat-table 	;an005;bgb
 ;;;;LODSB			    ;Check FAT ID byte
-    mov     al,byte ptr es:[si]     ;get first byte of fat table
+    mov     al,byte [es:si]     ;get first byte of fat table
     CMP     AL,0F8H		    ;is it the correct id byte?
 ;   $IF     B,AND
     JNB $$IF17
@@ -309,7 +309,7 @@ RDOK:	;**Check_for_FAT_ID**********************************************
 ;   $IF     NZ
     JZ $$IF17
 ;;;;;;;;jz	IDOK		    ;neither fat nor strange
-	MOV	DX,OFFSET DG:BADIDBYT	;FAT ID bad
+	MOV	DX,BADIDBYT	;FAT ID bad
 	CALL	PROMPTYN		;Ask user to stop or not
 ;	$IF	NZ
 	JZ $$IF18
@@ -325,7 +325,7 @@ IDOK:
     call    init_fatmap
 
 ;set the dta addr to here for all searches
-    MOV     DX,OFFSET DG:DIRBUF     ;FOR ALL SEARCHING
+    MOV     DX,DIRBUF     ;FOR ALL SEARCHING
     DOS_Call	    Set_DMA	    ;					    ;AC000;
     XOR     AX,AX		    ;zero out ax
     PUSH    AX			    ;I am root
@@ -348,7 +348,7 @@ ALLDONE:
 ;;;;;;;;INT	21H
 	ret				;Ret to Main_Init for common exit	;AN000;
 
-ASSUME	DS:DG
+; ASSUME	DS:DG
 ;**Extent_Check***************************************************************
 Break	<Check for extents in specified files>
 ;
@@ -364,7 +364,7 @@ Break	<Check for extents in specified files>
 CHECKFILES:
 	set_data_segment
 ; see if there is a '\' in the path name
-	MOV	DI,OFFSET DG:PATH_NAME
+	MOV	DI,PATH_NAME
 	MOV	SI,DI
 	MOV	CX, FNAME_LEN		;					;an011;bgb
 	ADD	DI,CX			; ES:DI points to char AFTER last char
@@ -390,8 +390,8 @@ $$EN22:
 $$IF21:
 ;;;;;;;;;;;;;;;;;;;;;JZ      GotPath		     ; found path char. 	;an055;bgb
 ; No '\' was found.  set up pointers for parse FCB call.
-	MOV	DI,OFFSET DG:PATH_NAME
-	CMP	BYTE PTR [DI+1],':'  ;was a drive letter entered?
+	MOV	DI,PATH_NAME
+	CMP	byte [DI+1],':'  ;was a drive letter entered?
 	JNZ	ParseName
 	ADD	DI,2
 	JMP	SHORT ParseName
@@ -401,26 +401,26 @@ $$IF21:
 ;Change directories and set up the appropriate FCB
 GotPath:
 	INC	DI			; DI points AT the path sep
-	PUSH	WORD PTR [DI]		; Save two chars here
+	PUSH	word [DI]		; Save two chars here
 	PUSH	DI			; Save location
 	SUB	SI,DI
 	JZ	IS_ROOT_DIR		; SI=DI=First char which is a dirchar
 	NEG	SI
 	CMP	SI,2
 	JNZ	NOT_ROOT_DIR
-	CMP	BYTE PTR [DI-1],':'	; d:\ root spec?
+	CMP	byte [DI-1],':'	; d:\ root spec?
 	JNZ	NOT_ROOT_DIR		; Nope
 IS_ROOT_DIR:
 	INC	DI			; Don't zap the path sep, zap NEXT char
 NOT_ROOT_DIR:
-	MOV	BYTE PTR [DI],0
-	MOV	DX,OFFSET DG:PATH_NAME
+	MOV	byte [DI],0
+	MOV	DX,PATH_NAME
 	DOS_Call	Chdir		;					;AC000;
 	POP	DI			; Recall loc
-	POP	WORD PTR [DI]		; recall chars
+	POP	word [DI]		; recall chars
 	JNC	VALID_PATH
 	INVOKE	DOCRLF
-	MOV	DX,OFFSET DG:INVPATH_arg
+	MOV	DX,INVPATH_arg
 	invoke	printf_crlf
 	JMP	CDONE1
 
@@ -431,30 +431,30 @@ VALID_PATH:
 ParseName:
 ; parse the filename and get back a formatted fcb for it in es:di
 	MOV	SI,DI		      ; DS:SI points to name
-	MOV	DI,offset dg:FCB_copy ; ES:DI points to FCB
+	MOV	DI,FCB_copy ; ES:DI points to FCB
 	MOV	AL,ALLDRV	      ; drive number
 	STOSB			      ; put it into fcb
 	DEC	DI		      ; Back to start of FCB
 	MOV	pFileName,SI	      ; save end of file name
 	MOV	AL,00000010B	      ; tell parse to change drive letter if needed
 	DOS_Call	Parse_File_Descriptor	;				;AC000;
-	CMP	BYTE PTR [SI],0       ;ds:si should point past filename
+	CMP	byte [SI],0       ;ds:si should point past filename
 	JZ	ScanFile
 ;
 ; Twiddle the file name to be truly bogus.  Zorch the drive letter
 ;
-	MOV	BYTE PTR es:[DI],-1
+	MOV	byte [es:DI],-1
 ScanFile:
 	INVOKE	DOCRLF
 ;set dma pointer to here
-	MOV	DX,OFFSET DG:DIRBUF	;FOR ALL SEARCHING
+	MOV	DX,DIRBUF	;FOR ALL SEARCHING
 	MOV	BP,DX
 	ADD	BP,27			;bp points to clus in the dir entry
 	DOS_Call	Set_DMA 	;set dma ptr here for dir search	 ;AC000;
 ;try to find the file specified
 	MOV	AH,DIR_SEARCH_FIRST		 ;Look for the first file
 FRAGCHK:
-	MOV	DX,offset dg:FCB_copy
+	MOV	DX,FCB_copy
 	INT	21H
 	OR	AL,AL			;Did we find it?
 	JNZ	MSGCHK			;No -- we're done
@@ -489,14 +489,14 @@ NXTCHK: 	      ;reached the end of a file
 	MOV	[FRAGMENT],2		;Signal that we output at least one file
 	inc	ax			;bump by one for ends
 	mov	[block_num],ax
-	mov	word ptr rarg1,ax		 ;					 ;an011;bgb
-	mov	word ptr rarg1+2,0
-	mov	si,offset dg:dirbuf	;point to filename			;an011;bgb
+	mov	word rarg1,ax		 ;					 ;an011;bgb
+	mov	word rarg1+2,0
+	mov	si,dirbuf	;point to filename			;an011;bgb
 	INC	SI			;move pointer past drive letter
 ; get the full path name for this file
 	CALL	get_THISEL2
 ; print it out
-	mov	dx,offset dg:extent_arg
+	mov	dx,extent_arg
 	invoke	printf_crlf
 GETNXT:
 	MOV	AH,DIR_SEARCH_NEXT	    ;Look for the next file
@@ -508,19 +508,19 @@ MSGCHK:
 ;	CALL	get_THISEL2
 	MOV	SI,pFileName
 	CALL	get_currdir
-	mov	dx,offset dg:OPNERR_arg
+	mov	dx,OPNERR_arg
 	invoke	printf_crlf		    ;bad file spec
 	jmp	short cdone
 FILSPOK:
-	CMP	BYTE PTR [FRAGMENT],2
+	CMP	byte [FRAGMENT],2
 	JZ	CDONE
 ; all files were ok
-	mov	dx,offset dg:NOEXT_arg
+	mov	dx,NOEXT_arg
 	invoke	printf_crlf
 CDONE:
-	CMP	BYTE PTR [DIR_FIX],0
+	CMP	byte [DIR_FIX],0
 	JZ	CDONE1
-	MOV	DX,OFFSET DG:USERDIR
+	MOV	DX,USERDIR
 	DOS_Call	ChDir			;				;AC000;
 CDONE1:
 	RET
@@ -598,10 +598,10 @@ endproc figrec									;ac048;bgb
 
 
 ;*****************************************************************************
-SUBTTL	PRINTID - Print Volume ID info
-PAGE
+; SUBTTL	PRINTID - Print Volume ID info
+; PAGE
 PRINTID:
-ASSUME	DS:DG
+; ASSUME	DS:DG
 	call	docrlf				;				;AN000;
 ;get volume name								;an012;bgb
 	xor	si,si			;Point at DTA where find first just done;;an005;bgb
@@ -614,37 +614,37 @@ ASSUME	DS:DG
 	REP	MOVSB			; Move all of it
 ;get the year									;an012;bgb
 	xor	si,si			;Get back pointer to FCB		;an009;bgb
-	mov	ax,ds:[si].DirDat	   ;yyyyyyym mmmddddd Put in SysDisp form  ;AN009;bgb
+	mov	ax,[ds:si].DirDat	   ;yyyyyyym mmmddddd Put in SysDisp form  ;AN009;bgb
 	and	ax,Year_Mask		;yyyyyyy0 00000000			;AN000;
 	shr	ax,1			;0yyyyyyy 00000000			;AN000;
 	xchg	al,ah			;00000000 0yyyyyyy			;AN000;
 	add	ax,1980 		;					;AN000;
-	mov	es:Sublist_msg_Idmes.Sublist_Offset+(size Sublist_Struc),ax ;	   ;AN009;bgb
+	mov	es:Sublist_msg_Idmes.Sublist_Offset+(Sublist_Struc_size),ax ;	   ;AN009;bgb
 ;get the month									;an012;bgb
-	mov	ax,ds:[si].DirDat	   ;yyyyyyym mmmddddd			   ;AN009;bgb
+	mov	ax,[ds:si].DirDat	   ;yyyyyyym mmmddddd			   ;AN009;bgb
 	and	ax,Month_Mask		;0000000m mmm00000			;AN000;
 	mov	cl,5			;					;AN000;
 	shr	ax,cl			;00000000 0000mmmm			;AN000;
 	mov	cl,al			;0000mmmm				;AN000;
 ;get the day									;an012;bgb
-	mov	ax,ds:[si].DirDat	   ;yyyyyyym mmmddddd			   ;AN009;bgb
+	mov	ax,[ds:si].DirDat	   ;yyyyyyym mmmddddd			   ;AN009;bgb
 	and	ax,Day_Mask		;00000000 000ddddd			;AN000;
 	mov	ah,cl			;0000mmmm 000ddddd			;AN000;
 	xchg	ah,al			;make it display correctly		;an012;bgb
-	mov	es:Sublist_msg_Idmes.Sublist_Segment+(size Sublist_Struc),ax ;	   ;AN009;bgb
+	mov	es:Sublist_msg_Idmes.Sublist_Segment+(Sublist_Struc_size),ax ;	   ;AN009;bgb
 ;get the time									;an012;bgb
-	mov	ax,ds:[si].DirTim	   ;hhhhhmmm mmmsssss			   ;AN009;bgb
+	mov	ax,[ds:si].DirTim	   ;hhhhhmmm mmmsssss			   ;AN009;bgb
 	and	ax,Hour_Mask		;hhhhh000 00000000			;AN000;
 	mov	cl,11			;					;AN000;
 	shr	ax,cl			;00000000 000hhhhh			;AN000;
 	mov	ch,al			;000hhhhh				;AN000;
-	mov	ax,ds:[si].DirTim	   ;hhhhhmmm mmmsssss			   ;AN009;bgb
+	mov	ax,[ds:si].DirTim	   ;hhhhhmmm mmmsssss			   ;AN009;bgb
 	and	ax,Minute_Mask		;00000mmm mmm00000			;AN000;
 	mov	cl,3			;					;AN000;
 	shl	ax,cl			;00mmmmmm 00000000		       ;AN000;
 	mov	al,ch			;00mmmmmm 000hhhhh			;AN000;
-	mov	es:Sublist_msg_Idmes.Sublist_Offset+(size Sublist_Struc)+(size Sublist_Struc),ax ;AN009;bgb
-	mov	es:Sublist_msg_Idmes.Sublist_Segment+(size Sublist_Struc)+(size Sublist_Struc),0 ;AN009;bgb
+	mov	es:Sublist_msg_Idmes.Sublist_Offset+(Sublist_Struc_size)+(Sublist_Struc_size),ax ;AN009;bgb
+	mov	es:Sublist_msg_Idmes.Sublist_Segment+(Sublist_Struc_size)+(Sublist_Struc_size),0 ;AN009;bgb
 	pop	ds								;an009;bgb
 	Message Idmes_Arg		; the parts out as needed		;AC000'
 ;;;;;;;;call	doCRLF
@@ -660,7 +660,7 @@ ASSUME	DS:DG
 ; Output: SerNum if no carry							;an024;bgb
 ; Notes:  Only DOS Version 3.4 and above will contain serial numbers		;an024;bgb
 ;*****************************************************************************	;an024;bgb
-   PUBLIC GET_SERIAL_NUM							;an024;bgb
+   global GET_SERIAL_NUM;an024;bgb
 procedure Get_Serial_Num,NEAR		;AN000;S				     ;an024;bgb
    mov	al,GENERIC_IOCTL	   ;AN000;S					;an041;bgb;an024;bgb
    xor	bx,bx			   ;zero out bx 				;an041;bgb;an024;bgb
@@ -677,6 +677,6 @@ $$IF26:
    ret				   ;AN000;S					;an024;bgb
 endproc Get_Serial_Num			   ;AN000;S					;an024;bgb
 	pathlabl chkdsk1							;an024;bgb
-CODE	ENDS
-	END	CHKDSK
+; END SECTION .CODE
+	; END	CHKDSK
 

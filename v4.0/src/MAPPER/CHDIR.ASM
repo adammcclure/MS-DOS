@@ -1,10 +1,10 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS  DosChDir  mapper
+; title CP/DOS  DosChDir  mapper
 ;
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -37,24 +37,24 @@ dosxxx  segment byte public 'dos'
 ; *
 ; *************************************************************************
 
-        public  DosChDir
-        .sall
-        .xlist
-        include macros.inc
-        .list
+        global DosChDir
+        ; .sall
+        ; .xlist
+        %include "macros.inc"
+        ; .list
 
-str     struc
-old_bp  dw      ?
-return  dd      ?
+struc str
+old_bp: resw 1
+return: resd 1
 dtrm006 dd      0h           ;reserved  (must be zero)
-dnam006 dd      ?            ;address of directory path name
-str     ends
+dnam006: resd 1;address of directory path name
+endstruc
 
-DosChDir  proc   far
+DosChDir:
         Enter   DosChDir                 ; push registers
 
-        mov     dx, word ptr [bp].dnam006    ;load directory name offset
-        mov     ax, word ptr [bp].dnam006+2  ;load directory name segment
+        mov     dx, word [bp].dnam006    ;load directory name offset
+        mov     ax, word [bp].dnam006+2  ;load directory name segment
 
         push    ax                       ; set segment in DS
         pop     ds
@@ -65,10 +65,10 @@ DosChDir  proc   far
 
         xor     ax,ax                    ; else, good return code
 exit:   mexit                            ; pop registers
-        ret     size str - 6             ; return
+        ret     str_size - 6             ; return
 
-DosChDir  endp
+; ENDP DosChDir
 
-dosxxx  ends
+; END SECTION .dosxxx
 
-        end
+        ; end

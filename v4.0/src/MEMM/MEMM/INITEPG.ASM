@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	InitEPage - initialize EMM Page pointers
+	; title	InitEPage - initialize EMM Page pointers
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -39,70 +39,70 @@ page	58,132
 ;  the array EMM_PTE.
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	InitEPage
+	global InitEPage
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include page.inc
-	include instr386.inc
-	include emmdef.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "page.inc"
+	%include "instr386.inc"
+	%include "emmdef.inc"
 ;
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 ;
 
-LAST	segment
+SECTION .LAST
 
-ifndef	NOHIMEM
-extrn	Hi_Mem_Size:near
-endif
+%ifndef NOHIMEM
+extern Hi_Mem_Size
+%endif
 
-extrn	mappable_segs:byte
+extern mappable_segs
 
-LAST	ends
-
-
-ABS0	segment at 0000h
-ABS0	ends
+; END SECTION .LAST
 
 
-_DATA	segment
+SECTION .ABS0
+; END SECTION .ABS0
 
-extrn	DMA_Pages:word		; DMA EMM pages buffer
-extrn	DMA_PAGE_COUNT:word	; number of DMA pages
 
-extrn	xbase_addr_l:word	; 24 bit address of beginning of extended mem
-extrn	xbase_addr_h:byte	; pool of EMM pages.
-extrn	ext_size:word		; size of extended memory in kbytes
-extrn	sys_size:word		; size of system memory in kbytes
+SECTION ._DATA
 
-extrn	_pft386:word		; ptr to dword array of Page Table entries
+extern DMA_Pages; DMA EMM pages buffer
+extern DMA_PAGE_COUNT; number of DMA pages
 
-_DATA	ends
+extern xbase_addr_l; 24 bit address of beginning of extended mem
+extern xbase_addr_h; pool of EMM pages.
+extern ext_size; size of extended memory in kbytes
+extern sys_size; size of system memory in kbytes
+
+extern _pft386; ptr to dword array of Page Table entries
+
+; END SECTION ._DATA
 
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
-_DATA	segment
+SECTION ._DATA
 
-ifndef	NOHIMEM
+%ifndef NOHIMEM
 DMA_hi_begin	dw	0	; EMM page # for begin of DMA area in hi mem
 DMA_hi_cnt	dw	0	; # of contiguous EMM pages in hi mem DMA area
-endif
+%endif
 
 DMA_ext_begin	dw	0	; EMM page # for begin of DMA area in ext mem
 DMA_ext_cnt	dw	0	; # of contiguous EMM pages in ext mem DMA area
@@ -117,12 +117,12 @@ a_start 	dw	0	; 1st EMM page after 1st 64k bndry
 a_cnt		dw	0	; # of EMM pages after 1st 64k bndry
 
 
-_DATA	ends
+; END SECTION ._DATA
 ;
 ;------------------------------------------------------------------------------
-LAST	segment
-	assume	cs:LAST, ds:DGROUP, es:DGROUP, ss:DGROUP
-	page
+SECTION .LAST
+	; assume	cs:LAST, ds:DGROUP, es:DGROUP, ss:DGROUP
+	; page
 ;******************************************************************************
 ;   InitEPage - init EMM_PTE - array of pointers for EMM pages.
 ;
@@ -139,7 +139,7 @@ LAST	segment
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-InitEPage proc	 near
+InitEPage:
 ;
 	PUSH_EAX
 	push	bx
@@ -183,7 +183,7 @@ not_this_page:
 	jmp	SEP_hloop		;
 fin_sys:
 ;
-ifndef NOHIMEM
+%ifndef NOHIMEM
 ;
 ; set high memory pointers next
 ;
@@ -214,7 +214,7 @@ IEP_hloop:
 	inc	bx			; increment EMM page #
 	loop	IEP_hloop		; set all high memory entries
 
-endif	;  NOHIMEM
+%endif;  NOHIMEM
 
 ;
 ; set extended memory entries
@@ -254,18 +254,18 @@ IEP_xloop:
 ;  set up DMA Pages
 ;
 IEP_Dpages:
-ifndef	NOHIMEM
+%ifndef NOHIMEM
 	mov	ax,[DMA_hi_begin]	; SI = beginning hi mem DMA page
 	mov	cx,[DMA_hi_cnt] 	; CX = # of hi mem DMA pages
 	cmp	cx,[DMA_ext_cnt]	;Q: more hi DMA pages ?
 	jae	IEP_Dset		;  Y: use hi mem DMA pages
-endif
+%endif
 	mov	cx,[DMA_ext_cnt]	;  N: use ext mem pages
 	mov	ax,[DMA_ext_begin]
 IEP_Dset:
 
 	mov	DMA_Page_Count,cx
-	mov	di,offset DGROUP:DMA_Pages	; ES:DI ->dest array
+	mov	di,DMA_Pages	; ES:DI ->dest array
 	cld
 DMA_Pg_St:
 	stosw					; store index for dma page
@@ -284,7 +284,7 @@ DMA_Pg_St:
 	POP_EAX
 	ret
 ;
-InitEPage endp
+; ENDP InitEPage
 ;
 
 ;******************************************************************************
@@ -302,7 +302,7 @@ InitEPage endp
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-FindDMA proc	near
+FindDMA:
 ;
 	push	eax
 
@@ -370,8 +370,8 @@ fdp_ret:
 	pop	eax			 ; restore EAX
 	ret
 ;
-FindDMA endp
+; ENDP FindDMA
 
-LAST	ends				; end of segment
+; END SECTION .LAST; end of segment
 ;
-	end				; end of module
+	; end; end of module

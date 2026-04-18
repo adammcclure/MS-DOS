@@ -2,8 +2,8 @@
 
 
 
-	PAGE	,132
-	TITLE	DOS - Keyboard Definition File
+	; PAGE	,132
+	; TITLE	DOS - Keyboard Definition File
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - - NLS Support - Keyboard Defintion File
@@ -16,16 +16,16 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-	INCLUDE KEYBSHAR.INC	       ;;
-	INCLUDE POSTEQU.INC	       ;;
-	INCLUDE KEYBMAC.INC	       ;;
+	%include "KEYBSHAR.INC";;
+	%include "POSTEQU.INC";;
+	%include "KEYBMAC.INC";;
 				       ;;
-	PUBLIC IT2_LOGIC		;;
-	PUBLIC IT2_437_XLAT		;;
-	PUBLIC IT2_850_XLAT		;;
+	global IT2_LOGIC;;
+	global IT2_437_XLAT;;
+	global IT2_850_XLAT;;
 				       ;;
-CODE	SEGMENT PUBLIC 'CODE'          ;;
-	ASSUME CS:CODE,DS:CODE	       ;;
+SECTION .CODE;;
+	; ASSUME CS:CODE,DS:CODE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Standard translate table options are a liner search table
@@ -303,7 +303,7 @@ LOGIC_END:			       ;;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC IT2_COMMON_XLAT 		;;
+ global IT2_COMMON_XLAT;;
 IT2_COMMON_XLAT:			;;
 				       ;;
    DW	 COMMON_XLAT_END-$	       ;; length of section
@@ -385,14 +385,14 @@ COM_CTRL_K1_END:		       ;;
    DB	 10			       ;; number of entries
    DB	 41,"\"                        ;; \
    DB	 12,"'"                        ;; '
-   DB	 13,141 		       ;; grave i - ¡;
+   DB	 13,141 		       ;; grave i - Â¡;
    DB	 27,'+'                        ;; +
    DB	 86,'<'                        ;; <
    DB	 53,'-'                        ;; -
-   DB	 39,149 		       ;; grave o - •
-   DB	 40,133 		       ;; grave a - …;
-   DB	 43,151 		       ;; grave u - —;
-   DB	 26,138 		       ;; grave e - Š;
+   DB	 39,149 		       ;; grave o - Â•
+   DB	 40,133 		       ;; grave a - Â…;
+   DB	 43,151 		       ;; grave u - Â—;
+   DB	 26,138 		       ;; grave e - ÂŠ;
 COM_NA_LO_K1_T1_END:			  ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -417,13 +417,13 @@ COM_NA_LO_K1_END:			  ;;
    DB	 9			       ;; number of entries
    DB	 41,"<"                        ;; <
    DB	 12,"'"                        ;; '
-   DB	 13,141 		       ;; grave i - ¡;
+   DB	 13,141 		       ;; grave i - Â¡;
    DB	 27,'+'                        ;; +
    DB	 53,'-'                        ;; -
-   DB	 39,149 		       ;; grave o - •
-   DB	 40,133 		       ;; grave a - …;
-   DB	 43,151 		       ;; grave u - —;
-   DB	 26,138 		       ;; grave e - Š;
+   DB	 39,149 		       ;; grave o - Â•
+   DB	 40,133 		       ;; grave a - Â…;
+   DB	 43,151 		       ;; grave u - Â—;
+   DB	 26,138 		       ;; grave e - ÂŠ;
 COM_NA_LO_K2_T1_END:			  ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -447,14 +447,14 @@ COM_NA_LO_K2_END:			  ;;
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 9			       ;; number of entries
    DB	 12,"'"                        ;; '
-   DB	 13,141 		       ;; grave i - ¡;
+   DB	 13,141 		       ;; grave i - Â¡;
    DB	 27,'+'                        ;; +
    DB	 43,'<'                        ;; <
    DB	 53,'-'                        ;; -
-   DB	 39,149 		       ;; grave o - •
-   DB	 40,133 		       ;; grave a - …;
-   DB	 41,151 		       ;; grave u - —;
-   DB	 26,138 		       ;; grave e - Š;
+   DB	 39,149 		       ;; grave o - Â•
+   DB	 40,133 		       ;; grave a - Â…;
+   DB	 41,151 		       ;; grave u - Â—;
+   DB	 26,138 		       ;; grave e - ÂŠ;
 COM_NA_LO_K3_T1_END:			  ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -478,7 +478,7 @@ COM_NA_LO_K3_END:			  ;;
    DB	 18			       ;; number of entries
    DB	  41,07CH		       ;; Solid vertical bar - |
    DB	  3,'"'                        ;;
-   DB	  4,'œ'                        ;;
+   DB	  4,'Âœ'                        ;;
    DB	  7,'&'                        ;;
    DB	  8,'/'                        ;;
    DB	  9,'('                        ;;
@@ -486,10 +486,10 @@ COM_NA_LO_K3_END:			  ;;
    DB	 11,'='                        ;;
    DB	 12,'?'                        ;;
    DB	 13,'^'                        ;;
-   DB	 26,130 		       ;; acute e - ‚;
-   DB	 39,135 		       ;; c - cedilla - ‡
+   DB	 26,130 		       ;; acute e - Â‚;
+   DB	 39,135 		       ;; c - cedilla - Â‡
    DB	 27,'*'                        ;;
-   DB	 40,0F8H		       ;; ø - degree symbol
+   DB	 40,0F8H		       ;; Ã¸ - degree symbol
    DB	 86,'>'                        ;;
    DB	 51,';'                        ;;
    DB	 52,':'                        ;;
@@ -520,7 +520,7 @@ COM_NA_UP_K1_END:			  ;;
    DB	 18			       ;; number of entries
    DB	  41,'>'                       ;; >
    DB	  3,'"'                        ;;
-   DB	  4,'œ'                        ;;
+   DB	  4,'Âœ'                        ;;
    DB	  7,'&'                        ;;
    DB	  8,'/'                        ;;
    DB	  9,'('                        ;;
@@ -528,10 +528,10 @@ COM_NA_UP_K1_END:			  ;;
    DB	 11,'='                        ;;
    DB	 12,'?'                        ;;
    DB	 13,'^'                        ;;
-   DB	 26,130 		       ;; acute e - ‚;
-   DB	 39,'@'                        ;; @ AT sign replaces c - cedilla - ‡
+   DB	 26,130 		       ;; acute e - Â‚;
+   DB	 39,'@'                        ;; @ AT sign replaces c - cedilla - Â‡
    DB	 27,'*'                        ;;
-   DB	 40,'#'                        ;; # sign replaces ø - degree symbol
+   DB	 40,'#'                        ;; # sign replaces Ã¸ - degree symbol
    DB	 86,'>'                        ;;
    DB	 51,';'                        ;;
    DB	 52,':'                        ;;
@@ -561,7 +561,7 @@ COM_NA_UP_K2_END:		       ;;
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 17			       ;; number of entries
    DB	  3,'"'                        ;;
-   DB	  4,'œ'                        ;;
+   DB	  4,'Âœ'                        ;;
    DB	  7,'&'                        ;;
    DB	  8,'/'                        ;;
    DB	  9,'('                        ;;
@@ -569,10 +569,10 @@ COM_NA_UP_K2_END:		       ;;
    DB	 11,'='                        ;;
    DB	 12,'?'                        ;;
    DB	 13,'^'                        ;;
-   DB	 26,130 		       ;; acute e - ‚;
-   DB	 39,'@'                        ;; @ AT sign replaces c - cedilla - ‡
+   DB	 26,130 		       ;; acute e - Â‚;
+   DB	 39,'@'                        ;; @ AT sign replaces c - cedilla - Â‡
    DB	 27,'*'                        ;;
-   DB	 40,'#'                        ;; # sign replaces ø - degree symbol
+   DB	 40,'#'                        ;; # sign replaces Ã¸ - degree symbol
    DB	 43,'>'                        ;;
    DB	 51,';'                        ;;
    DB	 52,':'                        ;;
@@ -670,7 +670,7 @@ COMMON_XLAT_END:		       ;;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC IT2_437_XLAT			;;
+ global IT2_437_XLAT;;
 IT2_437_XLAT:				;;
 				       ;;
    DW	  CP437_XLAT_END-$	       ;; length of section
@@ -731,7 +731,7 @@ CP437_XLAT_END: 		       ;;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC IT2_850_XLAT			;;
+ global IT2_850_XLAT;;
 IT2_850_XLAT:				;;
 				       ;;
    DW	  CP850_XLAT_END-$	       ;; length of section
@@ -790,5 +790,5 @@ IT2_850_XLAT:				;;
 CP850_XLAT_END: 		       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-CODE	 ENDS			       ;;
-	 END			       ;;
+; END SECTION .CODE;;
+	 ; END;;

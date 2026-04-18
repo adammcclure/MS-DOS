@@ -1,48 +1,48 @@
-	INCLUDE SYSHDR.INC
+	%include "SYSHDR.INC"
 
 ; include SYSMSG.INC
 
-.xlist
-.xcref
+; .xlist
+; .xcref
 
-	include SYSMSG.INC		;				       ;AN000;
+	%include "SYSMSG.INC";				       ;AN000;
 
-.cref
-.list
+; .cref
+; .list
 
 	MSG_UTILNAME <SYS>		;				       ;AN000;
 
-CODE	SEGMENT PARA PUBLIC
+SECTION .CODE
 
-ASSUME	CS:CODE,DS:nothing,ES:nothing
+; ASSUME	CS:CODE,DS:nothing,ES:nothing
 
-	PUBLIC	SYSDISPMSG, SYSLOADMSG, SYSPARSE
-	PUBLIC	Data_Space
+	global SYSDISPMSG, SYSLOADMSG, SYSPARSE
+	global Data_Space
 
 ;;dcl	MSG_SERVICES <MSGDATA>		;				      ;AN000;
 
 ;  MSG_SERVICES <SYS.CL1,SYS.CL2,SYS.CLA,SYS.CLB,SYS.CLC,SYS.CLD>		;AN000;
 
-.xlist
-.xcref
+; .xlist
+; .xcref
 
 	MSG_SERVICES <SYS.CL1,SYS.CL2,SYS.CLA,SYS.CLB,SYS.CLC,SYS.CLD> ;       ;AN000;
 
-.cref
-.list
+; .cref
+; .list
 
 ;  MSG_SERVICES <LOADmsg,DISPLAYmsg,INPUTmsg,CHARmsg,NOVERCHECKmsg>
 
-.xlist
-.xcref
+; .xlist
+; .xcref
 
 	MSG_SERVICES <LOADmsg,DISPLAYmsg,INPUTmsg,CHARmsg,NOVERCHECKmsg> ;		     ;AN000;
 
-.cref
-.list
+; .cref
+; .list
 
 
-false	=	0			;				       ;AN000;
+false equ 0;				       ;AN000;
 
 DateSW	equ	false			;				       ;AN000;
 TimeSW	equ	false			;				       ;AN000;
@@ -57,26 +57,26 @@ NumSW	equ	false			;				       ;AN000;
 CAPSW	equ	false			; Perform CAPS if specified	       ;AN000;
 
 
-ASSUME	CS:CODE,DS:CODE,ES:nothing
+; ASSUME	CS:CODE,DS:CODE,ES:nothing
 
 ; include parse.asm
 
 ;xlist
 ;xcref
 
-include parse.asm			;				       ;AN000;
+%include "parse.asm";				       ;AN000;
 
-.cref
-.list
+; .cref
+; .list
 
-Data_Space LABEL BYTE			;				       ;AN000;
+Data_Space:;				       ;AN000;
 
 
 
-CODE	Ends
+; END SECTION .CODE
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-	End
+	; End
 
 

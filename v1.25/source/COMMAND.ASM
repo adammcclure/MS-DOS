@@ -16,7 +16,7 @@
 
 ;Use the following booleans to set assembly flags
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 IBMVER  EQU     FALSE   ;Switch to build IBM version of Command
 MSVER   EQU     TRUE    ;Switch to build MS-DOS version of Command
@@ -27,15 +27,15 @@ LINPERPAG       EQU     23
 NORMPERLIN      EQU     1
 WIDEPERLIN      EQU     5
 
-        IF      IBMVER
+        %if IBMVER
 SYM     EQU     ">"
 COMDRV  EQU     1
-        ENDIF
+        %endif
 
-        IF      MSVER
+        %if MSVER
 SYM     EQU     ":"
 COMDRV  EQU     0
-        ENDIF
+        %endif
 
 FCB     EQU     5CH
 DSKRESET EQU    13
@@ -69,42 +69,42 @@ OFFDATE EQU     20
 
 ;The following are all of the segments used in the load order
 
-CODERES SEGMENT
-CODERES ENDS
+SECTION .CODERES
+; END SECTION .CODERES
 
-DATARES SEGMENT BYTE
-DATARES ENDS
+SECTION .DATARES
+; END SECTION .DATARES
 
-INIT    SEGMENT BYTE
-INIT    ENDS
+SECTION .INIT
+; END SECTION .INIT
 
-TAIL    SEGMENT PARA
-TAIL    ENDS
+SECTION .TAIL
+; END SECTION .TAIL
 
-TRANCODE        SEGMENT PARA
-TRANCODE        ENDS
+SECTION .TRANCODE
+; END SECTION .TRANCODE
 
-TRANDATA        SEGMENT BYTE
-TRANDATA        ENDS
+SECTION .TRANDATA
+; END SECTION .TRANDATA
 
-TRANSPACE       SEGMENT BYTE
-TRANSPACE       ENDS
+SECTION .TRANSPACE
+; END SECTION .TRANSPACE
 
-RESGROUP        GROUP   CODERES,DATARES,INIT,TAIL
-TRANGROUP       GROUP   TRANCODE,TRANDATA,TRANSPACE
+; RESGROUP        GROUP   CODERES,DATARES,INIT,TAIL
+; TRANGROUP       GROUP   TRANCODE,TRANDATA,TRANSPACE
 
 ;Data for resident portion
 
-DATARES SEGMENT BYTE
+SECTION .DATARES
         ORG     0
-ZERO    =       $
-MESBAS  DW      OFFSET RESGROUP:ERR0
-        DW      OFFSET RESGROUP:ERR2
-        DW      OFFSET RESGROUP:ERR4
-        DW      OFFSET RESGROUP:ERR6
-        DW      OFFSET RESGROUP:ERR8
-        DW      OFFSET RESGROUP:ERR10
-        DW      OFFSET RESGROUP:ERR12
+ZERO equ $
+MESBAS  DW      ERR0
+        DW      ERR2
+        DW      ERR4
+        DW      ERR6
+        DW      ERR8
+        DW      ERR10
+        DW      ERR12
 ERR0    DB      "Write protect$"
 ERR2    DB      "Not ready$"
 ERR4    DB      "Data$"
@@ -123,35 +123,35 @@ REQUEST DB      "Abort, Retry, Ignore? $"
 BADFAT  DB      13,10,"File allocation table bad,$"
 COMBAD  DB      13,10,"Invalid COMMAND.COM"
 NEEDCOM DB      13,10,"Insert DOS disk in "
-        IF      IBMVER
+        %if IBMVER
         DB      "drive A"
-        ELSE
+        %else
         DB      "default drive"
-        ENDIF
+        %endif
 PROMPT  DB      13,10,"and strike any key when ready",13,10,"$"
 NEEDBAT DB      13,10,"Insert disk with batch file$"
 ENDBATMES DB    13,10,"Terminate batch job (Y/N)? $"
 LOADING DB      0
 BATFCB  DB      1,"AUTOEXECBAT"
-        DB      21 DUP(?)
+        times 21 db 0
         DW      0
         DW      0               ;Initialize RR field to zero
-PARMTAB DW      10 DUP(-1)      ;No parameters initially
+PARMTAB: times 10 dw -1;No parameters initially
 BATCH   DB      1               ;Assume batch mode initially
 COMFCB  DB      COMDRV,"COMMAND COM"
-        DB      25 DUP(?)
-TRANS   DW      OFFSET TRANGROUP:COMMAND
-TRNSEG  DW      ?
-BATBYT  DB      ?
-MEMSIZ  DW      ?
-SUM     DW      ?
-INITADD DB      4 DUP(?)
+        times 25 db 0
+TRANS   DW      COMMAND
+TRNSEG: dw 0
+BATBYT: db 0
+MEMSIZ: dw 0
+SUM: dw 0
+INITADD: times 4 db 0
 RESDATASIZE     EQU     $-ZERO
-DATARES ENDS
+; END SECTION .DATARES
 
 ;Data for transient portion
 
-TRANDATA        SEGMENT BYTE
+SECTION .TRANDATA
         ORG     0
 ZERO    EQU     $
 BADNAM  DB      "Bad command or file name",13,10,"$"
@@ -179,115 +179,115 @@ NEWTIM  DB      13,10,"Enter new time: $"
 SUREMES DB      "Are you sure (Y/N)? $"
 
 COMTAB  DB      4,"DIR",1
-        DW      OFFSET TRANGROUP:CATALOG
+        DW      CATALOG
         DB      7,"RENAME",1
-        DW      OFFSET TRANGROUP:RENAME
+        DW      RENAME
         DB      4,"REN",1
-        DW      OFFSET TRANGROUP:RENAME
+        DW      RENAME
         DB      6,"ERASE",1
-        DW      OFFSET TRANGROUP:ERASE
+        DW      ERASE
         DB      4,"DEL",1
-        DW      OFFSET TRANGROUP:ERASE
+        DW      ERASE
         DB      5,"TYPE",1
-        DW      OFFSET TRANGROUP:TYPEFIL
+        DW      TYPEFIL
         DB      4,"REM",1
-        DW      OFFSET TRANGROUP:COMMAND
+        DW      COMMAND
         DB      5,"COPY",1
-        DW      OFFSET TRANGROUP:COPY
+        DW      COPY
         DB      6,"PAUSE",1
-        DW      OFFSET TRANGROUP:PAUSE
+        DW      PAUSE
         DB      5,"DATE",0
-        DW      OFFSET TRANGROUP:DATE
+        DW      DATE
         DB      5,"TIME",0
-        DW      OFFSET TRANGROUP:TIME
+        DW      TIME
         DB      0               ;Terminate command table
 
 COMBUF  DB      128,1,13
 
 TRANDATASIZE    EQU     $-ZERO
-TRANDATA        ENDS
+; END SECTION .TRANDATA
 
 ;Uninitialized transient data
-TRANSPACE       SEGMENT BYTE
+SECTION .TRANSPACE
         ORG     0
-ZERO    =       $
-        DB      128 DUP(?)
-TPA     DW      1 DUP(?)
-RESSEG  DW      1 DUP(?)
-CHKDRV  DB      1 DUP(?)
-FILTYP  DB      1 DUP(?)
-CURDRV  DB      1 DUP(?)
-PARM1   DB      1 DUP(?)
-PARM2   DB      1 DUP(?)
-COMSW   DW      1 DUP(?)
-ARG1S   DW      1 DUP(?)
-ARG2S   DW      1 DUP(?)
-FLAGER  DB      1 DUP(?)
-CFLAG   DB      1 DUP(?)
-SPECDRV DB      1 DUP(?)
-BYTCNT  DW      1 DUP(?)
-NXTADD  DW      1 DUP(?)
-LINCNT  DB      1 DUP(?)
-LINLEN  DB      1 DUP(?)
-FILECNT DW      1 DUP(?)
-EXEFCB  LABEL WORD
-IDLEN   DB      1 DUP(?)
-ID      DB      8 DUP(?)
-COM     DB      3 DUP(?)
-DEST    DB      37 DUP(?)
-DESTNAME DB     11 DUP(?)
-DIRBUF  DB      37 DUP(?)
-BITS    DW      1 DUP(?)
-FULLSCR DW      1 DUP(?)
-EXEEND  DW      1 DUP(?)
+ZERO equ $
+        times 128 db 0
+TPA: times 1 dw 0
+RESSEG: times 1 dw 0
+CHKDRV: times 1 db 0
+FILTYP: times 1 db 0
+CURDRV: times 1 db 0
+PARM1: times 1 db 0
+PARM2: times 1 db 0
+COMSW: times 1 dw 0
+ARG1S: times 1 dw 0
+ARG2S: times 1 dw 0
+FLAGER: times 1 db 0
+CFLAG: times 1 db 0
+SPECDRV: times 1 db 0
+BYTCNT: times 1 dw 0
+NXTADD: times 1 dw 0
+LINCNT: times 1 db 0
+LINLEN: times 1 db 0
+FILECNT: times 1 dw 0
+EXEFCB:
+IDLEN: times 1 db 0
+ID: times 8 db 0
+COM: times 3 db 0
+DEST: times 37 db 0
+DESTNAME: times 11 db 0
+DIRBUF: times 37 db 0
+BITS: times 1 dw 0
+FULLSCR: times 1 dw 0
+EXEEND: times 1 dw 0
 ;Header variables for EXE file load
 ;These are overlapped with COPY variables, below
-RUNVAR  LABEL WORD
-RELPT   DW      1 DUP(?)
-RELSEG  DW      1 DUP(?)
-PSIZE   LABEL   WORD
-PAGES   DW      1 DUP(?)
-RELCNT  DW      1 DUP(?)
-HEADSIZ DW      1 DUP(?)
-        DW      1 DUP(?)
-LOADLOW DW      1 DUP(?)
-INITSS  DW      1 DUP(?)
-INITSP  DW      1 DUP(?)
-        DW      1 DUP(?)
-INITIP  DW      1 DUP(?)
-INITCS  DW      1 DUP(?)
-RELTAB  DW      1 DUP(?)
+RUNVAR:
+RELPT: times 1 dw 0
+RELSEG: times 1 dw 0
+PSIZE:
+PAGES: times 1 dw 0
+RELCNT: times 1 dw 0
+HEADSIZ: times 1 dw 0
+        times 1 dw 0
+LOADLOW: times 1 dw 0
+INITSS: times 1 dw 0
+INITSP: times 1 dw 0
+        times 1 dw 0
+INITIP: times 1 dw 0
+INITCS: times 1 dw 0
+RELTAB: times 1 dw 0
 RUNVARSIZ       EQU     $-RUNVAR
 
         DB      80H DUP(?)
-STACK   LABEL   WORD
+STACK:
 
 PRETRLEN        EQU     $-ZERO          ;Used later to compute TRNLEN
 
         ORG     RUNVAR-ZERO                     ;Overlaps EXE variables
 
-SRCPT   DW      1 DUP(?)
-INEXACT DB      1 DUP(?)
-APPEND  DB      1 DUP(?)
-NOWRITE DB      1 DUP(?)
-ASCII   DB      1 DUP(?)
-PLUS    DB      1 DUP(?)
-SOURCE  DB      11 DUP(?)
+SRCPT: times 1 dw 0
+INEXACT: times 1 db 0
+APPEND: times 1 db 0
+NOWRITE: times 1 db 0
+ASCII: times 1 db 0
+PLUS: times 1 db 0
+SOURCE: times 11 db 0
 TRANSPACESIZE   EQU     $-ZERO
-TRANSPACE       ENDS
+; END SECTION .TRANSPACE
 
 
 ;START OF RESIDENT PORTION
 
-CODERES SEGMENT
-ASSUME  CS:RESGROUP,DS:RESGROUP,ES:RESGROUP,SS:RESGROUP
+SECTION .CODERES
+; ASSUME  CS:RESGROUP,DS:RESGROUP,ES:RESGROUP,SS:RESGROUP
         ORG     0
-ZERO    =       $
-PARMBUF LABEL   WORD
+ZERO equ $
+PARMBUF:
 
         ORG     100H
 
-RSTACK  LABEL   WORD
+RSTACK:
 
 PROGSTART:
         JMP     CONPROC
@@ -299,7 +299,7 @@ CONTC:
         MOV     AX,CS
         MOV     DS,AX
         MOV     SS,AX
-        MOV     SP,OFFSET RESGROUP:RSTACK
+        MOV     SP,RSTACK
         STI
         CALL    SETVECT
         MOV     AH,DSKRESET
@@ -307,7 +307,7 @@ CONTC:
         TEST    [BATCH],-1
         JZ      LODCOM
 ASKEND:
-        MOV     DX,OFFSET RESGROUP:ENDBATMES
+        MOV     DX,ENDBATMES
         MOV     AH,PRINTBUF
         INT     33
         MOV     AX,0C00H+INCHAR
@@ -321,7 +321,7 @@ ASKEND:
 LODCOM:
         MOV     AX,CS
         MOV     SS,AX
-        MOV     SP,OFFSET RESGROUP:RSTACK
+        MOV     SP,RSTACK
         MOV     DS,AX
         CALL    SETVECT
         CALL    CHKSUM
@@ -337,24 +337,24 @@ CHKSAME:
         JMP     SHORT CHKSAME
 HAVCOM:
         MOV     [LOADING],0
-        MOV     SI,OFFSET RESGROUP:LTPA
-        MOV     DI,OFFSET TRANGROUP:TPA
+        MOV     SI,LTPA
+        MOV     DI,TPA
         MOV     ES,[TRNSEG]
         CLD
         MOVSW           ;Move TPA segment to transient storage
         MOVSW           ;Move resident segment too
         MOV     AX,[MEMSIZ]
-        MOV     WORD PTR ES:[2],AX
-        JMP     DWORD PTR [TRANS]
+        MOV     word [ES:2],AX
+        JMP     dword [TRANS]
 
 RESIDENT:
         ADD     DX,15
         MOV     CL,4
         SHR     DX,CL           ;Number of paragraphs of new addition
-        ADD     CS:[LTPA],DX
+        ADD     [CS:LTPA],DX
         XOR     AX,AX
         MOV     DS,AX
-        JMP     DWORD PTR DS:[80H]              ;Pretend user executed INT 20H
+        JMP     dword [DS:80H]              ;Pretend user executed INT 20H
 
 DSKERR:
         ;******************************************************
@@ -373,30 +373,30 @@ DSKERR:
         MOV     [DRVLET],AL
         TEST    AH,80H          ;Check if hard disk error
         JNZ     FATERR
-        MOV     SI,OFFSET RESGROUP:READ
+        MOV     SI,READ
         TEST    AH,1
         JZ      SAVMES
-        MOV     SI,OFFSET RESGROUP:WRITE
+        MOV     SI,WRITE
 SAVMES:
         LODSW
-        MOV     WORD PTR [IOTYP],AX
+        MOV     word [IOTYP],AX
         LODSW
-        MOV     WORD PTR [IOTYP+2],AX
+        MOV     word [IOTYP+2],AX
         AND     DI,0FFH
         CMP     DI,12
         JBE     HAVCOD
         MOV     DI,12
 HAVCOD:
-        MOV     DI,WORD PTR [DI+MESBAS] ;Get pointer to error message
+        MOV     DI,word [DI+MESBAS] ;Get pointer to error message
         XCHG    DI,DX           ;May need DX later
         MOV     AH,PRINTBUF
         INT     33              ;Print error type
-        MOV     DX,OFFSET RESGROUP:ERRMES
+        MOV     DX,ERRMES
         INT     33
         CMP     [LOADING],0
         JNZ     GETCOMDSK
 ASK:
-        MOV     DX,OFFSET RESGROUP:REQUEST
+        MOV     DX,REQUEST
         MOV     AH,PRINTBUF
         INT     33
         MOV     AX,0C00H+INCHAR
@@ -419,17 +419,17 @@ EXIT:
         IRET
 
 FATERR:
-        MOV     DX,OFFSET RESGROUP:BADFAT
+        MOV     DX,BADFAT
         MOV     AH,PRINTBUF
         INT     33
-        MOV     DX,OFFSET RESGROUP:DRVNUM
+        MOV     DX,DRVNUM
         INT     33
         MOV     AL,2            ;Abort
         POP     DS
         IRET
 
 GETCOMDSK:
-        MOV     DX,OFFSET RESGROUP:NEEDCOM
+        MOV     DX,NEEDCOM
         MOV     AH,PRINTBUF
         INT     33
         MOV     AX,0C07H        ;Get char without testing or echo
@@ -437,7 +437,7 @@ GETCOMDSK:
         JMP     LODCOM
 
 CRLF:
-        MOV     DX,OFFSET RESGROUP:NEWLIN
+        MOV     DX,NEWLIN
         PUSH    AX
         MOV     AH,PRINTBUF
         INT     33
@@ -451,12 +451,12 @@ LOADCOM:
         MOV     AH,SETDMA
         INT     33
         POP     DS
-        MOV     DX,OFFSET RESGROUP:COMFCB
+        MOV     DX,COMFCB
         MOV     AH,OPEN
         INT     33              ;Open COMMAND.COM
         OR      AL,AL
         JZ      READCOM
-        MOV     DX,OFFSET RESGROUP:NEEDCOM
+        MOV     DX,NEEDCOM
 PROMPTCOM:
         MOV     AH,PRINTBUF
         INT     33
@@ -464,20 +464,20 @@ PROMPTCOM:
         INT     33
         JMP     SHORT LOADCOM
 READCOM:
-        MOV     WORD PTR[COMFCB+RR],OFFSET RESGROUP:TRANSTART
+        MOV     word[COMFCB+RR],TRANSTART
         XOR     AX,AX
-        MOV     WORD PTR[COMFCB+RR+2],AX
+        MOV     word[COMFCB+RR+2],AX
         MOV     [COMFCB],AL             ;Use default drive
         INC     AX
-        MOV     WORD PTR[COMFCB+RECLEN],AX
+        MOV     word[COMFCB+RECLEN],AX
         MOV     CX,COMLEN
-        MOV     DX,OFFSET RESGROUP:COMFCB
+        MOV     DX,COMFCB
         MOV     AH,RDBLK
         INT     33
         OR      AL,AL
         JZ      RET10
 WRONGCOM:
-        MOV     DX,OFFSET RESGROUP:COMBAD
+        MOV     DX,COMBAD
         JMP     SHORT PROMPTCOM
 
 CHKSUM:
@@ -496,37 +496,37 @@ CHK:
         RET
 
 SETVECT:
-        MOV     DX,OFFSET RESGROUP:LODCOM
+        MOV     DX,LODCOM
         MOV     AX,2522H        ;Set Terminate address
         INT     21H
-        MOV     DX,OFFSET RESGROUP:CONTC
+        MOV     DX,CONTC
         MOV     AX,2523H        ;Set Ctrl-C address
         INT     21H
-        MOV     DX,OFFSET RESGROUP:DSKERR
+        MOV     DX,DSKERR
         MOV     AX,2524H        ;Set Hard Disk Error address
         INT     33
-        MOV     DX,OFFSET RESGROUP:RESIDENT
+        MOV     DX,RESIDENT
         MOV     AX,2527H        ;Set Terminate and Stay Resident address
         INT     33
         RET
 RESCODESIZE     EQU     $-ZERO
-CODERES ENDS
+; END SECTION .CODERES
 
 ;*******************************************************************
 ;START OF INIT PORTION
 ;This code is overlayed the first time the TPA is used.
 
-INIT    SEGMENT BYTE
+SECTION .INIT
 
         ORG     0
-ZERO    =       $
+ZERO equ $
 CONPROC:
-        MOV     SP,OFFSET RESGROUP:RSTACK
+        MOV     SP,RSTACK
 
-        IF      HIGHMEM
-        MOV     AX,WORD PTR DS:[2]
+        %if HIGHMEM
+        MOV     AX,word [DS:2]
         SUB     AX,((RESCODESIZE+RESDATASIZE)+15)/16            ;Subtract size of resident
-        MOV     WORD PTR DS:[2],AX
+        MOV     word [DS:2],AX
         MOV     ES,AX
         MOV     SI,100H
         MOV     DI,SI
@@ -534,14 +534,14 @@ CONPROC:
         REP     MOVSW                   ;Move to end of memory
         MOV     DS,AX
         MOV     [LTPA],CS
-        ENDIF
+        %endif
 
-        IF      NOT HIGHMEM
+        %if ~HIGHMEM
         MOV     AX,CS
         ADD     AX,((RESCODESIZE+RESDATASIZE)+15)/16            ;Compute segment of TPA
         MOV     [LTPA],AX
-        MOV     AX,WORD PTR DS:[2]
-        ENDIF
+        MOV     AX,word [DS:2]
+        %endif
 
         MOV     [MYSEG],DS
         MOV     [MEMSIZ],AX
@@ -552,76 +552,76 @@ CONPROC:
         CALL    CHKSUM
         MOV     [SUM],DX
 
-        IF MSVER
-        IF      HIGHMEM
+        %if MSVER
+        %if HIGHMEM
         PUSH    DS
         PUSH    CS
         POP     DS
-        ENDIF
-        MOV     DX,OFFSET RESGROUP:HEADER
+        %endif
+        MOV     DX,HEADER
         MOV     AH,PRINTBUF
         INT     33
-        IF      HIGHMEM
+        %if HIGHMEM
         POP     DS
-        ENDIF
-        ENDIF
+        %endif
+        %endif
 
-        MOV     DX,OFFSET RESGROUP:BATFCB
+        MOV     DX,BATFCB
         MOV     AH,OPEN
         INT     33                      ;See if AUTOEXEC.BAT exists
-        MOV     WORD PTR[BATFCB+RECLEN],1       ;Set record length to 1
+        MOV     word[BATFCB+RECLEN],1       ;Set record length to 1
         OR      AL,AL                   ;Zero means file found
         JZ      DRV0
         MOV     [BATCH],0               ;Not found--turn off batch job
-        MOV     AX,OFFSET TRANGROUP:DATINIT
-        MOV     WORD PTR[INITADD],AX
+        MOV     AX,DATINIT
+        MOV     word[INITADD],AX
         MOV     AX,[TRNSEG]
-        MOV     WORD PTR[INITADD+2],AX
-        CALL    DWORD PTR DS:[INITADD]
+        MOV     word[INITADD+2],AX
+        CALL    dword [DS:INITADD]
 
-        IF IBMVER
-        MOV     DX,OFFSET RESGROUP:HEADER
+        %if IBMVER
+        MOV     DX,HEADER
         MOV     AH,PRINTBUF
         INT     33
-        ENDIF
+        %endif
 
 DRV0:
         JMP     HAVCOM
 
 
-        IF MSVER
+        %if MSVER
 HEADER  DB      13,10,"Command v. 1.17"
-        IF      HIGHMEM
+        %if HIGHMEM
         DB      "H"
-        ENDIF
+        %endif
         DB      13,10,"$"
-        ENDIF
+        %endif
 
-        IF IBMVER
+        %if IBMVER
 HEADER  DB      13,10,13,10,"The IBM Personal Computer DOS",13,10
         DB      "Version 1.10 (C)Copyright IBM Corp 1981, 1982",13,10,"$"
         DB      "Licensed Material - Program Property of IBM"
-        ENDIF
+        %endif
 
 INITSIZE        EQU     $-ZERO
-INIT    ENDS
+; END SECTION .INIT
 
 ;This TAIL segment is used to produce a PARA aligned label in the resident
 ; group which is the location where the transient segments will be loaded
 ; initialy.
 
-TAIL    SEGMENT PARA
+SECTION .TAIL
         ORG     0
-TRANSTART       LABEL   WORD
-TAIL    ENDS
+TRANSTART:
+; END SECTION .TAIL
 
 ;********************************************************************
 ;START OF TRANSIENT PORTION
 ;This code is loaded at the end of memory and may be overwritten by
 ;memory-intensive user programs.
 
-TRANCODE        SEGMENT PARA
-ASSUME  CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:TRANGROUP
+SECTION .TRANCODE
+; ASSUME  CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:TRANGROUP
 
 WSWITCH EQU     1               ;Wide display during DIR
 PSWITCH EQU     2               ;Pause (or Page) mode during DIR
@@ -630,7 +630,7 @@ ASWITCH EQU     8               ;ASCII mode during COPY
 BSWITCH EQU     10H             ;Binary mode during COPY
 
         ORG     0
-ZERO    =       $
+ZERO equ $
 
         ORG     100H            ;Allow for 100H parameter area
 
@@ -641,7 +641,7 @@ COMMAND:
         CLD
         MOV     AX,CS
         MOV     SS,AX
-        MOV     SP,OFFSET TRANGROUP:STACK
+        MOV     SP,STACK
         MOV     ES,AX
         MOV     DS,AX
         STI
@@ -667,19 +667,19 @@ GETCOM:
         MOV     AL,SYM
         CALL    OUT
         MOV     DS,[RESSEG]     ;All batch work must use resident seg.
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         TEST    [BATCH],-1
         JNZ     READBAT
         PUSH    CS
         POP     DS              ;Need local segment to point to buffer
-ASSUME  DS:TRANGROUP
-        MOV     DX,OFFSET TRANGROUP:COMBUF
+; ASSUME  DS:TRANGROUP
+        MOV     DX,COMBUF
         MOV     AH,INBUF
         INT     21H             ;Get a command
         JMP     DOCOM
 
 ;All batch proccessing has DS set to segment of resident portion
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
 NEEDPARM:
         CALL    GETBATBYT
         CMP     AL,"%"          ;Check for two consecutive %
@@ -693,7 +693,7 @@ NEEDPARM:
         CBW
         MOV     SI,AX
         SHL     SI,1            ;Two bytes per entry
-        MOV     SI,[SI+OFFSET RESGROUP:PARMTAB] ;Get pointer to corresponding parameter
+        MOV     SI,[SI+PARMTAB] ;Get pointer to corresponding parameter
         CMP     SI,-1           ;Check if parameter exists
         JZ      RDBAT           ;Ignore if it doesn't
         MOV     AH,OUTCH
@@ -708,10 +708,10 @@ RDPARM:
 
 PROMPTBAT:
         MOV     AH,PRINTBUF
-        MOV     DX,OFFSET RESGROUP:NEEDBAT
+        MOV     DX,NEEDBAT
         INT     33              ;Prompt for batch file
         MOV     AH,PRINTBUF
-        MOV     DX,OFFSET RESGROUP:PROMPT
+        MOV     DX,PROMPT
         INT     33
         MOV     AX,0C00H+INCHAR
         INT     33
@@ -720,16 +720,16 @@ PROMPTBAT:
 BADCOMJ1:JMP    BADCOM
 
 READBAT:
-        MOV     DX,OFFSET RESGROUP:BATFCB
+        MOV     DX,BATFCB
         MOV     AH,OPEN
         INT     33              ;Make sure batch file still exists
         OR      AL,AL
         JNZ     PROMPTBAT       ;If OPEN fails, prompt for disk
-        MOV     WORD PTR [BATFCB+RECLEN],1
-        MOV     DX,OFFSET RESGROUP:BATBYT
+        MOV     word [BATFCB+RECLEN],1
+        MOV     DX,BATBYT
         MOV     AH,SETDMA
         INT     33
-        MOV     DI,OFFSET TRANGROUP:COMBUF+2
+        MOV     DI,COMBUF+2
 RDBAT:
         CALL    GETBATBYT
         CMP     AL,"%"          ;Check for parameter
@@ -739,19 +739,19 @@ SAVBATBYT:
         CALL    OUT             ;Display batched command line
         CMP     AL,0DH
         JNZ     RDBAT
-        SUB     DI,OFFSET TRANGROUP:COMBUF+3
+        SUB     DI,COMBUF+3
         MOV     AX,DI
-        MOV     ES:[COMBUF+1],AL        ;Set length of line
+        MOV     [ES:COMBUF+1],AL        ;Set length of line
         CALL    GETBATBYT       ;Eat linefeed
         PUSH    CS
         POP     DS              ;Go back to local segment
-ASSUME DS:TRANGROUP
+; ASSUME DS:TRANGROUP
 DOCOM:
 ;All segments are local for command line processing
         MOV     AL,10
         CALL    OUT
-        MOV     SI,OFFSET TRANGROUP:COMBUF+2
-        MOV     DI,OFFSET TRANGROUP:IDLEN
+        MOV     SI,COMBUF+2
+        MOV     DI,IDLEN
         MOV     AX,2901H        ;Make FCB with blank scan-off
         INT     21H
         CMP     AL,1            ;Check for ambiguous command name
@@ -778,7 +778,7 @@ COMTAIL:
         CMP     AL,13
         LOOPNZ  COMTAIL
         NOT     CL
-        MOV     BYTE PTR DS:[80H],CL
+        MOV     byte [DS:80H],CL
         POP     SI
 ;If the command has 0 parameters must check here for
 ;any switches that might be present.
@@ -827,7 +827,7 @@ SWLOOP:
         JA      SAVCHR
         SUB     AL,20H          ;Lower-case changed to upper-case
 SAVCHR:
-        MOV     DI,OFFSET TRANGROUP:SWLIST
+        MOV     DI,SWLIST
         MOV     CX,SWCOUNT
         REPNE   SCASB                   ;Look for matching switch
         JNZ     BADSW
@@ -844,14 +844,14 @@ SWLIST  DB      "BAVPW"
 SWCOUNT EQU     $-SWLIST
 
 DRVBAD:
-        MOV     DX,OFFSET TRANGROUP:BADDRV
+        MOV     DX,BADDRV
         JMP     ERROR
 
 FNDCOM:
-        MOV     SI,OFFSET TRANGROUP:COMTAB      ;Prepare to search command table
+        MOV     SI,COMTAB      ;Prepare to search command table
         MOV     CH,0
 FINDCOM:
-        MOV     DI,OFFSET TRANGROUP:IDLEN
+        MOV     DI,IDLEN
         MOV     CL,[SI]
         JCXZ    EXTERNAL
         REPE    CMPSB
@@ -884,40 +884,40 @@ DRVCHK:
 EXTERNAL:
         MOV     AL,[SPECDRV]
         MOV     [IDLEN],AL
-        MOV     WORD PTR[COM],4F00H+"C" ;"CO"
-        MOV     BYTE PTR[COM+2],"M"
-        MOV     DX,OFFSET TRANGROUP:IDLEN
+        MOV     word[COM],4F00H+"C" ;"CO"
+        MOV     byte[COM+2],"M"
+        MOV     DX,IDLEN
         MOV     AH,OPEN
         INT     33              ;Check if command to be executed
         MOV     [FILTYP],AL     ;0 for COM files, -1 for EXE files
         OR      AL,AL
         JZ      EXECUTE
-        MOV     WORD PTR[COM],5800H+"E" ;"EX"
-        MOV     BYTE PTR[COM+2],"E"
+        MOV     word[COM],5800H+"E" ;"EX"
+        MOV     byte[COM+2],"E"
         INT     33              ;Check for EXE file
         OR      AL,AL
         JZ      EXECUTE
-        MOV     WORD PTR[COM],4100H+"B" ;"BA"
-        MOV     BYTE PTR[COM+2],"T"
+        MOV     word[COM],4100H+"B" ;"BA"
+        MOV     byte[COM+2],"T"
         INT     33              ;Check if batch file to be executed
         OR      AL,AL
         JNZ     BADCOMJ
 BATCOM:
 ;Batch parameters are read with ES set to segment of resident part
         MOV     ES,[RESSEG]
-ASSUME  ES:RESGROUP
-        MOV     DI,OFFSET RESGROUP:PARMTAB
+; ASSUME  ES:RESGROUP
+        MOV     DI,PARMTAB
         MOV     AX,-1
         MOV     CX,10
         REP     STOSW           ;Zero parameter pointer table
-        MOV     SI,OFFSET TRANGROUP:COMBUF+2
-        MOV     DI,OFFSET RESGROUP:PARMBUF
-        MOV     BX,OFFSET RESGROUP:PARMTAB
+        MOV     SI,COMBUF+2
+        MOV     DI,PARMBUF
+        MOV     BX,PARMTAB
 EACHPARM:
         CALL    SCANOFF
         CMP     AL,0DH
         JZ      HAVPARM
-        MOV     ES:[BX],DI              ;Set pointer table to point to actual parameter
+        MOV     [ES:BX],DI              ;Set pointer table to point to actual parameter
         INC     BX
         INC     BX
 MOVPARM:
@@ -931,34 +931,34 @@ MOVPARM:
 ENDPARM:
         MOV     AL,0DH
         STOSB           ;End-of-parameter marker
-        CMP     BX,OFFSET RESGROUP:PARMTAB+20   ;Maximum number of parameters?
+        CMP     BX,PARMTAB+20   ;Maximum number of parameters?
         JB      EACHPARM
 HAVPARM:
-        MOV     SI,OFFSET TRANGROUP:IDLEN
-        MOV     DI,OFFSET RESGROUP:BATFCB
+        MOV     SI,IDLEN
+        MOV     DI,BATFCB
         MOV     CX,16
         REP     MOVSW           ;Move into private batch FCB
         XOR     AX,AX
         PUSH    ES
         POP     DS                      ;Simply batch FCB setup
-ASSUME  DS:RESGROUP
-        MOV     WORD PTR[BATFCB+RR],AX
-        MOV     WORD PTR[BATFCB+RR+2],AX        ;Zero RR field
+; ASSUME  DS:RESGROUP
+        MOV     word[BATFCB+RR],AX
+        MOV     word[BATFCB+RR+2],AX        ;Zero RR field
         INC     AX
-        MOV     WORD PTR[BATFCB+RECLEN],AX      ;Set record length to 1 byte
+        MOV     word[BATFCB+RECLEN],AX      ;Set record length to 1 byte
         MOV     [BATCH],AL              ;Flag batch job in progress
         JMP     COMMAND
-ASSUME  DS:TRANGROUP,ES:TRANGROUP
+; ASSUME  DS:TRANGROUP,ES:TRANGROUP
 
 EXECUTE:
-        MOV     AX,WORD PTR[IDLEN+16]
-        OR      AX,WORD PTR[IDLEN+18]           ;See if zero length
+        MOV     AX,word[IDLEN+16]
+        OR      AX,word[IDLEN+18]           ;See if zero length
         JZ      BADCOM                  ;If so, error
         XOR     AX,AX
-        MOV     WORD PTR[IDLEN+RR],AX
-        MOV     WORD PTR[IDLEN+RR+2],AX         ;Set RR field to zero
+        MOV     word[IDLEN+RR],AX
+        MOV     word[IDLEN+RR+2],AX         ;Set RR field to zero
         INC     AX
-        MOV     WORD PTR[IDLEN+RECLEN],AX       ;Set record length field to 1
+        MOV     word[IDLEN+RECLEN],AX       ;Set record length field to 1
         MOV     DX,[TPA]
         MOV     BX,DX
         MOV     AH,SETBASE
@@ -974,11 +974,11 @@ COMLOAD:PUSH    DS
         POP     DS
         MOV     CX,[BYTCNT]
         SUB     CX,100H
-        MOV     DX,OFFSET TRANGROUP:IDLEN
+        MOV     DX,IDLEN
         MOV     AH,RDBLK
         INT     21H
         DEC     AL
-        MOV     DX,OFFSET TRANGROUP:TOOBIG
+        MOV     DX,TOOBIG
         JNZ     ERROR
 ;Set up exit conditions
         MOV     CX,[BYTCNT]
@@ -995,11 +995,11 @@ COMLOAD:PUSH    DS
         PUSH    BX
         PUSH    AX
         CALL    SETUP
-XXX     PROC    FAR
+XXX:
         RET
-XXX     ENDP
+; ENDP XXX
 BADCOM:
-        MOV     DX,OFFSET TRANGROUP:BADNAM
+        MOV     DX,BADNAM
 ERROR:
         MOV     AH,PRINTBUF
         INT     21H
@@ -1008,7 +1008,7 @@ ERROR:
 CHKCNT:
         TEST    [FILECNT],-1
         JNZ     ENDDIR
-        MOV     DX,OFFSET TRANGROUP:NOTFND
+        MOV     DX,NOTFND
         JMP     ERROR
 
 ENDDIR:
@@ -1021,7 +1021,7 @@ MESSAGE:
         MOV     SI,[FILECNT]
         XOR     DI,DI
         CALL    DISP32BITS
-        MOV     DX,OFFSET TRANGROUP:DIRMES
+        MOV     DX,DIRMES
         MOV     AH,PRINTBUF
         INT     21H
         RET
@@ -1045,7 +1045,7 @@ SETSWT:
         MOV     AX,[COMSW]              ;Get switches from command
         OR      AX,[ARG1S]              ;OR in switches from first parameter
         MOV     [BITS],AX
-        MOV     BYTE PTR[FULLSCR],LINPERPAG
+        MOV     byte[FULLSCR],LINPERPAG
         TEST    AL,1                    ;Look for /W
         MOV     AL,NORMPERLIN
         JZ      DIR
@@ -1054,7 +1054,7 @@ DIR:
         MOV     [LINLEN],AL             ;Set number of entries per line
         MOV     [LINCNT],AL
         MOV     [FILECNT],0     ;Keep track of how many files found
-        MOV     DX,OFFSET TRANGROUP:DIRBUF      ;Set Disk transfer address
+        MOV     DX,DIRBUF      ;Set Disk transfer address
         MOV     AH,SETDMA
         INT     21H             
         MOV     AH,SRCHFRST
@@ -1066,13 +1066,13 @@ SHOWDIR:
         JMP     CHKCNT
 AGAIN:
         INC     [FILECNT]       ;Keep track of how many we find
-        MOV     SI,OFFSET TRANGROUP:DIRBUF+1    ;SI -> information returned by sys call
+        MOV     SI,DIRBUF+1    ;SI -> information returned by sys call
         CALL    SHONAME
-        TEST    BYTE PTR[BITS],1        ;/W set?
+        TEST    byte[BITS],1        ;/W set?
         JNZ     NEXENT          ;If so, no size, date, or time
         CALL    DISPSIZE        ;Print size of file
         CALL    TWOSPC
-        MOV     AX,WORD PTR[DIRBUF+25]  ;Get date
+        MOV     AX,word[DIRBUF+25]  ;Get date
         OR      AX,AX
         JZ      NEXENT          ;Skip if no date
         MOV     DX,AX
@@ -1096,7 +1096,7 @@ AGAIN:
         SUB     AL,100
 MILLENIUM:
         CALL    OUT2
-        MOV     BX,WORD PTR[DIRBUF+23]  ;Get time
+        MOV     BX,word[DIRBUF+23]  ;Get time
         OR      BX,BX           ;Time field present?
         JZ      NEXENT
         CALL    TWOSPC  
@@ -1132,13 +1132,13 @@ NEXLIN:
         MOV     AL,[LINLEN]
         MOV     [LINCNT],AL
         CALL    CRLF2
-        TEST    BYTE PTR[BITS],2        ;/P switch present?
+        TEST    byte[BITS],2        ;/P switch present?
         JZ      SCROLL          ;If not, just continue
-        DEC     BYTE PTR[FULLSCR]
+        DEC     byte[FULLSCR]
         JNZ     SCROLL
-        MOV     BYTE PTR[FULLSCR],LINPERPAG
+        MOV     byte[FULLSCR],LINPERPAG
         MOV     AH,PRINTBUF
-        MOV     DX,OFFSET TRANGROUP:PAUSMES
+        MOV     DX,PAUSMES
         INT     33
         MOV     AX,0C08H        ;Wait for any character to be typed
         INT     21H
@@ -1176,8 +1176,8 @@ CRLF2:
         JMP     OUT
 
 DISPSIZE:
-        MOV     SI,WORD PTR[DIRBUF+29]
-        MOV     DI,WORD PTR[DIRBUF+31]
+        MOV     SI,word[DIRBUF+29]
+        MOV     DI,word[DIRBUF+31]
 DISP32BITS:
 ;Prints the 32-bit number DI:SI on the console in decimal. Uses a total
 ;of 9 digit positions with leading blanks.
@@ -1250,7 +1250,7 @@ ALLFIL:
         CMP     CX,0
         JNZ     NOPRMPT
 ASKAGN:         
-        MOV     DX,OFFSET TRANGROUP:SUREMES     ;"Are you sure (Y/N)?"
+        MOV     DX,SUREMES     ;"Are you sure (Y/N)?"
         MOV     AH,PRINTBUF
         INT     21H
         MOV     AX,0C00H+INCHAR
@@ -1264,15 +1264,15 @@ ASKAGN:
         JMP     SHORT ASKAGN
 NOPRMPT:
         MOV     AH,DELETE
-        MOV     BX,OFFSET TRANGROUP:NOTFND
-        CMP     BYTE PTR DS:[FCB+1]," " ;Check if parameter exists
+        MOV     BX,NOTFND
+        CMP     byte [DS:FCB+1]," " ;Check if parameter exists
         JMP     SHORT OPFILE
 RENAME:
         MOV     AH,RENAM
-        MOV     BX,OFFSET TRANGROUP:RENERR
-        CMP     BYTE PTR DS:[FCB+16+1]," "  ;Check if parameter exists
+        MOV     BX,RENERR
+        CMP     byte [DS:FCB+16+1]," "  ;Check if parameter exists
 OPFILE:
-        MOV     DX,OFFSET TRANGROUP:MISNAM
+        MOV     DX,MISNAM
         JZ      ERRJ            ;Error if missing parameter
         MOV     DX,FCB
         INT     21H
@@ -1292,13 +1292,13 @@ TYPEFIL:
         MOV     AH,OPEN
         INT     21H
         OR      AL,AL
-        MOV     DX,OFFSET TRANGROUP:NOTFND
+        MOV     DX,NOTFND
         JNZ     ERRJ
         XOR     AX,AX
-        MOV     WORD PTR DS:[FCB+RR],AX ;Set RR field
-        MOV     WORD PTR DS:[FCB+RR+2],AX
+        MOV     word [DS:FCB+RR],AX ;Set RR field
+        MOV     word [DS:FCB+RR+2],AX
         INC     AX
-        MOV     WORD PTR DS:[FCB+RECLEN],AX     ;Set record length
+        MOV     word [DS:FCB+RECLEN],AX     ;Set record length
         MOV     ES,[TPA]
 TYPELP:
         MOV     DX,FCB
@@ -1308,7 +1308,7 @@ TYPELP:
         JCXZ    RET30
         XOR     SI,SI           ;Start at 0 in TPA
 OUTLP:
-        LODS    BYTE PTR ES:[SI]                ;In TPA segment
+        LODS    byte [ES:SI]                ;In TPA segment
         CMP     AL,1AH
         JZ      RET30
         MOV     AH,OUTCH
@@ -1335,7 +1335,7 @@ SCANNAM:
         CALL    PARSE
         JNZ     SCANNAM
 GETDEST:
-        MOV     DI,OFFSET TRANGROUP:DEST
+        MOV     DI,DEST
         MOV     BX,BP                   ;Remeber switches so far
         XOR     BP,BP                   ;Must have dest. swtiches alone
         CALL    PARSNAM
@@ -1353,11 +1353,11 @@ HAVDESTNAM:
         MOV     DL,0
         INT     33
 NOVER:
-        MOV     DI,OFFSET TRANGROUP:DESTNAME
-        MOV     SI,OFFSET TRANGROUP:DEST+1
+        MOV     DI,DESTNAME
+        MOV     SI,DEST+1
         MOV     BX,FCB+1
         CALL    BUILDNAME               ;See if we can make it unambiguous
-        MOV     DI,OFFSET TRANGROUP:DESTNAME
+        MOV     DI,DESTNAME
         MOV     AL,"?"
         MOV     CX,11
         REPNE   SCASB                   ;Scan for "?" to see if ambiguous
@@ -1375,11 +1375,11 @@ AMBIG:
         SHL     AL,1
         OR      AL,DL                   ;Combine multiple and concat flags
         MOV     [PARM2],AL
-        MOV     AL,BYTE PTR[COMSW]
+        MOV     AL,byte[COMSW]
         CALL    SETASC                  ;Check /A,/B on command
-        MOV     AL,BYTE PTR[ARG1S]
+        MOV     AL,byte[ARG1S]
         CALL    SETASC                  ;Check for ASCII on first filename
-        MOV     BYTE PTR[COMSW],AL              ;Save starting switch values
+        MOV     byte[COMSW],AL              ;Save starting switch values
         MOV     AH,SRCHFRST
         CALL    SEARCH                  ;Search for first source name
 MULTDEST:
@@ -1412,19 +1412,19 @@ ENDCOPY:
         MOV     SI,[FILECNT]
         XOR     DI,DI
         CALL    DISP32BITS
-        MOV     DX,OFFSET TRANGROUP:COPIED
+        MOV     DX,COPIED
         MOV     AH,PRINTBUF
         INT     21H
         JMP     COMMAND                 ;Stack could be messed up
 
 FIRSTSRC:
-        MOV     SI,OFFSET TRANGROUP:DIRBUF+1
-        MOV     DI,OFFSET TRANGROUP:SOURCE
+        MOV     SI,DIRBUF+1
+        MOV     DI,SOURCE
         MOV     CX,11
         REP     MOVSB                   ;Copy first source name to SOURCE
-        MOV     SI,OFFSET TRANGROUP:DESTNAME
-        MOV     DI,OFFSET TRANGROUP:DEST+1
-        MOV     BX,OFFSET TRANGROUP:SOURCE
+        MOV     SI,DESTNAME
+        MOV     DI,DEST+1
+        MOV     BX,SOURCE
         CALL    BUILDNAME               ;Build destination name
         XOR     AX,AX
         MOV     [NXTADD],AX
@@ -1433,18 +1433,18 @@ FIRSTSRC:
         MOV     [NOWRITE],AL
         TEST    [PARM2],1               ;Multiple destinations?
         JZ      NOPRT
-        MOV     SI,OFFSET TRANGROUP:DIRBUF+1
+        MOV     SI,DIRBUF+1
         CALL    SHONAME                 ;If so, show first source
         CALL    CRLF2
 NOPRT:
         CALL    COMPNAME                ;Source and dest. the same?
         JNZ     DOREAD                  ;If not, read source in
         TEST    [PARM2],2               ;Concatenation?
-        MOV     DX,OFFSET TRANGROUP:OVERWR
+        MOV     DX,OVERWR
         JZ      COPERRJ                 ;If not, overwrite error
         MOV     [APPEND],1              ;Set physical append
         MOV     AH,OPEN
-        MOV     DX,OFFSET TRANGROUP:DEST
+        MOV     DX,DEST
         INT     33                      ;Open (existing) destination
         CMP     [ASCII],0               ;ASCII flag set?
         JZ      BINARYAPP
@@ -1461,9 +1461,9 @@ SNGLOOPJ:JMP    SNGLOOP
 COPERRJ:JMP     COPERR
 
 BINARYAPP:
-        MOV     WORD PTR[DEST+RECLEN],1         ;Set record length to 1
-        MOV     SI,OFFSET TRANGROUP:DEST+16             ;Point to file size
-        MOV     DI,OFFSET TRANGROUP:DEST+RR
+        MOV     word[DEST+RECLEN],1         ;Set record length to 1
+        MOV     SI,DEST+16             ;Point to file size
+        MOV     DI,DEST+RR
         MOVSW
         MOVSW                           ;Seek to end of file
         MOV     [CFLAG],1
@@ -1478,22 +1478,22 @@ MULTAPP:
         CALL    PARSE
         JZ      MULTCLOS
         PUSH    SI
-        MOV     SI,OFFSET TRANGROUP:DIRBUF+1
+        MOV     SI,DIRBUF+1
         MOV     DI,SI
-        MOV     BX,OFFSET TRANGROUP:SOURCE
+        MOV     BX,SOURCE
         CALL    BUILDNAME
         CALL    CHECKREAD
         POP     SI
         JMP     SHORT MULTAPP
 MULTCLOS:
         CALL    CLOSEFIL
-        MOV     AL,BYTE PTR[COMSW]
+        MOV     AL,byte[COMSW]
         MOV     [ASCII],AL              ;Restore ASCII flag
         CALL    SEARCHNEXT
         JMP     MULTDEST
 
 PARSE:
-        MOV     DI,OFFSET TRANGROUP:DIRBUF
+        MOV     DI,DIRBUF
 PARSESRC:
         CALL    SCANOFF
         CMP     AL,"+"
@@ -1504,15 +1504,15 @@ PARSNAM:
         MOV     AX,2901H
         INT     33                      ;Parse file name
         CMP     AL,-1                   ;Illegal?
-        MOV     DX,OFFSET TRANGROUP:BADDRV
+        MOV     DX,BADDRV
         JZ      COPERRJ
         XCHG    AX,DX                   ;Save parse flag in DL
-        MOV     AL,BYTE PTR[DI]         ;Get drive number
+        MOV     AL,byte[DI]         ;Get drive number
         OR      AL,AL                   ;Is it default?
         JNZ     PARSW
         MOV     AL,[CURDRV]             ;Substitute actual drive
         INC     AX
-        MOV     BYTE PTR[DI],AL
+        MOV     byte[DI],AL
 PARSW:
         PUSH    BX
         PUSH    DI
@@ -1521,7 +1521,7 @@ PARSW:
         CALL    SETASC                  ;Check for /A or /B
         POP     DI
         POP     BX
-        CMP     BYTE PTR[DI+1]," "              ;Did we even get a file name?
+        CMP     byte[DI+1]," "              ;Did we even get a file name?
         RET
 
 RETZF:
@@ -1536,7 +1536,7 @@ SEARCHNEXT:
 SEARCH:
         PUSH    AX
         MOV     AH,SETDMA
-        MOV     DX,OFFSET TRANGROUP:DIRBUF
+        MOV     DX,DIRBUF
         INT     33                      ;Put result of search in DIRBUF
         POP     AX                      ;Restore search first/next command
         MOV     DX,FCB
@@ -1571,7 +1571,7 @@ BUILDNAM:
         LODSB
         CMP     AL,"?"
         JNZ     NOTAMBIG
-        MOV     AL,BYTE PTR[BX]
+        MOV     AL,byte[BX]
 NOTAMBIG:
         STOSB
         INC     BX
@@ -1579,8 +1579,8 @@ NOTAMBIG:
         RET
 
 COMPNAME:
-        MOV     SI,OFFSET TRANGROUP:DEST
-        MOV     DI,OFFSET TRANGROUP:DIRBUF
+        MOV     SI,DEST
+        MOV     DI,DIRBUF
         MOV     CX,6
         REPE    CMPSW
         RET
@@ -1591,7 +1591,7 @@ CHECKREAD:
         JNZ     READIN
         CMP     [APPEND],0              ;If physical append, it's OK
         JNZ     RET40
-        MOV     DX,OFFSET TRANGROUP:LOSTERR             ;Tell him he's not going to get it
+        MOV     DX,LOSTERR             ;Tell him he's not going to get it
         MOV     AH,PRINTBUF
         INT     33
 RET40:  RET
@@ -1603,16 +1603,16 @@ READIN:
 ;       [NXTADD] has current pointer in buffer
 ;       [CFLAG] <>0 if destination has been created
 
-        MOV     DX,OFFSET TRANGROUP:DIRBUF
+        MOV     DX,DIRBUF
         MOV     AH,OPEN
         INT     21H
         OR      AL,AL                   ;Successful open?
         JNZ     RET40                   ;If not, just ignore it
         XOR     AX,AX
-        MOV     WORD PTR[DIRBUF+RR],AX
-        MOV     WORD PTR[DIRBUF+RR+2],AX
+        MOV     word[DIRBUF+RR],AX
+        MOV     word[DIRBUF+RR+2],AX
         INC     AX
-        MOV     WORD PTR[DIRBUF+RECLEN],AX
+        MOV     word[DIRBUF+RECLEN],AX
 COPYLP:
         MOV     DX,[NXTADD]
         MOV     AH,SETDMA
@@ -1622,7 +1622,7 @@ COPYLP:
         POP     DS
         MOV     CX,[BYTCNT]
         SUB     CX,DX                   ;Compute available space
-        MOV     DX,OFFSET TRANGROUP:DIRBUF
+        MOV     DX,DIRBUF
         MOV     AH,RDBLK                ;Read in source file
         INT     21H
         JCXZ    RET40
@@ -1654,7 +1654,7 @@ CLOSEFIL:
         OR      AL,AH                   ;See if any data is loaded
         OR      AL,[CFLAG]              ;   or file was created
         JZ      RET50                   ;Don't close or count if not created
-        MOV     AL,BYTE PTR[ARG2S]
+        MOV     AL,byte[ARG2S]
         CALL    SETASC                  ;Check for /B or /A on destination
         JZ      BINCLOS
         CMP     BX,[BYTCNT]             ;Is memory full?
@@ -1664,19 +1664,19 @@ CLOSEFIL:
 PUTZ:
         PUSH    DS
         MOV     DS,[TPA]
-        MOV     WORD PTR[BX],1AH                ;Add End-of-file mark (Ctrl-Z)
+        MOV     word[BX],1AH                ;Add End-of-file mark (Ctrl-Z)
         POP     DS
         INC     [NXTADD]
 BINCLOS:
         CALL    FLSHFIL
         CMP     [INEXACT],0             ;Copy not exact?
         JNZ     NODATE                  ;If so, don't copy date & time
-        MOV     SI,OFFSET TRANGROUP:DIRBUF+OFFDATE
-        MOV     DI,OFFSET TRANGROUP:DEST+OFFDATE        ;Make date & time same as original
+        MOV     SI,DIRBUF+OFFDATE
+        MOV     DI,DEST+OFFDATE        ;Make date & time same as original
         MOVSW                           ;Copy date
         MOVSW                           ;Copy time
 NODATE:
-        MOV     DX,OFFSET TRANGROUP:DEST
+        MOV     DX,DEST
         MOV     AH,CLOSE
         INT     21H
         INC     [FILECNT]
@@ -1696,18 +1696,18 @@ FLSHFIL:
         JNZ     EXISTS
         CMP     [NOWRITE],0
         JNZ     SKPMAK                  ;Don't actually create if NOWRITE set
-        MOV     DX,OFFSET TRANGROUP:DEST
+        MOV     DX,DEST
         MOV     AH,MAKE
         INT     21H
-        MOV     DX,OFFSET TRANGROUP:FULDIR
+        MOV     DX,FULDIR
         OR      AL,AL
         JNZ     COPERR
 SKPMAK:
         XOR     AX,AX
-        MOV     WORD PTR[DEST+RR],AX
-        MOV     WORD PTR[DEST+RR+2],AX
+        MOV     word[DEST+RR],AX
+        MOV     word[DEST+RR+2],AX
         INC     AX
-        MOV     WORD PTR[DEST+RECLEN],AX
+        MOV     word[DEST+RECLEN],AX
 EXISTS:
         XOR     CX,CX
         XCHG    CX,[NXTADD]
@@ -1719,33 +1719,33 @@ EXISTS:
         MOV     AH,SETDMA
         INT     33
         POP     DS
-        MOV     DX,OFFSET TRANGROUP:DEST
+        MOV     DX,DEST
         MOV     AH,WRBLK
         INT     21H
         OR      AL,AL
         JZ      RET60
-        MOV     DX,OFFSET TRANGROUP:DEST
+        MOV     DX,DEST
         MOV     AH,CLOSE
         INT     21H
         MOV     AH,DELETE
         INT     33
-        MOV     DX,OFFSET TRANGROUP:NOSPACE
+        MOV     DX,NOSPACE
 COPERR:
         MOV     AH,9
         INT     21H
         JMP     ENDCOPY
 
 SEEKEND:
-        ADD     WORD PTR[DEST+RR],CX
-        ADC     WORD PTR[DEST+RR+2],0           ;Propagate carry
+        ADD     word[DEST+RR],CX
+        ADC     word[DEST+RR+2],0           ;Propagate carry
 RET60:  RET
 
 GETBATBYT:
 ;Get one byte from the batch file and return it in AL. End-of-file
 ;returns <CR> and ends batch mode. DS must be set to resident segment.
 ;AH, CX, DX destroyed.
-ASSUME  DS:RESGROUP
-        MOV     DX,OFFSET RESGROUP:BATFCB
+; ASSUME  DS:RESGROUP
+        MOV     DX,BATFCB
         MOV     AH,RDBLK
         MOV     CX,1
         INT     33              ;Get one more byte from batch file
@@ -1757,7 +1757,7 @@ BATEOF:
         MOV     AL,0DH          ;If end-of-file, then end of line
         MOV     [BATCH],0       ;And turn off batch mode
 RET70:  RET
-ASSUME  DS:TRANGROUP
+; ASSUME  DS:TRANGROUP
 
 SCANOFF:
         LODSB
@@ -1777,7 +1777,7 @@ DELIM:
 RET80:  RET
 
 PAUSE:
-        MOV     DX,OFFSET TRANGROUP:PAUSMES
+        MOV     DX,PAUSMES
         MOV     AH,PRINTBUF
         INT     33
         MOV     AX,0C00H+INCHAR ;Get character with KB buffer flush
@@ -1793,14 +1793,14 @@ DATINIT:
         MOV     AX,CS           ;Set up the appropriate segment registers
         MOV     ES,AX
         MOV     DS,AX
-        MOV     WORD PTR DS:[81H],13    ;Want to prompt for date during initialization
+        MOV     word [DS:81H],13    ;Want to prompt for date during initialization
         CALL    DATE
         CALL    TIME
         POP     DS
         POP     ES
-YYY     PROC    FAR
+YYY:
         RET
-YYY     ENDP
+; ENDP YYY
 
 ; DATE - Gets and sets the time
 
@@ -1814,7 +1814,7 @@ DATE:
         JMP     COMDAT
 
 PRMTDAT:
-        MOV     DX,OFFSET TRANGROUP:CURDAT
+        MOV     DX,CURDAT
         MOV     AH,PRINTBUF
         INT     33              ;Print "Current date is "
         MOV     AH,GETDATE
@@ -1823,7 +1823,7 @@ PRMTDAT:
         MOV     SI,AX
         SHL     SI,1
         ADD     SI,AX           ;SI=AX*3
-        ADD     SI,OFFSET TRANGROUP:WEEKTAB
+        ADD     SI,WEEKTAB
         MOV     BX,CX
         MOV     CX,3
         CALL    OUTCNT
@@ -1838,7 +1838,7 @@ PRMTDAT:
         MOV     BL,"-"
         CALL    SHOW
 GETDAT:
-        MOV     DX,OFFSET TRANGROUP:NEWDAT
+        MOV     DX,NEWDAT
         MOV     BX,2F00H+"-"    ;"/-" in BX
         CALL    GETBUF
 COMDAT: JZ      RET90
@@ -1851,7 +1851,7 @@ COMDAT: JZ      RET90
 SEPGD:  CALL    GETNUM
         JC      DATERR
         MOV     CX,1900
-        CMP     BYTE PTR[SI],13
+        CMP     byte[SI],13
         JZ      BIAS
         MOV     AL,100
         MUL     AH
@@ -1871,7 +1871,7 @@ BIAS:
         JNZ     DATERR
         JMP     RET90
 DATERR:
-        MOV     DX,OFFSET TRANGROUP:BADDAT
+        MOV     DX,BADDAT
         MOV     AH,PRINTBUF
         INT     33
         JMP     GETDAT
@@ -1888,7 +1888,7 @@ TIME:
         JMP     COMTIM
 
 PRMTTIM:
-        MOV     DX,OFFSET TRANGROUP:CURTIM
+        MOV     DX,CURTIM
         MOV     AH,PRINTBUF
         INT     33              ;Print "Current time is "
         MOV     AH,GETTIME
@@ -1897,7 +1897,7 @@ PRMTTIM:
         CALL    SHOW
 GETTIM:
         XOR     CX,CX           ;Initialize hours and minutes to zero
-        MOV     DX,OFFSET TRANGROUP:NEWTIM
+        MOV     DX,NEWTIM
         MOV     BX,3A00H+":"
         CALL    GETBUF
 COMTIM: JZ      RET100          ;If no time present, don't change it
@@ -1930,7 +1930,7 @@ SAVTIM:
         OR      AL,AL
         JZ      RET100          ;Error in time?
 TIMERR:
-        MOV     DX,OFFSET TRANGROUP:BADTIM
+        MOV     DX,BADTIM
         MOV     AH,PRINTBUF
         INT     33              ;Print error message
         JMP     GETTIM          ;Try again
@@ -1939,11 +1939,11 @@ GETBUF:
         MOV     AH,PRINTBUF
         INT     33              ;Print "Enter new date: "
         MOV     AH,INBUF
-        MOV     DX,OFFSET TRANGROUP:COMBUF
+        MOV     DX,COMBUF
         INT     33              ;Get input line
         CALL    CRLF2
-        MOV     SI,OFFSET TRANGROUP:COMBUF+2
-        CMP     BYTE PTR[SI],13 ;Check if new date entered
+        MOV     SI,COMBUF+2
+        CMP     byte[SI],13 ;Check if new date entered
         JZ      RET100
 INLINE:
         CALL    GETNUM          ;Get one or two digit number
@@ -1978,7 +1978,7 @@ OKRET:
 RET110: RET
 
 INDIG:
-        MOV     AL,BYTE PTR[SI]
+        MOV     AL,byte[SI]
         SUB     AL,"0"
         JC      RET110
         CMP     AL,10
@@ -2029,11 +2029,11 @@ EXELOAD:
         MOV     AX,CS
         ADD     AX,LOADSEG
         MOV     [EXEEND],AX     ;Store in EXEEND
-        MOV     DX,OFFSET TRANGROUP:RUNVAR      ;Read header in here
+        MOV     DX,RUNVAR      ;Read header in here
         MOV     AH,SETDMA
         INT     33
         MOV     CX,RUNVARSIZ    ;Amount of header info we need
-        MOV     DX,OFFSET TRANGROUP:EXEFCB
+        MOV     DX,EXEFCB
         MOV     AH,RDBLK
         INT     33              ;Read in header
         OR      AL,AL
@@ -2044,7 +2044,7 @@ EXELOAD:
         MOV     CL,5
         SHR     AX,CL           ;Multiply by 32
         MOV     [EXEFCB+RR],AX  ;Position in file of program
-        MOV     WORD PTR[EXEFCB+RECLEN],512 ;Set record size
+        MOV     word[EXEFCB+RECLEN],512 ;Set record size
         ADD     BX,10H          ;First paragraph above parameter area
         MOV     DX,[PAGES]      ;Total size of file in 512-byte pages
         SUB     DX,AX           ;Size of program in pages
@@ -2080,7 +2080,7 @@ LOADSEG EQU     (LOAD1-ZERO)/16
         INT     33              ;Set load address
         POP     DS
         MOV     CX,[PSIZE]      ;Number of records to read
-        MOV     DX,OFFSET TRANGROUP:EXEFCB
+        MOV     DX,EXEFCB
         MOV     AH,RDBLK
         INT     33              ;Read in up to 64K
         SUB     [PSIZE],CX      ;Decrement count by amount read
@@ -2091,25 +2091,25 @@ LOADSEG EQU     (LOAD1-ZERO)/16
         JMP     SHORT LOAD1             ;Get next 64K block
 
 BADEXE:
-        MOV     DX,OFFSET TRANGROUP:EXEBAD
+        MOV     DX,EXEBAD
         JMP     ERROR
 
 SHRTERR:
-        MOV     DX,OFFSET TRANGROUP:TOOBIG
+        MOV     DX,TOOBIG
         JMP     ERROR
 
 HAVEXE:
         MOV     AX,[RELTAB]     ;Get position of table
         MOV     [EXEFCB+RR],AX  ;Set in random record field
-        MOV     WORD PTR[EXEFCB+RECLEN],1  ;Set one-byte record
-        MOV     DX,OFFSET TRANGROUP:RELPT       ;4-byte buffer for relocation address
+        MOV     word[EXEFCB+RECLEN],1  ;Set one-byte record
+        MOV     DX,RELPT       ;4-byte buffer for relocation address
         MOV     AH,SETDMA
         INT     33
         CMP     [RELCNT],0
         JZ      NOREL
 RELOC:
         MOV     AH,RDBLK
-        MOV     DX,OFFSET TRANGROUP:EXEFCB
+        MOV     DX,EXEFCB
         MOV     CX,4
         INT     33              ;Read in one relocation pointer
         OR      AL,AL           ;Check return code
@@ -2118,7 +2118,7 @@ RELOC:
         MOV     AX,[RELSEG]     ;Get segment
         ADD     AX,BP           ;Bias segment with actual load segment
         MOV     ES,AX
-        ADD     WORD PTR ES:[DI],BP             ;Relocate
+        ADD     word [ES:DI],BP             ;Relocate
         DEC     [RELCNT]        ;Count off
         JNZ     RELOC
 ;Set up exit conditions
@@ -2135,32 +2135,32 @@ NOREL:
         MOV     ES,AX
         MOV     DS,AX           ;Set segment registers to point to it
         CALL    SETUP
-        JMP     DWORD PTR CS:[INITIP]   ;Long jump to program
+        JMP     dword [CS:INITIP]   ;Long jump to program
 
 SETUP:
         AND     CL,0F0H         ;Adjust to even paragraph boundary
-        MOV     AX,WORD PTR DS:[6]              ;Get current memory size
+        MOV     AX,word [DS:6]              ;Get current memory size
         SUB     AX,CX           ;Find out how much we're changing it
-        MOV     WORD PTR DS:[6],CX
+        MOV     word [DS:6],CX
         MOV     CL,4
         SAR     AX,CL           ;Convert to a segment address
-        ADD     WORD PTR DS:[8],AX              ;Adjust long jump to go to same place
+        ADD     word [DS:8],AX              ;Adjust long jump to go to same place
         MOV     DX,80H
         MOV     AH,SETDMA
         INT     33              ;Set default disk transfer address
-        MOV     AX,WORD PTR CS:[PARM1]  ;Pass on info about FCBs
+        MOV     AX,word [CS:PARM1]  ;Pass on info about FCBs
         XOR     CX,CX
         MOV     DX,CX           ;Assume no batch file
-ASSUME  CS:RESGROUP
-        TEST    CS:[BATCH],-1   ;Batch file in progress?
-ASSUME  CS:TRANGROUP
+; ASSUME  CS:RESGROUP
+        TEST    [CS:BATCH],-1   ;Batch file in progress?
+; ASSUME  CS:TRANGROUP
         JZ      RET120          ;If not, all set up
-        MOV     CX,CS:[RESSEG]
-        MOV     DX,OFFSET RESGROUP:BATFCB       ;CX:DX points to batch FCB
+        MOV     CX,[CS:RESSEG]
+        MOV     DX,BATFCB       ;CX:DX points to batch FCB
 RET120: RET
 TRANCODESIZE    EQU     $-ZERO
-TRANCODE        ENDS
+; END SECTION .TRANCODE
 COMLEN  EQU     TRANDATASIZE+TRANCODESIZE-102H          ;End of COMMAND load. ZERO Needed to make COMLEN absolute
 TRNLEN  EQU     (PRETRLEN+TRANCODESIZE+TRANDATASIZE+15)/16              ;Length of transient in paragraphs
-        END     PROGSTART
+        ; END     PROGSTART
 

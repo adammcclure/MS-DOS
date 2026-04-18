@@ -1,11 +1,11 @@
 
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosCaseMap
+; title CP/DOS DosCaseMap
 ;
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -23,26 +23,26 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-        public  doscasemap
-        .sall
-        include macros.inc
+        global doscasemap
+        ; .sall
+        %include "macros.inc"
 
-str     struc
-old_bp  dw      ?
-return  dd      ?
-StringPtr       dd      ?       ; binary string pointer
-CountryCodePtr  dd      ?       ; country code pointer
-StringLength    dw      ?       ; lenght of the string
-str     ends
+struc str
+old_bp: resw 1
+return: resd 1
+StringPtr: resd 1; binary string pointer
+CountryCodePtr: resd 1; country code pointer
+StringLength: resw 1; lenght of the string
+endstruc
 
-DosCaseMap      proc    far
+DosCaseMap:
 
         Enter  DosCaseMap               ; save registers
 
 ; Get the country, so we can then get the country case map stuff
 
         lds     si,[bp].CountryCodePtr
-        mov     ax,ds:[si]
+        mov     ax,[ds:si]
 
 ; Note: do the country selection later (maybe never)
 
@@ -58,16 +58,16 @@ MapLoop:                                ; convert characters to upper case
         jnc     ThisCharDone
 
         add     al,'A' - 'a'
-        mov     ds:[si-1],al
+        mov     [ds:si-1],al
 
 ThisCharDone:
         loop    MapLoop                 ; loop until string is complete
 
         MExit                           ; pop registers
-        ret     size str - 6            ; return
+        ret     str_size - 6            ; return
 ;
-DosCaseMap      endp
+; ENDP DosCaseMap
 
-dosxxx  ends
+; END SECTION .dosxxx
 
-        end
+        ; end

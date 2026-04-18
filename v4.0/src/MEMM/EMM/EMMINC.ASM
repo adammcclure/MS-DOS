@@ -1,6 +1,6 @@
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	title	EMMINC.ASM - lists all EMMLIB.LIB include files
+	; title	EMMINC.ASM - lists all EMMLIB.LIB include files
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -29,27 +29,27 @@
 ;   and will provide a listing of all when assembled to produce a listing file.
 ;
 ;******************************************************************************
-.lfcond
-.386p
+; .lfcond
+CPU 386
 
 ;******************************************************************************
 ;	I N C L U D E S
 ;******************************************************************************
 INC_LIST	EQU	1		; list include files
 
-	page
-	include	DESC.INC
-	page
-	include	EMMDEF.INC
-	page
+	; page
+	%include "DESC.INC"
+	; page
+	%include "EMMDEF.INC"
+	; page
 ;	include	INSTR386.INC
 ;	page
-	include	OEMDEP.INC
-	page
-	include	PAGE.INC
-	page
-	include	VDMSEG.INC
-	page
-	include	VDMSEL.INC
+	%include "OEMDEP.INC"
+	; page
+	%include "PAGE.INC"
+	; page
+	%include "VDMSEG.INC"
+	; page
+	%include "VDMSEL.INC"
 
-	end
+	; end

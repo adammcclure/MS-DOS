@@ -5,8 +5,8 @@ Fast_yes	   equ	   10000000B	 ; fastxxx flag
 
 ;Structure definitions
 ;
-Fasttable_Entry  struc			 ; Fastxxx  Entry pointer in DOS
+struc Fasttable_Entry; Fastxxx  Entry pointer in DOS
 Fast_Entry_Num	    dw	    2		 ; number of entries
-FastOpen_Seek	    dd	    ?		 ; fastopen & fastseek entry address
-Fasttable_Entry  ends
+FastOpen_Seek: resd 1; fastopen & fastseek entry address
+endstruc
 ;

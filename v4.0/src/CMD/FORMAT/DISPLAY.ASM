@@ -20,30 +20,30 @@
 ;
 
 
-.SEQ                                            ;
+; .SEQ;
 
-PSP     segment public  para    'DUMMY'
-PSP     ends
+SECTION .PSP
+; END SECTION .PSP
 
-data    segment public para 'DATA'              ;
-Public Test_Data_Start
-Test_Data_Start label byte
-data    ends                                    ;
+SECTION .data;
+global Test_Data_Start
+Test_Data_Start:
+; END SECTION .data;
 
-stack   segment para stack
-        db      62 dup ("-Stack!-")      ; (362-80h) is the additionsal IBM ROM
-        assume ss:stack
-stack   ends
+SECTION .stack
+        times 62 db "-Stack!-"; (362-80h) is the additionsal IBM ROM
+        ; assume ss:stack
+; END SECTION .stack
 
 
-code    segment public para 'CODE'              ;
-        assume  cs:code,ds:data                 ;
-code    ends
+SECTION .code;
+        ; assume  cs:code,ds:data;
+; END SECTION .code
 
-End_Of_Memory    segment public para 'BUFFERS'  ;
-Public  Test_End
-Test_End        label   byte
-End_Of_Memory    ends                           ;
+SECTION .End_Of_Memory;
+global Test_End
+Test_End:
+; END SECTION .End_Of_Memory;
 
 
 ;
@@ -52,12 +52,12 @@ End_Of_Memory    ends                           ;
 ;*****************************************************************************
 ;
 
-.xlist
-INCLUDE FORCHNG.INC
-INCLUDE FOREQU.INC
-INCLUDE FORMSG.INC
-INCLUDE SYSMSG.INC
-.list
+; .xlist
+%include "FORCHNG.INC"
+%include "FOREQU.INC"
+%include "FORMSG.INC"
+%include "SYSMSG.INC"
+; .list
 
 ;
 ;*****************************************************************************
@@ -69,16 +69,16 @@ INCLUDE SYSMSG.INC
 MSG_UTILNAME  <FORMAT>
 
 
-data    segment public  para    'DATA'
+SECTION .data
 Msg_Services    <MSGDATA>
-data    ends
+; END SECTION .data
 
-code    segment public  para    'CODE'
+SECTION .code
 Msg_Services    <NEARmsg>
 Msg_Services    <LOADmsg>
 Msg_Services    <DISPLAYmsg,CHARmsg,NUMmsg>
 Msg_Services    <FORMAT.CLA,FORMAT.CLB,FORMAT.CLC,FORMAT.CL1,FORMAT.CL2,FORMAT.CTL>
-code    ends
+; END SECTION .code
 
 ;
 ;*****************************************************************************
@@ -86,8 +86,8 @@ code    ends
 ;*****************************************************************************
 ;
 
-        Public  SysDispMsg
-        Public  SysLoadMsg
+        global SysDispMsg
+        global SysLoadMsg
 
 
 ;
@@ -97,7 +97,7 @@ code    ends
 ;
 
 
-Message_Table struc                             ;                               ;AN000;
+struc Message_Table;                               ;AN000;
                                                 ;
 Entry1  dw      0                               ;                               ;AN000;
 Entry2  dw      0                               ;                               ;AN000;
@@ -107,11 +107,11 @@ Entry5  db      0                               ;                               
 Entry6  db      0                               ;                               ;AN000;
 Entry7  dw      0                               ;                               ;AN000;
                                                 ;
-Message_Table ends                              ;                               ;AN000;
+endstruc;                               ;AN000;
 
 
 
-code    segment public  para    'CODE'
+SECTION .code
 ;*****************************************************************************
 ;Routine name&gml Display_Interface
 ;*****************************************************************************
@@ -141,8 +141,8 @@ code    segment public  para    'CODE'
 ;       ret
 ;*****************************************************************************
 
-Public  Display_Interface
-Display_Interface   proc                        ;                               ;AN000;
+global Display_Interface
+Display_Interface:;                               ;AN000;
 
         push    ds                              ;                               ;AN000;
         push    ax                              ;Save registers                 ;AN000;
@@ -171,7 +171,7 @@ Display_Interface   proc                        ;                               
         pop     ds                              ;                               ;AN000;
         ret                                     ;All done                       ;AN000;
 
-Display_Interface      endp                     ;                               ;AN000;
-code    ends
-        end
+; ENDP Display_Interface;                               ;AN000;
+; END SECTION .code
+        ; end
 

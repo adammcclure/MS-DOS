@@ -35,7 +35,7 @@ MIN_1	       EQU   1		   ;MINIMUM WIDTH OF STRING FIELD
 ID_0	       EQU   0
 
 ;Message PARM LIST Structure
-  PARMLIST1 LABEL   BYTE  ;PARM LIST
+  PARMLIST1:;PARM LIST
        ;(File not found - 'PATH_SPEC')
        DB  11	      ;PARMLIST size
        DB  0	      ;reserved
@@ -47,7 +47,7 @@ ID_0	       EQU   0
        DB  PAD_CHAR   ;;char defined to be space
 
 
-  PARMLIST2 LABEL   BYTE  ;PARM LIST
+  PARMLIST2:;PARM LIST
        ;(NLSFUNC already installed)
        DB  11	      ;PARMLIST size
        DB  0	      ;reserved
@@ -58,7 +58,7 @@ ID_0	       EQU   0
        DB  1	      ;;min width
        DB  PAD_CHAR   ;;char defined
 
-  PARMLIST3 LABEL   BYTE  ;PARM LIST
+  PARMLIST3:;PARM LIST
        ;(Invalid parameter 'PATH_SPEC')
        DB  11	      ;PARMLIST size
        DB  0	      ;reserved

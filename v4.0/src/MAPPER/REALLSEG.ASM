@@ -1,10 +1,10 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS  DosReallocSeg  mapper
+; title CP/DOS  DosReallocSeg  mapper
 ;
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -31,20 +31,20 @@ dosxxx  segment byte public 'dos'
 ; *
 ; *************************************************************************
 ;
-        public  dosreallocseg
-        .sall
-        .xlist
-        include macros.inc
-        .list
+        global dosreallocseg
+        ; .sall
+        ; .xlist
+        %include "macros.inc"
+        ; .list
 
-str     struc
-old_bp  dw      ?
-return  dd      ?
-Selector        dw      ?       ; segment selector
-SegmentSize     dw      ?       ; new segment size in bytes
-str     ends
+struc str
+old_bp: resw 1
+return: resd 1
+Selector: resw 1; segment selector
+SegmentSize: resw 1; new segment size in bytes
+endstruc
 
-dosreallocseg proc   far
+dosreallocseg:
         Enter   dosreallocseg           ; save registers
 
         mov     bx,[bp].SegmentSize     ; Get new segment size
@@ -72,10 +72,10 @@ HaveSize:
 ErrorExit:
         Mexit                           ; restore registers
 
-        ret     size str - 6            ; return
+        ret     str_size - 6            ; return
 
-dosreallocseg  endp
+; ENDP dosreallocseg
 
-dosxxx  ends
+; END SECTION .dosxxx
 
-        end
+        ; end

@@ -1,5 +1,5 @@
-	page	,132			;
-	title	COMP.SAL - COMPARE A PAIR OF FILES
+	; page	,132;
+	; title	COMP.SAL - COMPARE A PAIR OF FILES
 ;****************** START OF SPECIFICATIONS *****************************
 ; MODULE NAME: COMP1.ASM
 ;
@@ -160,31 +160,31 @@
 ;		 4.0  modifications by: Edwin M. K.
 ;		 4.0  modifications by: Bill L.
 ;****************** END OF SPECIFICATIONS *****************************
-	PAGE
+	; PAGE
 ;	    $SALUT (4,13,18,36)
-	    IF1
-		%OUT COMPONENT=COMP, MODULE=COMP1.ASM
-	    ENDIF
+	    %if 1  ; IF1 - pass-specific
+		%warning COMPONENT=COMP, MODULE=COMP1.ASM
+	    %endif
 
-CSEG	    segment PARA public  'CODE' ;AN000;
-	    assume cs:CSEG,ds:CSEG,es:CSEG,ss:CSEG ;AS SET BY DOS LOADER
+SECTION .CSEG;AN000;
+	    ; assume cs:CSEG,ds:CSEG,es:CSEG,ss:CSEG;AS SET BY DOS LOADER
 PSP_HEADER  EQU  $		   ;START OF PROGRAM SEGMENT PREFIX AREA
 	    org  02h
-MEMORY_SIZE LABEL WORD
-	    PUBLIC MEMORY_SIZE
+MEMORY_SIZE:
+	    global MEMORY_SIZE
 
 	    org  5Ch
-FCB	    LABEL BYTE
-	    PUBLIC FCB
+FCB:
+	    global FCB
 
 	    org  80h
-PARM_AREA   LABEL BYTE
-	    PUBLIC PARM_AREA
+PARM_AREA:
+	    global PARM_AREA
 
 	    org  100h
-	    EXTRN INIT:NEAR	   ;"INIT" IS IN COMP2.SAL
+	    extern INIT;"INIT" IS IN COMP2.SAL
 START:	    jmp  INIT		   ;DEFINE THE DOS ENTRY POINT
 
-CSEG	    ENDS
-	    END  START
+; END SECTION .CSEG
+	    ; END  START
 

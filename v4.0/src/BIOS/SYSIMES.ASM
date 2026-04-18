@@ -1,5 +1,5 @@
 	;SCCSID = @(#)sysimes.asm	 1.2 85/07/25
-%OUT ...SYSIMES
+%warning ...SYSIMES
 
 ;==============================================================================
 ;REVISION HISTORY:
@@ -12,27 +12,27 @@
 ;AN003 D486 Share installation for large media			   02/24/88 J.K.
 ;==============================================================================
 
-iTEST = 0
-include MSequ.INC
-include MSmacro.INC
+iTEST equ 0
+%include "MSequ.INC"
+%include "MSmacro.INC"
 
-SYSINITSEG	SEGMENT PUBLIC BYTE 'SYSTEM_INIT'
+SECTION .SYSINITSEG
 
-	PUBLIC	BADOPM,CRLFM,BADSIZ_PRE,BADLD_PRE,BADCOM,SYSSIZE,BADCOUNTRY
+	global BADOPM,CRLFM,BADSIZ_PRE,BADLD_PRE,BADCOM,SYSSIZE,BADCOUNTRY
 ;	 PUBLIC  BADLD_POST,BADSIZ_POST,BADMEM,BADBLOCK,BADSTACK
-	PUBLIC	BADMEM,BADBLOCK,BADSTACK
-	PUBLIC	INSUFMEMORY,BADCOUNTRYCOM
-	public	BadOrder,Errorcmd		;AN000;
-	public	BadParm 			;AN001;
-	public	SHAREWARNMSG			;AN003;
+	global BADMEM,BADBLOCK,BADSTACK
+	global INSUFMEMORY,BADCOUNTRYCOM
+	global BadOrder,Errorcmd;AN000;
+	global BadParm;AN001;
+	global SHAREWARNMSG;AN003;
 
 
 ;include sysimes.inc
-include MSbio.cl3				;AN002;
+%include "MSbio.cl3";AN002;
 
-SYSSIZE LABEL	BYTE
+SYSSIZE:
 
 PATHEND 	001,SYSMES
 
-SYSINITSEG	ENDS
-	END
+; END SECTION .SYSINITSEG
+	; END

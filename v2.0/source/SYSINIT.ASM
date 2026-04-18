@@ -1,7 +1,7 @@
-TITLE   BIOS SYSTEM INITIALIZATION
+; TITLE   BIOS SYSTEM INITIALIZATION
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 IBMVER     EQU     FALSE
 IBM        EQU     IBMVER
@@ -11,11 +11,11 @@ ALTVECT    EQU     FALSE                ; Switch to build ALTVECT version
 HIGHMEM    EQU     FALSE
 KANJI      EQU     FALSE
 
-        IF      IBMVER OR IBMJAPVER
+        %if IBMVER OR IBMJAPVER
 NOEXEC  EQU     TRUE
-        ELSE
+        %else
 NOEXEC  EQU     FALSE
-        ENDIF
+        %endif
 
 ; Set to agree with those in DOST:MSHEAD.ASM, ALTVECT version only
 MAJOR_VERSION   EQU      2
@@ -25,86 +25,86 @@ DOSSIZE EQU     5000H
 
 ; Internal DOS data returned by DOSINIT
 
-SYSINITVAR  STRUC
-DPBHEAD     DD      ?                   ; Pointer to head of DPB-FAT list
-sft_addr    DD      ?                   ; Pointer to first FCB table
+struc SYSINITVAR
+DPBHEAD: resd 1; Pointer to head of DPB-FAT list
+sft_addr: resd 1; Pointer to first FCB table
 ; The following address points to the CLOCK device
-BCLOCK      DD      ?
+BCLOCK: resd 1
 ; The following address is used by DISKSTATCHK it is always
 ; points to the console input device header
-BCON        DD      ?                   ; Console device entry points
+BCON: resd 1; Console device entry points
 NUMIO       DB      0                   ; Number of disk tables
 MAXSEC      DW      0                   ; Maximum allowed sector size
-BUFFHEAD    DD      ?                   ; Head of buffer queue
-DEVHEAD     DD      ?
-SYSINITVAR  ENDS
+BUFFHEAD: resd 1; Head of buffer queue
+DEVHEAD: resd 1
+endstruc
 
-        INCLUDE DOSSYM.ASM
-        INCLUDE DEVSYM.ASM
+        %include "DOSSYM.ASM"
+        %include "DEVSYM.ASM"
 
-        IF      NOT IBM
-        IF      NOT IBMJAPVER
-        EXTRN   RE_INIT:FAR
-        ENDIF
-        ENDIF
+        %if ~IBM
+        %if ~IBMJAPVER
+        extern RE_INIT
+        %endif
+        %endif
 
-SYSINITSEG      SEGMENT PUBLIC 'SYSTEM_INIT'
+SECTION .SYSINITSEG
 
-ASSUME  CS:SYSINITSEG,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  CS:SYSINITSEG,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-        EXTRN   BADOPM:BYTE,CRLFM:BYTE,BADCOM:BYTE
-        EXTRN   BADSIZ_PRE:BYTE,BADLD_PRE:BYTE
-        EXTRN   BADSIZ_POST:BYTE,BADLD_POST:BYTE
-        EXTRN   SYSSIZE:BYTE,BADCOUNTRY:BYTE
+        extern BADOPM,CRLFM,BADCOM
+        extern BADSIZ_PRE,BADLD_PRE
+        extern BADSIZ_POST,BADLD_POST
+        extern SYSSIZE,BADCOUNTRY
 
-        PUBLIC  CURRENT_DOS_LOCATION
-        PUBLIC  FINAL_DOS_LOCATION
-        PUBLIC  DEVICE_LIST
-        PUBLIC  MEMORY_SIZE
-        PUBLIC  DEFAULT_DRIVE
-        PUBLIC  BUFFERS
-        PUBLIC  FILES
-        PUBLIC  SYSINIT
+        global CURRENT_DOS_LOCATION
+        global FINAL_DOS_LOCATION
+        global DEVICE_LIST
+        global MEMORY_SIZE
+        global DEFAULT_DRIVE
+        global BUFFERS
+        global FILES
+        global SYSINIT
 
-        IF      HIGHMEM
-        PUBLIC  DPBBUF_SIZ
-        ENDIF
+        %if HIGHMEM
+        global DPBBUF_SIZ
+        %endif
 
 SYSINIT:
         JMP     GOINIT
 
-DOSINFO                 LABEL   DWORD
+DOSINFO:
                         DW      0000
 CURRENT_DOS_LOCATION    DW      0000
 
-MSDOS                   LABEL   DWORD
-ENTRY_POINT             LABEL   DWORD
+MSDOS:
+ENTRY_POINT:
                         DW      0000
 FINAL_DOS_LOCATION      DW      0000
 DEVICE_LIST             DD      00000000
 
-        IF      HIGHMEM
+        %if HIGHMEM
 DPBBUF_SIZ              DW      (4472  + 15) / 16
-        ENDIF
+        %endif
 
 MEMORY_SIZE             DW      0001
 DEFAULT_DRIVE           DB      00
 BUFFERS                 DB      2
 FILES                   DB      8
 COMMAND_LINE            DB      2,0,"P" ; Default Command.com Args
-                        DB      29 DUP (0)
+                        times 29 db 0
 ZERO                    DB      0
 
-        IF      NOT NOEXEC
+        %if ~NOEXEC
 COMEXE  EXEC0 <0,COMMAND_LINE,DEFAULT_DRIVE,ZERO>
-        ENDIF
+        %endif
 
 COUNT   DW      0000
 CHRPTR  DW      0000
 
-BUFPTR  LABEL   DWORD                   ; LEAVE THIS STUFF IN ORDER!
+BUFPTR:; LEAVE THIS STUFF IN ORDER!
 MEMLO   DW      0
-PRMBLK  LABEL   WORD
+PRMBLK:
 MEMHI   DW      0
 LDOFF   DW      0
 AREA    DW      0
@@ -113,7 +113,7 @@ PACKET                  DB      22
                         DB      0
                         DB      0       ; INITIALIZE CODE
                         DW      0
-                        DB      8 DUP (?)
+                        times 8 db 0
 UNITCOUNT               DB      0
 BREAK_ADDR              DD      0
 BPB_ADDR                DD      0
@@ -123,7 +123,7 @@ GOINIT:
         XOR     SI,SI
         MOV     DI,SI
 
-        IF      MSVER
+        %if MSVER
         MOV     CX,[MEMORY_SIZE]
         CMP     CX,1
         JNZ     NOSCAN
@@ -142,55 +142,55 @@ MEMSCAN:INC     CX
         JZ      MEMSCAN
 SETEND:
         MOV     [MEMORY_SIZE],CX
-        ENDIF
+        %endif
 
-        IF      IBMVER OR IBMJAPVER
+        %if IBMVER OR IBMJAPVER
         MOV     CX,[MEMORY_SIZE]
-        ENDIF
+        %endif
 
 NOSCAN:
         MOV     AX,CS
         MOV     DS,AX
-ASSUME  DS:SYSINITSEG
+; ASSUME  DS:SYSINITSEG
 
-        IF      HIGHMEM
+        %if HIGHMEM
         SUB     CX,(DOSSIZE / 16)       ; Leave room for DOS
-        SUB     CX,CS:[DPBBUF_SIZ]      ; Allow OEM to tune
-        ENDIF
+        SUB     CX,[CS:DPBBUF_SIZ]      ; Allow OEM to tune
+        %endif
 
-        MOV     AX,OFFSET SYSSIZE + 15
+        MOV     AX,SYSSIZE + 15
         SHR     AX,1                    ; Divide by 16 for paras
         SHR     AX,1
         SHR     AX,1
         SHR     AX,1
         SUB     CX,AX
         MOV     ES,CX
-        MOV     CX,OFFSET SYSSIZE + 1
+        MOV     CX,SYSSIZE + 1
         SHR     CX,1                    ; Divide by 2 to get words
         REP     MOVSW                   ; RELOCATE SYSINIT
 
-        ASSUME  ES:SYSINITSEG
+        ; ASSUME  ES:SYSINITSEG
 
         PUSH    ES
-        MOV     AX,OFFSET SYSIN
+        MOV     AX,SYSIN
         PUSH    AX
 
-AAA     PROC    FAR
+AAA:
         RET
-AAA     ENDP
+; ENDP AAA
 ;
 ;       MOVE THE DOS TO ITS PROPER LOCATION
 ;
 SYSIN:
 
-        ASSUME  DS:NOTHING,ES:SYSINITSEG,SS:NOTHING
+        ; ASSUME  DS:NOTHING,ES:SYSINITSEG,SS:NOTHING
 
         MOV     AX,[CURRENT_DOS_LOCATION]
         MOV     DS,AX
         MOV     AX,[FINAL_DOS_LOCATION]
         MOV     ES,AX
 
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
 
         XOR     SI,SI
         MOV     DI,SI
@@ -203,29 +203,29 @@ SYSIN:
         CLI
         MOV     AX,CS
         MOV     SS,AX
-        MOV     SP,OFFSET LOCSTACK
+        MOV     SP,LOCSTACK
 
-        ASSUME  SS:SYSINITSEG
+        ; ASSUME  SS:SYSINITSEG
 
-        IF      NOT ALTVECT
+        %if ~ALTVECT
         STI                             ; Leave INTs disabled for ALTVECT
-        ENDIF
-LOCSTACK LABEL BYTE
+        %endif
+LOCSTACK:
 
         CALL    MSDOS
-        MOV     WORD PTR [DOSINFO+2],ES ; SAVE POINTER TO DOS INFO
-        MOV     WORD PTR [DOSINFO],DI
+        MOV     word [DOSINFO+2],ES ; SAVE POINTER TO DOS INFO
+        MOV     word [DOSINFO],DI
 
-        IF      NOT IBM
-        IF      NOT IBMJAPVER
+        %if ~IBM
+        %if ~IBMJAPVER
         CALL    RE_INIT                 ; Re-call the BIOS
-        ENDIF
-        ENDIF
+        %endif
+        %endif
 
         STI
         CLD
 
-        IF      HIGHMEM
+        %if HIGHMEM
         PUSH    DS
         MOV     BX,DS
         ADD     BX,10H
@@ -234,24 +234,24 @@ LOCSTACK LABEL BYTE
         POP     DS
         XOR     SI,SI
         MOV     DI,SI
-        MOV     CX,OFFSET SYSSIZE + 1
+        MOV     CX,SYSSIZE + 1
         SHR     CX,1                    ; Divide by 2 to get words
         REP     MOVSW
         POP     DS
         PUSH    ES
-        MOV     AX,OFFSET SECONDRELOC
+        MOV     AX,SECONDRELOC
         PUSH    AX
-BBB     PROC    FAR
+BBB:
         RET
-BBB     ENDP
+; ENDP BBB
 
 SECONDRELOC:
         MOV     AX,CS
         CLI
         MOV     SS,AX
-        MOV     SP,OFFSET LOCSTACK
+        MOV     SP,LOCSTACK
         STI
-      ELSE
+      %else
         MOV     BX,CS
         SUB     BX,10H
         MOV     ES,BX
@@ -261,19 +261,19 @@ SECONDRELOC:
         REP     MOVSW
         MOV     AH,SET_CURRENT_PDB
         INT     21H
-        ENDIF
+        %endif
 
         PUSH    DS
         PUSH    CS
         POP     DS
-        MOV     DX,OFFSET INT24         ; SET UP INT 24 HANDLER
+        MOV     DX,INT24         ; SET UP INT 24 HANDLER
         MOV     AX,(SET_INTERRUPT_VECTOR SHL 8) OR 24H
         INT     21H
 
-        IF      ALTVECT
-        MOV     DX,OFFSET BOOTMES
+        %if ALTVECT
+        MOV     DX,BOOTMES
         CALL    PRINT                   ; Print message DOSINIT couldn't
-        ENDIF
+        %endif
 
         POP     DS
 
@@ -287,9 +287,9 @@ NODRVSET:
 
         CALL    DOCONF                  ; DO THE CONFIG STUFF
 
-        IF      HIGHMEM
+        %if HIGHMEM
         PUSH    DS
-        MOV     AX,OFFSET SYSSIZE + 15
+        MOV     AX,SYSSIZE + 15
         MOV     CL,4
         SHR     AX,CL                   ; Divide by 16 to get para
         MOV     CX,ES
@@ -299,26 +299,26 @@ NODRVSET:
         POP     DS
         XOR     SI,SI
         MOV     DI,SI
-        MOV     CX,OFFSET SYSSIZE + 1
+        MOV     CX,SYSSIZE + 1
         SHR     CX,1                    ; Divide by 2 to get words
         REP     MOVSW
         POP     DS
         PUSH    ES
-        MOV     AX,OFFSET THIRDRELOC
+        MOV     AX,THIRDRELOC
         PUSH    AX
-CCC     PROC    FAR
+CCC:
         RET
-CCC     ENDP
+; ENDP CCC
 
 THIRDRELOC:
         MOV     AX,CS
         CLI
         MOV     SS,AX
-        MOV     SP,OFFSET LOCSTACK
+        MOV     SP,LOCSTACK
         STI
-        ENDIF
+        %endif
 
-        IF      NOEXEC
+        %if NOEXEC
         MOV     BP,DS                   ; SAVE COMMAND.COM SEGMENT
 
         PUSH    DS
@@ -335,12 +335,12 @@ THIRDRELOC:
         MOV     AH,SET_CURRENT_PDB
         INT     21H
 
-        MOV     ES:[PDB_PARENT_PID],ES  ; WE ARE THE ROOT
-        ENDIF
+        MOV     [ES:PDB_PARENT_PID],ES  ; WE ARE THE ROOT
+        %endif
 
         PUSH    CS
         POP     DS
-ASSUME  DS:SYSINITSEG
+; ASSUME  DS:SYSINITSEG
         MOV     AL,[FILES]
         CBW
         MOV     CX,AX
@@ -354,7 +354,7 @@ RCCLLOOP:                               ; Close everybody but standard output
         INC     BX
         LOOP    RCCLLOOP
 
-        MOV     DX,OFFSET CONDEV
+        MOV     DX,CONDEV
         MOV     AL,2
         MOV     AH,OPEN                 ; OPEN CON FOR READ/WRITE
         STC
@@ -375,26 +375,26 @@ GOAUX:  PUSH    AX
         MOV     AH,XDUP
         INT     21H                     ; Dup to 2, STDERR
 
-GOAUX2: MOV     DX,OFFSET AUXDEV
+GOAUX2: MOV     DX,AUXDEV
         MOV     AL,2                    ; READ/WRITE ACCESS
         CALL    OPEN_DEV
 
-        MOV     DX,OFFSET PRNDEV
+        MOV     DX,PRNDEV
         MOV     AL,1                    ; WRITE ONLY
         CALL    OPEN_DEV
 ;
 ; SET UP THE PARAMETERS FOR COMMAND
 ;
 GOSET:
-        MOV     SI,OFFSET COMMAND_LINE+1
+        MOV     SI,COMMAND_LINE+1
 
-        IF      NOEXEC
+        %if NOEXEC
         MOV     DI,81H
-        ELSE
+        %else
         PUSH    DS
         POP     ES
         MOV     DI,SI
-        ENDIF
+        %endif
 
         MOV     CL,-1
 COMTRANLP:                              ; FIND LENGTH OF COMMAND LINE
@@ -407,22 +407,22 @@ COMTRANLP:                              ; FIND LENGTH OF COMMAND LINE
         MOV     AL,0DH
         STOSB
 
-        IF      NOEXEC
-        MOV     ES:[80H],CL
+        %if NOEXEC
+        MOV     [ES:80H],CL
         MOV     AL,[DEFAULT_DRIVE]
-        MOV     ES:[5CH],AL
-        ELSE
+        MOV     [ES:5CH],AL
+        %else
         MOV     [COMMAND_LINE],CL       ; Count
-        ENDIF
+        %endif
 
         PUSH    CS
         POP     ES
 
-        ASSUME  ES:SYSINITSEG
+        ; ASSUME  ES:SYSINITSEG
 
-        MOV     DX,OFFSET COMMND        ; NOW POINTING TO FILE DESCRIPTION
+        MOV     DX,COMMND        ; NOW POINTING TO FILE DESCRIPTION
 
-        IF      NOEXEC
+        %if NOEXEC
         MOV     ES,BP                   ; SET LOAD ADDRESS
         MOV     BX,100H
         CALL    LDFIL                   ; READ IN COMMAND
@@ -441,24 +441,24 @@ COMTRANLP:                              ; FIND LENGTH OF COMMAND LINE
         PUSH    BP                      ; SET HIGH PART OF JUMP ADDRESS
         MOV     AX,100H
         PUSH    AX                      ; SET LOW PART OF JUMP ADDRESS
-CCC     PROC    FAR
+CCC:
         RET                             ; CRANK UP COMMAND!
-CCC     ENDP
+; ENDP CCC
 
-        ELSE
-        MOV     BX,OFFSET COMEXE
-        MOV     WORD PTR [BX.EXEC0_COM_LINE+2],CS
-        MOV     WORD PTR [BX.EXEC0_5C_FCB+2],CS
-        MOV     WORD PTR [BX.EXEC0_6C_FCB+2],CS
+        %else
+        MOV     BX,COMEXE
+        MOV     word [BX+EXEC0_COM_LINE+2],CS
+        MOV     word [BX+EXEC0_5C_FCB+2],CS
+        MOV     word [BX+EXEC0_6C_FCB+2],CS
 
         XOR     AX,AX
         MOV     AH,EXEC
         STC                             ; IN CASE OF INT 24
         INT     21H                     ; GO START UP COMMAND
-        ENDIF
+        %endif
 
 COMERR:
-        MOV     DX,OFFSET BADCOM        ; WANT TO PRINT COMMAND ERROR
+        MOV     DX,BADCOM        ; WANT TO PRINT COMMAND ERROR
         CALL    BADFIL
 STALL:  JMP     STALL
 
@@ -466,7 +466,7 @@ DOCONF:
         PUSH    CS
         POP     DS
 
-        ASSUME  DS:SYSINITSEG
+        ; ASSUME  DS:SYSINITSEG
 
         MOV     BX,0FFFFH
         MOV     AH,ALLOC
@@ -475,9 +475,9 @@ DOCONF:
         INT     21H                     ; SECOND TIME GETS IT
         MOV     [AREA],AX
 
-        IF      HIGHMEM
+        %if HIGHMEM
         ADD     AX,BX
-        ENDIF
+        %endif
 
         MOV     [MEMHI],AX
 
@@ -485,7 +485,7 @@ DOCONF:
         INT     21H
         MOV     [COMMAND_LINE+1],DL
 
-        MOV     DX,OFFSET CONFIG        ; NOW POINTING TO FILE DESCRIPTION
+        MOV     DX,CONFIG        ; NOW POINTING TO FILE DESCRIPTION
         MOV     AX,OPEN SHL 8           ; OPEN FILE "CONFIG.SYS"
         STC                             ; IN CASE OF INT 24
         INT     21H                     ; FUNCTION REQUEST
@@ -501,39 +501,39 @@ ENDFILE:
         JBE     DOBUFF
         CBW
 
-        IF      HIGHMEM
+        %if HIGHMEM
         PUSH    AX
-        MOV     BL,SIZE SF_ENTRY
+        MOV     BL,SF_ENTRY_size
         MUL     BL
         ADD     AX,15+6
         MOV     CL,4
         SHR     AX,CL
         SUB     [MEMHI],AX
         POP     AX
-        ENDIF
+        %endif
 
         MOV     BX,[MEMLO]
         MOV     DX,[MEMHI]
         LDS     DI,[DOSINFO]            ; GET POINTER TO DOS DATA
         LDS     DI,[DI+SFT_ADDR]        ; DS:BP POINTS TO SFT
-        MOV     WORD PTR [DI+SFT_LINK],BX
-        MOV     WORD PTR [DI+SFT_LINK+2],DX ; SET POINTER TO NEW SFT
+        MOV     word [DI+SFT_LINK],BX
+        MOV     word [DI+SFT_LINK+2],DX ; SET POINTER TO NEW SFT
         PUSH    CS
         POP     DS
-        LES     DI,DWORD PTR [MEMLO]    ; POINT TO NEW SFT
-        MOV     WORD PTR ES:[DI+SFT_LINK],-1
-        MOV     ES:[DI+SFT_COUNT],AX
-        MOV     BL,SIZE SF_ENTRY
+        LES     DI,dword [MEMLO]    ; POINT TO NEW SFT
+        MOV     word [ES:DI+SFT_LINK],-1
+        MOV     [ES:DI+SFT_COUNT],AX
+        MOV     BL,SF_ENTRY_size
         MUL     BL                      ; AX = NUMBER OF BYTES TO CLEAR
         MOV     CX,AX
 
-        IF      HIGHMEM
+        %if HIGHMEM
         MOV     AX,6
-        ELSE
+        %else
         ADD     [MEMLO],AX              ; ALLOCATE MEMORY
         MOV     AX,6
         ADD     [MEMLO],AX              ; REMEMBER THE HEADER TOO
-        ENDIF
+        %endif
 
         ADD     DI,AX
         XOR     AX,AX
@@ -548,31 +548,31 @@ DOBUFF: CALL    ROUND
         LES     DI,BUFPTR
         LDS     BX,DOSINFO
 
-        IF      HIGHMEM
-        MOV     AX,[BX.MAXSEC]
+        %if HIGHMEM
+        MOV     AX,[BX+MAXSEC]
         ADD     AX,BUFINSIZ + 15
         MOV     CL,4
         SHR     AX,CL
-        SUB     CS:[MEMHI],AX
-        MOV     ES,CS:[MEMHI]
-        ENDIF
+        SUB     [CS:MEMHI],AX
+        MOV     ES,[CS:MEMHI]
+        %endif
 
-        MOV     AX,WORD PTR [BX.BUFFHEAD]
-        MOV     WORD PTR ES:[DI.NEXTBUF],AX
-        MOV     AX,WORD PTR [BX.BUFFHEAD+2]
-        MOV     WORD PTR ES:[DI.NEXTBUF+2],AX
+        MOV     AX,word [BX+BUFFHEAD]
+        MOV     word [ES:DI+NEXTBUF],AX
+        MOV     AX,word [BX+BUFFHEAD+2]
+        MOV     word [ES:DI+NEXTBUF+2],AX
 
-        MOV     WORD PTR [BX.BUFFHEAD],DI
-        MOV     WORD PTR [BX.BUFFHEAD+2],ES
+        MOV     word [BX+BUFFHEAD],DI
+        MOV     word [BX+BUFFHEAD+2],ES
 
-        MOV     WORD PTR ES:[DI.BUFDRV],00FFH   ; NEW BUFFER FREE
-        MOV     BX,[BX.MAXSEC]
+        MOV     word [ES:DI+BUFDRV],00FFH   ; NEW BUFFER FREE
+        MOV     BX,[BX+MAXSEC]
         POP     DS
 
-        IF      NOT HIGHMEM
+        %if ~HIGHMEM
         ADD     BX,BUFINSIZ
         ADD     [MEMLO],BX
-        ENDIF
+        %endif
 
         JMP     DOBUFF
 
@@ -582,24 +582,24 @@ BUF1:   CALL    ROUND
         MOV     ES,AX                   ; CALC WHAT WE NEEDED
         SUB     BX,AX
 
-        IF      HIGHMEM
+        %if HIGHMEM
         DEC     BX                      ; Arena
         PUSH    BX
-        ENDIF
+        %endif
 
         MOV     AH,SETBLOCK
         INT     21H                     ; GIVE THE REST BACK
 
-        IF      NOT HIGHMEM
+        %if ~HIGHMEM
         PUSH    ES
         MOV     AX,ES
         DEC     AX
         MOV     ES,AX
-        MOV     ES:[arena_owner],8      ; Set impossible owner
+        MOV     [ES:arena_owner],8      ; Set impossible owner
         POP     ES
-        ENDIF
+        %endif
 
-        IF      HIGHMEM
+        %if HIGHMEM
         MOV     BX,0FFFFH
         MOV     AH,ALLOC
         INT     21H
@@ -609,34 +609,34 @@ BUF1:   CALL    ROUND
         PUSH    ES
         DEC     AX
         MOV     ES,AX
-        MOV     ES:[arena_owner],8      ; Set impossible owner
+        MOV     [ES:arena_owner],8      ; Set impossible owner
         POP     ES
 
-        IF      NOT NOEXEC
+        %if ~NOEXEC
         MOV     ES,[AREA]
         MOV     AH,DEALLOC
         INT     21H
-        ENDIF
+        %endif
 
         POP     BX
         MOV     AX,[AREA]
         MOV     DS,AX
         ADD     AX,BX
         MOV     ES,AX
-      ELSE
-        IF      NOEXEC
+      %else
+        %if NOEXEC
         MOV     BX,0FFFFH               ; ALLOCATE THE REST OF MEM FOR COMMAND
         MOV     AH,ALLOC
         INT     21H
         MOV     AH,ALLOC
         INT     21H
         MOV     DS,AX
-        ENDIF
-        ENDIF
+        %endif
+        %endif
 
         RET
 
-BADOP:  MOV     DX,OFFSET BADOPM        ; WANT TO PRINT COMMAND ERROR
+BADOP:  MOV     DX,BADOPM        ; WANT TO PRINT COMMAND ERROR
         CALL    PRINT
         JMP     COFF
 
@@ -652,23 +652,23 @@ NOPROB:                                 ; GET FILE SIZE (NOTE < 64K!!)
         INT     21H
         MOV     DX,CS
 
-        IF      HIGHMEM
-        MOV     AX,OFFSET SYSSIZE + 15
+        %if HIGHMEM
+        MOV     AX,SYSSIZE + 15
         MOV     CL,4
         SHR     AX,CL
         ADD     DX,AX
-        ELSE
+        %else
         MOV     AX,[COUNT]
         ADD     AX,15
         MOV     CL,4
         SHR     AX,CL                   ; NUMBER OF SEGMENTS
         SUB     DX,AX
         SUB     DX,11H                  ; ROOM FOR HEADER
-        ENDIF
+        %endif
 
         MOV     DS,DX
         MOV     ES,DX
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
         XOR     DX,DX
         MOV     CX,[COUNT]
         MOV     AH,READ
@@ -677,7 +677,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         PUSHF
         PUSH    CS
         POP     DS
-ASSUME  DS:SYSINITSEG
+; ASSUME  DS:SYSINITSEG
         PUSH    AX
         MOV     AH,CLOSE
         INT     21H
@@ -687,7 +687,7 @@ ASSUME  DS:SYSINITSEG
         CMP     CX,AX
         JZ      GETCOM                  ; COULDN'T READ THE FILE
 CONFERR:
-        MOV     DX,OFFSET CONFIG        ; WANT TO PRINT CONFIG ERROR
+        MOV     DX,CONFIG        ; WANT TO PRINT CONFIG ERROR
         CALL    BADFIL
 ENDFILV:JMP     ENDFILE
 
@@ -734,12 +734,12 @@ TRYD:   CMP     AH,'D'
 GOTD:   MOV     BX,CS
         MOV     DS,BX
 
-        MOV     WORD PTR [BPB_ADDR],SI
-        MOV     WORD PTR [BPB_ADDR+2],ES
+        MOV     word [BPB_ADDR],SI
+        MOV     word [BPB_ADDR+2],ES
 
         CALL    ROUND
 
-        IF      HIGHMEM
+        %if HIGHMEM
         PUSH    DS
         PUSH    ES
         POP     DS
@@ -772,33 +772,33 @@ GOTD:   MOV     BX,CS
         JMP     SHORT BADBRK
 SIZEOK:
         MOV     BX,CS
-        ENDIF
+        %endif
 
         XOR     AX,AX
-        MOV     WORD PTR [ENTRY_POINT],AX
+        MOV     word [ENTRY_POINT],AX
         MOV     AX,[MEMHI]
-        MOV     WORD PTR [ENTRY_POINT+2],AX ; SET ENTRY POINT
+        MOV     word [ENTRY_POINT+2],AX ; SET ENTRY POINT
 
 
-        IF      NOT NOEXEC
+        %if ~NOEXEC
         MOV     [LDOFF],AX              ; SET LOAD OFFSET
-        ENDIF
+        %endif
 
         PUSH    ES
         POP     DS
         MOV     DX,SI                   ; DS:DX POINTS TO FILE NAME
 
-        IF      NOEXEC
-        LES     BX,DWORD PTR CS:[MEMLO]
+        %if NOEXEC
+        LES     BX,dword [CS:MEMLO]
         CALL    LDFIL                   ; LOAD IN THE DEVICE DRIVER
-        ELSE
+        %else
         MOV     ES,BX
-        MOV     BX,OFFSET PRMBLK        ; ES:BX POINTS TO PARAMETERS
+        MOV     BX,PRMBLK        ; ES:BX POINTS TO PARAMETERS
         MOV     AL,3
         MOV     AH,EXEC
         STC                             ; IN CASE OF INT 24
         INT     21H                     ; LOAD IN THE DEVICE DRIVER
-        ENDIF
+        %endif
 
         PUSH    DS
         POP     ES                      ; ES:SI BACK TO CONFIG.SYS
@@ -821,8 +821,8 @@ GOODLD: PUSH    ES                      ; INITIALIZE THE DEVICE
         PUSH    CS
         POP     DS
 
-        IF      NOT HIGHMEM
-        MOV     AX,WORD PTR [BREAK_ADDR+2]  ; REMOVE THE INIT CODE
+        %if ~HIGHMEM
+        MOV     AX,word [BREAK_ADDR+2]  ; REMOVE THE INIT CODE
         CMP     AX,[MEMORY_SIZE]
         JB      BREAKOK
         POP     SI
@@ -831,37 +831,37 @@ GOODLD: PUSH    ES                      ; INITIALIZE THE DEVICE
 BREAKOK:
 
         MOV     [MEMHI],AX
-        MOV     AX,WORD PTR [BREAK_ADDR]; REMOVE THE INIT CODE
+        MOV     AX,word [BREAK_ADDR]; REMOVE THE INIT CODE
         MOV     [MEMLO],AX
-        ENDIF
+        %endif
 
         LDS     DX,[ENTRY_POINT]        ; SET DS:DX TO HEADER
         MOV     SI,DX
         ADD     SI,SDEVATT              ; DS:SI POINTS TO ATTRIBUTES
-        LES     DI,CS:[DOSINFO]         ; ES:DI POINT TO DOS INFO
-        MOV     AX,DS:[SI]              ; GET ATTRIBUTES
+        LES     DI,[CS:DOSINFO]         ; ES:DI POINT TO DOS INFO
+        MOV     AX,[DS:SI]              ; GET ATTRIBUTES
         TEST    AX,DEVTYP               ; TEST IF BLOCK DEV
         JZ      ISBLOCK
 
         TEST    AX,ISCIN                ; IS IT A CONSOLE IN?
         JZ      TRYCLK
-        MOV     WORD PTR ES:[DI.BCON],DX
-        MOV     WORD PTR ES:[DI.BCON+2],DS
+        MOV     word [ES:DI+BCON],DX
+        MOV     word [ES:DI+BCON+2],DS
 
 TRYCLK: TEST    AX,ISCLOCK              ; IS IT A CLOCK DEVICE?
         JZ      GOLINK
-        MOV     WORD PTR ES:[DI+BCLOCK],DX
-        MOV     WORD PTR ES:[DI+BCLOCK+2],DS
+        MOV     word [ES:DI+BCLOCK],DX
+        MOV     word [ES:DI+BCLOCK+2],DS
 GOLINK: JMP     LINKIT
 
 ISBLOCK:
-        MOV     AL,CS:[UNITCOUNT]       ; IF NO UNITS FOUND....
+        MOV     AL,[CS:UNITCOUNT]       ; IF NO UNITS FOUND....
         OR      AL,AL
         JNZ     PERDRV
 
-        IF      NOT HIGHMEM
-        MOV     CS:[MEMLO],0            ; ...ERASE THE DEVICE
-        ENDIF
+        %if ~HIGHMEM
+        MOV     [CS:MEMLO],0            ; ...ERASE THE DEVICE
+        %endif
 
         MOV     AX,-1
         JMP     ENDDEV
@@ -870,62 +870,62 @@ PERDRV:
         CBW
         MOV     CX,AX
         MOV     DH,AH
-        MOV     DL,ES:[DI.NUMIO]        ; GET NUMBER OF DEVICES
-        ADD     ES:[DI.NUMIO],AL        ; UPDATE THE AMOUNT
+        MOV     DL,[ES:DI+NUMIO]        ; GET NUMBER OF DEVICES
+        ADD     [ES:DI+NUMIO],AL        ; UPDATE THE AMOUNT
 
-        LDS     BX,CS:[BPB_ADDR]        ; POINT TO BPB ARRAY
+        LDS     BX,[CS:BPB_ADDR]        ; POINT TO BPB ARRAY
 PERUNIT:
-        LES     BP,CS:[DOSINFO]
-        LES     BP,DWORD PTR ES:[BP.DPBHEAD]; GET FIRST DPB
+        LES     BP,[CS:DOSINFO]
+        LES     BP,dword [ES:BP+DPBHEAD]; GET FIRST DPB
 
-SCANDPB:CMP     WORD PTR ES:[BP.DPB_NEXT_DPB],-1
+SCANDPB:CMP     word [ES:BP+DPB_NEXT_DPB],-1
         JZ      FOUNDPB
-        LES     BP,ES:[BP.DPB_NEXT_DPB]
+        LES     BP,[ES:BP+DPB_NEXT_DPB]
         JMP     SCANDPB
 FOUNDPB:
-        MOV     AX,CS:[MEMLO]
-        MOV     WORD PTR ES:[BP.DPB_NEXT_DPB],AX
+        MOV     AX,[CS:MEMLO]
+        MOV     word [ES:BP+DPB_NEXT_DPB],AX
 
-        IF      HIGHMEM
+        %if HIGHMEM
         MOV     AX,(DPBSIZ + 15) / 16
-        SUB     CS:[MEMHI],AX
-        ENDIF
+        SUB     [CS:MEMHI],AX
+        %endif
 
-        MOV     AX,CS:[MEMHI]
-        MOV     WORD PTR ES:[BP.DPB_NEXT_DPB+2],AX
-        LES     BP,DWORD PTR CS:[MEMLO]
+        MOV     AX,[CS:MEMHI]
+        MOV     word [ES:BP+DPB_NEXT_DPB+2],AX
+        LES     BP,dword [CS:MEMLO]
 
-        IF      NOT HIGHMEM
-        ADD     WORD PTR CS:[MEMLO],DPBSIZ
-        ENDIF
+        %if ~HIGHMEM
+        ADD     word [CS:MEMLO],DPBSIZ
+        %endif
 
-        MOV     WORD PTR ES:[BP.DPB_NEXT_DPB],-1
-        MOV     ES:[BP.DPB_FIRST_ACCESS],-1
+        MOV     word [ES:BP+DPB_NEXT_DPB],-1
+        MOV     [ES:BP+DPB_FIRST_ACCESS],-1
 
         MOV     SI,[BX]                 ; DS:SI POINTS TO BPB
         INC     BX
         INC     BX                      ; POINT TO NEXT GUY
-        MOV     WORD PTR ES:[BP.DPB_DRIVE],DX
+        MOV     word [ES:BP+DPB_DRIVE],DX
         MOV     AH,SETDPB               ; HIDDEN SYSTEM CALL
         INT     21H
-        MOV     AX,ES:[BP.DPB_SECTOR_SIZE]
+        MOV     AX,[ES:BP+DPB_SECTOR_SIZE]
         PUSH    ES
-        LES     DI,CS:[DOSINFO]         ; ES:DI POINT TO DOS INFO
-        CMP     AX,ES:[DI.MAXSEC]
+        LES     DI,[CS:DOSINFO]         ; ES:DI POINT TO DOS INFO
+        CMP     AX,[ES:DI+MAXSEC]
         POP     ES
         JBE     NOTMAX
         POP     SI
         POP     ES
-        MOV     DX,OFFSET BADSIZ_PRE
-        MOV     BX,OFFSET BADSIZ_POST
+        MOV     DX,BADSIZ_PRE
+        MOV     BX,BADSIZ_POST
         CALL    PRNERR
         JMP     COFF
 
 NOTMAX: PUSH    DS
         PUSH    DX
-        LDS     DX,CS:[ENTRY_POINT]
-        MOV     WORD PTR ES:[BP.DPB_DRIVER_ADDR],DX
-        MOV     WORD PTR ES:[BP.DPB_DRIVER_ADDR+2],DS
+        LDS     DX,[CS:ENTRY_POINT]
+        MOV     word [ES:BP+DPB_DRIVER_ADDR],DX
+        MOV     word [ES:BP+DPB_DRIVER_ADDR+2],DS
         POP     DX
         POP     DS
         INC     DX
@@ -933,18 +933,18 @@ NOTMAX: PUSH    DS
         LOOP    PERUNIT
 
 LINKIT:
-        LES     DI,CS:[DOSINFO]         ; ES:DI = DOS TABLE
-        MOV     CX,WORD PTR ES:[DI.DEVHEAD] ; DX:CX = HEAD OF LIST
-        MOV     DX,WORD PTR ES:[DI.DEVHEAD+2]
+        LES     DI,[CS:DOSINFO]         ; ES:DI = DOS TABLE
+        MOV     CX,word [ES:DI+DEVHEAD] ; DX:CX = HEAD OF LIST
+        MOV     DX,word [ES:DI+DEVHEAD+2]
 
-        LDS     SI,CS:[ENTRY_POINT]     ; DS:SI = DEVICE LOCATION
-        MOV     WORD PTR ES:[DI.DEVHEAD],SI ; SET HEAD OF LIST IN DOS
-        MOV     WORD PTR ES:[DI.DEVHEAD+2],DS
-        MOV     AX,DS:[SI]              ; GET POINTER TO NEXT DEVICE
-        MOV     WORD PTR CS:[ENTRY_POINT],AX; AND SAVE IT
+        LDS     SI,[CS:ENTRY_POINT]     ; DS:SI = DEVICE LOCATION
+        MOV     word [ES:DI+DEVHEAD],SI ; SET HEAD OF LIST IN DOS
+        MOV     word [ES:DI+DEVHEAD+2],DS
+        MOV     AX,[DS:SI]              ; GET POINTER TO NEXT DEVICE
+        MOV     word [CS:ENTRY_POINT],AX; AND SAVE IT
 
-        MOV     WORD PTR DS:[SI],CX     ; LINK IN THE DRIVER
-        MOV     WORD PTR DS:[SI+2],DX
+        MOV     word [DS:SI],CX     ; LINK IN THE DRIVER
+        MOV     word [DS:SI+2],DX
 ENDDEV:
         POP     SI
         POP     ES
@@ -964,7 +964,7 @@ TRYQ:
         MOV     DX,-1                   ; Set country
         INT     21H
         JNC     COFFV
-        MOV     DX,OFFSET BADCOUNTRY
+        MOV     DX,BADCOUNTRY
         CALL    PRINT
         JMP     COFFV
 
@@ -1000,7 +1000,7 @@ TRYS:
         CMP     AH,'S'
         JNZ     TRYX
         MOV     [COMMAND_LINE+1],0
-        MOV     DI,OFFSET COMMND + 1
+        MOV     DI,COMMND + 1
         MOV     [DI-1],AL
 STORESHELL:
         CALL    GETCHR
@@ -1013,7 +1013,7 @@ STORESHELL:
         JMP     STORESHELL
 
 ENDSH:
-        MOV     BYTE PTR [DI],0
+        MOV     byte [DI],0
         CALL    GETCHR
         CMP     AL,10
         JNZ     CONV
@@ -1024,8 +1024,8 @@ TRYX:
         JMP     BADOP
 
 GETSHPARMS:
-        MOV     BYTE PTR [DI],0
-        MOV     DI,OFFSET COMMAND_LINE+1
+        MOV     byte [DI],0
+        MOV     DI,COMMAND_LINE+1
 PARMLOOP:
         CALL    GETCHR
         CMP     AL," "
@@ -1037,7 +1037,7 @@ PARMLOOP:
 GETCHR: MOV     CX,COUNT
         JCXZ    NOCHAR
         MOV     SI,CHRPTR
-        MOV     AL,ES:[SI]
+        MOV     AL,[ES:SI]
         DEC     COUNT
         INC     CHRPTR
         CLC
@@ -1061,7 +1061,7 @@ ORG1:   CALL    GET                     ; SKIP LEADING CONTROL CHARACTERS
         PUSH    DI
         MOV     BP,SI
         DEC     BP
-        MOV     SI,OFFSET COMTAB        ; Prepare to search command table
+        MOV     SI,COMTAB        ; Prepare to search command table
         MOV     CH,0
 FINDCOM:
         MOV     DI,BP
@@ -1100,7 +1100,7 @@ ORG4:   CALL    GET2
         CMP     AL,10
         JZ      ORG1
 
-        MOV     BYTE PTR ES:[DI-1],0
+        MOV     byte [ES:DI-1],0
 ORG5:   CALL    GET2
         STOSB
         CMP     AL,10
@@ -1109,13 +1109,13 @@ ORG5:   CALL    GET2
 
 GET2:
         JCXZ    NOGET
-        MOV     AL,ES:[SI]
+        MOV     AL,[ES:SI]
         INC     SI
         DEC     CX
         RET
 
 GET:    JCXZ    NOGET
-        MOV     AL,ES:[SI]
+        MOV     AL,[ES:SI]
         INC     SI
         DEC     CX
         CALL    DELIM
@@ -1160,7 +1160,7 @@ MAPCASE:
 CONVLOOP:
         LODSB
 
-        IF      KANJI
+        %if KANJI
         CALL    TESTKANJ
         JZ      NORMCONV
         INC     SI                      ; Skip next char
@@ -1168,7 +1168,7 @@ CONVLOOP:
         JCXZ    CONVDONE                ; Just ignore 1/2 kanji error
 ; Fall through, know AL is not in 'a'-'z' range
 NORMCONV:
-        ENDIF
+        %endif
 
         CMP     AL,'a'
         JB      NOCONV
@@ -1184,7 +1184,7 @@ CONVDONE:
         POP     CX
         RET
 
-        IF      KANJI
+        %if KANJI
 TESTKANJ:
         CMP     AL,81H
         JB      NOTLEAD
@@ -1206,15 +1206,15 @@ ISLEAD:
         INC     AX                      ; Reset zero
         POP     AX
         RET
-        ENDIF
+        %endif
 
-ASSUME DS:NOTHING
+; ASSUME DS:NOTHING
 
 ROUND:  MOV     AX,[MEMLO]
 
-        IF      NOT HIGHMEM
+        %if ~HIGHMEM
         ADD     AX,15
-        ENDIF
+        %endif
 
         SHR     AX,1
         SHR     AX,1
@@ -1225,14 +1225,14 @@ ROUND:  MOV     AX,[MEMLO]
         MOV     [MEMLO],AX
         RET
 
-CALLDEV:MOV     DS,WORD PTR CS:[ENTRY_POINT+2]
-        ADD     BX,WORD PTR CS:[ENTRY_POINT]; Do a little relocation
-        MOV     AX,DS:[BX]
-        PUSH    WORD PTR CS:[ENTRY_POINT]
-        MOV     WORD PTR CS:[ENTRY_POINT],AX
-        MOV     BX,OFFSET PACKET
+CALLDEV:MOV     DS,word [CS:ENTRY_POINT+2]
+        ADD     BX,word [CS:ENTRY_POINT]; Do a little relocation
+        MOV     AX,[DS:BX]
+        PUSH    word [CS:ENTRY_POINT]
+        MOV     word [CS:ENTRY_POINT],AX
+        MOV     BX,PACKET
         CALL    [ENTRY_POINT]
-        POP     WORD PTR CS:[ENTRY_POINT]
+        POP     word [CS:ENTRY_POINT]
         RET
 
 BADNUM: POP     AX                      ; POP RETURN ADDRESS
@@ -1278,14 +1278,14 @@ BADFIL:
         POP     ES
         MOV     SI,DX
 BADLOAD:
-        MOV     DX,OFFSET BADLD_PRE     ; WANT TO PRINT CONFIG ERROR
-        MOV     BX,OFFSET BADLD_POST
+        MOV     DX,BADLD_PRE     ; WANT TO PRINT CONFIG ERROR
+        MOV     BX,BADLD_POST
 PRNERR:
         PUSH    CS
         POP     DS
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
-PRN1:   MOV     DL,ES:[SI]
+PRN1:   MOV     DL,[ES:SI]
         OR      DL,DL
         JZ      PRN2
         MOV     AH,STD_CON_OUTPUT
@@ -1324,7 +1324,7 @@ LDFIL:
         INT     21H
         JC      LDRET
         MOV     SI,DX                   ; CHECK FOR EXE FILE
-        CMP     WORD PTR [SI],"ZM"
+        CMP     word [SI],"ZM"
         JNZ     LDCLS
 LDERR:  STC
         JMP     SHORT LDRET
@@ -1348,7 +1348,7 @@ OPEN_DEV:
         CALL    OPEN_FILE
         JNC     OPEN_DEV3
 OPEN_DEV1:
-        MOV     DX,OFFSET NULDEV
+        MOV     DX,NULDEV
         CALL    OPEN_FILE
 OPEN_DEV2:
         RET
@@ -1384,7 +1384,7 @@ INT24:  ADD     SP,6                    ; RESTORE MACHINE STATE
         POP     AX
         IRET                            ; BACK TO USER
 
-        IF      ALTVECT
+        %if ALTVECT
 BOOTMES DB      13
 TEN:    DB      10
         DB      "MS-DOS version "
@@ -1394,7 +1394,7 @@ TEN:    DB      10
         DB      (MINOR_VERSION MOD 10) + "0"
         DB      13,10
         DB      "Copyright 1981,82 Microsoft Corp.",13,10,"$"
-        ENDIF
+        %endif
 
 NULDEV  DB      "\DEV\NUL",0
 CONDEV  DB      "\DEV\CON",0
@@ -1405,7 +1405,7 @@ CONFIG  DB      "\CONFIG.SYS",0
 
 COMMND  DB      "\COMMAND.COM",0
 
-COMTAB  LABEL   BYTE
+COMTAB:
         DB      7,"BUFFERS",'B'
         DB      5,"BREAK",'C'
         DB      5,"SHELL",'S'
@@ -1417,8 +1417,8 @@ COMTAB  LABEL   BYTE
         DB      0
 
 
-SYSINITSEG      ENDS
-        END
+; END SECTION .SYSINITSEG
+        ; END
                                                         
 
 

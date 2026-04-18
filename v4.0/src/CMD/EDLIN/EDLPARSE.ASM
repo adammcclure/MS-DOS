@@ -1,6 +1,6 @@
 
-	page	60,132;
-	title	EDLPARSE for EDLIN
+	; page	60,132;
+	; title	EDLPARSE for EDLIN
 
 
 ;******************* START OF SPECIFICATIONS *****************************
@@ -61,114 +61,114 @@ too_many	equ	01h			;an000;too many parms
 ;======================= end equates =====================================
 
 
-CODE	SEGMENT PUBLIC BYTE
-CODE	ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST	SEGMENT PUBLIC BYTE
-CONST	ENDS
+SECTION .CONST
+; END SECTION .CONST
 
-cstack	segment stack
-cstack	ends
+SECTION .cstack
+; END SECTION .cstack
 
-DATA	SEGMENT PUBLIC BYTE
+SECTION .DATA
 
-	extrn	path_name:byte
-	extrn	org_ds:word			;an000; dms;
+	extern path_name
+	extern org_ds;an000; dms;
 
-	public	parse_switch_b			;an000;parse switch result
-	public	filespec			;an000;actual filespec
+	global parse_switch_b;an000;parse switch result
+	global filespec;an000;actual filespec
 
 ;======================= input parameters control blocks =================
 ; these control blocks are used by sysparse and must be pointed to by
 ; es:di on invocation.
 
-		public	parms			;an000;share parms
-parms		label	byte			;an000;parms control block
-		dw	dg:parmsx		;an000;point to parms structure
+		global parms;an000;share parms
+parms:;an000;parms control block
+		dw	parmsx		;an000;point to parms structure
 		db	00h			;an000;no additional delims.
 
-parmsx		label	byte			;an000;parameter types
+parmsx:;an000;parameter types
 		db	1,1			;an000;must have filespec
-		dw	dg:fs_pos		;an000;filespec control block
+		dw	fs_pos		;an000;filespec control block
 		db	1			;an000;max. number of switches
-		dw	dg:sw_b 		;an000;\b switch control block
+		dw	sw_b 		;an000;\b switch control block
 		db	00h			;an000;no keywords
 
 ;======================= filespec positional tables ======================
 
-fs_pos		label	byte			;an000;filespec positional
+fs_pos:;an000;filespec positional
 		dw	0200h			;an000;filespec/not optional
 		dw	0001h			;an000;cap
-		dw	dg:filespec_res 	;an000;filespec result table
-		dw	dg:noval		;an000;value list/none
+		dw	filespec_res 	;an000;filespec result table
+		dw	noval		;an000;value list/none
 		db	0			;an000;no keyword/switch syns.
 
-filespec_res	label	byte			;an000;filespec result table
-parse_fs_res	db	?			;an000;must be filespec (05)
-parse_fs_tag	db	?			;an000;item tag
-parse_fs_syn	dw	?			;an000;synonym pointer
-parse_fs_off	dw	?			;an000;offset to filespec
-parse_fs_seg	dw	?			;an000;segment of filespec
+filespec_res:;an000;filespec result table
+parse_fs_res: db 0;an000;must be filespec (05)
+parse_fs_tag: db 0;an000;item tag
+parse_fs_syn: dw 0;an000;synonym pointer
+parse_fs_off: dw 0;an000;offset to filespec
+parse_fs_seg: dw 0;an000;segment of filespec
 
 ;======================= switch tables /b ================================
 
-sw_b		label	byte			;an000;/b switch
+sw_b:;an000;/b switch
 		dw	0000h			;an000;no match flags
 		dw	0000h			;an000;no cap
-		dw	dg:switch_res		;an000;result buffer
-		dw	dg:noval		;an000;value list/none
+		dw	switch_res		;an000;result buffer
+		dw	noval		;an000;value list/none
 		db	1			;an000;1 switch
 sw_b_switch	db	"/B",0			;an000;/B means ignore CTL-Z
 
-switch_res	label	byte			;an000;switch result table
-parse_sw_res	db	?			;an000;must be string (03)
-parse_sw_tag	db	?			;an000;item tag
-parse_sw_syn	dw	?			;an000;synonym pointer
-parse_sw_ptr	dd	?			;an000;pointer to result
+switch_res:;an000;switch result table
+parse_sw_res: db 0;an000;must be string (03)
+parse_sw_tag: db 0;an000;item tag
+parse_sw_syn: dw 0;an000;synonym pointer
+parse_sw_ptr: dd 0;an000;pointer to result
 
-noval		label	byte			;an000;value table
+noval:;an000;value table
 		db	0			;an000;no values
 
 
 ;======================= end input parameter control blocks ==============
 
-filespec	db	128 dup (0)		;an000;holds filespec
-parse_switch_b	db	?			;an000;hold boolean result
+filespec: times 128 db 0;an000;holds filespec
+parse_switch_b: db 0;an000;hold boolean result
 						;      of /b parse
 parse_sw_b	db	"/B"			;an000;comparison switch
 
-DATA	ENDS
+; END SECTION .DATA
 
-DG	GROUP	CODE,CONST,cstack,DATA
+; DG	GROUP	CODE,CONST,cstack,DATA
 
-code	segment public	byte			;an000;code segment
-	assume cs:dg,ds:dg,es:dg,ss:CStack	;an000;
+SECTION .code;an000;code segment
+	; assume cs:dg,ds:dg,es:dg,ss:CStack;an000;
 
-	public	parser_command			;an000;share this routine
+	global parser_command;an000;share this routine
 
 
 
 ;======================= begin main routine ==============================
-.xlist
+; .xlist
 
-include parse.asm				;an000;parser
+%include "parse.asm";an000;parser
 
-.list
+; .list
 
-parser_command	proc	near			;an000;parse routine
+parser_command:;an000;parse routine
 
 	push	es				;an000;save registers
 	push	ds				;an000;
 	push	di				;an000;
 	push	si				;an000;
 
-	mov	dg:parse_switch_b,false 	;an000;init. to false
+	mov	parse_switch_b,false 	;an000;init. to false
 	xor	cx,cx				;an000;set cx to 0
 	xor	dx,dx				;an000;set dx to 0
-	mov	di,offset dg:parms		;an000;point to parms
+	mov	di,parms		;an000;point to parms
 	mov	si,parse_command		;an000;point to ds:81h
-	mov	ds,dg:org_ds			;an000;get ds at entry
-	assume	ds:nothing			;an000;
+	mov	ds,org_ds			;an000;get ds at entry
+	; assume	ds:nothing;an000;
 
 parse_continue: 				;an000;loop return point
 
@@ -177,7 +177,7 @@ parse_continue: 				;an000;loop return point
 	jne	parse_end			;an000;continue on good parse
 	push	si
 	mov	si,dx
-	cmp	byte ptr es:[si],fs_flag	;an000;do we have a filespec
+	cmp	byte [es:si],fs_flag	;an000;do we have a filespec
 ;	$if	e				;an000;yes we do
 	JNE $$IF1
 		call build_fs			;an000;save filespec
@@ -206,12 +206,12 @@ parse_end:					;an000;end parse routine
 	pop	si				;an000;restore registers
 	pop	di				;an000; for return to caller
 	pop	ds				;an000;
-	assume	ds:dg				;an000;
+	; assume	ds:dg;an000;
 	pop	es				;an000;
 
 	ret					;an000;return to caller
 
-parser_command	endp				;an000;end parser_command
+; ENDP parser_command;an000;end parser_command
 
 
 ;======================= subroutine area =================================
@@ -221,7 +221,7 @@ parser_command	endp				;an000;end parser_command
 ; build_fs: This routine saves the filespec for use by the calling program.
 ;=========================================================================
 
-build_fs	proc	near			;an000;save filespec
+build_fs:;an000;save filespec
 
 	push	ax				;an000;save affected regs.
 	push	di				;an000;
@@ -229,8 +229,8 @@ build_fs	proc	near			;an000;save filespec
 	push	ds				;an000;
 	push	es				;an000;
 
-	mov	di,offset dg:filespec		;an000;point to filespec buffer
-	lds	si,dword ptr es:parse_fs_off	;an000;get offset
+	mov	di,filespec		;an000;point to filespec buffer
+	lds	si,dword es:parse_fs_off	;an000;get offset
 
 build_cont:					;an000;continue routine
 
@@ -252,30 +252,30 @@ $$IF7:
 
 	ret					;an000;return to caller
 
-build_fs	endp				;an000;end proc
+; ENDP build_fs;an000;end proc
 
 ;=========================================================================
 ; val_sw : determines which switch we have.
 ;=========================================================================
 
-val_sw		proc	near			;an000;switch determination
+val_sw:;an000;switch determination
 
-	cmp	es:parse_sw_syn,offset es:sw_b_switch	;an000;/B switch?
+	cmp	es:parse_sw_syn,sw_b_switch	;an000;/B switch?
 ;	$if	e				;an000;compare good
 	JNE $$IF9
-		mov	dg:parse_switch_b,true	;an000;signal /B found
+		mov	parse_switch_b,true	;an000;signal /B found
 ;	$else					;an000;
 	JMP SHORT $$EN9
 $$IF9:
-		mov	dg:parse_switch_b,false ;an000;signal /B not found
+		mov	parse_switch_b,false ;an000;signal /B not found
 ;	$endif					;an000;
 $$EN9:
 
 	ret					;an000;return to caller
 
-val_sw		endp				;an000;end proc
+; ENDP val_sw;an000;end proc
 
 
-code	ends					;an000;end segment
-	end					;an000;
+; END SECTION .code;an000;end segment
+	; end;an000;
 

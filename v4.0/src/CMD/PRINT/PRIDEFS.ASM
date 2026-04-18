@@ -1,5 +1,5 @@
 ;	SCCSID = @(#)pridefs.asm	4.4 85/07/17
-title	DOS Print Utility
+; title	DOS Print Utility
 
 ;MS-DOS PSPRINT/PRINT program for background printing of text files
 ;	to the list device.
@@ -62,30 +62,30 @@ title	DOS Print Utility
 ;    itself through in depth study of the comments AND the code.
 
 
-subttl	General Definition
-page
+; subttl	General Definition
+; page
 
 
 FALSE	EQU	0
-TRUE	EQU	NOT FALSE
+TRUE	EQU	~FALSE
 
 IBM	EQU	IBMVER
 ;IBMVER	EQU	IBM
 ;MSVER	EQU	FALSE
 
-	IF	MSVER
+	%if MSVER
 HARDINT EQU	FALSE			;No hardware ints
 AINT	EQU	FALSE			;No need to do interrupt acknowledge
-	ENDIF
+	%endif
 
-	IF	IBM
+	%if IBM
 HARDINT EQU	TRUE
 INTLOC	EQU	1CH			;Hardware interrupt location (Timer)
 REBOOT	EQU	19H			;ROM BIOS "Bootstrap"
 AINT	EQU	TRUE			;Acknowledge interrupts
 EOI	EQU	20H			;End Of Interrupt "instruction"
 AKPORT	EQU	20H			;Interrupt Acknowledge port
-	ENDIF
+	%endif
 
 ;  The following values have to do with the ERRCNT variable and the CNTMES
 ;  message.  The values define levels at wich it is assumed an off-line error
@@ -96,13 +96,13 @@ AKPORT	EQU	20H			;Interrupt Acknowledge port
 ;  bounding event which determines the correct value is the time required to
 ;  do a form feed.
 
-	IF	IBM
+	%if IBM
 ERRCNT1 EQU	1500
 ERRCNT2 EQU	20000
-	ELSE
+	%else
 ERRCNT1 EQU	1500
 ERRCNT2 EQU	20000
-	ENDIF
+	%endif
 
 
 ;WARNING DANGER WARNING:
@@ -140,12 +140,12 @@ MaxFileLen equ	64
 					;    DOS filename
 
 
-.xlist
-.xcref
-BREAK	MACRO	subtitle
-	SUBTTL	subtitle
-	PAGE
-ENDM
+; .xlist
+; .xcref
+%macro BREAK 1
+	; SUBTTL	subtitle
+	; PAGE
+%endmacro
 
 stdin	    EQU     0
 stdout	    EQU     1
@@ -153,58 +153,58 @@ stderr	    EQU     2
 stdaux	    EQU     3
 stdprn	    EQU     4
 
-	INCLUDE DEVSYM.INC
-	INCLUDE SYSCALL.INC
-	INCLUDE ERROR.INC
-	INCLUDE SYSVAR.INC
-	INCLUDE FIND.INC
-	include dpl.asm
-	INCLUDE PDB.INC
-	INCLUDE SYSCALL.INC
-	INCLUDE MI.INC
-	include versiona.inc
-.list
-.cref
+	%include "DEVSYM.INC"
+	%include "SYSCALL.INC"
+	%include "ERROR.INC"
+	%include "SYSVAR.INC"
+	%include "FIND.INC"
+	%include "dpl.asm"
+	%include "PDB.INC"
+	%include "SYSCALL.INC"
+	%include "MI.INC"
+	%include "versiona.inc"
+; .list
+; .cref
 
 
 error_busy		EQU	9
 error_queue_full	EQU	8
 error_name_too_long	EQU	12
 
-IF1
-	IF	IBM
+%if 1  ; IF1 - pass-specific
+	%if IBM
 ;	%out	IBM VERSION
-	ELSE
-	%out	MS-DOS VERSION
-	ENDIF
-ENDIF
+	%else
+	%warning MS-DOS VERSION
+	%endif
+%endif
 
 BREAK	<Segment Definitions>
 
 
-CodeR	Segment public para
-CodeR	EndS
+SECTION .CodeR
+; END SECTION .CodeR
 
-Code	Segment public para
-Code	EndS
+SECTION .Code
+; END SECTION .Code
 
-Data	Segment public byte
-Data	EndS
+SECTION .Data
+; END SECTION .Data
 
-Stack	Segment Stack
-Stack	Ends
+SECTION .Stack
+; END SECTION .Stack
 
-DG	group	Code,Data,Stack
+; DG	group	Code,Data,Stack
 
-SaveReg MACRO	reglist 		;; push those registers
-IRP reg,<reglist>
+%macro SaveReg 1;; push those registers
+; IRP reg,<reglist>
 	PUSH	reg
-ENDM
-ENDM
-.xcref	SaveReg
+%endmacro
+%endmacro
+; .xcref	SaveReg
 
-RestoreReg  MACRO   reglist		;; pop those registers
-IRP reg,<reglist>
+%macro RestoreReg 1;; pop those registers
+; IRP reg,<reglist>
 	POP	reg
-ENDM
-ENDM
+%endmacro
+%endmacro

@@ -1,6 +1,6 @@
-page           60,132
-name           _parse
-title          C to PARSER interface
+; page           60,132
+; name           _parse
+; title          C to PARSER interface
 ;-------------------------------------------------------------------
 ;
 ;       MODULE:         _parse
@@ -17,7 +17,7 @@ title          C to PARSER interface
 
 ;       extrn   sysparse:far
 
-        public  _parse
+        global _parse
 
 ;-------------------------------------------------------------------
 FarSW   equ     0       ; make sysparse be a NEAR proc
@@ -38,45 +38,45 @@ QusSW   equ     0       ; Support quoted string format
 
 
 
-_TEXT   SEGMENT BYTE PUBLIC 'CODE'
-_TEXT   ENDS
-_DATA   SEGMENT WORD PUBLIC 'DATA'
-_DATA   ENDS
-CONST   SEGMENT WORD PUBLIC 'CONST'
-CONST   ENDS
-_BSS    SEGMENT WORD PUBLIC 'BSS'
-_BSS    ENDS
+SECTION ._TEXT
+; END SECTION ._TEXT
+SECTION ._DATA
+; END SECTION ._DATA
+SECTION .CONST
+; END SECTION .CONST
+SECTION ._BSS
+; END SECTION ._BSS
 
 
-DGROUP  GROUP   CONST, _BSS, _DATA
+; DGROUP  GROUP   CONST, _BSS, _DATA
 
 
-_DATA   segment word public 'DATA'
+SECTION ._DATA
 
-        assume  cs:DGROUP
-        assume  ss:dgroup
+        ; assume  cs:DGROUP
+        ; assume  ss:dgroup
 
-        public  SysParse
+        global SysParse
 
 ;-------------------------------------------------------------------
-.xlist
-include parse.asm               ; include the parser
-.list
+; .xlist
+%include "parse.asm"; include the parser
+; .list
 ;-------------------------------------------------------------------
 
-                public  CallParser
-CallParser      proc    far
+                global CallParser
+CallParser:
 
         push    ds
         PUSH    ES
 
         push    cs
         pop     ds
-        assume  ds:DGROUP
+        ; assume  ds:DGROUP
 
         push    cs
         pop     es
-        assume  es:DGROUP
+        ; assume  es:DGROUP
 
         nop
 
@@ -87,20 +87,20 @@ CallParser      proc    far
 
         ret
 
-CallParser      endp
+; ENDP CallParser
 
 
 
-_DATA   ends
+; END SECTION ._DATA
 
-_TEXT   segment byte public 'CODE'
+SECTION ._TEXT
 
-        ASSUME  CS:_TEXT
-        ASSUME  DS:DGROUP
-        ASSUME  ES:NOTHING
-        ASSUME  SS:DGROUP
+        ; ASSUME  CS:_TEXT
+        ; ASSUME  DS:DGROUP
+        ; ASSUME  ES:NOTHING
+        ; ASSUME  SS:DGROUP
 
-_parse  proc    near
+_parse:
 
         push    bp              ; save user's base pointer
         mov     bp,sp           ; set bp to current sp
@@ -158,8 +158,8 @@ _parse  proc    near
         pop     bp              ; restore user's bp
         ret
 
-_parse  endp
+; ENDP _parse
 
-_TEXT   ends                    ; end code segment
-        end
+; END SECTION ._TEXT; end code segment
+        ; end
 

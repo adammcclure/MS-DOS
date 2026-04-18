@@ -1,22 +1,22 @@
-SUBTTL Initialized data and data used at DOS initialization
-PAGE
+; SUBTTL Initialized data and data used at DOS initialization
+; PAGE
 ; DATA AREA for MS-DOS
 
-IFNDEF  KANJI
+%ifndef KANJI
 KANJI   EQU     0       ;FALSE
-ENDIF
+%endif
 
-CONSTANTS       SEGMENT BYTE PUBLIC 'CONST'
-        EXTRN   international_table:BYTE
-        EXTRN   Current_Country:WORD
+SECTION .CONSTANTS
+        extern international_table
+        extern Current_Country
 
 
         ORG     0
 CONSTRT EQU     $               ; Start of constants segment
 
-        PUBLIC  DevStrLen
+        global DevStrLen
 DEVSTRLEN DB    3              ; Size of below
-        PUBLIC  DevString
+        global DevString
 DEVSTRING DB    "DEV"          ; Dummy device directory
 
 ;
@@ -39,11 +39,11 @@ DEVSTRING DB    "DEV"          ; Dummy device directory
 
 ; Default FCBs for boot up
 
-sftabl      LABEL   DWORD                     ; file table
+sftabl:; file table
             DW      -1
             DW      -1
             DW      sf_default_number  ; Number of entries in table
-            DB      sf_default_number DUP ( (SIZE sf_entry) DUP (0))
+            DB      sf_default_number DUP ( (sf_entry_size) DUP (0))
 
         I_AM    NoSetDir,BYTE           ; true -> do not set directory
         I_am    DidCTRLC,BYTE           ; true -> we did a ^C exit
@@ -59,21 +59,21 @@ sftabl      LABEL   DWORD                     ; file table
         I_AM    PFLAG,BYTE
         I_AM    VERFLG,BYTE             ; Initialize with verify off
         I_AM    CONTPOS,WORD
-        PUBLIC  CHARCO
+        global CHARCO
 CHARCO      DB      00000011B           ; Allows statchks every 4 chars...
 
         I_AM    DMAADD,DWORD            ; User's disk transfer address
                                         ; (disp/seg)
             ORG     $-CONSTRT-4
             DW      80H
-            DW      ?
+            dw 0
 
-ENDMEM      DW      ?
+ENDMEM: dw 0
 
-            PUBLIC  switch_character
+            global switch_character
 switch_character    DB  '/'
 
-            PUBLIC  device_availability
+            global device_availability
 device_availability DB  0FFH
 
             I_AM    FirstArena,WORD         ; first free block found
@@ -85,13 +85,13 @@ device_availability DB  0FFH
 ; The following block of data is used by SYSINIT.  Do not change the order or
 ; size of this block
 
-            PUBLIC  SYSINITVAR
-SYSINITVAR  LABEL   WORD
+            global SYSINITVAR
+SYSINITVAR:
         I_AM    DPBHEAD,DWORD           ; Pointer to head of DPB-FAT list
         I_AM    sft_addr,DWORD          ; Pointer to first FCB table
             ORG     $-CONSTRT-4
             short_addr  sftabl
-            DW      ?                   ; DOS segment set at INIT
+            dw 0; DOS segment set at INIT
 
 ; The following address points to the CLOCK device
         i_am    BCLOCK,DWORD
@@ -101,7 +101,7 @@ SYSINITVAR  LABEL   WORD
         i_am    NUMIO,BYTE              ; Number of disk tables
 MAXSEC      DW      0                   ; Maximum allowed sector size
         I_AM    BUFFHEAD,DWORD          ; Pointer to head of buffer queue
-DEVHEAD LABEL   DWORD
+DEVHEAD:
         I_AM    NULDEV,DWORD            ; Set to list start passed by 
 					; BIOS at DOS Init
 
@@ -127,62 +127,62 @@ DEVHEAD LABEL   DWORD
             ORG     $-CONSTRT-1
             DB      0
         I_AM    ErrorMode,BYTE          ; Flag for INT 24 processing
-        PUBLIC  WPErr
+        global WPErr
 WPERR       DB      -1                  ; Write protect error flag
         I_AM    CONSWAP,BYTE
-        PUBLIC  IDLEINT
+        global IDLEINT
 IDLEINT     DB      1
-        PUBLIC  CNTCFLAG
+        global CNTCFLAG
 CNTCFLAG    DB      0                   ; ^C check in dispatch disabled
 
-        PUBLIC  LastBuffer
-LASTBUFFER  LABEL   DWORD               ; Buffer queue recency pointer
+        global LastBuffer
+LASTBUFFER:; Buffer queue recency pointer
             DW      -1
             DW      -1
 
 ; Combination of all device call parameters
 
-        PUBLIC  DEVCALL
+        global DEVCALL
 DEVCALL SRHEAD  <>
-CALLUNIT    LABEL   BYTE
-CALLFLSH    LABEL   WORD
+CALLUNIT:
+CALLFLSH:
         I_AM    CALLMED,BYTE
-CALLBR      LABEL   DWORD
-        PUBLIC  CALLXAD
-CALLXAD     LABEL   DWORD
+CALLBR:
+        global CALLXAD
+CALLXAD:
         I_AM    CALLRBYT,BYTE
-        DB      3 DUP(?)
-        PUBLIC CallBPB
-CALLBPB     LABEL   DWORD
+        times 3 db 0
+        global CallBPB
+CALLBPB:
         I_AM    CALLSCNT,WORD
-CALLSSEC    DW      ?
+CALLSSEC: dw 0
 
         I_AM    CALLDEVAD,DWORD             ; stash for device entry point
 
 ; Same as above for I/O calls
 
-        PUBLIC  IOCall
+        global IOCall
 IOCALL  SRHEAD  <>
-IOFLSH  LABEL   WORD
-        PUBLIC  IORCHR
-IORCHR  LABEL   BYTE
+IOFLSH:
+        global IORCHR
+IORCHR:
         I_AM    IOMED,BYTE
         I_AM    IOXAD,DWORD
         I_AM    IOSCNT,WORD
         I_AM    IOSSEC,WORD
 
 ; Call struct for DSKSTATCHK
-        PUBLIC  DSKSTCALL
+        global DSKSTCALL
 DSKSTCALL       DB      DRDNDHL
                 DB      0
-        PUBLIC  DSKSTCOM
+        global DSKSTCOM
 DSKSTCOM        DB      DEVRDND
         I_AM    DSKSTST,WORD
-                DB      8 DUP (0)
+                times 8 db 0
         I_AM    DSKCHRET,BYTE
                 short_addr  DEVIOBUF
-                DW      ?               ; DOS segment set at Init
-        PUBLIC  DSKSTCNT
+                dw 0; DOS segment set at Init
+        global DSKSTCNT
 DSKSTCNT        DW      1
                 DW      0
 
@@ -211,25 +211,25 @@ DSKSTCNT        DW      1
         DB      30                      ; November
         DB      31                      ; December
 
-        IF      NOT IBM
-        PUBLIC  OEM_HANDLER
+        %if ~IBM
+        global OEM_HANDLER
 OEM_HANDLER     DD      -1
-        ENDIF
+        %endif
 
 ;WARNING For HIGHMEM version, these two vars must be at the end of the
 ; Constants segment to prevent them getting overwritten.
         I_AM    CurrentPDB,WORD
         i_am    CreatePDB,BYTE          ; flag for creating a process
 
-        PUBLIC  LEAVEADDR
-LEAVEADDR LABEL WORD
+        global LEAVEADDR
+LEAVEADDR:
         short_addr    LEAVE
 
-CONSTANTS       ENDS
+; END SECTION .CONSTANTS
 
-SUBTTL Uninitialized data overlayed by initialization code
-PAGE
-DATA    SEGMENT WORD PUBLIC 'DATA'
+; SUBTTL Uninitialized data overlayed by initialization code
+; PAGE
+SECTION .DATA
 ; Init code overlaps with data area below
 
         ORG     0
@@ -239,8 +239,8 @@ DATA    SEGMENT WORD PUBLIC 'DATA'
         I_AM    DEVIOBUF,2              ; Buffer for I/O under file assignment
         I_AM    EXITHOLD,DWORD
 
-        PUBLIC  DevFCB
-DEVFCB  LABEL   BYTE                ; Uses NAME1, NAME2, NAME3 combined
+        global DevFCB
+DEVFCB:; Uses NAME1, NAME2, NAME3 combined
 ; WARNING..  do not alter size or relative location of the following 4 items
 ; without first examining FCB_RENAME
         I_AM    NAME1,12                ; File name buffer
@@ -307,36 +307,36 @@ DEVFCB  LABEL   BYTE                ; Uses NAME1, NAME2, NAME3 combined
         I_AM    CINDSAV,BYTE
         I_AM    COUTDSAV,BYTE
         I_AM    COUTSAV,DWORD
-        PUBLIC  SaveBX
-SaveBX  DW      ?
-        PUBLIC  SaveDS
-SaveDS  DW      ?
+        global SaveBX
+SaveBX: dw 0
+        global SaveDS
+SaveDS: dw 0
         I_AM    ConC_spsave,WORD
 
         I_AM    exit_code,WORD              ; exit code of last proc.
         I_am    exit_type,BYTE              ; type of exit...
 
-        IF      IBM
+        %if IBM
 ;For 2.00 this pads the DOS so that on a 2 disk IBM PC with no
 ;CONFIG.SYS file the space taken up by BIOS, DOS, res COMMAND is
 ;about 24K
 IBMPAD  DB      540h DUP(?)
-        ENDIF
+        %endif
 
 ; make those pushes fast!!!
-EVEN
+align 2
         DB      0A0H DUP (?)
         I_am    AuxStack,0A0h
         I_AM    DSKSTACK,0A0h        ; Stack space
-        PUBLIC  IOSTACK
-IOSTACK LABEL   BYTE
+        global IOSTACK
+IOSTACK:
 
-        PUBLIC  NSS
-NSS         DW      ?
-        PUBLIC  NSP
-NSP         DW      ?
+        global NSS
+NSS: dw 0
+        global NSP
+NSP: dw 0
 
-PAGE
-        INCLUDE MSINIT.ASM
+; PAGE
+        %include "MSINIT.ASM"
 
 

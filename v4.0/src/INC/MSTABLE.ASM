@@ -3,14 +3,14 @@
 ; Table Segment for DOS
 ;
 
-.xlist
-.xcref
-include mssw.asm
-.cref
-.list
+; .xlist
+; .xcref
+%include "mssw.asm"
+; .cref
+; .list
 
-TITLE	IBMTABLE - Table segment for DOS
-NAME	IBMTABLE
+; TITLE	IBMTABLE - Table segment for DOS
+; NAME	IBMTABLE
 
-include ms_table.asm
-	END
+%include "ms_table.asm"
+	; END

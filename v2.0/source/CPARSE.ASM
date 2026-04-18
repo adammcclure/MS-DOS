@@ -1,44 +1,44 @@
-TITLE   CPARSE
+; TITLE   CPARSE
 
-        INCLUDE COMSW.ASM
+        %include "COMSW.ASM"
 
-.xlist
-.xcref
-        INCLUDE DOSSYM.ASM
-        INCLUDE DEVSYM.ASM
-        INCLUDE COMSEG.ASM
-.list
-.cref
+; .xlist
+; .xcref
+        %include "DOSSYM.ASM"
+        %include "DEVSYM.ASM"
+        %include "COMSEG.ASM"
+; .list
+; .cref
 
-        INCLUDE COMEQU.ASM
+        %include "COMEQU.ASM"
 
-DATARES SEGMENT PUBLIC
-DATARES ENDS
+SECTION .DATARES
+; END SECTION .DATARES
 
-TRANDATA        SEGMENT PUBLIC
-        EXTRN   BADCPMES:BYTE
-TRANDATA        ENDS
+SECTION .TRANDATA
+        extern BADCPMES
+; END SECTION .TRANDATA
 
-TRANSPACE       SEGMENT PUBLIC
-        EXTRN   CURDRV:BYTE,ELPOS:BYTE,STARTEL:WORD
-        EXTRN   SKPDEL:BYTE,SWITCHAR:BYTE,ELCNT:BYTE
+SECTION .TRANSPACE
+        extern CURDRV,ELPOS,STARTEL
+        extern SKPDEL,SWITCHAR,ELCNT
 
-TRANSPACE       ENDS
+; END SECTION .TRANSPACE
 
-TRANCODE        SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-ASSUME  CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP
+; ASSUME  CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP
 
-        EXTRN   DELIM:NEAR,UPCONV:NEAR,PATHCHRCMP:NEAR
-        EXTRN   SWLIST:BYTE,BADCDERR:NEAR,SCANOFF:NEAR,CERROR:NEAR
+        extern DELIM,UPCONV,PATHCHRCMP
+        extern SWLIST,BADCDERR,SCANOFF,CERROR
 
-        if  KANJI
-        EXTRN   TESTKANJ:NEAR
-        endif
+        %if KANJI
+        extern TESTKANJ
+        %endif
 
 SWCOUNT EQU 5
 
-        PUBLIC  CPARSE
+        global CPARSE
 
 CPARSE:
 
@@ -99,9 +99,9 @@ moredelim:
 
 SCANCDONE:
 
-        IF      NOT KANJI
+        %if ~KANJI
         call    UPCONV
-        ENDIF
+        %endif
 
         cmp     al,bl                   ; Special delimiter?
         jnz     nospec
@@ -117,12 +117,12 @@ ncperror:
         jne     na_switch               ; yes, process...
         jmp     a_switch
 na_switch:
-        cmp     byte ptr [si],':'
+        cmp     byte [si],':'
         jne     anum_chard              ; Drive not specified
 
-        IF      KANJI
+        %if KANJI
         call    UPCONV
-        ENDIF
+        %endif
 
         call    move_char
         lodsb                           ; Get the ':'
@@ -148,7 +148,7 @@ anum_chard:
 
 anum_char:
 
-        IF      KANJI
+        %if KANJI
         call    TESTKANJ
         jz      TESTDOT
         call    move_char
@@ -156,7 +156,7 @@ anum_char:
         jmp     short notspecial
 
 TESTDOT:
-        ENDIF
+        %endif
 
         cmp     al,'.'
         jnz     testquest
@@ -202,9 +202,9 @@ notspecial:
 anum_test:
         lodsb
 
-        IF      NOT KANJI
+        %if ~KANJI
         call    UPCONV
-        ENDIF
+        %endif
 
         call    DELIM
         je      x_done
@@ -216,19 +216,19 @@ anum_test:
         je      x_done
         cmp     al,':'                  ; ':' allowed as trailer because
                                         ; of devices
-        IF      KANJI
+        %if KANJI
         je      FOO15
         jmp     anum_char
 FOO15:
-        ELSE
+        %else
         jne     anum_char
-        ENDIF
+        %endif
 
-        mov     byte ptr [si-1],' '     ; Change the trailing ':' to a space
+        mov     byte [si-1],' '     ; Change the trailing ':' to a space
         jmp     short x_done
 
 badperr2:
-        mov     dx,offset trangroup:BADCPMES
+        mov     dx,BADCPMES
         jmp     CERROR
 
 badperr:
@@ -259,8 +259,8 @@ a_switch:
         PUSH    CX
         PUSH    CS
         POP     ES
-ASSUME  ES:TRANGROUP
-        MOV     DI,OFFSET TRANGROUP:SWLIST
+; ASSUME  ES:TRANGROUP
+        MOV     DI,SWLIST
         MOV     CX,SWCOUNT
         REPNE   SCASB
         JNZ     out_tokenp
@@ -271,7 +271,7 @@ out_tokenp:
         POP     CX
         POP     DI
         POP     ES
-ASSUME  ES:NOTHING
+; ASSUME  ES:NOTHING
 out_token:
         mov     al,0
         stosb                           ; null at the end
@@ -286,6 +286,7 @@ move_char:
         inc     [ELCNT]                 ; increment element count for * substi
         return
 
-TRANCODE        ENDS
-        END
-                                                                                                                             
+; END SECTION .TRANCODE
+        ; END
+            
+                                                                                                                 

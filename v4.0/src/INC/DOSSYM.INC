@@ -1,22 +1,22 @@
 ;	SCCSID = @(#)dossym.asm 1.1 85/04/10
 ;	SCCSID = @(#)dossym.asm 1.1 85/04/10
-	PAGE 80,132
+	; PAGE 80,132
 TRUE	    EQU 0FFFFh
 FALSE	    EQU 0
 
-Installed   = TRUE
-IFNDEF	DEBUG
-    DEBUG	= FALSE
-ENDIF
+Installed equ TRUE
+%ifndef DEBUG
+    DEBUG equ FALSE
+%endif
 
-include dbcs.sw
-include dosmac.INC
+%include "dbcs.sw"
+%include "dosmac.INC"
 
-include VERSIONA.INC
+%include "VERSIONA.INC"
 
-IF2
-    %OUT    DOSSYM in Pass 2
-ENDIF
+%if 1  ; IF2 - pass-specific
+    %warning DOSSYM in Pass 2
+%endif
 
 BREAK <Control character definitions>
 
@@ -48,33 +48,33 @@ BREAK <Read This and Weep>
 ;									   ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 
-include bpb.INC
+%include "bpb.INC"
 
-include buffer.INC
+%include "buffer.INC"
 
 BREAK <User stack inside of system call and SysVars>
 ; Location of user registers relative user stack pointer
 
-user_environ	STRUC
-user_AX     DW	    ?
-user_BX     DW	    ?
-user_CX     DW	    ?
-user_DX     DW	    ?
-user_SI     DW	    ?
-user_DI     DW	    ?
-user_BP     DW	    ?
-user_DS     DW	    ?
-user_ES     DW	    ?
-user_IP     DW	    ?
-user_CS     DW	    ?
-user_F	    DW	    ?
-user_environ	ENDS
+struc user_environ
+user_AX: resw 1
+user_BX: resw 1
+user_CX: resw 1
+user_DX: resw 1
+user_SI: resw 1
+user_DI: resw 1
+user_BP: resw 1
+user_DS: resw 1
+user_ES: resw 1
+user_IP: resw 1
+user_CS: resw 1
+user_F: resw 1
+endstruc
 
-include sysvar.INC
+%include "sysvar.INC"
 
-include vector.INC
+%include "vector.INC"
 
-include mult.INC
+%include "mult.INC"
 
 BREAK <Disk map>
 ;  MSDOS partitions the disk into 4 sections:
@@ -98,7 +98,7 @@ BREAK <Disk map>
 ; All partition boundaries are sector boundaries.  The size of the FAT is
 ; adjusted to maximize the file space addressable.
 
-include dirent.INC
+%include "dirent.INC"
 
 BREAK <File allocation Table information>
 ;
@@ -122,36 +122,36 @@ BREAK <File allocation Table information>
 ; number is selected so that disk checking programs know what to do (ie.  a
 ; cluster with entry FF7H which is not in a chain is not an error).
 
-include dpb.INC
+%include "dpb.INC"
 
-include curdir.INC
+%include "curdir.INC"
 
-include cpmfcb.INC
+%include "cpmfcb.INC"
 
-include find.INC
+%include "find.INC"
 
-include pdb.INC
+%include "pdb.INC"
 
-include exe.INC
+%include "exe.INC"
 
-include sf.INC
+%include "sf.INC"
 
-include arena.INC
+%include "arena.INC"
 
-include intnat.INC
+%include "intnat.INC"
 
-include mi.INC
+%include "mi.INC"
 
 fChk	equ 1
 fDelim	equ 2
 fSpChk	equ 4
 fFCB	equ 8
 
-include filemode.INC
+%include "filemode.INC"
 
-include error.INC
+%include "error.INC"
 
-include syscall.INC
+%include "syscall.INC"
 
-SUBTTL
+; SUBTTL
 

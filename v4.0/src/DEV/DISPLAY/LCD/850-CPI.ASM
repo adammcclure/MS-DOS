@@ -1,21 +1,21 @@
-CODE    SEGMENT BYTE PUBLIC 'CODE'
-        ASSUME CS:CODE,DS:CODE
+SECTION .CODE
+        ; ASSUME CS:CODE,DS:CODE
 
-IF1
-        %OUT    EGA.CPI creation file
-        %OUT    .
-        %OUT    CP SRC files:
-        %OUT    .
-        %OUT .          CODE PAGE:  850
-ENDIF
+%if 1  ; IF1 - pass-specific
+        %warning EGA.CPI creation file
+        %warning .
+        %warning CP SRC files:
+        %warning .
+        %warning .          CODE PAGE:  850
+%endif
 
 EGA850: DW     LEN_850                  ;SIZE OF ENTRY HEADER
         DW     POST_EGA850,0            ;POINTER TO NEXT HEADER
         DW     1                        ;DEVICE TYPE
         DB     "LCD     "               ;DEVICE SUBTYPE ID
         DW     850                      ;CODE PAGE ID
-        DW     3 DUP(0)                 ;RESERVED
-        DW     OFFSET DATA850,0         ;POINTER TO FONTS
+        times 3 dw 0;RESERVED
+        DW     DATA850,0         ;POINTER TO FONTS
 LEN_850 EQU    ($-EGA850)
 
 DATA850:DW     1                        ;CART/NON-CART
@@ -285,6 +285,6 @@ LEN_D850        EQU ($-D850)
                                         ;
 POST_EGA850     EQU     $               ;
                                         ;
-CODE    ENDS
-        END
+; END SECTION .CODE
+        ; END
 

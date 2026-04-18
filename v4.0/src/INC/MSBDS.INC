@@ -1,5 +1,5 @@
 
-%OUT MSBDS.INC...
+%warning MSBDS.INC...
 ;	SCCSID = @(#)IBMBDS.ASM 1.9 85/09/16
 ;==============================================================================
 ;REVISION HISTORY:
@@ -34,62 +34,62 @@ FFSMALL 	    EQU     2
 FFHARDFILE	    EQU     5
 FFOTHER 	    EQU     7
 
-BDS_TYPE	STRUC
-LINK		DD		?	; LINK TO NEXT BDS
-DRIVENUM	DB		?	; INT 13 DRIVE NUMBER
-DRIVELET	DB		?	; DOS DRIVE NUMBER
-BYTEPERSEC	DW		?	; NUMBER OF BYTES/SEC
-SECPERCLUS	DB		?	; SEC PER ALLOCATION UNIT
-RESSEC		DW		?	; NUMBER OF RESERVED SECTORS
-CFAT		DB		?	; NUMBER OF FATS
-CDIR		DW		?	; NUMBER OF DIRECTORY ENTRIES
-DRVLIM		DW		?	; NUMBER OF SECTORS ON MEDIUM
-MEDIAD		DB		?	; MEDIA DESCRIPTOR BYTE
-CSECFAT 	DW		?	; NUMBER OF SECTORS/FAT
-SECLIM		DW		?	; SECTORS PER TRACK
-HDLIM		DW		?	; MAX NUMBER OF HEADS
-HIDSEC_L	DW		?	; NUMBER OF HIDDEN SECTORS
+struc BDS_TYPE
+LINK: resd 1; LINK TO NEXT BDS
+DRIVENUM: resb 1; INT 13 DRIVE NUMBER
+DRIVELET: resb 1; DOS DRIVE NUMBER
+BYTEPERSEC: resw 1; NUMBER OF BYTES/SEC
+SECPERCLUS: resb 1; SEC PER ALLOCATION UNIT
+RESSEC: resw 1; NUMBER OF RESERVED SECTORS
+CFAT: resb 1; NUMBER OF FATS
+CDIR: resw 1; NUMBER OF DIRECTORY ENTRIES
+DRVLIM: resw 1; NUMBER OF SECTORS ON MEDIUM
+MEDIAD: resb 1; MEDIA DESCRIPTOR BYTE
+CSECFAT: resw 1; NUMBER OF SECTORS/FAT
+SECLIM: resw 1; SECTORS PER TRACK
+HDLIM: resw 1; MAX NUMBER OF HEADS
+HIDSEC_L: resw 1; NUMBER OF HIDDEN SECTORS
 HIDSEC_H	dw		0	;J.K.87
 DRVLIM_L	dw		0	;J.K.87
 DRVLIM_H	dw		0	;J.K.87
-FATSIZ		DB		?	; FLAGS...
-OPCNT		DW		?	; OPEN REF. COUNT
-FORMFACTOR	DB		?	; FORM FACTOR INDEX
-FLAGS		DW		?	; VARIOUS FLAGS
-CCYLN		DW		?	; MAX NUMBER OF CYLINDERS
-RBYTEPERSEC	DW		?	; RECOMMENDED BPB
-RSECPERCLUS	DB		?
-RRESSEC 	DW		?
-RCFAT		DB		?
-RCDIR		DW		?
-RDRVLIM 	DW		?
-RMEDIAD 	DB		?
-RCSECFAT	DW		?
-RSECLIM 	DW		?
-RHDLIM		DW		?
-RHIDSEC_L	DW		?
+FATSIZ: resb 1; FLAGS...
+OPCNT: resw 1; OPEN REF. COUNT
+FORMFACTOR: resb 1; FORM FACTOR INDEX
+FLAGS: resw 1; VARIOUS FLAGS
+CCYLN: resw 1; MAX NUMBER OF CYLINDERS
+RBYTEPERSEC: resw 1; RECOMMENDED BPB
+RSECPERCLUS: resb 1
+RRESSEC: resw 1
+RCFAT: resb 1
+RCDIR: resw 1
+RDRVLIM: resw 1
+RMEDIAD: resb 1
+RCSECFAT: resw 1
+RSECLIM: resw 1
+RHDLIM: resw 1
+RHIDSEC_L: resw 1
 RHIDSEC_H	DW		0	;J.K.87
 RDRVLIM_L	dw		0	;J.K.87
 RDRVLIM_H	dw		0	;J.K.87
-RESERVE 	DB		6 DUP (?)	; RESERVED FOR FUTURE
-TRACK		DB		?	; LAST TRACK ACCESSED ON DRIVE
-TIM_LO		DW		?	; TIME OF LAST ACCESS. KEEP
-TIM_HI		DW		?	; THESE CONTIGUOUS.
-VOLID		DB		12 DUP (?)	; VOLUME ID OF MEDIUM
+RESERVE: resb 6; RESERVED FOR FUTURE
+TRACK: resb 1; LAST TRACK ACCESSED ON DRIVE
+TIM_LO: resw 1; TIME OF LAST ACCESS. KEEP
+TIM_HI: resw 1; THESE CONTIGUOUS.
+VOLID: resb 12; VOLUME ID OF MEDIUM
 VOL_SERIAL	dd	0	  ;J.K.87 Current volume serial number from Boot record
-FILESYS_Id	db	9 dup (0) ;J.K.87 Current file system id from Boot record
-BDS_TYPE	ENDS
+FILESYS_Id: resb 9;J.K.87 Current file system id from Boot record
+endstruc
 
-BPBSIZE     =	TRACK - RBYTEPERSEC ; SIZE IN BYTES OF RECBPB AREA IN THE BDS
+BPBSIZE equ TRACK - RBYTEPERSEC; SIZE IN BYTES OF RECBPB AREA IN THE BDS
 
 
 ;*********************************************************************
 ;	BDS structure for mini disk - J.K. 4/7/86
 ;*********************************************************************
 
-BDSM_type	struc
+struc BDSM_type
 mlink		DW	-1			;Link to next structure
-		DW	?
+		resw 1
 mdriveNum	DB	80			;Int 13 Drive Number
 mdriveLet	DB	3			;Logical Drive Number
 mBytePerSec	DW	512
@@ -111,18 +111,18 @@ mOPCNT		DW	0			;Open Ref. Count
 mFormFactor	DB	3			;Form Factor
 mFLAGS		DW	0020H			;Various Flags
 mcCyln		dw	40			;max number of cylinders
-mRecBPB 	db	31 dup (0)		;Recommended BPB for drive
+mRecBPB: resb 31;Recommended BPB for drive
 mTrack		db	-1
 IsMini		dw	1			;Overlapping TIM_LOH
 Hidden_Trks	dw	0			;Overlapping TIM_HIH
 mVOLID		DB	"NO NAME    "           ;Volume ID for this disk
-		DB	0			;ASCIZII for "NO NAME    "
+		resb 1;ASCIZII for "NO NAME    "
 mVol_Serial	dd	0	   ;Current volume serial number from Boot record
 mFileSys_Id	db	"FAT12   " ;Current file system id from Boot record
-		db	0
+		resb 1
 
-BDSM_type	ENDS
+endstruc
 ;******************************************************************************
-Max_mini_dsk_num = 23	      ;J.K. 4/7/86 - max # of mini disk ibmbio can support
+Max_mini_dsk_num equ 23;J.K. 4/7/86 - max # of mini disk ibmbio can support
 ;
 

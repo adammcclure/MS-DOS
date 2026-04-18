@@ -15,7 +15,7 @@ VAL1SW	EQU	0			;SUPPRESS SUPPORT OF VALUE DEFINITION 1 ;AN000;
 VAL2SW	EQU	0			;SUPPRESS SUPPORT OF VALUE DEFINITION 2 ;AN000;
 VAL3SW	EQU	1			;DO SUPPORT VALUE DEFINITION 3
 
-include psdata.inc
+%include "psdata.inc"
 ;***********************************************************************
 
 ;-------------------------------------------------------------------
@@ -26,8 +26,8 @@ include psdata.inc
 
 
 
-p_block1  $P_PARMS_Blk <offset px_block1, 0, 0>    ; parm block
-p_block2  $P_PARMS_Blk <offset px_block2, 0, 0>    ; parm block
+p_block1  $P_PARMS_Blk <px_block1, 0, 0>    ; parm block
+p_block2  $P_PARMS_Blk <px_block2, 0, 0>    ; parm block
 
 ;------------------------
 ;	extended parameter block for APPEND first load
@@ -38,9 +38,9 @@ px_block1:
 ;	dw	0		; offset into control block for positionals
 
 	db	3		; APPEND has two switches /E, /X, /PATH
-	dw	offset e_switch 	; control block for /E switch
-	dw	offset x_switch 	; control block for /X switch
-	dw	offset path_switch	; control block for /PATH switch
+	dw	e_switch 	; control block for /E switch
+	dw	x_switch 	; control block for /X switch
+	dw	path_switch	; control block for /PATH switch
 
 	db	0		; max number of keywords
 	dw	0		; offset of keyword control block
@@ -51,13 +51,13 @@ px_block1:
 px_block2:
 	db	0		; min number positional operands
 	db	1		; max number positional operands
-	dw	offset dirs_control	; pointer to dirs control block
+	dw	dirs_control	; pointer to dirs control block
 
 ;	db	2		; APPEND after first load has two switches /X, /PATH
 	db	3		; APPEND has two switches /E, /X, /PATH
-	dw	offset e_switch 	; control block for /E switch
-	dw	offset x_switch 	; control block for /X switch
-	dw	offset path_switch	; control block for /PATH switch
+	dw	e_switch 	; control block for /E switch
+	dw	x_switch 	; control block for /X switch
+	dw	path_switch	; control block for /PATH switch
 
 	db	0		; max number of keywords
 
@@ -65,8 +65,8 @@ px_block2:
 dirs_control:
 	dw	$P_Simple_S+$P_Optional   ; complex, optional string
 	dw	$P_CAP_File		; cap by file table
-	dw	offset dirs_result	; dirs result buffer
-	dw	offset dirs_values	; pointer to null value list
+	dw	dirs_result	; dirs result buffer
+	dw	dirs_values	; pointer to null value list
 	db	0			; no synonyms
 
 dirs_values:
@@ -78,8 +78,8 @@ dirs_values:
 x_switch:
 	dw	$P_Simple_s+$P_Optional       ; /X, /X:ON, /X:OFF simple, optional string
 	dw	$P_CAP_Char		; cap by char table
-	dw	offset x_result 	; pointer to result block
-	dw	offset x_values 	; pointer to values block
+	dw	x_result 	; pointer to result block
+	dw	x_values 	; pointer to values block
 	db	1			; number of switches and synonyms
 	db	"/X",0                  ; only /X is valid
 
@@ -89,16 +89,16 @@ x_values:
 	db	0			; values
 	db	2			; 2 possible string values
 	db	0			; /X:OFF = 0
-	dw	offset off_string	; pointer to "OFF"
+	dw	off_string	; pointer to "OFF"
 	db	1			; /X:ON  = 1
-	dw	offset on_string
+	dw	on_string
 ;------------------------
 
 e_switch:
 	dw	0			; /E
 	dw	$P_CAP_Char		; cap by char table
-	dw	offset e_result 	; pointer to result block
-	dw	offset e_values 	; pointer to values block, none
+	dw	e_result 	; pointer to result block
+	dw	e_values 	; pointer to values block, none
 	db	1			; number of switches and synonyms
 	db	"/E",0                   ; only /E is valid
 
@@ -110,8 +110,8 @@ e_values:
 path_switch:
 	dw	$P_Simple_s		; /PATH:ON, /PATH:OFF simple string
 	dw	$P_CAP_Char		; cap by char table
-	dw	offset path_result	; pointer to result block
-	dw	offset path_values	; pointer to values block
+	dw	path_result	; pointer to result block
+	dw	path_values	; pointer to values block
 	db	1			; number of switches and synonyms
 	db	"/PATH",0                ; only /PATH is valid
 
@@ -122,9 +122,9 @@ path_values:
 	db	0			; values
 	db	2			; 2 possible string values
 	db	0			; /PATH:OFF = 0
-	dw	offset off_string	; pointer to "OFF"
+	dw	off_string	; pointer to "OFF"
 	db	1			; /PATH:ON  = 1
-	dw	offset on_string
+	dw	on_string
 
 
 ;------------------------

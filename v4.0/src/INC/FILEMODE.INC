@@ -46,10 +46,10 @@ ext_nexists_create  EQU 10H
 
 
 
-ext_open_parm	   struc
-ext_set_list	    dd ?
-ext_num_of_parm     dw ?
-ext_open_parm	   ends
+struc ext_open_parm
+ext_set_list: resd 1
+ext_num_of_parm: resw 1
+endstruc
 
 
 

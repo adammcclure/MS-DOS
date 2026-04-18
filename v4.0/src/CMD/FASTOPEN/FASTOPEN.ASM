@@ -1,5 +1,5 @@
-	Page 84,132 ;
-Title	FASTOPEN
+	; Page 84,132;
+; Title	FASTOPEN
 ;Date: May 13,1988
 ;==============================================================================
 ;		 EQUATES
@@ -20,77 +20,77 @@ DOS_PAGE1	   EQU	   0FEH 								   ;AN000;
 ;==============================================================================
 ;		   INCLUDE  FILES
 ;==============================================================================
-.xcref
-.xlist
+; .xcref
+; .xlist
 debug=0 		   ; an equate only for DOSMAC.inc				     ;AN000;
-INCLUDE  DOSMAC.inc										    ;AN000;
-.list
-.cref
-INCLUDE  dirent.inc										    ;AN000;
-INCLUDE  fastsegs.inc	   ; this cannot include in Fastopen.inc
-INCLUDE  fastopen.inc	   ; this include file also contains DOS equates			    ;AN000;
-include  version.inc
+%include "DOSMAC.inc";AN000;
+; .list
+; .cref
+%include "dirent.inc";AN000;
+%include "fastsegs.inc"; this cannot include in Fastopen.inc
+%include "fastopen.inc"; this include file also contains DOS equates			    ;AN000;
+%include "version.inc"
 
 ;==============================================================================
 
 
 
-EXTRN	FK_OPEN:FAR										   ;AN000;
-EXTRN	FK_CLOSE:FAR										   ;AN000;
-EXTRN	FK_INSERT:FAR										   ;AN000;
-EXTRN	FK_DELETE:FAR										   ;AN000;
-EXTRN	FK_LOOKUP:FAR										   ;AN000;
-EXTRN	FK_TRUNCATE:FAR 									   ;AN000;
-EXTRN	FK_PURGE:FAR										;AN000;
+extern FK_OPEN;AN000;
+extern FK_CLOSE;AN000;
+extern FK_INSERT;AN000;
+extern FK_DELETE;AN000;
+extern FK_LOOKUP;AN000;
+extern FK_TRUNCATE;AN000;
+extern FK_PURGE;AN000;
 
 
 ;============================================================================
 
-CSEG_MAIN   SEGMENT   PARA   PUBLIC 'code'
-	ASSUME	cs:cseg_main, ds:nothing,es:nothing,ss:nothing
+SECTION .CSEG_MAIN
+	; ASSUME	cs:cseg_main, ds:nothing,es:nothing,ss:nothing
 ;============================================================================
 
-PUBLIC	MAIN											   ;AN000;
+global MAIN;AN000;
 
-IF	BUFFERFLAG
-PUBLIC	SAVE_EMS_PAGE_STATE
-PUBLIC	EMS_PAGE_NUMBER
-ENDIF
+%if BUFFERFLAG
+global SAVE_EMS_PAGE_STATE
+global EMS_PAGE_NUMBER
+%endif
 
-PUBLIC	RESTORE_PAGE_STATE
-PUBLIC	EMS_SAVE_HANDLE1
+global RESTORE_PAGE_STATE
+global EMS_SAVE_HANDLE1
 
-PUBLIC	Main_name_cache_seg									   ;AN000;
-PUBLIC	Main_Num_Of_drives									   ;AN000;
-PUBLIC	Main_Ext_Count										   ;AN000;
-PUBLIC	Main_extent_drive_Buff									   ;AN000;
-PUBLIC	Main_ext_cache_size									   ;AN000;
-PUBLIC	Main_name_cache_Buff									   ;AN000;
-PUBLIC	Main_EMS_FLAG										   ;AN000;
-PUBLIC	Main_Res_Segs										   ;AN000;
-PUBLIC	Main_EMS_PAGE_SIZE									   ;AN000;
-PUBLIC	Main_EMS_PAGE_SEG									   ;AN000;
-PUBLIC	Main_Total_Ext_Count									   ;AN000;
-PUBLIC	Main_Total_Name_Count									   ;AN000;
-PUBLIC	Main_Name_Drive_Buff									   ;AN000;
-PUBLIC	Main_ParamBuff										   ;AN000;
+global Main_name_cache_seg;AN000;
+global Main_Num_Of_drives;AN000;
+global Main_Ext_Count;AN000;
+global Main_extent_drive_Buff;AN000;
+global Main_ext_cache_size;AN000;
+global Main_name_cache_Buff;AN000;
+global Main_EMS_FLAG;AN000;
+global Main_Res_Segs;AN000;
+global Main_EMS_PAGE_SIZE;AN000;
+global Main_EMS_PAGE_SEG;AN000;
+global Main_Total_Ext_Count;AN000;
+global Main_Total_Name_Count;AN000;
+global Main_Name_Drive_Buff;AN000;
+global Main_ParamBuff;AN000;
 
-PUBLIC	FOPEN_Insert										   ;AN000;
-PUBLIC	FOPEN_Update										   ;AN000;
-PUBLIC	FOPEN_Delete										   ;AN000;
-PUBLIC	FOPEN_Lookup										   ;AN000;
-PUBLIC	FOPEN_PURGE										  ;AN000;
+global FOPEN_Insert;AN000;
+global FOPEN_Update;AN000;
+global FOPEN_Delete;AN000;
+global FOPEN_Lookup;AN000;
+global FOPEN_PURGE;AN000;
 
-PUBLIC	FSEEK_Open										   ;AN000;
-PUBLIC	FSEEK_Close										   ;AN000;
-PUBLIC	FSEEK_Insert										   ;AN000;
-PUBLIC	FSEEK_Delete										   ;AN000;
-PUBLIC	FSEEK_Lookup										   ;AN000;
-PUBLIC	FSEEK_Truncate										   ;AN000;
-PUBLIC	FSEEK_Purge										   ;AN000;
+global FSEEK_Open;AN000;
+global FSEEK_Close;AN000;
+global FSEEK_Insert;AN000;
+global FSEEK_Delete;AN000;
+global FSEEK_Lookup;AN000;
+global FSEEK_Truncate;AN000;
+global FSEEK_Purge;AN000;
 
-PUBLIC	 VECTOR_LookUp										  ;AN000;
-PUBLIC	 VECTOR_Delete										  ;AN000;
+global VECTOR_LookUp;AN000;
+global VECTOR_Delete;AN000;
 
 
 ; Following data variables are accessed by all other segments
@@ -108,28 +108,28 @@ Main_Res_Segs	       DW    0		   ; number of segs to be stay resident 		;AN000;
 Main_Total_Ext_Count   DW    0		   ; Total extent count entries 			;AN000;
 Main_Total_Name_Count  DW    0		   ; Total name count entries				;AN000;
 Main_Name_Drive_Buff   DW    0		   ; EMS data page segment ID				;AN000;
-Main_ParamBuff	       DW    50  dup (0)   ; Drive ID/extent count buffer			;AN000;
+Main_ParamBuff: times 50 dw 0; Drive ID/extent count buffer			;AN000;
 
 ; The following structure is for saving and restoring EMS page state
-EMS_PAGE_MAP	     LABEL    WORD
+EMS_PAGE_MAP:
 Main_EMS_SEG_COUNT     DW    1		   ; EMS segment count
 Main_EMS_PAGE_SEG      DW    0		   ; EMS page segment ID				;AN000;
 
 
 Main_EMS_PAGE_SIZE     DW    0		   ; EMS page size					;AN000;
-EMS_PAGE_ARRAY	       DW  30	dup  (0)   ; EMS state save array
+EMS_PAGE_ARRAY: times 30 dw 0; EMS state save array
 
 ; The following data values are used by MAIN segment
-EMS_SAVE_LOG_PAGE1     DW    ?		   ;HOLDS PREVIOUS PAGE1				    ;AN000;
-EMS_SAVE_HANDLE1       DW    ?		   ;HOLDS PREVIOUS handle1				    ;AN000;
+EMS_SAVE_LOG_PAGE1: dw 0;HOLDS PREVIOUS PAGE1				    ;AN000;
+EMS_SAVE_HANDLE1: dw 0;HOLDS PREVIOUS handle1				    ;AN000;
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 ;----------------------------------------------------------HKN 8/26/88
 
-EMS_PAGE_NUMBER		DW	?			; holds the ems 
+EMS_PAGE_NUMBER: dw 0; holds the ems 
 							; physical page no.
 
-ENDIF
+%endif
 ;
 ;-----------------------------------------------------------------------------
 ;	  Fastopen/Fastseek function jump vectors
@@ -160,7 +160,7 @@ VECTOR_Delete	 DD   Fk_Delete       ; jump vector to Delete used by Free_buffer 
 
 ;==============================================================================
 
-MAIN	PROC	FAR			  ; FAR procedure for FAR call from DOS
+MAIN:; FAR procedure for FAR call from DOS
 	push	cx			  ; save DOS registers				     ;AN000;
 	push	dx			  ; makesure to restore the necessary			   ;AN000;
 	push	ds			  ; ones on return					  ;AN000;
@@ -178,7 +178,7 @@ MAIN	PROC	FAR			  ; FAR procedure for FAR call from DOS
 	cmp	cs:Main_EMS_flag,1	  ; EMS enabled ??					     ;AN000;
 	jne	dispatch_funcs		  ; no - dispatch functions			   ;AN000;
 					  ; yes - save EMS page state
-IF	NOT BUFFERFLAG
+%if ~BUFFERFLAG
 
 ;-----------------------------------------------------------------------------
 ; SAVE EMS PAGE STATE
@@ -215,7 +215,7 @@ IF	NOT BUFFERFLAG
 	JNE	SAVE_FAILED		 ; no, error
 	POP	AX			 ; clear stack
 
-ELSE
+%else
 
 
 ;------------------------------------------------------------HKN 8/26/88--
@@ -239,7 +239,7 @@ ELSE
 	push	di
 	push	bx
 
-	call	far ptr	save_ems_page_state
+	call	far	save_ems_page_state
 	jc	ems_failed
 
 	call	map_page
@@ -267,11 +267,11 @@ EMS_FAILED:
 	pop	dx
 	pop	cx
 
-ENDIF
+%endif
 
-IF	NOT BUFFERFLAG
+%if ~BUFFERFLAG
 SAVE_FAILED:
-ENDIF
+%endif
 
 	POP	AX			 ; restore registers
 
@@ -312,7 +312,7 @@ CHECK_DRIVE_ID:
 	mov	cx,cs:Main_Num_Of_Drives    ; number of drives					   ;AN000;
 
 Get_Drive_Id:											   ;AN000;
-	mov	bx,cs:[si]									   ;AN000;
+	mov	bx,[cs:si]									   ;AN000;
 	cmp	bl,dl			    ; drive ID match ?? 				   ;AN000;
 	je	drive_found		    ; yes, drive ID found				   ;AN000;
 	add	si,4			    ; (2/11) no, move pointer to next ID			  ;AN000;
@@ -344,7 +344,7 @@ DISPATCH_FSEEK:
 Fsk_Cont:
 	push	cs			   ; set addressability
 	pop	ds			   ; CS = DS = Cseg_Main segment
-	ASSUME	ds:Cseg_Main
+	; ASSUME	ds:Cseg_Main
 	cmp	al,FONC_Purge		   ; PURGE call ??					       ;AN000;
 	je	chk_05			   ; yes - continue						;AN000;
 
@@ -476,9 +476,9 @@ EXIT_1:
 ERROR_RET:
 	ret											   ;AN000;
 
-MAIN	ENDP
+; ENDP MAIN
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 ;---------------------------------------------------------------------------
 ;	Procedure name	:	save_ems_page_state
 ;	
@@ -487,7 +487,7 @@ IF	BUFFERFLAG
 ;	specified in Main_EMS_PAGE_SEG. 
 ;---------------------------------------------------------------------------
 
-SAVE_EMS_PAGE_STATE	PROC	FAR
+SAVE_EMS_PAGE_STATE:
 
 	PUSH	AX			  ; save registers
 	PUSH	CX
@@ -528,9 +528,9 @@ DONE:
 	POP	AX
 	RET
 
-SAVE_EMS_PAGE_STATE	ENDP
+; ENDP SAVE_EMS_PAGE_STATE
 
-ENDIF
+%endif
 
 
 ;-----------------------------------------------------------------------------
@@ -543,7 +543,7 @@ ENDIF
 ;
 ;-----------------------------------------------------------------------------
 
-RESTORE_PAGE_STATE    PROC  NEAR	;RESTORE EMS PAGE STATE
+RESTORE_PAGE_STATE:;RESTORE EMS PAGE STATE
 	PUSHF				;save flag					     ;AN000;
 	CMP	CS:MAIN_EMS_FLAG, 0	;EMS enabled ?? 					   ;AN000;
 	JNE	REST_PUSH_REGS		;yes, restore registers
@@ -585,10 +585,10 @@ RESTORE_EXIT:
 	POPF
 	RET											   ;AN000;
 
-RESTORE_PAGE_STATE    ENDP
+; ENDP RESTORE_PAGE_STATE
 
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 
 ;---------------------------------------------------------HKN 8/26/88-------
 ;	procedure name		:	map_page
@@ -598,7 +598,7 @@ IF	BUFFERFLAG
 ;	Output			: 	CY - error
 ;					NC - page is mapped to logical page 0
 ;----------------------------------------------------------------------------
-map_page	proc	near
+map_page:
 
 	push	ax
 	push	bx
@@ -625,13 +625,13 @@ map_page_done:
 	pop	ax
 	ret
 
-map_page	endp
+; ENDP map_page
 
-ENDIF
+%endif
 	
 	
 					 ; NOTE:
-CSEG_MAIN   ENDS			 ; End of the first portion of the
+; END SECTION .CSEG_MAIN; End of the first portion of the
 					 ; Cseg_Main segment.  Remaining
 					 ; portion is in Fastinit.asm
 
@@ -651,29 +651,29 @@ CSEG_MAIN   ENDS			 ; End of the first portion of the
 ;					  in the Cseg_Init segment
 ;
 ;*****************************************************************************
-CSEG_OPEN   SEGMENT   PARA   PUBLIC 'code'
-  ASSUME  cs:cseg_open,ds:nothing,es:nothing,ss:nothing
+SECTION .CSEG_OPEN
+  ; ASSUME  cs:cseg_open,ds:nothing,es:nothing,ss:nothing
 ;*****************************************************************************
 
-PUBLIC	 Open_name_cache_seg									   ;AN000;
-PUBLIC	 Open_name_Drive_Buff									   ;AN000;
-PUBLIC	 End_Open										   ;AN000;
-PUBLIC	 Chk_Flag										   ;AN000;
+global Open_name_cache_seg;AN000;
+global Open_name_Drive_Buff;AN000;
+global End_Open;AN000;
+global Chk_Flag;AN000;
 
 ;---- FastOpen Functions Local Variables --------------
 
-Current_Node	     DW    ?	     ;address of current node entry buffer		     ;AN000;
-Current_Sibling      DW    ?	     ;address of current sibling node entry buffer		;AN000;
-Current_Drive	     DW    ?	     ;address of current drive header			     ;AN000;
+Current_Node: dw 0;address of current node entry buffer		     ;AN000;
+Current_Sibling: dw 0;address of current sibling node entry buffer		;AN000;
+Current_Drive: dw 0;address of current drive header			     ;AN000;
 Matching_Node	     DW    -1	     ;flag						       ;AN000;
 From_Delete	     DW    0	     ;= 1 if call is from DELETE function		    ;AN000;
 Old_SI		     DW    0	     ;SI save area				     ;AN000;
 Flag		     DB    0									;AN000;
 Level		     DB    0	     ;depth level of the path					;AN000;
-Dir_Info_Buffer      DD    ?	     ;Dir_Info buffer inside DOS				;AN000;
-Extended_Info_Buffer DD    ?	     ;Extended Info buffer inside DOS			;AN000;
+Dir_Info_Buffer: dd 0;Dir_Info buffer inside DOS				;AN000;
+Extended_Info_Buffer: dd 0;Extended Info buffer inside DOS			;AN000;
 New_FEI_clusnum      DW    0									;AN000;
-Packed_Name	     DB    11 dup (0)	   ;Space for packed dir name				;AN000;
+Packed_Name: times 11 db 0;Space for packed dir name				;AN000;
 Top		     DW    0									;AN000;
 Temp		     DW    0									;AN000;
 Bottom		     DW    0									;AN000;
@@ -736,13 +736,13 @@ Open_name_Drive_Buff	   DW	 0	       ; address of first drive buffer
 ;
 ;==============================================================================
 
-LOOKUP	PROC   FAR
+LOOKUP:
 
 	mov	cs:func_cod,al		   ; save function code
 	cmp	From_Delete, 0		   ;call from DELETE function ??
 	je	Look_Pack_Dir		   ;no, dont restore DS
 	mov	DS,bx			   ;yes, restore DS
-	ASSUME	DS:Cseg_Init
+	; ASSUME	DS:Cseg_Init
 	jmp	short Look_save_regs	   ;save registers
 
 Look_Pack_Dir:
@@ -759,7 +759,7 @@ Look_Save_Regs:
 	push	cx
 	mov	ax, cs:Open_Name_Cache_Seg							   ;AN000;
 	mov	es, ax			   ;ES = Name_Cache_Seg 				      ;AN000;
-	ASSUME	es:Cseg_Init									   ;AN000;
+	; ASSUME	es:Cseg_Init;AN000;
 	CALL	SET_LRU 		   ;set the Real LRU, if any.
 
 	or	cs:Flag,Is_drive_head	   ;level of the tree. Drive header
@@ -780,14 +780,14 @@ Lookup_Path:
 
 	push	ds			   ;yes-drive header
 	mov	ds,cs:Open_Name_Cache_Seg
-	ASSUME	ds:Cseg_Init
-	mov	BP, DS:[BP.DCH_Child_ptr]  ;BP-->first child node under drive hdr
+	; ASSUME	ds:Cseg_Init
+	mov	BP, [DS:BP+DCH_Child_ptr]  ;BP-->first child node under drive hdr
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 	jmp	short Lp_Path2
 
 Lp_Path1:
-	mov	BP, ES:[BP.nChild_ptr]	   ;BP--> child of current node
+	mov	BP, [ES:BP+nChild_ptr]	   ;BP--> child of current node
 
 Lp_Path2:
 	cmp	BP, -1			   ;no child?
@@ -800,7 +800,7 @@ Lp_Cmpare:
 	je	Lookup_Found		   ;Yes, found a match. Next level for
 					   ;possible remianing path
 
-	mov	BP, ES:[BP.nSibling_ptr]   ;not found. Any siblings?
+	mov	BP, [ES:BP+nSibling_ptr]   ;not found. Any siblings?
 	mov	cs:Current_Sibling,BP
 	cmp	BP, -1			   ;any more sibling?
 	je	Lookup_Done		   ;no - done
@@ -846,7 +846,7 @@ Lookup_Return:				   ;return to Delete routine.
 	CALL	Check_It		   ;check tree structure
 	ret
 
-LOOKUP	 ENDP
+; ENDP LOOKUP
 
 
 
@@ -889,7 +889,7 @@ LOOKUP	 ENDP
 ;
 ;==============================================================================
 
-INSERT	PROC   FAR
+INSERT:
 	mov	cs:func_cod,al			; save function code
 	inc	cs:Level			;increment directory level
 	xor	ax,ax
@@ -899,10 +899,10 @@ INSERT	PROC   FAR
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg	;DS=name cache segment
 
-	ASSUME	ds:Cseg_Init									   ;AN000;
-	cmp	ax, ds:[bp.DCH_Num_Entries]	;Level > (Num_Entries - 1) ?
+	; ASSUME	ds:Cseg_Init;AN000;
+	cmp	ax, [ds:bp+DCH_Num_Entries]	;Level > (Num_Entries - 1) ?
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 	jbe	Insert_it			;no- insert it
 	jmp	short Insert_return		;yes return
 
@@ -920,28 +920,28 @@ Insert_it:
 	mov	bx, bp			   ;save it into bx
 	cmp	cs:Current_Sibling,0fffeh  ;current node sibling node ??
 	je	I_Child 		   ;no-child of preceding node
-	mov	es:[bp.nSibling_ptr], ax   ;yes-make new node sibling of
+	mov	[es:bp+nSibling_ptr], ax   ;yes-make new node sibling of
 	jmp	short I_Done		   ;current node
 
 I_Child:				   ;set nChild_ptr
 	test	cs:Flag,Is_drive_head	   ;drive level?
 	jnz	I_Child_first		   ;Yes, must be the first child
-	mov	es:[bp.nChild_ptr], ax	   ;no-make ndew node child of
+	mov	[es:bp+nChild_ptr], ax	   ;no-make ndew node child of
 	jmp	short I_Done		   ;current node
 
 I_Child_first:				   ;this is the first child in this drive.
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg							   ;AN000;
-	ASSUME	ds:Cseg_Init									   ;AN000;
-	mov	ds:[bp.DCH_Child_ptr],ax   ;make new node 1st child current drive
+	; ASSUME	ds:Cseg_Init;AN000;
+	mov	[ds:bp+DCH_Child_ptr],ax   ;make new node 1st child current drive
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 	mov	bx, cs:Current_Drive	   ;change bx to Current_Drive
 	and	cs:Flag, Not_drive_head    ;reset the flag
 
 I_Done:
 	mov	bp, ax
-	mov	es:[bp.nBackward_ptr],bx ;set the backward ptr of the inserted node.
+	mov	[es:bp+nBackward_ptr],bx ;set the backward ptr of the inserted node.
 
 	CALL	PRE_LRU_STACK		   ;save this inserted record temporarily.
 
@@ -956,7 +956,7 @@ Insert_return:
 	CALL	Check_It		   ;check tree structure
 	ret				   ;return
 
-INSERT	ENDP
+; ENDP INSERT
 
 
 
@@ -975,7 +975,7 @@ INSERT	ENDP
 ;
 ;==============================================================================
 
-DELETE	 PROC	FAR
+DELETE:
 
 	mov	cs:func_cod,al		   ; save function code
 	CALL	PACK_DIR_NAME		   ;drive letter => DL, 				      ;AN000;
@@ -990,31 +990,31 @@ DELETE	 PROC	FAR
 	push	ds
 	mov	ax,cseg_Main
 	mov	ds,ax			   ;DS=Main segment ID
-	assume	ds:Cseg_Main
+	; assume	ds:Cseg_Main
 	mov	cs:From_Delete, 1	   ;set flag indicate that the call
 					   ;is from DELETE function
 	CALL	VECTOR_LOOKUP		   ;FAR call to Lookup function
 
 	mov	cs:From_Delete, 0	   ;reset from delete flag
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 	jc	D_err_Exit		   ;indirectly in the same segment
 
-	cmp	byte ptr ds:[si], 0	   ;found the whole path?
+	cmp	byte [ds:si], 0	   ;found the whole path?
 	jne	D_err_Exit		   ;No.
 
 ;At this point, Current_Node = BP.
 	mov	bx, cs:Open_Name_Cache_Seg
 	mov	es, bx			   ;set ES to name_cache_seg.
-	ASSUME	es:Cseg_Init
+	; ASSUME	es:Cseg_Init
 
 Delete_Node:
-	cmp	es:[bp.nChild_ptr], -1	   ;No children?
+	cmp	[es:bp+nChild_ptr], -1	   ;No children?
 	jne	D_err_Exit
 	CALL	REMOVEFROMTREE		   ;remove the node while maintaing the
 					   ;integrity of the tree.
 
-	mov	es:[bp.nCmpct_Dir_Info], ' ' ;mark that this entry is free!!!
+	mov	[es:bp+nCmpct_Dir_Info], ' ' ;mark that this entry is free!!!
 
 D_LRU_MRU:
 	CALL	REMOVEFROMLRUCHAIN	   ;Remove BP from the LRU,MRU chain
@@ -1022,15 +1022,15 @@ D_LRU_MRU:
 	mov	si, cs:Current_Drive	   ;Now let the deleted node to be the
 	push	ds			   ; LRU node
 	mov	ds,cs:Open_Name_Cache_Seg
-	ASSUME	ds:Cseg_Init									   ;AN000;
+	; ASSUME	ds:Cseg_Init;AN000;
 
-	mov	bx, ds:[si.DCH_LRU_ROOT]   ;es:bx -> first node
-	mov	es:[bp.nLRU_ptr],bx	   ;Target.nLRU_ptr -> first node
-	mov	es:[bx.nMRU_ptr],bp	   ;First_node.nMRU_ptr -> target
-	mov	ds:[si.DCH_LRU_ROOT],bp    ;LRU_ROOT -> target
-	mov	es:[bp.nMRU_ptr],-1
+	mov	bx, [ds:si+DCH_LRU_ROOT]   ;es:bx -> first node
+	mov	[es:bp+nLRU_ptr],bx	   ;Target.nLRU_ptr -> first node
+	mov	[es:bx+nMRU_ptr],bp	   ;First_node.nMRU_ptr -> target
+	mov	[ds:si+DCH_LRU_ROOT],bp    ;LRU_ROOT -> target
+	mov	[es:bp+nMRU_ptr],-1
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 	jmp	short	D_Exit		   ;exit
 
 D_err_Exit:				   ;error exit
@@ -1042,7 +1042,7 @@ D_Exit:
 	CALL	Check_It		   ;check tree structure
 	ret				   ;return
 
-DELETE	 ENDP
+; ENDP DELETE
 
 
 
@@ -1087,7 +1087,7 @@ DELETE	 ENDP
 ;
 ;==============================================================================
 
-UPDATE	PROC	FAR
+UPDATE:
 
 	mov	cs:func_cod,al		 ; save function code
 	cmp	ah, 0			 ;update directory entry ?
@@ -1114,7 +1114,7 @@ Update_Delete1: 			; same as delete (PTR P3718  3/10/88)
 	jmp	Delete_Node		; if found, delete node
 
 Update_Dir_Entry:
-	mov	cx, es:[di.dir_first]
+	mov	cx, [es:di+dir_first]
 	push	es			;save Dir_Info pointer ES:DI
 	push	di
 	CALL	FIND_CLUSTER_NUMBER
@@ -1139,13 +1139,13 @@ Update_Extended_clusnum:		;update extended info field
 
 	add	bp, nExtended_Info	;es:bp -> Name_record.nExtended_Info
 	mov	bx, cs:New_FEI_clusnum
-	mov	es:[bp.FEI_clusnum],bx
+	mov	[es:bp+FEI_clusnum],bx
 
 Update_Exit:
 	CALL	Check_It		   ;check tree structure
 	ret				;return
 
-UPDATE	 ENDP
+; ENDP UPDATE
 
 
 
@@ -1163,36 +1163,36 @@ UPDATE	 ENDP
 ;
 ;==============================================================================
 
-FP_PURGE   PROC    FAR
+FP_PURGE:
 
 	mov	si,Open_Name_Drive_Buff        ; SI-->first Name drive cache buff
 	mov	es,Open_Name_Cache_Seg	       ; ES = name cache seg ID
-	mov	bx,es:[si].DCH_Name_Buff       ; BX-->Name cache buffer
+	mov	bx,[es:si].DCH_Name_Buff       ; BX-->Name cache buffer
 	inc	dl			       ; DL=drive number
 	add	dl,040H 		       ; convert drive num to drive letter
 
 ; Search for the name drive header corresponds to the drive letter
 Purge_Drv_Loop:
-	cmp	es:[si].DCH_Drive_Letter,dl    ; drive letter match ??
+	cmp	[es:si].DCH_Drive_Letter,dl    ; drive letter match ??
 	je	Purge_drive_cache	       ; yes - set drive cache
-	add	si, size Drive_Cache_Header    ; no - get address of next drive cache
+	add	si, Drive_Cache_Header_size    ; no - get address of next drive cache
 	jmp	purge_drv_loop		       ; try next name drive header
 
 Purge_Drive_Cache:			       ; SI-->drive header
-	mov	bx,es:[si].DCH_Name_Buff       ; BX-->Name cache buffer
-	mov	cx,es:[si].DCH_num_entries     ; get number of name records
+	mov	bx,[es:si].DCH_Name_Buff       ; BX-->Name cache buffer
+	mov	cx,[es:si].DCH_num_entries     ; get number of name records
 	mov	ax,bx			       ; save last name record address
-	mov	es:[bx].nMRU_ptr, -1	       ; make first MRU -1
+	mov	[es:bx].nMRU_ptr, -1	       ; make first MRU -1
 	jmp	short set_start
 
 Set_Up_Names:
-	mov	es:[bx].nMRU_ptr,ax		;save last name record as MRU entry
-	add	ax, size Name_Record		;AX = last name record = current name record
+	mov	[es:bx].nMRU_ptr,ax		;save last name record as MRU entry
+	add	ax, Name_Record_size		;AX = last name record = current name record
 
 Set_Start:
-	mov	es:[bx].nChild_ptr, -1		;no children or siblings
-	mov	es:[bx].nsibling_ptr, -1	;right now
-	mov	es:[bx].nBackward_ptr, -1
+	mov	[es:bx].nChild_ptr, -1		;no children or siblings
+	mov	[es:bx].nsibling_ptr, -1	;right now
+	mov	[es:bx].nBackward_ptr, -1
 
 	push	di
 	push	ax
@@ -1211,16 +1211,16 @@ Set_Start:
 	dec	cx				;update record count
 	jcxz	purge_exit			;exit if last name record is done
 	mov	dx,bx
-	add	dx, size Name_Record		;DX-->next name record
-	mov	es:[bx].nLRU_ptr,dx		   ;set LRU pointer - next name record
-	add	bx, size Name_Record
+	add	dx, Name_Record_size		;DX-->next name record
+	mov	[es:bx].nLRU_ptr,dx		   ;set LRU pointer - next name record
+	add	bx, Name_Record_size
 	jmp	set_up_names			;set next name record
 
 Purge_exit:
 	clc
 	ret
 
-FP_PURGE    ENDP
+; ENDP FP_PURGE
 
 
 
@@ -1243,23 +1243,23 @@ FP_PURGE    ENDP
 ;
 ;----------------------------------------------------------------------------
 
-FIND_DRIVE_CACHE_HEADER   PROC	  NEAR
+FIND_DRIVE_CACHE_HEADER:
 
 	mov	bp, cs:Open_name_drive_buff
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg							   ;AN000;
-	ASSUME	ds:Cseg_Init				;DS:BP-->first drive header    ;AN000;
+	; ASSUME	ds:Cseg_Init;DS:BP-->first drive header    ;AN000;
 
 FDCH_while:
-	cmp	byte ptr ds:[bp.DCH_Drive_Letter], dl	; drive letter match
+	cmp	byte [ds:bp+DCH_Drive_Letter], dl	; drive letter match
 	jne	fdch_chk_end				; no - check next header
 	clc						; yes - exit
 	jmp	short FDCH_Exit
 
 FDCH_Chk_End:
-	cmp	byte ptr ds:[bp.DCH_Sibling_ptr], -1	; is this last header ?
+	cmp	byte [ds:bp+DCH_Sibling_ptr], -1	; is this last header ?
 	je	FDCH_Not_Found				; yes - header not found
-	add	bp, size Drive_Cache_Header		; no - get next header
+	add	bp, Drive_Cache_Header_size		; no - get next header
 	jmp	short	FDCH_while			; look for match
 
 FDCH_Not_Found:
@@ -1267,10 +1267,10 @@ FDCH_Not_Found:
 
 FDCH_Exit:						;ES:BP-->header if found
 	pop    ds
-	ASSUME ds:nothing				;return
+	; ASSUME ds:nothing;return
 	ret
 
-FIND_DRIVE_CACHE_HEADER     endp
+; ENDP FIND_DRIVE_CACHE_HEADER
 
 
 
@@ -1289,7 +1289,7 @@ FIND_DRIVE_CACHE_HEADER     endp
 ;     Other registers saved.
 ;----------------------------------------------------------------------
 
-GET_FREE_NODE	PROC	NEAR
+GET_FREE_NODE:
 
 	push	es				 ;save registers
 	push	di
@@ -1298,29 +1298,29 @@ GET_FREE_NODE	PROC	NEAR
 
 	mov	ax, cs:Open_Name_Cache_Seg							   ;AN000;
 	mov	es, ax				;ES=Name cache segment				  ;AN000;
-	ASSUME	es:Cseg_Init									   ;AN000;
+	; ASSUME	es:Cseg_Init;AN000;
 	mov	si, cs:Current_Drive		;SI-->drive_cache_header
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg
-	ASSUME	ds:Cseg_Init
-	mov	ax, ds:[si.DCH_LRU_ROOT]	;get the LRU node
+	; ASSUME	ds:Cseg_Init
+	mov	ax, [ds:si+DCH_LRU_ROOT]	;get the LRU node
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 
 	cmp	ax, cs:current_Node		;LRU node=Current Node ??
 	je	GFN_skip			;yes-
 
 	mov	bp, ax				;BP=Current node
-	mov	di, es:[bp.nLRU_ptr]		;DI= current LRU node's following node
-	mov	es:[di.nMRU_ptr],-1		;set that node's MRU ptr
+	mov	di, [es:bp+nLRU_ptr]		;DI= current LRU node's following node
+	mov	[es:di+nMRU_ptr],-1		;set that node's MRU ptr
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg	;DS=Name cache segment
-	ASSUME	ds:Cseg_Init
-	mov	ds:[si.DCH_LRU_ROOT],di 	;connect previous node to
+	; ASSUME	ds:Cseg_Init
+	mov	[ds:si+DCH_LRU_ROOT],di 	;connect previous node to
 	pop	ds				;next node
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 
-	cmp	byte ptr es:[bp.nCmpct_Dir_Info],' ';an empty node?
+	cmp	byte [es:bp+nCmpct_Dir_Info],' ';an empty node?
 	je	GFN_OK			      ;then no problem.
 
 	CALL	RemoveFromTree		    ;otherwise, it should be removed
@@ -1339,7 +1339,7 @@ GFN_ret:
 	pop	es
 	ret				    ;return
 
-GET_FREE_NODE	endp
+; ENDP GET_FREE_NODE
 
 
 
@@ -1379,7 +1379,7 @@ GET_FREE_NODE	endp
 ;     to remove the target node.
 ;----------------------------------------------------------------------
 
-PRE_LRU_STACK	PROC	NEAR
+PRE_LRU_STACK:
 
 	test	cs:Flag, is_delete	   ;invoked by Delete routine
 	jnz	PLS_Exit
@@ -1395,7 +1395,7 @@ PLS_Push:
 	cmp	cs:Depth, 1
 	jne	PLS_Top
 	mov	cs:Bottom, bp		   ;bottom = bp
-	mov	es:[bp.nLRU_ptr], -1
+	mov	[es:bp+nLRU_ptr], -1
 	jmp	short PLS_Done
 
 PLS_Top:
@@ -1405,8 +1405,8 @@ PLS_Top:
 	mov	di, cs:bottom		   ;di = bottom
 
 PLS_com:
-	mov	es:[bp.nLRU_ptr],di	;Top.LRU_ptr = bottom
-	mov	es:[di.nMRU_ptr],bp	;Bottom.MRU_ptr = top
+	mov	[es:bp+nLRU_ptr],di	;Top.LRU_ptr = bottom
+	mov	[es:di+nMRU_ptr],bp	;Bottom.MRU_ptr = top
 	jmp	short PLS_Done
 
 PLS_Temp:
@@ -1416,13 +1416,13 @@ PLS_Temp:
 	jmp	short PLS_com
 
 PLS_Done:
-	mov	es:[bp.nMRU_ptr],-1
+	mov	[es:bp+nMRU_ptr],-1
 	pop	di
 
 PLS_Exit:
 	ret
 
-PRE_LRU_STACK	endp
+; ENDP PRE_LRU_STACK
 ;
 
 
@@ -1450,7 +1450,7 @@ PRE_LRU_STACK	endp
 ; }
 ;----------------------------------------------------------------------
 
-SET_LRU   PROC	  NEAR
+SET_LRU:
 
 	cmp	cs:Depth, 0		   ;nothing in the stack?
 	je	SL_Exit
@@ -1461,28 +1461,28 @@ SET_LRU   PROC	  NEAR
 	mov	si, cs:Current_Drive	   ;cs:si -> Drive_Cache_Header
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg							   ;AN000;
-	ASSUME	ds:Cseg_Init									   ;AN000;
-	mov	di, ds:[si.DCH_MRU_ROOT] ;es:di -> Last node in LRU chain
+	; ASSUME	ds:Cseg_Init;AN000;
+	mov	di, [ds:si+DCH_MRU_ROOT] ;es:di -> Last node in LRU chain
 
 	cmp	cs:Depth, 1
 	jne	SL_Other
 
 	mov	bx, cs:Bottom
-	mov	es:[di.nLRU_ptr],bx	;Last_Node.LRU_ptr = Bottom
-	mov	es:[bx.nMRU_ptr],di	;Bottom.MRU_ptr = Last_Node
-	mov	ds:[si.DCH_MRU_ROOT],bx ;MRU_ROOT = Bottom
+	mov	[es:di+nLRU_ptr],bx	;Last_Node.LRU_ptr = Bottom
+	mov	[es:bx+nMRU_ptr],di	;Bottom.MRU_ptr = Last_Node
+	mov	[ds:si+DCH_MRU_ROOT],bx ;MRU_ROOT = Bottom
 	jmp	short SL_Done
 
 SL_Other:				;Depth >= 2
 	mov	bx, cs:Top
-	mov	es:[di.nLRU_ptr],bx
-	mov	es:[bx.nMRU_ptr],di
+	mov	[es:di+nLRU_ptr],bx
+	mov	[es:bx+nMRU_ptr],di
 	mov	bx, cs:Bottom
-	mov	ds:[si.DCH_MRU_ROOT],bx
+	mov	[ds:si+DCH_MRU_ROOT],bx
 
 SL_Done:
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 	mov	cs:Depth, 0		   ;reset the Depth
 	pop	bx
 	pop	di
@@ -1491,7 +1491,7 @@ SL_Done:
 SL_Exit:
 	ret
 
-Set_LRU endp
+; ENDP Set_LRU
 
 
 
@@ -1509,41 +1509,41 @@ Set_LRU endp
 ;
 ;----------------------------------------------------------------------
 
-RemoveFromLRUChain     PROC    near
+RemoveFromLRUChain:
 
 	push	bx
 	push	di
 	push	si
 
 	mov	si, cs:Current_drive	   ;cs:si-> Drive_cache_header
-	mov	bx, es:[bp.nMRU_ptr]	;es:bx-> Preceding node
-	mov	di, es:[bp.nLRU_ptr]	;es:di-> Following node
+	mov	bx, [es:bp+nMRU_ptr]	;es:bx-> Preceding node
+	mov	di, [es:bp+nLRU_ptr]	;es:di-> Following node
 	cmp	bx, -1			;Is target the first node?
 	je	RFLC_first_node
 	cmp	di, -1			;Is target the last node of LRU chain?
 	je	RFLC_last_node
-	mov	es:[bx.nLRU_ptr],di	;Preceding.LRU_ptr->following node
-	mov	es:[di.nMRU_ptr],bx	;Following.MRU_ptr->preceding node
+	mov	[es:bx+nLRU_ptr],di	;Preceding.LRU_ptr->following node
+	mov	[es:di+nMRU_ptr],bx	;Following.MRU_ptr->preceding node
 	jmp	short RFLC_done
 
 RFLC_first_node:
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg							   ;AN000;
-	ASSUME	ds:Cseg_Init									   ;AN000;
-	mov	ds:[si.DCH_LRU_ROOT],di ;LRU_ROOT-> following node
+	; ASSUME	ds:Cseg_Init;AN000;
+	mov	[ds:si+DCH_LRU_ROOT],di ;LRU_ROOT-> following node
 	pop	ds
-	ASSUME	ds:nothing
-	mov	es:[di.nMRU_ptr], -1	;Following node's MRU_ptr
+	; ASSUME	ds:nothing
+	mov	[es:di+nMRU_ptr], -1	;Following node's MRU_ptr
 	jmp	short RFLC_done
 
 RFLC_last_node:
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg
-	ASSUME	ds:Cseg_Init
-	mov	ds:[si.DCH_MRU_ROOT],bx ;MRU_ROOT-> preceding node
-	mov	es:[bx.nLRU_ptr], -1	;Preceding node's LRU_ptr
+	; ASSUME	ds:Cseg_Init
+	mov	[ds:si+DCH_MRU_ROOT],bx ;MRU_ROOT-> preceding node
+	mov	[es:bx+nLRU_ptr], -1	;Preceding node's LRU_ptr
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 
 RFLC_done:
 	pop	si
@@ -1551,7 +1551,7 @@ RFLC_done:
 	pop	bx
 	ret
 
-RemoveFromLRUChain	endp
+; ENDP RemoveFromLRUChain
 ;
 
 
@@ -1570,49 +1570,49 @@ RemoveFromLRUChain	endp
 ;     The freed node's child_ptr, sibling_ptr, backward_ptr are reset to -1.
 ;----------------------------------------------------------------------
 
-REMOVEFROMTREE	 PROC	 NEAR
+REMOVEFROMTREE:
 
 	push	bx
 	push	dx
 
-	mov	bx, es:[bp.nBackward_ptr]	;get the preceding node
-	mov	dx, es:[bp.nSibling_ptr]	;get the sibling node
+	mov	bx, [es:bp+nBackward_ptr]	;get the preceding node
+	mov	dx, [es:bp+nSibling_ptr]	;get the sibling node
 	cmp	bx, cs:Current_Drive
 	je	RFT_First_Child 	;bp is the first child
-	cmp	es:[bx.nChild_ptr],bp
+	cmp	[es:bx+nChild_ptr],bp
 	je	RFT_Child		;bp is the child of the preceding node
-	mov	es:[bx.nSibling_ptr],dx ;bp is the Sibling of the preceding node
+	mov	[es:bx+nSibling_ptr],dx ;bp is the Sibling of the preceding node
 					;Update the preceding node's Sibling ptr
 	jmp	short RFT_Reset
 
 RFT_First_Child:
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg							   ;AN000;
-	ASSUME	ds:Cseg_Init									   ;AN000;
-	mov	ds:[bx.DCH_Child_ptr],dx
+	; ASSUME	ds:Cseg_Init;AN000;
+	mov	[ds:bx+DCH_Child_ptr],dx
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 	jmp	short RFT_Reset
 
 RFT_Child:
-	mov	es:[bx.nChild_ptr],dx
+	mov	[es:bx+nChild_ptr],dx
 
 RFT_Reset:				;reset the deleted node's tree pointers
-	mov	es:[bp.nChild_ptr],-1
-	mov	es:[bp.nSibling_ptr],-1
-	mov	es:[bp.nBackward_ptr],-1
+	mov	[es:bp+nChild_ptr],-1
+	mov	[es:bp+nSibling_ptr],-1
+	mov	[es:bp+nBackward_ptr],-1
 
 	xchg	dx,bx			;now, dx=preceding node, bx=following node
 	cmp	bx,-1			;end of sibling?
 	je	RFT_ret
-	mov	es:[bx.nBackward_ptr],dx;modify backward_ptr of the sibling node
+	mov	[es:bx+nBackward_ptr],dx;modify backward_ptr of the sibling node
 
 RFT_ret:
 	pop	dx
 	pop	bx
 	ret				;return
 
-REMOVEFROMTREE	endp
+; ENDP REMOVEFROMTREE
 ;
 
 
@@ -1628,21 +1628,21 @@ REMOVEFROMTREE	endp
 ;     DI destroyed.
 ;----------------------------------------------------------------------
 
-CMPARE	PROC	near
+CMPARE:
 
 	push	ds
 	push	si
 	mov	cx, 11
 	push	cs
 	pop	ds
-	mov	si, offset cs:Packed_Name	   ;ds:si -> Packed_Name
+	mov	si, Packed_Name	   ;ds:si -> Packed_Name
 	mov	di,bp
 	add	di,nCmpct_Dir_Info		;es:di -> bp.nCmpact_Dir_Info
 	REPE	CMPSB
 	pop	si
 	pop	ds
 	ret
-CMPARE	endp
+; ENDP CMPARE
 
 
 
@@ -1659,7 +1659,7 @@ CMPARE	endp
 ;     ES, SI, DI destroyed.  ES will be Name_Cache_Seg.
 ;----------------------------------------------------------------------
 
-MAKE_NAME_RECORD      PROC     NEAR
+MAKE_NAME_RECORD:
 
 	push	ds			;save DS
 	push	ax
@@ -1669,13 +1669,13 @@ MAKE_NAME_RECORD      PROC     NEAR
 	pop	si			;DS:SI -> Dir_Info
 	mov	di, cs:Open_Name_Cache_Seg							   ;AN000;
 	mov	es, di										   ;AN000;
-	ASSUME	es:Cseg_Init									   ;AN000;
+	; ASSUME	es:Cseg_Init;AN000;
 	mov	di, ax			;ES:DI -> Name_Record
 	mov	ax, -1
-	mov	es:[di.nLRU_ptr],ax	;initialize pointers
-	mov	es:[di.nChild_ptr],ax
-	mov	es:[di.nSibling_ptr],ax
-	mov	es:[di.nMRU_ptr],ax
+	mov	[es:di+nLRU_ptr],ax	;initialize pointers
+	mov	[es:di+nChild_ptr],ax
+	mov	[es:di+nSibling_ptr],ax
+	mov	[es:di+nMRU_ptr],ax
 	add	di, nCmpct_Dir_Info	;ES:DI -> Name_Record.nCmpct_Dir_Info
 	mov	cx, ODI_head_leng	;currently 10.
 	rep	movsb			;Move header part
@@ -1685,14 +1685,14 @@ MAKE_NAME_RECORD      PROC     NEAR
 
 	pop	ds			;restore Extended_Info seg in DS!!!
 	mov	si, bx			;DS:SI -> Extended_Info
-	mov	cx, size Fastopen_Extended_Info
+	mov	cx, Fastopen_Extended_Info_size
 	rep	movsb			;Move Extended_Info
 	pop	ax
 	pop	ds			;Restore DS
 
 	ret				;return
 
-MAKE_NAME_RECORD	ENDP
+; ENDP MAKE_NAME_RECORD
 ;
 
 
@@ -1707,7 +1707,7 @@ MAKE_NAME_RECORD	ENDP
 ;     else Dir_Info, Extended_Info buffer are filled.
 ;----------------------------------------------------------------------
 
-Unfold_Name_Record     PROC	near
+Unfold_Name_Record:
 
 	cmp	cs:Matching_Node, -1
 	je	UNR_Exit		;just exit
@@ -1718,7 +1718,7 @@ Unfold_Name_Record     PROC	near
 
 	mov	si, cs:Open_Name_Cache_Seg							   ;AN000;
 	mov	ds, si										   ;AN000;
-	ASSUME	ds:Cseg_Init									   ;AN000;
+	; ASSUME	ds:Cseg_Init;AN000;
 	mov	si, cs:Matching_Node
 	add	si, nCmpct_Dir_Info	;DS:SI -> Cmpct_Dir_Info
 
@@ -1732,18 +1732,18 @@ Unfold_Name_Record     PROC	near
 
 	pop	di			;ES:DI -> Extended_info
 	push	di			;save di again for cx.
-	mov	cx, size Fastopen_Extended_Info
+	mov	cx, Fastopen_Extended_Info_size
 	REP	movsb
 
 	pop	cx			;restore extended_info addr
 	pop	di
 	pop	si
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 UNR_Exit:
 	ret				;return
 
-Unfold_Name_Record	endp
+; ENDP Unfold_Name_Record
 ;
 
 
@@ -1764,26 +1764,26 @@ Unfold_Name_Record	endp
 ; with carry set that tells the end.
 ;----------------------------------------------------------------------
 
-PACK_DIR_NAME	PROC	NEAR
+PACK_DIR_NAME:
 
-	cmp	byte ptr ds:[si], 0	;end of path ??
+	cmp	byte [ds:si], 0	;end of path ??
 	jne	PDN_Drive		;no-check for drive letter
 	stc
 	jmp	short PDN_Exit		;yes-exit
 
 PDN_Drive:
-	cmp	byte ptr ds:[si+1], ':' ;drive letter terminater?
+	cmp	byte [ds:si+1], ':' ;drive letter terminater?
 	jnz	PDN_chk_skip		;no -
-	mov	dl, byte ptr ds:[si]	;yes-set DL to the drive letter
+	mov	dl, byte [ds:si]	;yes-set DL to the drive letter
 	inc	si
 	inc	si			;set SI -> '\' after ':'
 	jmp	short PDN_Exit		;then exit
 
 PDN_chk_skip:
-	cmp	byte ptr ds:[si], '\'   ;delimeter?
+	cmp	byte [ds:si], '\'   ;delimeter?
 	jne	PDN_Path		;no-
 	inc	si			;yes-skip delimiter
-	cmp	byte ptr ds:[si], 0	;end of path ??
+	cmp	byte [ds:si], 0	;end of path ??
 	jne	PDN_Path		;no-pack path name
 	stc				;yes-In fact, the input from DOS was
 	mov	ax, -1			;D:\,0.  FASTOPEN will treate
@@ -1796,7 +1796,7 @@ PDN_Path:				;pack path name
 
 	push	cs
 	pop	es
-	mov	di, offset cs:Packed_Name   ;ES:DI-->pack buffer
+	mov	di, Packed_Name   ;ES:DI-->pack buffer
 
 	mov	ax,'  '
 	STOSB				;blank out the Packed_Name
@@ -1805,7 +1805,7 @@ PDN_Path:				;pack path name
 	STOSW
 	STOSW
 	STOSW
-	mov	di, offset cs:Packed_Name
+	mov	di, Packed_Name
 
 PDN_GetName:
 	LODSB				;DS:SI => AL, SI++
@@ -1819,7 +1819,7 @@ PDN_GetName:
 	jmp	short PDN_GetName
 
 PDN_SetExt:
-	mov	di, offset cs:Packed_Name+8
+	mov	di, Packed_Name+8
 
 PDN_GetExt:
 	LODSB
@@ -1841,7 +1841,7 @@ PDN_GetDone:
 PDN_Exit:
 	ret
 
-PACK_DIR_NAME	endp
+; ENDP PACK_DIR_NAME
 
 
 
@@ -1861,7 +1861,7 @@ PACK_DIR_NAME	endp
 ;     ES, BP register changed.
 ;----------------------------------------------------------------------
 
-FIND_CLUSTER_NUMBER    PROC    NEAR
+FIND_CLUSTER_NUMBER:
 
 	push	ax
 	push	cx
@@ -1874,7 +1874,7 @@ FIND_CLUSTER_NUMBER    PROC    NEAR
 	mov	dx, cx			;save the key in DX					   ;AN000;
 	mov	ax, cs:Open_Name_Cache_Seg							   ;AN000;
 	mov	es, ax										   ;AN000;
-	ASSUME	es:Cseg_Init
+	; ASSUME	es:Cseg_Init
 
 	CALL	SET_LRU 		;clean up the LRU stack
 
@@ -1882,20 +1882,20 @@ FIND_CLUSTER_NUMBER    PROC    NEAR
 					;Current_Drive before SET_LRU at any time!!!
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg
-	ASSUME	ds:Cseg_Init
-	mov	cx, ds:[bp.DCH_Num_Entries]	;Max number to try
-	mov	bp, ds:[bp.DCH_MRU_ROOT]	;get the start of MRU chaing
+	; ASSUME	ds:Cseg_Init
+	mov	cx, [ds:bp+DCH_Num_Entries]	;Max number to try
+	mov	bp, [ds:bp+DCH_MRU_ROOT]	;get the start of MRU chaing
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 
 FCN_while:
-	cmp	es:[bp.nCmpct_Dir_Info], ' ' ;Is it a free node ?
+	cmp	[es:bp+nCmpct_Dir_Info], ' ' ;Is it a free node ?
 	je	FCN_not_found		;then no reason to continue search.
 
-	cmp	dx, es:[bp.nCmpct_Dir_Info.CDI_cluster] ;matching starting cluster # ?
+	cmp	dx, [es:bp+nCmpct_Dir_Info.CDI_cluster] ;matching starting cluster # ?
 	je	FCN_exit		;found it!!!
 
-	mov	bp, es:[bp.nMRU_ptr]	;next MRU entry address
+	mov	bp, [es:bp+nMRU_ptr]	;next MRU entry address
 	cmp	bp, -1			;It was the end of MRU chain?
 	je	FCN_not_found		;not found. End of search
 	LOOP	FCN_while		;else compare cluster and contine...
@@ -1909,7 +1909,7 @@ FCN_exit:
 	pop	ax
 	ret
 
-FIND_CLUSTER_NUMBER	ENDP
+; ENDP FIND_CLUSTER_NUMBER
 
 
 
@@ -1931,7 +1931,7 @@ FIND_CLUSTER_NUMBER	ENDP
 ;     ES, BP register changed.
 ;----------------------------------------------------------------------
 
-FIND_DIR_SECTOR   PROC	  NEAR
+FIND_DIR_SECTOR:
 
 	push	ax
 	push	cx
@@ -1943,7 +1943,7 @@ FIND_DIR_SECTOR   PROC	  NEAR
 
 	mov	ax, cs:Open_Name_Cache_Seg							   ;AN000;
 	mov	es, ax										   ;AN000;
-	ASSUME	es:Cseg_Init
+	; ASSUME	es:Cseg_Init
 
 	CALL	SET_LRU 		;clean up the LRU stack
 
@@ -1952,27 +1952,27 @@ FIND_DIR_SECTOR   PROC	  NEAR
 					;Current_Drive before SET_LRU at any time!!!
 	push	ds
 	mov	ds,cs:Open_Name_Cache_Seg
-	ASSUME	ds:Cseg_Init
-	mov	cx, ds:[bp.DCH_Num_Entries]	;Max number to try
-	mov	bp, ds:[bp.DCH_MRU_ROOT]	;get the start of MRU chaing
+	; ASSUME	ds:Cseg_Init
+	mov	cx, [ds:bp+DCH_Num_Entries]	;Max number to try
+	mov	bp, [ds:bp+DCH_MRU_ROOT]	;get the start of MRU chaing
 	pop	ds
-	ASSUME	ds:nothing
+	; ASSUME	ds:nothing
 
 FDIR_while:
-	cmp	es:[bp.nCmpct_Dir_Info], ' ' ;Is it a free node ?
+	cmp	[es:bp+nCmpct_Dir_Info], ' ' ;Is it a free node ?
 	je	FDIR_NOT_FOUND		;then no reason to continue search.
 
-	cmp	di, word ptr es:[bp.nExtended_Info.FEI_dirsec] ;matching directory sector hi?
+	cmp	di, word [es:bp+nExtended_Info.FEI_dirsec] ;matching directory sector hi?
 	jne	FDIR_Next		;check next entry
 
-	cmp	ax, word ptr es:[bp.nExtended_Info.FEI_dirsec+2] ;matching directory sector low ?
+	cmp	ax, word [es:bp+nExtended_Info.FEI_dirsec+2] ;matching directory sector low ?
 	jne	FDIR_Next		;check next entry
 
-	cmp	dh, es:[bp.nExtended_Info.FEI_dirpos] ;matching directory postion ?
+	cmp	dh, [es:bp+nExtended_Info.FEI_dirpos] ;matching directory postion ?
 	je	FDIR_Exit		;check next entry
 
 FDIR_Next:
-	mov	bp, es:[bp.nMRU_ptr]	;next MRU entry address
+	mov	bp, [es:bp+nMRU_ptr]	;next MRU entry address
 	cmp	bp, -1			;It was the end of MRU chain?
 	je	FDIR_not_found		;not found. End of search
 	loop	FDIR_while		;else compare cluster and contine...
@@ -1986,7 +1986,7 @@ FDIR_exit:
 	pop	ax
 	ret
 
-FIND_DIR_SECTOR     ENDP
+; ENDP FIND_DIR_SECTOR
 
 
 
@@ -1996,7 +1996,7 @@ FIND_DIR_SECTOR     ENDP
 ; Procedure: CHECK_IT	   Call Fastopen  Tree Analyser to check the
 ;			   consistency of the Directory/File Tree strucutre.
 ;--------------------------------------------------------------------------
-CHECK_IT   PROC    NEAR
+CHECK_IT:
 
        pushf				      ; save all registers
        push   ax
@@ -2031,22 +2031,22 @@ Check_Exit:
        popf				      ;return
        ret
 
-CHECK_IT    ENDP
+; ENDP CHECK_IT
 
 
 
 
 
 ; Calculate the size of the CSEG_OPEN Module in bytes
-	IF  ($-Cseg_Open) MOD 16								   ;AN000;
+	%if ($-Cseg_Open) MOD 16;AN000;
 	   ORG ($-Cseg_Open)+16-(($-Cseg_Open) MOD 16)						   ;AN000;
-	ENDIF											   ;AN000;
+	%endif;AN000;
 
-END_OPEN   label   word
-
-
+END_OPEN:
 
 
-CSEG_OPEN    ends
-     end
+
+
+; END SECTION .CSEG_OPEN
+     ; end
 

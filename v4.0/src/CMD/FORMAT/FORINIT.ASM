@@ -10,34 +10,34 @@
 ;
 ;
 ;
-; ÚÄÄÄÄÄÄÄÄÄÄÄ¿
-; ³ Main_Init ³
-; ÀÄÂÄÄÄÄÄÄÄÄÄÙ
-;   ³
-;   ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿     ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   Ã´Init_Input_OutputÃÄÄÄÄÂ´Preload_Messages³
-;   ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ    ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;   ³			    ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿   ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   ³			    Ã´Check_For_FS_SwitchÃÄÄÂ´Parse_For_FS_Switch³
-;   ³			    ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ  ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;   ³			    ³			    ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   ³			    ³			    À´EXEC_FS_Format³
-;   ³			    ³			     ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;   ³			    ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿   ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   ³			    À´Parse_Command_Line ÃÄÄÄ´Interpret_Parse³
-;   ³			     ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ   ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;   ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿ ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   Ã´Validate_Target_DriveÃÂ´Check_Target_Drive³
-;   ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;   ³			    ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   ³			    Ã´Check_For_Network³
-;   ³			    ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;   ³			    ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   ³			    À´Check_Translate_Drive³
-;   ³			     ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
-;   ³ÚÄÄÄÄÄÄÄÄÄÄÄÄ¿
-;   À´Hook_CNTRL_C³
-;    ÀÄÄÄÄÄÄÄÄÄÄÄÄÙ
+; ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+; Â³ Main_Init Â³
+; Ã€Ã„Ã‚Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³
+;   Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿     ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   ÃƒÂ´Init_Input_OutputÃƒÃ„Ã„Ã„Ã„Ã‚Â´Preload_MessagesÂ³
+;   Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™    Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³			    Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿   ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   Â³			    ÃƒÂ´Check_For_FS_SwitchÃƒÃ„Ã„Ã‚Â´Parse_For_FS_SwitchÂ³
+;   Â³			    Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™  Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³			    Â³			    Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   Â³			    Â³			    Ã€Â´EXEC_FS_FormatÂ³
+;   Â³			    Â³			     Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³			    Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿   ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   Â³			    Ã€Â´Parse_Command_Line ÃƒÃ„Ã„Ã„Â´Interpret_ParseÂ³
+;   Â³			     Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™   Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿ ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   ÃƒÂ´Validate_Target_DriveÃƒÃ‚Â´Check_Target_DriveÂ³
+;   Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³			    Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   Â³			    ÃƒÂ´Check_For_NetworkÂ³
+;   Â³			    Â³Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³			    Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   Â³			    Ã€Â´Check_Translate_DriveÂ³
+;   Â³			     Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
+;   Â³ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿
+;   Ã€Â´Hook_CNTRL_CÂ³
+;    Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™
 ;
 ;
 ; Change List: AN000 - New code DOS 3.3 spec additions
@@ -45,7 +45,7 @@
 ;*****************************************************************************
 ;*****************************************************************************
 
-data	segment public para 'DATA'
+SECTION .data
 
 
 Command_Line db NO
@@ -53,7 +53,7 @@ PSP_Segment dw	0
 
 ;These should stay togather
 ; ---------------------------------------	;				;AN000;
-FS_String_Buffer db 13 dup(" ") 		;				;AN000;
+FS_String_Buffer: times 13 db " ";				;AN000;
 FS_String_End db "FMT.EXE",0			;				;AN000;
 Len_FS_String_End equ $ - FS_String_End 	;				;AN000;
 						;				;AN000;
@@ -68,13 +68,13 @@ Command_Line_Buffer db 80h dup(0)		;				;AN000;
 Command_Line_Length equ $ - Command_Line_Buffer ;				;AN000;
 Fatal_Error db	0				;				;AN000;
 
-Command_Old_Ptr dw	?
+Command_Old_Ptr: dw 0
 
-data	ends
+; END SECTION .data
 
-code	segment public para 'CODE'
-	assume	cs:code,ds:data,es:data
-code	ends
+SECTION .code
+	; assume	cs:code,ds:data,es:data
+; END SECTION .code
 
 ;
 ;*****************************************************************************
@@ -82,15 +82,15 @@ code	ends
 ;*****************************************************************************
 ;
 
-.xlist
-INCLUDE FORCHNG.INC
-INCLUDE FORMACRO.INC
-INCLUDE SYSCALL.INC
-INCLUDE IOCTL.INC
-INCLUDE FOREQU.INC
-INCLUDE FORPARSE.INC
-INCLUDE FORSWTCH.INC
-.list
+; .xlist
+%include "FORCHNG.INC"
+%include "FORMACRO.INC"
+%include "SYSCALL.INC"
+%include "IOCTL.INC"
+%include "FOREQU.INC"
+%include "FORPARSE.INC"
+%include "FORSWTCH.INC"
+; .list
 
 ;
 ;*****************************************************************************
@@ -98,13 +98,13 @@ INCLUDE FORSWTCH.INC
 ;*****************************************************************************
 ;
 
-	Public	FS_String_Buffer
-	Public	Command_Line
-	Public	Fatal_Error
-	Public	Vol_Label_Count
-	Public	Vol_Label_Buffer
-	Public	PSP_Segment
-	Public	Command_Old_Ptr
+	global FS_String_Buffer
+	global Command_Line
+	global Fatal_Error
+	global Vol_Label_Count
+	global Vol_Label_Buffer
+	global PSP_Segment
+	global Command_Old_Ptr
 
 
 ;
@@ -114,7 +114,7 @@ INCLUDE FORSWTCH.INC
 ;
 
 
-	Public	Main_Init
+	global Main_Init
 
 ;
 ;*****************************************************************************
@@ -122,52 +122,52 @@ INCLUDE FORSWTCH.INC
 ;*****************************************************************************
 ;
 
-	Extrn	Main_Routine:Near
-	Extrn	SysLoadMsg:Near
-	Extrn	Get_11_Characters:Near
-	Extrn	ControlC_Handler:Near
-	Extrn	SysDispMsg:Near
-	Extrn	SysLoadMsg:Near
+	extern Main_Routine
+	extern SysLoadMsg
+	extern Get_11_Characters
+	extern ControlC_Handler
+	extern SysDispMsg
+	extern SysLoadMsg
 
-IF FSExec					;/FS: conditional assembly	;an018; dms;
+%if FSExec;/FS: conditional assembly	;an018; dms;
 
-	Extrn	EXEC_FS_Format:Near
+	extern EXEC_FS_Format
 
-ENDIF						;/FS: conditional assembly end	;an018;dms;
+%endif;/FS: conditional assembly end	;an018;dms;
 
-	Extrn	GetDeviceParameters:Near
+	extern GetDeviceParameters
 ;
 ;*****************************************************************************
 ; External Data Declarations
 ;*****************************************************************************
 ;
 
-	Extrn	SwitchMap:Word
-	Extrn	ExitStatus:Byte
-	Extrn	Drive:Byte
-	Extrn	DriveLetter:Byte
-	Extrn	TranSrc:Byte
-	Extrn	TrackCnt:Word
-	Extrn	NumSectors:Word
-	Extrn	BIOSFile:Byte
-	Extrn	DOSFile:Byte
-	Extrn	CommandFile:Byte
-	Extrn	MsgNeedDrive:Byte
-	Extrn	MsgBadVolumeID:Byte
-	Extrn	MsgBadDrive:Byte
-	Extrn	MsgAssignedDrive:Byte
-	Extrn	MsgNetDrive:Byte
-	Extrn	Parse_Error_Msg:Byte
-	Extrn	Extended_Error_Msg:Byte
-	Extrn	SizeMap:Byte
-	Extrn	MsgSameSwitch:Byte
-	Extrn	Org_AX:word			;an000; dms;AX on prog. entry
-	Extrn	DeviceParameters:Byte		;an000; dms;
-	Extrn	FAT_Flag:Byte			;an000; dms;
-	Extrn	Sublist_MsgParse_Error:Dword	;an000; dms;
+	extern SwitchMap
+	extern ExitStatus
+	extern Drive
+	extern DriveLetter
+	extern TranSrc
+	extern TrackCnt
+	extern NumSectors
+	extern BIOSFile
+	extern DOSFile
+	extern CommandFile
+	extern MsgNeedDrive
+	extern MsgBadVolumeID
+	extern MsgBadDrive
+	extern MsgAssignedDrive
+	extern MsgNetDrive
+	extern Parse_Error_Msg
+	extern Extended_Error_Msg
+	extern SizeMap
+	extern MsgSameSwitch
+	extern Org_AX;an000; dms;AX on prog. entry
+	extern DeviceParameters;an000; dms;
+	extern FAT_Flag;an000; dms;
+	extern Sublist_MsgParse_Error;an000; dms;
 
 
-code	segment public	para	'CODE'
+SECTION .code
 
 ;*****************************************************************************
 ;Routine name:	Main_Init
@@ -235,7 +235,7 @@ $$IF1:
 	DOS_Call Exit				;Exit program			;AN000;
 	int	20h				;If other exit fails		;AN000;
 
-Main_Init endp					;				;AN000;
+; ENDP Main_Init;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Init_Input_Output
@@ -277,14 +277,14 @@ Procedure Init_Input_Output			;				;AN000;
 	Set_Data_Segment			;Set DS,ES to Data segment	;AN000;
 	call	Preload_Messages		;Load up message retriever	;AN000;
 
-IF FSExec					;/FS: conditional assembly	;an018; dms;
+%if FSExec;/FS: conditional assembly	;an018; dms;
 
 	cmp	Fatal_Error,YES 		;Quit?				;AN000;
 ;	$IF	NE				;Nope, keep going		;AN000;
 	JE $$IF7
 	   call    Check_For_FS_Switch		;Specify FS other than FAT?	;AN000;
 
-ENDIF						;/FS: conditional assembly end	;an018;dms;
+%endif;/FS: conditional assembly end	;an018;dms;
 
 	   cmp	   Fatal_Error,YES		;drive is invalid for format?	;an000;
 ;	   $if	   ne				;no				;an000;
@@ -300,16 +300,16 @@ $$IF9:
 ;	    $ENDIF				;				;AN000;
 $$IF8:
 
-IF FSExec					;/FS: conditional assembly	;an018; dms;
+%if FSExec;/FS: conditional assembly	;an018; dms;
 
 ;	$ENDIF					;				;an000;
 $$IF7:
 
-ENDIF						;/FS: conditional assembly end	;an018;dms;
+%endif;/FS: conditional assembly end	;an018;dms;
 
 	ret					;				;AN000;
 
-Init_Input_Output endp				;				;AN000;
+; ENDP Init_Input_Output;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Preload_Messages
@@ -349,12 +349,12 @@ Procedure Preload_Messages			;				;AN000;
 $$IF13:
 	ret					;				;AN000;
 
-Preload_Messages endp				;				;AN000;
+; ENDP Preload_Messages;				;AN000;
 
 
 
 
-IF FSExec					;/FS: conditional assembly	;an018; dms;
+%if FSExec;/FS: conditional assembly	;an018; dms;
 
 
 ;*****************************************************************************
@@ -401,7 +401,7 @@ Procedure Check_For_FS_Switch			;				;AN000;
 	cmp	Fatal_Error,YES 		;Bad stuff entered??		;AN000;
 ;	$IF	NE				;Nope, cruise onward		;AN000;
 	JE $$IF15
-	   cmp	   Switch_String_Buffer.Switch_Pointer,offset Switch_FS_Control.Keyword ; ;AN000;
+	   cmp	   Switch_String_Buffer.Switch_Pointer,Switch_FS_Control.Keyword ; ;AN000;
 ;	   $IF	   E				;We got the switch		;AN000;
 	   JNE $$IF16
 	      mov     Switch_FS_Control.Keyword,20h ;an000; dms;remove switch from table
@@ -411,16 +411,16 @@ Procedure Check_For_FS_Switch			;				;AN000;
 		 push	 ds			;Get addressibility		;AN000;
 		 pop	 es			; "  "	  "  "			;AN000;
 						;
-		 assume  ds:nothing,es:data	;				;AN000;
+		 ; assume  ds:nothing,es:data;				;AN000;
 						;
 		 mov	 ax,Switch_String_Buffer.Switch_String_Seg ;Get the entered FS ;AN000;
 		 mov	 ds,ax			;				;AN000;
 		 mov	 si,es:Switch_String_Buffer.Switch_String_Off ; 	       ;AN000;
 		 mov	 cx,FS_String_Max_Length ;				 ;AN000;
-		 mov	 di,offset es:FS_String_Buffer ;			   ;AN000;
+		 mov	 di,FS_String_Buffer ;			   ;AN000;
 ;		 $DO				;Move whatever user entered	;AN000;
 $$DO18:
-		    cmp     byte ptr [si],ASCIIZ_End ;End of the string?	   ;AN000;
+		    cmp     byte [si],ASCIIZ_End ;End of the string?	   ;AN000;
 ;		 $LEAVE  E			;Yep				;AN000;
 		 JE $$EN18
 		    movsb			;Put character in buffer	;AN000;
@@ -431,7 +431,7 @@ $$DO18:
 $$EN18:
 		 Set_Data_Segment		;Set DS,ES to Data segment	;AN000;
 		 mov	 cx,Len_FS_String_End	;Tack the FMT.EXE onto it	   ;AN000;
-		 mov	 si,offset es:FS_String_End ;DI still points at string	    ;AN000;
+		 mov	 si,FS_String_End ;DI still points at string	    ;AN000;
 		 rep	 movsb			;We now have Asciiz path!	;AN000;
 		 call	 EXEC_FS_Format 	;Go try to EXEC it..... 	;AN000;
 ;	      $ELSE				;				;AN002;
@@ -447,7 +447,7 @@ $$IF16:
 $$IF15:
 	ret					;				;AN000;
 
-Check_For_FS_Switch endp			;				;AN000;
+; ENDP Check_For_FS_Switch;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Parse_For_FS_Switch
@@ -496,17 +496,17 @@ Procedure Parse_For_FS_Switch			;				;AN000;
 	mov	Drive_Letter_Buffer.Drive_Number,Init ; 			;AN000;
 	mov	cx,PSP_Segment			;Get segment of PSP		;AN000;
 	mov	ds,cx				;  "  "    "  " 		;AN000;
-	assume	ds:nothing			;
+	; assume	ds:nothing;
 						;
 	mov	si,Command_Line_Parms		;Point at command line		;AN000;
-	mov	di,offset data:Command_Line_Buffer ;Where to put a copy of it	   ;AN000;
+	mov	di,Command_Line_Buffer ;Where to put a copy of it	   ;AN000;
 	mov	cx,Command_Line_Length		;How long was input?		;AN000;
 	repnz	movsb				;Copy it			;AN000;
 	Set_Data_Segment			;Set DS,ES to Data segment	;AN000;
 	xor	cx,cx				;				;AN000;
 	xor	dx,dx				;Required for SysParse call	;AN000;
-	mov	si,offset Command_Line_Buffer	;Pointer to parse line		  ;AN000;
-	mov	di,offset Switch_FS_Table	;Pointer to control table	   ;AN000;
+	mov	si,Command_Line_Buffer	;Pointer to parse line		  ;AN000;
+	mov	di,Switch_FS_Table	;Pointer to control table	   ;AN000;
 ;	$DO					;Setup parse call		;AN000;
 $$DO25:
 	   call    SysParse			;Go parse			;AN000;
@@ -516,7 +516,7 @@ $$DO25:
 	   cmp	   ax,Operand_Missing		; exit if positional missing	;AN000;
 ;	$LEAVE	E				;In other words, no drive letter;AN000;
 	JE $$EN25
-	   cmp	   Switch_String_Buffer.Switch_Pointer,offset Switch_FS_Control.Keyword ;AN000;
+	   cmp	   Switch_String_Buffer.Switch_Pointer,Switch_FS_Control.Keyword ;AN000;
 ;	$ENDDO	E				;Exit if we find /FS		;AN000;
 	JNE $$DO25
 $$EN25:
@@ -529,10 +529,10 @@ $$EN25:
 $$IF28:
 	ret					;				;AN000;
 
-Parse_For_FS_Switch endp			;				;AN000;
+; ENDP Parse_For_FS_Switch;				;AN000;
 
 
-ENDIF						;/FS: conditional assembly end	;an018;dms;
+%endif;/FS: conditional assembly end	;an018;dms;
 
 
 ;*****************************************************************************
@@ -583,13 +583,13 @@ Procedure Parse_Command_Line			;				;AN000;
 	mov	cx,PSP_Segment			;Get segment of PSP		;AN000;
 	mov	ds,cx				;  "  "    "  " 		;AN000;
 
-	assume	ds:nothing,es:data
+	; assume	ds:nothing,es:data
 
 	xor	cx,cx				;Parse table @DI		;AN000;
 	xor	dx,dx				;Parse line @SI 		;AN000;
 	mov	si,Command_Line_Parms		;Pointer to parse line		;AN000;
-	mov	word ptr es:Command_Old_Ptr,si
-	mov	di,offset es:Command_Line_Table ;Pointer to control table	;AN000;
+	mov	word es:Command_Old_Ptr,si
+	mov	di,Command_Line_Table ;Pointer to control table	;AN000;
 ;	$SEARCH 				;Loop until all parsed		;AN000;
 $$DO30:
 	   cmp	   es:Fatal_Error,Yes		;Interpret something bad?	;AN000;
@@ -607,18 +607,18 @@ $$IF30:
 	   cmp	   ax,0 			;Check for parse error		;AN000;
 ;	$LEAVE	NE				;Stop if there was one		;AN000;
 	JNE $$EN30
-	   mov	word ptr es:Command_Old_Ptr,si
+	   mov	word es:Command_Old_Ptr,si
 	   call    Interpret_Parse		;Go find what we parsed 	;AN000;
 ;	$ENDLOOP				;Parse error, see what it was	;AN000;
 	JMP SHORT $$DO30
 $$EN30:
-	   mov	byte ptr ds:[si],0
+	   mov	byte [ds:si],0
 	   push di
 	   push ax
-	   mov	di,offset es:Sublist_MsgParse_Error
-	   mov	ax,word ptr es:Command_Old_Ptr
-	   mov	word ptr es:[di+2],ax
-	   mov	word ptr es:[di+4],ds
+	   mov	di,Sublist_MsgParse_Error
+	   mov	ax,word es:Command_Old_Ptr
+	   mov	word [es:di+2],ax
+	   mov	word [es:di+4],ds
 	   pop	ax
 	   pop	di
 	   PARSE_MESSAGE			;Display parse error		;AN000;
@@ -628,7 +628,7 @@ $$SR30:
 	pop	ds				;				;AN000;
 	ret					;				;AN000;
 
-Parse_Command_Line endp 			;				;AN000;
+; ENDP Parse_Command_Line;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Interpret_Parse
@@ -721,7 +721,7 @@ Procedure Interpret_Parse			;				;AN000;
 	push	cx				;				;AN000;
 	push	di				;
 	Set_Data_Segment			;Set DS,ES to Data segment	;AN000;
-	cmp	byte ptr Drive_Letter_Buffer.Drive_Type,Type_Drive ;Have drive letter?	 ;AN000;
+	cmp	byte Drive_Letter_Buffer.Drive_Type,Type_Drive ;Have drive letter?	 ;AN000;
 ;	$IF	E				;Yes, save info 		;AN000;
 	JNE $$IF36
 	   mov	   al,Drive_Letter_Buffer.Drive_Number ;Get drive entered	   ;AN000;
@@ -731,56 +731,56 @@ Procedure Interpret_Parse			;				;AN000;
 	   mov	   DriveLetter,al		;Save it			;AN000;
 ;	$ENDIF					;				;AN000;
 $$IF36:
-	cmp	Switch_Buffer.Switch_Pointer,offset Switch_1_Control.Keyword ;;AN000;
+	cmp	Switch_Buffer.Switch_Pointer,Switch_1_Control.Keyword ;;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF38
 	   mov	   Switch_1_Control.Keyword,20h ;an000; dms;remove switch from table
 	   or	   SwitchMap,Switch_1		;				;AN000;
 ;	$ENDIF					;				;AN000;
 $$IF38:
-	cmp	Switch_Buffer.Switch_Pointer,offset Switch_4_Control.Keyword ;;AN000;
+	cmp	Switch_Buffer.Switch_Pointer,Switch_4_Control.Keyword ;;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF40
 	   mov	   Switch_4_Control.Keyword,20h ;an000; dms;remove switch from table
 	   or	   SwitchMap,Switch_4		;				;AN000;
 ;	$ENDIF					;				;AN000;
 $$IF40:
-	cmp	Switch_Buffer.Switch_Pointer,offset Switch_8_Control.Keyword ;;AN000;
+	cmp	Switch_Buffer.Switch_Pointer,Switch_8_Control.Keyword ;;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF42
 	   mov	   Switch_8_Control.Keyword,20h ;an000; dms;remove switch from table
 	   or	   SwitchMap,Switch_8		;				;AN000;
 ;	$ENDIF					;				;AN000;
 $$IF42:
-	cmp	Switch_Buffer.Switch_Pointer,offset Switch_S_Control.Keyword ;;AN000;
+	cmp	Switch_Buffer.Switch_Pointer,Switch_S_Control.Keyword ;;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF44
 	   mov	   Switch_S_Control.Keyword,20h ;an000; dms;remove switch from table
 	   or	   SwitchMap,Switch_S		;				;AN000;
 ;	$ENDIF					;				;AN000;
 $$IF44:
-	cmp	Switch_Buffer.Switch_Pointer,offset Switch_Backup_Control.Keyword ;AN000;
+	cmp	Switch_Buffer.Switch_Pointer,Switch_Backup_Control.Keyword ;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF46
 	   mov	   Switch_Backup_Control.Keyword,20h ;an000; dms;remove switch from table
 	   or	   SwitchMap,Switch_Backup	;				;AN000;
 ;	$ENDIF					;				;AN000;
 $$IF46:
-	cmp	Switch_Buffer.Switch_Pointer,offset Switch_Select_Control.Keyword ;AN000;
+	cmp	Switch_Buffer.Switch_Pointer,Switch_Select_Control.Keyword ;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF48
 	   mov	   Switch_Select_Control.Keyword,20h ;an000; dms;remove switch from table
 	   or	   SwitchMap,Switch_Select	;				;AN000;
 ;	$ENDIF					;				;AN000;
 $$IF48:
-	cmp	Switch_Buffer.Switch_Pointer,offset Switch_B_Control.Keyword ;AN000;
+	cmp	Switch_Buffer.Switch_Pointer,Switch_B_Control.Keyword ;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF50
 	   mov	   Switch_B_Control.Keyword,20H
 	   or	   SwitchMap,Switch_B		;				;AN000;
 ;	$ENDIF					;				;AN000;
 $$IF50:
-	cmp	Switch_Num_Buffer.Switch_Num_Pointer,offset es:Switch_T_Control.Keyword ;AN000;
+	cmp	Switch_Num_Buffer.Switch_Num_Pointer,Switch_T_Control.Keyword ;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF52
 	   mov	   Switch_T_Control.Keyword,20h ;an000; dms;remove switch from table
@@ -800,7 +800,7 @@ $$IF53:
 $$EN53:
 ;	$ENDIF					;				;AN002;
 $$IF52:
-	cmp	Switch_Num_Buffer.Switch_Num_Pointer,offset Switch_N_Control.Keyword ;AN000;
+	cmp	Switch_Num_Buffer.Switch_Num_Pointer,Switch_N_Control.Keyword ;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF57
 	   mov	   Switch_N_Control.Keyword,20h ;an000; dms;remove switch from table
@@ -821,7 +821,7 @@ $$IF58:
 $$EN58:
 ;	$ENDIF					;				;AN002;
 $$IF57:
-	cmp	Switch_String_Buffer.Switch_String_Pointer,offset Switch_V_Control.Keyword ;AN000;
+	cmp	Switch_String_Buffer.Switch_String_Pointer,Switch_V_Control.Keyword ;AN000;
 ;	$IF	E				;If /v and haven't already done ;AN000;
 	JNE $$IF62
 	   mov	   Switch_String_Buffer.Switch_String_Pointer,0 ;Init for next switch ;AN008;
@@ -833,19 +833,19 @@ $$IF57:
 	      mov     si,Switch_String_Buffer.Switch_String_Seg ;Get string address ;;AN000;
 	      mov     ds,si			;				;AN000;
 
-	      assume  ds:nothing
+	      ; assume  ds:nothing
 
 	      mov     si,es:Switch_String_Buffer.Switch_String_Off ;		   ;AN000;
-	      cmp     byte ptr ds:[si],None	;Is there a string there?	;AN000;
+	      cmp     byte [ds:si],None	;Is there a string there?	;AN000;
 ;	      $IF     NE			;Yep				;AN000;
 	      JE $$IF64
 		 cld				;				;AN000;
-		 mov	 di,offset es:Vol_Label_Buffer ;Point at buffer to move string;AN000;
+		 mov	 di,Vol_Label_Buffer ;Point at buffer to move string;AN000;
 		 mov	 cx,Label_Length+1	;Max length of string		;AN000;
 		 rep	 movsb			;This will copy string & always ;AN000;
 						; leave ASCIIZ end in buffer,	;     ;
 						; which is init'd to 13 dup(0)  ;     ;
-		 mov	 si,offset es:Vol_Label_Buffer ;Point at string 	   ;AN000;
+		 mov	 si,Vol_Label_Buffer ;Point at string 	   ;AN000;
 		 Set_Data_Segment		;Set DS,ES to Data segment	;AN000;
 		 mov	 Command_Line,YES	;Set flag indicating vol label	;AN000;
 		 call	 Get_11_Characters	;Check DBCS and build FCB	;AN000;
@@ -866,7 +866,7 @@ $$IF63:
 $$EN63:
 ;	$ENDIF					;				;AN000;
 $$IF62:
-	cmp	Switch_Buffer.Switch_Pointer,offset Switch_Autotest_Control.Keyword ;AN000;
+	cmp	Switch_Buffer.Switch_Pointer,Switch_Autotest_Control.Keyword ;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF71
 	   mov	   Switch_Autotest_Control.Keyword,20h ;an000; dms;remove switch from table
@@ -874,9 +874,9 @@ $$IF62:
 ;	$ENDIF					;				;AN000;
 $$IF71:
 
-IF ShipDisk
+%if ShipDisk
 
-	cmp	Switch_Buffer.Switch_Pointer,offset Switch_Z_Control.Keyword	;an000; dms;/Z switch?
+	cmp	Switch_Buffer.Switch_Pointer,Switch_Z_Control.Keyword	;an000; dms;/Z switch?
 ;	$IF	E				;				;an000; dms;yes
 	JNE $$IF73
 	   mov	   Switch_Z_Control.Keyword,20h 				;an000; dms;remove switch from table
@@ -884,9 +884,9 @@ IF ShipDisk
 ;	$ENDIF					;				;an000; dms;
 $$IF73:
 
-ENDIF
+%endif
 
-	cmp	Switch_String_Buffer.Switch_Pointer,offset Switch_F_Control.Keyword ;  ;AN000;
+	cmp	Switch_String_Buffer.Switch_Pointer,Switch_F_Control.Keyword ;  ;AN000;
 ;	$IF	E				;				;AN000;
 	JNE $$IF75
 	   mov	   Switch_F_Control.Keyword,20h ;an000; dms;remove switch from table
@@ -913,7 +913,7 @@ $$IF75:
 	pop	ds				;				;AN000;
 	ret					;				;AN000;
 
-Interpret_Parse endp				;				;AN000;
+; ENDP Interpret_Parse;				;AN000;
 
 
 
@@ -965,7 +965,7 @@ $$IF81:
 $$IF80:
 	ret					;				;AN000;
 
-Validate_Target_Drive endp			;				;AN000;
+; ENDP Validate_Target_Drive;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Check_Target_Drive
@@ -1019,7 +1019,7 @@ Procedure Check_Target_Drive			;				;AN000;
 $$IF84:
 	ret					;And we're outa here            ;AN000;
 
-Check_Target_Drive endp 			;				;AN000;
+; ENDP Check_Target_Drive;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Check_For_Network
@@ -1080,7 +1080,7 @@ $$IF88:
 $$EN86:
 	ret					;				;AN000;
 
-Check_For_Network endp				;				;AN000;
+; ENDP Check_For_Network;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Check_Translate_Drive
@@ -1112,14 +1112,14 @@ Check_For_Network endp				;				;AN000;
 Procedure Check_Translate_Drive 		;				;AN000;
 						;
 	mov	bl,Drive			;Get drive			;     ;
-	add	byte ptr [TranSrc],bl		;Make string "d:\"		;     ;
-	mov	si,offset TranSrc		;Point to translate string	;     ;
+	add	byte [TranSrc],bl		;Make string "d:\"		;     ;
+	mov	si,TranSrc		;Point to translate string	;     ;
 	push	ds				;Set ES=DS (Data segment)	;     ;
 	pop	es				;     "  "	"  "		;     ;
-	mov	di,offset Command_Line_Buffer	;Point at output buffer 	;     ;
+	mov	di,Command_Line_Buffer	;Point at output buffer 	;     ;
 	DOS_Call xNameTrans			;Get real path			;AC000;
-	mov	bl,byte ptr [TranSrc]		;Get drive letter from path	;     ;
-	cmp	bl,byte ptr Command_Line_Buffer ;Did drive letter change?	;     ;
+	mov	bl,byte [TranSrc]		;Get drive letter from path	;     ;
+	cmp	bl,byte Command_Line_Buffer ;Did drive letter change?	;     ;
 ;	$IF	NE				;If not the same, it be bad	;AC000;
 	JE $$IF91
 	   Message MsgAssignedDrive		;Tell user			;AC000;
@@ -1128,7 +1128,7 @@ Procedure Check_Translate_Drive 		;				;AN000;
 $$IF91:
 	ret					;				;AN000;
 
-Check_Translate_Drive endp			;				;AN000;
+; ENDP Check_Translate_Drive;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Hook_CNTRL_C
@@ -1156,7 +1156,7 @@ Check_Translate_Drive endp			;				;AN000;
 Procedure Hook_CNTRL_C				;				;AN000;
 						;
 	mov	al,23H				;Specify CNTRL handler		;     ;
-	mov	dx, offset ControlC_Handler	;Point at it			;     ;
+	mov	dx, ControlC_Handler	;Point at it			;     ;
 	push	ds				;Save data seg			;     ;
 	push	cs				;Point to code segment		;     ;
 	pop	ds				;				;     ;
@@ -1164,7 +1164,7 @@ Procedure Hook_CNTRL_C				;				;AN000;
 	pop	ds				;Get Data degment back		;     ;
 	ret					;				;AN000;
 
-Hook_CNTRL_C endp				;				;AN000;
+; ENDP Hook_CNTRL_C;				;AN000;
 
 ;=========================================================================
 ; Check_For_Invalid_Drive	: This routine checks the AX received by
@@ -1197,7 +1197,7 @@ $$IF93:
 	pop	ax				;an000; dms;
 	ret					;an000; dms;
 
-Check_For_Invalid_Drive endp			;an000; dms;
+; ENDP Check_For_Invalid_Drive;an000; dms;
 
 
 ;=========================================================================
@@ -1223,7 +1223,7 @@ Procedure Determine_FAT_Non_FAT 						;an012; dms;
 	call	GetDeviceParameters						;an012; dms;make the call
 ;	$if	nc								;an012; dms;no error occurred
 	JC $$IF97
-		cmp	byte ptr DeviceParameters.DP_BPB.BPB_NumberOfFATS,00h	;an012; dms;non-FAT system?
+		cmp	byte DeviceParameters.DP_BPB.BPB_NumberOfFATS,00h	;an012; dms;non-FAT system?
 ;		$if	e							;an012; dms;yes
 		JNE $$IF98
 			mov	FAT_Flag,No					;an012; dms;signal system non-FAT
@@ -1244,12 +1244,12 @@ $$IF97:
 
 	ret									;an012; dms;
 
-Determine_FAT_Non_FAT	endp							;an012; dms;
+; ENDP Determine_FAT_Non_FAT;an012; dms;
 
 
 
 
-code	ends
-	end
+; END SECTION .code
+	; end
 
 

@@ -4,7 +4,7 @@
 ;	SEL-PAN.INC
 ;
 ;
-FALSE = 0
+FALSE equ 0
 
 ;
 ;  Dialog Equates
@@ -12,7 +12,7 @@ FALSE = 0
 ;  These values will eventually be defined by the dialog.
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.XLIST				;AN000;
+; .XLIST;AN000;
 LEFT_COL	EQU	8	;AN000;
 SCR_CONT       EQU  1		;AN000;contextual helps
 SCR_INDX       EQU  2		;AN000;indexed helps
@@ -302,6 +302,6 @@ F7	EQU	65	;AN000;
 F8	EQU	66	;AN000;
 F9	EQU	67	;AN000;
 F10	EQU	68	;AN000;
-.LIST			;AN000;
+; .LIST;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 

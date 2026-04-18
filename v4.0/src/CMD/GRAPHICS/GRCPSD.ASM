@@ -1,5 +1,5 @@
-	PAGE	,132								;AN000;
-	TITLE	DOS GRAPHICS Command  -	Copy Shared Data
+	; PAGE	,132;AN000;
+	; TITLE	DOS GRAPHICS Command  -	Copy Shared Data
 										;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 ;; DOS - GRAPHICS Command
@@ -43,17 +43,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 				       ;;					;AN000;
 				       ;;					;AN000;
-CODE	SEGMENT PUBLIC 'CODE'          ;;                                       ;AN000;
-	ASSUME CS:CODE,DS:CODE	       ;;					;AN000;
-	INCLUDE GRCTRL.EXT	       ;; Bring in external declarations	;AN000;
-	INCLUDE GRCTRL.STR	       ;;  for transient command processing	;AN000;
+SECTION .CODE;;                                       ;AN000;
+	; ASSUME CS:CODE,DS:CODE;;					;AN000;
+	%include "GRCTRL.EXT";; Bring in external declarations	;AN000;
+	%include "GRCTRL.STR";;  for transient command processing	;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 ;;										;AN000;
 ;; Public Symbols								;AN000;
 ;;										;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 				       ;;					;AN000;
-   PUBLIC COPY_SHARED_DATA	       ;;					;AN000;
+   global COPY_SHARED_DATA;;					;AN000;
 				       ;;					;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 ;;										;AN000;
@@ -93,7 +93,7 @@ CODE	SEGMENT PUBLIC 'CODE'          ;;                                       ;AN
 ;;										;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
 				       ;;					;AN000;
-COPY_SHARED_DATA  PROC NEAR	       ;;					;AN000;
+COPY_SHARED_DATA:;;					;AN000;
 				       ;;					;AN000;
 	REP	MOVSB		       ;; Copy Shared Data from temporary	;AN000;
 				       ;;  build area to resident memory	;AN000;
@@ -102,8 +102,8 @@ COPY_SHARED_DATA  PROC NEAR	       ;;					;AN000;
 				       ;;					;AN000;
 	INT	21H		       ;; Exit					;AN000;
 				       ;;					;AN000;
-COPY_SHARED_DATA  ENDP		       ;;					;AN000;
+; ENDP COPY_SHARED_DATA;;					;AN000;
 				       ;;					;AN000;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;					;AN000;
-CODE	ENDS									;AN000;
-	END COPY_SHARED_DATA							;AN000;
+; END SECTION .CODE;AN000;
+	; END COPY_SHARED_DATA;AN000;

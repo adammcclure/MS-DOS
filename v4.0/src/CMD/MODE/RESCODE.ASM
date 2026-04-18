@@ -1,70 +1,70 @@
-	PAGE	,132			;
+	; PAGE	,132;
 
-	TITLE	CODE TO BE MADE RESIDENT BY MODE
+	; TITLE	CODE TO BE MADE RESIDENT BY MODE
 
-.XLIST
-   INCLUDE STRUC.INC
-.LIST
+; .XLIST
+   %include "STRUC.INC"
+; .LIST
 ;.SALL
 
-;ษออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออป				   ;AN000;
-;บ											  บ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
 															   ;AN000;
 ;  AC000 - P2852: Infinite retry check at beginning of INT 14 handler was using
 ;		  wrong bit pattern.
 
 ;  AC001 - P5148: retry_flag was addressing the wrong segment
 
-;บ											  บ				   ;AN000;
-;ศออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออผ				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ				   ;AN000;
 															   ;AN000;
 
-;ษออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-DISPLAY MACRO	MSG
-	MOV	DX,OFFSET MSG
+%macro DISPLAY 1
+	MOV	DX,MSG
 	CALL	PRINTF
-	ENDM
+	%endmacro
 
-GET_INT_VECT MACRO INT_NO		;Input: "INT_NO" - the interrupt to be gotten
+%macro GET_INT_VECT 1;Input: "INT_NO" - the interrupt to be gotten
 	PUSH	AX
 	MOV	AL,INT_NO		;
 	MOV	AH,35H			;FUNCTION CALL "GET VECTOR"
 	INT	21H			;Output: ES:BX = the address in the vector
 	POP	AX
-	ENDM
+	%endmacro
 
-SET	MACRO	REG,VALUE		;SET REG TO VALUE. DON'T SPECIFY AX FOR REG
+%macro SET 2;SET REG TO VALUE. DON'T SPECIFY AX FOR REG
 
 	PUSH	AX
 	MOV	AX,VALUE
 	MOV	REG,AX
 	POP	AX
 
-ENDM
+%endmacro
 
-SET_INT_VECT MACRO INT_NO		;Input: "INT_NO" - the interrupt to be set
+%macro SET_INT_VECT 1;Input: "INT_NO" - the interrupt to be set
 	PUSH	AX			;	DS:DX = CS:IP value to set the interrupt to
 	MOV	AL,INT_NO		;Output: the vector "INT_NO" contains DS:DX
 	MOV	AH,25H			;function call "SET VECTOR"
 	INT	21H
 	POP	AX
-	ENDM
+	%endmacro
 
-store_vector MACRO dword_holder 	;Input: "dword_holder" - where to store it
+%macro store_vector 1;Input: "dword_holder" - where to store it
 					;	ES:BX - the address (vector) to be stored
-   MOV	WORD PTR dword_holder,BX	;Output: "dword_holder"=the value passed in ES:BX
-   MOV	WORD PTR dword_holder[2],ES
+   MOV	word dword_holder,BX	;Output: "dword_holder"=the value passed in ES:BX
+   MOV	word dword_holder[2],ES
 
-ENDM
+%endmacro
 
-;บ											  บ
-;ศออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออออป
-;บ											    บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											    ยบ
 
 ADJUSTMENT EQU	(entpt - move_destination)	;# of bytes the resident code is moved
 adjustment_in_paragraphs  EQU  (adjustment / 10H)	;# paragraphs the code moved
@@ -87,23 +87,23 @@ TO_SCREEN	EQU	9		  ;REQUEST OUTPUT TO SCREEN
 TRUE		EQU	0FFH
 USER_ABORT	EQU	00H
 
-;บ											    บ
-;ศอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											    ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออ  S T R U C T U R E S  ออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  S T R U C T U R E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออ  S T R U C T U R E S  ออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  S T R U C T U R E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-ROM	SEGMENT AT 0F000H
+SECTION .ROM
 	ORG	0E739H
-RS232	LABEL	FAR
+RS232:
 	ORG	0EFD2H
-PRINTER_IO LABEL FAR
+PRINTER_IO:
 ;NOTE: THE VALUES REPRESENTED BY THIS SEGMENT ARE NOT NECESSARILY
 ; THE ONES USED BY THE SUBSEQUENT PROCEDURES.  THESE HERE MERELY
 ; SERVE AS SAMPLES.  THE ACTUAL VALUES IN THE INSTRUCTIONS:
@@ -117,98 +117,98 @@ PRINTER_IO LABEL FAR
 
 	ORG	0FFFEH
 ;model_byte	 LABEL	 BYTE
-ROM	ENDS
+; END SECTION .ROM
 
-VECT	SEGMENT AT 0
+SECTION .VECT
 	ORG	50H
-VECT14H LABEL	DWORD			;RS232 CALL
+VECT14H:;RS232 CALL
 	ORG	5CH
-VECT17H LABEL	DWORD			;PRINTER I/O CALL
+VECT17H:;PRINTER I/O CALL
 	ORG	471H
-BREAK_FLAG LABEL BYTE			;BREAK FLAG
+BREAK_FLAG:;BREAK FLAG
 BREAK_BIT EQU	80H			;ON=BREAK
 	ORG	530H
-RESSEG	LABEL	DWORD			;VECTOR OF MODETO, INIT TO ZERO
-VECT	ENDS
+RESSEG:;VECTOR OF MODETO, INIT TO ZERO
+; END SECTION .VECT
 
 
 ;****************************************************************
-PRINTF_CODE SEGMENT PUBLIC
-	ASSUME	CS:PRINTF_CODE,DS:PRINTF_CODE
+SECTION .PRINTF_CODE
+	; ASSUME	CS:PRINTF_CODE,DS:PRINTF_CODE
 
 
-;ษอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-EXTRN	 device_type:BYTE	 ;see parse.asm
-EXTRN	 COMX:ABS		 ;see parse.asm
-EXTRN	 LPTX:ABS		 ;see parse.asm
-EXTRN	MAIN:NEAR
-EXTRN	MOVED_MSG:WORD	    ;CR,LF,"Resident portion of MODE loaded",CR,LF,"$"
-EXTRN	busy_status:ABS      ;value of lpt1_retry_type[BX] when user wants actual status, see modeprin
-EXTRN	PRINTF:NEAR		;interface to message retriever, see display.asm
-EXTRN	 reroute_requested:BYTE    ;see parse.asm
-EXTRN	 retry_requested:BYTE	 ;see parse.asm
+extern device_type;see parse.asm
+extern COMX;see parse.asm
+extern LPTX;see parse.asm
+extern MAIN
+extern MOVED_MSG;CR,LF,"Resident portion of MODE loaded",CR,LF,"$"
+extern busy_status;value of lpt1_retry_type[BX] when user wants actual status, see modeprin
+extern PRINTF;interface to message retriever, see display.asm
+extern reroute_requested;see parse.asm
+extern retry_requested;see parse.asm
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
 
-;ษอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-PUBLIC	 first_char_in_command_line	     ;location of the command line parameters
-PUBLIC	FIXUP
-PUBLIC	 lpt1_retry_type	 ;filled in and used to get at other two lpt retry masks in modeprin
-PUBLIC	rescode_length		;REFERENCED IN MAIN PROCEDURE
-PUBLIC	MODETO
-PUBLIC	move_destination	;location of the resident code after it has been moved
-PUBLIC	NEW_PTSFLAG		;RESIDENT THE FLAG WILL BE ACCESSABLE TO
-PUBLIC	NEW_SCRNTABL		;MODESCRN NEEDS TO KNOW WHERE IT WENT
-PUBLIC	OFFPTS			;USED IN MODEECHO TO ADDRESS MODEPTS
-PUBLIC	OFFRETRY
-PUBLIC	 ptsflag1		 ;make available to display_printer_reroute_status
-PUBLIC	P14_model_byte
-PUBLIC	res_com_retry_type
+global first_char_in_command_line;location of the command line parameters
+global FIXUP
+global lpt1_retry_type;filled in and used to get at other two lpt retry masks in modeprin
+global rescode_length;REFERENCED IN MAIN PROCEDURE
+global MODETO
+global move_destination;location of the resident code after it has been moved
+global NEW_PTSFLAG;RESIDENT THE FLAG WILL BE ACCESSABLE TO
+global NEW_SCRNTABL;MODESCRN NEEDS TO KNOW WHERE IT WENT
+global OFFPTS;USED IN MODEECHO TO ADDRESS MODEPTS
+global OFFRETRY
+global ptsflag1;make available to display_printer_reroute_status
+global P14_model_byte
+global res_com_retry_type
 ;PUBLIC  res_lpt_retry_type
-PUBLIC	 resflag2		 ;make available to display_printer_reroute_status
-PUBLIC	RES_MODEFLAG		; RESIDENT THE FLAG WILL BE ACCESSABLE
-PUBLIC	RESSEG			;SCRNTABL NEEDS TO FOLLOW THIS VECTOR TO ADDRESS VIDEO PARMS
-PUBLIC	SCRNTABL
-PUBLIC	submodel_byte		 ;holder for machine's secondary model byte
-PUBLIC	VECTOR14
-PUBLIC	VECTOR17
+global resflag2;make available to display_printer_reroute_status
+global RES_MODEFLAG; RESIDENT THE FLAG WILL BE ACCESSABLE
+global RESSEG;SCRNTABL NEEDS TO FOLLOW THIS VECTOR TO ADDRESS VIDEO PARMS
+global SCRNTABL
+global submodel_byte;holder for machine's secondary model byte
+global VECTOR14
+global VECTOR17
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 	ORG	2CH
-environ_seg    DW    ?			  ;segment address of the environment, used as the block of memory to free so	   ;AN000;
+environ_seg: dw 0;segment address of the environment, used as the block of memory to free so	   ;AN000;
 					  ;environment is not part of resident code.
 
 	ORG	60H			  ;first usable byte of PSP. If you change this check the
 					  ;calculation of paragraphs in 'main'
 
-move_destination   LABEL   WORD    ;where the resident will be moved to
+move_destination:;where the resident will be moved to
 
 ;    THIS STRUCTURE DEFINES THE PROGRAM SEGMENT PREFIX AREA
 ;     POINTED TO BY THE ES REGISTER.  THIS MUST BE DEFINED HERE, IT REPLACES THE
 ;     'ORG 100'
 
 	ORG	80H
-command_line_length  DB    ?			;not used, just place holder to allign next field
-first_char_in_command_line  LABEL   BYTE		;location of the command line parameters
+command_line_length: db 0;not used, just place holder to allign next field
+first_char_in_command_line:;location of the command line parameters
 ;command_line		     DB      7FH DUP(?) 	 ;PARM AREA
 
 	ORG	100H
 ENTPT:	JMP	MAIN			;ENTRY POINT, START AT THE MAIN PROCEDURE
-	SUBTTL	SERIAL RETRY
-	PAGE
+	; SUBTTL	SERIAL RETRY
+	; PAGE
 ;THIS PROC WILL BE POINTED TO BY INT VECTOR 14H
 
 
-MODETO	PROC	NEAR
+MODETO:
 
 
 
@@ -219,7 +219,7 @@ SHL   CL,1		   ;CL= 0, 2, 4 or 6 for COM 1,2,3 or 4 respectively						   ;AC000;
 XOR   CH,CH		   ;CH=0 ready for ANDing in the mask								   ;AC000;
 OR    CH,00000011B	   ;CH=00000011, mask for any type of retry, to be shifted into proper position 		   ;AC000;
 SHL   CH,CL		   ;CH=00000011, 00001100, 00110000 or 11000000 for COM 1,2,3 or 4 respectively
-AND   CH,BYTE PTR CS:res_modeflag	  ;see if any bit is on for this COM port ;AC001;
+AND   CH,byte CS:res_modeflag	  ;see if any bit is on for this COM port ;AC001;
 MOV   CS:retry_type,CX	   ;AC001; save for check after call to old INT 14		 ;AN001;
 POP   CX
 JNZ   pushax
@@ -228,7 +228,7 @@ JNZ   pushax
 
 
 
-VECTOR14 LABEL	WORD			;THE NEXT JMP INSTRUCTION HAS 5 BYTES,
+VECTOR14:;THE NEXT JMP INSTRUCTION HAS 5 BYTES,
 ;		    THE LAST 4 ARE THE CONTENTS OF INT 14H,
 ;		    WHICH NORMALLY POINTS TO THE ROM RS232
 ;		    HANDLER.  THE CODE GENERATED HERE BY THE
@@ -252,18 +252,18 @@ PUSHAX:
 VEC	EQU	(VECTOR14 +1)  ;OFFSET TO IMMEDIATE FIELD OF PREVIOUSLY SET
 ;				FAR JMP INSTRUCTION, FILLED WITH THE
 ;				ORIGINAL CONTENTS OF THE INTERRUPT VECTOR
-	CALL	DWORD PTR CS:VEC       ;CALL PREVIOUS RS232 HANDLER
-	.IF <CS:request EQ COM_status> THEN		;IF a status request THEN			      ;AN001;
+	CALL	dword CS:VEC       ;CALL PREVIOUS RS232 HANDLER
+	; .IF <CS:request EQ COM_status> THEN;IF a status request THEN			      ;AN001;
 	   PUSH    CX			  ;need CX for shift count in CL				      ;AN001;
 	   MOV	   CX,CS:retry_type	  ;AC001; get back retry type for this port				     ;AN001;
 	   SHR	   CH,CL		  ;put back in first two bits for retry type check below	      ;AN001;
-	   .IF <CH EQ E> THEN										      ;AN001;
+	   ; .IF <CH EQ E> THEN;AN001;
 	      MOV  AX,time_out+framing_error+parity_error+overrun_error     ;indicate the port is on fire     ;AN001;
 	   .ELSEIF <CH EQ R> THEN									      ;AN001;
 	      MOV  AX,shift_empty+holding_empty+clear_to_send+data_set_ready  ;indicate the port is ready     ;AN001;
-	   .ENDIF					;otherwise assume B retry and pass actual status      ;AN001;
+	   ; .ENDIF;otherwise assume B retry and pass actual status      ;AN001;
 	   POP	   CX			  ;restore reg							      ;AN001;
-	.ELSE				  ;continue as if a send request				      ;AN001;
+	; .ELSE;continue as if a send request				      ;AN001;
 	   PUSH    AX			   ;SAVE REGS
 	   PUSH    DS			   ; REGS
 	   SUB	   AX,AX		   ;POINT TO
@@ -273,7 +273,7 @@ VEC	EQU	(VECTOR14 +1)  ;OFFSET TO IMMEDIATE FIELD OF PREVIOUSLY SET
 	   POP	   AX			   ; REGS
 	   JZ	   TESTER		   ;BRANCH IF NO BREAK
 	   OR	   AH,80H		   ;SIMULATE TIMEOUT ERROR ON BREAK
-	.ENDIF				   ;ENDIF status request					      ;AN001;
+	; .ENDIF;ENDIF status request					      ;AN001;
 FLUSH:
 	INC	SP			;FLUSH THE
 	INC	SP			; STACK
@@ -310,12 +310,12 @@ res_com_retry_type equ $
 ;				0F=>R for COM2, R for COM1, none for 3 and 4
 ;				10=>E for COM3, none for 1, 2 and 4
 ;					  etc.
-MODETO	ENDP
+; ENDP MODETO
 ;**************************************************************
-	SUBTTL	DETERMINE PARALLEL TO SERIAL, OR PARALLEL TIMEOUT
-	PAGE
+	; SUBTTL	DETERMINE PARALLEL TO SERIAL, OR PARALLEL TIMEOUT
+	; PAGE
 ;THIS PROC MAY BE POINTED TO BY INT VECTOR 17H
-MODEPTS PROC	NEAR
+MODEPTS:
 OFFPTS	EQU	MODEPTS - MODETO
 	TEST	DL,1			;DETERMINE IF REDIRECTION APPLIES
 ;		NOTE: THIS IMMEDIATE FIELD IS Revised BY MODE
@@ -344,11 +344,11 @@ OFFRETRY EQU	$		;disp into resident code of retry flgs
 	ORG	$-2
 	JMP	SHORT ASIS
 ;
-VECTOR17 LABEL	WORD
+VECTOR17:
 ASIS:	JMP	PRINTER_IO		;NO REDIRECTION, GO DIRECTLY TO PREVIOUS INT 17H
 ;**************************************************************
-	SUBTTL	RETRY PARALLEL ON TIMEOUT.
-	PAGE
+	; SUBTTL	RETRY PARALLEL ON TIMEOUT.
+	; PAGE
 PAR_RETRY:
 RT:
       MOV   CS:request,AH	       ;save the function requested for check after return from call to INT 17		  ;AN000;
@@ -367,16 +367,16 @@ RT:
 PVEC  EQU   VECTOR17+1		    ;OFFSET TO IMMEDIATE FIELD OF PREVIOUSLY SET
 ;		    FAR JUMP INSTRUCTION, FILLED WITH THE
 ;		    ORIGINAL CONTENTS OF THE INT 17H VECTOR.
-      CALL  DWORD PTR CS:PVEC	    ;CALL PREVIOUS PARALLEL PORT HANDLER
+      CALL  dword CS:PVEC	    ;CALL PREVIOUS PARALLEL PORT HANDLER
       CMP   CS:request,LPT_status											   ;AN000;
       JNE   init_or_write												   ;AN000;
 	 TEST  AH,not_busy	    ;see if the printer was busy (not busy bit off)					   ;AN000;
 	 JNZ   pflush		    ;IF busy dork the status byte							   ;AN000;
 	    PUSH  BX													   ;AN000;
 	    MOV   BX,DX 	       ;BX=zero based printer number							   ;AN000;
-	    CMP   BYTE PTR CS:lpt1_retry_type[BX],busy_status  ;IF status should be changed THEN		     ;AN000;
+	    CMP   byte CS:lpt1_retry_type[BX],busy_status  ;IF status should be changed THEN		     ;AN000;
 	    JZ	  dont_modify					     ;busy setting means user wants actual status	   ;AN000;
-	       MOV   AH,BYTE PTR CS:lpt1_retry_type[BX]  ;change to status set by prior retry setting request for this LPT ;AN000;
+	       MOV   AH,byte CS:lpt1_retry_type[BX]  ;change to status set by prior retry setting request for this LPT ;AN000;
 	    dont_modify:												   ;AN000;
 	    POP   BX													   ;AN000;
       JMP   pflush		    ;return to caller									   ;AN000;
@@ -404,8 +404,8 @@ PTEST:
       POP   AX			    ;RETRIEVE ORIGINAL ENTRY PARAMETERS
       JMP   RT			    ;DO RETRY
 ;**************************************************************
-	SUBTTL	REDIRECT PARALLEL I/O TO SERIAL
-	PAGE
+	; SUBTTL	REDIRECT PARALLEL I/O TO SERIAL
+	; PAGE
 CK:
 FIXUP	EQU	CK - NOREDIRECT
 	CMP	AH,1			;CHECK FOR 'INITIALIZE' CODE
@@ -423,10 +423,10 @@ PTCHR:
 	PUSH	BX			;SAVE THE
 	PUSH	AX			; REGS
 	PUSH	DX			;SAVE MORE REGS
-	MOV	BX,OFFSET RESFLAG2	       ;POINT AT PARALLEL TO SERIAL
+	MOV	BX,RESFLAG2	       ;POINT AT PARALLEL TO SERIAL
 ;				     CORRESPONDENCE TABLE IN RESIDENT CODE
 	ADD	BX,DX			;INDEX USING PRINTER SELECTION (0,1,OR 2)
-	MOV	DL,CS:[BX]		;GET CORRESPONDING SERIAL PORT SELECT
+	MOV	DL,[CS:BX]		;GET CORRESPONDING SERIAL PORT SELECT
 	CMP	AH,0			;CHECK FOR 'PRINT CHAR' CODE
 	JZ	SENDCHAR		; YES, PRINT CHAR
 ;				  NO, MUST BE READ STATUS
@@ -481,7 +481,7 @@ POPPER:
 	IRET				;RETURN
 
 ;**********************************************************************
-PAGE
+; PAGE
 
 PTSFLAG1 DB	0			;FLAG FOR MODE COMMAND:
 
@@ -524,19 +524,19 @@ lpt1_retry_type   DB	0	 ;holder of mask for status return byte 					;AN000;
 lpt2_retry_type   DB	0	 ;can be one of no_retry_flag, error_status,					;AN000;
 lpt3_retry_type   DB	0	 ;busy_status or ready_status, see MODEPRIN				       ;AN000;
 
-PUBLIC lpt1_retry_type
+global lpt1_retry_type
 
 
 ;THE FOLLOWING AREA IS USED BY MODESCRN TO STORE THE VIDEO PARMS THAT
 ;ALLOW FOR THE SHIFTING RIGHT OR LEFT OF THE SCREEN IMAGE.
-SCRNTABL DB	16 DUP("PARM")		;64 BYTES OF SPACE
+SCRNTABL: times 16 db "PARM";64 BYTES OF SPACE
 NEW_SCRNTABL EQU SCRNTABL - MODETO	;OFFSET INTO RESIDENT
 ;			CODE OF THE 64 BYTE SCREEN TABLE
 
 request     DB	  0	      ;holder for INT 14 or INT 17 request passed in AH
 retry_type  DW	  0	      ;holder for INT 14 retry type and shift count
 
-MODEPTS ENDP
+; ENDP MODEPTS
 
 rescode_length	  equ	(($ - entpt) / 16) + 1	  ;length of resident code in paragraphs
 
@@ -545,13 +545,13 @@ MOVELEN EQU	$ - entpt   ;length of resident code in bytes
 
 ;*******************************************************************************
 
-	SUBTTL	LOAD THE RESIDENT PORTION OF MODE
+	; SUBTTL	LOAD THE RESIDENT PORTION OF MODE
 
-	PAGE
+	; PAGE
 
 
-MODELOAD PROC	NEAR
-	PUBLIC	MODELOAD
+MODELOAD:
+	global MODELOAD
 ;		    GET THE CONTENTS OF INT VECTOR 14H
 ;		    TO SEE IF THE RESIDENT CODE IS
 ;		    ALREADY LOADED
@@ -567,7 +567,7 @@ MODELOAD PROC	NEAR
    MOV	   ES,AX		   ; TO THE EXTRA SEGMENT BASE
    LES	   DI,ES:RESSEG 	   ;GET POINTER TO RETRY CODE
 ;  IF THE CODE IS NOT ALREADY MOVED,
-   .IF <DI EQ 0> THEN NEAR	   ;AC000;IF nothing at 50:30 THEN code is not loaded
+   ; .IF <DI EQ 0> THEN NEAR;AC000;IF nothing at 50:30 THEN code is not loaded
 ;
 ;		    SINCE CODE HAS NOT YET BEEN MOVED,
 ;		    PATCH PROPER ADDRESSES INTO IT
@@ -611,8 +611,8 @@ MODELOAD PROC	NEAR
       MOV     VECTOR17+3,ES	  ;save segment
 
 
-      MOV     SI,OFFSET entpt	  ;WILL BE MOVED FROM HERE
-      MOV     DI,OFFSET move_destination	;WILL BE MOVED TO HERE
+      MOV     SI,entpt	  ;WILL BE MOVED FROM HERE
+      MOV     DI,move_destination	;WILL BE MOVED TO HERE
       MOV     CX,MOVELEN	  ;NUMBER OF BYTES TO BE MOVED
       PUSH    CS		  ;GET SEGMENT OF PROGRAM HEADER
       POP     ES		  ; INTO ES, THE DESTINATION SEGMENT
@@ -625,37 +625,37 @@ MODELOAD PROC	NEAR
 
       CLI			  ;DISABLE UNTIL VECTOR SET
 
-      MOV   ES:WORD PTR resseg,OFFSET modeto	   ;offset of "modeto" in res code pointer
+      MOV   ES:word resseg,modeto	   ;offset of "modeto" in res code pointer
       MOV   AX,CS
       SUB   AX,adjustment_in_paragraphs 	   ;adjust res CS by amount the code moved
-      MOV   ES:WORD PTR resseg[2],AX		   ;store segment of res code in pointer
+      MOV   ES:word resseg[2],AX		   ;store segment of res code in pointer
 
       STI			   ;allow some interrupts
 
 ;Set interrupts 14 and 17 to point to their respective handlers.  AX has correct segment.
 
       MOV   DS,AX				   ;DS=resident code segment
-      MOV   DX,OFFSET modeto			   ;DS:DX=> INT14 handler "modeto"
+      MOV   DX,modeto			   ;DS:DX=> INT14 handler "modeto"
       set_int_vect  INT14
 
-      MOV   DX,OFFSET modepts			   ;DS:DX=> INT17 handler "modepts"
+      MOV   DX,modepts			   ;DS:DX=> INT17 handler "modepts"
       set_int_vect  INT17
 
       MOV   ES,CS:environ_seg	 ;ES=segment of the block to be returned
       MOV   AH,49H		 ;49 is the Free Allocated Memory function call
       INT   21H 		 ;free the environment
 
-      MOV     BYTE PTR CS:1,27H   ;SET EXIT TO REMAIN RESIDENT by dorking opcode in the PSP
+      MOV     byte CS:1,27H   ;SET EXIT TO REMAIN RESIDENT by dorking opcode in the PSP
 ;
       PUSH  CS
       POP   DS		;"PRINTF" requires that DS be the segment containing the messages
 
       DISPLAY MOVED_MSG 	  ;"Resident portion of MODE loaded"
-      MOV     BYTE PTR CS:LOADED_YET,1 ;SET FLAG TO INDICATE ABOVE MSG
+      MOV     byte CS:LOADED_YET,1 ;SET FLAG TO INDICATE ABOVE MSG
 ;				   HAS BEEN DISPLAYED
 ;				   MODESCRN MAY NEED TO REPEAT MESSAGE
       MOV     stay_resident,true
-   .ENDIF			   ;AC000;END IS CODE ALREADY LOADED? TEST
+   ; .ENDIF;AC000;END IS CODE ALREADY LOADED? TEST
 
 	POP	BX
 	POP	AX			;RESTORE FOR CALLING PROCEDURE
@@ -665,19 +665,19 @@ MODELOAD PROC	NEAR
 	POP	ES			;RESTORE SEG REG
 	POP	DS			;RESTORE SEG REG
 	RET
-MODELOAD ENDP
+; ENDP MODELOAD
 
 ;************************************************************
-	SUBTTL	COMMON PARMAMETER LIST AND WORKAREA
-	PAGE
+	; SUBTTL	COMMON PARMAMETER LIST AND WORKAREA
+	; PAGE
 ; THE FOLLOWING AREA IS USED TO STORE PARSED PARAMETER LIST, AND WORK STORAGE
 ; USED BY OTHER MODULES
 
-;ษอออออออออออออออออออออ  N O N	 R E S I D E N T   D A T A  ออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรร  N O N	 R E S I D E N T   D A T A  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-CTRL_ST DB	5 DUP(24)		;PRINTER CONFIGURATION CONTROL STRING
-PARM1	DB	10 DUP(0)
+CTRL_ST: times 5 db 24;PRINTER CONFIGURATION CONTROL STRING
+PARM1: times 10 db 0
 PARM2	DB	-1			;-1 INDICATES TO SERVER THAT THIS PARM IS UNCHANGED
 PARM3	DB	0
 MODE	DB	0
@@ -685,35 +685,35 @@ FLAG	DB	0
 INDEX	DW	00			;REDIRECTED PRINTER NETWORK REDIRECTION LIST INDEX
 IS_LOCAL DB	TRUE			;INITIALIZE for MODEPRIN
 LOADED_YET DB	false
-LOCAL_NAME DB	16 DUP(0)		;HOLDING AREA FOR GET ASSIGN LIST ENTRY CALL USE
+LOCAL_NAME: times 16 db 0;HOLDING AREA FOR GET ASSIGN LIST ENTRY CALL USE
 machine_type  DB 0FFH			;holder for the machine type
 NOERROR DB	TRUE			;INDICATE NO ERROR MESSAGES HAVE BEEN ISSUED YET
 NEW_VIDEO_PARMS_OFFSET DW 090H		;OFFSET OF INIT TABLE FOR SCREEN SHIFTING
 NEW_VIDEO_PARMS_SEGMENT DW 040H 	;SEGMENT OF INIT TABLE FOR SCREEN SHIFTING
-REMOTE_DEV DB	50 DUP(0)		;HOLDING AREA FOR GET ASSIGN LIST ENTRY CALL USE
+REMOTE_DEV: times 50 db 0;HOLDING AREA FOR GET ASSIGN LIST ENTRY CALL USE
 stay_resident	  DB	false		;boolean indicating should stay resident when terminate
 submodel_byte	  DB	0FFH		;secondary model byte
 
 
-;บ											  บ
-;ศอออออออออออออออออออออ  N O N	 R E S I D E N T   D A T A  ออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรร  N O N	 R E S I D E N T   D A T A  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-PUBLIC	PARM1,PARM2,PARM3,MODE,FLAG,CTRL_ST,INDEX,LOCAL_NAME,REMOTE_DEV       ;AC000;
-PUBLIC	IS_LOCAL
-PUBLIC	LOADED_YET
-PUBLIC	machine_type		;holder for machine type, found in "main"
-PUBLIC	NOERROR
-PUBLIC	NEW_VIDEO_PARMS_OFFSET
-PUBLIC	NEW_VIDEO_PARMS_SEGMENT
-PUBLIC	stay_resident
+global PARM1,PARM2,PARM3,MODE,FLAG,CTRL_ST,INDEX,LOCAL_NAME,REMOTE_DEV;AC000;
+global IS_LOCAL
+global LOADED_YET
+global machine_type;holder for machine type, found in "main"
+global NOERROR
+global NEW_VIDEO_PARMS_OFFSET
+global NEW_VIDEO_PARMS_SEGMENT
+global stay_resident
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
-PRINTF_CODE ENDS
-	END	ENTPT
+; END SECTION .PRINTF_CODE
+	; END	ENTPT
 

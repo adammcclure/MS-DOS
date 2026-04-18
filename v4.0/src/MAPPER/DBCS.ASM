@@ -1,10 +1,10 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosGetDBCSEv
+; title CP/DOS DosGetDBCSEv
 ;
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -20,19 +20,19 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 ;
-	public	DosGetDBCSEv
-	.sall
-	include macros.inc
+	global DosGetDBCSEv
+	; .sall
+	%include "macros.inc"
 
-str	struc
-old_bp	dw	?
-return	dd	?
-DataAreaPtr	dd	?      ; Data buffer pointer
-CountryCodePtr	dd	?      ; Country code pointer
-DataAreaLength	dw	?      ; Length of data area
-str	ends
+struc str
+old_bp: resw 1
+return: resd 1
+DataAreaPtr: resd 1; Data buffer pointer
+CountryCodePtr: resd 1; Country code pointer
+DataAreaLength: resw 1; Length of data area
+endstruc
 
-DosGetDBCSEv	proc	far
+DosGetDBCSEv:
 
 	Enter  DosGetDBCSEv		    ;AN000; push registers
 
@@ -51,8 +51,8 @@ Copy_Vector:
 	les	di,[bp].DataAreaPtr	     ;AN000; ES:DI-->return buffer
 	mov	cx,[bp].DataAreaLength	     ;AN000;
 loopx:
-	mov    al,ds:[si]		     ;AN000;
-	mov    es:[di],al		     ;AN000;
+	mov    al,[ds:si]		     ;AN000;
+	mov    [es:di],al		     ;AN000;
 	inc    si			     ;AN000;
 	inc    di			     ;AN000;
 	loop   loopx			     ;AN000;
@@ -62,10 +62,10 @@ loopx:
 Exit:
 	Mexit				    ;AN000;pop registers
 
-	ret	size str - 6		    ;AN000; return
+	ret	str_size - 6		    ;AN000; return
 
-DosGetDBCSEv	endp
+; ENDP DosGetDBCSEv
 
-dosxxx	ends
+; END SECTION .dosxxx
 
-	end
+	; end

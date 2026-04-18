@@ -1,1 +1,1 @@
-include restmsg.inc
+%include "restmsg.inc"

@@ -1,19 +1,19 @@
 ; Some modules really want TRUE to be 0FFH.  Best to let them have their way.
-ifndef TRUE
+%ifndef TRUE
 	TRUE	   EQU	   0FFFFh
-endif
-ifndef TRUEBYTE
+%endif
+%ifndef TRUEBYTE
 	TRUEBYTE   EQU     0FFh
-endif
-ifndef FALSE
+%endif
+%ifndef FALSE
 	FALSE	   EQU	   0
-endif
+%endif
 
 ;
 ; Use the following switches to control cmacros.inc
 ;
-?PLM       =       0
-?WIN       =       0
+?PLM equ 0
+?WIN equ 0
 
 memS       EQU     1			; Small model
 ;
@@ -34,30 +34,30 @@ memS       EQU     1			; Small model
 IBMVER     EQU     TRUE
 IBMCOPYRIGHT EQU   FALSE
 
-BUFFERFLAG	EQU	NOT IBMCOPYRIGHT
+BUFFERFLAG	EQU	~IBMCOPYRIGHT
 
-ifndef	MSVER	
-MSVER      EQU     NOT IBMVER
-endif
+%ifndef MSVER
+MSVER      EQU     ~IBMVER
+%endif
 IBM	   EQU	   IBMVER
 ;
 ;
-  IF1
-	IF IBMVER
-	    IF IBMCOPYRIGHT
-              %OUT ... IBM version build switch on ...
-	    ELSE
-	      %OUT ... CLONE version build switch on ...
-	    ENDIF
-	ELSE
-	    IF NOT IBMCOPYRIGHT
-	      %OUT ... MS version build switch on ...
-	    ELSE
-	      %OUT !!!!!!!!!  VERSION SWITCHES SET INCORECTLY  !!!!!!!!!
-	      %OUT !!!!!!!!! CHECK SETTINGS IN INC\VERSION.INC !!!!!!!!!
-	    ENDIF
-	ENDIF   
-  ENDIF
+  %if 1  ; IF1 - pass-specific
+	%if IBMVER
+	    %if IBMCOPYRIGHT
+              %warning ... IBM version build switch on ...
+	    %else
+	      %warning ... CLONE version build switch on ...
+	    %endif
+	%else
+	    %if ~IBMCOPYRIGHT
+	      %warning ... MS version build switch on ...
+	    %else
+	      %warning !!!!!!!!!  VERSION SWITCHES SET INCORECTLY  !!!!!!!!!
+	      %warning !!!!!!!!! CHECK SETTINGS IN INC\VERSION.INC !!!!!!!!!
+	    %endif
+	%endif
+  %endif
 ;
 ;
 ;***************************************************************************
@@ -75,32 +75,32 @@ IBMJAPVER  EQU	   FALSE		;If TRUE set KANJI true also
 ;
 INTERNAT   EQU	   FALSE
 ;
-	IF INTERNAT
+	%if INTERNAT
 KANJI	   EQU	   TRUE
 IBMJAPAN   EQU	   TRUE
-	ELSE
+	%else
 KANJI	   EQU	   FALSE
 IBMJAPAN   EQU	   FALSE
-	ENDIF
+	%endif
 
-ifndef altvect				; avoid jerking off vector.inc
+%ifndef altvect; avoid jerking off vector.inc
 ALTVECT    EQU	   FALSE		;Switch to build ALTVECT version
-endif
+%endif
 
 ;
 ; Country code switches
 ; The default contry code is assumed as USA.
 ;
-	IF INTERNAT
+	%if INTERNAT
  KOREA	   EQU	   TRUE
  JAPAN	   EQU	   FALSE
-	ELSE
+	%else
  KOREA	   EQU	   FALSE
  JAPAN	   EQU	   FALSE
-	ENDIF
+	%endif
 ;
-	IF1
-		IF INTERNAT
-%OUT	Internat(ECS) version build switch on
-		ENDIF
-	ENDIF
+	%if 1  ; IF1 - pass-specific
+		%if INTERNAT
+%warning Internat(ECS) version build switch on
+		%endif
+	%endif

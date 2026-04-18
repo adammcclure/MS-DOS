@@ -1,9 +1,9 @@
-page 80,132
+; page 80,132
 
-title CP/DOS DosRmDir mapper
+; title CP/DOS DosRmDir mapper
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -21,18 +21,18 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dosrmdir
-            .sall
-            include  macros.inc
+            global dosrmdir
+            ; .sall
+            %include "macros.inc"
 
-str         struc
-old_bp      dw       ?
-return      dd       ?
-rsrvd       dd       ?       ; reserved
-asciiz      dd       ?       ; directory name pointer
-str         ends
+struc str
+old_bp: resw 1
+return: resd 1
+rsrvd: resd 1; reserved
+asciiz: resd 1; directory name pointer
+endstruc
 
-dosrmdir    proc     far
+dosrmdir:
 
             Enter    dosrmdir            ; push registers
 
@@ -44,10 +44,10 @@ dosrmdir    proc     far
 
             sub      ax,ax               ; set good return code
 exit:       Mexit                        ; pop registers
-            ret      size str - 6        ; return
+            ret      str_size - 6        ; return
 
-dosrmdir    endp
+; ENDP dosrmdir
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

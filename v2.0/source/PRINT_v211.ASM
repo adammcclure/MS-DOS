@@ -21,24 +21,24 @@
 
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 IBM     EQU     TRUE
 IBMVER  EQU     IBM
 MSVER   EQU     FALSE
 
-        IF      MSVER
+        %if MSVER
 HARDINT EQU     FALSE           ;No hardware ints
 AINT    EQU     FALSE           ;No need to do interrupt acknowledge
-        ENDIF
+        %endif
 
-        IF      IBM
+        %if IBM
 HARDINT EQU     TRUE
 INTLOC  EQU     1CH             ;Hardware interrupt location (Timer)
 AINT    EQU     TRUE            ;Acknowledge interrupts
 EOI     EQU     20H             ;End Of Interrupt "instruction"
 AKPORT  EQU     20H             ;Interrupt Acknowledge port
-        ENDIF
+        %endif
 
 ;The following values have to do with the ERRCNT variable and the
 ;  CNTMES message. The values define levels at wich it is assumed
@@ -50,15 +50,15 @@ AKPORT  EQU     20H             ;Interrupt Acknowledge port
 ;  which determines the correct value is the time required to do a
 ;  form feed.
 
-        IF      IBM
+        %if IBM
 ERRCNT1 EQU     1000
 ERRCNT2 EQU     20000
-        ELSE
+        %else
 ERRCNT1 EQU     1000
 ERRCNT2 EQU     20000
-        ENDIF
+        %endif
 
-        IF      HARDINT
+        %if HARDINT
 TIMESLICE EQU   8               ;The PRINT scheduling time slice. PRINT
                                 ; lets this many "ticks" go by before
                                 ; using a time slice to pump out characters.
@@ -83,7 +83,7 @@ BUSYTICK EQU    1               ;If PRINT sits in a wait loop waiting for
 
 ;User gets TIMESLICE ticks and then PRINT takes MAXTICK ticks unless BUSYTICK
 ;       ticks go by without getting a character out.
-        ENDIF
+        %endif
 
 
 ;WARNING DANGER WARNING:
@@ -104,15 +104,15 @@ COMINT  EQU     2FH             ;Communications interrupt used by PRINT
 BLKSIZ  EQU     512             ;Size of the PRINT I/O block in bytes
 FCBSIZ  EQU     40              ;Size of an FCB
 
-        INCLUDE DOSSYM.ASM
+        %include "DOSSYM.ASM"
 
 FCB     EQU     5CH
 PARMS   EQU     80H
 
-DG      GROUP   CODE,DATA
+; DG      GROUP   CODE,DATA
 
-CODE    SEGMENT
-ASSUME  CS:DG
+SECTION .CODE
+; ASSUME  CS:DG
 
         ORG     100H
 START:
@@ -120,35 +120,35 @@ START:
 
 HEADER  DB      "Vers 1.00"
 
-        DB      128 DUP (?)
-ISTACK  LABEL   WORD            ;Stack starts here and grows down
+        times 128 db 0
+ISTACK:;Stack starts here and grows down
 
 ;Resident data
 
-        IF      HARDINT
-INDOS   DD      ?               ;DOS buisy flag
-NEXTINT DD      ?               ;Chain for int
+        %if HARDINT
+INDOS: dd 0;DOS buisy flag
+NEXTINT: dd 0;Chain for int
 BUSY    DB      0               ;Internal ME flag
 SOFINT  DB      0               ;Internal ME flag
 TICKCNT DB      0               ;Tick counter
 TICKSUB DB      0               ;Tick miss counter
 SLICECNT DB     TIMESLICE       ;Time slice counter
-        ENDIF
+        %endif
 
 CBUSY   DB      0               ;ME on com interrupt
-SPNEXT  DD      ?               ;Chain location for INT 28
+SPNEXT: dd 0;Chain location for INT 28
 PCANMES DB      0               ;Cancel message flag
-SSsave  DW      ?               ;Stack save area for INT 24
-SPsave  DW      ?
-DMAADDR DD      ?               ;Place to save DMA address
-HERRINT DD      ?               ;Place to save Hard error interrupt
-LISTDEV DD      ?               ;Pointer to Device
+SSsave: dw 0;Stack save area for INT 24
+SPsave: dw 0
+DMAADDR: dd 0;Place to save DMA address
+HERRINT: dd 0;Place to save Hard error interrupt
+LISTDEV: dd 0;Pointer to Device
 COLPOS  DB      0               ;Column position for TAB processing
-NXTCHR  DW      OFFSET DG:BUFFER + BLKSIZ     ;Buffer pointer
-CURRFIL DW      OFFSET DG:SPLFCB    ;Current file being printed
+NXTCHR  DW      BUFFER + BLKSIZ     ;Buffer pointer
+CURRFIL DW      SPLFCB    ;Current file being printed
 
-LASTFCB DW      ?               ;Back pointer
-LASTFCB2 DW     ?               ;Another back pointer
+LASTFCB: dw 0;Back pointer
+LASTFCB2: dw 0;Another back pointer
 PABORT  DB      0               ;Abort flag
 
 ;Resident messages
@@ -164,19 +164,19 @@ CANFILNAM DB    " :        .   "
 
 ALLCAN  DB      13,10,13,10,"All files canceled by operator$"
 
-MESBAS  DW      OFFSET DG:ERR0
-        DW      OFFSET DG:ERR1
-        DW      OFFSET DG:ERR2
-        DW      OFFSET DG:ERR3
-        DW      OFFSET DG:ERR4
-        DW      OFFSET DG:ERR5
-        DW      OFFSET DG:ERR6
-        DW      OFFSET DG:ERR7
-        DW      OFFSET DG:ERR8
-        DW      OFFSET DG:ERR9
-        DW      OFFSET DG:ERR10
-        DW      OFFSET DG:ERR11
-        DW      OFFSET DG:ERR12
+MESBAS  DW      ERR0
+        DW      ERR1
+        DW      ERR2
+        DW      ERR3
+        DW      ERR4
+        DW      ERR5
+        DW      ERR6
+        DW      ERR7
+        DW      ERR8
+        DW      ERR9
+        DW      ERR10
+        DW      ERR11
+        DW      ERR12
 
 ;INT 24 messages A La COMMAND
 
@@ -199,24 +199,24 @@ BADDRVM DB     "A.",13,10,"$"
 
 ;The DATA buffer
 BUFFER  DB      BLKSIZ DUP(0)
-        DB      ?
-CODE    ENDS
+        db 0
+; END SECTION .CODE
 
 ;Transient data
 
-DATA    SEGMENT BYTE
+SECTION .DATA
         ORG     0
-SWITCHAR DB     ?               ;User switch character
+SWITCHAR: db 0;User switch character
 FULLFLAG DB     0               ;Flag for printing queue full message
 MAKERES DB      0               ;Flag to indicate presence of resident
 ARGSETUP DB     0               ;Flag to indicate a formatted FCB exists at 5C
 DEFDRV  DB      0               ;Default drive
 CANFLG  DB      0               ;Flag to indicate cancel
 FILCNT  DB      0               ;Number of files
-SPLIST  DD      ?               ;Pointer to FCBs in resident
-CURFILE DD      ?               ;Pointer to current FCB
-SRCHFCB DB      38 DUP (0)      ;SEARCH-FIRST/NEXT FCB
-ENDRES  DW      OFFSET DG:DEF_ENDRES    ;Term-Res location
+SPLIST: dd 0;Pointer to FCBs in resident
+CURFILE: dd 0;Pointer to current FCB
+SRCHFCB: times 38 db 0;SEARCH-FIRST/NEXT FCB
+ENDRES  DW      DEF_ENDRES    ;Term-Res location
 
 ;Messages
 
@@ -229,7 +229,7 @@ CRLF    DB      13,10,"$"
 OPMES    DB     "Cannot open "
 OPFILNAM DB     " :        .    ",13,10,"$"
 FULLMES DB      "PRINT queue is full",13,10,"$"
-SRCHMES LABEL   BYTE
+SRCHMES:
 SRCHFNAM DB     " :        .    "," File not found",13,10,"$"
 BADMES  DB      "List output is not assigned to a device",13,10,"$"
 GOODMES DB      "Resident part of PRINT installed",13,10,"$"
@@ -241,37 +241,37 @@ BADSWT  DB      "Invalid parameter",13,10,"$"
 
 BADVER  DB      "Incorrect DOS version",13,10,"$"
 
-        IF      IBM
+        %if IBM
 ;Reserved names for parallel card
-INT_17_HITLIST LABEL BYTE
+INT_17_HITLIST:
         DB      8,"PRN     ",0
         DB      8,"LPT1    ",0
         DB      8,"LPT2    ",1
         DB      8,"LPT3    ",2
         DB      0
 ;Reserved names for Async adaptor
-INT_14_HITLIST  LABEL BYTE
+INT_14_HITLIST:
         DB      8,"AUX     ",0
         DB      8,"COM1    ",0
         DB      8,"COM2    ",1
         DB      0
-        ENDIF
+        %endif
 
 COMBUF  DB      14,0            ;Device name buffer
-        DB      14 DUP (?)
+        times 14 db 0
 LISTFCB DB      0,"PRN        " ;Device name FCB
-        DB      25 DUP (0)
-PARSEBUF DB     80 DUP (?)      ;Parsing space
+        times 25 db 0
+PARSEBUF: times 80 db 0;Parsing space
 
-DATA    ENDS
+; END SECTION .DATA
 
-CODE    SEGMENT
-ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
+SECTION .CODE
+; ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
 
 
 ;Interrupt routines
-ASSUME  CS:DG,DS:NOTHING,ES:NOTHING,SS:NOTHING
-        IF      HARDINT
+; ASSUME  CS:DG,DS:NOTHING,ES:NOTHING,SS:NOTHING
+        %if HARDINT
 HDSPINT:                        ;Hardware interrupt entry point
         INC     [TICKCNT]       ;Tick
         INC     [TICKSUB]       ;Tick
@@ -285,7 +285,7 @@ TIMENOW:
         PUSH    DS
         PUSH    SI
         LDS     SI,[INDOS]      ;Check for making DOS calls
-        CMP     BYTE PTR [SI],0
+        CMP     byte [SI],0
         POP     SI
         POP     DS
         JNZ     CHAININT        ;DOS is Buisy
@@ -294,10 +294,10 @@ TIMENOW:
         MOV     [TICKSUB],0     ;Reset tick counter
         STI                     ;Keep things rolling
 
-        IF      AINT
+        %if AINT
         MOV     AL,EOI          ;Acknowledge interrupt
         OUT     AKPORT,AL
-        ENDIF
+        %endif
 
         CALL    DOINT
         CLI
@@ -305,26 +305,26 @@ TIMENOW:
         MOV     [BUSY],0        ;Done, let others in
 CHAININT:
         JMP     [NEXTINT]       ;Chain to next clock routine
-        ENDIF
+        %endif
 
 
 SPINT:                          ;INT 28H entry point
-        IF      HARDINT
+        %if HARDINT
         CMP     [BUSY],0
         JNZ     NXTSP
         INC     [BUSY]          ;Exclude hardware interrupt
         INC     [SOFINT]        ;Indicate a software int in progress
-        ENDIF
+        %endif
 
         STI                     ;Hardware interrupts ok on INT 28H entry
         CALL    DOINT
 
-        IF      HARDINT
+        %if HARDINT
         CLI
         MOV     [SOFINT],0      ;Indicate INT done
         MOV     [SLICECNT],TIMESLICE    ;Either soft or hard int resets time slice
         MOV     [BUSY],0
-        ENDIF
+        %endif
 
 NXTSP:  JMP     [SPNEXT]        ;Chain to next INT 28
 
@@ -333,7 +333,7 @@ DOINT:
         MOV     SI,[CURRFIL]
         INC     SI
         INC     SI
-        CMP     BYTE PTR CS:[SI],-1
+        CMP     byte [CS:SI],-1
         POP     SI
         JNZ     GOAHEAD
         JMP     SPRET           ;Nothing to do
@@ -345,7 +345,7 @@ GOAHEAD:
         CLI
 ;Go to internal stack to prevent INT 24 overflowing system stack
         MOV     SS,AX
-        MOV     SP,OFFSET DG:ISTACK
+        MOV     SP,ISTACK
         STI
         PUSH    ES
         PUSH    DS
@@ -356,42 +356,42 @@ GOAHEAD:
         PUSH    DI
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
 
         MOV     BX,[NXTCHR]
-        CMP     BX,OFFSET DG:BUFFER + BLKSIZ
+        CMP     BX,BUFFER + BLKSIZ
         JNZ     PLOOP
         JMP     READBUFF                ;Buffer empty
 
 PLOOP:
-        IF      HARDINT
+        %if HARDINT
         MOV     BX,[NXTCHR]
-        CMP     BX,OFFSET DG:BUFFER + BLKSIZ
+        CMP     BX,BUFFER + BLKSIZ
         JZ      DONEJMP                 ;Buffer has become empty
         CMP     [SOFINT],0
         JNZ     STATCHK
         CMP     [TICKCNT],MAXTICK       ;Check our time slice
         JAE     DONEJMP
 STATCHK:
-        ENDIF
+        %endif
 
         CALL    PSTAT
 
-        IF      HARDINT
+        %if HARDINT
         JZ      DOCHAR                  ;Printer ready
         CMP     [SOFINT],0
-        ENDIF
+        %endif
 
         JNZ     DONEJMP                 ;If soft int give up
 
-        IF      HARDINT
+        %if HARDINT
         CMP     [TICKSUB],BUSYTICK      ;Check our busy timeout
         JAE     DONEJMP
         JMP     PLOOP
-        ENDIF
+        %endif
 
 DOCHAR:
-        MOV     AL,BYTE PTR [BX]
+        MOV     AL,byte [BX]
         CMP     AL,1AH                  ;^Z?
         JZ      FILEOFJ                 ;CPM EOF
         CMP     AL,0DH                  ;CR?
@@ -427,11 +427,11 @@ NOCHAR:
 TABDONE:
         INC     [NXTCHR]                ;Next char
 
-        IF      HARDINT
+        %if HARDINT
         MOV     [TICKSUB],0             ;Got a character out, Reset counter
         CMP     [SOFINT],0              ;Soft int does one char at a time
         JZ      PLOOP
-        ENDIF
+        %endif
 
 DONEJMP:
         POP     DI
@@ -441,7 +441,7 @@ DONEJMP:
         POP     BX
         POP     DS
         POP     ES
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
         CLI
         MOV     SS,[SSsave]             ;Restore Entry Stack
         MOV     SP,[SPsave]
@@ -453,22 +453,22 @@ SPRET:
 FILEOFJ: JMP    FILEOF
 
 READBUFF:
-ASSUME  DS:DG,ES:NOTHING
+; ASSUME  DS:DG,ES:NOTHING
 
         MOV     AL,24H
         MOV     AH,GET_INTERRUPT_VECTOR
         INT     21H
-        MOV     WORD PTR [HERRINT+2],ES         ;Save current vector
-        MOV     WORD PTR [HERRINT],BX
-        MOV     DX,OFFSET DG:DSKERR
+        MOV     word [HERRINT+2],ES         ;Save current vector
+        MOV     word [HERRINT],BX
+        MOV     DX,DSKERR
         MOV     AL,24H
         MOV     AH,SET_INTERRUPT_VECTOR         ;Install our own
         INT     21H             ;Spooler must catch its errors
         MOV     AH,GET_DMA
         INT     21H
-        MOV     WORD PTR [DMAADDR+2],ES         ;Save DMA address
-        MOV     WORD PTR [DMAADDR],BX
-        MOV     DX,OFFSET DG:BUFFER
+        MOV     word [DMAADDR+2],ES         ;Save DMA address
+        MOV     word [DMAADDR],BX
+        MOV     DX,BUFFER
         MOV     AH,SET_DMA
         INT     21H             ;New DMA address
         MOV     [PABORT],0      ;No abort
@@ -479,7 +479,7 @@ ASSUME  DS:DG,ES:NOTHING
         INT     21H
         PUSH    AX
         LDS     DX,[DMAADDR]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     AH,SET_DMA
         INT     21H             ;Restore DMA
         LDS     DX,[HERRINT]
@@ -489,12 +489,12 @@ ASSUME  DS:NOTHING
         POP     AX
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
         CMP     [PABORT],0
         JNZ     TONEXTFIL       ;Barf on this file, got INT 24
         CMP     AL,01
         JZ      FILEOF          ;Read EOF?
-        MOV     BX,OFFSET DG:BUFFER     ;Buffer full
+        MOV     BX,BUFFER     ;Buffer full
         MOV     [NXTCHR],BX
         JMP     DONEJMP
 
@@ -508,7 +508,7 @@ TONEXTFIL:
 ;INT 24 handler
 
 DSKERR:
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         STI
         CMP     [PABORT],0
         JNZ     IGNRET
@@ -524,9 +524,9 @@ ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         POP     DS
         PUSH    CS
         POP     ES
-ASSUME  DS:DG,ES:DG
+; ASSUME  DS:DG,ES:DG
         ADD     [BADDRVM],AL    ;Set correct drive letter
-        MOV     SI,OFFSET DG:ERRMES
+        MOV     SI,ERRMES
         CALL    LISTMES
         TEST    AH,080H
         JNZ     FATERR
@@ -536,10 +536,10 @@ ASSUME  DS:DG,ES:DG
         MOV     DI,12
 HAVCOD:
         SHL     DI,1
-        MOV     DI,WORD PTR [DI+MESBAS] ; Get pointer to error message
+        MOV     DI,word [DI+MESBAS] ; Get pointer to error message
         MOV     SI,DI
         CALL    LISTMES          ; Print error type
-        MOV     DI,OFFSET DG:EMFILNAM
+        MOV     DI,EMFILNAM
         MOV     SI,[CURRFIL]
         ADD     SI,2             ;Get to file name
         LODSB
@@ -551,7 +551,7 @@ HAVCOD:
         INC     DI
         MOVSW
         MOVSB
-        MOV     SI,OFFSET DG:ERRMEST
+        MOV     SI,ERRMEST
         CALL    LISTMES
 SETABORT:
         INC     [PABORT]                ;Indicate abort
@@ -568,7 +568,7 @@ IGNRET:
         IRET
 
 FATERR:
-        MOV     SI,OFFSET DG:FATMES
+        MOV     SI,FATMES
         CALL    LISTMES
         JMP     SHORT SETABORT
 
@@ -580,7 +580,7 @@ COMBUSY:
 
 ;Communications interrupt
 SPCOMINT:
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         CMP     [CBUSY],0
         JNZ     COMBUSY
         INC     [CBUSY]                 ;Exclude
@@ -591,7 +591,7 @@ ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         PUSH    DS
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
         MOV     [PCANMES],0             ;Havn't printed cancel message
         OR      AH,AH
         JZ      ADDFILJ                 ;Add file
@@ -601,40 +601,40 @@ ASSUME  DS:DG
 SETCOUNT:
         PUSH    AX              ;Save AL return code
         XOR     AH,AH
-        MOV     SI,OFFSET DG:SPLFCB
+        MOV     SI,SPLFCB
         MOV     CX,[NUMFCBS]
 CNTFILS:
-        CMP     BYTE PTR [SI+2],-1        ;Valid?
+        CMP     byte [SI+2],-1        ;Valid?
         JZ      LNEXT
         INC     AH
 LNEXT:
         ADD     SI,FCBSIZ
         LOOP    CNTFILS
 COMRET:
-        MOV     BX,OFFSET DG:SPLFCB
+        MOV     BX,SPLFCB
         MOV     DX,[CURRFIL]
         PUSH    DS
         POP     ES
-ASSUME  ES:NOTHING
+; ASSUME  ES:NOTHING
         MOV     CH,AH
         POP     AX                      ;Get AL return
         MOV     AH,CH
 
-        IF      HARDINT
+        %if HARDINT
 BWAIT3:
         CMP     [BUSY],0
         JNZ     BWAIT3
         INC     [BUSY]
-        ENDIF
+        %endif
 
         CALL    PSTAT                   ; Tweek error counter
 
-        IF      HARDINT
+        %if HARDINT
         MOV     [BUSY],0
-        ENDIF
+        %endif
 
         POP     DS
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         POP     CX
         POP     DI
         POP     SI
@@ -644,15 +644,15 @@ ASSUME  DS:NOTHING
 DELALLJ: JMP    DELALL
 
 CANFIL:
-ASSUME  DS:DG,ES:NOTHING
+; ASSUME  DS:DG,ES:NOTHING
         MOV     CX,[NUMFCBS]
 
-        IF      HARDINT
+        %if HARDINT
 BWAIT:
         CMP     [BUSY],0
         JNZ     BWAIT
         INC     [BUSY]
-        ENDIF
+        %endif
 
         MOV     SI,[CURRFIL]
         CMP     DX,-1
@@ -677,14 +677,14 @@ GOTLAST:
 LOOKMATCH:
         MOV     DI,DX
         ADD     SI,2                    ;Skip pointer
-        CMP     BYTE PTR [SI],-1
+        CMP     byte [SI],-1
         JZ      CANTERMJ                ;No more
         CMPSB
         JNZ     SKIPFIL                 ;DRIVE
         PUSH    CX
         MOV     CX,11
 NXTCHAR:
-        MOV     AL,ES:[DI]
+        MOV     AL,[ES:DI]
         INC     DI
         CALL    UPCONV
         MOV     AH,AL
@@ -709,7 +709,7 @@ MATCH:
         PUSH    ES
         PUSH    CS
         POP     ES
-        MOV     DI,OFFSET DG:CANFILNAM
+        MOV     DI,CANFILNAM
         MOV     SI,BX
         ADD     SI,3             ;Get to file name
         MOV     AL,AH
@@ -722,9 +722,9 @@ MATCH:
         MOVSW
         MOVSB
         POP     ES
-        MOV     SI,OFFSET DG:CANMES
+        MOV     SI,CANMES
         CALL    LISTMES
-        MOV     SI,OFFSET DG:BELMES
+        MOV     SI,BELMES
         CALL    LISTMES
 DIDCMES:
         PUSH    CX
@@ -754,23 +754,23 @@ REQUEUE:
         JMP     SHORT NEXTFC
 
 DELALL:
-        CMP     BYTE PTR CS:[SI+2],-1   ;Examine current file
+        CMP     byte [CS:SI+2],-1   ;Examine current file
 DELALL2:
-        MOV     BYTE PTR [SI+2],-1      ;Zap it
+        MOV     byte [SI+2],-1      ;Zap it
         MOV     SI,[SI]
         LOOP    DELALL2
         JZ      CANTERM1                ;No message if nothing was in progress
-        MOV     SI,OFFSET DG:ALLCAN
+        MOV     SI,ALLCAN
         CALL    LISTMES
-        MOV     SI,OFFSET DG:BELMES
+        MOV     SI,BELMES
         CALL    LISTMES
 CANTERM1:
-        MOV     [NXTCHR],OFFSET DG:BUFFER + BLKSIZ  ;Buffer empty
+        MOV     [NXTCHR],BUFFER + BLKSIZ  ;Buffer empty
 CANTERM:
 
-        IF      HARDINT
+        %if HARDINT
         MOV     [BUSY],0
-        ENDIF
+        %endif
 
         XOR     AX,AX
         JMP     SETCOUNT
@@ -785,26 +785,26 @@ NOCONV:
         RET
 
 ADDFIL:
-ASSUME  DS:DG,ES:NOTHING
+; ASSUME  DS:DG,ES:NOTHING
         MOV     SI,[CURRFIL]
         MOV     CX,[NUMFCBS]
 
-        IF      HARDINT
+        %if HARDINT
 BWAIT2:
         CMP     [BUSY],0
         JNZ     BWAIT2
         INC     [BUSY]
-        ENDIF
+        %endif
 
 LOOKSPOT:
-        CMP     BYTE PTR [SI+2],-1
+        CMP     byte [SI+2],-1
         JZ      GOTSPOT
         MOV     SI,[SI]
         LOOP    LOOKSPOT
 
-        IF      HARDINT
+        %if HARDINT
         MOV     [BUSY],0
-        ENDIF
+        %endif
 
         MOV     AL,1
         JMP     SETCOUNT
@@ -814,7 +814,7 @@ GOTSPOT:
         POP     ES
         POP     DS
         PUSH    DS
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         PUSH    SI
         MOV     DI,SI
         ADD     DI,2
@@ -824,30 +824,30 @@ ASSUME  DS:NOTHING
         POP     SI
         PUSH    ES
         POP     DS
-ASSUME  DS:DG
-        MOV     WORD PTR [SI+2+fcb_EXTENT],0
-        MOV     BYTE PTR [SI+2+fcb_NR],0
-        MOV     WORD PTR [SI+2+fcb_RECSIZ],BLKSIZ
+; ASSUME  DS:DG
+        MOV     word [SI+2+fcb_EXTENT],0
+        MOV     byte [SI+2+fcb_NR],0
+        MOV     word [SI+2+fcb_RECSIZ],BLKSIZ
 
-        IF      HARDINT
+        %if HARDINT
         MOV     [BUSY],0
-        ENDIF
+        %endif
 
         XOR     AL,AL
         JMP     SETCOUNT
 
 NEXTFIL:
-ASSUME  DS:DG,ES:NOTHING
+; ASSUME  DS:DG,ES:NOTHING
         MOV     SI,[CURRFIL]
-        MOV     BYTE PTR [SI+2],-1      ;Done with current file
+        MOV     byte [SI+2],-1      ;Done with current file
         MOV     SI,[SI]
         MOV     [CURRFIL],SI
-        MOV     [NXTCHR],OFFSET DG:BUFFER + BLKSIZ  ;Buffer empty
+        MOV     [NXTCHR],BUFFER + BLKSIZ  ;Buffer empty
         MOV     [COLPOS],0                          ;Start of line
         RET
 
 LISTMES:
-ASSUME  DS:DG,ES:NOTHING
+; ASSUME  DS:DG,ES:NOTHING
         LODSB
         CMP     AL,"$"
         JZ      LMESDONE
@@ -875,23 +875,23 @@ POPRET:
 IOBUSY  EQU     0200H
 IOERROR EQU     8000H
 
-BYTEBUF DB      ?
+BYTEBUF: db 0
 
-CALLAD  DD      ?
+CALLAD: dd 0
 
 IOCALL  DB      22
         DB      0
-IOREQ   DB      ?
+IOREQ: db 0
 IOSTAT  DW      0
-        DB      8 DUP(?)
+        times 8 db 0
         DB      0
-        DW      OFFSET DG:BYTEBUF
-INTSEG  DW      ?
+        DW      BYTEBUF
+INTSEG: dw 0
 IOCNT   DW      1
         DW      0
 
 PSTAT:
-ASSUME  DS:DG
+; ASSUME  DS:DG
         PUSH    BX
         INC     [ERRCNT]
         MOV     BL,10
@@ -908,7 +908,7 @@ RET13P:
         RET
 
 POUT:
-ASSUME  DS:DG
+; ASSUME  DS:DG
         MOV     [BYTEBUF],AL
         MOV     BL,8
 DOCALL:
@@ -916,64 +916,64 @@ DOCALL:
         MOV     [IOREQ],BL
         MOV     BX,CS
         MOV     ES,BX
-        MOV     BX,OFFSET DG:IOCALL
+        MOV     BX,IOCALL
         MOV     [IOSTAT],0
         MOV     [IOCNT],1
         PUSH    DS
         PUSH    SI
         PUSH    AX
         LDS     SI,[LISTDEV]
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
         MOV     AX,[SI+6]
-        MOV     WORD PTR [CALLAD],AX
+        MOV     word [CALLAD],AX
         CALL    [CALLAD]
         MOV     AX,[SI+8]
-        MOV     WORD PTR [CALLAD],AX
+        MOV     word [CALLAD],AX
         CALL    [CALLAD]
         POP     AX
         POP     SI
         POP     DS
-ASSUME  DS:DG
+; ASSUME  DS:DG
         POP     ES
         RET
 
-        IF      IBM
-REAL_INT_13 DD  ?
-INT_13_RETADDR DW OFFSET DG:INT_13_BACK
+        %if IBM
+REAL_INT_13: dd 0
+INT_13_RETADDR DW INT_13_BACK
 
-INT_13  PROC    FAR
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+INT_13:
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         PUSHF
         INC     [BUSY]                  ;Exclude if dumb program call ROM
         PUSH    CS
         PUSH    [INT_13_RETADDR]
-        PUSH    WORD PTR [REAL_INT_13+2]
-        PUSH    WORD PTR [REAL_INT_13]
+        PUSH    word [REAL_INT_13+2]
+        PUSH    word [REAL_INT_13]
         RET
-INT_13  ENDP
+; ENDP INT_13
 
-INT_13_BACK     PROC    FAR
+INT_13_BACK:
         PUSHF
         DEC     [BUSY]
         POPF
         RET     2               ;Chuck saved flags
-INT_13_BACK     ENDP
-        ENDIF
+; ENDP INT_13_BACK
+        %endif
 
 
-        IF      IBM
+        %if IBM
 
-REAL_INT_5  DD  ?
-REAL_INT_17 DD  ?
+REAL_INT_5: dd 0
+REAL_INT_17: dd 0
 INT_17_NUM  DW  0
 
 INT_17:
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         PUSH    SI
         MOV     SI,[CURRFIL]
         INC     SI
         INC     SI
-        CMP     BYTE PTR CS:[SI],-1
+        CMP     byte [CS:SI],-1
         POP     SI
         JZ      DO_INT_17               ;Nothing pending, so OK
         CMP     DX,[INT_17_NUM]
@@ -987,16 +987,16 @@ ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
 DO_INT_17:
         JMP     [REAL_INT_17]           ;Do a 17
 
-REAL_INT_14 DD  ?
+REAL_INT_14: dd 0
 INT_14_NUM  DW  0
 
 INT_14:
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         PUSH    SI
         MOV     SI,[CURRFIL]
         INC     SI
         INC     SI
-        CMP     BYTE PTR CS:[SI],-1
+        CMP     byte [CS:SI],-1
         POP     SI
         JZ      DO_INT_14               ;Nothing pending, so OK
         CMP     DX,[INT_14_NUM]
@@ -1018,12 +1018,12 @@ DO_INT_14:
         JMP     [REAL_INT_14]           ;Do a 14
 
 INT_5:
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         PUSH    SI
         MOV     SI,[CURRFIL]
         INC     SI
         INC     SI
-        CMP     BYTE PTR CS:[SI],-1
+        CMP     byte [CS:SI],-1
         POP     SI
         JZ      DO_INT_5                ;Nothing pending, so OK
         CMP     [INT_17_NUM],0
@@ -1032,40 +1032,40 @@ ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 DO_INT_5:
         JMP     [REAL_INT_5]            ;Do a 5
-        ENDIF
+        %endif
 
 
 ;The following data is order and position dependant
 NUMFCBS DW      10
 ERRCNT  DW      0
 
-SPLFCB  DW      OFFSET DG:FC1
+SPLFCB  DW      FC1
         DB      (FCBSIZ - 2) DUP (-1)
-FC1     DW      OFFSET DG:FC2
+FC1     DW      FC2
         DB      (FCBSIZ - 2) DUP (-1)
-FC2     DW      OFFSET DG:FC3
+FC2     DW      FC3
         DB      (FCBSIZ - 2) DUP (-1)
-FC3     DW      OFFSET DG:FC4
+FC3     DW      FC4
         DB      (FCBSIZ - 2) DUP (-1)
-FC4     DW      OFFSET DG:FC5
+FC4     DW      FC5
         DB      (FCBSIZ - 2) DUP (-1)
-FC5     DW      OFFSET DG:FC6
+FC5     DW      FC6
         DB      (FCBSIZ - 2) DUP (-1)
-FC6     DW      OFFSET DG:FC7
+FC6     DW      FC7
         DB      (FCBSIZ - 2) DUP (-1)
-FC7     DW      OFFSET DG:FC8
+FC7     DW      FC8
         DB      (FCBSIZ - 2) DUP (-1)
-FC8     DW      OFFSET DG:FC9
+FC8     DW      FC9
         DB      (FCBSIZ - 2) DUP (-1)
-FC9     DW      OFFSET DG:SPLFCB
+FC9     DW      SPLFCB
         DB      (FCBSIZ - 2) DUP (-1)
 
-DEF_ENDRES      LABEL   BYTE
+DEF_ENDRES:
 
-ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
+; ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
 
 BADSPOOL:
-        MOV     DX,OFFSET DG:BADMES
+        MOV     DX,BADMES
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         INT     20H
@@ -1074,80 +1074,80 @@ SETUP:
 ;Called once to install resident
         CLD
         MOV     [INTSEG],CS
-        MOV     DX,OFFSET DG:PROMPT
+        MOV     DX,PROMPT
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
-        MOV     DX,OFFSET DG:COMBUF
+        MOV     DX,COMBUF
         MOV     AH,STD_CON_STRING_INPUT
         INT     21H                     ;Get device name
-        MOV     DX,OFFSET DG:CRLF
+        MOV     DX,CRLF
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         MOV     CL,[COMBUF+1]
         OR      CL,CL
         JZ      DEFSPOOL                ;User didn't specify one
         XOR     CH,CH
-        MOV     DI,OFFSET DG:LISTFCB + 1
-        MOV     SI,OFFSET DG:COMBUF + 2
+        MOV     DI,LISTFCB + 1
+        MOV     SI,COMBUF + 2
         REP     MOVSB
 DEFSPOOL:
-        MOV     DX,OFFSET DG:LISTFCB
+        MOV     DX,LISTFCB
         MOV     AH,FCB_OPEN
         INT     21H
         OR      AL,AL
         JNZ     BADSPOOL                ;Bad
-        TEST    BYTE PTR [LISTFCB.fcb_DEVID],080H
+        TEST    byte [LISTFCB.fcb_DEVID],080H
         JZ      BADSPOOL                ;Must be a device
-        LDS     SI,DWORD PTR [LISTFCB.fcb_FIRCLUS]
-ASSUME  DS:NOTHING
-        MOV     WORD PTR [CALLAD+2],DS     ;Get I/O routines
-        MOV     WORD PTR [LISTDEV+2],DS    ;Get I/O routines
-        MOV     WORD PTR [LISTDEV],SI
+        LDS     SI,dword [LISTFCB.fcb_FIRCLUS]
+; ASSUME  DS:NOTHING
+        MOV     word [CALLAD+2],DS     ;Get I/O routines
+        MOV     word [LISTDEV+2],DS    ;Get I/O routines
+        MOV     word [LISTDEV],SI
         PUSH    CS
         POP     DS
-ASSUME  DS:DG
-        MOV     DX,OFFSET DG:SPINT
+; ASSUME  DS:DG
+        MOV     DX,SPINT
         MOV     AL,SOFTINT
         MOV     AH,GET_INTERRUPT_VECTOR
         INT     21H                     ;Get soft vector
-        MOV     WORD PTR [SPNEXT+2],ES
-        MOV     WORD PTR [SPNEXT],BX
+        MOV     word [SPNEXT+2],ES
+        MOV     word [SPNEXT],BX
         MOV     AL,SOFTINT
         MOV     AH,SET_INTERRUPT_VECTOR
         INT     21H                     ;Set soft vector
-        MOV     DX,OFFSET DG:SPCOMINT
+        MOV     DX,SPCOMINT
         MOV     AL,COMINT
         MOV     AH,SET_INTERRUPT_VECTOR              ;Set communication vector
         INT     21H
 
-        IF      IBM
+        %if IBM
         MOV     AL,13H
         MOV     AH,GET_INTERRUPT_VECTOR
         INT     21H
-        MOV     WORD PTR [REAL_INT_13+2],ES
-        MOV     WORD PTR [REAL_INT_13],BX
-        MOV     DX,OFFSET DG:INT_13
+        MOV     word [REAL_INT_13+2],ES
+        MOV     word [REAL_INT_13],BX
+        MOV     DX,INT_13
         MOV     AL,13H
         MOV     AH,SET_INTERRUPT_VECTOR
         INT     21H             ;Set diskI/O interrupt
         MOV     AL,17H
         MOV     AH,GET_INTERRUPT_VECTOR
         INT     21H
-        MOV     WORD PTR [REAL_INT_17+2],ES
-        MOV     WORD PTR [REAL_INT_17],BX
+        MOV     word [REAL_INT_17+2],ES
+        MOV     word [REAL_INT_17],BX
         MOV     AL,14H
         MOV     AH,GET_INTERRUPT_VECTOR
         INT     21H
-        MOV     WORD PTR [REAL_INT_14+2],ES
-        MOV     WORD PTR [REAL_INT_14],BX
+        MOV     word [REAL_INT_14+2],ES
+        MOV     word [REAL_INT_14],BX
         MOV     AL,5H
         MOV     AH,GET_INTERRUPT_VECTOR
         INT     21H
-        MOV     WORD PTR [REAL_INT_5+2],ES
-        MOV     WORD PTR [REAL_INT_5],BX
+        MOV     word [REAL_INT_5+2],ES
+        MOV     word [REAL_INT_5],BX
         PUSH    CS
         POP     ES
-        MOV     BP,OFFSET DG:LISTFCB + 1
+        MOV     BP,LISTFCB + 1
         MOV     SI,BP
         MOV     CX,8
 CONLP:                  ;Make sure device name in upper case
@@ -1156,10 +1156,10 @@ CONLP:                  ;Make sure device name in upper case
         JB      DOCONLP
         CMP     AL,'z'
         JA      DOCONLP
-        SUB     BYTE PTR [SI-1],20H
+        SUB     byte [SI-1],20H
 DOCONLP:
         LOOP    CONLP
-        MOV     DI,OFFSET DG:INT_17_HITLIST
+        MOV     DI,INT_17_HITLIST
 CHKHIT:
         MOV     SI,BP
         MOV     CL,[DI]
@@ -1174,17 +1174,17 @@ CHKHIT:
         JNZ     CHKHIT
         XOR     BH,BH
         MOV     [INT_17_NUM],BX
-        MOV     DX,OFFSET DG:INT_17
+        MOV     DX,INT_17
         MOV     AL,17H
         MOV     AH,SET_INTERRUPT_VECTOR
         INT     21H             ;Set printer interrupt
-        MOV     DX,OFFSET DG:INT_5
+        MOV     DX,INT_5
         MOV     AL,5H
         MOV     AH,SET_INTERRUPT_VECTOR
         INT     21H             ;Set print screen interrupt
         JMP     SHORT ALLSET
 NOTONHITLIST:
-        MOV     DI,OFFSET DG:INT_14_HITLIST
+        MOV     DI,INT_14_HITLIST
 CHKHIT2:
         MOV     SI,BP
         MOV     CL,[DI]
@@ -1199,36 +1199,36 @@ CHKHIT2:
         JNZ     CHKHIT2
         XOR     BH,BH
         MOV     [INT_14_NUM],BX
-        MOV     DX,OFFSET DG:INT_14
+        MOV     DX,INT_14
         MOV     AL,14H
         MOV     AH,SET_INTERRUPT_VECTOR
         INT     21H             ;Set RS232 port interrupt
 ALLSET:
-        ENDIF
+        %endif
 
-        IF      HARDINT
+        %if HARDINT
         MOV     AH,GET_INDOS_FLAG
         INT     21H
-        MOV     WORD PTR [INDOS+2],ES   ;Get indos flag location
-        MOV     WORD PTR [INDOS],BX
+        MOV     word [INDOS+2],ES   ;Get indos flag location
+        MOV     word [INDOS],BX
         MOV     AL,INTLOC
         MOV     AH,GET_INTERRUPT_VECTOR
         INT     21H
-        MOV     WORD PTR [NEXTINT+2],ES
-        MOV     WORD PTR [NEXTINT],BX
-        MOV     DX,OFFSET DG:HDSPINT
+        MOV     word [NEXTINT+2],ES
+        MOV     word [NEXTINT],BX
+        MOV     DX,HDSPINT
         MOV     AL,INTLOC
         MOV     AH,SET_INTERRUPT_VECTOR
         INT     21H             ;Set hardware interrupt
-        ENDIF
+        %endif
 
         MOV     [MAKERES],1     ;Indicate to do a terminate stay resident
-        MOV     DX,OFFSET DG:GOODMES
+        MOV     DX,GOODMES
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         RET
 
-ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
+; ASSUME  CS:DG,DS:DG,ES:DG,SS:DG
 
 TRANSIENT:
 ;User interface
@@ -1251,7 +1251,7 @@ DOSVER_HIGH     EQU  020BH   ;2.11 in hex
 GOTBADDOS:
         PUSH    CS
         POP     DS
-        MOV     DX,OFFSET DG:BADVER
+        MOV     DX,BADVER
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         INT     20H
@@ -1262,9 +1262,9 @@ OKDOS:
         MOV     AH,GET_INTERRUPT_VECTOR
         MOV     AL,COMINT
         INT     21H
-ASSUME  ES:NOTHING
+; ASSUME  ES:NOTHING
         MOV     DI,BX
-        MOV     SI,OFFSET DG:SPCOMINT
+        MOV     SI,SPCOMINT
         MOV     CX,13
         REPE    CMPSB
         JZ      GOTRES          ;Signature matched
@@ -1299,7 +1299,7 @@ ARGSDONE:
 
 GOTPARMS:
 PARSE:
-        MOV     DI,OFFSET DG:PARSEBUF
+        MOV     DI,PARSEBUF
         CALL    CPARSE
         JC      ARGSDONE
         CMP     AX,4            ;Switch?
@@ -1325,7 +1325,7 @@ CHKTERM:
         JZ      SETTERM
         CMP     AL,'t'
         JZ      SETTERM
-        MOV     DX,OFFSET DG:BADSWT
+        MOV     DX,BADSWT
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         JMP     SHORT PARSE
@@ -1346,11 +1346,11 @@ PARSEARG:
         MOV     DI,FCB
         MOV     AX,(PARSE_FILE_DESCRIPTOR SHL 8) OR 1
         INT     21H             ;Parse the arg
-        CMP     BYTE PTR [DI],0
+        CMP     byte [DI],0
         JNZ     DRVOK
         MOV     DL,[DEFDRV]
         INC     DL
-        MOV     BYTE PTR [DI],DL        ;Set the default drive
+        MOV     byte [DI],DL        ;Set the default drive
 DRVOK:
         POP     SI
         INC     [ARGSETUP]
@@ -1371,14 +1371,14 @@ PROCESS:
         CMP     [ARGSETUP],0
         JZ      RET14                   ;Nothing to process
 NORMPROC:
-        MOV     AL,BYTE PTR DS:[FCB+1]
+        MOV     AL,byte [DS:FCB+1]
         CMP     AL," "
         JZ      SRCHBADJ
         MOV     DX,FCB
         MOV     AH,[CANFLG]
         CMP     AH,0
         JNZ     PROCRET
-        MOV     DX,OFFSET DG:SRCHFCB
+        MOV     DX,SRCHFCB
         MOV     AH,SET_DMA
         INT     21H
         MOV     DX,FCB
@@ -1387,7 +1387,7 @@ NORMPROC:
         OR      AL,AL
         JNZ     SRCHBADJ
 SRCHLOOP:
-        MOV     DX,OFFSET DG:SRCHFCB
+        MOV     DX,SRCHFCB
         MOV     AH,FCB_OPEN
         INT     21H
         OR      AL,AL
@@ -1396,7 +1396,7 @@ SRCHLOOP:
         JMP     SHORT NEXTSEARCH
 SRCHBADJ: JMP   SRCHBAD
 OPENOK:
-        MOV     DX,OFFSET DG:SRCHFCB
+        MOV     DX,SRCHFCB
         MOV     AH,0
         CALL    DOSET
         OR      AL,AL
@@ -1404,11 +1404,11 @@ OPENOK:
         XCHG    AL,[FULLFLAG]           ;Know AL non-zero
         OR      AL,AL
         JNZ     NEXTSEARCH              ;Only print message once
-        MOV     DX,OFFSET DG:FULLMES    ;Queue full
+        MOV     DX,FULLMES    ;Queue full
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
 NEXTSEARCH:
-        MOV     DX,OFFSET DG:SRCHFCB
+        MOV     DX,SRCHFCB
         MOV     AH,SET_DMA
         INT     21H
         MOV     DX,FCB
@@ -1421,21 +1421,21 @@ NEXTSEARCH:
 DOSET:
         INT     COMINT
         MOV     [FILCNT],AH             ;Suck up return info
-        MOV     WORD PTR [SPLIST+2],ES
-        MOV     WORD PTR [CURFILE+2],ES
-        MOV     WORD PTR [SPLIST],BX
-        MOV     WORD PTR [CURFILE],DX
+        MOV     word [SPLIST+2],ES
+        MOV     word [CURFILE+2],ES
+        MOV     word [SPLIST],BX
+        MOV     word [CURFILE],DX
         RET
 
 OPENERR:
         PUSH    SI
         PUSH    DI
-        MOV     SI,OFFSET DG:OPFILNAM
+        MOV     SI,OPFILNAM
         PUSH    DS
         POP     ES
-        MOV     DI,OFFSET DG:SRCHFCB
+        MOV     DI,SRCHFCB
         CALL    MVFNAM
-        MOV     DX,OFFSET DG:OPMES
+        MOV     DX,OPMES
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         POP     DI
@@ -1445,12 +1445,12 @@ OPENERR:
 SRCHBAD:
         PUSH    SI
         PUSH    DI
-        MOV     SI,OFFSET DG:SRCHFNAM
+        MOV     SI,SRCHFNAM
         PUSH    DS
         POP     ES
         MOV     DI,FCB
         CALL    MVFNAM
-        MOV     DX,OFFSET DG:SRCHMES
+        MOV     DX,SRCHMES
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         POP     DI
@@ -1466,7 +1466,7 @@ GETSPLIST:
         POP     DS
         CMP     DI,ERRCNT1
         JB      CNTOK
-        MOV     DX,OFFSET DG:CNTMES
+        MOV     DX,CNTMES
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
 CNTOK:
@@ -1478,37 +1478,37 @@ CNTOK:
         PUSH    DI
         INC     DI
         INC     DI
-        MOV     SI,OFFSET DG:CURFNAM
+        MOV     SI,CURFNAM
         CALL    MVFNAM
         POP     DI
-        MOV     DX,OFFSET DG:CURMES
+        MOV     DX,CURMES
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         DEC     CX
         JCXZ    RET12
 FILOOP:
-        MOV     DI,ES:[DI]
+        MOV     DI,[ES:DI]
         PUSH    DI
         INC     DI
         INC     DI
-        MOV     SI,OFFSET DG:FILFNAM
+        MOV     SI,FILFNAM
         CALL    MVFNAM
         POP     DI
-        MOV     DX,OFFSET DG:FILMES
+        MOV     DX,FILMES
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         LOOP    FILOOP
 RET12:  RET
 
 NOFILES:
-        MOV     DX,OFFSET DG:NOFILS
+        MOV     DX,NOFILS
         MOV     AH,STD_CON_STRING_OUTPUT
         INT     21H
         RET
 
 ;Make a message with the file name
 MVFNAM:
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
         PUSH    SI
         PUSH    DI
         PUSH    CX
@@ -1564,7 +1564,7 @@ TAB     equ     09h
 CR      equ     0dh
 
 CPARSE:
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         pushf                           ;save flags
         push    di                      ;save the token buffer addrss
         xor     cx,cx                   ;no chars in token buffer
@@ -1620,7 +1620,7 @@ x_done2:
         ret
 
 
-kill_bl proc    near
+kill_bl:
         lodsb
         cmp     al,' '
         je      kill_bl
@@ -1631,15 +1631,15 @@ kill_bl proc    near
         cmp     al,'='
         je      kill_bl
         ret
-kill_bl endp
+; ENDP kill_bl
 
 
-move_char proc  near
+move_char:
         stosb                           ;store char in token buffer
         inc     cx                      ;increment char count
         ret
-move_char endp
+; ENDP move_char
 
-CODE    ENDS
-        END     START
+; END SECTION .CODE
+        ; END     START
 

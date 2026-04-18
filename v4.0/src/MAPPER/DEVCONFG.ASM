@@ -1,10 +1,10 @@
 ;0
-page 60,132
+; page 60,132
 ;
-title CP/DOS DosDevConfig mapper
+; title CP/DOS DosDevConfig mapper
 ;
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -23,22 +23,22 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-	    public   dosdevconfig
-	    .sall
-	    include  macros.inc
+	    global dosdevconfig
+	    ; .sall
+	    %include "macros.inc"
 
 inv_parm    equ      0002h
 model_byte  equ      0fffeh
 
-str	    struc
-old_bp	    dw	     ?
-return	    dd	     ?
-rsrvd	    dw	     ?	      ; reserved
-item	    dw	     ?	      ; item number
-data	    dd	     ?	      ; returned information
-str	    ends
+struc str
+old_bp: resw 1
+return: resd 1
+rsrvd: resw 1; reserved
+item: resw 1; item number
+data: resd 1; returned information
+endstruc
 
-dosdevconfig  proc far
+dosdevconfig:
 	    Enter    dosdevconfig	   ; push registers
 
 	    mov      ax,[bp].rsrvd	   ; reserved parm must
@@ -105,13 +105,13 @@ error:	    mov      ax,inv_parm
 
 exit:	    sub      ax,ax		  ; set good return code
 	    lds      si,[bp].data	  ; set return data area address
-	    mov      byte ptr [si],bl	  ; save bit pattern in return
+	    mov      byte [si],bl	  ; save bit pattern in return
 					  ; data area
 exit1:	    Mexit			  ; pop registers
-	    ret      size str - 6	  ; return
+	    ret      str_size - 6	  ; return
 
-dosdevconfig endp
+; ENDP dosdevconfig
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

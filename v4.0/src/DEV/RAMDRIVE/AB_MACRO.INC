@@ -7,8 +7,8 @@
 ;	1. MACRO to save mapping context in case somebody else has
 ;	   mapped the page registers.
 ;
-save_mapping_context	macro
-local	save_agn_m,save_err_m,save_ok_m,save_exit_m
+%macro save_mapping_context 0
+; LOCAL save_agn_m,save_err_m,save_ok_m,save_exit_m
 ;	
 ;	the save mapping call for the above board -->
 ;
@@ -25,7 +25,7 @@ local	save_agn_m,save_err_m,save_ok_m,save_exit_m
 ;	set up emm registers and execute call to save mapping context
 ;
 save_agn_m:
-	mov	dx,cs:[above_pid]		; get emm handle
+	mov	dx,[cs:above_pid]		; get emm handle
 	mov	ah,above_save_map_pid	; save map call
 	int	67h			; call the manager
 	or	ah,ah			; is there an error?
@@ -55,14 +55,14 @@ save_ok_m:
 	pop	dx
 	pop	ax			; restore registers
 save_exit_m:
-	endm
+	%endmacro
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	2. MACRO to restore the mapping context saved earlier
 ;
-restore_mapping_context	macro
-local	rest_agn_m, rest_ok_m, rest_exit_m
+%macro restore_mapping_context 0
+; LOCAL rest_agn_m, rest_ok_m, rest_exit_m
 ;
 ;	the restore above map call -->
 ;
@@ -76,7 +76,7 @@ local	rest_agn_m, rest_ok_m, rest_exit_m
 	pushf
 ;
 rest_agn_m:
-	mov	dx,cs:[above_pid]	; get emm handle
+	mov	dx,[cs:above_pid]	; get emm handle
 	mov	ah,above_restore_map_pid ; restore map call
 	int	67h			; call manager
 	or	ah,ah			; is there any error
@@ -102,7 +102,7 @@ rest_ok_m:
 	pop	ax
 rest_exit_m:
 ;
-	endm
+	%endmacro
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -117,11 +117,11 @@ rest_exit_m:
 ;		int	67H
 ;	ah = 0 success and this routine zaps ax,dx and bx
 ;
-map_page	macro
-local	map_agn_m,map_exit_m,map_fin_m
+%macro map_page 0
+; LOCAL map_agn_m,map_exit_m,map_fin_m
 ;
 	mov	ah,above_map	; function map page
-	mov	dx,cs:[above_pid]	; get emm handle
+	mov	dx,[cs:above_pid]	; get emm handle
 ;
 	push	ax
 ;
@@ -157,7 +157,7 @@ map_fin_m:
 	pop	ax
 map_exit_m:
 ;
-	endm
+	%endmacro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;			OTHER MACROS
@@ -166,7 +166,7 @@ map_exit_m:
 ;
 ;	1) MACRO to switch es:di with ds:si
 ;
-src_dest_switch	macro	
+%macro src_dest_switch 0
 ;
 	push	ds
 	push	es
@@ -176,5 +176,5 @@ src_dest_switch	macro
 	pop	ds
 	pop	es
 ;
-	endm
+	%endmacro
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

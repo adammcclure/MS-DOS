@@ -1,88 +1,88 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tcmd2b.asm 4.1 85/09/22
 ;	SCCSID = @(#)tcmd2b.asm 4.1 85/09/22
-TITLE	PART5 COMMAND Transient routines.
+; TITLE	PART5 COMMAND Transient routines.
 
-.xlist
-.xcref
-	INCLUDE comsw.asm
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-.list
-.cref
+; .xlist
+; .xcref
+	%include "comsw.asm"
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
-CODERES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	LODCOM1:NEAR
-CODERES ENDS
+SECTION .CODERES;AC000;
+	extern LODCOM1
+; END SECTION .CODERES
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	crit_msg_off:word	;AC000;
-	EXTRN	crit_msg_seg:word	;AC000;
-	EXTRN	IO_SAVE:WORD
-	EXTRN	OldTerm:DWORD
-	EXTRN	PARENT:WORD
+SECTION .DATARES;AC000;
+	extern crit_msg_off;AC000;
+	extern crit_msg_seg;AC000;
+	extern IO_SAVE
+	extern OldTerm
+	extern PARENT
 ;AD060; EXTRN	pars_msg_off:word	;AC000;
 ;AD060; EXTRN	pars_msg_seg:word	;AC000;
-	EXTRN	PERMCOM:BYTE		;AN045;
-	EXTRN	RetCode:WORD
-DATARES ENDS
+	extern PERMCOM;AN045;
+	extern RetCode
+; END SECTION .DATARES
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	ACRLF_PTR:WORD		;AN007;
-	EXTRN	baddev_ptr:word
-	EXTRN	CP_active_Ptr:word
-	EXTRN	CP_not_all_Ptr:word
-	EXTRN	CP_not_set_Ptr:word
-	EXTRN	Extend_buf_ptr:word	;AN000;
-	EXTRN	Extend_buf_sub:byte	;AN000;
-	EXTRN	inv_code_page:word	;AC000;
-	EXTRN	msg_disp_class:byte	;AN000;
-	EXTRN	NLSFUNC_Ptr:word	;AC000;
-	EXTRN	parse_chcp:byte 	;AC000;
-	EXTRN	parse_chdir:byte	;AC000;
-	EXTRN	parse_ctty:byte 	;AC000;
-	EXTRN	string_buf_ptr:word	;AC000;
+SECTION .TRANDATA;AC000;
+	extern ACRLF_PTR;AN007;
+	extern baddev_ptr
+	extern CP_active_Ptr
+	extern CP_not_all_Ptr
+	extern CP_not_set_Ptr
+	extern Extend_buf_ptr;AN000;
+	extern Extend_buf_sub;AN000;
+	extern inv_code_page;AC000;
+	extern msg_disp_class;AN000;
+	extern NLSFUNC_Ptr;AC000;
+	extern parse_chcp;AC000;
+	extern parse_chdir;AC000;
+	extern parse_ctty;AC000;
+	extern string_buf_ptr;AC000;
 
-TRANDATA	ENDS
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	COMBUF:BYTE
-	EXTRN	parse_last:word 	;AN018;
-	EXTRN	parse1_addr:dword	;AC000;
-	EXTRN	parse1_type:byte	;AC000;
-	EXTRN	RESSEG:WORD
-	EXTRN	srcbuf:byte
-	EXTRN	srcxname:byte		;AC000;
-	EXTRN	string_ptr_2:word
-	EXTRN	system_cpage:word
-	EXTRN	TRAN_TPA:WORD
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern COMBUF
+	extern parse_last;AN018;
+	extern parse1_addr;AC000;
+	extern parse1_type;AC000;
+	extern RESSEG
+	extern srcbuf
+	extern srcxname;AC000;
+	extern string_ptr_2
+	extern system_cpage
+	extern TRAN_TPA
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ;---------------
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg:byte		; the arg structure!
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern arg; the arg structure!
+; END SECTION .TRANSPACE
 ;---------------
 
-	EXTRN	cerror:near
+	extern cerror
 
-	PUBLIC	$exit
-	PUBLIC	chcp
-	PUBLIC	ctty
-	PUBLIC	parse_check_eol 	;AN000;
-	PUBLIC	parse_with_msg		;AN018;
-	PUBLIC	setup_parse_error_msg	;AN018;
-	PUBLIC	truename		;AN000;
+	global $exit
+	global chcp
+	global ctty
+	global parse_check_eol;AN000;
+	global parse_with_msg;AN018;
+	global setup_parse_error_msg;AN018;
+	global truename;AN000;
 
 	break	Ctty
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 ; ****************************************************************
 ; *
@@ -105,7 +105,7 @@ CTTY:
 	pop	es				;AN000;
 	mov	si,81H				;AC000; Get command argument for CTTY
 
-	mov	di,offset trangroup:parse_ctty	;AC000; Get adderss of PARSE_CTTY
+	mov	di,parse_ctty	;AC000; Get adderss of PARSE_CTTY
 	xor	cx,cx				;AC000; clear cx,dx
 	xor	dx,dx				;AC000;
 	invoke	cmd_parse			;AC000; call parser
@@ -116,7 +116,7 @@ CTTY:
 
 	push	si				;AN000; save position in line
 	lds	si,parse1_addr			;AN000; get address of filespec
-	mov	di,offset trangroup:srcbuf	;AN000; get address of srcbuf
+	mov	di,srcbuf	;AN000; get address of srcbuf
 
 ctty_move_filename:				;AN000; put filespec in srcbuf
 	lodsb					;AN000; get a char from buffer
@@ -124,7 +124,7 @@ ctty_move_filename:				;AN000; put filespec in srcbuf
 	cmp	al,end_of_line_out		;AN000; it char a terminator?
 	jnz	ctty_move_filename		;AN000; no - keep moving
 	pop	si				;AN000; get line position back
-	mov	di,offset trangroup:parse_ctty	;AC000; Get adderss of PARSE_CTTY
+	mov	di,parse_ctty	;AC000; Get adderss of PARSE_CTTY
 	call	parse_check_eol 		;AN000; are we at end of line?
 	jz	nocolon 			;AN000; yes - continue
 
@@ -132,7 +132,7 @@ ctty_error:
 	jmp	isbaddev			;AC000; yes - exit
 
 nocolon:
-	mov	dx,offset trangroup:srcbuf	;AN000; get address of srcbuf
+	mov	dx,srcbuf	;AN000; get address of srcbuf
 	MOV	AX,(OPEN SHL 8) OR 2		; Read and write
 	INT	int_command			; Open new device
 	JC	ISBADDEV
@@ -147,7 +147,7 @@ CLOSEDEV:					;AN007;
 	INT	int_command
 
 ISBADDEV:
-	MOV	DX,OFFSET TRANGROUP:BADDEV_ptr
+	MOV	DX,BADDEV_ptr
 	invoke	std_printf
 	JMP	RESRET
 
@@ -189,16 +189,16 @@ ICLLOOP:					; Close basic handles
 
 RESRET:
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	PUSH	DS
-	MOV	AX,WORD PTR DS:[PDB_JFN_Table]	; Get new 0 and 1
+	MOV	AX,word [DS:PDB_JFN_Table]	; Get new 0 and 1
 	MOV	[IO_SAVE],AX
-	MOV	AX,OFFSET RESGROUP:LODCOM1
+	MOV	AX,LODCOM1
 	PUSH	AX
 
-ZMMMM	PROC FAR
+ZMMMM:
 	RET					; Force header to be checked
-ZMMMM	ENDP
+; ENDP ZMMMM
 
 	break	Chcp
 
@@ -225,14 +225,14 @@ NLSFUNC_installed	equ    0ffh
 set_global_cp		equ    2
 get_global_cp		equ    1
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 CHCP:
 	push	ds				;AN000; Get local ES
 	pop	es				;AN000;
 	mov	si,81H				;AC000; Get command argument for CHCP
 
-	mov	di,offset trangroup:parse_chcp	;AN000; Get adderss of PARSE_CHCP
+	mov	di,parse_chcp	;AN000; Get adderss of PARSE_CHCP
 	xor	cx,cx				;AC000; clear cx,dx
 	xor	dx,dx				;AC000;
 	call	parse_with_msg			;AC018; call parser
@@ -246,11 +246,11 @@ setcp:
 	jne	cp_error			;AC018; yes - go issue message
 
 	push	cx				;AN000; save positional count
-	mov	bx,offset trangroup:parse1_addr ;AN000; get number returned
-	mov	cx,word ptr [bx]		;AN000;     into cx
+	mov	bx,parse1_addr ;AN000; get number returned
+	mov	cx,word [bx]		;AN000;     into cx
 	mov	system_cpage,cx 		;AN000; save user input number
 	pop	cx				;AC000; restore positional count
-	mov	di,offset trangroup:parse_chcp	;AN000; Get adderss of PARSE_CHCP
+	mov	di,parse_chcp	;AN000; Get adderss of PARSE_CHCP
 	call	parse_check_eol 		;AN000; are we at end of line?
 	jnz	cp_error			;AC000; no - exit
 
@@ -260,7 +260,7 @@ okset:
 	int	2fh				;AN000;
 	cmp	al,NLSFUNC_installed		;AN000;
 	jz	got_NLS 			;AN000; Yes - continue
-	mov	dx,offset trangroup:NLSFUNC_ptr ;AN000; no - set up error message
+	mov	dx,NLSFUNC_ptr ;AN000; no - set up error message
 	jmp	short cp_error			;AN000; error exit
 
 got_NLS:
@@ -280,12 +280,12 @@ got_NLS:
 	int	int_command			;  information was not found.
 	cmp	ax,error_invalid_data		;AC000; invalid code page
 	jnz	no_countrysys			;no - use file not found
-	mov	dx,offset trangroup:inv_code_page ;AN000; get message
+	mov	dx,inv_code_page ;AN000; get message
 	jmp	short cp_error			;AC000; error exit
 
 no_countrysys:
 	mov	msg_disp_class,ext_msg_class	;AN000; set up extended error msg class
-	mov	dx,offset TranGroup:Extend_Buf_ptr  ;AC000; get extended message pointer
+	mov	dx,Extend_Buf_ptr  ;AC000; get extended message pointer
 	mov	Extend_Buf_ptr,error_file_not_found ;AN000; get message number in control block
 	jmp	short cp_error			;AC000; error exit
 
@@ -298,11 +298,11 @@ chcp_other_error:
 	int	int_command
 	cmp	ax,65				;was it access denied?
 	jnz	none_set			;no - assume all failed
-	mov	dx,offset trangroup:cp_not_all_ptr ;set up message
+	mov	dx,cp_not_all_ptr ;set up message
 	jmp	short cp_error			;AC000; error exit
 
 none_set:
-	mov	dx,offset trangroup:cp_not_set_ptr ;set up message
+	mov	dx,cp_not_set_ptr ;set up message
 cp_error:					;AN000;
 	jmp	cerror				;exit
 
@@ -311,7 +311,7 @@ getcp:
 	mov	al,get_global_cp		;minor - get
 	int	int_command
 	mov	system_cpage,bx 		;get active cp for output
-	mov	dx,offset trangroup:cp_active_ptr
+	mov	dx,cp_active_ptr
 	invoke	std_printf			;print it out
 
 chcp_return:
@@ -342,18 +342,18 @@ chcp_return:
 ; *
 ; ****************************************************************
 
-assume	ds:trangroup,es:trangroup		;AN000;
+; assume	ds:trangroup,es:trangroup;AN000;
 
 TRUENAME:					;AN000; TRUENAME entry point
 	push	ds				;AN000; Get local ES
 	pop	es				;AN000;
 	mov	si,81H				;AN000; Get command line
-	mov	di,offset trangroup:parse_chdir ;AN000; Get adderss of PARSE_CHDIR
+	mov	di,parse_chdir ;AN000; Get adderss of PARSE_CHDIR
 	xor	cx,cx				;AN000; clear cx,dx
 	xor	dx,dx				;AN000;
 	call	parse_with_msg			;AC018; call parser
 
-	mov	di,offset trangroup:srcxname	;AN000; get address of srcxname
+	mov	di,srcxname	;AN000; get address of srcxname
 	cmp	ax,end_of_line			;AN000; are we at end of line?
 	je	tn_eol				;AN000; yes - go process
 	cmp	ax,result_no_error		;AN000; did we have an error?
@@ -370,7 +370,7 @@ tn_eol: 					;AN000; no parameters on line
 
 tn_drive:					;AN000; a drive was entered
 	push	si				;AN000; save position in line
-	mov	si,offset trangroup:parse1_addr ;AN000; get address of drive
+	mov	si,parse1_addr ;AN000; get address of drive
 	lodsb					;AN000; get the drive number
 	add	al,"A"-1                        ;AN000; convert it to char
 	stosb					;AN000; store it in srcxname
@@ -393,7 +393,7 @@ tn_move_filename:				;AN000; put filespec in srcxname
 	pop	si				;AN000; get line position back
 
 tn_check_eol:					;AN000; make sure no extra parms
-	mov	di,offset trangroup:parse_chdir ;AN000; get address of parse_chdir
+	mov	di,parse_chdir ;AN000; get address of parse_chdir
 	call	parse_check_eol 		;AN000; are we at end of line?
 	je	tn_doit 			;AN000; Yes - do the command
 
@@ -401,20 +401,20 @@ tn_parse_error: 				;AN000; A parse error occurred
 	jmp	cerror				;AN000; Go to error routine
 
 tn_doit:					;AN000;
-	mov	si,offset trangroup:srcxname	;AN000; set up srcxname as source
-	mov	di,offset trangroup:combuf	;AN000; set up combuf as target (need big target)
+	mov	si,srcxname	;AN000; set up srcxname as source
+	mov	di,combuf	;AN000; set up combuf as target (need big target)
 	mov	ah,xnametrans			;AN000; do name translate call
 	int	int_command			;AN000;
 	jnc	tn_print_xname			;AN000; If no error - print result
 
 	invoke	Set_ext_error_msg		;AN000; get extended message
-	mov	string_ptr_2,offset trangroup:srcxname ;AN000; get address of failed string
+	mov	string_ptr_2,srcxname ;AN000; get address of failed string
 	mov	Extend_buf_sub,one_subst	;AN000; put number of subst in control block
 	jmp	cerror				;AN000; Go to error routine
 
 tn_print_xname: 				;AN000;
-	mov	string_ptr_2,offset Trangroup:combuf ;AN000; Set up address of combuf
-	mov	dx,offset trangroup:string_buf_ptr   ;AN000; Set up address of print control block
+	mov	string_ptr_2,combuf ;AN000; Set up address of combuf
+	mov	dx,string_buf_ptr   ;AN000; Set up address of print control block
 	invoke	crlf2				;AN000; print a crlf
 	invoke	printf_crlf			;AN000; print it out
 
@@ -422,13 +422,13 @@ tn_print_xname: 				;AN000;
 
 	break	$Exit
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 $EXIT:
 	push	ds				;AN000; save data segment
 	mov	ds,[resseg]			;AN000; get resident data segment
 
-assume	ds:resgroup				;AN000;
+; assume	ds:resgroup;AN000;
 
 	cmp	[permcom],0			;AN045; is this a permanent COMMAND?
 	jnz	no_reset			;AN045; Yes - don't do anything
@@ -449,18 +449,18 @@ assume	ds:resgroup				;AN000;
 no_reset:					;AN045;
 	pop	ds				;AN000; restore local data segment
 
-assume	ds:trangroup				;AN000;
+; assume	ds:trangroup;AN000;
 
 	MOV	ES,[RESSEG]
 
-assume	es:resgroup
+; assume	es:resgroup
 
 	MOV	AX,[PARENT]
-	MOV	WORD PTR ES:[PDB_Parent_PID],AX
-	MOV	AX,WORD PTR OldTerm
-	MOV	WORD PTR ES:[PDB_Exit],AX
-	MOV	AX,WORD PTR OldTerm+2
-	MOV	WORD PTR ES:[PDB_Exit+2],AX
+	MOV	word [ES:PDB_Parent_PID],AX
+	MOV	AX,word OldTerm
+	MOV	word [ES:PDB_Exit],AX
+	MOV	AX,word OldTerm+2
+	MOV	word [ES:PDB_Exit+2],AX
 
 	PUSH	ES
 	MOV	ES,[TRAN_TPA]
@@ -469,7 +469,7 @@ assume	es:resgroup
 	POP	ES
 
 	MOV	AH,Exit
-	MOV	AL,BYTE PTR RetCode
+	MOV	AL,byte RetCode
 	INT	int_command
 
 
@@ -495,9 +495,9 @@ assume	es:resgroup
 ; *
 ; ****************************************************************
 
-ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:NOTHING	;AN000;
+; ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:NOTHING;AN000;
 
-parse_check_eol Proc near			;AN000;
+parse_check_eol:;AN000;
 
 	xor	dx,dx				;AN000;
 	mov	[parse_last],si 		;AN018; save start of parameter
@@ -515,7 +515,7 @@ ok_to_setup_pmsg:
 parse_good_eol:
 	ret					;AN000;
 
-parse_check_eol endp				;AN000;
+; ENDP parse_check_eol;AN000;
 
 ; ****************************************************************
 ; *
@@ -538,9 +538,9 @@ parse_check_eol endp				;AN000;
 ; *
 ; ****************************************************************
 
-ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:NOTHING	;AN018;
+; ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:NOTHING;AN018;
 
-parse_with_msg	Proc near			;AN018;
+parse_with_msg:;AN018;
 
 	mov	[parse_last],si 		;AN018; save start of parameter
 	invoke	cmd_parse			;AN018; call parser
@@ -554,7 +554,7 @@ parse_with_msg	Proc near			;AN018;
 parse_msg_good:
 	ret					;AN018;
 
-parse_with_msg endp				;AN018;
+; ENDP parse_with_msg;AN018;
 
 ; ****************************************************************
 ; *
@@ -572,13 +572,13 @@ parse_with_msg endp				;AN018;
 ; *
 ; ****************************************************************
 
-ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:NOTHING	;AN018;
+; ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:NOTHING;AN018;
 
-SETUP_PARSE_ERROR_MSG	Proc near		;AN018;
+SETUP_PARSE_ERROR_MSG:;AN018;
 
 	mov	msg_disp_class,parse_msg_class	;AC018; Set up parse message class
-	mov	dx,offset TranGroup:Extend_Buf_ptr  ;AC018; get extended message pointer
-	mov	byte ptr [si],end_of_line_out	;AC018; terminate the parameter string
+	mov	dx,Extend_Buf_ptr  ;AC018; get extended message pointer
+	mov	byte [si],end_of_line_out	;AC018; terminate the parameter string
 	mov	Extend_Buf_ptr,ax		;AC018; get message number in control block
 	cmp	ax,lessargs_ptr 		;AC018; if required parameter missing
 	jz	Setup_parse_msg_ret		;AN018;    no subst
@@ -591,7 +591,7 @@ setup_parse_msg_ret:
 
 	ret					;AC018;
 
-SETUP_PARSE_ERROR_MSG	Endp			;AN018;
+; ENDP SETUP_PARSE_ERROR_MSG;AN018;
 
-trancode    ends
-	    end
+; END SECTION .trancode
+	    ; end

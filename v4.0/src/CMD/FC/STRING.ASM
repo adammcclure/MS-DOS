@@ -2,10 +2,10 @@
 ; string functions for lattice C
 ;
 
-.xlist
-include	version.inc
-include cmacros.inc
-.list
+; .xlist
+%include "version.inc"
+%include "cmacros.inc"
+; .list
 
 sBegin	data
 assumes ds,data
@@ -112,4 +112,4 @@ cEnd
 
 sEnd
 
-end
+; end

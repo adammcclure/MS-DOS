@@ -1,12 +1,12 @@
-TITLE   Standard MSDOS
-NAME    MSDOS_2
+; TITLE   Standard MSDOS
+; NAME    MSDOS_2
 
 ; Number of disk I/O buffers
 
-        INCLUDE STDSW.ASM
-        INCLUDE MSHEAD.ASM
-        INCLUDE MSDATA.ASM
+        %include "STDSW.ASM"
+        %include "MSHEAD.ASM"
+        %include "MSDATA.ASM"
 
-        END
+        ; END
 
 

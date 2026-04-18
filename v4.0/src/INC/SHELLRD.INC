@@ -1,5 +1,5 @@
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		 SHELLRD.INC					      :
@@ -10,7 +10,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		INIT_GTEXT					      :
@@ -34,20 +34,20 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-INIT_GTEXT     PROC NEAR
+INIT_GTEXT:
 ;
-	       CALL FAR PTR GET_PCB	     ;return panel address at ES:DI
+	       CALL far GET_PCB	     ;return panel address at ES:DI
 ;
-	       PUSH ES:[DI]+PCB_FLAGSEG      ;flag string segment
-	       PUSH ES:[DI]+PCB_FLAGOFF      ;flag string offset
-	       PUSH ES:[DI]+PCB_EXPANDSEG    ;segment of text string
-	       PUSH ES:[DI]+PCB_EXPANDOFF    ;offset of text string
-	       PUSH ES:[DI]+PCB_WIDTH	     ;width of panel
-	       PUSH ES:[DI]+PCB_LROW	     ;lower right corner
-	       PUSH ES:[DI]+PCB_UCOL	     ;column location of panel
-	       PUSH ES:[DI]+PCB_UROW	     ;row location of panel
-	       PUSH ES:[DI]+PCB_CCBID	     ;Index number of log color
-	       MOV  AL,ES:[DI]+PCB_OPT4
+	       PUSH [ES:DI]+PCB_FLAGSEG      ;flag string segment
+	       PUSH [ES:DI]+PCB_FLAGOFF      ;flag string offset
+	       PUSH [ES:DI]+PCB_EXPANDSEG    ;segment of text string
+	       PUSH [ES:DI]+PCB_EXPANDOFF    ;offset of text string
+	       PUSH [ES:DI]+PCB_WIDTH	     ;width of panel
+	       PUSH [ES:DI]+PCB_LROW	     ;lower right corner
+	       PUSH [ES:DI]+PCB_UCOL	     ;column location of panel
+	       PUSH [ES:DI]+PCB_UROW	     ;row location of panel
+	       PUSH [ES:DI]+PCB_CCBID	     ;Index number of log color
+	       MOV  AL,[ES:DI]+PCB_OPT4
 ;
 	       LEA  DI,GEN_DATA 	     ;point graphics window structure
 					     ; to data area
@@ -62,12 +62,12 @@ INIT_GTEXT     PROC NEAR
 	       MOV  [DI]+G_DRAWTLINES,CX
 	       POP  [DI]+G_DRAWTLEN	     ;width of panel text
 ;
-	       POP  WORD PTR [DI].G_DRAWTSTRING
+	       POP  word [DI].G_DRAWTSTRING
 					     ;panel text string address
-	       POP  WORD PTR [DI+2].G_DRAWTSTRING
-	       POP  WORD PTR [DI].G_DRAWTFLAGS
+	       POP  word [DI+2].G_DRAWTSTRING
+	       POP  word [DI].G_DRAWTFLAGS
 					     ;panel text flag string address
-	       POP  WORD PTR [DI+2].G_DRAWTFLAGS
+	       POP  word [DI+2].G_DRAWTFLAGS
 ;
 	       DEC  [DI]+G_DRAWTROWO	     ;window row origin (top left)
 	       DEC  [DI]+G_DRAWTCOLO	     ;window column origin
@@ -76,7 +76,7 @@ INIT_GTEXT     PROC NEAR
 	       CMP  [DI]+G_DRAWT_F,0	     ;check if source flags option used
 	       JE   IGT10
 ;
-	       CMP  WORD PTR [DI].G_DRAWTFLAGS,0
+	       CMP  word [DI].G_DRAWTFLAGS,0
 	       JNE  IGT10
 ;
 	       OR   BX,G_DRAWT_UF	     ;set option to use source flags
@@ -87,8 +87,8 @@ IGT10:	       MOV  [DI]+G_DRAWTOPT,BX	     ;option word
 ;
 	       PUSH ES			     ;save pointer to panel data
 	       PUSH DI
-	       CALL FAR PTR GET_COLOR	     ;get color attribute
-	       MOV  AL,ES:[DI]+CCB_A1	     ;get normal panel color
+	       CALL far GET_COLOR	     ;get color attribute
+	       MOV  AL,[ES:DI]+CCB_A1	     ;get normal panel color
 	       POP  DI			     ;point back to panel data
 	       POP  ES
 	       MOV  [DI]+G_DRAWT_A,AL	     ;window attribute
@@ -98,9 +98,9 @@ IGT10:	       MOV  [DI]+G_DRAWTOPT,BX	     ;option word
 	       MOV  ES,AX		     ; general data area
 ;
 	       RET
-INIT_GTEXT     ENDP
+; ENDP INIT_GTEXT
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PROCESS_SCROLL					      :
@@ -113,12 +113,12 @@ PAGE
 ;			set to COM_HCBIDL and COM_HCBIDH.  It is important    :
 ;			that the help equates are in sequential order.	      :
 ;									      :
-;			ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿		      :
-;	     COM_HCBIDL ÄÄ 1. First element to highlight ÄÄÄÄ AX	      :
-;			³  2.	     :	     :		  ³		      :
-;			³  3.	     :	     :		  ³		      :
-;	     COM_HCBIDH ÄÄ 4. Last element to highlight  ÄÄÄÄ BX	      :
-;			ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ		      :
+;			ÃšÃ„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Â¿		      :
+;	     COM_HCBIDL Ã„Ã„ 1. First element to highlight Ã„Ã„Ã„Ã„ AX	      :
+;			Â³  2.	     :	     :		  Â³		      :
+;			Â³  3.	     :	     :		  Â³		      :
+;	     COM_HCBIDH Ã„Ã„ 4. Last element to highlight  Ã„Ã„Ã„Ã„ BX	      :
+;			Ã€Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã„Ã™		      :
 ;									      :
 ;									      :
 ; Entry:		AX	   = First element to highlight 	      :
@@ -156,7 +156,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PROCESS_SCROLL PROC FAR
+PROCESS_SCROLL:
 ;
 	       PUSH AX			     ;save registers
 	       PUSH BX
@@ -206,10 +206,10 @@ SI05:	       MOV  CX,COM_HCBIDL	     ;initialize starting help ID
 	       MOV  DX,AX		     ;get first field
 ;
 SI07:	       MOV  CX,BX		     ;get last field
-	       CALL FAR PTR LOC_MOUSEF	     ;get actual mouse field number
-	       CALL FAR PTR MOUSE_OFF
-	       CALL FAR PTR MOUSE_HIGH	     ;highlight mouse field
-	       CALL FAR PTR MOUSE_ON
+	       CALL far LOC_MOUSEF	     ;get actual mouse field number
+	       CALL far MOUSE_OFF
+	       CALL far MOUSE_HIGH	     ;highlight mouse field
+	       CALL far MOUSE_ON
 ;
 ; Poll for keyboard or mouse input
 ;
@@ -220,7 +220,7 @@ SI10:	       CMP  COM_HLPTEMP,0	     ;check if single help ID selection
 	       MOV  COM_HCBID,AX	     ; selections
 ;
 SI11:	       MOV  AX,0		     ;turn monocasing off
-	       CALL FAR PTR PROCESS_KEY      ;get keystroke
+	       CALL far PROCESS_KEY      ;get keystroke
 
 	       MOV  BX,COM_KEY		     ;get keystroke
 ;
@@ -229,16 +229,16 @@ SI11:	       MOV  AX,0		     ;turn monocasing off
 SI12:	       CMP  COM_MOK,1		     ;check if keyboard input
 	       JE   SI15
 ;
-	       CMP  BX,ES:[DI]+KY_ENTER      ;check if Enter pressed
+	       CMP  BX,[ES:DI]+KY_ENTER      ;check if Enter pressed
 	       JNE  SI13
 ;
 	       CMP  COM_SCROPT,1	     ;is this the multiple select opt?
 	       JE   SI13		     ;yes, jump out of procedure
 ;
 	       MOV  AX,COM_CURPUPF	     ;get current highlighted field
-	       CALL FAR PTR GET_MOUSEF	     ;get mouse structure
+	       CALL far GET_MOUSEF	     ;get mouse structure
 ;
-	       MOV  AX,ES:[DI]+MS_KEYS	     ;keystroke assigned to field
+	       MOV  AX,[ES:DI]+MS_KEYS	     ;keystroke assigned to field
 	       MOV  COM_KEY,AX
 	       MOV  COM_MOK,0		     ;set for keystroke input
 ;
@@ -246,7 +246,7 @@ SI13:	       JMP  SIEXIT		     ;mouse action exit
 ;
 ; Process down arrow key
 ;
-SI15:	       CMP  BX,ES:[DI]+KY_DARROW     ;check if up arrow pressed
+SI15:	       CMP  BX,[ES:DI]+KY_DARROW     ;check if up arrow pressed
 	       JNE  SI30
 ;
 	       CMP  COM_CURPUPF,CX	     ;check if below last field
@@ -263,7 +263,7 @@ SI20:	       PUSH COM_HCBIDL		     ;initialize help to first field
 ;
 ; process up arrow key
 ;
-SI30:	       CMP  BX,ES:[DI]+KY_UARROW     ;check if up arrow pressed
+SI30:	       CMP  BX,[ES:DI]+KY_UARROW     ;check if up arrow pressed
 	       JNE  SI50
 ;
 	       CMP  COM_CURPUPF,DX	     ;check if above first field
@@ -279,17 +279,17 @@ SI40:	       PUSH COM_HCBIDH		     ;initialize help to last field
 ;
 ; Remove last field highlight and display new highlight
 ;
-SI45:	       CALL FAR PTR MOUSE_OFF	     ;turn mouse pointer off
+SI45:	       CALL far MOUSE_OFF	     ;turn mouse pointer off
 ;
 	       MOV  AX,COM_LASTF	     ;unhighlight last mouse field
-	       CALL FAR PTR LOC_MOUSEF	     ;get actual field number
-	       CALL FAR PTR MOUSE_UNHIGH
+	       CALL far LOC_MOUSEF	     ;get actual field number
+	       CALL far MOUSE_UNHIGH
 ;
 	       MOV  AX,COM_CURPUPF	     ;highlight current mouse field
-	       CALL FAR PTR LOC_MOUSEF	     ;get actual field number
-	       CALL FAR PTR MOUSE_HIGH
+	       CALL far LOC_MOUSEF	     ;get actual field number
+	       CALL far MOUSE_HIGH
 ;
-	       CALL FAR PTR MOUSE_ON	     ;turn mouse pointer on
+	       CALL far MOUSE_ON	     ;turn mouse pointer on
 ;
 	       MOV  AX,COM_CURPUPF	     ;set last field as current
 	       MOV  COM_LASTF,AX
@@ -297,23 +297,23 @@ SI45:	       CALL FAR PTR MOUSE_OFF	     ;turn mouse pointer off
 ;
 ; Process Enter key
 ;
-SI50:	       CMP  BX,ES:[DI]+KY_ENTER      ;check if Enter pressed
+SI50:	       CMP  BX,[ES:DI]+KY_ENTER      ;check if Enter pressed
 	       JNE  SI60
 ;
 	       CMP  COM_SCROPT,1	     ;is this the multiple select opt?
 	       JE   SIEXIT		     ;yes, jump out of procedure
 ;
 	       MOV  AX,COM_CURPUPF	     ;get current highlighted field
-	       CALL FAR PTR GET_MOUSEF	     ;get mouse structure
+	       CALL far GET_MOUSEF	     ;get mouse structure
 ;
-	       MOV  AX,ES:[DI]+MS_KEYS	     ;keystroke assigned to field
+	       MOV  AX,[ES:DI]+MS_KEYS	     ;keystroke assigned to field
 	       MOV  COM_KEY,AX
 	       MOV  COM_MOK,0		     ;set for keystroke input
 	       JMP  SIEXIT		     ;exit process_scroll
 ;
 ; if escape key, exit
 ;
-SI60:	       CMP  BX,ES:[DI]+KY_CANCEL     ;check if Escape pressed
+SI60:	       CMP  BX,[ES:DI]+KY_CANCEL     ;check if Escape pressed
 	       JNE  SI70
 ;
 	       JMP  SIEXIT
@@ -333,20 +333,20 @@ SI80:	       JMP  SI100		     ;poll for next keystroke
 ;
 ; multiple select, exit on spacebar
 ;
-SI90:	       CMP  BX,ES:[DI]+KY_SELECT     ;was this the space bar?
+SI90:	       CMP  BX,[ES:DI]+KY_SELECT     ;was this the space bar?
 	       JE   SIEXIT		     ;yes, exit routine
 ;
-SI100:	       CALL FAR PTR PCMBEEP_CALL     ;beep on unknown keystroke  P*3940
+SI100:	       CALL far PCMBEEP_CALL     ;beep on unknown keystroke  P*3940
 	       JMP  SI10		     ;poll for next keystroke
 ;
 ; Unhighlight field before exit
 ;
-SIEXIT:        CALL FAR PTR MOUSE_OFF	     ;turn mouse pointer off
+SIEXIT:        CALL far MOUSE_OFF	     ;turn mouse pointer off
 	       MOV  AX,COM_CURPUPF	     ;get last field
 ;
-	       CALL FAR PTR LOC_MOUSEF
-	       CALL FAR PTR MOUSE_UNHIGH     ;unhighlight field before exit
-	       CALL FAR PTR MOUSE_ON	     ;turn mouse point on
+	       CALL far LOC_MOUSEF
+	       CALL far MOUSE_UNHIGH     ;unhighlight field before exit
+	       CALL far MOUSE_ON	     ;turn mouse point on
 ;
 	       MOV  COM_FLDT,0		     ;no field type
 ;
@@ -360,9 +360,9 @@ SIEXIT:        CALL FAR PTR MOUSE_OFF	     ;turn mouse pointer off
 	       POP  AX
 ;
 	       RET
-PROCESS_SCROLL ENDP
+; ENDP PROCESS_SCROLL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PROCESS_INPUT					      :
@@ -402,7 +402,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PROCESS_INPUT  PROC FAR
+PROCESS_INPUT:
 ;
 	       PUSH BX
 	       PUSH DX
@@ -420,41 +420,41 @@ PROCESS_INPUT  PROC FAR
 ;
 ; remove mouse pointer
 ;
-PH03:	       CALL FAR PTR MOUSE_OFF	     ;turn mouse pointer off
+PH03:	       CALL far MOUSE_OFF	     ;turn mouse pointer off
 ;
 ; locate specified input control block
 ;
 	       MOV  AX,COM_ICBID	     ;get PCINPUT field
 	       MOV  IN_ICBID,AX
-	       CALL FAR PTR GET_ICB	     ;ES:DI points to ICB
+	       CALL far GET_ICB	     ;ES:DI points to ICB
 ;
 ; initialize, display and exit field
 ;
-	       AND  ES:[DI]+ICB_OPT1,NOT ICB_PSW
+	       AND  [ES:DI]+ICB_OPT1,NOT ICB_PSW
 					     ;deactivate password option
 	       CMP  COM_INOPT,0 	     ;check if password option is on
 	       JE   PH04
 ;
-	       OR   ES:[DI]+ICB_OPT1,ICB_PSW ;activate password option
+	       OR   [ES:DI]+ICB_OPT1,ICB_PSW ;activate password option
 ;
-PH04:	       AND  ES:[DI]+ICB_STATUS,NOT ICB_DONE
-	       AND  ES:[DI]+ICB_STATUS,NOT ICB_SINS
+PH04:	       AND  [ES:DI]+ICB_STATUS,NOT ICB_DONE
+	       AND  [ES:DI]+ICB_STATUS,NOT ICB_SINS
 ;
-	       MOV  ES:[DI]+ICB_CURCHAR,1
+	       MOV  [ES:DI]+ICB_CURCHAR,1
 ;
-PH05:	       OR   ES:[DI]+ICB_OPT4,ICB_INIT
-	       AND  ES:[DI]+ICB_OPT3,NOT ICB_KEY
-	       CALL FAR PTR PCINPUT_CALL     ;initialize field
-	       AND  ES:[DI]+ICB_OPT4,NOT ICB_INIT
-	       OR   ES:[DI]+ICB_OPT3,ICB_KEY
+PH05:	       OR   [ES:DI]+ICB_OPT4,ICB_INIT
+	       AND  [ES:DI]+ICB_OPT3,NOT ICB_KEY
+	       CALL far PCINPUT_CALL     ;initialize field
+	       AND  [ES:DI]+ICB_OPT4,NOT ICB_INIT
+	       OR   [ES:DI]+ICB_OPT3,ICB_KEY
 					     ;remove initialization option
 ;
 ; Process field
 ;
 PH06:	       XOR  AX,AX
-	       OR   ES:[DI]+ICB_OPT3,ICB_KEY
-	       AND  ES:[DI]+ICB_OPT4,NOT ICB_INIT
-	       TEST ES:[DI]+ICB_OPT2,ICB_UPC ;check if monocasing option active
+	       OR   [ES:DI]+ICB_OPT3,ICB_KEY
+	       AND  [ES:DI]+ICB_OPT4,NOT ICB_INIT
+	       TEST [ES:DI]+ICB_OPT2,ICB_UPC ;check if monocasing option active
 	       JE   PH07
 ;
 	       MOV  AX,0000000000000001B     ;set monocasing option on
@@ -466,11 +466,11 @@ PH07:	       TEST IN_OPT,IN_UTRAN	     ;check if translation option actv
 ;
 ; display mouse pointer
 ;
-PH10:	       CALL FAR PTR MOUSE_ON	     ;turn mouse pointer on
+PH10:	       CALL far MOUSE_ON	     ;turn mouse pointer on
 ;
 ; Poll keyboard and mouse
 ;
-	       CALL FAR PTR PROCESS_KEY
+	       CALL far PROCESS_KEY
 	       MOV  AX,COM_KEY		     ;get keystroke
 ;
 	       CMP  COM_MOK, 0		     ;mouse field?
@@ -484,58 +484,58 @@ PH10:	       CALL FAR PTR MOUSE_ON	     ;turn mouse pointer on
 	       CMP  AL, COM_RSTFLD	     ;mouse field in current set?
 	       JNE  PH11		     ;no, return new field index
 	       XOR  AL, AL		     ;clear ID byte
-comment        |
+; comment        |
 	       cmp  ah, rtarrow 	     ;
 	       jne  ph1005		     ;
 	       mov  es,in_icbseg	     ;
 	       mov  di,in_icboff	     ;
-	       inc  es:[di]+icb_hrstart      ;
-	       INC  ES:[DI]+ICB_CURCHAR      ;
-	       AND  ES:[DI]+ICB_OPT3,NOT ICB_KEY
-	       OR   ES:[DI]+ICB_OPT4,ICB_INIT
+	       inc  [es:di]+icb_hrstart      ;
+	       INC  [ES:DI]+ICB_CURCHAR      ;
+	       AND  [ES:DI]+ICB_OPT3,NOT ICB_KEY
+	       OR   [ES:DI]+ICB_OPT4,ICB_INIT
 	       jmp  ph12		     ;
 ph1005:        cmp  ah, lfarrow 	     ;
 	       jne  ph12		     ;
 	       mov  es,in_icbseg	     ;
 	       mov  di,in_icboff	     ;
-	       dec  es:[di]+icb_hrstart      ;
-	       DEC  ES:[DI]+ICB_CURCHAR      ;
-	       AND  ES:[DI]+ICB_OPT3,NOT ICB_KEY
-	       OR   ES:[DI]+ICB_OPT4,ICB_INIT
+	       dec  [es:di]+icb_hrstart      ;
+	       DEC  [ES:DI]+ICB_CURCHAR      ;
+	       AND  [ES:DI]+ICB_OPT3,NOT ICB_KEY
+	       OR   [ES:DI]+ICB_OPT4,ICB_INIT
 	       |
 	       JMP  PH12		     ;continue
 PH11:	       XOR  AH, AH		     ;clear keystroke byte
 ;
 PH12:	       MOV  COM_KEY, AX 	     ;update keystroke
-	       CALL FAR PTR MOUSE_OFF	     ;
+	       CALL far MOUSE_OFF	     ;
 ;
 ; Pass keystroke to input field for processing
 ;
 PH50:	       MOV  ES,IN_ICBSEG	     ;point to current ICB
 	       MOV  DI,IN_ICBOFF
-	       MOV  ES:[DI]+ICB_KS,AX	     ;set keystroke to ICB
+	       MOV  [ES:DI]+ICB_KS,AX	     ;set keystroke to ICB
 ;
-	       CALL FAR PTR PCINPUT_CALL     ;process input field
+	       CALL far PCINPUT_CALL     ;process input field
 ;
 	       MOV  ES,IN_ICBSEG	     ;point to current ICB
 	       MOV  DI,IN_ICBOFF
 ;
-	       MOV  AX,ES:[DI]+ICB_KS	     ;return keystroke
+	       MOV  AX,[ES:DI]+ICB_KS	     ;return keystroke
 ;
-	       TEST ES:[DI]+ICB_STATUS,ICB_DONE
+	       TEST [ES:DI]+ICB_STATUS,ICB_DONE
 	       jne  ph51
 	       jmp  PH06		     ;check for exit condition
 ;
-ph51:	       CALL FAR PTR MOUSE_ON	     ;turn mouse pointer on
-	       CALL FAR PTR CURSOROFF	     ;turn hardware cursor off
+ph51:	       CALL far MOUSE_ON	     ;turn mouse pointer on
+	       CALL far CURSOROFF	     ;turn hardware cursor off
 	       MOV  COM_FLDT,0		     ;no field type
 	       MOV  COM_INOPT,0 	     ;no password option
 ;
-	       MOV  DX,ES:[DI]+ICB_OPT4      ;get option word 4
+	       MOV  DX,[ES:DI]+ICB_OPT4      ;get option word 4
 ;
-	       PUSH ES:[DI]+ICB_ENDBYTE      ;return length of data
-	       PUSH ES:[DI]+ICB_FIELDOFF     ;return offset of data
-	       PUSH ES:[DI]+ICB_FIELDSEG     ;return segment of data
+	       PUSH [ES:DI]+ICB_ENDBYTE      ;return length of data
+	       PUSH [ES:DI]+ICB_FIELDOFF     ;return offset of data
+	       PUSH [ES:DI]+ICB_FIELDSEG     ;return segment of data
 ;
 	       POP  ES
 	       POP  DI
@@ -546,7 +546,7 @@ ph51:	       CALL FAR PTR MOUSE_ON	     ;turn mouse pointer on
 ;
 	       MOV  SI,DI		     ;save string offset
 	       ADD  DI,CX		     ;get end of string offset
-	       MOV  BYTE PTR ES:[DI],0	     ;null-terminate pathname
+	       MOV  byte [ES:DI],0	     ;null-terminate pathname
 	       MOV  DI,SI		     ;restore string offset
 ;
 	       CALL TRUNC_NAME		     ;truncate DOS names & extensions
@@ -554,7 +554,7 @@ ph51:	       CALL FAR PTR MOUSE_ON	     ;turn mouse pointer on
 	       PUSH DI							;MJK005
 	       MOV  ES,IN_ICBSEG	     ;point to current ICB	;MJK005
 	       MOV  DI,IN_ICBOFF					;MJK005
-	       MOV  ES:[DI]+ICB_ENDBYTE,CX   ;return length of data	;MJK005
+	       MOV  [ES:DI]+ICB_ENDBYTE,CX   ;return length of data	;MJK005
 	       POP  DI							;MJK005
 	       POP  ES							;MJK005
 ;
@@ -562,9 +562,9 @@ PH60:	       POP  DX
 	       POP  BX
 ;
 	       RET
-PROCESS_INPUT  ENDP
+; ENDP PROCESS_INPUT
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PROCESS_KEY					      :
@@ -602,7 +602,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PROCESS_KEY    PROC FAR
+PROCESS_KEY:
 ;
 	       PUSH AX			     ;save registers
 	       PUSH BX
@@ -697,7 +697,7 @@ PK20:	       TEST COM_STATE,COM_MOUS	     ;check if mouse configured
 ;
 PK22:	       LEA  DI,GEN_DATA 	     ;check mouse for button press
 	       MOV  [DI]+M_FUNC,M_GET
-	       CALL FAR PTR PCTRACK_CALL
+	       CALL far PCTRACK_CALL
 ;
 	       XOR  CH,CH		     ;clear to zero
 	       XOR  DH,DH		     ;clear to zero
@@ -765,13 +765,13 @@ PK30:	       CMP  COM_HLPOPT,10	     ;check if help deactivated
 	       JE   PKEXIT		     ;exit
 ;
 	       MOV  AX,STR_TOTAL	     ;get keystroke structure
-	       CALL FAR PTR GET_STRING	     ;structure at ES:DI
+	       CALL far GET_STRING	     ;structure at ES:DI
 ;
 	       MOV  AX,COM_KEY		     ;get keystroke
-	       CMP  AX,ES:[DI]+KY_CHELP
+	       CMP  AX,[ES:DI]+KY_CHELP
 	       JNE  PKEXIT
 ;
-	       CALL FAR PTR CURSOROFF	     ;turn hardware cursor off
+	       CALL far CURSOROFF	     ;turn hardware cursor off
 	       PUSH COM_HELPF		     ;save field ID before help process
 	       CALL MANAGE_HELP 	     ;process all types of help
 	       POP  COM_CURRF		     ;reset original field ID before hl
@@ -779,7 +779,7 @@ PK30:	       CMP  COM_HLPOPT,10	     ;check if help deactivated
 	       CMP  COM_FLDT,1		     ;redisplay cursor if input field
 	       JNE  PK40
 ;
-	       CALL FAR PTR CURSORON	     ;turn hardware cursor on
+	       CALL far CURSORON	     ;turn hardware cursor on
 ;
 ; Check if date and time should be updated.
 ;
@@ -793,7 +793,7 @@ PKEXIT:        PUSH ES
 	       MOV  AX, 40H
 	       MOV  ES, AX
 	       MOV  BX, 17H
-	       MOV  AL, ES:[BX]
+	       MOV  AL, [ES:BX]
 	       XOR  AH, AH
 	       MOV  COM_SHIFT, AX
 	       POP  DI
@@ -805,9 +805,9 @@ PKEXIT:        PUSH ES
 	       POP  AX
 ;
 	       RET
-PROCESS_KEY    ENDP
+; ENDP PROCESS_KEY
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									P5197 :
 ;  GET_MONO_DOS 							      :
@@ -818,7 +818,7 @@ PAGE
 ;  Exit:   None 							      :
 ;									P5197 :
 ;-----------------------------------------------------------------------------+
-GET_MONO_DOS   PROC NEAR
+GET_MONO_DOS:
 ;
 	       PUSH ES			     ;				P5197
 	       PUSH DI			     ;				P5197
@@ -831,16 +831,16 @@ GET_MONO_DOS   PROC NEAR
 	       MOV  CX,05H		     ;# bytes returned		P5197
 	       PUSH DS
 	       POP  ES			     ;ES:DI ptrs to return buf	P5197
-	       MOV  DI,OFFSET TEMP_WKA	     ;use as temp buffer	P5197
+	       MOV  DI,TEMP_WKA	     ;use as temp buffer	P5197
 	       INT  21H
 	       JC   GET_MONO_RET
 ;
 	       INC  DI			     ;skip info id		P5197
 ;
-	       MOV  AX,WORD PTR [DI]	     ;get DOS mono table offset P5197
+	       MOV  AX,word [DI]	     ;get DOS mono table offset P5197
 	       MOV  IN_MONOOFF,AX	     ;save it			P5197
 	       ADD  DI,2
-	       MOV  AX,WORD PTR [DI]	     ;get DOS mono table seg	P5197
+	       MOV  AX,word [DI]	     ;get DOS mono table seg	P5197
 	       MOV  IN_MONOSEG,AX	     ;save it			P5197
 ;
 GET_MONO_RET:
@@ -849,9 +849,9 @@ GET_MONO_RET:
 	       POP  ES			     ;				P5197
 ;
 	       RET			     ;				P5197
-GET_MONO_DOS   ENDP
+; ENDP GET_MONO_DOS
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		CHK_OVERRUN					      :
@@ -873,7 +873,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-CHK_OVERRUN    PROC NEAR
+CHK_OVERRUN:
 ;
 	       PUSH CX
 	       PUSH DI
@@ -883,7 +883,7 @@ CHK_OVERRUN    PROC NEAR
 	       ROR  CX,1		     ;set number of entries
 	       MOV  AX,DS		     ;get segment of table
 	       MOV  ES,AX		     ;set segment of table
-	       MOV  DI,OFFSET KS_TABLE	     ;offset of table
+	       MOV  DI,KS_TABLE	     ;offset of table
 	       MOV  AX,INC_KS		     ;current keystroke
 	       CLD
 	       REPNZ SCASW		     ;scan table for keystroke match
@@ -913,9 +913,9 @@ CHK_OVRET:     POP  ES
 	       POP  CX
 ;
 	       RET
-CHK_OVERRUN    ENDP
+; ENDP CHK_OVERRUN
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		DISP_DATETIME					      :
@@ -941,7 +941,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-DISP_DATETIME  PROC NEAR
+DISP_DATETIME:
 ;
 	       PUSH AX			     ;save registers
 	       PUSH BX
@@ -957,8 +957,8 @@ DISP_DATETIME  PROC NEAR
 ;
 ; Set up to get the date and time.
 ;
-DT_02:	       MOV  DI,OFFSET TIME_WKA	     ;time workarea
-	       MOV  BX,DS:[DI+4]	     ;save currect seconds
+DT_02:	       MOV  DI,TIME_WKA	     ;time workarea
+	       MOV  BX,[DS:DI+4]	     ;save currect seconds
 ;
 	       CALL PCDATES_CALL	     ;get date
 ;
@@ -980,22 +980,22 @@ DT_05:	       MOV  AX,COM_BASESCR	     ;get base screen
 	       MOV  COM_BASE_WKA,AX	     ;save new base screen
 	       JMP  DT_20		     ;continue
 ;
-DT_10:	       CMP  BX,DS:[DI+4]	     ;has the time minutes changed?
+DT_10:	       CMP  BX,[DS:DI+4]	     ;has the time minutes changed?
 	       JE   DT_RET		     ;no, don't update it
 ;
 DT_20:	       MOV  SI,PAN_ATITLE	     ;get panel id for moveg
 	       MOV  AX,1		     ;row to display
 	       MOV  BX,3		     ;column to display
 	       MOV  CX,LENGTH DATE_WKA	     ;len of date
-	       MOV  DX,OFFSET DATE_WKA
+	       MOV  DX,DATE_WKA
 	       PUSH DS
 	       POP  ES
 ;
-	       CALL FAR PTR MOUSE_OFF	     ;turn mouse off
+	       CALL far MOUSE_OFF	     ;turn mouse off
 ;
 	       PUSH AX			     ;
 	       MOV  AX, PAN_ATITLE	     ;set panel id
-	       CALL FAR PTR GET_ATTR	     ;get color attr
+	       CALL far GET_ATTR	     ;get color attr
 	       AND  AH, 0F0H		     ;mask off foreground
 	       CMP  AH, 0F0H		     ;background is white?
 	       POP  AX			     ;
@@ -1013,11 +1013,11 @@ DT_30:					     ;				P*4816
 ;
 	       MOV  BX,69		     ;column to display
 	       MOV  CX,LENGTH TIME_WKA	     ;len of time
-	       MOV  DX,OFFSET TIME_WKA
+	       MOV  DX,TIME_WKA
 ;
 	       PUSH AX			     ;
 	       MOV  AX, PAN_ATITLE	     ;set panel id
-	       CALL FAR PTR GET_ATTR	     ;get color attr
+	       CALL far GET_ATTR	     ;get color attr
 	       AND  AH, 0F0H		     ;mask off foreground
 	       CMP  AH, 0F0H		     ;background is white?
 	       POP  AX			     ;
@@ -1032,7 +1032,7 @@ DT_38:
 DT_40:					     ;				P*4816
 	       CALL UPDATE_DISPLAY	     ;display time
 ;
-	       CALL FAR PTR MOUSE_ON	     ;turn mouse on
+	       CALL far MOUSE_ON	     ;turn mouse on
 ;
 DT_RET:        POP  ES			     ;restore registers
 	       POP  DI
@@ -1043,9 +1043,9 @@ DT_RET:        POP  ES			     ;restore registers
 	       POP  AX
 ;
 	       RET
-DISP_DATETIME  ENDP
+; ENDP DISP_DATETIME
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		KEYLOCK 					      :
@@ -1067,7 +1067,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-KEYLOCK        PROC NEAR
+KEYLOCK:
 ;
 	       PUSH BX
 	       PUSH CX
@@ -1106,9 +1106,9 @@ KEYLOCK60:     STI			     ;enable ints
 	       POP  BX
 ;
 	       RET			     ;Exit
-KEYLOCK        ENDP
+; ENDP KEYLOCK
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		COMMAND_LINE					      :
@@ -1145,17 +1145,17 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-COMMAND_LINE   PROC FAR
+COMMAND_LINE:
 
 	       TEST COM_STATE,COM_FLCL	     ;check if command line active
 	       JNE  MC10
 ;
-	       CALL FAR PTR OPT_INACTIVE     ;display error panel for inactive *PCR
+	       CALL far OPT_INACTIVE     ;display error panel for inactive *PCR
 	       JMP  MCEXIT		     ;exit
 ;
 ; save registers
 ;
-MC10:	       CALL FAR PTR REMOVE_OLDPD     ;remove last pull down panel
+MC10:	       CALL far REMOVE_OLDPD     ;remove last pull down panel
 	       MOV  COM_CURPD,0
 ;
 	       PUSH AX
@@ -1168,9 +1168,9 @@ MC10:	       CALL FAR PTR REMOVE_OLDPD     ;remove last pull down panel
 ;
 ; disable mouse tracker
 ;
-	       CALL FAR PTR MOUSE_OFF	     ;turn mouse pointer off
-	       CALL FAR PTR DEL_MOUSEF	     ;delete all mouse fields
-	       CALL FAR PTR MOUSE_DIS	     ;disable mouse support
+	       CALL far MOUSE_OFF	     ;turn mouse pointer off
+	       CALL far DEL_MOUSEF	     ;delete all mouse fields
+	       CALL far MOUSE_DIS	     ;disable mouse support
 ;
 ; Set current directory path
 ;
@@ -1189,8 +1189,8 @@ MC20:	       CMP  COM_CDIALOG,COM_PAAB     ;check if program menu dialog
 	       MOV  AX,1		     ;get current selected dir	;P*4245
 	       CALL RETURN_PATH 	     ; in DOS services
 ;
-	       MOV  BX,OFFSET FULLSPEC	     ;file name
-	       MOV  DL,DS:BYTE PTR[BX]	     ;drive id
+	       MOV  BX,FULLSPEC	     ;file name
+	       MOV  DL,DS:byte[BX]	     ;drive id
 	       CALL SET_DRIVE		     ;set to the drive
 ;
 	       PUSH DI
@@ -1211,32 +1211,32 @@ MC20:	       CMP  COM_CDIALOG,COM_PAAB     ;check if program menu dialog
 ;
 ; Move in COMSPEC to PSC workarea for new COMMAND.COM PSC execution.
 ;
-MC30:	       MOV  SI,OFFSET COM_PFILSPEC   ;COMSPEC location
+MC30:	       MOV  SI,COM_PFILSPEC   ;COMSPEC location
 ;
-	       mov  dl, byte ptr [si]	     ;get drive letter of comspec
+	       mov  dl, byte [si]	     ;get drive letter of comspec
 	       call set_drive		     ;set logical drive
 ;
-	       MOV  DI,OFFSET PEC_COM	     ;PSC workarea location
+	       MOV  DI,PEC_COM	     ;PSC workarea location
 	       MOV  PEC_BYTE,0		     ;clear length
 ;
-MC40:	       MOV  AL,DS:BYTE PTR [SI]      ;get character
+MC40:	       MOV  AL,DS:byte [SI]      ;get character
 	       CMP  AL,0		     ;end of string?
 	       JE   MC50		     ;yes, add parm sep char
 ;
-	       MOV  DS:BYTE PTR [DI],AL      ;put character in PSC workarea
+	       MOV  DS:byte [DI],AL      ;put character in PSC workarea
 	       INC  PEC_BYTE		     ;adjust length
 	       INC  SI			     ;point to next COMSPEC char
 	       INC  DI			     ;point to next PSC position
 	       JMP  MC40		     ;get next character
 ;
-MC50:	       MOV  DS:BYTE PTR [DI],PEC_SEP ;set parameter seperator char
+MC50:	       MOV  DS:byte [DI],PEC_SEP ;set parameter seperator char
 	       INC  PEC_BYTE		     ;adjust length
 	       PUSH DS
 	       POP  ES			     ;set segment of PSC workarea
-	       MOV  DI,OFFSET PEC_TITLE      ;set offset of PSC workarea
+	       MOV  DI,PEC_TITLE      ;set offset of PSC workarea
 
 	       OR   COM_PROCFLAG,COM_CMDPSC  ;set COMMAND.COM PSC exec	P*3748
-	       CALL FAR PTR PROCESS_PSC      ;set up to process PSC
+	       CALL far PROCESS_PSC      ;set up to process PSC
 ;
 	       POP  DI			     ;restore registers
 	       POP  SI
@@ -1249,9 +1249,9 @@ MC50:	       MOV  DS:BYTE PTR [DI],PEC_SEP ;set parameter seperator char
 MCEXIT:
 ;
 	       RET
-COMMAND_LINE   ENDP
+; ENDP COMMAND_LINE
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; SET_DRIVE								      :
@@ -1266,7 +1266,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-SET_DRIVE      PROC NEAR
+SET_DRIVE:
 
 	       PUSH BX			     ;				P*4831
 	       PUSH DX			     ;				P*4831
@@ -1283,9 +1283,9 @@ SET_DRIVE      PROC NEAR
 	       POP  BX			     ;				P*4831
 	       RET			     ; return to caller 	P*4831
 
-SET_DRIVE      ENDP
+; ENDP SET_DRIVE
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCCLRRD_CALL					      :
@@ -1306,7 +1306,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCCLRRD_CALL   PROC NEAR		     ;*PCR (ENTIRE PROC)
+PCCLRRD_CALL:;*PCR (ENTIRE PROC)
 ;
 	       PUSH DS			     ;Set segment
 	       POP  ES
@@ -1316,13 +1316,13 @@ PCCLRRD_CALL   PROC NEAR		     ;*PCR (ENTIRE PROC)
 ;
 	       LEA  DI,CRD_OPT1 	     ;Set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;Make call to CAS-RM
 	       MOV  BX,CRD_RN		     ;Set cas routine number
 	       INT  CASINT		     ;Call routine
-ELSE
+%else
 	       CALL CLRRD
-ENDIF
+%endif
 ;
 ; copy the color index vector into buffer below clrrd buffer
 ;
@@ -1353,9 +1353,9 @@ CR_EXIT:       POP  DI			     ;Restore registers
 	       POP  DS
 ;
 	       RET
-PCCLRRD_CALL   ENDP
+; ENDP PCCLRRD_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		SET_DEFAULT					      :
@@ -1378,22 +1378,22 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-SET_DEFAULT    PROC FAR
+SET_DEFAULT:
 ;
 	       PUSH ES			     ;save default segment
 	       PUSH DI			     ;save default offset
 ;
-	       CALL FAR PTR GET_ICB	     ;get input control block
+	       CALL far GET_ICB	     ;get input control block
 ;
-	       MOV  ES:[DI]+ICB_CURCHAR,1    ;reset starting cursor position
-	       MOV  ES:[DI]+ICB_DEFLEN,CX    ;set length
-	       POP  ES:[DI]+ICB_DEFOFF	     ;offset
-	       POP  ES:[DI]+ICB_DEFSEG	     ;segment
+	       MOV  [ES:DI]+ICB_CURCHAR,1    ;reset starting cursor position
+	       MOV  [ES:DI]+ICB_DEFLEN,CX    ;set length
+	       POP  [ES:DI]+ICB_DEFOFF	     ;offset
+	       POP  [ES:DI]+ICB_DEFSEG	     ;segment
 ;
 	       RET
-SET_DEFAULT    ENDP
+; ENDP SET_DEFAULT
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		GET_PCB 					      :
@@ -1418,7 +1418,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-GET_PCB        PROC FAR
+GET_PCB:
 ;
 	       PUSH AX
 	       PUSH BX
@@ -1436,8 +1436,8 @@ GET_PCB        PROC FAR
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into PCB vec
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  BX,ES:[DI]		     ;get actual PCB segment
-	       MOV  CX,ES:[DI]+2	     ;point past PCB seg to get PCB off
+	       MOV  BX,[ES:DI]		     ;get actual PCB segment
+	       MOV  CX,[ES:DI]+2	     ;point past PCB seg to get PCB off
 ;
 	       MOV  ES,BX		     ;set ES:DI to panel's actual
 	       MOV  DI,CX		     ; PCB address
@@ -1448,9 +1448,9 @@ GET_PCB        PROC FAR
 	       POP  AX
 ;
 	       RET
-GET_PCB        ENDP
+; ENDP GET_PCB
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		GET_SCB 					      :
@@ -1475,7 +1475,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-GET_SCB        PROC NEAR
+GET_SCB:
 ;
 	       PUSH AX
 	       PUSH BX
@@ -1493,8 +1493,8 @@ GET_SCB        PROC NEAR
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into SCB vec
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  BX,ES:[DI]		     ;get actual SCB segment
-	       MOV  CX,ES:[DI]+2	     ;point past SCB seg to get SCB off
+	       MOV  BX,[ES:DI]		     ;get actual SCB segment
+	       MOV  CX,[ES:DI]+2	     ;point past SCB seg to get SCB off
 ;
 	       MOV  ES,BX		     ;set ES:DI to panel's actual
 	       MOV  DI,CX		     ; PCB address
@@ -1505,9 +1505,9 @@ GET_SCB        PROC NEAR
 	       POP  AX
 ;
 	       RET
-GET_SCB        ENDP
+; ENDP GET_SCB
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		GET_ICB 					      :
@@ -1532,7 +1532,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-GET_ICB        PROC FAR
+GET_ICB:
 ;
 	       PUSH AX
 	       PUSH BX
@@ -1550,8 +1550,8 @@ GET_ICB        PROC FAR
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into ICB vec
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  BX,ES:[DI]		     ;get actual ICB segment
-	       MOV  CX,ES:[DI]+2	     ;point past ICB seg to get ICB off
+	       MOV  BX,[ES:DI]		     ;get actual ICB segment
+	       MOV  CX,[ES:DI]+2	     ;point past ICB seg to get ICB off
 ;
 	       MOV  ES,BX		     ;set ES:DI to input's actual
 	       MOV  DI,CX		     ; ICB address
@@ -1559,7 +1559,7 @@ GET_ICB        PROC FAR
 	       TEST COM_STATE,COM_TEXT	     ;check if in text mode
 	       JE   GIEXIT
 ;
-	       AND  ES:[DI]+ICB_OPT1,NOT ICB_BOX
+	       AND  [ES:DI]+ICB_OPT1,NOT ICB_BOX
 					     ;if in text mode deactivate box
 					     ; option
 ;
@@ -1569,9 +1569,9 @@ GIEXIT:        POP  DX
 	       POP  AX
 ;
 	       RET
-GET_ICB        ENDP
+; ENDP GET_ICB
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		GET_ERROR					      :
@@ -1597,7 +1597,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-GET_ERROR      PROC FAR
+GET_ERROR:
 ;
 	       PUSH BX
 	       PUSH CX
@@ -1614,9 +1614,9 @@ GET_ERROR      PROC FAR
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into vector
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  CX,ES:[DI]		     ;get error text offset
+	       MOV  CX,[ES:DI]		     ;get error text offset
 	       XOR  AX,AX		     ;clear to zero
-	       MOV  AL,ES:[DI]+2	     ;get error text length
+	       MOV  AL,[ES:DI]+2	     ;get error text length
 ;
 	       MOV  DI,CX		     ;set ES:DI to panel's actual
 					     ; PCB address
@@ -1626,9 +1626,9 @@ GET_ERROR      PROC FAR
 	       POP  BX
 ;
 	       RET
-GET_ERROR      ENDP
+; ENDP GET_ERROR
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		GET_BUTTON					      :
@@ -1653,7 +1653,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-GET_BUTTON     PROC NEAR
+GET_BUTTON:
 ;
 	       PUSH BX
 	       PUSH CX
@@ -1670,7 +1670,7 @@ GET_BUTTON     PROC NEAR
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into vector
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  CX,ES:[DI]		     ;get text offset
+	       MOV  CX,[ES:DI]		     ;get text offset
 	       MOV  DI,CX		     ;set ES:DI to actual data
 ;
 	       POP  DX
@@ -1678,9 +1678,9 @@ GET_BUTTON     PROC NEAR
 	       POP  BX
 ;
 	       RET
-GET_BUTTON     ENDP
+; ENDP GET_BUTTON
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		GET_STRING					      :
@@ -1706,7 +1706,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-GET_STRING     PROC FAR
+GET_STRING:
 ;
 	       PUSH DX
 	       PUSH BX
@@ -1723,9 +1723,9 @@ GET_STRING     PROC FAR
 					     ; desired vector number in BX
 	       MUL  BX			     ; to determine offset into vector
 	       ADD  DI,AX		     ;add offset inside table
-	       MOV  CX,ES:[DI]		     ;get text offset
+	       MOV  CX,[ES:DI]		     ;get text offset
 	       XOR  AX,AX		     ;clear to zero
-	       MOV  AL,ES:[DI]+2	     ;get text length
+	       MOV  AL,[ES:DI]+2	     ;get text length
 ;
 	       MOV  DI,CX		     ;set ES:DI to actual data
 ;
@@ -1734,9 +1734,9 @@ GET_STRING     PROC FAR
 	       POP  DX
 ;
 	       RET
-GET_STRING     ENDP
+; ENDP GET_STRING
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		GET_ATTR					      :
@@ -1760,25 +1760,25 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-GET_ATTR       PROC FAR
+GET_ATTR:
 ;
 	       PUSH ES			     ;save registers
 	       PUSH DI
 ;
-	       CALL FAR PTR GET_PCB	     ;load the panel's PCB in ES:DI
-	       MOV  AX,ES:[DI]+PCB_CCBID     ;get panel's color index number
+	       CALL far GET_PCB	     ;load the panel's PCB in ES:DI
+	       MOV  AX,[ES:DI]+PCB_CCBID     ;get panel's color index number
 ;
-	       CALL FAR PTR GET_COLOR	     ;load the color index
-	       MOV  AH,ES:[DI]+CCB_A1	     ;get the normal color attr
-	       MOV  AL,ES:[DI]+CCB_A2	     ;get the highlighted color attr
+	       CALL far GET_COLOR	     ;load the color index
+	       MOV  AH,[ES:DI]+CCB_A1	     ;get the normal color attr
+	       MOV  AL,[ES:DI]+CCB_A2	     ;get the highlighted color attr
 ;
 	       POP  DI			     ;restore registers
 	       POP  ES
 ;
 	       RET
-GET_ATTR       ENDP
+; ENDP GET_ATTR
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		GET_COLOR					      :
@@ -1803,7 +1803,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-GET_COLOR      PROC FAR
+GET_COLOR:
 ;
 	       PUSH AX			     ;save registers
 	       PUSH BX
@@ -1826,9 +1826,9 @@ GET_COLOR      PROC FAR
 	       POP  AX
 ;
 	       RET
-GET_COLOR      ENDP
+; ENDP GET_COLOR
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		SET_SHLVMDOS					      :
@@ -1852,7 +1852,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-SET_SHLVMDOS   PROC NEAR
+SET_SHLVMDOS:
 ;
 	       LEA  DI,GEN_DATA 	     ;load offset of PCGRAPH PB
 	       MOV  [DI]+G_INITVFLAG,0	     ;init to VGA hardware available
@@ -1966,14 +1966,14 @@ VMD100:        MOV  COM_SVIDMODE,AL	     ;save current shell video mode
 	       jne  vmd101		     ;no, continue
 	       and  COM_STATE,not COM_FLCS   ;inactivate color change
 vmd101:
-	       CALL FAR PTR CURSOROFF	     ;deactive cursor
+	       CALL far CURSOROFF	     ;deactive cursor
 ;
 VMDEXIT:				     ;exit
 ;
 	       RET
-SET_SHLVMDOS   ENDP
+; ENDP SET_SHLVMDOS
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		SET_DOSVMSHL					      :
@@ -1999,11 +1999,11 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-SET_DOSVMSHL   PROC NEAR
+SET_DOSVMSHL:
 ;
 ; Disable mouse support
 ;
-	       CALL FAR PTR MOUSE_DIS	     ;disable mouse support
+	       CALL far MOUSE_DIS	     ;disable mouse support
 ;
 ; Check if shell is in text mode
 ;
@@ -2036,13 +2036,13 @@ VMSEXIT:       MOV  AL,0		     ;clear screen
 	       MOV  AH,6
 	       INT  10H
 ;
-	       CALL FAR PTR CURSORON
+	       CALL far CURSORON
 	       CALL PCGVIDO_CALL
 ;
 	       RET
-SET_DOSVMSHL   ENDP
+; ENDP SET_DOSVMSHL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		SET_CMDVMSHL					      :
@@ -2067,7 +2067,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-SET_CMDVMSHL   PROC FAR
+SET_CMDVMSHL:
 ;
 ; Check if shell text mode is active
 ;
@@ -2098,9 +2098,9 @@ CMD10:	       XOR  AH,AH		     ;set command line video mode
 CMDEXIT:       CALL PCGVIDO_CALL
 ;
 	       RET
-SET_CMDVMSHL   ENDP
+; ENDP SET_CMDVMSHL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		SET_SHLVMCMD					      :
@@ -2125,7 +2125,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-SET_SHLVMCMD   PROC FAR
+SET_SHLVMCMD:
 ;
 ; Check if shell graphics modes 10H, 11H, and 12H were active
 ;
@@ -2171,9 +2171,9 @@ SMC30:	       CMP  COM_SVIDMODE,3H	     ;check if color mode should be set
 ;
 	       XOR  AX,AX		     ;clear to zero
 	       MOV  ES,AX		     ;point to BIOS data area and
-	       MOV  DL,ES:[410H]	     ; get mode byte
+	       MOV  DL,[ES:410H]	     ; get mode byte
 	       OR   DL,00110000B
-	       MOV  ES:[410H],DL
+	       MOV  [ES:410H],DL
 	       XOR  AH,AH		     ;set color monochrome mode
 	       MOV  AL,7H
 	       INT  10H
@@ -2188,10 +2188,10 @@ SMC40:	       PUSH DS
 ;
 	       XOR  AX,AX		     ;clear to zero
 	       MOV  ES,AX		     ;point to BIOS data area and
-	       MOV  DL,ES:[410H]	     ; get mode byte
+	       MOV  DL,[ES:410H]	     ; get mode byte
 	       AND  DL,11001111B
 	       OR   DL,00100000B
-	       MOV  ES:[410H],DL
+	       MOV  [ES:410H],DL
 	       XOR  AH,AH		     ;set color mode
 	       MOV  AL,3H
 	       INT  10H
@@ -2213,10 +2213,10 @@ SMC50:	       MOV  AH,0FH		     ;get current video mode
 ;
 	       XOR  AX,AX		     ;clear to zero
 	       MOV  ES,AX		     ;point to BIOS data area and
-	       MOV  DL,ES:[410H]	     ; get mode byte
+	       MOV  DL,[ES:410H]	     ; get mode byte
 	       AND  DL,11001111B
 	       OR   DL,00100000B
-	       MOV  ES:[410H],DL
+	       MOV  [ES:410H],DL
 	       XOR  AH,AH		     ;set color 80x25 mode before
 	       MOV  AL,3H		     ; setting graphics mode
 	       INT  10H
@@ -2236,9 +2236,9 @@ SMC60:	       LEA  DI,GEN_DATA 	     ;load offset of PCGRAPH PB
 SMCEXIT:       CALL PCGVIDO_CALL
 ;
 	       RET
-SET_SHLVMCMD   ENDP
+; ENDP SET_SHLVMCMD
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		CURSOROFF					      :
@@ -2259,7 +2259,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-CURSOROFF      PROC FAR
+CURSOROFF:
 ;
 	       PUSH AX			     ;save registers
 	       PUSH BX
@@ -2277,9 +2277,9 @@ CURSOROFF      PROC FAR
 	       POP  AX
 ;
 	       RET
-CURSOROFF      ENDP
+; ENDP CURSOROFF
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		CURSORON					      :
@@ -2300,7 +2300,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-CURSORON       PROC FAR
+CURSORON:
 ;
 	       PUSH AX			     ;save registers
 	       PUSH BX
@@ -2320,9 +2320,9 @@ CURSORON       PROC FAR
 	       POP  AX
 ;
 	       RET
-CURSORON       ENDP
+; ENDP CURSORON
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCINPUT_CALL					      :
@@ -2343,7 +2343,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCINPUT_CALL   PROC FAR
+PCINPUT_CALL:
 ;
 	       PUSH DS			     ;set segment
 	       POP  ES
@@ -2358,20 +2358,20 @@ PCINPUT_CALL   PROC FAR
 ;
 INPT10:        LEA  DI,IN_OPT		     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,IN_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL INPUT
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCINPUT_CALL   ENDP
+; ENDP PCINPUT_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCINCHA_CALL					      :
@@ -2392,7 +2392,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCINCHA_CALL   PROC NEAR
+PCINCHA_CALL:
 ;
 	       PUSH DS			     ;set segment
 	       POP  ES
@@ -2407,20 +2407,20 @@ PCINCHA_CALL   PROC NEAR
 ;
 INCH10:        LEA  DI,INC_OPT		     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,INC_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL INCHA
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCINCHA_CALL   ENDP
+; ENDP PCINCHA_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCDISPQ_CALL					      :
@@ -2441,7 +2441,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCDISPQ_CALL   PROC NEAR
+PCDISPQ_CALL:
 ;
 	       PUSH DS			     ;set segment
 	       POP  ES
@@ -2451,20 +2451,20 @@ PCDISPQ_CALL   PROC NEAR
 ;
 	       LEA  DI,QM_OPT1		     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,QM_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL DISPQ
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCDISPQ_CALL   ENDP
+; ENDP PCDISPQ_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCPANEL_CALL					      :
@@ -2490,7 +2490,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCPANEL_CALL   PROC NEAR
+PCPANEL_CALL:
 ;
 ; initialize PCDISPQ info for PCPANEL call
 ;
@@ -2520,13 +2520,13 @@ PP10:	       PUSH DS			     ;set segment
 ;
 	       LEA  DI,PM_OPT1		     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,PM_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL PANEL
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
@@ -2535,9 +2535,9 @@ ENDIF
 PPEXIT: 				     ;exit
 ;
 	       RET
-PCPANEL_CALL   ENDP
+; ENDP PCPANEL_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCMBEEP_CALL					      :
@@ -2558,7 +2558,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCMBEEP_CALL   PROC FAR
+PCMBEEP_CALL:
 ;
 	       TEST COM_STATE2,COM_SOUD      ;check if sound is off
 	       JE   BEXIT
@@ -2574,13 +2574,13 @@ PCMBEEP_CALL   PROC FAR
 ;
 	       LEA  DI,MB_FREQUENCY	     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,MB_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL MBEEP
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
@@ -2590,9 +2590,9 @@ ENDIF
 BEXIT:
 ;
 	       RET
-PCMBEEP_CALL   ENDP
+; ENDP PCMBEEP_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCSLCTP_CALL					      :
@@ -2614,31 +2614,31 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCSLCTP_CALL   PROC NEAR
+PCSLCTP_CALL:
 ;
 ; Initialize color index vector
 ;
 	       MOV  AX,PM_CCBVECNUM	     ;set color index number
-	       MOV  ES:[DI]+SCB_CCBVECNUM,AX
+	       MOV  [ES:DI]+SCB_CCBVECNUM,AX
 ;
 	       MOV  AX,CRD_CCBVECOFF	     ;set color index offset
-	       MOV  ES:[DI]+SCB_CCBVECOFF,AX
+	       MOV  [ES:DI]+SCB_CCBVECOFF,AX
 ;
 	       MOV  AX,CRD_CCBVECSEG	     ;set color index segment
-	       MOV  ES:[DI]+SCB_CCBVECSEG,AX
+	       MOV  [ES:DI]+SCB_CCBVECSEG,AX
 ;
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,SCB_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call slctopt
-ELSE
+%else
 	       CALL SLCTP
-ENDIF
+%endif
 ;
 	       RET
-PCSLCTP_CALL   ENDP
+; ENDP PCSLCTP_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCHLPRD_CALL					      :
@@ -2659,7 +2659,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCHLPRD_CALL   PROC NEAR
+PCHLPRD_CALL:
 ;
 	       PUSH DS			     ;set segment
 	       POP  ES
@@ -2669,20 +2669,20 @@ PCHLPRD_CALL   PROC NEAR
 ;
 	       LEA  DI,HRD_OPT1 	      ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,HRD_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL HLPRD
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCHLPRD_CALL   ENDP
+; ENDP PCHLPRD_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCINSTR_CALL					      :
@@ -2703,7 +2703,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCINSTR_CALL   PROC NEAR
+PCINSTR_CALL:
 ;
 	       PUSH DS			     ;set segment
 	       POP  ES
@@ -2713,20 +2713,20 @@ PCINSTR_CALL   PROC NEAR
 ;
 	       LEA  DI,INS_OPT		      ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,INS_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL INSTRN
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCINSTR_CALL   ENDP
+; ENDP PCINSTR_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCGVIDO_CALL					      :
@@ -2747,7 +2747,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCGVIDO_CALL   PROC NEAR
+PCGVIDO_CALL:
 ;
 	       PUSH ES
 ;
@@ -2760,22 +2760,22 @@ PCGVIDO_CALL   PROC NEAR
 	       LEA  DI,GV_STAT1 	     ;set DI to proper parameter block
 					     ; for call
 ;
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,GV_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL GVIDO
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       POP  ES
 ;
 	       RET
-PCGVIDO_CALL   ENDP
+; ENDP PCGVIDO_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCCLRWR_CALL					      :
@@ -2796,7 +2796,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCCLRWR_CALL   PROC NEAR
+PCCLRWR_CALL:
 ;
 	       PUSH DS			     ;set segment
 	       POP  ES
@@ -2806,20 +2806,20 @@ PCCLRWR_CALL   PROC NEAR
 ;
 	       LEA  DI,CWR_OPT		     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,CWR_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL CLRWR
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCCLRWR_CALL   ENDP
+; ENDP PCCLRWR_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCCRITE_CALL					      :
@@ -2840,7 +2840,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCCRITE_CALL   PROC NEAR
+PCCRITE_CALL:
 ;
 	       PUSH DS			     ;set segment
 	       POP  ES
@@ -2851,20 +2851,20 @@ PCCRITE_CALL   PROC NEAR
 	       LEA  DI,CE_OPT		     ;set DI to proper parameter block
 					     ; for call
 ;
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,CE_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL CRITE
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCCRITE_CALL   ENDP
+; ENDP PCCRITE_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCWWRAP_CALL					      :
@@ -2885,7 +2885,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCWWRAP_CALL   PROC NEAR
+PCWWRAP_CALL:
 ;
 	       PUSH DS			     ;set segment
 	       POP  ES
@@ -2896,20 +2896,20 @@ PCWWRAP_CALL   PROC NEAR
 	       LEA  DI,WWP_OPT1 	     ;set DI to proper parameter block
 					     ; for call
 ;
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,WWP_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL WWRAP
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCWWRAP_CALL   ENDP
+; ENDP PCWWRAP_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCTRACK_CALL					      :
@@ -2930,7 +2930,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCTRACK_CALL   PROC FAR
+PCTRACK_CALL:
 ;
 	       PUSH DS
 	       PUSH DI			     ;save registers
@@ -2938,20 +2938,20 @@ PCTRACK_CALL   PROC FAR
 	       PUSH DS			     ;point to PCTRACK parameter block
 	       POP  ES
 ;
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,MS_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL TRACK
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCTRACK_CALL   ENDP
+; ENDP PCTRACK_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCGRAPH_CALL					      :
@@ -2972,25 +2972,25 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCGRAPH_CALL   PROC NEAR
+PCGRAPH_CALL:
 ;
 	       PUSH DS
 	       PUSH DI			     ;save registers
 ;
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,MS_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL GRAPH
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCGRAPH_CALL   ENDP
+; ENDP PCGRAPH_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCST2IN_CALL					      :
@@ -3011,7 +3011,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCST2IN_CALL   PROC NEAR
+PCST2IN_CALL:
 ;
 	       PUSH DS			     ;set segment
 	       POP  ES
@@ -3022,20 +3022,20 @@ PCST2IN_CALL   PROC NEAR
 	       LEA  DI,ST2_OPT1 	     ;set DI to proper parameter block
 					     ; for call
 ;
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,S2I_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL ST2IN
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCST2IN_CALL   ENDP
+; ENDP PCST2IN_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		PCMOVEC_CALL					      :
@@ -3056,7 +3056,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCMOVEC_CALL   PROC NEAR
+PCMOVEC_CALL:
 ;
 	       PUSH DS			     ;set segment
 	       POP  ES
@@ -3067,20 +3067,20 @@ PCMOVEC_CALL   PROC NEAR
 	       LEA  DI,MO_OPT		     ;set DI to proper parameter block
 					     ; for call
 ;
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,MO_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL MOVEC
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 ;
 	       RET
-PCMOVEC_CALL   ENDP
+; ENDP PCMOVEC_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		SHELLDA_CALL					      :
@@ -3101,14 +3101,14 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-SHELLDA_CALL   PROC NEAR
+SHELLDA_CALL:
 ;
 	       CALL SHELLDA
 ;
 	       RET
-SHELLDA_CALL   ENDP
+; ENDP SHELLDA_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; PCROWCL_CALL								      :
@@ -3123,7 +3123,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCROWCL_CALL   PROC NEAR
+PCROWCL_CALL:
 
 	       PUSH ES
 	       PUSH DS			     ;set segment
@@ -3134,21 +3134,21 @@ PCROWCL_CALL   PROC NEAR
 
 	       LEA  DI,CR_SCRWIDTH	     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,CR_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL ROWCL
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 	       POP  ES
 ;
 	       RET
-PCROWCL_CALL   ENDP
+; ENDP PCROWCL_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; PCMOVEG_CALL								      :
@@ -3163,7 +3163,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCMOVEG_CALL   PROC NEAR
+PCMOVEG_CALL:
 
 	       PUSH ES
 	       PUSH DS			     ;set segment
@@ -3174,21 +3174,21 @@ PCMOVEG_CALL   PROC NEAR
 
 	       LEA  DI,MG_OPT		     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,MG_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL MOVEG
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 	       POP  ES
 ;
 	       RET
-PCMOVEG_CALL   ENDP
+; ENDP PCMOVEG_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; PCGEQUP_CALL								      :
@@ -3203,7 +3203,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCGEQUP_CALL   PROC NEAR
+PCGEQUP_CALL:
 
 	       PUSH ES
 	       PUSH DS			     ;set segment
@@ -3214,21 +3214,21 @@ PCGEQUP_CALL   PROC NEAR
 
 	       LEA  DI,GE_OPT		     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,MG_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL GEQUP
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 	       POP  ES
 ;
 	       RET
-PCGEQUP_CALL   ENDP
+; ENDP PCGEQUP_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; PCDATES_CALL								      :
@@ -3243,7 +3243,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCDATES_CALL   PROC NEAR
+PCDATES_CALL:
 
 	       PUSH ES
 	       PUSH DS			     ;set segment
@@ -3254,21 +3254,21 @@ PCDATES_CALL   PROC NEAR
 
 	       LEA  DI,DTS_OPT		     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,DTS_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL DATES
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 	       POP  ES
 ;
 	       RET
-PCDATES_CALL   ENDP
+; ENDP PCDATES_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; PCTIMES_CALL								      :
@@ -3283,7 +3283,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-PCTIMES_CALL   PROC NEAR
+PCTIMES_CALL:
 
 	       PUSH ES
 	       PUSH DS			     ;set segment
@@ -3294,21 +3294,21 @@ PCTIMES_CALL   PROC NEAR
 
 	       LEA  DI,TMS_OPT		     ;set DI to proper parameter block
 					     ; for call
-IF CASRM
+%if CASRM
 	       MOV  AH,00H		     ;make call to CAS-RM
 	       MOV  BX,TMS_RN		     ;set CAS routine number
 	       INT  CASINT		     ;call routine
-ELSE
+%else
 	       CALL TIMES
-ENDIF
+%endif
 	       POP  DI			     ;restore registers
 	       POP  DS
 	       POP  ES
 ;
 	       RET
-PCTIMES_CALL   ENDP
+; ENDP PCTIMES_CALL
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		CHANGE_APPM					      :
@@ -3329,12 +3329,12 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-CHANGE_APPM    PROC FAR
+CHANGE_APPM:
 ;
 	       TEST COM_STATE,COM_APPM	     ;check if app menu active
 	       JNE  CAM10
 ;
-	       CALL FAR PTR OPT_INACTIVE     ;display error panel for inactive *PCR
+	       CALL far OPT_INACTIVE     ;display error panel for inactive *PCR
 	       JMP  CAMEXIT
 ;
 CAM10:	       MOV  COM_HLPOPT2,0	     ;set for normal shell help
@@ -3342,7 +3342,7 @@ CAM10:	       MOV  COM_HLPOPT2,0	     ;set for normal shell help
 	       MOV  COM_HCBID,HLP_AABPROGRAM
 ;
 	       MOV  AX,MFF_AABAOPT	     ;default to program menu AAB field
-	       CALL FAR PTR LOC_MOUSEF
+	       CALL far LOC_MOUSEF
 	       MOV  COM_CURAABF,AX
 ;
 	       MOV  APP_SKIN,0		     ;set to reinitialize app menu fld
@@ -3352,9 +3352,9 @@ CAM10:	       MOV  COM_HLPOPT2,0	     ;set for normal shell help
 CAMEXIT:
 ;
 	       RET
-CHANGE_APPM    ENDP
+; ENDP CHANGE_APPM
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		ALLOCATE_BUFB					      :
@@ -3404,7 +3404,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-ALLOCATE_BUFB  PROC FAR
+ALLOCATE_BUFB:
 ;
 	       TEST COM_STATE,COM_DOSS	     ;check if DOS Services configured
 	       JNE  AMB05		     ;exit
@@ -3567,9 +3567,9 @@ AMB90:	       MOV  COM_DATA6LEN,AX	     ;set file buffer 1 len in paraghs
 AMBEXIT:				     ;exit
 ;
 	       RET
-ALLOCATE_BUFB  ENDP
+; ENDP ALLOCATE_BUFB
 ;
-PAGE
+; PAGE
 ;
 ;-----------------------------------------------------------------------------+
 ;									      :
@@ -3594,7 +3594,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-CHK_MINDOS     PROC NEAR
+CHK_MINDOS:
 ;
 	       XOR  AX,AX		     ;clear out
 	       TEST COM_STATE,COM_RESS	     ;resident mode?
@@ -3641,9 +3641,9 @@ CHS_OK:        CLC			     ;OK
 CHS_RET:				     ;exit
 ;
 	       RET
-CHK_MINDOS     ENDP
+; ENDP CHK_MINDOS
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		MANAGE_ERROR					      :
@@ -3664,7 +3664,7 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-MANAGE_ERROR   PROC NEAR
+MANAGE_ERROR:
 ;
 ; Process critcal error messages before initialization is complete
 ;
@@ -3672,7 +3672,7 @@ MANAGE_ERROR   PROC NEAR
 					     ; video mode
 ;
 	       MOV  AX,COM_ERRID	     ;calculate offset into error
-	       CALL FAR PTR GET_ERROR
+	       CALL far GET_ERROR
 ;
 	       PUSH DS			     ;save data segment address
 ;
@@ -3697,9 +3697,9 @@ MANAGE_ERROR   PROC NEAR
 	       POP  DS			     ;restore data segment address
 ;
 	       RET
-MANAGE_ERROR   ENDP
+; ENDP MANAGE_ERROR
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		EXAMINE_PSP					      :
@@ -3801,14 +3801,14 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-EXAMINE_PSP    PROC NEAR
+EXAMINE_PSP:
 ;
 ; Intialize to search PSP for invocation options
 ;
 	       MOV  INS_OPT,0		     ;set to find string
 	       MOV  ES, COM_PSPSEG	     ;get PSP segment
 	       MOV  DI, 80H		     ;get offset of PSP length byte
-	       MOV  CL, ES:[DI] 	     ;get PSP length byte
+	       MOV  CL, [ES:DI] 	     ;get PSP length byte
 	       CMP  CL, 0		     ;any command line options?
 	       JA   EP03		     ;yes, continue
 	       MOV  COM_ERRID,ERR_PSP	     ;invalid psp command line
@@ -3827,7 +3827,7 @@ EP03:	       XOR  CH, CH		     ;clear high byte
 ;
 EP034:	       PUSH DS			     ;save data seg
 	       MOV  DS, COM_PSPSEG	     ;PSP segment is source seg
-	       mov  al, ds:[si] 	     ;
+	       mov  al, [ds:si] 	     ;
 	       POP  DS			     ;
 ;
 	       cmp  al, ' '                  ;
@@ -3852,7 +3852,7 @@ EP038:	       cmp  dl, 1		     ;
 	       ja   ep0385		     ;
 	       sub  al, 32		     ;
 ;
-ep0385:        mov  es:[di], al 	     ;
+ep0385:        mov  [es:di], al 	     ;
 	       inc  ins_slen		     ;
 	       inc  com_cmdact		     ;
 	       inc  di			     ;
@@ -3895,7 +3895,7 @@ EP1920:        ADD  COM_CMDNUM,AX
 					     ; profile file name
 ;
 	       MOV  AX,STR_PROEXT	     ;profile extension
-	       CALL FAR PTR GET_STRING
+	       CALL far GET_STRING
 ;
 	       MOV  INS_FLEN,AX 	     ;length of find string
 	       MOV  INS_FOFF,DI 	     ;offset of find string '.PRO'
@@ -3933,17 +3933,17 @@ EP1930:        PUSH SI
 	       POP  DS
 	       POP  ES
 ;
-EP1940:        MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP1940:        MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell profile name buffer
 	       JE   EP1980
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP1940
 ;
-EP1980:        CMP  BYTE PTR ES:[DI-1],'\'   ;check if root and skip add of
+EP1980:        CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP1990		     ; file separator
 ;
-	       MOV  BYTE PTR ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP1990:        POP  DS			     ;now move profile filename string
@@ -3992,7 +3992,7 @@ epx034:
 ;
 epx035:        pop  dx
 ;
-	       mov  al, byte ptr gen_data    ;
+	       mov  al, byte gen_data    ;
 ;
 	       cmp  al, ' '                  ;
 	       jbe  epx039		     ;
@@ -4245,20 +4245,20 @@ EP685:	       MOV  AH, 1BH
 	       POP  ES
 	       LEA  DI, GEN_DATA
 	       INT  10H
-	       PUSH ES:[DI]
-	       PUSH ES:[DI+2]
+	       PUSH [ES:DI]
+	       PUSH [ES:DI+2]
 	       POP  ES
 	       POP  DI
 ;
-	       TEST BYTE PTR ES:[DI+2], 00000100B
+	       TEST byte [ES:DI+2], 00000100B
 	       JZ   EP6851
 	       OR   COM_STATE, COM_M12H
 	       JMP  EP74
-EP6851:        TEST BYTE PTR ES:[DI+2], 00000010B
+EP6851:        TEST byte [ES:DI+2], 00000010B
 	       JZ   EP6852
 	       OR   COM_STATE, COM_M11H
 	       JMP  EP74
-EP6852:        TEST BYTE PTR ES:[DI+2], 00000001B
+EP6852:        TEST byte [ES:DI+2], 00000001B
 	       JZ   EP6853
 	       OR   COM_STATE, COM_M10H
 	       JMP  EP74
@@ -4335,7 +4335,7 @@ EP78:	       MOV  AX,STR_APMFILE	     ;app main menu filename
 	       JG   EP80
 ;
 	       MOV  AX,STR_APPMFILE	     ;default app menu filename
-	       CALL FAR PTR GET_STRING	     ;user did not supply new app menu
+	       CALL far GET_STRING	     ;user did not supply new app menu
 ;
 	       PUSH SI			     ;save data segment
 	       PUSH DS
@@ -4352,7 +4352,7 @@ EP80:	       PUSH INS_FOFF		     ;save invocation parameter offset
 	       ADD  CX,INS_FLEN 	     ;point past /MEU: to beginning of
 					     ; menu file name
 	       MOV  AX,STR_AAPEXT	     ;main application menu extension
-	       CALL FAR PTR GET_STRING
+	       CALL far GET_STRING
 ;
 	       MOV  INS_FLEN,AX 	     ;length of string
 	       MOV  INS_FOFF,DI 	     ;offset of string '.MEU'
@@ -4391,17 +4391,17 @@ EP92:	       MOV  CX,AX		     ; = number of bytes to move
 	       POP  DS
 	       POP  ES
 ;
-EP94:	       MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP94:	       MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell app menu file buffer
 	       JE   EP98
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP94
 ;
-EP98:	       CMP  BYTE PTR ES:[DI-1],'\'   ;check if root and skip add of
+EP98:	       CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP99		     ; file separator
 ;
-	       MOV  BYTE PTR ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP99:	       POP  DS			     ;now move shell menu filename to
@@ -4420,7 +4420,7 @@ EP100:	       MOV  AX,STR_APMFILE	     ;app main menu filename
 	       JG   EP103
 ;
 	       MOV  AX,STR_APPMFILE	     ;default app menu filename
-	       CALL FAR PTR GET_STRING	     ;user did not supply new app menu
+	       CALL far GET_STRING	     ;user did not supply new app menu
 ;
 	       PUSH SI			     ;save data segment
 	       PUSH DS
@@ -4436,7 +4436,7 @@ EP103:	       PUSH INS_FOFF		     ;save invocation parameter offset
 	       ADD  CX,INS_FLEN 	     ;point past /MEU: to beginning of
 					     ; menu file name
 	       MOV  AX,STR_AAPEXT	     ;main application menu extension
-	       CALL FAR PTR GET_STRING
+	       CALL far GET_STRING
 ;
 	       MOV  INS_FLEN,AX 	     ;length of string
 	       MOV  INS_FOFF,DI 	     ;offset of string '.MEU'
@@ -4505,7 +4505,7 @@ EP115:	       MOV  AX,STR_CLFILE	     ;color filename
 	       JG   EP118
 ;
 	       MOV  AX,STR_CLRFILE	     ;default color filename
-	       CALL FAR PTR GET_STRING	     ;user did not supply new app menu
+	       CALL far GET_STRING	     ;user did not supply new app menu
 ;
 	       PUSH SI			     ;save data segment
 	       PUSH DS
@@ -4523,7 +4523,7 @@ EP118:	       PUSH INS_FOFF		     ;save invocation parameter offset
 					     ; color file name
 ;
 	       MOV  AX,STR_CLREXT	     ;color profile extension
-	       CALL FAR PTR GET_STRING
+	       CALL far GET_STRING
 ;
 	       MOV  INS_FLEN,AX 	     ;length of find string
 	       MOV  INS_FOFF,DI 	     ;offset of find string '.CLR'
@@ -4561,17 +4561,17 @@ EP122:	       MOV  CX,AX		     ; = number of bytes to move
 	       POP  DS
 	       POP  ES
 ;
-EP124:	       MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP124:	       MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell color file buffer
 	       JE   EP128
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP124
 ;
-EP128:	       CMP  BYTE PTR ES:[DI-1],'\'   ;check if root and skip add of
+EP128:	       CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP129		     ; file separator
 ;
-	       MOV  BYTE PTR ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP129:	       POP  DS			     ;now move color filename string
@@ -4691,7 +4691,7 @@ EP192:	       OR   COM_STATE,COM_MOUS	     ;mouse is active
 					     ; mouse file name
 ;
 	       MOV  AX,STR_MOSEXT	     ;mouse extension
-	       CALL FAR PTR GET_STRING
+	       CALL far GET_STRING
 ;
 	       MOV  INS_FLEN,AX 	     ;length of find string
 	       MOV  INS_FOFF,DI 	     ;offset of find string '.MOS'
@@ -4729,17 +4729,17 @@ EP193:	       PUSH SI
 	       POP  DS
 	       POP  ES
 ;
-EP194:	       MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP194:	       MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell mouse file buffer
 	       JE   EP198
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP194
 ;
-EP198:	       CMP  BYTE PTR ES:[DI-1],'\'   ;check if root and skip add of
+EP198:	       CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP199		     ; file separator
 ;
-	       MOV  BYTE PTR ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP199:	       POP  DS			     ;now move mouse filename string
@@ -4803,24 +4803,24 @@ EP250:	       LEA  DI,COM_HFILSPEC	     ;get dest offset
 	       MOV  AX,DS
 	       MOV  ES,AX
 ;
-EP260:	       MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP260:	       MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell help file buffer
 	       JE   EP270
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP260
 ;
-EP270:	       CMP  BYTE PTR ES:[DI-1],'\'   ;check if root and skip add of
+EP270:	       CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP275		     ; file separator
 ;
-	       MOV  BYTE PTR ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP275:	       PUSH DS			     ;save register
 ;
 	       PUSH DI
 	       MOV  AX,STR_HLPFILE	     ;default help text filename
-	       CALL FAR PTR GET_STRING
+	       CALL far GET_STRING
 	       MOV  SI,DI		     ;get offset of SHELL.HLP
 	       MOV  CX,AX		     ;get length
 	       POP  DI
@@ -4855,7 +4855,7 @@ EP315:	       MOV  AX,STR_ASOFILE	     ;associate filename /ASO
 	       JG   EP318
 ;
 	       MOV  AX,STR_ASCEXT	     ;default associate filename
-	       CALL FAR PTR GET_STRING	     ;user did not supply new app menu
+	       CALL far GET_STRING	     ;user did not supply new app menu
 ;
 	       PUSH SI			     ;save data segment
 	       PUSH DS
@@ -4873,7 +4873,7 @@ EP318:	       PUSH INS_FOFF		     ;save invocation parameter offset
 					     ;	associate file name
 ;
 	       MOV  AX,STR_ASOEXT	     ;assoicate profile extension
-	       CALL FAR PTR GET_STRING
+	       CALL far GET_STRING
 ;
 	       MOV  INS_FLEN,AX 	     ;length of find string
 	       MOV  INS_FOFF,DI 	     ;offset of find string '.ASO'
@@ -4911,17 +4911,17 @@ EP322:	       MOV  CX,AX		     ; = number of bytes to move
 	       POP  DS
 	       POP  ES
 ;
-EP324:	       MOV  AL,ES:[DI]		     ;locate end of drive and path
+EP324:	       MOV  AL,[ES:DI]		     ;locate end of drive and path
 	       CMP  AL,0		     ; in shell associate file buffer
 	       JE   EP328
 ;
 	       INC  DI			     ;point to next character
 	       JMP  EP324
 ;
-EP328:	       CMP  BYTE PTR ES:[DI-1],'\'   ;check if root and skip add of
+EP328:	       CMP  byte [ES:DI-1],'\'   ;check if root and skip add of
 	       JE   EP329		     ; file separator
 ;
-	       MOV  BYTE PTR ES:[DI],'\'     ;add path and filename separator
+	       MOV  byte [ES:DI],'\'     ;add path and filename separator
 	       INC  DI			     ;point to where filename goes
 ;
 EP329:	       POP  DS			     ;now move filename string
@@ -4948,10 +4948,10 @@ EP350:	       MOV  AX,STR_BUFO 	     ;buffer size override active
 	       DEC  BX			     ;adjust for zero offset
 	       PUSH BX
 ;
-EP360:	       CMP  ES:BYTE PTR[BX],'0'      ;ASCII digit GE 0
+EP360:	       CMP  ES:byte[BX],'0'      ;ASCII digit GE 0
 	       JB   EP370		     ;no, end of digits
 ;
-	       CMP  ES:BYTE PTR[BX],'9'      ;ASCII digit LE 9
+	       CMP  ES:byte[BX],'9'      ;ASCII digit LE 9
 	       JA   EP370		     ;no, end of digits
 ;
 	       INC  BX
@@ -5072,9 +5072,9 @@ EP410:	       TEST COM_STATE,COM_M11H	     ;
 EPEXIT: 				     ;exit
 ;
 	       RET
-EXAMINE_PSP    ENDP
+; ENDP EXAMINE_PSP
 ;
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------------+
 ;									      :
 ; Name: 		CHECK_STRING					      :
@@ -5095,9 +5095,9 @@ PAGE
 ;									      :
 ;-----------------------------------------------------------------------------+
 ;
-CHECK_STRING   PROC NEAR
+CHECK_STRING:
 ;
-	       CALL FAR PTR GET_STRING	     ;get address and length of string
+	       CALL far GET_STRING	     ;get address and length of string
 ;
 	       MOV  INS_SPOFF,0 	     ;start at beginning of command lin
 	       MOV  INS_FLEN,AX 	     ;set length of string to find
@@ -5108,4 +5108,4 @@ CHECK_STRING   PROC NEAR
 CHKSEXIT:				     ;exit
 ;
 	       RET
-CHECK_STRING   ENDP
+; ENDP CHECK_STRING

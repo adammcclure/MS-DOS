@@ -1,7 +1,7 @@
 
 
 FALSE   EQU     0
-TRUE    EQU     NOT FALSE
+TRUE    EQU     ~FALSE
 
 KANJI   EQU     FALSE
 
@@ -13,80 +13,80 @@ Comand_Line_Length equ 128
 quote_char equ  16h             ;quote character = ^V
 
 
-PAGE
+; PAGE
 
-        .xlist
-        INCLUDE DOSSYM.ASM
-        .list
+        ; .xlist
+        %include "DOSSYM.ASM"
+        ; .list
 
 
-SUBTTL  Contants and Data areas
-PAGE
+; SUBTTL  Contants and Data areas
+; PAGE
 
 PROMPT  EQU     "*"
 STKSIZ  EQU     80H
 
-CODE    SEGMENT PUBLIC
-CODE    ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST   SEGMENT PUBLIC WORD
+SECTION .CONST
 
-        EXTRN   TXT1:BYTE,TXT2:BYTE,FUDGE:BYTE,HARDCH:DWORD,USERDIR:BYTE
+        extern TXT1,TXT2,FUDGE,HARDCH,USERDIR
 
-CONST   ENDS
+; END SECTION .CONST
 
-DATA    SEGMENT PUBLIC WORD
+SECTION .DATA
 
-        EXTRN   OLDLEN:WORD,OLDDAT:BYTE,SRCHFLG:BYTE,COMLINE:WORD
-        EXTRN   PARAM1:WORD,PARAM2:WORD,NEWLEN:WORD,SRCHMOD:BYTE
-        EXTRN   CURRENT:WORD,POINTER:WORD,START:BYTE,ENDTXT:WORD
-        EXTRN   USER_DRIVE:BYTE,LSTNUM:WORD,NUMPOS:WORD,LSTFND:WORD
-        EXTRN   SRCHCNT:WORD
+        extern OLDLEN,OLDDAT,SRCHFLG,COMLINE
+        extern PARAM1,PARAM2,NEWLEN,SRCHMOD
+        extern CURRENT,POINTER,START,ENDTXT
+        extern USER_DRIVE,LSTNUM,NUMPOS,LSTFND
+        extern SRCHCNT
 
-DATA    ENDS
+; END SECTION .DATA
 
-DG      GROUP   CODE,CONST,DATA
+; DG      GROUP   CODE,CONST,DATA
 
-CODE SEGMENT PUBLIC
+SECTION .CODE
 
-ASSUME  CS:DG,DS:DG,SS:DG,ES:DG
+; ASSUME  CS:DG,DS:DG,SS:DG,ES:DG
 
-        PUBLIC  REST_DIR,KILL_BL,INT_24,SCANLN,FINDLIN,SHOWNUM
-        PUBLIC  FNDFIRST,FNDNEXT,CRLF,LF,OUT,UNQUOTE
+        global REST_DIR,KILL_BL,INT_24,SCANLN,FINDLIN,SHOWNUM
+        global FNDFIRST,FNDNEXT,CRLF,LF,OUT,UNQUOTE
 
-        if  kanji
-        PUBLIC  TESTKANJ
-        endif
+        %if kanji
+        global TESTKANJ
+        %endif
 
-        EXTRN   CHKRANGE:NEAR
+        extern CHKRANGE
 
 EDLPROC:
 
 RET1:   RET
 
 FNDFIRST:
-        MOV     DI,1+OFFSET DG:TXT1
-        mov     byte ptr[olddat],1     ;replace with old value if none new
+        MOV     DI,1+TXT1
+        mov     byte[olddat],1     ;replace with old value if none new
         CALL    GETTEXT
         OR      AL,AL           ;Reset zero flag in case CX is zero
         JCXZ    RET1
         cmp     al,1ah          ;terminated with a ^Z ?
         jne     sj8
-        mov     byte ptr[olddat],0     ;do not replace with old value
+        mov     byte[olddat],0     ;do not replace with old value
 sj8:
         MOV     [OLDLEN],CX
         XOR     CX,CX
         CMP     AL,0DH
         JZ      SETBUF
-        CMP     BYTE PTR [SRCHFLG],0
+        CMP     byte [SRCHFLG],0
         JZ      NXTBUF
 SETBUF:
         DEC     SI
 NXTBUF:
         MOV     [COMLINE],SI
-        MOV     DI,1+OFFSET DG:TXT2
+        MOV     DI,1+TXT2
         CALL    GETTEXT
-        CMP     BYTE PTR [SRCHFLG],0
+        CMP     byte [SRCHFLG],0
         JNZ     NOTREPL
         CMP     AL,0DH
         JNZ     HAVCHR
@@ -98,7 +98,7 @@ NOTREPL:
         MOV     BX,[PARAM1]
         OR      BX,BX
         JNZ     CALLER
-        cmp     byte ptr[srchmod],0
+        cmp     byte[srchmod],0
         jne     sj9
         mov     bx,1     ;start from line number 1
         jmp     short sj9a
@@ -151,9 +151,9 @@ SCAN:
         MOV     BX,DI           ;Save search position
         MOV     CX,[OLDLEN]
         DEC     CX
-        MOV     SI,2 + OFFSET DG:TXT1
+        MOV     SI,2 + TXT1
         CMP     AL,AL           ;Set zero flag in case CX=0
-if kanji
+%if kanji
         dec     si              ;Want to look at the first character again
         dec     di
 kanjchar:
@@ -169,15 +169,15 @@ kanjchar:
         dec     cx
         loop    kanjchar
 nxt_kj_char:
-        cmp     al,byte ptr[di]
+        cmp     al,byte[di]
         jnz     not_kj_match
         inc     di
         loop    kanjchar
 
 not_kj_match:
-else
+%else
         REPE    CMPSB
-endif
+%endif
         MOV     CX,DX
         MOV     DI,BX
         JNZ     SCAN
@@ -241,18 +241,18 @@ DEFCHK:
         JZ      OLDTXT
         PUSH    DI
         SUB     DI,CX
-        MOV     BYTE PTR [DI-1],cl
+        MOV     byte [DI-1],cl
         POP     DI
         RET
 
 OLDTXT:
-        cmp     byte ptr[olddat],1      ;replace with old text?
+        cmp     byte[olddat],1      ;replace with old text?
         je      sj11                    ;yes...
-        mov     byte ptr[di-1],cl       ;zero text buffer char count
+        mov     byte[di-1],cl       ;zero text buffer char count
         ret
 
 sj11:
-        MOV     CL,BYTE PTR [DI-1]
+        MOV     CL,byte [DI-1]
         ADD     DI,CX
         RET
 
@@ -275,7 +275,7 @@ FINDLIN:
         OR      BX,BX
         JZ      FINDIT
         MOV     DX,1
-        MOV     DI,OFFSET DG:START
+        MOV     DI,START
         CMP     BX,DX
         JZ      RET4
 FINDIT:
@@ -401,9 +401,9 @@ unq_loop:
         push    cx              ;save chars left in buffer
         push    di              ;save pointer to quoted character
         push    ax              ;save quote character
-        mov     al,byte ptr[di] ;get quoted character
+        mov     al,byte[di] ;get quoted character
         call    make_cntrl
-        mov     byte ptr[di],al
+        mov     byte[di],al
         pop     ax              ;restore quote character
         mov     si,di
         dec     di              ;points to the quote character
@@ -414,7 +414,7 @@ unq_loop:
         jcxz    sj13            ;if quote char was last of line do not adjust
         dec     cx              ;one less char left in the buffer
 sj13:   pop     si
-        dec     byte ptr[si-1]  ;one less character in total buffer count also
+        dec     byte[si-1]  ;one less character in total buffer count also
         push    si
         jmp     short unq_loop
 
@@ -460,7 +460,7 @@ rest_dir:
         push    cs
         pop     ds
 
-        mov     dx,offset dg:userdir            ;restore directory
+        mov     dx,userdir            ;restore directory
         mov     ah,chdir
         int     21h
         mov     dl,[user_drive]                 ;restore old current drive
@@ -472,18 +472,18 @@ no_fudge:
 
 ;----- INT 24 Processing -----------------------------------------------;
 
-int_24_retaddr dw       offset dg:int_24_back
+int_24_retaddr dw       int_24_back
 
-int_24  proc    far
-assume  ds:nothing,es:nothing,ss:nothing
+int_24:
+; assume  ds:nothing,es:nothing,ss:nothing
 
         pushf
         push    cs
         push    [int_24_retaddr]
-        push    word ptr [hardch+2]
-        push    word ptr [hardch]
+        push    word [hardch+2]
+        push    word [hardch]
         ret
-int_24  endp
+; ENDP int_24
 
 int_24_back:
         cmp     al,2            ;abort?
@@ -491,14 +491,14 @@ int_24_back:
         push    cs
         pop     ds
 
-assume  ds:dg
+; assume  ds:dg
 
         call    rest_dir
         int     20h
 ireti:
         iret
 
-        IF      KANJI
+        %if KANJI
 TESTKANJ:
         CMP     AL,81H
         JB      NOTLEAD
@@ -520,12 +520,12 @@ ISLEAD:
         INC     AX              ;Reset zero
         POP     AX
         RET
-        ENDIF
+        %endif
 
 ;-----------------------------------------------------------------------;
 
-CODE    ENDS
-        END     EDLPROC
+; END SECTION .CODE
+        ; END     EDLPROC
                                                
 
 

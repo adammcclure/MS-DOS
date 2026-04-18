@@ -24,77 +24,77 @@
 ;
 ;******************************************************************************
 ;
-.386p
-.lfcond 				; list false conditionals
+CPU 386
+; .lfcond; list false conditionals
 
-public	VerifyMachine
-public	MaskIntAll
-public	RestIntMask
-public	OEM_Trap_Init
-public	Map_Lin_OEM
-public	UMap_Lin_OEM
-public	MB_Map_Src
-public	MB_Map_Dest
-public	MB_Start
-public	Rest_Par_Vect
-public	Set_Par_Vect
+global VerifyMachine
+global MaskIntAll
+global RestIntMask
+global OEM_Trap_Init
+global Map_Lin_OEM
+global UMap_Lin_OEM
+global MB_Map_Src
+global MB_Map_Dest
+global MB_Start
+global Rest_Par_Vect
+global Set_Par_Vect
 
-public	DisableNMI
-public	ROM_BIOS_Machine_ID
-public	OEM_Init_Diag_Page
-
-
-ifndef	NOHIMEM
-
-public	hi_size
-public	hi_alloc
-public	hisys_alloc
-
-public	HwMemLock
-public	HwMemUnlock
-
-public	Hi_Mem_Size
-public	hbuf_chk
-public	HiAlloc
-public	HiSysAlloc
-public	HImod
-
-public	InitLock
-public	LockROM
-public	UnLockROM
+global DisableNMI
+global ROM_BIOS_Machine_ID
+global OEM_Init_Diag_Page
 
 
-endif
+%ifndef NOHIMEM
 
-	include page.inc
-	include vdmseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include Instr386.inc
-	include romxbios.equ
+global hi_size
+global hi_alloc
+global hisys_alloc
+
+global HwMemLock
+global HwMemUnlock
+
+global Hi_Mem_Size
+global hbuf_chk
+global HiAlloc
+global HiSysAlloc
+global HImod
+
+global InitLock
+global LockROM
+global UnLockROM
+
+
+%endif
+
+	%include "page.inc"
+	%include "vdmseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "Instr386.inc"
+	%include "romxbios.equ"
 
 
 ;******************************************************************************
 ;			E X T E R N A L    R E F E R E N C E S
 ;******************************************************************************
 ;
-_DATA	segment
-	extrn	gdt_mb:word
-	extrn	MB_Stat:word
-_DATA	ends
+SECTION ._DATA
+	extern gdt_mb
+	extern MB_Stat
+; END SECTION ._DATA
 
 
-LAST	segment
-	extrn	set_src_selector:near
-	extrn	set_dest_selector:near
-	extrn	SetPageEntry:near
-LAST	ends
+SECTION .LAST
+	extern set_src_selector
+	extern set_dest_selector
+	extern SetPageEntry
+; END SECTION .LAST
 
-_TEXT	segment
-	extrn	MB_Exit:near
-_TEXT	ends
+SECTION ._TEXT
+	extern MB_Exit
+; END SECTION ._TEXT
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
@@ -136,23 +136,23 @@ UNLOCK_ROM	equ	0fefeh		; value to write to unlock rom
 
 
 
-DIAGSEG segment use16 at 0
-DiagLoc dw	?		; 32 bit memory board diagnostic byte
-DIAGSEG ends
+SECTION .DIAGSEG
+DiagLoc: dw 0; 32 bit memory board diagnostic byte
+; END SECTION .DIAGSEG
 
 
 ;
 ; data definitions
 ;
-_DATA	segment
+SECTION ._DATA
 
-NMI_Old 	db	8 dup (0)	; save area for old NMI handler
+NMI_Old: times 8 db 0; save area for old NMI handler
 
-NMI_New label	byte		; descriptor for new NMI handler
-IDT_ENTRY	VDMC_GSEL,<offset _TEXT:Parity_Handler>,D_386INT0
+NMI_New:; descriptor for new NMI handler
+IDT_ENTRY	VDMC_GSEL,<Parity_Handler>,D_386INT0
 
 ;
-ifndef	NOHIMEM 		; if high memory in this model
+%ifndef NOHIMEM; if high memory in this model
 ;Next two entries MUST stay together!
 hbase_addr_l	dw	0000h	; 24 bit address of beginning of hi memory
 hbase_addr_h	db	  00h	; pool of EMM pages.
@@ -164,10 +164,10 @@ hisys_alloc	dw	0	; amount of hi system memory allocated in 4k bytes
 DiagAddr	db	0	; set this when writting to diag byte location
 DiagByte	db	LOW LOCK_ROM	; most recent diag byte written by user
 buffer		dw	0	; buffer for 1 word move blocks
-endif
+%endif
 
 
-int_mask    db	?		; save for restoring masked interrupts
+int_mask: db 0; save for restoring masked interrupts
 
 ;
 ROM_BIOS_Machine_ID db	0fch	; hard coded right now to AT model byte.
@@ -175,12 +175,12 @@ ROM_BIOS_Machine_ID db	0fch	; hard coded right now to AT model byte.
 				; init time ...isp
 
 
-_DATA	ends
+; END SECTION ._DATA
 ;****** REMOVE BEFORE DISTRIBUTION end
 
 
-_TEXT	segment
-	ASSUME	CS:_TEXT, DS:DGROUP
+SECTION ._TEXT
+	; ASSUME	CS:_TEXT, DS:DGROUP
 
 ;******************************************************************************
 ;
@@ -195,13 +195,13 @@ _TEXT	segment
 ;	stack:
 ;
 ;******************************************************************************
-MaskIntAll	proc	near
+MaskIntAll:
 	in	al,MASTER_IMR
 	mov	[int_mask], al
 	mov	al,0ffh 			;;; all OFF
 	out	MASTER_IMR,al
 	ret
-MaskIntAll	endp
+; ENDP MaskIntAll
 
 ;******************************************************************************
 ;
@@ -216,11 +216,11 @@ MaskIntAll	endp
 ;	stack:
 ;
 ;******************************************************************************
-RestIntMask	proc	near
+RestIntMask:
 	mov	al,[int_mask]			; restore interrupt mask
 	out	MASTER_IMR,al
 	ret
-RestIntMask	endp
+; ENDP RestIntMask
 
 ;******************************************************************************
 ;   OEM_Trap_Init - turn on I/O bit map trapping for I/O port watching
@@ -240,8 +240,8 @@ RestIntMask	endp
 ;   USED:  AX,Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-	assume	cs:_TEXT, ds:DGROUP, es:TSS
-OEM_Trap_Init  proc    near
+	; assume	cs:_TEXT, ds:DGROUP, es:TSS
+OEM_Trap_Init:
 ;
 ;   Initialize data structures
 ;
@@ -259,10 +259,10 @@ OEM_Trap_Init  proc    near
 
 	ret
 ;
-OEM_Trap_Init  endp
+; ENDP OEM_Trap_Init
 ;
 
-ifndef	NOHIMEM 			; only for high memory
+%ifndef NOHIMEM; only for high memory
 
 ;******************************************************************************
 ;
@@ -274,15 +274,15 @@ ifndef	NOHIMEM 			; only for high memory
 ;		FS points to DIAG segment
 ;		high system RAM writeable
 ;
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING
-HwMemUnlock	proc near
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING
+HwMemUnlock:
 	push	OEM0_GSEL
 	POP_FS			; set FS to diag segment
-	ASSUME	DS:DIAGSEG
+	; ASSUME	DS:DIAGSEG
 	FSOVER
-	mov	word ptr [DiagLoc],UNLOCK_ROM
+	mov	word [DiagLoc],UNLOCK_ROM
 	ret
-HwMemUnlock	endp
+; ENDP HwMemUnlock
 
 
 
@@ -298,31 +298,31 @@ HwMemUnlock	endp
 ;		Bit 1 = 0 => write protect ON
 ;		Bit 1 = 1 => write protect OFF
 ;
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING
-HwMemLock	proc	near
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING
+HwMemLock:
 
 	push	VDMD_GSEL
 	POP_FS				; FS = DGROUP
-	assume	ds:DGROUP
+	; assume	ds:DGROUP
 	FSOVER
 	test	[DiagByte],02h		;Q: client's ROM write protected?
 
 	push	OEM0_GSEL
 	POP_FS				; set FS to diag segment
-	ASSUME	DS:DIAGSEG
+	; ASSUME	DS:DIAGSEG
 
 	jz	HTL_wp			;  Y: then write protect ON
 	FSOVER				;  N: then write protect OFF
-	mov	word ptr [DiagLoc],UNLOCK_ROM
+	mov	word [DiagLoc],UNLOCK_ROM
 	jmp	short HTL_exit
 HTL_wp:
 	FSOVER
-	mov	word ptr [DiagLoc],LOCK_ROM
+	mov	word [DiagLoc],LOCK_ROM
 HTL_exit:
 	ret
-HwMemLock	endp
+; ENDP HwMemLock
 
-endif				;end of "high" memory routines(ifndef NOHIMEM)
+%endif;end of "high" memory routines(ifndef NOHIMEM)
 
 ;******************************************************************************
 ;
@@ -342,8 +342,8 @@ endif				;end of "high" memory routines(ifndef NOHIMEM)
 ;
 ;******************************************************************************
 ;
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING
-Map_Lin_OEM	proc	near
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING
+Map_Lin_OEM:
 	OP32
 	cmp	ax,0000h
 	dw	OEM_MEM_HI	;Q: Addr in diags byte region ?
@@ -352,19 +352,19 @@ Map_Lin_OEM	proc	near
 	OP32			;  Y: set EAX to proper seg address for diags
 	sub	ax,0000h
 	dw	(OEM_MEM_HI - 0100h); move to 0100h segment
-ifndef	NOHIMEM
+%ifndef NOHIMEM
 ;    set write to diag byte flag
 	push	ds		; save DS
 	push	VDMD_GSEL
 	pop	ds		; DS = DGROUP
-	ASSUME	DS:DGROUP
+	; ASSUME	DS:DGROUP
 	mov	[DiagAddr],1	; set flag for diag addr
 	pop	ds		; reset DS
-endif
+%endif
 	stc
 Mp_Lin_Exit:
 	ret
-Map_Lin_OEM	endp
+; ENDP Map_Lin_OEM
 
 
 
@@ -386,13 +386,13 @@ Map_Lin_OEM	endp
 ;
 ;******************************************************************************
 ;
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING
-UMap_Lin_OEM	proc	near
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING
+UMap_Lin_OEM:
 	OP32			;  Y: set EAX to physical address for diags
 	add	ax,0000h
 	dw	(OEM_MEM_HI - 0100h) ; move to OEM_MEM_HI segment
 	ret
-UMap_Lin_OEM	endp
+; ENDP UMap_Lin_OEM
 
 ;******************************************************************************
 ;
@@ -413,10 +413,10 @@ UMap_Lin_OEM	endp
 ;	stack:
 ;
 ;******************************************************************************
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING
-MB_Map_Src	proc	near
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING
+MB_Map_Src:
 	ret
-MB_Map_Src	endp
+; ENDP MB_Map_Src
 
 ;******************************************************************************
 ;
@@ -437,18 +437,18 @@ MB_Map_Src	endp
 ;	stack:
 ;
 ;******************************************************************************
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING
-MB_Map_Dest	proc	near
-ifndef	NOHIMEM
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING
+MB_Map_Dest:
+%ifndef NOHIMEM
 	push	ds
 	push	VDMD_GSEL
 	pop	ds		; DS = DGROUP alias selector
-	ASSUME	DS:DGROUP
+	; ASSUME	DS:DGROUP
 	mov	[DiagAddr],0	; reset diag addr flag before write
 	pop	ds		; reset DS
-endif
+%endif
 	ret
-MB_Map_Dest	endp
+; ENDP MB_Map_Dest
 
 ;******************************************************************************
 ;
@@ -470,25 +470,25 @@ MB_Map_Dest	endp
 ;	stack:
 ;
 ;******************************************************************************
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING
-MB_Start	proc	near
-ifndef	NOHIMEM
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING
+MB_Start:
+%ifndef NOHIMEM
 ;
 ;  check for write to diag byte location
 ;
 	push	es
 	push	VDMD_GSEL
 	pop	es			; ES = DGROUP alias
-	ASSUME	ES:DGROUP
-	cmp	es:[DiagAddr],0 	;Q: does target -> diag byte ?
+	; ASSUME	ES:DGROUP
+	cmp	[es:DiagAddr],0 	;Q: does target -> diag byte ?
 	je	MB_nodiag		;  N: then don't worry
 	mov	al,[si] 		;  Y: get current diag byte
-	mov	es:[DiagByte],al	;     and save it where we can access it
+	mov	[es:DiagByte],al	;     and save it where we can access it
 MB_nodiag:
 	pop	es			; restore es
-endif
+%endif
 	ret
-MB_Start	endp
+; ENDP MB_Start
 
 ;*************************************************************************
 ;	Set_Par_Vect  - Set parity handling routine to routine below
@@ -506,15 +506,15 @@ MB_Start	endp
 ;	note: entry is from protected mode -> DS,ES are same as during
 ;		move block.
 ;*************************************************************************
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING
-Set_Par_Vect   proc    near
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING
+Set_Par_Vect:
 	mov	ax,VDMD_GSEL
 	mov	es,ax		; ES pts to DGROUP
 	mov	ax,IDTD_GSEL	;
 	mov	ds,ax		; DS points to IDT
 
 	mov	si,0010h	; DS:[SI] points to NMI descr address in IDT
-	mov	di,offset DGROUP:NMI_Old	; ES:[DI] pts to store area
+	mov	di,NMI_Old	; ES:[DI] pts to store area
 	mov	cx,2
 	db	66h
 	rep	movsw		; store 2 dwords - save current NMI descriptor
@@ -523,12 +523,12 @@ Set_Par_Vect   proc    near
 	pop	ds		; DS = DGROUP
 	pop	es		; ES = IDT
 	mov	di,0010h	; ES:[DI] points to NMI descr address in IDT
-	mov	si,offset DGROUP:NMI_New ; DS:[SI] pts to new NMI descr
+	mov	si,NMI_New ; DS:[SI] pts to new NMI descr
 	mov	cx,2
 	db	66h
 	rep	movsw		; set up new NMI descriptor in IDT
 	ret
-Set_Par_Vect   endp
+; ENDP Set_Par_Vect
 
 ;*************************************************************************
 ;	Rest_Par_Vect  - restore parity handling routine to original
@@ -547,24 +547,24 @@ Set_Par_Vect   endp
 ;	note: entry is from protected mode -> DS,ES are same as during
 ;		move block.
 ;*************************************************************************
-	assume	cs:_TEXT, ds:DGROUP, es:NOTHING
-Rest_Par_Vect	proc	near
-ifndef	NOHIMEM
+	; assume	cs:_TEXT, ds:DGROUP, es:NOTHING
+Rest_Par_Vect:
+%ifndef NOHIMEM
 	call	HwMemUnlock		    ; in case IDT is in high mem
-endif
+%endif
 	mov	ax,IDTD_GSEL		    ; selector for IDT
 	mov	es,ax			    ; ES points to IDT
 
 	mov	di,0010h		    ; ES:[DI] points to NMI descr address in IDT
-	mov	si,offset DGROUP:NMI_Old    ; DS:[SI] pts to store area
+	mov	si,NMI_Old    ; DS:[SI] pts to store area
 	mov	cx,2
 	db	66h
 	rep	movsw			    ; restore previous NMI descriptor
-ifndef	NOHIMEM
+%ifndef NOHIMEM
 	call	HwMemLock
-endif
+%endif
 	ret
-Rest_Par_Vect	endp
+; ENDP Rest_Par_Vect
 
 
 ;*************************************************************************
@@ -578,8 +578,8 @@ Rest_Par_Vect	endp
 ;	note: entry is from protected mode -> DS,ES are same as during
 ;		move block.
 ;*************************************************************************
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING
-Parity_Handler	proc	far
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING
+Parity_Handler:
 ;
 	dec	si
 	dec	si		;;; DS:SI pts to address causing parity error
@@ -595,9 +595,9 @@ Parity_Handler	proc	far
 	jmp	$+2
 	jmp	$+2
 
-ifndef	NOHIMEM
+%ifndef NOHIMEM
 	call	HwMemlock	;;; LOCK high sys mem
-endif
+%endif
 
 	and	al, NOT PPO_MASK_IOCHECK	;;; enable IOCHECK
 	and	al, NOT PPO_MASK_PCHECK 	;;; enable PCHECK
@@ -607,12 +607,12 @@ endif
 ;
 	mov	ax,VDMD_GSEL	;;;
 	mov	ds,ax		;;; set DS to data seg
-	assume	ds:DGROUP
+	; assume	ds:DGROUP
 	mov	[MB_Stat],1	;;; set parity error
 	add	sp,12		;;; remove NMI stuff from stack
 	jmp	MB_Exit 	;;; and exit move block
 
-Parity_Handler	endp
+; ENDP Parity_Handler
 
 ;*************************************************************************
 ;	DisableNMI -   This is called by the NMI handler to disable the
@@ -623,18 +623,18 @@ Parity_Handler	endp
 ;
 ;	note: entry is from 386 protected mode
 ;*************************************************************************
-	assume	cs:_TEXT, ds:NOTHING, es:NOTHING
-DisableNMI     proc    near
+	; assume	cs:_TEXT, ds:NOTHING, es:NOTHING
+DisableNMI:
 	push	ax
 	mov	al,DISABLE_NMI
 	out	RTC_CMD,al
 	pop	ax
 	ret
-DisableNMI     endp
+; ENDP DisableNMI
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-LAST	segment
+SECTION .LAST
 
 ;******************************************************************************
 ;
@@ -658,8 +658,8 @@ LAST	segment
 ;
 ;******************************************************************************
 ;
-	assume	cs:LAST, ds:NOTHING, es:NOTHING
-VerifyMachine	proc	near
+	; assume	cs:LAST, ds:NOTHING, es:NOTHING
+VerifyMachine:
 	pushf
 	push	es			; save es
 	push	bx			; save bx
@@ -683,10 +683,10 @@ inc_prcf:
 inc_prc:
 	stc
 	ret
-VerifyMachine	endp			; End of procedure
+; ENDP VerifyMachine; End of procedure
 
 
-ifndef	NOHIMEM 			; if high memory in this model
+%ifndef NOHIMEM; if high memory in this model
 ;******************************************************************************
 ;
 ;	Hi_Mem_Size -	returns pointer and size of high mem allocated to EMM
@@ -703,8 +703,8 @@ ifndef	NOHIMEM 			; if high memory in this model
 ;
 ;******************************************************************************
 ;
-	assume	cs:LAST, ds:DGROUP, es:NOTHING
-Hi_Mem_Size	proc	near
+	; assume	cs:LAST, ds:DGROUP, es:NOTHING
+Hi_Mem_Size:
 	mov	cx,[hi_size]		; CX = kbytes of high mem
 	shr	cx,4			;Q: any hi memory pages ? CX = pg cnt
 	jz	Hi_Mem_SXit		;  N: Exit with ZF = 1
@@ -715,9 +715,9 @@ Hi_Mem_Size	proc	near
 	dw	00FFh			;   clear highest nibble
 Hi_Mem_SXit:
 	ret
-Hi_Mem_Size	endp
+; ENDP Hi_Mem_Size
 
-	page
+	; page
 ;******************************************************************************
 ;
 ;	hbuf_chk Hi memory pool check.
@@ -735,19 +735,19 @@ Hi_Mem_Size	endp
 ;
 ;******************************************************************************
 ;
-	assume	cs:LAST, ds:DGROUP, es:NOTHING
-hbuf_chk	proc	near
+	; assume	cs:LAST, ds:DGROUP, es:NOTHING
+hbuf_chk:
 	push	es			; save es
 	push	bx
 	mov	bx,X_HI_MEM_SEG 	; segment of hi memory control words
 	mov	es,bx
 	mov	bx,es:X_HI_PTR		; pointer to hi memory control words
-	mov	ax,es:[bx+X_MEM_BOARD]	; 32-bit memory board status
+	mov	ax,[es:bx+X_MEM_BOARD]	; 32-bit memory board status
 	inc	ax			; q: memory board status word == -1?
 	stc
 	jz	hbuf_xit		; y: not installed
-	mov	ax,es:[bx+X_AVAIL_MEM]	; get available memory in 16 byte pieces
-	mov	bx,es:[bx+X_LAST_HI]	; get last used address
+	mov	ax,[es:bx+X_AVAIL_MEM]	; get available memory in 16 byte pieces
+	mov	bx,[es:bx+X_LAST_HI]	; get last used address
 	and	bx,0ffh 		; align to 4k byte boundary (2**8)*16
 	sub	ax,bx			; ax = available 16 byte pieces
 	shr	ax,10			; ax = available 16k byte pieces
@@ -757,9 +757,9 @@ hbuf_xit:
 	pop	bx			; ax = availble memory unless CF = 1
 	pop	es
 	ret
-hbuf_chk	endp
+; ENDP hbuf_chk
 ;
-	page
+	; page
 ;******************************************************************************
 ;
 ;	HiAlloc - allocate hi memory - update hi memory control words
@@ -777,8 +777,8 @@ hbuf_chk	endp
 ;	stack:
 ;
 ;******************************************************************************
-	assume cs:LAST, ds:DGROUP, es:NOTHING
-HiAlloc 	proc	near
+	; assume cs:LAST, ds:DGROUP, es:NOTHING
+HiAlloc:
 ;
 	push	ax
 	push	bx
@@ -798,7 +798,7 @@ HiAlloc 	proc	near
 	mov	es,bx
 	mov	bx,es:X_HI_PTR		; pointer to high memory control words
 	mov	cx,0ffh 		; determine waste by aligning to 4k
-	and	cx,es:[bx+X_LAST_HI]	; cx = extra needed to align
+	and	cx,[es:bx+X_LAST_HI]	; cx = extra needed to align
 	add	ax,cx			; ax = total to allocate
 	mov	[hi_alloc],ax		; save it in case we need to put it back
 	xor	bx,bx			; bx = no hi system memory to alloc
@@ -820,9 +820,9 @@ Hi_xit: 				; CF = 1 if error, else CF = 0
 	pop	bx
 	pop	ax
 	ret
-HiAlloc 	endp
+; ENDP HiAlloc
 ;
-	page
+	; page
 ;******************************************************************************
 ;
 ;	HiSysAlloc - allocate hi system memory - update hi memory control words
@@ -847,8 +847,8 @@ HiAlloc 	endp
 ;	stack:
 ;
 ;******************************************************************************
-	assume cs:LAST, ds:DGROUP, es:NOTHING
-HiSysAlloc	proc	near
+	; assume cs:LAST, ds:DGROUP, es:NOTHING
+HiSysAlloc:
 	push	bx
 	push	es
 ;
@@ -856,7 +856,7 @@ HiSysAlloc	proc	near
 	mov	bx,X_HI_MEM_SEG 	; high memory segment
 	mov	es,bx
 	mov	bx,es:X_HI_PTR		; pointer to high memory control words
-	mov	ax,es:[bx+X_HISYS]	; ax = amount of hi system mem available
+	mov	ax,[es:bx+X_HISYS]	; ax = amount of hi system mem available
 	and	ax,00ffh		;    after we get rid of high byte
 	pop	bx			; bx = amount requested
 					; ax = amount currently available
@@ -879,9 +879,9 @@ Hisys_xit:
 	pop	es
 	pop	bx
 	ret
-HiSysAlloc	endp
+; ENDP HiSysAlloc
 ;
-	page
+	; page
 ;******************************************************************************
 ;
 ;	Himod - allocate/deallocate hi memory - update hi memory control words
@@ -901,8 +901,8 @@ HiSysAlloc	endp
 ;	stack:
 ;
 ;******************************************************************************
-	assume cs:LAST, ds:DGROUP, es:NOTHING
-HImod		proc	near
+	; assume cs:LAST, ds:DGROUP, es:NOTHING
+HImod:
 	push	bx
 	push	cx
 	push	dx
@@ -917,11 +917,11 @@ unlock_ok:
 	mov	bx,X_HI_MEM_SEG 	; high memory segment
 	mov	es,bx
 	mov	bx,es:X_HI_PTR		; pointer to high memory control words
-	sub	es:[bx+X_AVAIL_MEM],ax	; update hi memory available
-	sub	es:[bx+X_LAST_HI],ax	; and last used address
+	sub	[es:bx+X_AVAIL_MEM],ax	; update hi memory available
+	sub	[es:bx+X_LAST_HI],ax	; and last used address
 	pop	ax			; get hi system memory amount
-	sub	es:[bx+X_HISYS],ax	; update hi system memory available
-	mov	ax,es:[bx+X_LAST_HI]	; start of this hi memory
+	sub	[es:bx+X_HISYS],ax	; update hi system memory available
+	mov	ax,[es:bx+X_LAST_HI]	; start of this hi memory
 ;
 	call	LockROM 		;Q: ROM write protected now ?
 	clc				;     clear error flag
@@ -939,8 +939,8 @@ HImod_xit:
 	ret
 
 
-HImod		endp
-	page
+; ENDP HImod
+	; page
 ;******************************************************************************
 ;
 ;	LockROM - write protects high system RAM
@@ -956,19 +956,19 @@ HImod		endp
 ;	stack:
 ;
 ;******************************************************************************
-	assume cs:LAST, ds:DGROUP, es:NOTHING
-LockROM proc	near
+	; assume cs:LAST, ds:DGROUP, es:NOTHING
+LockROM:
 	push	ax			; save ax
 	push	cx
 	push	dx
 	push	es
 ;
-	mov	word ptr [buffer],LOCK_ROM	; word to write to unlock
+	mov	word [buffer],LOCK_ROM	; word to write to unlock
 	jmp	UL_write			; go write it...
 ;
-LockROM endp
+; ENDP LockROM
 
-	page
+	; page
 ;******************************************************************************
 ;
 ;	UnLockROM - turns off write protect on high system RAM
@@ -984,21 +984,21 @@ LockROM endp
 ;	stack:
 ;
 ;******************************************************************************
-	assume cs:LAST, ds:DGROUP, es:DGROUP
-UnLockROM	proc	near
+	; assume cs:LAST, ds:DGROUP, es:DGROUP
+UnLockROM:
 	push	ax			; save ax
 	push	cx
 	push	dx
 	push	es
 ;
-	mov	word ptr [buffer],UNLOCK_ROM	; word to write to unlock
+	mov	word [buffer],UNLOCK_ROM	; word to write to unlock
 ;
 UL_write:
 	mov	ax,seg DGROUP		; set source addr to buffer
 	mov	es,ax			; set ES to DGROUP
 	mov	cx,16
 	mul	cx			; make 24 bits
-	add	ax,offset DGROUP:buffer
+	add	ax,buffer
 	adc	dl,0
 	mov	cx,1			; 1 word to transfer
 	call	set_src_selector	; set source segment selector to buffer
@@ -1009,7 +1009,7 @@ UL_write:
 
 	mov	ax,seg LAST
 	mov	es,ax			; es to last segmetn
-	mov	si,offset DGROUP:gdt_mb ; ES:SI -> global descriptor table
+	mov	si,gdt_mb ; ES:SI -> global descriptor table
 	mov	ah,MOVE_BLK		; int 15 block move function code
 	int	XBIOS			; unlock rom
 	or	ah,ah			; Q: error?
@@ -1020,9 +1020,9 @@ UL_write:
 	pop	cx
 	pop	ax
 	ret
-UnLockROM	endp			; end of procedure
+; ENDP UnLockROM; end of procedure
 
-endif					; end of code for not NOHIMEM
+%endif; end of code for not NOHIMEM
 
 
 ;******************************************************************************
@@ -1048,8 +1048,8 @@ endif					; end of code for not NOHIMEM
 ;
 ;******************************************************************************
 ;
-OEM_Init_Diag_Page  proc    near
-	assume	cs:LAST, ds:dgroup, es:NOTHING
+OEM_Init_Diag_Page:
+	; assume	cs:LAST, ds:dgroup, es:NOTHING
 ;
 ;
 	mov	di,4*P_SIZE		; ES:DI -> 1st 64k of 5th page table
@@ -1068,14 +1068,14 @@ IT_set_entry:
 					;  Y: all done
 	ret
 ;
-OEM_Init_Diag_Page  endp
+; ENDP OEM_Init_Diag_Page
 
-LAST	ends				; End of segment
+; END SECTION .LAST; End of segment
 
-ifndef	NOHIMEM 			; if high memory in this model
+%ifndef NOHIMEM; if high memory in this model
 
-R_CODE	SEGMENT
-	assume cs:R_CODE, ds:DGROUP, es:DGROUP
+SECTION .R_CODE
+	; assume cs:R_CODE, ds:DGROUP, es:DGROUP
 
 ;******************************************************************************
 ;	InitLock - Init state of Table lock
@@ -1091,30 +1091,30 @@ R_CODE	SEGMENT
 ;    USED:	AX,BX
 ;
 ;******************************************************************************
-InitLOCK	proc	far
+InitLOCK:
 
 	mov	[DiagByte],LOW LOCK_ROM ; default is locked
 	push	es
 	mov	ax,X_HI_MEM_SEG
 	mov	es,ax			; ES -> ROM
 	mov	bx,X_MT_386		; ES:BX -> machine type byte
-	mov	ax,ES:[bx]		; AX = ROM contents
-	xor	ES:[bx],0FFFFh		; flip all bits in ROM
+	mov	ax,[ES:bx]		; AX = ROM contents
+	xor	[ES:bx],0FFFFh		; flip all bits in ROM
 	xor	ax,0FFFFh		; AX = "flipped" value
-	cmp	ax,ES:[bx]		;Q: flipped value in ROM ?
+	cmp	ax,[ES:bx]		;Q: flipped value in ROM ?
 	jne	gv_locked		;  N: "ROM" is locked
 	mov	[DiagByte],LOW UNLOCK_ROM ;Y: ROM is UNLOCKED
 gv_locked:
-	xor	ES:[bx],0FFFFh		; restore ROM contents (if changed)
+	xor	[ES:bx],0FFFFh		; restore ROM contents (if changed)
 ;
 	pop	es
 	ret
 
-InitLOCK	endp
+; ENDP InitLOCK
 
-R_CODE	ENDS
+; END SECTION .R_CODE
 
-endif					; end of code for not NOHIMEM
+%endif; end of code for not NOHIMEM
 
-	end				; of module
+	; end; of module
 

@@ -4,8 +4,8 @@
 ;    A007  PTM 3957 - fake vesrion for IBMCACHE.COM
 ;    A008  PTM 4070 - fake version for MS WINDOWS
 
-SUBTTL $exec - load/go a program
-PAGE
+; SUBTTL $exec - load/go a program
+; PAGE
 ;
 ; Assembler usage:
 ;	    LDS     DX, name
@@ -80,58 +80,58 @@ PAGE
 ;
 ;	 A000	version 4.00  Jan. 1988
 ;
-include EA.INC
-include version.inc
+%include "EA.INC"
+%include "version.inc"
 
 	I_Need	   Temp_Var2,WORD	     ;AN000;file type from $open
 	I_Need	   Special_Entries,WORD      ;AN007;address of special entries
 	I_Need	   Special_Version,WORD      ;AN007;special version number
 	I_Need	   Fake_Count,BYTE	     ;AN008;fake version count
 
-IF	BUFFERFLAG
-	extrn	restore_user_map:near
-ENDIF
+%if BUFFERFLAG
+	extern restore_user_map
+%endif
 
-TABLE	SEGMENT
+SECTION .TABLE
 
-exec_init_SP	    DW	?
-exec_init_SS	    DW	?
-exec_init_IP	    DW	?
-exec_init_CS	    DW	?
+exec_init_SP: dw 0
+exec_init_SS: dw 0
+exec_init_IP: dw 0
+exec_init_CS: dw 0
 
 exec_internal_buffer	EQU OpenBuf
 
-exec_signature	    DW	?		; must contain 4D5A  (yay zibo!)
-exec_len_mod_512    DW	?		; low 9 bits of length
-exec_pages	    DW	?		; number of 512b pages in file
-exec_rle_count	    DW	?		; count of reloc entries
-exec_par_dir	    DW	?		; number of paragraphs before image
-exec_min_BSS	    DW	?		; minimum number of para of BSS
-exec_max_BSS	    DW	?		; max number of para of BSS
-exec_SS 	    DW	?		; stack of image
-exec_SP 	    DW	?		; SP of image
-exec_chksum	    DW	?		; checksum  of file (ignored)
-exec_IP 	    DW	?		; IP of entry
-exec_CS 	    DW	?		; CS of entry
-exec_rle_table	    DW	?		; byte offset of reloc table
+exec_signature: dw 0; must contain 4D5A  (yay zibo!)
+exec_len_mod_512: dw 0; low 9 bits of length
+exec_pages: dw 0; number of 512b pages in file
+exec_rle_count: dw 0; count of reloc entries
+exec_par_dir: dw 0; number of paragraphs before image
+exec_min_BSS: dw 0; minimum number of para of BSS
+exec_max_BSS: dw 0; max number of para of BSS
+exec_SS: dw 0; stack of image
+exec_SP: dw 0; SP of image
+exec_chksum: dw 0; checksum  of file (ignored)
+exec_IP: dw 0; IP of entry
+exec_CS: dw 0; CS of entry
+exec_rle_table: dw 0; byte offset of reloc table
 Exec_header_len     EQU $-Exec_Signature
 
 exec_internal_buffer_size   EQU (128+128+53+curdirLEN)
-%out	Please make sure that the following are contiguous and of the
-%out	following sizes:
-%out
-%out	OpenBuf     128
-%out	RenBuf	    128
-%out	SearchBuf    53
-%out	DummyCDS    CurDirLen
+%warning Please make sure that the following are contiguous and of the
+%warning following sizes:
+%warning 
+%warning OpenBuf     128
+%warning RenBuf	    128
+%warning SearchBuf    53
+%warning DummyCDS    CurDirLen
 
-TABLE	ENDS
+; END SECTION .TABLE
 
-.sall
+; .sall
 
 procedure   $Exec,NEAR
-	ASSUME	DS:NOTHING, ES:NOTHING
-PUBLIC EXEC001S,EXEC001E
+	; ASSUME	DS:NOTHING, ES:NOTHING
+global EXEC001S,EXEC001E
 EXEC001S:
 	LocalVar    exec_blk,DWORD
 	LocalVar    exec_func,BYTE
@@ -226,14 +226,14 @@ exec_check_environ:
 	MOV	exec_load_block,0
 	MOV	exec_environ,0
 
-	TEST	BYTE PTR exec_func,exec_func_overlay	; overlays... no environment
+	TEST	byte exec_func,exec_func_overlay	; overlays... no environment
 	JNZ	exec_read_header
 	LDS	SI,exec_blk		; get block
 	MOV	AX,[SI].Exec1_environ	; address of environ
 	OR	AX,AX
 	JNZ	exec_scan_env
 	MOV	DS,CurrentPDB
-	MOV	AX,DS:[PDB_environ]
+	MOV	AX,[DS:PDB_environ]
 	MOV	exec_environ,AX
 	OR	AX,AX
 	JZ	exec_read_header
@@ -284,7 +284,7 @@ exec_read_header:
 ;
 	Context DS
 	MOV	CX,exec_header_len	; header size
-	MOV	DX,OFFSET DOSGROUP:exec_signature
+	MOV	DX,exec_signature
 	PUSH	ES
 	PUSH	DS
 	CALL	ExecRead
@@ -321,21 +321,21 @@ exec_save_start:
 ;
 ; Do we need to allocate memory?  Yes if function is not load-overlay
 ;
-	TEST	BYTE PTR exec_func,exec_func_overlay
+	TEST	byte exec_func,exec_func_overlay
 	JZ	exec_allocate		; allocation of space
 ;
 ; get load address from block
 ;
 	LES	DI,exec_blk
-	MOV	AX,ES:[DI].exec3_load_addr
+	MOV	AX,[ES:DI].exec3_load_addr
 	MOV	exec_dma,AX
-	MOV	AX,ES:[DI].exec3_reloc_fac
+	MOV	AX,[ES:DI].exec3_reloc_fac
 	MOV	exec_rel_fac,AX
-IF DEBUG
+%if DEBUG
 	JMP	exec_find_res
-ELSE
+%else
 	JMP	SHORT exec_find_res
-ENDIF
+%endif
 
 exec_no_mem:
 	MOV	AL,error_not_enough_memory
@@ -345,7 +345,7 @@ exec_bad_file:
 	MOV	AL,error_bad_format
 
 exec_bomb:
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 	MOV	BX,exec_fh
 	CALL	exec_dealloc
 	LeaveCrit   CritMem
@@ -438,7 +438,7 @@ exec_read_ok:
 	MOV	CX,BX			; count in correct register
 	PUSH	DS
 	MOV	DS,exec_dma		; Set up read buffer
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	XOR	DX,DX
 	PUSH	CX			; save our count
 	CALL	ExecRead
@@ -476,7 +476,7 @@ exec_do_reloc:
 	MOV	AX,exec_SP		; initial SP
 	MOV	exec_init_SP,AX
 
-	LES	AX,DWORD PTR exec_IP
+	LES	AX,dword exec_IP
 	MOV	exec_init_IP,AX
 	MOV	AX,ES
 	ADD	AX,CX			; relocated...
@@ -498,9 +498,9 @@ exec_get_entries:
 	MOV	DX,exec_rle_count	; Number of entries left
 
 exec_read_reloc:
-	ASSUME	DS:NOTHING
+	; ASSUME	DS:NOTHING
 	PUSH	DX
-	MOV	DX,OFFSET DOSGROUP:exec_internal_buffer
+	MOV	DX,exec_internal_buffer
 	MOV	CX,((exec_internal_buffer_size)/4)*4
 	PUSH	DS
 	CALL	ExecRead
@@ -508,7 +508,7 @@ exec_read_reloc:
 	POP	DX
 	JC	exec_bad_filej
 	MOV	CX,(exec_internal_buffer_size)/4
-	MOV	DI,OFFSET DOSGROUP:exec_internal_buffer ; Pointer to byte location in header
+	MOV	DI,exec_internal_buffer ; Pointer to byte location in header
 ;
 ; Relocate a single address
 ;
@@ -519,7 +519,7 @@ exec_reloc_one:
 	JE	exec_set_PDBJ
 
 exec_get_addr:
-	LDS	BX,DWORD PTR ES:[DI]	; Get ra/sa of entry
+	LDS	BX,dword [ES:DI]	; Get ra/sa of entry
 	MOV	AX,DS			; Relocate address of item
 	ADD	AX,SI
 	MOV	DS,AX
@@ -547,7 +547,7 @@ exec_no_memj:
 ; we have a .COM file.	First, determine if we are merely loading an overlay.
 ;
 exec_com_file:
-	TEST	BYTE PTR exec_func,exec_func_overlay
+	TEST	byte exec_func,exec_func_overlay
 	JZ	exec_alloc_com_file
 	LDS	SI,exec_blk		; get arg block
 	LODSW				; get load address
@@ -596,7 +596,7 @@ exec_read_block:
 OkRead:
 	CMP	AX,SI			; did we read them all?
 	JZ	exec_no_memj		; exactly the wrong number... no memory
-	TEST	BYTE PTR exec_func,exec_func_overlay
+	TEST	byte exec_func,exec_func_overlay
 	JNZ	exec_set_PDB		; no starto, chumo!
 	MOV	AX,exec_DMA
 	SUB	AX,10h
@@ -609,7 +609,7 @@ OkRead:
 	MOV	exec_init_SP,SI 	; max value for read is also SP!
 	MOV	exec_init_SS,AX
 	MOV	DS,AX
-	MOV	WORD PTR [SI],0 	; 0 for return
+	MOV	word [SI],0 	; 0 for return
 
 exec_set_PDB:
 	MOV	BX,exec_fh		; we are finished with the file.
@@ -618,7 +618,7 @@ exec_set_PDB:
 	invoke	$CLOSE			; release the jfn
 	POP	BP
 	CALL	exec_alloc
-	TEST	BYTE PTR exec_func,exec_func_overlay
+	TEST	byte exec_func,exec_func_overlay
 	JZ	exec_build_header
 	CALL	Scan_Execname		;MS.;AN007;
 	CALL	Scan_Special_Entries	;MS.;AN007;
@@ -662,7 +662,7 @@ movename:				;AN000;
 	LOOP	movename		;AN000;;MS. continue
 mem_done:				;AN000;
 	XOR	AL,AL			;AN000;;MS. make ASCIIZ
-	CMP	DI,SIZE ARENA		;AN000;MS. if not all filled
+	CMP	DI,ARENA_size		;AN000;MS. if not all filled
 	JAE	fill8			;AN000;MS.
 	STOSB				;AN000;MS.
 fill8:					;AN000;
@@ -678,14 +678,14 @@ fill8:					;AN000;
 	POP	DX
 
 	PUSH	exec_environ
-	POP	ES:[PDB_environ]
+	POP	[ES:PDB_environ]
 ;
 ; set up proper command line stuff
 ;
 	LDS	SI,exec_blk		; get the block
 	PUSH	DS			; save its location
 	PUSH	SI
-	LDS	SI,[SI.exec0_5C_FCB]	; get the 5c fcb
+	LDS	SI,[SI+exec0_5C_FCB]	; get the 5c fcb
 ;
 ; DS points to user space 5C FCB
 ;
@@ -708,7 +708,7 @@ fill8:					;AN000;
 	POP	DS
 	PUSH	DS			; save (again)
 	PUSH	SI
-	LDS	SI,[SI.exec0_6C_FCB]	; get 6C FCB
+	LDS	SI,[SI+exec0_6C_FCB]	; get 6C FCB
 ;
 ; DS points to user space 6C FCB
 ;
@@ -718,7 +718,7 @@ fill8:					;AN000;
 	STOSW
 	POP	SI			; get block (last time)
 	POP	DS
-	LDS	SI,[SI.exec0_com_line]	; command line
+	LDS	SI,[SI+exec0_com_line]	; command line
 ;
 ; DS points to user space 80 command line
 ;
@@ -743,41 +743,41 @@ exec_BL:
 	MOV	BL,CL
 exec_set_return:
 	invoke	get_user_stack		; get his return address
-	PUSH	[SI.user_CS]		; suck out the CS and IP
-	PUSH	[SI.user_IP]
-	PUSH	[SI.user_CS]		; suck out the CS and IP
-	PUSH	[SI.user_IP]
-	POP	WORD PTR ES:[PDB_Exit]
-	POP	WORD PTR ES:[PDB_Exit+2]
+	PUSH	[SI+user_CS]		; suck out the CS and IP
+	PUSH	[SI+user_IP]
+	PUSH	[SI+user_CS]		; suck out the CS and IP
+	PUSH	[SI+user_IP]
+	POP	word [ES:PDB_Exit]
+	POP	word [ES:PDB_Exit+2]
 	XOR	AX,AX
 	MOV	DS,AX
-	POP	DS:[addr_int_terminate] ; save them where we can get them later
-	POP	DS:[addr_int_terminate+2]   ; when the child exits.
-	MOV	WORD PTR DMAADD,80h
+	POP	[DS:addr_int_terminate] ; save them where we can get them later
+	POP	[DS:addr_int_terminate+2]   ; when the child exits.
+	MOV	word DMAADD,80h
 	MOV	DS,CurrentPDB
-	MOV	WORD PTR DMAADD+2,DS
-	TEST	BYTE PTR exec_func,exec_func_no_execute
+	MOV	word DMAADD+2,DS
+	TEST	byte exec_func,exec_func_no_execute
 	JZ	exec_go
 
-	LDS	SI,DWORD PTR exec_init_SP   ; get stack
+	LDS	SI,dword exec_init_SP   ; get stack
 	LES	DI,exec_blk		; and block for return
-	MOV	ES:[DI].exec1_SS,DS	; return SS
+	MOV	[ES:DI].exec1_SS,DS	; return SS
 
 	DEC	SI			; 'push' default AX
 	DEC	SI
 	MOV	[SI],BX 		; save default AX reg
-	MOV	ES:[DI].exec1_SP,SI	; return 'SP'
+	MOV	[ES:DI].exec1_SP,SI	; return 'SP'
 
-	LDS	AX,DWORD PTR exec_init_IP
-	MOV	ES:[DI].exec1_CS,DS	; initial entry stuff
+	LDS	AX,dword exec_init_IP
+	MOV	[ES:DI].exec1_CS,DS	; initial entry stuff
 
-	MOV	ES:[DI].exec1_IP,AX
+	MOV	[ES:DI].exec1_IP,AX
 	Leave
 	transfer    SYS_RET_OK
 
 exec_go:
-	LDS	SI,DWORD PTR exec_init_IP   ; get entry point
-	LES	DI,DWORD PTR exec_init_SP   ; new stack
+	LDS	SI,dword exec_init_IP   ; get entry point
+	LES	DI,dword exec_init_SP   ; new stack
 	MOV	AX,ES
 ;
 ; DS:SI points to entry point
@@ -786,8 +786,8 @@ exec_go:
 ; BX has initial AX value
 ;
 	CLI
-	MOV	BYTE PTR INDOS,0
-	ASSUME	SS:NOTHING
+	MOV	byte INDOS,0
+	; ASSUME	SS:NOTHING
 	MOV	SS,AX			; set up user's stack
 	MOV	SP,DI			; and SP
 	STI
@@ -798,9 +798,9 @@ exec_go:
 	MOV	AX,BX			; set up proper AX
 procedure   exec_long_ret,FAR
 
-IF	BUFFERFLAG
+%if BUFFERFLAG
 	invoke	restore_user_map
-ENDIF
+%endif
 
 	RET
 EndProc exec_long_ret
@@ -818,7 +818,7 @@ Procedure   ExecRead,NEAR
 EndProc ExecRead
 
 procedure   exec_dealloc,near
-	ASSUME	    DS:NOTHING,ES:NOTHING
+	; ASSUME	    DS:NOTHING,ES:NOTHING
 	PUSH	    BX
 	MOV	    BX,arena_owner_system
 	EnterCrit   CritMEM
@@ -854,7 +854,7 @@ Procedure   ChangeOwner,near
 	DEC	AX
 	PUSH	DS
 	MOV	DS,AX
-	MOV	DS:[arena_owner],BX
+	MOV	[DS:arena_owner],BX
 	POP	DS
 	return
 EndProc ChangeOwner
@@ -882,15 +882,15 @@ EndProc Scan_Execname			;AN000;;MS.
 Procedure    Scan_Special_Entries,near	;AN000;MS.
 
 	DEC    CX			;AN007;MS. cx= name length
-	MOV    DI,CS:[Special_Entries]	;AN007;MS. es:di -> addr of special entries
+	MOV    DI,[CS:Special_Entries]	;AN007;MS. es:di -> addr of special entries
 	CALL   Reset_Version		;AN008;MS.
 	PUSH   CS			;AN007;MS.
 	POP    ES			;AN007;MS.
 Getentries:				;AN007;MS.
-	MOV    AL,ES:[DI]		;AN007;MS. end of list
+	MOV    AL,[ES:DI]		;AN007;MS. end of list
 	OR     AL,AL			;AN007;MS.
 	JZ     end_list 		;AN007;MS. yes
-	MOV    CS:[Temp_Var2],DI	;AN007;MS. save di
+	MOV    [CS:Temp_Var2],DI	;AN007;MS. save di
 	CMP    AL,CL			;AN007;MS. same length ?
 	JNZ    skipone			;AN007;MS. no
 	INC    DI			;AN007;MS. es:di -> special name
@@ -898,10 +898,10 @@ Getentries:				;AN007;MS.
 	PUSH   SI			;AN007;MS.
 	REPZ   CMPSB			;AN007;MS. same name ?
 	JNZ    not_matched		;AN007;MS. no
-	MOV    AX,ES:[DI]		;AN007;MS. get special version
-	MOV    CS:[Special_Version],AX	;AN007;MS. save it
-	MOV    AL,ES:[DI+2]		;AN008;MS. get fake count
-	MOV    CS:[Fake_Count],AL	;AN007;MS. save it
+	MOV    AX,[ES:DI]		;AN007;MS. get special version
+	MOV    [CS:Special_Version],AX	;AN007;MS. save it
+	MOV    AL,[ES:DI+2]		;AN008;MS. get fake count
+	MOV    [CS:Fake_Count],AL	;AN007;MS. save it
 	POP    SI			;AN007;MS.
 	POP    CX			;AN007;MS.
 	JMP    SHORT end_list		;AN007;MS.
@@ -909,7 +909,7 @@ not_matched:				;AN007;MS.
 	POP    SI			;AN007;MS. restore si,cx
 	POP    CX			;AN007;MS.
 skipone:				;AN007;MS.
-	MOV    DI,CS:[Temp_Var2]	;AN007;MS. restore old di
+	MOV    DI,[CS:Temp_Var2]	;AN007;MS. restore old di
 	XOR    AH,AH			;AN007;MS. position to next entry
 	ADD    DI,AX			;AN007;MS.
 	ADD    DI,4			;AN007;MS.
@@ -922,9 +922,9 @@ EndProc Scan_Special_Entries		;AN000;;MS.
 
 Procedure    Reset_Version,near 	;AN008;MS.
 
-	CMP    CS:[Fake_Count],0FFH	;AN008;MS.
+	CMP    [CS:Fake_Count],0FFH	;AN008;MS.
 	JNZ    dont_reset		;AN008;MS.
-	MOV    CS:[Special_Version],0	;AN008;MS. reset to current version
+	MOV    [CS:Special_Version],0	;AN008;MS. reset to current version
 dont_reset:
 	return
 EndProc Reset_Version,near		;AN008;;MS.

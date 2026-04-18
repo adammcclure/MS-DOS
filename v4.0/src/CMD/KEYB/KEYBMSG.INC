@@ -1,4 +1,4 @@
-.XLIST
+; .XLIST
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -20,25 +20,25 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-	EXTRN	 ACT_KEYB_CP :BYTE     ;;
-	EXTRN	 ACT_CON_CP  :BYTE     ;;
-	EXTRN	 ACT_KEYB    :BYTE     ;;
-	EXTRN	 INV_L	     :BYTE     ;;
-	EXTRN	 INV_I	     :BYTE     ;;
-	EXTRN	 INV_CP      :BYTE     ;;
-	EXTRN	 INV_S	     :BYTE     ;;
-	EXTRN	 INV_FN      :BYTE     ;;
-	EXTRN	 INV_KEYB_Q  :BYTE     ;;
-	EXTRN	 INV_CON_Q   :BYTE     ;;
-	EXTRN	 NOT_DESIG   :BYTE     ;;
-	EXTRN	 NOT_SUPP    :BYTE     ;;
-	EXTRN	 NOT_VALID1  :BYTE     ;;
-	EXTRN	 NOT_VALID2  :BYTE     ;;
-	EXTRN	 WARNING_1   :BYTE     ;;
-	EXTRN	 INV_COMBO   :BYTE     ;;
-	EXTRN	 CR_LF	     :BYTE     ;;
-	EXTRN	 MEMORY_OVERF :BYTE    ;;
+	extern ACT_KEYB_CP;;
+	extern ACT_CON_CP;;
+	extern ACT_KEYB;;
+	extern INV_L;;
+	extern INV_I;;
+	extern INV_CP;;
+	extern INV_S;;
+	extern INV_FN;;
+	extern INV_KEYB_Q;;
+	extern INV_CON_Q;;
+	extern NOT_DESIG;;
+	extern NOT_SUPP;;
+	extern NOT_VALID1;;
+	extern NOT_VALID2;;
+	extern WARNING_1;;
+	extern INV_COMBO;;
+	extern CR_LF;;
+	extern MEMORY_OVERF;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-.LIST
+; .LIST

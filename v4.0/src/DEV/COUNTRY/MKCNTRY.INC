@@ -80,61 +80,61 @@ DATE_MDY        EQU     0
 DATE_DMY        EQU     1
 DATE_YMD        EQU     2
 ;
-CTRYSTR STRUC
+struc CTRYSTR
 ESIZE   DW      0                       ; SIZE OF ENTRY
 CNTRYID DW      0                       ; COUNTRY ID
 CODPAGE DW      0                       ; CODE PAGE ID
 RESV1   DW      0                       ; RESERVED
 RESV2   DW      0                       ; RESERVED
 CDPOINT DW      0                       ; POINTER TO COUNTRY DATA
-        DW      0
-CTRYSTR ENDS
+        resw 1
+endstruc
 
-CTRYENT MACRO PARMS
+%macro CTRYENT 1
           CTRYSTR <PARMS>
-CNTRYCNT = CNTRYCNT+1
-        ENDM
+CNTRYCNT equ CNTRYCNT+1
+        %endmacro
 ;
-CTRYDAT STRUC
-        DW      0
-        DB      0
-        DB      0
-        DW      0
-        DW      0
-CTRYDAT ENDS
+struc CTRYDAT
+        resw 1
+        resb 1
+        resb 1
+        resw 1
+        resw 1
+endstruc
 ;
-CINFO   STRUC
-        DW      0                       ; COUNTRY ID
-        DW      0                       ; CODE PAGE
-        DW      0                       ; DATE FORMAT
-        DB      0                       ; CURRENCY SYMBOL (5 BYTES)
-        DB      0
-        DB      0
-        DB      0
-        DB      0
-        DB      0                       ; 1000 SEPARATOR
-        DB      0
-        DB      0                       ; DECIMAL SEPARATOR
-        DB      0
-        DB      0                       ; DATE SEPARATOR
-        DB      0
-        DB      0                       ; TIME SEPARATOR
-        DB      0
-        DB      0                       ; CURRENCY FORMAT FLAGS
-        DB      0                       ; DIGITS IN CURRENCY
-        DB      0                       ; TIME FORMAT
-        DD      0                       ; RESERVED
-        DB      0                       ; DATA LIST SEPARATOR
-        DB      0
-        DW      5 DUP (0)               ; RESERVED
-CINFO   ENDS
+struc CINFO
+        resw 1; COUNTRY ID
+        resw 1; CODE PAGE
+        resw 1; DATE FORMAT
+        resb 1; CURRENCY SYMBOL (5 BYTES)
+        resb 1
+        resb 1
+        resb 1
+        resb 1
+        resb 1; 1000 SEPARATOR
+        resb 1
+        resb 1; DECIMAL SEPARATOR
+        resb 1
+        resb 1; DATE SEPARATOR
+        resb 1
+        resb 1; TIME SEPARATOR
+        resb 1
+        resb 1; CURRENCY FORMAT FLAGS
+        resb 1; DIGITS IN CURRENCY
+        resb 1; TIME FORMAT
+        resd 1; RESERVED
+        resb 1; DATA LIST SEPARATOR
+        resb 1
+        resb 10; RESERVED
+endstruc
 ;
 CINFOSIZE       EQU     TYPE CINFO      ; SIZE OF COUNTRY INFO TABLE
 ;
-CTABLE  STRUC
-        DB      0FFh
-        DB      'CTYINFO'
-        DW      CINFOSIZE
-CTABLE  ENDS
+struc CTABLE
+        resb 1
+        resb 1
+        resw 1
+endstruc
 ;
 

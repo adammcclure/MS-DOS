@@ -61,7 +61,7 @@ STACKOP:EQU	10H	;Two register arithmetic with pop
 ARITH:	EQU	8	;Non-pop arithmetic operations
 
 	ORG	100H
-	PUT	100H
+	; PUT	100H
 
 	JMPS	BEGIN
 
@@ -77,19 +77,19 @@ BEGIN:
 	MOV	AL,[FCB+17]
 	MOV	[SYMFLG],AL	;Save symbol table request flag
 	MOV	SI,FCB+9	;Point to file extension
-	LODB			;Get source drive letter
+	lodsb;Get source drive letter
 	CALL	CHKDSK		;Valid drive?
 	OR	AL,AL
 	JZ	DEFAULT		;If no extension, use existing drive spec
 	MOV	[FCB],AL
 DEFAULT:
-	LODB			;Get HEX file drive letter
+	lodsb;Get HEX file drive letter
 	CMP	AL,'Z'		;Suppress HEX file?
 	JZ	L0000
 	CALL	CHKDSK
 L0000:	
 	MOV	[HEXFCB],AL
-	LODB			;Get PRN file drive letter
+	lodsb;Get PRN file drive letter
 	MOV	AH,0		;Signal no PRN file
 	CMP	AL,'Z'		;Suppress PRN file?
 	JZ	NOPRN
@@ -108,9 +108,9 @@ NOPRN:
 	MOV	[LSTDEV],AH	;Flag device for list ouput
 	MOV	SI,EXTEND
 	MOV	DI,FCB+9
-	MOVW
-	MOVB			;Set extension to ASM
-	MOVW			;Zero extent field
+	movsw
+	movsb;Set extension to ASM
+	movsw;Zero extent field
 	MOV	DX,FCB
 	MOV	AH,OPEN
 	INT	33
@@ -194,14 +194,14 @@ PRERR:
 
 MAKFIL:
 	MOV	SI,DX
-	LODB			;Get drive select byte
+	lodsb;Get drive select byte
 	CMP	AL,20H		;If not valid, don't make file
 	JNC	RET
 	MOV	CX,4
 	MOV	DI,SI
 	MOV	SI,FCB+1
 	REP
-	MOVW			;Copy source file name
+	movsw;Copy source file name
 	MOV	AH,MAKE
 	INT	33
 	MOV	[DI-9+14],1	;Set record length to 1 byte
@@ -246,7 +246,7 @@ NEXTCHR:
 	MOV	AL,1AH		;Possibly signal End of File
 	JZ	NOMOD		;If nothing read
 GETCH:
-	LODB
+	lodsb
 	CMP	SI,SRCBUF+BUFSIZ
 	JNZ	NOMOD
 	MOV	SI,SRCBUF
@@ -665,7 +665,7 @@ BXJ:
 PAREN:
 	CALL	GETSYM		;Eat the "("
 	CALL	EXPRESSION
-	CMP	B,[SYM],")"	;Better have closing paren
+	CMP	byte [SYM],")"	;Better have closing paren
 	MOV	CL,20
 	JNZ	ERR30
 	RET
@@ -792,7 +792,7 @@ GETSY:
 	CMP	AL,'0'
 	JC	NEXTCHJ
 	MOV	BX,SYM
-	MOV	B,[BX],CONST
+	MOV	byte [BX],CONST
 	CALL	READID
 	DEC	BX
 	MOV	AL,[BX]
@@ -829,7 +829,7 @@ HEX:
 	DEC	CH
 HEX1:
 	MOV	SI,DX
-	LODB
+	lodsb
 	INC	DX
 	SUB	AL,'0'
 	CMP	AL,10
@@ -899,7 +899,7 @@ LETTER:
 	MOV	DI,FLGTAB
 	UP
 	REPNE
-	SCAB			;See if one of B,W,S,L,T
+	scasb;See if one of B,W,S,L,T
 	JZ	SAVFLG		;Go save flag
 	XOR	AL,AL
 	MOV	CH,[LENID]
@@ -1005,7 +1005,7 @@ SCANREG:
 	UP
 	MOV	DI,BX
 	REPNZ
-	SCAB
+	scasb
 	MOV	BX,DI
 	JNZ	RET
 	MOV	AL,CL
@@ -1053,11 +1053,11 @@ LOOKRET:
 	CMP	AL,3	;RET has 3 letters
 	JNZ	LOOKUP
 	DEC	BX
-	OR	B,[BX],080H
+	OR	byte [BX],080H
 	MOV	DX,RETSTR+2
 CHKRET:
 	MOV	SI,DX
-	LODB
+	lodsb
 	CMP	AL,[BX]
 	JNZ	LOOKIT
 	DEC	BX
@@ -1094,7 +1094,7 @@ ALLRET:
 
 LOOKUP:
 	DEC	BX
-	OR	B,[BX],080H
+	OR	byte [BX],080H
 LOOKIT:
 	MOV	BX,[BASE]
 	MOV	AL,BH
@@ -1165,7 +1165,7 @@ CREATE:
 	MOV	SI,BX
 	MOV	DI,DX
 	REP
-	MOVB			;Move identifier and length into node
+	movsb;Move identifier and length into node
 	MOV	DX,DI
 	MOV	BX,SI
 	MOV	CH,4
@@ -1182,7 +1182,7 @@ NILIFY:
 
 CPSLP:
 	MOV	SI,DX
-	LODB
+	lodsb
 	CMP	AL,[BX]
 	LAHF
 	INC	DX
@@ -1196,7 +1196,7 @@ CPSLP:
 GETLAB:
 	MOV	BX,0
 	MOV	[LABPT],BX
-	MOV	B,[FLAG],-1
+	MOV	byte [FLAG],-1
 	MOV	DH,0
 	MOV	AL,[CHR]
 	CMP	AL,' '+1
@@ -1222,7 +1222,7 @@ LABEL:
 	MOV	CL,11
 	JNZ	ERR5
 	MOV	DX,[PC]
-	MOV	B,[BX],1
+	MOV	byte [BX],1
 	INC	BX
 	MOV	[BX],DX
 	MOV	[LABPT],BX
@@ -1231,7 +1231,7 @@ LABEL:
 ERR5:	JMP	ERROR
 
 ASMLIN:
-	MOV	B,[MAXFLG],1	;Allow only B and W flags normally
+	MOV	byte [MAXFLG],1	;Allow only B and W flags normally
 	MOV	BX,[PC]
 	MOV	[OLDPC],BX
 	CALL	GETLAB
@@ -1244,7 +1244,7 @@ ASMLIN:
 	MOV	CH,AL
 	JC	ERR5
 	INC	BX
-	CMP	B,[BX],"f"	;See if an 8087 mnemonic
+	CMP	byte [BX],"f"	;See if an 8087 mnemonic
 	JZ	NDPOP
 	CMP	AL,5
 	JNC	ERR5
@@ -1290,9 +1290,9 @@ HAVOP:
 	JMP	[BX]
 
 NDPOP:	;First letter is "F" so must be 8087 opcode ("Numeric Data Processor")
-	MOV	B,[MAXFLG],4	;Allow all type flags
+	MOV	byte [MAXFLG],4	;Allow all type flags
 	INC	BX
-	CMP	B,[BX],"n"	;"No-wait" form?
+	CMP	byte [BX],"n"	;"No-wait" form?
 	MOV	AH,0
 	JNZ	SAVNFLG
 	MOV	AH,1
@@ -1307,7 +1307,7 @@ SAVNFLG:
 	CBW
 	XCHG	AX,DX		;Save length in DX
 	MOV	SI,DX
-	OR	B,[SI+BX],80H	;Set high bit of last character
+	OR	byte [SI+BX],80H	;Set high bit of last character
 	MOV	AL,[BX]		;Get first char of opcode
 	INC	BX
 	SUB	AL,"a"
@@ -1327,7 +1327,7 @@ FNDNDP:
 	MOV	SI,BX		;Pointer to start of opcode
 	MOV	CX,DX		;Get length of opcode
 	REPE
-	CMPB			;Compare opcode to table entry
+	cmpsb;Compare opcode to table entry
 	JZ	HAVNDP
 	DEC	DI		;Back up in case that was last letter
 	MOV	AL,80H		;Look for char with high bit set
@@ -1349,7 +1349,7 @@ SPECIALOP:
 	AND	AL,7		;Mask to special op number
 	JZ	FWAIT		;If zero, go handle FWAIT
 ;Handle FNOP
-	CMP	B,[NOWAIT],0	;Was "N" present (If not opcode was "FOP")
+	CMP	byte [NOWAIT],0	;Was "N" present (If not opcode was "FOP")
 	JZ	OPERR
 	MOV	AL,9BH		;Need Wait opcode after all
 	CALL	PUT
@@ -1359,18 +1359,18 @@ SPECIALOP:
 	JMP	PUT
 
 FWAIT:
-	CMP	B,[NOWAIT],0	;"FNWAIT" not legal
+	CMP	byte [NOWAIT],0	;"FNWAIT" not legal
 	JNZ	OPERRJ
 	RET			;Nothing to do - "WAIT" already sent
 
 HAVNDP:
 	MOV	SI,DI
-	CMP	B,[NOWAIT],0
+	CMP	byte [NOWAIT],0
 	JNZ	NWAIT
 	MOV	AL,9BH		;Wait opcode
 	CALL	PUT
 NWAIT:
-	LODW			;Get opcode info
+	lodsw;Get opcode info
 	TEST	AL,0F8H		;Any operand bits set?
 	JZ	NOOPS		;If no operands, output code
 	TEST	AL,78H		;Special case?
@@ -1582,12 +1582,12 @@ GEN1:
 	RCL	AL
 	MOV	[RELOC],AL
 	MOV	BX,BCOUNT
-	DEC	B,[BX]
+	DEC	byte [BX]
 	JNZ	RET
-	MOV	B,[BX],4
+	MOV	byte [BX],4
 	MOV	BX,RELOC
 	MOV	AL,[BX]
-	MOV	B,[BX],0
+	MOV	byte [BX],0
 	MOV	DI,[IY]
 	MOV	[DI],AL
 	MOV	BX,[CODE]
@@ -1600,7 +1600,7 @@ PUTINC:
 	INC	[PC]
 PUTCD:
 	MOV	DI,[CODE]
-	STOB
+	stosb
 	MOV	[CODE],DI
 	RET
 
@@ -2004,7 +2004,7 @@ GRP14:
 	XCHG	AH,AL
 	PUSH	AX
 	XCHG	AH,AL
-	MOV	B,[MAXFLG],3	;Allow "L" flag
+	MOV	byte [MAXFLG],3	;Allow "L" flag
 	CALL	GETOP
 	CMP	AL,CONST
 	JZ	DIRECT
@@ -2120,7 +2120,7 @@ NODEC:
 	MOV	AL,BH
 	OR	AL,BL
 	JZ	DORET
-	MOV	B,[BX],1
+	MOV	byte [BX],1
 	INC	BX
 	MOV	[BX],DX
 	MOV	BX,0
@@ -2288,11 +2288,11 @@ SAVDAT:
 IF:
 	OR	BX,BX
 	JZ	SKIPCD
-	INC	B,[IFFLG]
+	INC	byte [IFFLG]
 	RET
 
 SKIPCD:
-	INC	B,[CHKLAB]
+	INC	byte [CHKLAB]
 SKIPLP:
 	XOR	AL,AL
 	CALL	NEXLIN
@@ -2307,24 +2307,24 @@ SKIPLP:
 	MOV	CL,[DI]
 	INC	CL
 	REPE
-	CMPB
+	cmpsb
 	JZ	ENDCOND
 	MOV	DI,LENID
 	MOV	SI,IFNEST
 	MOV	CL,[DI]
 	INC	CL
 	REPE
-	CMPB
+	cmpsb
 	JNZ	SKIPLP
-	INC	B,[CHKLAB]
+	INC	byte [CHKLAB]
 	JP	SKIPLP
 
 ENDCOND:
-	DEC	B,[CHKLAB]
+	DEC	byte [CHKLAB]
 	JNZ	SKIPLP
 	RET
 
-ENDIF:
+%endif
 	MOV	AL,[IFFLG]
 	MOV	CL,36
 	DEC	AL
@@ -2349,7 +2349,7 @@ WREND:
 	DEC	DL
 	JNZ	WREND
 	MOV	[BUFPT],SRCBUF
-	MOV	B,[HEXCNT],-5	;FLAG HEX BUFFER AS EMPTY
+	MOV	byte [HEXCNT],-5	;FLAG HEX BUFFER AS EMPTY
 	MOV	[LSTPNT],LSTBUF
 	MOV	[HEXPNT],HEXBUF
 	XOR	AX,AX
@@ -2376,32 +2376,32 @@ NEXBT:
 	SHL	CL		;Shift out last bit of previous code
 	DEC	CH		;Still have codes left?
 	JNZ	TESTTYP
-	LODB			;Get next flag byte
+	lodsb;Get next flag byte
 	MOV	CL,AL
 	MOV	CH,4
 TESTTYP:
 	SHL	CL		;Set flags based on two bits
 	JO	FIXUP
-	LODB
+	lodsb
 	JC	EMARK
 OBJBT:
-	STOB
+	stosb
 	JP	NEXBT
 
 FIXUP:
 ;Either a word or byte fixup is needed from a forward reference
-	LODW			;Get pointer to symbol
+	lodsw;Get pointer to symbol
 	XCHG	AX,BX
-	LODW			;Get constant part
+	lodsw;Get constant part
 	ADD	AX,[BX+1]	;Add symbol value to constant part
-	CMP	B,[BX],0	;See if symbol got defined
+	CMP	byte [BX],0	;See if symbol got defined
 	JNZ	HAVDEF
-	MOV	B,[ERR],100	;Undefined - flag error
+	MOV	byte [ERR],100	;Undefined - flag error
 	XOR	AX,AX
 HAVDEF:
 	OR	CL,CL		;See if word or byte fixup
 	JS	DEFBYT
-	STOW
+	stosw
 	JP	NEXBT
 
 DEFBYT:
@@ -2426,7 +2426,7 @@ DEFBYT:
 	MOV	AL,DL		;Get code byte in AL
 	JNZ	OBJBT		;If not, we're OK
 RNGERR:
-	MOV	B,[ERR],101	;Value out of range
+	MOV	byte [ERR],101	;Value out of range
 	JP	OBJBT
 
 FINIJ:	JMP	FINI
@@ -2452,7 +2452,7 @@ NOERR:
 	SUB	CX,SI		;Get count of bytes of code
 	JZ	SHOLIN
 CODLP:
-	LODB
+	lodsb
 	CALL	SAVCD		;Ouput code to HEX and PRN files
 	LOOP	CODLP
 SHOLIN:
@@ -2482,7 +2482,7 @@ NOFIL:
 
 SPEND:
 	MOV	[SPC],AL	;Record special function
-	LODW			;Get it's data
+	lodsw;Get it's data
 	MOV	[DATA],AX
 	JMP	NEXBT
 
@@ -2585,7 +2585,7 @@ SUPZ:
 	JP	LIST
 
 STRTLIN:
-	MOV	B,[LINFLG],0
+	MOV	byte [LINFLG],0
 	MOV	BX,[PC]
 	MOV	AL,BH
 	CALL	PHEX
@@ -2598,19 +2598,19 @@ LIST:
 	PUSH	DX
 	AND	AL,7FH
 	MOV	DL,AL
-	TEST	B,[LSTDEV],3	;See if output goes to console
+	TEST	byte [LSTDEV],3	;See if output goes to console
 	JZ	PRNCHK
 	MOV	AH,2
 	INT	33		;Output to console
 PRNCHK:
-	TEST	B,[LSTDEV],4	;See if output goes to printer
+	TEST	byte [LSTDEV],4	;See if output goes to printer
 	JZ	FILCHK
 	MOV	AH,5
 	INT	33		;Output to printer
 FILCHK:
 	MOV	AL,DL
 	POP	DX
-	TEST	B,[LSTDEV],80H	;See if output goes to a file
+	TEST	byte [LSTDEV],80H	;See if output goes to a file
 	JZ	LISTRET
 	CALL	WRTBUF
 LISTRET:
@@ -2620,7 +2620,7 @@ LISTRET:
 WRTBUF:
 	PUSH	DI
 	MOV	DI,[LSTPNT]
-	STOB
+	stosb
 	CMP	DI,LSTBUF+LSTBUFSIZ
 	JNZ	SAVPT
 	PUSH	AX
@@ -2644,7 +2644,7 @@ PHEX:
 	JP	LIST
 
 FINI:
-	OR	B,[LSTDEV],1
+	OR	byte [LSTDEV],1
 	CALL	PRTCNT
 	MOV	BX,SYMSIZE
 	MOV	AX,[6]
@@ -2654,7 +2654,7 @@ FINI:
 	MOV	AX,[HEAP]
 	SUB	AX,[CODE]		;Free space remaining
 	CALL	PRNT10
-	AND	B,[LSTDEV],0FEH
+	AND	byte [LSTDEV],0FEH
 	MOV	AL,[HEXFCB]
 	CMP	AL,'Z'
 	JZ	SYMDMP
@@ -2699,12 +2699,12 @@ DOSYMTAB:
 	MOV	AL,DH
 	OR	AL,DL
 	JZ	ENDSYM
-	MOV	B,[SYMLIN],SYMWID  ;No symbols on this line yet
+	MOV	byte [SYMLIN],SYMWID  ;No symbols on this line yet
 	MOV	BX,[HEAP]
 	MOV	SP,BX		;Need maximum stack for recursive tree walk
 	CALL	NODE
 ENDSYM:
-	TEST	B,[LSTDEV],80H	;Print listing to file?
+	TEST	byte [LSTDEV],80H	;Print listing to file?
 	JZ	EXIT
 	MOV	AL,1AH
 	CALL	WRTBUF		;Write end-of-file mark
@@ -2762,14 +2762,14 @@ TABVAL:
 	CALL	PHEX
 	MOV	AL,[BX+3]
 	CALL	PHEX
-	CMP	B,[SYMLIN],0	;Will any more fit on line?
+	CMP	byte [SYMLIN],0	;Will any more fit on line?
 	JZ	NEXSYMLIN
 	MOV	AL,9
 	CALL	LIST
 	JP	RIGHTSON
 NEXSYMLIN:
 	CALL	CRLF
-	MOV	B,[SYMLIN],SYMWID
+	MOV	byte [SYMLIN],SYMWID
 RIGHTSON:
 	POP	BX
 	MOV	DX,[BX]
@@ -2786,11 +2786,11 @@ SAVCD:
 	CALL	CODBYT
 	POP	DX
 	MOV	BX,COUNT
-	INC	B,[BX]
+	INC	byte [BX]
 	MOV	AL,[BX]
 	CMP	AL,8
 	JNZ	NOEXT
-	MOV	B,[BX],1
+	MOV	byte [BX],1
 	CALL	OUTLIN
 	MOV	AL,' '
 	MOV	CH,5
@@ -2856,7 +2856,7 @@ SYSTEM:
 	RET
 
 CODBYT:
-	CMP	B,[HEXFCB],"Z"
+	CMP	byte [HEXFCB],"Z"
 	JZ	RET
 	PUSH	AX
 	MOV	DX,[LASTAD]
@@ -2899,7 +2899,7 @@ HEXBYT:
 	CALL	LHALF
 	CALL	PUTCHR
 	MOV	BX,HEXCNT
-	INC	B,[BX]
+	INC	byte [BX]
 	MOV	AL,[BX]
 	CMP	AL,26
 	JNZ	RET
@@ -2907,10 +2907,10 @@ ENHEXL:
 	MOV	DI,[HEXLEN]
 	MOV	CH,AL
 	CALL	UHALF
-	STOB
+	stosb
 	MOV	AL,CH
 	CALL	LHALF
-	STOB
+	stosb
 	MOV	AL,-6
 	MOV	[HEXCNT],AL
 	MOV	AL,[CHKSUM]
@@ -2938,7 +2938,7 @@ WRTHEX:
 
 PUTCHR:
 	MOV	DI,[HEXPNT]
-	STOB
+	stosb
 	MOV	[HEXPNT],DI
 	RET
 
@@ -3945,61 +3945,61 @@ IFEND:	DB	5,'endif'
 IFNEST:	DB	2,'if'
 RETSTR:	DM	'ret'
 HEXFCB:	DB	0,'        HEX',0,0,0,0
-	DS	16
+	times 16 db 0
 	DB	0,0,0,0,0
 LSTFCB:	DB	0,'        PRN',0,0,0,0
-	DS	16
+	times 16 db 0
 	DB	0,0,0,0,0
-PC:	DS	2
-OLDPC:	DS	2
-LABPT:	DS	2
-FLAG:	DS	1
-MAXFLG:	DS	1
-ADDR:	DS	2
-ALABEL:	DS	2
-DATA:	DS	2
-DLABEL:	DS	2
-CON:	DS	2
-UNDEF:	DS	2
-LENID:	DS	1
-ID:	DS	80
-CHR:	DS	1
-SYM:	DS	1
-BASE:	DS	2
-HEAP:	DS	2
-SYMFLG:	DS	1
-SYMLIN:	DS	1
-CODE:	DS	2
-DATSIZ:	DS	1
-RELOC:	DS	1
-BCOUNT:	DS	1
-COUNT:	DS	1
-ERR:	DS	1
-LINE:	DS	2
-HEXLEN:	DS	2
-HEXADD:	DS	2
-LASTAD:	DS	2
-HEXCNT:	DS	1
-CHKSUM:	DS	1
-LINFLG:	DS	1
-PREV:	DS	1
-IFFLG:	DS	1
-CHKLAB:	DS	1
-ERRCNT:	DS	2
-LSTRET:	DS	2
-RETPT:	DS	2
-LSTDEV:	DS	2
-SPC:	DS	1
-NOWAIT:	DS	1
-IX:	DS	2
-IY:	DS	2
-HEXPNT:	DS	2
-LSTPNT:	DS	2
-HEXBUF:	DS	HEXBUFSIZ
-LSTBUF:	DS	LSTBUFSIZ
-BUFPT:	DS	2
-SRCBUF:	DS	BUFSIZ
-	DS	100H
+PC: times 2 db 0
+OLDPC: times 2 db 0
+LABPT: times 2 db 0
+FLAG: times 1 db 0
+MAXFLG: times 1 db 0
+ADDR: times 2 db 0
+ALABEL: times 2 db 0
+DATA: times 2 db 0
+DLABEL: times 2 db 0
+CON: times 2 db 0
+UNDEF: times 2 db 0
+LENID: times 1 db 0
+ID: times 80 db 0
+CHR: times 1 db 0
+SYM: times 1 db 0
+BASE: times 2 db 0
+HEAP: times 2 db 0
+SYMFLG: times 1 db 0
+SYMLIN: times 1 db 0
+CODE: times 2 db 0
+DATSIZ: times 1 db 0
+RELOC: times 1 db 0
+BCOUNT: times 1 db 0
+COUNT: times 1 db 0
+ERR: times 1 db 0
+LINE: times 2 db 0
+HEXLEN: times 2 db 0
+HEXADD: times 2 db 0
+LASTAD: times 2 db 0
+HEXCNT: times 1 db 0
+CHKSUM: times 1 db 0
+LINFLG: times 1 db 0
+PREV: times 1 db 0
+IFFLG: times 1 db 0
+CHKLAB: times 1 db 0
+ERRCNT: times 2 db 0
+LSTRET: times 2 db 0
+RETPT: times 2 db 0
+LSTDEV: times 2 db 0
+SPC: times 1 db 0
+NOWAIT: times 1 db 0
+IX: times 2 db 0
+IY: times 2 db 0
+HEXPNT: times 2 db 0
+LSTPNT: times 2 db 0
+HEXBUF: times HEXBUFSIZ db 0
+LSTBUF: times LSTBUFSIZ db 0
+BUFPT: times 2 db 0
+SRCBUF: times BUFSIZ db 0
+	times 100H db 0
 	ALIGN
 STACK:	EQU	$
 START:	EQU	$

@@ -1,46 +1,46 @@
-TITLE	CHKDISK  - procedures that read or write to the disk
-page	,132					;
+; TITLE	CHKDISK  - procedures that read or write to the disk
+; page	,132;
 
-	.xlist
-	include chkseg.inc							;an005;bgb
-	INCLUDE CHKCHNG.INC
-	INCLUDE DOSSYM.INC
-	INCLUDE CHKEQU.INC
-	INCLUDE CHKMACRO.INC
-	include pathmac.inc
+	; .xlist
+	%include "chkseg.inc";an005;bgb
+	%include "CHKCHNG.INC"
+	%include "DOSSYM.INC"
+	%include "CHKEQU.INC"
+	%include "CHKMACRO.INC"
+	%include "pathmac.inc"
 
 
-CONST	SEGMENT PUBLIC PARA  'DATA'
-	EXTRN	FIXMES_ARG:word
-	EXTRN	BADW_ARG:word
-	EXTRN	badrw_num:word,BADRW_STR:WORD,HAVFIX:byte
-	EXTRN	DIRTYFAT:byte,DOFIX:byte,SECONDPASS:byte
-	EXTRN	HECODE:byte,USERDIR:byte,FRAGMENT:byte
-	EXTRN	ORPHEXT:byte,ALLDRV:byte,FIXMFLG:byte,DIRCHAR:byte
-	EXTRN	EOFVAL:word,BADVAL:word
-	extrn	fTrunc:BYTE
-CONST	ENDS
+SECTION .CONST
+	extern FIXMES_ARG
+	extern BADW_ARG
+	extern badrw_num,BADRW_STR,HAVFIX
+	extern DIRTYFAT,DOFIX,SECONDPASS
+	extern HECODE,USERDIR,FRAGMENT
+	extern ORPHEXT,ALLDRV,FIXMFLG,DIRCHAR
+	extern EOFVAL,BADVAL
+	extern fTrunc
+; END SECTION .CONST
 
-DATA	SEGMENT PUBLIC PARA 'DATA'
-	EXTRN	THISDPB:dword,NUL_ARG:byte
-	EXTRN	NAMBUF:byte,SRFCBPT:word,FATMAP:word
-	EXTRN	USERDEV:byte,HARDCH:dword,CONTCH:dword
-	EXTRN	ExitStatus:Byte,Read_Write_Relative:Byte
-	extrn	bytes_per_sector:word						;an005;bgb
-	extrn	sec_count:word, paras_per_64k:word, secs_per_64k:word		 ;an005;bgb
-	extrn	fattbl_seg:word, paras_per_fat:word		       ;an005;bgb
-DATA	ENDS
+SECTION .DATA
+	extern THISDPB,NUL_ARG
+	extern NAMBUF,SRFCBPT,FATMAP
+	extern USERDEV,HARDCH,CONTCH
+	extern ExitStatus,Read_Write_Relative
+	extern bytes_per_sector;an005;bgb
+	extern sec_count, paras_per_64k, secs_per_64k;an005;bgb
+	extern fattbl_seg, paras_per_fat;an005;bgb
+; END SECTION .DATA
 
-CODE	SEGMENT PUBLIC PARA 'CODE'
-ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
-	EXTRN	FCB_TO_ASCZ:NEAR
-	EXTRN	EPRINT:NEAR
-	EXTRN	PROMPTYN:NEAR,DIRPROC:NEAR
-	EXTRN	DOCRLF:NEAR,UNPACK:NEAR,PACK:NEAR
-	EXTRN	CHECKNOFMES:NEAR
-public read_disk, Read_once, write_disk, Write_once				;an005;bgb
-public ReadFt, seg_adj, calc_sp64k						;an005;bgb
-	.list
+SECTION .CODE
+; ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
+	extern FCB_TO_ASCZ
+	extern EPRINT
+	extern PROMPTYN,DIRPROC
+	extern DOCRLF,UNPACK,PACK
+	extern CHECKNOFMES
+global read_disk, Read_once, write_disk, Write_once;an005;bgb
+global ReadFt, seg_adj, calc_sp64k;an005;bgb
+	; .list
 
 
 	pathlabl chkdisk
@@ -95,7 +95,7 @@ $$EN1:
 	call	read_once	    ;an000;read it				;an005;bgb
 	restorereg <es,dx,cx,bx,ax>						;an005;bgb
 	ret									;an005;bgb
-read_disk	endp								 ;an005;bgb
+; ENDP read_disk;an005;bgb
 										;an005;bgb
 										;an005;bgb
 ;*****************************************************************************	;an005;bgb
@@ -133,13 +133,13 @@ Procedure Read_once				;				;an005;bgb
 	mov	Read_Write_Relative.Buffer_Segment,bx ;Get segment		;an005;bgb
 	mov	Read_Write_Relative.Number_Sectors,cx ;Number of sec to read	;an005;bgb
 	mov	Read_Write_Relative.Start_Sector_Low,dx ;Start sector		;an005;bgb
-	mov	bx,offset Read_Write_Relative	;				;an005;bgb
+	mov	bx,Read_Write_Relative	;				;an005;bgb
 	mov	cx,0FFFFh			;Read relative sector		;an005;bgb
 	INT	25h				;Do the read			;an005;bgb
 	pop dx					;Throw away flags on stack	;an005;bgb
 	restorereg <ds,es,bp,di,si,dx,cx,bx,ax> 				;an005;bgb
 	return									;an005;bgb
- Read_once endp 								;an005;bgb
+ ; ENDP Read_once;an005;bgb
 										;an005;bgb
 										;an005;bgb
 ;=========================================================================	;an005;bgb
@@ -192,7 +192,7 @@ $$EN5:
 	call	write_once		;an000;read it				;an005;bgb
 	restorereg <es,dx,cx,bx,ax>						;an013;bgb
 	ret									;an005;bgb
-write_disk	endp								;an005;bgb
+; ENDP write_disk;an005;bgb
 										;an005;bgb
 ;*****************************************************************************	;an005;bgb
 ;Routine name: Write_once							;an005;bgb
@@ -235,7 +235,7 @@ Procedure Write_once				 ;				;an005;bgb
     pop  dx					 ;flags is returned on the stack;AN005;bgb
     restorereg <ds,es,bp,si,di,dx,cx,bx,ax>	 ;				;AN005;bgb
 	ret					 ;				;AN005;bgb
-Write_once endp 				 ;				;AN005;bgb
+; ENDP Write_once;				;AN005;bgb
 										;an005;bgb
 ;=========================================================================	;an005;bgb
 ; SEG_ADJ	:	This routine adjusts the segment:offset to prevent	;an005;bgb
@@ -259,7 +259,7 @@ procedure	seg_adj 							;an005;bgb
 	mov	bx,dx				;an000;new offset		;an005;bgb
 	restorereg <dx,cx,ax>							;an005;bgb
 	ret									;an005;bgb
-seg_adj 	endp								;an005;bgb
+; ENDP seg_adj;an005;bgb
 										;an005;bgb
 										;an005;bgb
 ;=========================================================================	;an005;bgb
@@ -286,7 +286,7 @@ procedure	calc_sp64k							;an005;bgb
 	mov	paras_per_64k,ax		; = paras per 64k		;an005;bgb
 	restorereg <dx,cx,bx,ax>		;an000;restore dx		;an005;bgb
 	ret					;an000; 			;an005;bgb
-calc_sp64k	endp				;an000; 			;an005;bgb
+; ENDP calc_sp64k;an000; 			;an005;bgb
 										;an005;bgb
 										;an005;bgb
 	Break	<ReadFT - read in the entire fat>				;an005;bgb
@@ -323,6 +323,6 @@ EndProc ReadFt									;an005;bgb
 
 
 	pathlabl chkdisk
-CODE	ENDS
-	END
+; END SECTION .CODE
+	; END
 

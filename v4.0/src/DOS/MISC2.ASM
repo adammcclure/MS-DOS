@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)misc2.asm	1.1 85/04/10
-TITLE MISC2 - Miscellanious routines for MS-DOS
-NAME  MISC2
+; TITLE MISC2 - Miscellanious routines for MS-DOS
+; NAME  MISC2
 ;
 ; Miscellaneous useful routines
 ;
@@ -30,21 +30,21 @@ NAME  MISC2
 ;	A001   DCR 486 - Share installation for >32mb drives
 ;	A006   DCR 503 - fake version number for IBMCACHE
 
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-include dosseg.asm
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-include dossym.inc
-include fastseek.inc		       ;AN000;
-include fastxxxx.inc		       ;AN000;
-.cref
-.list
+; .xcref
+%include "dossym.inc"
+%include "fastseek.inc";AN000;
+%include "fastxxxx.inc";AN000;
+; .cref
+; .list
 
 	i_need	THISCDS,DWORD
 	I_Need	RetryLoop,WORD
@@ -59,11 +59,11 @@ include fastxxxx.inc		       ;AN000;
 	I_need	MSG_EXTERROR,DWORD	;AN000;
 	I_need	fshare,byte		;AN001;
 	I_need	Special_version,WORD	;AN006;
-if debug
+%if debug
 	I_need	BugLev,WORD
 	I_need	BugTyp,WORD
-include bugtyp.asm
-endif
+%include "bugtyp.asm"
+%endif
 
 Break <STRCMP - compare two ASCIZ strings DS:SI to ES:DI>
 
@@ -75,11 +75,11 @@ Break <STRCMP - compare two ASCIZ strings DS:SI to ES:DI>
 ;   Registers modified: NONE
 
 Procedure   StrCmp,NEAR
-	ASSUME	CS:DOSGroup,SS:DOSGroup,DS:NOTHING,ES:NOTHING
+	; ASSUME	CS:DOSGroup,SS:DOSGroup,DS:NOTHING,ES:NOTHING
 	SaveReg <SI,DI,AX>
 Cmplp:
 	LODSB
- IF  DBCS				;AN000;
+ %if DBCS;AN000;
 	invoke	testkanj		;AN000;; 2/13/KK
 	jz	notkanj1		;AN000;; 2/13/KK
 	dec	si			;AN000;; Do source again 2/13/KK
@@ -87,14 +87,14 @@ Cmplp:
 	JNZ	PopRet			;AN000;; Strings dif	 2/13/KK
 	cmpsb				;AN000;; Second byte of kanji char 2/13/KK
 	JNZ	PopRet			;AN000;; Strings dif	 2/13/KK
-	mov	al,byte ptr [SI-1]	;AN000;; Need last byte in AL  2/13/KK
+	mov	al,byte [SI-1]	;AN000;; Need last byte in AL  2/13/KK
 	jmp	short Tend		;AN000;
 notkanj1:				;AN000;; 2/13/KK
- ENDIF					;AN000;
+ %endif;AN000;
 	CALL	uCase			; convert to upper case
 	Invoke	PathChrCmp		; convert / to \
 	MOV	AH,AL
-	MOV	AL,ES:[DI]
+	MOV	AL,[ES:DI]
 	INC	DI
 	CALL	uCase			; convert to upper case
 	Invoke	PathChrCmp		; convert / to \
@@ -122,11 +122,11 @@ Break <STRCPY - copy ASCIZ string from DS:SI to ES:DI>
 ;   Registers modified: SI,DI
 
 Procedure   StrCpy,NEAR
-	ASSUME	CS:DOSGroup,SS:DOSGroup,DS:NOTHING,ES:NOTHING
+	; ASSUME	CS:DOSGroup,SS:DOSGroup,DS:NOTHING,ES:NOTHING
 	SaveReg <AX>
 CPYLoop:
 	LODSB
- IF  DBCS			;AN000;
+ %if DBCS;AN000;
 	invoke	testkanj	;AN000;; 2/13/KK
 	jz	notkanj2	;AN000;; 2/13/KK
 	STOSB			;AN000;; 2/13/KK
@@ -135,7 +135,7 @@ CPYLoop:
 	jmp	short CPYLoop	;AN000;; 3/31/KK
 
 notkanj2:			;AN000;; 2/13/KK
- ENDIF				;AN000;
+ %endif;AN000;
 	CALL	uCase			; convert to upper case
 	Invoke	PathChrCmp		; convert / to \
 	STOSB
@@ -147,7 +147,7 @@ Tend2:
 EndProc StrCpy
 
 Procedure   FStrCpy,NEAR
-	ASSUME	CS:DOSGroup,SS:DOSGroup,DS:NOTHING,ES:NOTHING
+	; ASSUME	CS:DOSGroup,SS:DOSGroup,DS:NOTHING,ES:NOTHING
 	SaveReg <AX>
 FCPYLoop:
 	LODSB
@@ -185,7 +185,7 @@ Break <StrLen - compute length of string ES:DI>
 ;   Registers modified: CX
 
 Procedure   StrLen,NEAR
-	ASSUME	CS:DOSGroup,SS:DOSGroup,DS:NOTHING,ES:NOTHING
+	; ASSUME	CS:DOSGroup,SS:DOSGroup,DS:NOTHING,ES:NOTHING
 	PUSH	DI
 	PUSH	AX
 	MOV	CX,-1
@@ -229,7 +229,7 @@ Break	<Idle - wait for a specified amount of time>
 ;   Registers modified: none
 
 Procedure   Idle,NEAR
-	ASSUME	CS:DOSGroup,SS:DOSGROUP,DS:NOTHING,ES:NOTHING
+	; ASSUME	CS:DOSGroup,SS:DOSGROUP,DS:NOTHING,ES:NOTHING
 	TEST	fSharing,-1
 	retnz
 	SaveReg <CX>
@@ -257,31 +257,31 @@ Break	<TableDispatch - dispatch to a table>
 ;		return indicates invalid index
 ;   Registers modified: none.
 
-TableFrame  STRUC
-OldBP	DW  ?
-OldRet	DW  ?
-Index	DB  ?
-Pad	DB  ?
-Tab	DW  ?
-NewRet	DW  ?
-TableFrame  ENDS
+struc TableFrame
+OldBP: resw 1
+OldRet: resw 1
+Index: resb 1
+Pad: resb 1
+Tab: resw 1
+NewRet: resw 1
+endstruc
 
 procedure   TableDispatch,NEAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,SS:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGroup,DS:NOTHING,SS:NOTHING,SS:NOTHING
 	PUSH	BP
 	MOV	BP,SP
 	PUSH	BX			; save BX
-	MOV	BX,[BP.Tab]		; get pointer to table
-	MOV	BL,CS:[BX]		; maximum index
-	CMP	[BP.Index],BL		; table error?
+	MOV	BX,[BP+Tab]		; get pointer to table
+	MOV	BL,[CS:BX]		; maximum index
+	CMP	[BP+Index],BL		; table error?
 	JAE	TableError		; yes
-	MOV	BL,[BP.Index]		; get desired table index
+	MOV	BL,[BP+Index]		; get desired table index
 	XOR	BH,BH			; convert to word
 	SHL	BX,1			; convert to word pointer
 	INC	BX			; point past first length byte
-	ADD	BX,[BP.Tab]		; get real offset
-	MOV	BX,CS:[BX]		; get contents of table entry
-	MOV	[BP.Tab],BX		; put table entry into return address
+	ADD	BX,[BP+Tab]		; get real offset
+	MOV	BX,[CS:BX]		; get contents of table entry
+	MOV	[BP+Tab],BX		; put table entry into return address
 	POP	BX			; restore BX
 	POP	BP			; restore BP
 	ADD	SP,4			; clean off Index and our return addr
@@ -305,11 +305,11 @@ Break	<TestNet - determine if a CDS is for the network>
 ;   Registers modified: none.
 
 Procedure   TestNet,NEAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	LES	DI,ThisCDS
 	CMP	DI,-1
 	JZ	CMCRet			; UNC? carry is clear
-	TEST	ES:[DI].curdir_flags,curdir_isnet
+	TEST	[ES:DI].curdir_flags,curdir_isnet
 	JNZ	CMCret			; jump has carry clear
 	return				; carry is clear
 CMCRet: CMC
@@ -330,8 +330,8 @@ Break	<IsSFTNet - see if an sft is for the network>
 ;   Registers modified: none.
 
 Procedure   IsSFTNet,NEAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
-	TEST	ES:[DI].sf_flags,sf_isnet
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	TEST	[ES:DI].sf_flags,sf_isnet
 	return
 EndProc IsSFTNet
 
@@ -350,15 +350,15 @@ Break	<FastInit - Initialize FastTable entries >
 ;
 
 Procedure   FastInit,NEAR				      ;AN000;
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING  ;AN000;
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING;AN000;
 
-	MOV	DI,OFFSET DOSGROUP:FastTable + 2   ;AN000;FO. points to fastxxx entry
+	MOV	DI,FastTable + 2   ;AN000;FO. points to fastxxx entry
 	DEC	BX		  ;AN000;FO.;; decrement index
 	MOV	DX,BX		  ;AN000;FO.;; save bx
 	SHL	BX,1		  ;AN000;FO.;; times 4 , each entry is DWORD
 	SHL	BX,1		  ;AN000;FO.
 	ADD	DI,BX		  ;AN000;FO. index to the entry
-	MOV	AX,WORD PTR CS:[DI+2] ;AN000;FO. get entry segment
+	MOV	AX,word [CS:DI+2] ;AN000;FO. get entry segment
 fcheck: 			      ;AN000;
 	MOV	CX,CS		  ;AN000;FO.;; get DOS segment
 	CMP	AX,CX		  ;AN000;FO.;; first time installed ?
@@ -372,11 +372,11 @@ ok_install:			      ;AN000;
 	JZ	FSret		      ;AN000;FO.;  yes
 	MOV	CX,DS		      ;AN000;FO.;  get FASTXXX entry segment
 	MOV	CX,DS		      ;AN000;FO.;;  get FASTXXX entry segment
-	MOV	WORD PTR CS:[DI+2],CX ;AN000;FO.;;  initialize routine entry
-	MOV	WORD PTR CS:[DI],SI   ;AN000;FO.;;  initialize routine offset
-	MOV	DI,OFFSET DOSGROUP:FastFlg ;AN000;FO.; get addr of FASTXXX flags
+	MOV	word [CS:DI+2],CX ;AN000;FO.;;  initialize routine entry
+	MOV	word [CS:DI],SI   ;AN000;FO.;;  initialize routine offset
+	MOV	DI,FastFlg ;AN000;FO.; get addr of FASTXXX flags
 	ADD	DI,DX			   ;AN000;FO.;	index to a FASTXXX flag
-	OR	byte ptr CS:[DI],Fast_yes  ;AN000;FO.;	indicate installed
+	OR	byte [CS:DI],Fast_yes  ;AN000;FO.;	indicate installed
 
 FSret:					     ;AN000;
 	return				     ;AN000;FO.
@@ -393,7 +393,7 @@ Break	<FastRet - initial routine in FastOpenTable >
 ;   Registers modified: none.
 
 Procedure   FastRet,FAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
 	MOV	AX,-1
 	STC
 	RET
@@ -409,7 +409,7 @@ Break	<NLS_OPEN - do $open for NLSFUNC   >
 ;
 
 Procedure   NLS_OPEN,NEAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ;	MOV	BL,[CPSWFLAG]	 ; disable code page matching logic
 ;	MOV	[CPSWFLAG],0
@@ -433,7 +433,7 @@ Break	<NLS_LSEEK - do $LSEEK for NLSFUNC   >
 ;
 
 Procedure   NLS_LSEEK,NEAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 	PUSH	[user_SP]	 ; save user stack
 	PUSH	[user_SS]
@@ -454,7 +454,7 @@ Break	<Fake_User_Stack - save uesr stack >
 ;
 
 Procedure   Fake_User_Stack,NEAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 	MOV	AX,[User_SP_2F] 	      ; replace with INT 2F stack
 	MOV	[user_SP],AX
@@ -475,13 +475,13 @@ Break	<GetDevList - get device header list pointer>
 ;   Output: AX:BX points to the device header list
 
 Procedure   GetDevList,NEAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:DOSGROUP
 
-	MOV	SI,OFFSET DOSGROUP:SysInitTable
-	LDS	SI,CS:[SI.SYSI_InitVars]
+	MOV	SI,SysInitTable
+	LDS	SI,[CS:SI+SYSI_InitVars]
 
-	MOV	AX,WORD PTR DS:[SI.SYSI_DEV]
-	MOV	BX,WORD PTR DS:[SI.SYSI_DEV+2]
+	MOV	AX,word [DS:SI+SYSI_DEV]
+	MOV	BX,word [DS:SI+SYSI_DEV+2]
 
 	RET
 EndProc GetDevList
@@ -496,7 +496,7 @@ Break	<NLS_IOCTL - do $IOCTL for NLSFUNC   >
 ;
 
 Procedure   NLS_IOCTL,NEAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 	PUSH	[user_SP]	 ; save user stack
 	PUSH	[user_SS]
@@ -518,9 +518,9 @@ Break	<NLS_GETEXT- get extended error for NLSFUNC>
 ;
 
 Procedure   NLS_GETEXT,NEAR
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	MOV	AX,CS:[EXTERR]	 ; return extended error
+	MOV	AX,[CS:EXTERR]	 ; return extended error
 	RET
 EndProc NLS_GETEXT
 
@@ -543,12 +543,12 @@ Break	<MSG_RETRIEVAL- get beginning addr of system and parser messages>
 ;
 
 Procedure   MSG_RETRIEVAL,NEAR					  ;AN000;
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING	  ;AN000;
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING;AN000;
 
 	PUSH	AX		    ;AN000;;MS. save regs
 	PUSH	SI		    ;AN000;;MS. save regs
 	MOV	AX,DX		    ;AN000;;MS.
-	MOV	SI,OFFSET DOSGROUP:MSG_EXTERROR ;AN000;;MS.
+	MOV	SI,MSG_EXTERROR ;AN000;;MS.
 	TEST	AL,1		    ;AN000;;MS. get ?
 	JZ	toget		    ;AN000;;MS. yes
 	DEC	AL		    ;AN000;;MS.
@@ -558,11 +558,11 @@ toget:				    ;AN000;
 	ADD	SI,AX		    ;AN000;;MS. position to the entry
 	TEST	DL,1		    ;AN000;;MS. get ?
 	JZ	getget			     ;AN000;;MS. yes
-	MOV	WORD PTR CS:[SI],DI    ;AN000;;MS. set MSG
-	MOV	WORD PTR CS:[SI+2],ES  ;AN000;;MS. address to ES:DI
+	MOV	word [CS:SI],DI    ;AN000;;MS. set MSG
+	MOV	word [CS:SI+2],ES  ;AN000;;MS. address to ES:DI
 	JMP	SHORT MSGret		     ;AN000;;MS. exit
 getget: 				     ;AN000;
-	LES	DI,DWORD PTR CS:[SI]	     ;AN000;;MS. get msg addr
+	LES	DI,dword [CS:SI]	     ;AN000;;MS. get msg addr
 MSGret: 				     ;AN000;
 	POP	SI			     ;AN000;;MS.
 	POP	AX			     ;AN000;;MS.
@@ -581,7 +581,7 @@ Break	<Fake_version - set/reset version flag>
 ;
 
 Procedure   Fake_version,NEAR					  ;AN000;
-	ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING	  ;AN000;
+	; ASSUME	CS:DOSGroup,DS:NOTHING,ES:NOTHING,SS:NOTHING;AN000;
 
 	MOV	[Special_version],DX   ;AN006;MS.
 	return			       ;AN006;;MS. exit
@@ -590,5 +590,5 @@ EndProc Fake_version		       ;AN006;;MS.
 
 
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END

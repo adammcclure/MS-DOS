@@ -1,5 +1,5 @@
-	PAGE	90,132			;A2
-	TITLE	fastp.asm - fastopen SYSTEM COMMAND LINE PARSER
+	; PAGE	90,132;A2
+	; TITLE	fastp.asm - fastopen SYSTEM COMMAND LINE PARSER
 ;****************** START OF SPECIFICATIONS *****************************
 ; MODULE NAME: fastp.asm
 ;
@@ -83,26 +83,26 @@
 ;PROGRAM AUTHOR: DOS 4.00 P L
 ;
 ;****************** END OF SPECIFICATIONS *****************************
-	IF1				;					;AN000;
-	    %OUT    COMPONENT=fastopen, MODULE=fastp.asm...
-	ENDIF				;					;AN000;
+	%if 1  ; IF1 - pass-specific;					;AN000;
+	    %warning COMPONENT=fastopen, MODULE=fastp.asm...
+	%endif;					;AN000;
 ; =  =	=  =  =  =  =  =  =  =	=  =
 	HEADER	<MACRO DEFINITION>	;					;AN000;
 ; =  =	=  =  =  =  =  =  =  =	=  =
 
-HEADER	MACRO	TEXT			;;					;AN000;
-.XLIST
-	SUBTTL	TEXT
-.LIST
-	PAGE				;;					;AN000;
-	ENDM				;;					;AN000;
+%macro HEADER 1;;					;AN000;
+; .XLIST
+	; SUBTTL	TEXT
+; .LIST
+	; PAGE;;					;AN000;
+	%endmacro;;					;AN000;
 
 ; =  =	=  =  =  =  =  =  =  =	=  =
 	HEADER	<SYSPARSE - SYSTEM COMMAND LINE PARSER> ;			;AN000;
-CSEG_INIT    SEGMENT PARA PUBLIC 'CODE'      ;
-	ASSUME	CS:CSEG_INIT,DS:CSEG_INIT,ES:CSEG_INIT
+SECTION .CSEG_INIT;
+	; ASSUME	CS:CSEG_INIT,DS:CSEG_INIT,ES:CSEG_INIT
 
-	PUBLIC	SYSPARSE		;SUBROUTINE ENTRY POINT 		;AN000;
+	global SYSPARSE;SUBROUTINE ENTRY POINT 		;AN000;
 
 
 INCSW	EQU	1			;INCLUDE PSDATA.INC			;AN000;
@@ -122,10 +122,10 @@ VAL2SW	EQU	0			;SUPPRESS SUPPORT OF VALUE DEFINITION 2 ;AN000;
 VAL3SW	EQU	0			;DO SUPPORT VALUE DEFINITION 3
 
 
-	IF1				;					;AN000;
-	    %OUT    COMPONENT=fastopen, SUBCOMPONENT=PARSE, MODULE=PARSE.ASM...
-	    %OUT    COMPONENT=fastopen, SUBCOMPONENT=PARSE, MODULE=PSDATA.INC...
-	ENDIF				;					;AN000;
-	INCLUDE PARSE.ASM		;					;AN000;
-CSEG_INIT  ENDS 			   ;
-	END				;					;AN000;
+	%if 1  ; IF1 - pass-specific;					;AN000;
+	    %warning COMPONENT=fastopen, SUBCOMPONENT=PARSE, MODULE=PARSE.ASM...
+	    %warning COMPONENT=fastopen, SUBCOMPONENT=PARSE, MODULE=PSDATA.INC...
+	%endif;					;AN000;
+	%include "PARSE.ASM";					;AN000;
+; END SECTION .CSEG_INIT;
+	; END;					;AN000;

@@ -1,8 +1,8 @@
 
 
-	page	58,132
+	; page	58,132
 ;******************************************************************************
-	title	IOTRAP.ASM - Dispatches I/O trap handlers
+	; title	IOTRAP.ASM - Dispatches I/O trap handlers
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -38,15 +38,15 @@
 ;   routine calls the appropriate I/O trap handler for the I/O address.
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	IO_Trap 		; dispatches I/O trap handlers
+	global IO_Trap; dispatches I/O trap handlers
 
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
@@ -55,28 +55,28 @@
 FALSE	equ	0
 TRUE	equ	not FALSE
 
-	include VDMseg.inc
-	include VDMsel.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
 
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 
-_TEXT	segment
+SECTION ._TEXT
 
-extrn	IOTrap_Tab:word 	; System board IO trap routine address table
-extrn	IOT_BadT:near		; Routine to execute for unknown port
+extern IOTrap_Tab; System board IO trap routine address table
+extern IOT_BadT; Routine to execute for unknown port
 ;extrn	IOT_LIM:near		; Routine to handle LIM emulated ports
-extrn	IOT_OEM:near		; Routine to handle OEM specific emulate ports
+extern IOT_OEM; Routine to handle OEM specific emulate ports
 
-_TEXT	ends
+; END SECTION ._TEXT
 
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 
-_TEXT	segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
 
 ;******************************************************************************
 ;   IO_Trap - Dispatches trap handler for an I/O address
@@ -102,7 +102,7 @@ _TEXT	segment
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-IO_Trap proc	near
+IO_Trap:
 ;
 	push	ds
 	push	dx
@@ -156,10 +156,10 @@ IOT_NotSys:
 	jmp	$		;IOT_BadT pops return address off restores regs
 				;	and returns
 
-IO_Trap endp
+; ENDP IO_Trap
 
 
-_TEXT	ends
+; END SECTION ._TEXT
 
-	end
+	; end
 

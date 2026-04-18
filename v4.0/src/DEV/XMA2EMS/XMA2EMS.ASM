@@ -1,48 +1,48 @@
 
-PAGE	85,132				;Set for 5182 Pageprinter
+; PAGE	85,132;Set for 5182 Pageprinter
 					;85 lines per page, 132 col per line
 					;(formerly 60,132)
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ									  บ
-;บ  This is the new version of the XMA2EMS driver for DOS 3.3.		  บ
-;บ  It contains the following revisions and code flags: 		  บ
-;บ									  บ
-;บ     @RH0 - Correct scrolling problem 				  บ
-;บ     @RH1 - Expand table to 32M					  บ
-;บ     @RH2 - Real Mode support (XMA/A card)				  บ
-;บ     @RH3 - Memory Expansion Option (MXO a.k.a. XMO) support		  บ
-;บ     @RH4 - LIM 4.0 support						  บ
-;บ     @RH5 - Multicard support 					  บ
-;บ     @RH6 - WSP interfaces						  บ
-;บ     @RH7 - 386 XMA Emulator support					  บ
-;บ     @RH8 - Make driver reentrant					  บ
-;บ									  บ
-;บ	AN007	P5134	- Provide variable planar size support. 	  บ
-;บ			  Modify linked list to forward link vs. the	  บ
-;บ			  reverse linked list.				  บ
-;บ									  บ
-;บ	AN008	P5150	- Fix incorrect access of slot 0 when no	  บ
-;บ			  Catskill/Holster card is in slot 0.		  บ
-;บ									  บ
-;วฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤถ
-;บ     It should be noted that certain EMS calls will alter the contents  บ
-;บ  of the translate table pointer for any supported memory cards or	  บ
-;บ  emulators (i.e. MXO, XMA, XMA/A cards, 80386 XMA emulator).	 	  บ
-;บ  Therefore, software that writes to the translate table(s) has the	  บ
-;บ  responsiblity of keeping the integrity of the TT pointer.  For	  บ
-;บ  example, programs should disable interrupts between setting the	  บ
-;บ  TT pointer and writing the TT data.  This will prevent: An interrupt  บ
-;บ  occurring between the two, control going to another application	  บ
-;บ  that makes an EMS call and thus screws up the TT ptr.  The EMS calls  บ
-;บ  that do this are:							  บ
-;บ	 Function #   EMS Call						  บ
-;บ	   5	       Map logical to physical page			  บ
-;บ	   8, 15/0     Save (Get) mapping array 			  บ
-;บ	   9, 15/1     Restore (Set) mapping array			  บ
-;บ	   15/2        Get and Set mapping array			  บ
-;บ									  บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ									  ยบ
+;ยบ  This is the new version of the XMA2EMS driver for DOS 3.3.		  ยบ
+;ยบ  It contains the following revisions and code flags: 		  ยบ
+;ยบ									  ยบ
+;ยบ     @RH0 - Correct scrolling problem 				  ยบ
+;ยบ     @RH1 - Expand table to 32M					  ยบ
+;ยบ     @RH2 - Real Mode support (XMA/A card)				  ยบ
+;ยบ     @RH3 - Memory Expansion Option (MXO a.k.a. XMO) support		  ยบ
+;ยบ     @RH4 - LIM 4.0 support						  ยบ
+;ยบ     @RH5 - Multicard support 					  ยบ
+;ยบ     @RH6 - WSP interfaces						  ยบ
+;ยบ     @RH7 - 386 XMA Emulator support					  ยบ
+;ยบ     @RH8 - Make driver reentrant					  ยบ
+;ยบ									  ยบ
+;ยบ	AN007	P5134	- Provide variable planar size support. 	  ยบ
+;ยบ			  Modify linked list to forward link vs. the	  ยบ
+;ยบ			  reverse linked list.				  ยบ
+;ยบ									  ยบ
+;ยบ	AN008	P5150	- Fix incorrect access of slot 0 when no	  ยบ
+;ยบ			  Catskill/Holster card is in slot 0.		  ยบ
+;ยบ									  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยถ
+;ยบ     It should be noted that certain EMS calls will alter the contents  ยบ
+;ยบ  of the translate table pointer for any supported memory cards or	  ยบ
+;ยบ  emulators (i.e. MXO, XMA, XMA/A cards, 80386 XMA emulator).	 	  ยบ
+;ยบ  Therefore, software that writes to the translate table(s) has the	  ยบ
+;ยบ  responsiblity of keeping the integrity of the TT pointer.  For	  ยบ
+;ยบ  example, programs should disable interrupts between setting the	  ยบ
+;ยบ  TT pointer and writing the TT data.  This will prevent: An interrupt  ยบ
+;ยบ  occurring between the two, control going to another application	  ยบ
+;ยบ  that makes an EMS call and thus screws up the TT ptr.  The EMS calls  ยบ
+;ยบ  that do this are:							  ยบ
+;ยบ	 Function #   EMS Call						  ยบ
+;ยบ	   5	       Map logical to physical page			  ยบ
+;ยบ	   8, 15/0     Save (Get) mapping array 			  ยบ
+;ยบ	   9, 15/1     Restore (Set) mapping array			  ยบ
+;ยบ	   15/2        Get and Set mapping array			  ยบ
+;ยบ									  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 ;XMA2EMS provides a Lotus/Intel/Microsoft Expanded Memory (EMS) interface
 ;for the IBM Expanded Memory Adapter (XMA).
@@ -93,19 +93,19 @@ PREV_EXT	   EQU 'EP'             ;  Previously loaded drivers
 					; # of handles supported (40h) is
 					; not above the ascii 'B' (42h)
 WARM_MASK	   EQU	 1			;ISOLATE WARM START BIT
-OFFSET_IN_XREF	   EQU BYTE PTR[BX+SI]
-LENGTH_IN_XREF	   EQU BYTE PTR[BX+SI+1]
-PAGE_LIST_ENTRY    EQU WORD PTR[SI + OFFSET PAGE_ALLOC_LIST]	    ;	   @RH8
-page_table_entry    EQU byte PTR[SI + OFFSET PAGE_ALLOC_table] ;temp for assembl
-XREF_TABLE_ENTRY   EQU word PTR[DI + OFFSET HANDLE_XREF_TABLE]	    ;	   @RH1
+OFFSET_IN_XREF	   EQU byte[BX+SI]
+LENGTH_IN_XREF	   EQU byte[BX+SI+1]
+PAGE_LIST_ENTRY    EQU word[SI + PAGE_ALLOC_LIST]	    ;	   @RH8
+page_table_entry    EQU byte[SI + PAGE_ALLOC_table] ;temp for assembl
+XREF_TABLE_ENTRY   EQU word[DI + HANDLE_XREF_TABLE]	    ;	   @RH1
 NUM_PHYSICAL_PAGES EQU 4
 STACK_SIZE	   EQU	100H
 Instance_Size	   EQU 150		;instance size				;an000; dms;
 Instance_Count	   EQU 3		;number of instances			;an000; dms;
 
-			     ;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-			     ;ณ   Common memory adapter declares	       ณ
-			     ;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+			     ;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+			     ;ยณ   Common memory adapter declares	       ยณ
+			     ;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 SLOT_SETUP	EQU   08h		;Mask to put the desired adapter   @RH2
 					; slot into setup mode, activating @RH2
 					; the 10X registers		   @RH2
@@ -127,21 +127,21 @@ HOLS_REAL	EQU  00010000B		; MXO card			   @RH3
 XMA1A_VIRT	EQU  00000011B		; XMA1 or XMA/A in virtual mode
 WSP_VIRT	EQU  00000111B		; Any virtual mode...banking used
 
-			     ;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-			     ;ณ   XMA, XMA\A, and XMA emulator declares        ณ
-			     ;ณ 					       ณ
-			     ;ณ   The XMA translate table is a 4K x 12 bit     ณ
-			     ;ณ     array.  A 12 bit address points to entries ณ
-			     ;ณ     in the TT.	The data in the entry is:      ณ
-			     ;ณ 					       ณ
-			     ;ณ        Bit    Contents			       ณ
-			     ;ณ 	12     Inhibit bit (1 = inhibit xlate) ณ
-			     ;ณ 	10-0   On XMA 1, pointer to 4K block   ณ
-			     ;ณ 		for up to 4 meg capability     ณ
-			     ;ณ 	11-0   On XMA/A, pointer to 4K block   ณ
-			     ;ณ 		for up to 8 meg capability     ณ
-			     ;ณ 					       ณ
-			     ;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+			     ;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+			     ;ยณ   XMA, XMA\A, and XMA emulator declares        ยณ
+			     ;ยณ 					       ยณ
+			     ;ยณ   The XMA translate table is a 4K x 12 bit     ยณ
+			     ;ยณ     array.  A 12 bit address points to entries ยณ
+			     ;ยณ     in the TT.	The data in the entry is:      ยณ
+			     ;ยณ 					       ยณ
+			     ;ยณ        Bit    Contents			       ยณ
+			     ;ยณ 	12     Inhibit bit (1 = inhibit xlate) ยณ
+			     ;ยณ 	10-0   On XMA 1, pointer to 4K block   ยณ
+			     ;ยณ 		for up to 4 meg capability     ยณ
+			     ;ยณ 	11-0   On XMA/A, pointer to 4K block   ยณ
+			     ;ยณ 		for up to 8 meg capability     ยณ
+			     ;ยณ 					       ยณ
+			     ;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 					;All are byte ports unless indicated
 
 X_CTRL_REG	EQU   102H		;Control register - en/disable functions
@@ -171,19 +171,19 @@ EMUL_TTDATA_ON	EQU   1000000000000000B ;XMA translate table data - mask for
 					; to use more than 8 Meg.  Note that
 					; both 0FFFh and FFFFh are inhibit.
 
-			     ;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-			     ;ณ   MXO declares				       ณ
-			     ;ณ 					       ณ
-			     ;ณ   The MXO translate table is a 1K x 8 bit      ณ
-			     ;ณ     array.  A 10 bit address points to entries ณ
-			     ;ณ     in the TT.	The data in the entry is:      ณ
-			     ;ณ 					       ณ
-			     ;ณ        Bit    Contents			       ณ
-			     ;ณ 	8      Inhibit bit (0 = inhibit xlate) ณ
-			     ;ณ 	7-0    Pointer to 16K block for up to  ณ
-			     ;ณ 		2 meg capability	       ณ
-			     ;ณ 					       ณ
-			     ;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+			     ;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+			     ;ยณ   MXO declares				       ยณ
+			     ;ยณ 					       ยณ
+			     ;ยณ   The MXO translate table is a 1K x 8 bit      ยณ
+			     ;ยณ     array.  A 10 bit address points to entries ยณ
+			     ;ยณ     in the TT.	The data in the entry is:      ยณ
+			     ;ยณ 					       ยณ
+			     ;ยณ        Bit    Contents			       ยณ
+			     ;ยณ 	8      Inhibit bit (0 = inhibit xlate) ยณ
+			     ;ยณ 	7-0    Pointer to 16K block for up to  ยณ
+			     ;ยณ 		2 meg capability	       ยณ
+			     ;ยณ 					       ยณ
+			     ;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 					;All are byte ports
 H_CARD_INFO	EQU   102H		;Info  Bits 7-1 mem size  Bit 0 sleep
 H_CC_PRES	EQU   105H		;Channel check, presence (Bit 0)
@@ -231,22 +231,22 @@ EMS_CODEA2 EQU	0A2h			; Memory wrap error
 EMS_CODEA3 EQU	0A3h			; Data in control structure corrupted
 EMS_CODEA4 EQU	0A4h			; Access to this function denied
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ	 Request Header (Common portion)			       ณ
-;ณ								       ณ
-;ณ	 This structure defines the portion  that is common to	       ณ
-;ณ	 all Request Headers.					       ณ
-;ณ								       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-RH	EQU	DS:[BX] 		;addressability to Request Header structure
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ	 Request Header (Common portion)			       ยณ
+;ยณ								       ยณ
+;ยณ	 This structure defines the portion  that is common to	       ยณ
+;ยณ	 all Request Headers.					       ยณ
+;ยณ								       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+RH	EQU	[DS:BX] 		;addressability to Request Header structure
 
-RHC	STRUC				;fields common to all request types
-	DB	?			;length of Request Header (including data)
-	DB	?			;unit code (subunit)
-RHC_CMD DB	?			;command code
-RHC_STA DW	?			;status
-	DQ	?			;reserved for DOS
-RHC	ENDS				;end of common portion
+struc RHC;fields common to all request types
+	resb 1;length of Request Header (including data)
+	resb 1;unit code (subunit)
+RHC_CMD: resb 1;command code
+RHC_STA: resw 1;status
+	resq 1;reserved for DOS
+endstruc;end of common portion
 
 CMD_INPUT EQU	4			;RHC_CMD is INPUT request
 
@@ -261,110 +261,110 @@ STAT_GENFAIL  EQU 800CH 		;general failure
 NOT_BUSY      EQU 11111101B		;busy bit (9) NOT BUSY mask (high order byte)
 BUSY_MASK     EQU 00000010B		;busy bit (9) BUSY mask (high order byte)
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ	 Request Header for INIT command			       ณ
-;ณ								       ณ
-;ณ	 This structure defines the Request Header for the	       ณ
-;ณ	 INIT command						       ณ
-;ณ								       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-RH0	STRUC
-	DB	(TYPE RHC) DUP (?)	;common portion
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ	 Request Header for INIT command			       ยณ
+;ยณ								       ยณ
+;ยณ	 This structure defines the Request Header for the	       ยณ
+;ยณ	 INIT command						       ยณ
+;ยณ								       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+struc RH0
+	resb 1;common portion
 
-RH0_NUN DB	?			;number of units
+RH0_NUN: resb 1;number of units
 					;set to 1 if installation succeeds,
 					;set to 0 to cause installation failure
-RH0_ENDO DW	?			;offset  of ending address
-RH0_ENDS DW	?			;segment of ending address
-RH0_BPBO DW	?			;offset  of BPB array address
-RH0_BPBS DW	?			;segment of BPB array address
-RH0_DRIV DB	?			;drive code (DOS 3 only)
+RH0_ENDO: resw 1;offset  of ending address
+RH0_ENDS: resw 1;segment of ending address
+RH0_BPBO: resw 1;offset  of BPB array address
+RH0_BPBS: resw 1;segment of BPB array address
+RH0_DRIV: resb 1;drive code (DOS 3 only)
 RH0_ERR  DW	0			; error flag used by DOS - gga
-RH0	ENDS
+endstruc
 
-RH0_BPBA EQU	DWORD PTR RH0_BPBO	;OFFSET/SEGMENT OF BPB
+RH0_BPBA EQU	dword RH0_BPBO	;OFFSET/SEGMENT OF BPB
 ;note RH0_BPBA at entry to init points to all after DEVICE= on CONFIG.SYS stmt
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ	 Request Header for OUTPUT STATUS command		       ณ
-;ณ								       ณ
-;ณ	 This structure defines the Request Header for the	       ณ
-;ณ	 Output Status command. 				       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-RH10	STRUC
-	DB	(TYPE RHC) DUP (?)	;common portion
-RH10	ENDS
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ	 Request Header for OUTPUT STATUS command		       ยณ
+;ยณ								       ยณ
+;ยณ	 This structure defines the Request Header for the	       ยณ
+;ยณ	 Output Status command. 				       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+struc RH10
+	resb 1;common portion
+endstruc
 
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ	 Request Header for Generic IOCTL Request		       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ	 Request Header for Generic IOCTL Request		       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 
-RH19	STRUC
-	    DB	 (TYPE RHC) DUP (?)	; Reserve space for the header	   @RH6
+struc RH19
+	    resb 1; Reserve space for the header	   @RH6
 
-RH19_MAJF   DB	 ?		; Major function			   @RH6
-RH19_MINF   DB	 ?		; Minor function			   @RH6
-RH19_SI     DW	 ?		; Contents of SI			   @RH6
-RH19_DI     DW	 ?		; Contents of DI			   @RH6
-RH19_RQPK   DD	 ?		; Pointer to Generic IOCTL request packet  @RH6
-RH19	ENDS
+RH19_MAJF: resb 1; Major function			   @RH6
+RH19_MINF: resb 1; Minor function			   @RH6
+RH19_SI: resw 1; Contents of SI			   @RH6
+RH19_DI: resw 1; Contents of DI			   @RH6
+RH19_RQPK: resd 1; Pointer to Generic IOCTL request packet  @RH6
+endstruc
 
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ	 Map EMS INT 67H vector in low storage			       ณ
-;ณ								       ณ
-;ณ	 The vector for the interrupt handler for INT 67H	       ณ
-;ณ	 is defined here.					       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-INT_VEC SEGMENT AT 00H
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ	 Map EMS INT 67H vector in low storage			       ยณ
+;ยณ								       ยณ
+;ยณ	 The vector for the interrupt handler for INT 67H	       ยณ
+;ยณ	 is defined here.					       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+SECTION .INT_VEC
 	ORG	4*EMS_INT
-EMS_VEC LABEL	DWORD
-EMS_VECO DW	?			;offset
-EMS_VECS DW	?			;segment
-INT_VEC ENDS
+EMS_VEC:
+EMS_VECO: dw 0;offset
+EMS_VECS: dw 0;segment
+; END SECTION .INT_VEC
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ	 Map EM INT 15H vector in low storage			       ณ
-;ณ								       ณ
-;ณ	 The vector for the extended memory interrupt handler INT 15h  ณ
-;ณ	 is defined here.					       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-INT_VEC15 SEGMENT AT 00H							;an000; dms;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ	 Map EM INT 15H vector in low storage			       ยณ
+;ยณ								       ยณ
+;ยณ	 The vector for the extended memory interrupt handler INT 15h  ยณ
+;ยณ	 is defined here.					       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+SECTION .INT_VEC15;an000; dms;
 	ORG	4*EM_INT							;an000; dms;
-EM_VEC LABEL  DWORD								;an000; dms;
-EM_VECO DW    ? 		      ;offset					;an000; dms;
-EM_VECS DW    ? 		      ;segment					;an000; dms;
-INT_VEC15 ENDS									;an000; dms;
+EM_VEC:;an000; dms;
+EM_VECO: dw 0;offset					;an000; dms;
+EM_VECS: dw 0;segment					;an000; dms;
+; END SECTION .INT_VEC15;an000; dms;
 
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ	 Map INT 13h vector in low storage			       ณ
-;ณ								       ณ
-;ณ	 The vector for the disk access interrupt handler INT 13h      ณ
-;ณ	 is defined here.					       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-INT_VEC13 SEGMENT AT 00H							;an004; dms;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ	 Map INT 13h vector in low storage			       ยณ
+;ยณ								       ยณ
+;ยณ	 The vector for the disk access interrupt handler INT 13h      ยณ
+;ยณ	 is defined here.					       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+SECTION .INT_VEC13;an004; dms;
 	ORG	4*DK_INT							;an004; dms;
-DK_VEC LABEL  DWORD								;an004; dms;
-DK_VECO DW    ? 		      ;offset					;an004; dms;
-DK_VECS DW    ? 		      ;segment					;an004; dms;
-INT_VEC13 ENDS									;an004; dms;
+DK_VEC:;an004; dms;
+DK_VECO: dw 0;offset					;an004; dms;
+DK_VECS: dw 0;segment					;an004; dms;
+; END SECTION .INT_VEC13;an004; dms;
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	This marks the start of the device driver code segment		บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	This marks the start of the device driver code segment		ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
-CSEG	SEGMENT PARA PUBLIC 'CODE'
-	ASSUME	CS:CSEG
+SECTION .CSEG
+	; ASSUME	CS:CSEG
 
 START	EQU	$			;begin resident XMA2EMS data & code
 
 ;DEVICE HEADER - must be at offset zero within device driver
 	DD	-1			;becomes pointer to next device header
 	DW	0C040H			;attribute (character device)
-	DW	OFFSET STRATEGY 	;pointer to device "strategy" routine
-	DW	OFFSET IRPT		;pointer to device "interrupt handler"
+	DW	STRATEGY 	;pointer to device "strategy" routine
+	DW	IRPT		;pointer to device "interrupt handler"
 	DB	'EMMXXXX0'              ;device name
 
 
@@ -384,35 +384,35 @@ COPYRIGHT DB	'74X9921 (C)COPYRIGHT 1988 Microsoft '
 ;-----------------------------------------------------------------------;
 ;	Request Header (RH) address, saved here by "strategy" routine   ;
 ;-----------------------------------------------------------------------;
-RH_PTRA LABEL	DWORD
-RH_PTRO 	DW	?		;offset
-RH_PTRS 	DW	?		;segment
-		db	7 dup(0)	;align following tables on seg.
+RH_PTRA:
+RH_PTRO: dw 0;offset
+RH_PTRS: dw 0;segment
+		times 7 db 0;align following tables on seg.
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ  HANDLE LOOKUP TABLE 						ณ
-;ณ									ณ
-;ณ     This table keeps track of EMS handles and pages assigned 	ณ
-;ณ  to each handle.  An entry exists for each of the 64 handles 	ณ
-;ณ  supported.	If the handle is active, the first field will		ณ
-;ณ  contain the number of pages it owns.  Otherwise, the field		ณ
-;ณ  will indicate the handle is free.  The second field is a head	ณ
-;ณ  pointer to the handle's pages in the linked Page Allocation List.   ณ
-;ณ									ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-H_LOOKUP_STRUC	STRUC			;Structure for Handle lookup table @RH1
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ  HANDLE LOOKUP TABLE 						ยณ
+;ยณ									ยณ
+;ยณ     This table keeps track of EMS handles and pages assigned 	ยณ
+;ยณ  to each handle.  An entry exists for each of the 64 handles 	ยณ
+;ยณ  supported.	If the handle is active, the first field will		ยณ
+;ยณ  contain the number of pages it owns.  Otherwise, the field		ยณ
+;ยณ  will indicate the handle is free.  The second field is a head	ยณ
+;ยณ  pointer to the handle's pages in the linked Page Allocation List.   ยณ
+;ยณ									ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+struc H_LOOKUP_STRUC;Structure for Handle lookup table @RH1
 H_PAGES 	DW	REUSABLE_HANDLE ;If handle is active, # of owned   @RH8
 					; pages.  Init to reusable handle   RH8
 H_PAL_PTR	DW	PAL_NULL	;Head ptr for owned pages in PAL   @RH8
-H_NAME		DB	8 DUP(0)	;Name - new for LIM 4.0 	   @GGA
+H_NAME: resb 8;Name - new for LIM 4.0 	   @GGA
 H_BANK		DB	0		;If virtual, this handle's bank    @RH6
 xref_pages	dw	0		;temp to compile
 xref_index	dw	0		;temp to compile
-H_LOOKUP_STRUC	ENDS
+endstruc
 
 NUM_HANDLES	EQU 64					   ;One structure  @RH1
 HANDLE_LOOKUP_TABLE  H_LOOKUP_STRUC  <0,,,,,>		    ; initialize handle 0
-		     H_LOOKUP_STRUC  NUM_HANDLES-1 DUP (<>) ; for OS use - gga
+		     H_LOOKUP_STRUC  NUM_HANDLES-times 1 db <> ; for OS use - gga
 
 ;-----------------------------------------------------------------------;
 ;    HANDLE CROSS REFERENCE (XREF) TABLE				;
@@ -425,27 +425,27 @@ XREF_TABLE_LEN	EQU  2048			;			   @RH1
 HANDLE_XREF_TABLE  DW  XREF_TABLE_LEN  DUP(0)	; Changed from byte to	   @RH1
 						;  word table		   @RH1
 XREF_TABLE_END	EQU  ($)	       ;Used for table shift on deallocate @RH1
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ  PAGE ALLOCATION LIST						ณ
-;ณ									ณ
-;ณ	 This is the structure pointed to by the handle lookup table.	ณ
-;ณ    The Page Allocation list is a linked list governing EMS pages.	ณ
-;ณ    Each 16KB EMS page has an entry in the PAGE_ALLOC_LIST.		ณ
-;ณ    The entries correspond to the physical blocks on the extended	ณ
-;ณ    memory cards (ex. the first 2 Meg card in a system will use the	ณ
-;ณ    first 128 entries in the PAL).					ณ
-;ณ	 At initialization time, a 'free' pointer will point to the lastณ
-;ณ    (top) page in the PAL, and all entries will be linked from top	ณ
-;ณ    down.  Whenever pages are allocated they are retreived from the	ณ
-;ณ    free chain, and deallocated pages are placed back on the free	ณ
-;ณ    chain.								ณ
-;ณ									ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ  PAGE ALLOCATION LIST						ยณ
+;ยณ									ยณ
+;ยณ	 This is the structure pointed to by the handle lookup table.	ยณ
+;ยณ    The Page Allocation list is a linked list governing EMS pages.	ยณ
+;ยณ    Each 16KB EMS page has an entry in the PAGE_ALLOC_LIST.		ยณ
+;ยณ    The entries correspond to the physical blocks on the extended	ยณ
+;ยณ    memory cards (ex. the first 2 Meg card in a system will use the	ยณ
+;ยณ    first 128 entries in the PAL).					ยณ
+;ยณ	 At initialization time, a 'free' pointer will point to the lastยณ
+;ยณ    (top) page in the PAL, and all entries will be linked from top	ยณ
+;ยณ    down.  Whenever pages are allocated they are retreived from the	ยณ
+;ยณ    free chain, and deallocated pages are placed back on the free	ยณ
+;ยณ    chain.								ยณ
+;ยณ									ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 EMS_PAGES_SUPPORTED EQU  1024		;Support up to 16 Megabytes of EMS @RH8
 
 PAGE_ALLOC_LIST DW  EMS_PAGES_SUPPORTED DUP(0)
 					;Page Allocation List (PAL)	   @RH8
-page_alloc_table db 1024 dup(unallocated)  ;temp for assemble
+page_alloc_table: times 1024 db unallocated;temp for assemble
 ;-----------------------------------------------------------------------;
 ;    HANDLE SAVE AREA							;
 ;	Each handle has 4 entries where the page frame map can		;
@@ -454,15 +454,15 @@ page_alloc_table db 1024 dup(unallocated)  ;temp for assemble
 ;	occurred for a handle, then the logical page field in the	;
 ;	save area will contain a value indicating it's reusable.        ;
 ;-----------------------------------------------------------------------;
-H_SAVEA_ENTRY  STRUC			;This is an overlay for one page's @RH5
-HSA_HNDL	DW    ? 		; entry in the handle save area.   @RH5
-HSA_LP		DW    ? 		; It is used to clear the save	   @RH5
-H_SAVEA_ENTRY  ENDS			; area after a restore.  While not @RH5
+struc H_SAVEA_ENTRY;This is an overlay for one page's @RH5
+HSA_HNDL: resw 1; entry in the handle save area.   @RH5
+HSA_LP: resw 1; It is used to clear the save	   @RH5
+endstruc; area after a restore.  While not @RH5
 					; directly used by the structure   @RH5
 					; below, its size should match	   @RH5
 					; that for one page entry	   @RH5
 
-H_SAVE_STRUC	STRUC			;Structure for Handle Save Area    @RH1
+struc H_SAVE_STRUC;Structure for Handle Save Area    @RH1
 PG0_HNDL	DW    0
 PG0_LP		DW    REUSABLE_SAVEA
 PG1_HNDL	DW    0
@@ -475,12 +475,12 @@ PGFE_HNDL	DW    0 							;AN006;
 PGFE_LP 	DW    REUSABLE_SAVEA						;AN006;
 PGFF_HNDL	DW    0 							;AN006;
 PGFF_LP 	DW    REUSABLE_SAVEA						;AN006;
-H_SAVE_STRUC	ENDS
+endstruc
 
 HANDLE_SAVE_AREA  H_SAVE_STRUC	NUM_HANDLES DUP (<>)
 				       ;One structure for each handle	   @RH1
 
-H_SAVE_ENTRY	  EQU	WORD PTR[DI + OFFSET HANDLE_SAVE_AREA]	     ;	   @RH1
+H_SAVE_ENTRY	  EQU	word[DI + HANDLE_SAVE_AREA]	     ;	   @RH1
 
 
 ;-------------------------------------------------------------------
@@ -491,12 +491,12 @@ H_SAVE_ENTRY	  EQU	WORD PTR[DI + OFFSET HANDLE_SAVE_AREA]	     ;	   @RH1
 ;
 ;-------------------------------------------------------------------
 
-mappable_phys_page_struct	STRUC	; define the structure
-  phys_page_segment	dw	?	; segment
-  phys_page_number	dw	?	; page ID
-  ppm_handle		dw	?	; handle, -1 means unused
-  ppm_log_page		dw	?	; logical page, -1 means unused
-mappable_phys_page_struct	ENDS
+struc mappable_phys_page_struct; define the structure
+  phys_page_segment: resw 1; segment
+  phys_page_number: resw 1; page ID
+  ppm_handle: resw 1; handle, -1 means unused
+  ppm_log_page: resw 1; logical page, -1 means unused
+endstruc
 
 ;	allocate the storage
 
@@ -536,24 +536,24 @@ rom_scan_type	dw	micro_channel	;
 segment_error	dw	0		; segment error flag = 0 means all OK
 
 ;-----------------------------------------------------------------------
-;    Tables added for multicard support 				บ
-;									บ
-;	These tables manage the mapping of multiple memory cards	บ
-;    on a PS/2 Model 50 and 60.  These systems may have a combination	บ
-;    of MXO and XMA/A cards.  The model 80 is excluded, since		บ
-;    it uses the XMA emulator.						บ
-;									บ
+;    Tables added for multicard support 				ยบ
+;									ยบ
+;	These tables manage the mapping of multiple memory cards	ยบ
+;    on a PS/2 Model 50 and 60.  These systems may have a combination	ยบ
+;    of MXO and XMA/A cards.  The model 80 is excluded, since		ยบ
+;    it uses the XMA emulator.						ยบ
+;									ยบ
 ;-----------------------------------------------------------------------
 			;-----------------------------------------------
-			; Memory Card Descriptor Table			บ
+			; Memory Card Descriptor Table			ยบ
 			;-----------------------------------------------
 
-MEM_CARD_STRUC	STRUC			;Structure for the memory cards    @RH5
+struc MEM_CARD_STRUC;Structure for the memory cards    @RH5
 CARD_ID 	DW	NO_CARD 	;Card ID from ports 100 and 101    @RH5
-CARD_SLOT	DB	?		;Physical slot of card (0 based)   @RH5
-START_PG_NUM	DW	?		;Starting and ending #s of the	   @RH5
-END_PG_NUM	DW	?		; pages this card has within the   @RH5
-MEM_CARD_STRUC	ENDS			; total EMS page pool (0 based)    @RH5
+CARD_SLOT: resb 1;Physical slot of card (0 based)   @RH5
+START_PG_NUM: resw 1;Starting and ending #s of the	   @RH5
+END_PG_NUM: resw 1; pages this card has within the   @RH5
+endstruc; total EMS page pool (0 based)    @RH5
 
 					;Memory Card Table - entries are   @RH5
 					; filled in ascending order (from  @RH5
@@ -563,12 +563,12 @@ MAX_SLOTS	EQU 8				     ;Max of 8, but most   @RH5
 MEM_CARD_TABLE	MEM_CARD_STRUC	MAX_SLOTS DUP (<>)   ; likely 1 or 2 cards @RH5
 
 			;-----------------------------------------------
-			; Multicard Page Frame Descriptor Table 	บ
+			; Multicard Page Frame Descriptor Table 	ยบ
 			;-----------------------------------------------
-MULTIC_PM_STRUC STRUC			;Structure for storing the card ID @RH5
+struc MULTIC_PM_STRUC;Structure for storing the card ID @RH5
 PG_CARD 	DW	NO_CARD 	; and slot of the card currently   @RH5
 PG_SLOT 	DB	0		; mapped to this page of the page  @RH5
-MULTIC_PM_STRUC ENDS			; frame 			   @RH5
+endstruc; frame 			   @RH5
 
 					;Multicard Page Mapping Table.
 					; Entry for each page of the page
@@ -576,18 +576,18 @@ MULTIC_PM_STRUC ENDS			; frame 			   @RH5
 MC_PM_TABLE  MULTIC_PM_STRUC   MAP_COUNT_DEF DUP (<>)
 
 			;-----------------------------------------------
-			; Assorted Multicard declares			บ
+			; Assorted Multicard declares			ยบ
 			;-----------------------------------------------
 NUM_MEM_CARDS	DW   0
-NUM_OF_SLOTS	DB	?		;Number of adapter slots RR 8 TB 4 @RH2
-WTT_CARD_SLOT	DB	?		;Slot # of the memory card being   @RH2
+NUM_OF_SLOTS: db 0;Number of adapter slots RR 8 TB 4 @RH2
+WTT_CARD_SLOT: db 0;Slot # of the memory card being   @RH2
 					; used to map a page		   @RH2
 
 
-Instance_Entry_Struc	struc		;required  data in first 2 entries	;an000; dms;
-	IE_Alloc_Byte	db	?	;instance allocated byte		;an000; dms;
-	IE_Saved_DI_Reg dw	?	;saved di register			;an000; dms;
-Instance_Entry_Struc	ends		;end struc				;an000; dms;
+struc Instance_Entry_Struc;required  data in first 2 entries	;an000; dms;
+	IE_Alloc_Byte: resb 1;instance allocated byte		;an000; dms;
+	IE_Saved_DI_Reg: resw 1;saved di register			;an000; dms;
+endstruc;end struc				;an000; dms;
 
 ;-----------------------------------------------------------------------;
 ;	Table of DOS command processing routine entry points		;
@@ -596,75 +596,75 @@ Instance_Entry_Struc	ends		;end struc				;an000; dms;
 ;	by meaningful code.  All other commands simply set a good	;
 ;	return code and exit back to DOS.				;
 ;-----------------------------------------------------------------------;
-CMD_TABLE LABEL WORD
-	DW	OFFSET INIT		; 0 - *Initialization
-	DW	OFFSET MEDIA_CHECK	; 1 -  Media check
-	DW	OFFSET BLD_BPB		; 2 -  Build BPB
-	DW	OFFSET INPUT_IOCTL	; 3 -  IOCTL input
-	DW	OFFSET INPUT		; 4 -  Input
-	DW	OFFSET INPUT_NOWAIT	; 5 -  Non destructive input no wait
-	DW	OFFSET INPUT_STATUS	; 6 -  Input status
-	DW	OFFSET INPUT_FLUSH	; 7 -  Input flush
-	DW	OFFSET OUTPUT		; 8 -  Output
-	DW	OFFSET OUTPUT_VERIFY	; 9 -  Output with verify
-	DW	OFFSET OUTPUT_STATUS	;10 - *Output status
-	DW	OFFSET OUTPUT_FLUSH	;11 -  Output flush
-	DW	OFFSET OUTPUT_IOCTL	;12 -  IOCTL output
-	DW	OFFSET DEVICE_OPEN	;13 -  Device OPEN
-	DW	OFFSET DEVICE_CLOSE	;14 -  Device CLOSE
-	DW	OFFSET REMOVABLE_MEDIA	;15 -  Removable media
-	DW	OFFSET INVALID_FCN	;16 -  Invalid IOCTL function	 gga		   ;AN003;
-	DW	OFFSET INVALID_FCN	;17 -  Invalid IOCTL function	 gga		   ;AN003;
-	DW	OFFSET INVALID_FCN	;18 -  Invalid IOCTL function	 gga		   ;AN003;
-	DW	OFFSET GENERIC_IOCTL	;19 - *Generic IOCTL function	 gga		   ;AN003;
-	DW	OFFSET INVALID_FCN	;20 -  Invalid IOCTL function	 gga		   ;AN003;
-	DW	OFFSET INVALID_FCN	;21 -  Invalid IOCTL function	 gga		   ;AN003;
-	DW	OFFSET INVALID_FCN	;22 -  Invalid IOCTL function	 gga		   ;AN003;
-	DW	OFFSET GET_LOG_DEVICE	;23 -  Invalid IOCTL function	 gga		   ;AN003;
+CMD_TABLE:
+	DW	INIT		; 0 - *Initialization
+	DW	MEDIA_CHECK	; 1 -  Media check
+	DW	BLD_BPB		; 2 -  Build BPB
+	DW	INPUT_IOCTL	; 3 -  IOCTL input
+	DW	INPUT		; 4 -  Input
+	DW	INPUT_NOWAIT	; 5 -  Non destructive input no wait
+	DW	INPUT_STATUS	; 6 -  Input status
+	DW	INPUT_FLUSH	; 7 -  Input flush
+	DW	OUTPUT		; 8 -  Output
+	DW	OUTPUT_VERIFY	; 9 -  Output with verify
+	DW	OUTPUT_STATUS	;10 - *Output status
+	DW	OUTPUT_FLUSH	;11 -  Output flush
+	DW	OUTPUT_IOCTL	;12 -  IOCTL output
+	DW	DEVICE_OPEN	;13 -  Device OPEN
+	DW	DEVICE_CLOSE	;14 -  Device CLOSE
+	DW	REMOVABLE_MEDIA	;15 -  Removable media
+	DW	INVALID_FCN	;16 -  Invalid IOCTL function	 gga		   ;AN003;
+	DW	INVALID_FCN	;17 -  Invalid IOCTL function	 gga		   ;AN003;
+	DW	INVALID_FCN	;18 -  Invalid IOCTL function	 gga		   ;AN003;
+	DW	GENERIC_IOCTL	;19 - *Generic IOCTL function	 gga		   ;AN003;
+	DW	INVALID_FCN	;20 -  Invalid IOCTL function	 gga		   ;AN003;
+	DW	INVALID_FCN	;21 -  Invalid IOCTL function	 gga		   ;AN003;
+	DW	INVALID_FCN	;22 -  Invalid IOCTL function	 gga		   ;AN003;
+	DW	GET_LOG_DEVICE	;23 -  Invalid IOCTL function	 gga		   ;AN003;
 MAX_CMD EQU	($-CMD_TABLE)/2 	;highest valid command follows
-	DW	OFFSET SET_LOG_DEVICE	;24 -  Invalid IOCTL function	 gga		   ;AN003;
+	DW	SET_LOG_DEVICE	;24 -  Invalid IOCTL function	 gga		   ;AN003;
 
 ;-----------------------------------------------------------------------;
 ;	Table of Expanded Memory Manager routine entry points		;
 ;-----------------------------------------------------------------------;
-FCN_TABLE LABEL WORD
-	DW	OFFSET EMM_STATUS	;40 - Get status of memory manager
-	DW	OFFSET Q_PAGE_FRAME	;41 - Get segment of page frame
-	DW	OFFSET Q_PAGES		;42 - Get number of alloc & unalloc pgs
-	DW	OFFSET GET_HANDLE	;43 - Request ID and allocate n pages
-	DW	OFFSET MAP_L_TO_P	;44 - Map logical to physical page
-	DW	OFFSET DE_ALLOCATE	;45 - Deallocate all pages of ID n
-	DW	OFFSET Q_VERSION	;46 - Get version number
-	DW	OFFSET SAVE_MAP 	;47 - Save mapping array
-	DW	OFFSET RESTORE_MAP	;48 - Restore mapping array
-	DW	OFFSET GET_PORT_ARRAY	;49 - Get I/O port array
-	DW	OFFSET GET_L_TO_P	;4A - Get logical to physical array
-	DW	OFFSET Q_OPEN		;4B - Get number of open ID's
-	DW	OFFSET Q_ALLOCATE	;4C - Get pages allocated to ID n
-	DW	OFFSET Q_OPEN_ALL	;4D - Get all ID's and pages allocated
-	DW	OFFSET GET_SET_MAP	;4E - Group of subfunctions that Get
+FCN_TABLE:
+	DW	EMM_STATUS	;40 - Get status of memory manager
+	DW	Q_PAGE_FRAME	;41 - Get segment of page frame
+	DW	Q_PAGES		;42 - Get number of alloc & unalloc pgs
+	DW	GET_HANDLE	;43 - Request ID and allocate n pages
+	DW	MAP_L_TO_P	;44 - Map logical to physical page
+	DW	DE_ALLOCATE	;45 - Deallocate all pages of ID n
+	DW	Q_VERSION	;46 - Get version number
+	DW	SAVE_MAP 	;47 - Save mapping array
+	DW	RESTORE_MAP	;48 - Restore mapping array
+	DW	GET_PORT_ARRAY	;49 - Get I/O port array
+	DW	GET_L_TO_P	;4A - Get logical to physical array
+	DW	Q_OPEN		;4B - Get number of open ID's
+	DW	Q_ALLOCATE	;4C - Get pages allocated to ID n
+	DW	Q_OPEN_ALL	;4D - Get all ID's and pages allocated
+	DW	GET_SET_MAP	;4E - Group of subfunctions that Get
 					;and/or Set the page map
 
 ;-------------------------------------------------------------------			 ;GGA
 ;	these functions were added for LIM 4.0 support					 ;GGA
 ;-------------------------------------------------------------------			 ;GGA
 											 ;GGA
-	dw	offset partial_map	; 4F - get/set partial page map 		 ;GGA
-	dw	offset map_mult 	; 50 - map/unmap multiple handle pages		 ;GGA
-	dw	offset reallocate	; 51 - reallocate pages 			 ;GGA
-	dw	offset handle_attrib	; 52 - get/set handle attributes		 ;GGA
-	dw	offset handle_name	; 53 - get/set handle name			 ;GGA
-	dw	offset handle_dir	; 54 - get handle directory			 ;GGA
-	dw	offset alter_and_jump	; 55 - alter page map and jump			 ;GGA
-	dw	offset alter_and_call	; 56 - alter page map and call			 ;GGA
-	dw	offset exchng_region	; 57 - move/exchange memory region		 ;GGA
-	dw	offset address_array	; 58 - Get mappable physical address array	 ;GGA
-	dw	offset hardware_info	; 59 - Get extended momory hardware information  ;GGA
-	dw	offset alloc_raw	; 5A - allocate raw pages			 ;GGA
-	dw	offset alternate_map	; 5B - alternate map register set		 ;GGA
-	dw	offset prepare_boot	; 5C - Prepare for WarmBoot			 ;GGA
+	dw	partial_map	; 4F - get/set partial page map 		 ;GGA
+	dw	map_mult 	; 50 - map/unmap multiple handle pages		 ;GGA
+	dw	reallocate	; 51 - reallocate pages 			 ;GGA
+	dw	handle_attrib	; 52 - get/set handle attributes		 ;GGA
+	dw	handle_name	; 53 - get/set handle name			 ;GGA
+	dw	handle_dir	; 54 - get handle directory			 ;GGA
+	dw	alter_and_jump	; 55 - alter page map and jump			 ;GGA
+	dw	alter_and_call	; 56 - alter page map and call			 ;GGA
+	dw	exchng_region	; 57 - move/exchange memory region		 ;GGA
+	dw	address_array	; 58 - Get mappable physical address array	 ;GGA
+	dw	hardware_info	; 59 - Get extended momory hardware information  ;GGA
+	dw	alloc_raw	; 5A - allocate raw pages			 ;GGA
+	dw	alternate_map	; 5B - alternate map register set		 ;GGA
+	dw	prepare_boot	; 5C - Prepare for WarmBoot			 ;GGA
 MAX_FCN EQU	($-FCN_TABLE)/2 	;      highest valid command follows		 ;GGA
-	dw	offset enable_os	; 5D - enable/disable OS/E functions		 ;GGA
+	dw	enable_os	; 5D - enable/disable OS/E functions		 ;GGA
 
 ;-----------------------------------------------------------------------;
 ;	Data variables go here						;
@@ -677,7 +677,7 @@ TOTAL_SYS_PAGES DW	1024/16 	;Total number of 16k pages on the
 TOTAL_EMS_PAGES DW	1024/16 	;Pages left after conventional
 					; memory is backed
 FREE_PAGES	DW	1024/16 	;Total unallocated pages for EMS use
-EM_Ksize	dw	?		;size in Kb of extended memory		;an000; dms;
+EM_Ksize: dw 0;size in Kb of extended memory		;an000; dms;
 CARD_STATUS	DW	'OK'            ;STATUS OF THE HARDWARE
 					;  DEFAULT='OK'   FAILURE='HW'
 MANAGER_STATUS	DW	'OK'            ;STATUS OF THE MEMORY MANAGER
@@ -685,23 +685,23 @@ MANAGER_STATUS	DW	'OK'            ;STATUS OF THE MEMORY MANAGER
 STARTING_BLOCK	DW	0		;number of 4K blocks reserved by pinta
 OVERFLOW	DB	0
 WARM_START	DB	'N'             ;initially not a warm start
-MULTIPLIER	DW	?		;Used for figuring table offsets   @RH1
+MULTIPLIER: dw 0;Used for figuring table offsets   @RH1
 TEN		DW	10		; via multiplication...not the	   @RH1
 SIXTEEN 	DW	16		; most efficient, but flexible	   @RH1
 MEMCARD_MODE	DB	XMA1_VIRT	;Flag indicating the type of memory@RH2
 					; card being used.  Default to	   @RH2
 					; XMA 1 card.
-BANKID		DB	?		;Current XMA Bank ID		   @RH1
+BANKID: db 0;Current XMA Bank ID		   @RH1
 BLOCKS_PER_PAGE DW	4		;XMA blocks per EMS page (multiply)@RH1
 SEG_PER_PAGE	DW	1024		;Segments(16 bytes) per EMS page   @RH1
 
-INTV15	LABEL	DWORD								;an000; dms;
-INTV15O DW	?			;offset 				;an000; dms;
-INTV15S DW	?			;segment				;an000; dms;
+INTV15:;an000; dms;
+INTV15O: dw 0;offset 				;an000; dms;
+INTV15S: dw 0;segment				;an000; dms;
 
-INTV13	LABEL	DWORD								;an004; dms;
-INTV13O DW	?			;offset 				;an004; dms;
-INTV13S DW	?			;segment				;an004; dms;
+INTV13:;an004; dms;
+INTV13O: dw 0;offset 				;an004; dms;
+INTV13S: dw 0;segment				;an004; dms;
 
 PAL_FREE_PTR	DW	PAL_NULL
 ;-------------------------------------------------------------------
@@ -735,7 +735,7 @@ where_to_start	dw	0a000h		; start ROM scan at A000
 ;			Returns  : AX - Kbyte size of EM
 ;
 ;=========================================================================
-XMA_INT15   PROC								;an000; dms;
+XMA_INT15:;an000; dms;
 
 	cmp	ah,EM_Size_Get							;an000; dms;function 88h?
 	jne	XMA_INT15_Jump							;an000; dms;no - jump to old INT 15h
@@ -752,27 +752,27 @@ XMA_INT15_Exit: 								;an000; dms;
 
 	iret									;an000; dms;
 
-XMA_INT15   ENDP								;an000; dms;
+; ENDP XMA_INT15;an000; dms;
 
-include I13HOOK.INC								;an004; dms;
+%include "I13HOOK.INC";an004; dms;
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Device "strategy" entry point                                   บ
-;บ									บ
-;บ	Retain the Request Header address for use by Interrupt routine	บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-STRATEGY PROC	FAR
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Device "strategy" entry point                                   ยบ
+;ยบ									ยบ
+;ยบ	Retain the Request Header address for use by Interrupt routine	ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+STRATEGY:
 	MOV	CS:RH_PTRO,BX		;offset
 	MOV	CS:RH_PTRS,ES		;segment
 	RET
-STRATEGY ENDP
+; ENDP STRATEGY
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	DOS Device "interrupt" entry point                              บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-IRPT	PROC	FAR			;device interrupt entry point
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	DOS Device "interrupt" entry point                              ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+IRPT:;device interrupt entry point
 	PUSH	DS			;save all registers Revised
 	PUSH	ES
 	PUSH	AX
@@ -823,14 +823,14 @@ IRPT_CMD_EXIT:				;return from command routine
 	POP	DS
 
 	RET				;far return back to DOS
-IRPT	ENDP
+; ENDP IRPT
 
-include genioctl.inc			; include code for genioctl fcn gga
+%include "genioctl.inc"; include code for genioctl fcn gga
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Set 'OUTPUT STATUS' entry point                                 บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-OUTPUT_STATUS PROC			;Output status
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Set 'OUTPUT STATUS' entry point                                 ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+OUTPUT_STATUS:;Output status
 	LDS	BX,CS:RH_PTRA		;DS:BX as pointer to request header
 	MOV	AX,RH.RHC_STA		;get status word
 OS1:
@@ -838,10 +838,10 @@ OS1:
 OS2:
 	MOV	RH.RHC_STA,AX		;write it back to request header
 	RET
-OUTPUT_STATUS ENDP
+; ENDP OUTPUT_STATUS
 
 
-IGNORED_CMDS  PROC
+IGNORED_CMDS:
 IRPT_CMD_ERROR: 			;CALLed for unsupported character mode commands
 
 MEDIA_CHECK:				;Media check
@@ -862,34 +862,34 @@ INVALID_FCN:				; invalid IOCTL function			  ;AN003;
 GET_LOG_DEVICE: 			; get logical device				  ;AN003;
 SET_LOG_DEVICE: 			; set logical device				  ;AN003;
 	      RET
-IGNORED_CMDS  ENDP
+; ENDP IGNORED_CMDS
 
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for EMM interrupt handler				บ
-;บ									บ
-;บ									บ
-;บ	The interrupt vector 67H points here.				บ
-;บ									บ
-;บ	On Entry:							บ
-;บ		  The AH register contains the function number and the	บ
-;บ		  necessary parameters are passed in registers defined	บ
-;บ		  by the Expanded Memory Specification. 		บ
-;บ									บ
-;บ	On Exit:							บ
-;บ		  (AH) = 0 if no error					บ
-;บ		  (AH) = error # if error				บ
-;บ									บ
-;บ		  other register contain information as specified by EMSบ
-;บ		  otherwise all registers remain unchanged		บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-EMS_INT67 PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for EMM interrupt handler				ยบ
+;ยบ									ยบ
+;ยบ									ยบ
+;ยบ	The interrupt vector 67H points here.				ยบ
+;ยบ									ยบ
+;ยบ	On Entry:							ยบ
+;ยบ		  The AH register contains the function number and the	ยบ
+;ยบ		  necessary parameters are passed in registers defined	ยบ
+;ยบ		  by the Expanded Memory Specification. 		ยบ
+;ยบ									ยบ
+;ยบ	On Exit:							ยบ
+;ยบ		  (AH) = 0 if no error					ยบ
+;ยบ		  (AH) = error # if error				ยบ
+;ยบ									ยบ
+;ยบ		  other register contain information as specified by EMSยบ
+;ยบ		  otherwise all registers remain unchanged		ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+EMS_INT67:
 	push	bp			;save instance pointer			;an000; dms;
 	call	Set_Instance		;set BP to proper instance entry	;an000; dms;
 	jc	INT67_Instance_Exit	;not enough instances			;an000; dms;
 
-	mov	cs:[bp].IE_Saved_DI_Reg,di ;save reg in instance table		   ;an000; dms;
+	mov	[cs:bp].IE_Saved_DI_Reg,di ;save reg in instance table		   ;an000; dms;
 
 
 	SUB	AH,40H			;adjust to range of fcn table
@@ -899,7 +899,7 @@ EMS_INT67 PROC
 	CMP	AH,MAX_FCN		;too high?
 ;	$IF	LE
 	JNLE $$IF1
-	    MOV     DI,OFFSET INT67_EXIT ;get common exit addr
+	    MOV     DI,INT67_EXIT ;get common exit addr
 	    PUSH    DI			;put it on stack
 	    PUSH    AX			;save ax...al may contain parms
 	    XCHG    AH,AL		;adjust
@@ -920,7 +920,7 @@ $$IF1:
 
 INT67_EXIT:
 
-	mov	di,cs:[bp].IE_Saved_DI_Reg ;save reg in instance table		   ;an000; dms;
+	mov	di,[cs:bp].IE_Saved_DI_Reg ;save reg in instance table		   ;an000; dms;
 	call	Reset_Instance		;deallocte instance entry		;an000; dms;
 
 INT67_Instance_Exit:
@@ -928,19 +928,19 @@ INT67_Instance_Exit:
 	pop	bp			;restore instance pointer		;an000; dms;
 
 	IRET				;end of interrupt 67
-EMS_INT67 ENDP
+; ENDP EMS_INT67
 
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for EMM STATUS		      Function 1	บ
-;บ									บ
-;บ	on entry: (AH) = '40'x                                          บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-EMM_STATUS PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for EMM STATUS		      Function 1	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '40'x                                          ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+EMM_STATUS:
 	CMP	MANAGER_STATUS,SW_ERROR ;is manager ok?
 ;	$IF	E			;if no then
 	JNE $$IF3
@@ -958,19 +958,19 @@ $$IF5:
 	XOR	AH,AH			;set good return status
 ST1:
 	RET				;return to caller
-EMM_STATUS ENDP
+; ENDP EMM_STATUS
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for GET PAGE FRAME		      Function 2	บ
-;บ									บ
-;บ	on entry: (AH) = '41'x                                          บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  (BX) = segment address of page frame			บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-Q_PAGE_FRAME PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for GET PAGE FRAME		      Function 2	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '41'x                                          ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  (BX) = segment address of page frame			ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+Q_PAGE_FRAME:
 	push	cx				;save regs			;an000; dms;
 	push	dx				;				;an000; dms;
 	push	si				;				;an000; dms;
@@ -980,16 +980,16 @@ Q_PAGE_FRAME PROC
 
 	mov	cx,4h				;loop only 4 times		;an000; dms;
 	xor	ax,ax				;page number reference		;an000; dms;
-	mov	si,offset cs:Map_Table		;point to map table		;an000; dms;
-	mov	bx,cs:[si].Phys_Page_Segment	;set start segment value	;an000; dms;
+	mov	si,Map_Table		;point to map table		;an000; dms;
+	mov	bx,[cs:si].Phys_Page_Segment	;set start segment value	;an000; dms;
 	mov	dx,bx				;segment reference		;an000; dms;
 
 Q_Page_Frame_Loop:
 
-	cmp	cs:[si].Phys_Page_Number,ax	;page matches reference?	;an000; dms;
+	cmp	[cs:si].Phys_Page_Number,ax	;page matches reference?	;an000; dms;
 	jne	Q_Page_Frame_Error_Exit 	;no - exit with error		;an000; dms;
 
-	cmp	cs:[si].Phys_Page_Segment,dx	;page frame match reference	;an000; dms;
+	cmp	[cs:si].Phys_Page_Segment,dx	;page frame match reference	;an000; dms;
 	jne	Q_Page_Frame_Error_Exit 	;no - exit with error		;an000; dms;
 
 	add	si,Type Mappable_Phys_Page_Struct;adjust pointer		;an000; dms;
@@ -1011,20 +1011,20 @@ Q_Page_Exit:
 	pop	cx				;				;an000; dms;
 
 	RET
-Q_PAGE_FRAME ENDP
+; ENDP Q_PAGE_FRAME
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for QUERY TOTAL & UNALLOCATED PAGES Function 3	บ
-;บ									บ
-;บ	on entry: (AH) = '42'x                                          บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  (BX) = number of pages available in expanded memory	บ
-;บ		  (DX) = total number of pages in expanded memory	บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-Q_PAGES PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for QUERY TOTAL & UNALLOCATED PAGES Function 3	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '42'x                                          ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  (BX) = number of pages available in expanded memory	ยบ
+;ยบ		  (DX) = total number of pages in expanded memory	ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+Q_PAGES:
 
 	XOR	AH,AH			;Init good return status
 	MOV	BX,CS:FREE_PAGES	;bx gets num unalloc pages
@@ -1034,21 +1034,21 @@ Q_PAGES PROC
 	    MOV     AH,EMS_CODE81	; set that return code
 Q_PAGES_RET:
 	RET
-Q_PAGES ENDP
+; ENDP Q_PAGES
 
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for GET HANDLE AND ALLOCATE       Function 4	บ
-;บ									บ
-;บ	on entry: (AH) = '43'x                                          บ
-;บ		  (BX) = number of pages to allocate			บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  (DX) = handle 					บ
-;บ		  AX,DX Revised...all other registers preserved	บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-GET_HANDLE PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for GET HANDLE AND ALLOCATE       Function 4	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '43'x                                          ยบ
+;ยบ		  (BX) = number of pages to allocate			ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  (DX) = handle 					ยบ
+;ยบ		  AX,DX Revised...all other registers preserved	ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+GET_HANDLE:
 	PUSH	BX
 	PUSH	CX
 	PUSH	DI
@@ -1081,7 +1081,7 @@ GH_OKTOTAL:
 	MOV	AH,EMS_CODE88
 	JMP	GH_EXIT
 			;-----------------------------------------------------
-			; Search for a free handle			 @RH1 บ
+			; Search for a free handle			 @RH1 ยบ
 			;-----------------------------------------------------
 GH_OKFREE:
 	MOV	CX,NUM_HANDLES		;loop counter is #handles
@@ -1103,8 +1103,8 @@ GH_FREEHSRCH:
 	    JMP     GH_EXIT		;go to exit					 ;GGA
 
 			;-----------------------------------------------------
-			; If here then there's enough pages for request. @RH1 บ
-			;   DX = handle #, DI = ptr to hndl lookup entry @RH1 บ
+			; If here then there's enough pages for request. @RH1 ยบ
+			;   DX = handle #, DI = ptr to hndl lookup entry @RH1 ยบ
 GH_HFREE:
 
 	MOV	CX,NUM_HANDLES		;loop counter
@@ -1158,22 +1158,22 @@ GH_EXIT:										 ;GGA
 	POP	BX
 
 	RET
-GET_HANDLE ENDP
+; ENDP GET_HANDLE
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for MAP LOGICAL TO PHYSICAL PAGE  Function 5	บ
-;บ									บ
-;บ	on entry: (AH) = '44'x                                          บ
-;บ		  (AL) = physical page j				บ
-;บ		  (BX) = logical page i 				บ
-;บ		  (DX) = handle 					บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for MAP LOGICAL TO PHYSICAL PAGE  Function 5	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '44'x                                          ยบ
+;ยบ		  (AL) = physical page j				ยบ
+;ยบ		  (BX) = logical page i 				ยบ
+;ยบ		  (DX) = handle 					ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
-MAP_L_TO_P PROC
+MAP_L_TO_P:
 	PUSH	BX
 	PUSH	CX
 	PUSH	DX
@@ -1219,10 +1219,10 @@ MLP_BX_LE_TOT:
 	JB	MLP_LP_OK	       ; of pages for this handle?
 	    MOV     AH,EMS_CODE8A      ;No...error log. page out of range  @RH1
 	    JMP     MLP_EXIT	       ;exit
-					;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-					;ณ Convert handle's logical page to    ณ
-					;ณ  relative page in the EMS pool (SI) ณ
-					;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+					;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+					;ยณ Convert handle's logical page to    ยณ
+					;ยณ  relative page in the EMS pool (SI) ยณ
+					;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 MLP_LP_OK:					      ;Get this handle's   @RH8
 	MOV	DI,HANDLE_LOOKUP_TABLE.H_PAL_PTR[SI]  ; head index to PAL  @RH8
 	CMP	BX,0				      ;If 1st pg wanted    @RH8
@@ -1240,13 +1240,13 @@ MLP_GOT_PHYS_PG:				      ; desired page	   @RH8
 
 
 
-					;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-					;ณ Get seg addr of the phys page (DI)  ณ
-MLP_GET_SEG:				;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+					;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+					;ยณ Get seg addr of the phys page (DI)  ยณ
+MLP_GET_SEG:				;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 	XOR	DI,DI			;Clear offset into mappable phys.  @RH4
 	MOV	CX,MAP_COUNT		; page table.  Loop for # entries. @RH4
 MLP_PP_CHECK:
-	CMP	AL,BYTE PTR MAP_TABLE.PHYS_PAGE_NUMBER[DI]	    ;AX = table pp? @RH4
+	CMP	AL,byte MAP_TABLE.PHYS_PAGE_NUMBER[DI]	    ;AX = table pp? @RH4
 	JE	MLP_PP_OK				   ;Yes..get seg   @RH4
 	ADD	DI,TYPE MAPPABLE_PHYS_PAGE_STRUCT	   ;No..check next @RH4
 	LOOP	MLP_PP_CHECK				   ; table entry   @RH4
@@ -1258,7 +1258,7 @@ MLP_PP_OK:
 	MOV	DI,MAP_TABLE.PHYS_PAGE_SEGMENT[DI] ;DI= page's PC seg addr @RH1
 
 					;-------------------------------------
-					; Map L to P depending on memory card บ
+					; Map L to P depending on memory card ยบ
 					;-------------------------------------
 MLP_VIRTUAL:
 	TEST	MEMCARD_MODE,WSP_VIRT	;Using either an XMA 1, XMA/A, or  @RH2
@@ -1290,35 +1290,35 @@ MLP_EXIT:
 	POP	BX
 
 	RET
-MAP_L_TO_P ENDP
+; ENDP MAP_L_TO_P
 
 
 
 
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ    Subroutine: WRITE TRANSLATE TABLE FOR EMS PAGE			       ณ
-;ณ		  XMA VIRTUAL MODE					       ณ
-;ณ									       ณ
-;ณ	     This routine will write the Translate Table so that the	       ณ
-;ณ	  specified 16K page of 'real' address will be mapped to a             ณ
-;ณ	  specified 16K page of XMA physical memory.			       ณ
-;ณ	     This routine is called if the XMA card is in 'virtual'            ณ
-;ณ	  mode - i.e. bank swapping is active.	The 16 bit 31AX ports	       ณ
-;ณ	  are used for setting up the XMA translate table.		       ณ
-;ณ	     The XMA 1 card and XMA emulator are always in virtual	       ณ
-;ณ	  mode.  The XMA\A card is in virtual mode if bank switching	       ณ
-;ณ	  is active (used by the 3270 Workstation Program).		       ณ
-;ณ									       ณ
-;ณ	  On entry: (DI) is starting segment in PC address space.	       ณ
-;ณ			 Must be on 4K boundary else is rounded 	       ณ
-;ณ			 down to the nearest 4K.			       ณ
-;ณ		    (SI) absolute EMS page number (not handle relative)     RH4ณ
-;ณ			 or FFFFh if page is to be inhibitted		    RH4ณ
-;ณ									       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ    Subroutine: WRITE TRANSLATE TABLE FOR EMS PAGE			       ยณ
+;ยณ		  XMA VIRTUAL MODE					       ยณ
+;ยณ									       ยณ
+;ยณ	     This routine will write the Translate Table so that the	       ยณ
+;ยณ	  specified 16K page of 'real' address will be mapped to a             ยณ
+;ยณ	  specified 16K page of XMA physical memory.			       ยณ
+;ยณ	     This routine is called if the XMA card is in 'virtual'            ยณ
+;ยณ	  mode - i.e. bank swapping is active.	The 16 bit 31AX ports	       ยณ
+;ยณ	  are used for setting up the XMA translate table.		       ยณ
+;ยณ	     The XMA 1 card and XMA emulator are always in virtual	       ยณ
+;ยณ	  mode.  The XMA\A card is in virtual mode if bank switching	       ยณ
+;ยณ	  is active (used by the 3270 Workstation Program).		       ยณ
+;ยณ									       ยณ
+;ยณ	  On entry: (DI) is starting segment in PC address space.	       ยณ
+;ยณ			 Must be on 4K boundary else is rounded 	       ยณ
+;ยณ			 down to the nearest 4K.			       ยณ
+;ยณ		    (SI) absolute EMS page number (not handle relative)     RH4ยณ
+;ยณ			 or FFFFh if page is to be inhibitted		    RH4ยณ
+;ยณ									       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 
-W_EMSPG_XVIRT  PROC
+W_EMSPG_XVIRT:
 	MOV	DX,IDREG		;Save the current bank ID	   @RH1
 	IN	AL,DX			; (bank of the requestor).  Write  @RH1
 	MOV	BANKID,AL		; to the trans. table for this bank@RH1
@@ -1348,21 +1348,21 @@ VM_NEXT_TT:
 	LOOP	VM_WRITE		;Loop for all blocks in a page	   @RH1
 
 	RET
-W_EMSPG_XVIRT  ENDP
+; ENDP W_EMSPG_XVIRT
 
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ    Subroutine: WRITE TRANSLATE TABLE FOR EMS PAGE			       ณ
-;ณ		  XMA REAL MODE 					       ณ
-;ณ									       ณ
-;ณ	     This routine performs basically the same functions as	       ณ
-;ณ	  the above routine.  It is called if the XMA/A card is in	       ณ
-;ณ	  'real' mode (i.e. bank switching not active, planar memory           ณ
-;ณ	  is not disabled).  The 8 bit 10X ports are used for setting	       ณ
-;ณ	  up the XMA translate table.					       ณ
-;ณ									       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-W_EMSPG_XREAL  PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ    Subroutine: WRITE TRANSLATE TABLE FOR EMS PAGE			       ยณ
+;ยณ		  XMA REAL MODE 					       ยณ
+;ยณ									       ยณ
+;ยณ	     This routine performs basically the same functions as	       ยณ
+;ยณ	  the above routine.  It is called if the XMA/A card is in	       ยณ
+;ยณ	  'real' mode (i.e. bank switching not active, planar memory           ยณ
+;ยณ	  is not disabled).  The 8 bit 10X ports are used for setting	       ยณ
+;ยณ	  up the XMA translate table.					       ยณ
+;ยณ									       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+W_EMSPG_XREAL:
 
 	MOV	AL,WTT_CARD_SLOT	;Put the XMA/A card into setup	   @RH2
 	OR	AL,SLOT_SETUP		; mode				   @RH2
@@ -1399,21 +1399,21 @@ RM_NEXT_TT:
 	MOV	AL,0			;Reset the slot ID		   @RH5
 	OUT	96h,AL			;				   @RH5
 	RET
-W_EMSPG_XREAL  ENDP
+; ENDP W_EMSPG_XREAL
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ    Subroutine: WRITE TRANSLATE TABLE FOR EMS PAGE			       ณ
-;ณ		  Memory Expansion Option (MXO)				       ณ
-;ณ									       ณ
-;ณ	     This routine is used to map a logical page to a physical	       ณ
-;ณ	  page off the MXO card.  MXO has 16K blocks, as opposed	       ณ
-;ณ	  to 4K on the XMA.  The 8 bit 10X ports are used for setting	       ณ
-;ณ	  up MXO's translate table.  Note that the data in the	               ณ
-;ณ	  translate table is only 8 bits, and the high order bit is a	       ณ
-;ณ	  0 to inhibit translation (where inhibit = 1 on XMA).		       ณ
-;ณ									       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-W_EMSPG_HLST  PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ    Subroutine: WRITE TRANSLATE TABLE FOR EMS PAGE			       ยณ
+;ยณ		  Memory Expansion Option (MXO)				       ยณ
+;ยณ									       ยณ
+;ยณ	     This routine is used to map a logical page to a physical	       ยณ
+;ยณ	  page off the MXO card.  MXO has 16K blocks, as opposed	       ยณ
+;ยณ	  to 4K on the XMA.  The 8 bit 10X ports are used for setting	       ยณ
+;ยณ	  up MXO's translate table.  Note that the data in the	               ยณ
+;ยณ	  translate table is only 8 bits, and the high order bit is a	       ยณ
+;ยณ	  0 to inhibit translation (where inhibit = 1 on XMA).		       ยณ
+;ยณ									       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+W_EMSPG_HLST:
 	PUSH	CX			;				   @RH3
 
 	MOV	AL,WTT_CARD_SLOT	;Put the MXO card into setup	   @RH3
@@ -1445,44 +1445,44 @@ HM_WRITETT:
 
 	POP	CX			;				   @RH3
 	RET
-W_EMSPG_HLST  ENDP
+; ENDP W_EMSPG_HLST
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ    Subroutine: MULTIPLE MEMORY CARD SETUP				       ณ
-;ณ									       ณ
-;ณ	  This subroutine selects the correct card in a multicard	       ณ
-;ณ     system for mapping a physical page.  Given the absolute page	       ณ
-;ณ     number within the EMS pool (SI), it finds the card to use for	       ณ
-;ณ     this page, and converts SI to the offset of the page within	       ณ
-;ณ     this card.  Before this new page is mapped, it may be necessary	       ณ
-;ณ     to disable the translate table entry of the card that's                 ณ
-;ณ     currently mapped.						       ณ
-;ณ									       ณ
-;ณ	  On entry: (DI) is starting segment in PC address space.	       ณ
-;ณ		    (SI) absolute EMS page number (not handle relative)        ณ
-;ณ			 or FFFFh if page is to be inhibitted		       ณ
-;ณ									       ณ
-;ณ	  On exit:  (DI) is unchanged.					       ณ
-;ณ		    (SI) offset of the page within the selected card	       ณ
-;ณ			 or FFFFh if page is to be inhibitted		       ณ
-;ณ		    WTT_CARD_SLOT = Slot # of the new card to map	       ณ
-;ณ		    MEMCARD_MODE  = Flag indicating if XMA/A or MXO	       ณ
-;ณ									       ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ    Subroutine: MULTIPLE MEMORY CARD SETUP				       ยณ
+;ยณ									       ยณ
+;ยณ	  This subroutine selects the correct card in a multicard	       ยณ
+;ยณ     system for mapping a physical page.  Given the absolute page	       ยณ
+;ยณ     number within the EMS pool (SI), it finds the card to use for	       ยณ
+;ยณ     this page, and converts SI to the offset of the page within	       ยณ
+;ยณ     this card.  Before this new page is mapped, it may be necessary	       ยณ
+;ยณ     to disable the translate table entry of the card that's                 ยณ
+;ยณ     currently mapped.						       ยณ
+;ยณ									       ยณ
+;ยณ	  On entry: (DI) is starting segment in PC address space.	       ยณ
+;ยณ		    (SI) absolute EMS page number (not handle relative)        ยณ
+;ยณ			 or FFFFh if page is to be inhibitted		       ยณ
+;ยณ									       ยณ
+;ยณ	  On exit:  (DI) is unchanged.					       ยณ
+;ยณ		    (SI) offset of the page within the selected card	       ยณ
+;ยณ			 or FFFFh if page is to be inhibitted		       ยณ
+;ยณ		    WTT_CARD_SLOT = Slot # of the new card to map	       ยณ
+;ยณ		    MEMCARD_MODE  = Flag indicating if XMA/A or MXO	       ยณ
+;ยณ									       ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 
-PG_NEW_CARD_ID	   DW	?		;Holders for the ID and the slot # @RH5
-PG_NEW_CARD_SLOT   DB	?		; of the card that will be used    @RH5
+PG_NEW_CARD_ID: dw 0;Holders for the ID and the slot # @RH5
+PG_NEW_CARD_SLOT: db 0; of the card that will be used    @RH5
 					; in the new mapping		   @RH5
-MC_TABLE_OFFSET    DW	?		;Holder for offset into the	   @RH5
+MC_TABLE_OFFSET: dw 0;Holder for offset into the	   @RH5
 					; multicard page mapping table	   @RH5
 
-MLP_MCARD_SETUP PROC
+MLP_MCARD_SETUP:
 	PUSH	AX
 	PUSH	CX
 					;-------------------------------------
-					; Get the ID and slot of the card to  บ
-					;  make active.  Convert SI to be     บ
-					;  the correct page within this card. บ
+					; Get the ID and slot of the card to  ยบ
+					;  make active.  Convert SI to be     ยบ
+					;  the correct page within this card. ยบ
 					;-------------------------------------
 	PUSH	DI				   ;Loop through the mem   @RH5
 	XOR	DI,DI				   ; card table to find    @RH5
@@ -1509,8 +1509,8 @@ MC_FOUND_CARD:					   ;			   @RH5
 						   ; page within this card @RH5
 
 					;-------------------------------------
-MC_DEACTIVATE:				; Deactivate (inhibit) the translate  บ
-	POP	DI			;  table entry of the current card.   บ
+MC_DEACTIVATE:				; Deactivate (inhibit) the translate  ยบ
+	POP	DI			;  table entry of the current card.   ยบ
 					;-------------------------------------
 					; Search for the seg addr in the   @RH5
 					;  map phys pg table to get the    @RH5
@@ -1550,8 +1550,8 @@ MC_INH_HLST:					       ;Else inhibit TT    @RH5
 	CALL	W_EMSPG_HLST			       ; entry for MXO     @RH5
 
 					;-------------------------------------
-					; Activate (enable) the translate     บ
-					;  table entry of the new card.       บ
+					; Activate (enable) the translate     ยบ
+					;  table entry of the new card.       ยบ
 MC_MAP_NEW:				;-------------------------------------
 					    ;Set the multicard page frame  @RH5
 					    ; table for the new card	   @RH5
@@ -1584,18 +1584,18 @@ MC_END_PROC:				    ; WTT_CARD_SLOT = card slot #  @RH5
 	POP	CX			    ; MEMCARD_MODE = flag showing  @RH5
 	POP	AX			    ;	if card is XMAA or MXO     @RH5
 	RET				    ;				   @RH5
-MLP_MCARD_SETUP  ENDP
+; ENDP MLP_MCARD_SETUP
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for DEALLOCATE PAGES	      Function 6	บ
-;บ									บ
-;บ	on entry: (AH) = '45'x                                          บ
-;บ		  (DX) = handle 					บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  AX Revised...all other registers preserved		บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-DE_ALLOCATE PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for DEALLOCATE PAGES	      Function 6	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '45'x                                          ยบ
+;ยบ		  (DX) = handle 					ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  AX Revised...all other registers preserved		ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+DE_ALLOCATE:
 	PUSH	BX			;save these registers
 	PUSH	CX
 	PUSH	DX
@@ -1635,8 +1635,8 @@ D_OKRANGE:				;check if active (valid) handle
 	    MOV     AH,EMS_CODE83	;No handle not in use.	error.
 	    JMP     DA_EXIT		;exit
 			;-----------------------------------------------------
-D_OKHNDL:		; Before deallocation can continue, insure the	 @RH1 บ
-			;  page frame map is not saved under this handle @RH1 บ
+D_OKHNDL:		; Before deallocation can continue, insure the	 @RH1 ยบ
+			;  page frame map is not saved under this handle @RH1 ยบ
 			;-----------------------------------------------------
 	PUSH	DX				 ;Save handle id	   @RH1
 	MOV	AX,DX				 ;Get the correct offset   @RH1
@@ -1700,7 +1700,7 @@ D_Depat_Exit1:
 
 	mov	ax,cs					;swap segs		;an000; dms;
 	mov	ds,ax					;			;an000; dms;
-	mov	si,offset cs:Null_Handle_Name		;point to null handle	;an000; dms;
+	mov	si,Null_Handle_Name		;point to null handle	;an000; dms;
 	mov	ax,5301h				;set handle name func	;an000; dms;
 	call	Handle_Name				;set the handle name to ;an000; dms;
 							;  nulls
@@ -1726,7 +1726,7 @@ DA_EXIT:
 	POP	BX
 
 	RET
-DE_ALLOCATE ENDP
+; ENDP DE_ALLOCATE
 
 
 ;====================================================================
@@ -1739,7 +1739,7 @@ DE_ALLOCATE ENDP
 ;
 ;====================================================================
 
-Deallocate_Chain	proc				;deallocate page	;an000; dms;
+Deallocate_Chain:;deallocate page	;an000; dms;
 
 	push	ax					;save regs		;an000; dms;
 	push	bx					;			;an000; dms;
@@ -1769,35 +1769,35 @@ Deallocate_Chain	proc				;deallocate page	;an000; dms;
 
 	ret						;			;an000; dms;
 
-Deallocate_Chain	endp				;			;an000; dms;
+; ENDP Deallocate_Chain;			;an000; dms;
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for QUERY MEMORY MANAGER VERSION  Function 7	บ
-;บ									บ
-;บ	on entry: (AH) = '46'x                                          บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-Q_VERSION PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for QUERY MEMORY MANAGER VERSION  Function 7	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '46'x                                          ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+Q_VERSION:
 	MOV	AL,EMM_VERSION		;al get version number
 	XOR	AH,AH			;good return code
 	RET
-Q_VERSION ENDP
+; ENDP Q_VERSION
 
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for SAVE MAPPING CONTEXT	      Function 8	บ
-;บ									บ
-;บ	on entry: (AH) = '47'x                                          บ
-;บ		  (DX) = handle assigned to the interrupt service	บ
-;บ			 routine (i.e. save map under this handle).	บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-SAVE_MAP PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for SAVE MAPPING CONTEXT	      Function 8	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '47'x                                          ยบ
+;ยบ		  (DX) = handle assigned to the interrupt service	ยบ
+;ยบ			 routine (i.e. save map under this handle).	ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+SAVE_MAP:
 	PUSH	DX
 	PUSH	DI
 	PUSH	SI
@@ -1830,10 +1830,10 @@ SM_HACTIVE:
 	MOV	DX,TYPE H_SAVE_STRUC	    ; offset into the handle	   @RH1
 	MUL	DX			    ; save area 		   @RH1
 	MOV	DI,AX			    ;Add the table base to	   @RH1
-	ADD	DI,OFFSET HANDLE_SAVE_AREA  ; make ES:DI a pointer	   @RH1
+	ADD	DI,HANDLE_SAVE_AREA  ; make ES:DI a pointer	   @RH1
 
 					;-------------------------------------
-					; Insure save area free for this hndl บ
+					; Insure save area free for this hndl ยบ
 SM_AREACHECK:				;-------------------------------------
 	CMP	[DI].PG0_LP,REUSABLE_SAVEA
 	JE	SM_SAVE_OK		;If 1st entry free then OK to save @RH1
@@ -1849,7 +1849,7 @@ SM_EXIT:
 	POP	DI
 	POP	DX
 	RET				;return to caller
-SAVE_MAP ENDP
+; ENDP SAVE_MAP
 
 ;-----------------------------------------------------------------------;
 ;	Subroutine:  SAVE PAGE FRAME MAP				;
@@ -1868,7 +1868,7 @@ SAVE_MAP ENDP
 ;									;
 ;	on exit:  All registers preserved				;
 ;-----------------------------------------------------------------------;
-SAVE_PGFRM_MAP PROC
+SAVE_PGFRM_MAP:
 	PUSH	AX			;save these registers
 	PUSH	CX
 	PUSH	DI
@@ -1878,8 +1878,8 @@ SAVE_PGFRM_MAP PROC
 	PUSH	CS			;get this segment into DS
 	POP	DS
 					;-------------------------------------
-					; Read the current handle ID and log  บ
-					;  pg #s in the mappable phys pg tableบ
+					; Read the current handle ID and log  ยบ
+					;  pg #s in the mappable phys pg tableยบ
 					;-------------------------------------
 	CLD				;Set direction for STOSW forward   @RH5
 	XOR	SI,SI			;Clear offset into mappable phys.  @RH5
@@ -1898,20 +1898,20 @@ SM_HLP_STORE:					  ;Store the word for the  @RH5
 	POP	CX
 	POP	AX
 	RET				;return to caller
-SAVE_PGFRM_MAP ENDP
+; ENDP SAVE_PGFRM_MAP
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for RESTORE MAPPING CONTEXT       Function 9	บ
-;บ									บ
-;บ	on entry: (AH) = '48'x                                          บ
-;บ		  (DX) = handle assigned to the interrupt service	บ
-;บ			 routine (i.e. handle map was saved under).	บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-RESTORE_MAP PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for RESTORE MAPPING CONTEXT       Function 9	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '48'x                                          ยบ
+;ยบ		  (DX) = handle assigned to the interrupt service	ยบ
+;ยบ			 routine (i.e. handle map was saved under).	ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+RESTORE_MAP:
 	PUSH	BX
 	PUSH	CX
 	PUSH	DX
@@ -1943,10 +1943,10 @@ RM_HACTIVE:
 	MOV	DX,TYPE H_SAVE_STRUC		 ; offset into the handle  @RH1
 	MUL	DX				 ; save area		   @RH1
 	MOV	SI,AX				 ;Add the table base to    @RH1
-	ADD	SI,OFFSET HANDLE_SAVE_AREA	 ; make DS:SI a pointer    @RH1
+	ADD	SI,HANDLE_SAVE_AREA	 ; make DS:SI a pointer    @RH1
 
 					;-------------------------------------
-					; Insure save area used for this hndl บ
+					; Insure save area used for this hndl ยบ
 RM_AREACHECK:				;-------------------------------------
 	CMP	[SI].PG0_LP,REUSABLE_SAVEA	 ;Unused save table entry? @RH1
 	JNE	RM_SAVE_OK			 ;No used..OK check next   @RH1
@@ -1954,14 +1954,14 @@ RM_AREACHECK:				;-------------------------------------
 	   JMP	   RM_EXIT			 ; saved. Exit.
 
 					;-------------------------------------
-					; Call RESTORE_PGFRM_MAP	      บ
+					; Call RESTORE_PGFRM_MAP	      ยบ
 RM_SAVE_OK:				;-------------------------------------
 	CALL	RESTORE_PGFRM_MAP	;Restore page frame map
 	CMP	AH,0			;Successful?
 	JNE	RM_EXIT 		;No  exit
 
 					;-------------------------------------
-					; Clear the save area for the handle  บ
+					; Clear the save area for the handle  ยบ
 					;-------------------------------------
 					;DS:SI still ptr to save area  @RH5
 	MOV	CX,map_count		;Clear all saved entries       @RH5
@@ -1978,7 +1978,7 @@ RM_EXIT:
 	POP	CX
 	POP	BX
 	RET				;return to caller
-RESTORE_MAP ENDP
+; ENDP RESTORE_MAP
 
 ;-----------------------------------------------------------------------;
 ;	Subroutine: RESTORE PAGE FRAME MAP				;
@@ -1999,7 +1999,7 @@ RESTORE_MAP ENDP
 ;			 All other registers preserved			;
 ;									;
 ;-----------------------------------------------------------------------;
-RESTORE_PGFRM_MAP PROC
+RESTORE_PGFRM_MAP:
 	PUSH	BX
 	PUSH	CX
 	PUSH	DX
@@ -2032,19 +2032,19 @@ RP_EXIT:
 	POP	CX
 	POP	BX
 	RET				;return to caller
-RESTORE_PGFRM_MAP ENDP
+; ENDP RESTORE_PGFRM_MAP
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for GET EMM HANDLE COUNT	      Function 12	บ
-;บ									บ
-;บ	on entry: (AH) = '4B'x                                          บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  (BX) = number of open (active) EMS handles		บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-Q_OPEN	PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for GET EMM HANDLE COUNT	      Function 12	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '4B'x                                          ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  (BX) = number of open (active) EMS handles		ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+Q_OPEN:
 	PUSH	CX			;save these registers
 	PUSH	SI
 	PUSH	DS
@@ -2069,20 +2069,20 @@ QH_NEXTH:
 	POP	SI
 	POP	CX
 	RET				;return to caller
-Q_OPEN	ENDP
+; ENDP Q_OPEN
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for GET EMM HANDLE PAGES	      Function 13	บ
-;บ			 NOTE - CAN HANDLE HANDLE WITH 0 PAGES		บ
-;บ	on entry: (AH) = '4C'x                                          บ
-;บ		  (DX) = handle id					บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  (BX) = number of pages allocated to this handle	บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-Q_ALLOCATE PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for GET EMM HANDLE PAGES	      Function 13	ยบ
+;ยบ			 NOTE - CAN HANDLE HANDLE WITH 0 PAGES		ยบ
+;ยบ	on entry: (AH) = '4C'x                                          ยบ
+;ยบ		  (DX) = handle id					ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  (BX) = number of pages allocated to this handle	ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+Q_ALLOCATE:
 	PUSH	DX			;save these registers
 	PUSH	SI
 	PUSH	DS
@@ -2114,25 +2114,25 @@ Q_ALLOC_EXIT:
 	POP	SI
 	POP	DX
 	RET				;return to caller
-Q_ALLOCATE ENDP
+; ENDP Q_ALLOCATE
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for GET ALL OPEN HANDLES AND PAGES	Function 14	บ
-;บ									บ
-;บ	on entry: (AH)	= '4D'x                                         บ
-;บ		  ES:DI = Points to an array.  Each entry consists of	บ
-;บ			  2 words.  The first word is for an active	บ
-;บ			  EMS handle and the 2nd word for the number	บ
-;บ			  of pages allocated to that handle.  This	บ
-;บ			  procedure will fill in the table, but the	บ
-;บ			  requestor must supply a large enough array.	บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  (BX) = Number of active EMS handles			บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-Q_OPEN_ALL PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for GET ALL OPEN HANDLES AND PAGES	Function 14	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH)	= '4D'x                                         ยบ
+;ยบ		  ES:DI = Points to an array.  Each entry consists of	ยบ
+;ยบ			  2 words.  The first word is for an active	ยบ
+;ยบ			  EMS handle and the 2nd word for the number	ยบ
+;ยบ			  of pages allocated to that handle.  This	ยบ
+;ยบ			  procedure will fill in the table, but the	ยบ
+;ยบ			  requestor must supply a large enough array.	ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  (BX) = Number of active EMS handles			ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+Q_OPEN_ALL:
 	PUSH	CX			;save these registers
 	PUSH	DX
 	PUSH	DI
@@ -2142,7 +2142,7 @@ Q_OPEN_ALL PROC
 	PUSH	CS			;get this segment
 	POP	DS			;into ds
 
-	MOV	DI,cs:[bp].IE_Saved_DI_Reg ;restore di to its value on	- gga P1501 ;an004;
+	MOV	DI,[cs:bp].IE_Saved_DI_Reg ;restore di to its value on	- gga P1501 ;an004;
 					;entry
 
 	XOR	BX,BX			;Init number of active handles	   @RH1
@@ -2154,8 +2154,8 @@ QHP_CHECKALL:
 	CMP	AX,REUSABLE_HANDLE	;If entry is reusable (free),	   @RH1
 	JE	QHP_NEXT		; don't count it.  Check next hndl @RH1
 	INC	BX			;Else active handle. Inc hndl cnt  @RH1
-	MOV	ES: WORD PTR [DI],DX	;Write handle # in the user's area @RH1
-	MOV	ES: WORD PTR [DI+2],AX	;Write # of pages in the 2nd word  @RH1
+	MOV	ES: word [DI],DX	;Write handle # in the user's area @RH1
+	MOV	ES: word [DI+2],AX	;Write # of pages in the 2nd word  @RH1
 	ADD	DI,4			;Advance ptr to user's area        @RH1
 QHP_NEXT:				;Check next entry in h lup table   @RH1
 	ADD	SI,TYPE H_LOOKUP_STRUC	;Inc offset into handle lup table  @RH1
@@ -2170,35 +2170,35 @@ QHP_NEXT:				;Check next entry in h lup table   @RH1
 	POP	DX
 	POP	CX
 	RET				;return to caller
-Q_OPEN_ALL ENDP
+; ENDP Q_OPEN_ALL
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for GET/SET PAGE MAP SUBFUNCTIONS	Function 15	บ
-;บ									บ
-;บ	on entry: (AH) = '4E'x                                          บ
-;บ		  (AL) = subfunction number				บ
-;บ		  ES:DI = destination save area for Get Subfunction	บ
-;บ		  DS:SI = source save area for Set Subfunction		บ
-;บ									บ
-;บ	on exit:  (AH) = status 					บ
-;บ		  all other registers preserved 			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-SUBFCN_TABLE LABEL WORD
-	DW	OFFSET GET_SUBFCN	;0 - Put page frame map into ES:DI array
-	DW	OFFSET SET_SUBFCN	;1 - Set page frame map from DS:SI array
-	DW	OFFSET GET_SET_SUBFCN	;2 - Put page frame map into ES:DI array
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for GET/SET PAGE MAP SUBFUNCTIONS	Function 15	ยบ
+;ยบ									ยบ
+;ยบ	on entry: (AH) = '4E'x                                          ยบ
+;ยบ		  (AL) = subfunction number				ยบ
+;ยบ		  ES:DI = destination save area for Get Subfunction	ยบ
+;ยบ		  DS:SI = source save area for Set Subfunction		ยบ
+;ยบ									ยบ
+;ยบ	on exit:  (AH) = status 					ยบ
+;ยบ		  all other registers preserved 			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+SUBFCN_TABLE:
+	DW	GET_SUBFCN	;0 - Put page frame map into ES:DI array
+	DW	SET_SUBFCN	;1 - Set page frame map from DS:SI array
+	DW	GET_SET_SUBFCN	;2 - Put page frame map into ES:DI array
 					;and Set page frame map from DS:SI array
 MAX_SUBFCN EQU	($-SUBFCN_TABLE)/2	;maximum allowable subfunction number
-	DW	OFFSET SIZE_SUBFCN	;3 - Return storage requirements of the
+	DW	SIZE_SUBFCN	;3 - Return storage requirements of the
 					;Get and Set subfunctions
-GET_SET_MAP PROC
-	MOV	DI,cs:[bp].IE_Saved_DI_Reg ;restore di to its value on
+GET_SET_MAP:
+	MOV	DI,[cs:bp].IE_Saved_DI_Reg ;restore di to its value on
 	PUSH	BX			;save bx
 	CMP	AL,MAX_SUBFCN		;is subfunctiion number within range?
 ;	$IF	BE			;do if yes...
 	JNBE $$IF86
-	    MOV     BX,OFFSET GET_SET_EXIT ;get return address common to all subfcns
+	    MOV     BX,GET_SET_EXIT ;get return address common to all subfcns
 	    PUSH    BX			;put it on stack for return
 	    XOR     AH,AH		;adjust ax to make it
 	    ADD     AX,AX		;     offset into jump table
@@ -2215,10 +2215,10 @@ $$IF86:
 GET_SET_EXIT:
 	POP	BX			;recover bx
 	RET				;return to caller
-GET_SET_MAP ENDP
+; ENDP GET_SET_MAP
 
 
-	page
+	; page
 ;-----------------------------------------------------------------------;
 ;	Subfunction 0 to GET PAGE MAP		      Function 15/0	;
 ;									;
@@ -2229,7 +2229,7 @@ GET_SET_MAP ENDP
 ;	on exit:  (AH) = status 					;
 ;		  all other registers preserved 			;
 ;-----------------------------------------------------------------------;
-GET_SUBFCN PROC
+GET_SUBFCN:
 	PUSH	DI			;save
 	PUSH	ES			;save
 
@@ -2239,7 +2239,7 @@ GET_SUBFCN PROC
 	POP	ES			;restore
 	POP	DI			;restore
 	RET				;return to caller
-GET_SUBFCN ENDP
+; ENDP GET_SUBFCN
 
 
 ;-----------------------------------------------------------------------;
@@ -2252,7 +2252,7 @@ GET_SUBFCN ENDP
 ;	on exit:  (AH) = status 					;
 ;		  all other registers preserved 			;
 ;-----------------------------------------------------------------------;
-SET_SUBFCN PROC
+SET_SUBFCN:
 	PUSH	SI			;save
 	PUSH	DS			;save
 	CALL	RESTORE_PGFRM_MAP	;restore page frame map from DS:SI
@@ -2260,7 +2260,7 @@ SET_SUBFCN PROC
 	POP	DS			;restore
 	POP	SI			;restore
 	RET				;return to caller
-SET_SUBFCN ENDP
+; ENDP SET_SUBFCN
 
 
 ;-----------------------------------------------------------------------;
@@ -2274,11 +2274,11 @@ SET_SUBFCN ENDP
 ;	on exit:  (AH) = status 					;
 ;		  all other registers preserved 			;
 ;-----------------------------------------------------------------------;
-GET_SET_SUBFCN PROC
+GET_SET_SUBFCN:
 	PUSH	DI
 	PUSH	SI
 
-	MOV	DI,cs:[bp].IE_Saved_DI_Reg	    ;restore di to its value on
+	MOV	DI,[cs:bp].IE_Saved_DI_Reg	    ;restore di to its value on
 					;entry into irpt handler
 
 	CALL	SAVE_PGFRM_MAP		;save page frame map to ES:DI
@@ -2288,7 +2288,7 @@ GET_SET_SUBFCN PROC
 	POP	SI
 	POP	DI
 	RET				;return to caller
-GET_SET_SUBFCN ENDP
+; ENDP GET_SET_SUBFCN
 
 ;-----------------------------------------------------------------------;
 ;	Subfunction 3 to RETURN SIZE OF SAVE ARRAY    Function 15/3	;
@@ -2300,11 +2300,11 @@ GET_SET_SUBFCN ENDP
 ;		  (AL) = Number of bytes needed for a GET or SET	;
 ;		  all other registers preserved 			;
 ;-----------------------------------------------------------------------;
-SIZE_SUBFCN PROC
+SIZE_SUBFCN:
 	MOV	AL,TYPE H_SAVE_STRUC	;get size requirements for save area
 	XOR	AH,AH			;good return status
 	RET				;return to caller
-SIZE_SUBFCN ENDP
+; ENDP SIZE_SUBFCN
 
 ;=========================================================================
 ; Set_Instance		This routine accesses the instance table.
@@ -2317,17 +2317,17 @@ SIZE_SUBFCN ENDP
 ;		  AH - error code on CY
 ;=========================================================================
 
-Set_Instance	proc				;set the instance table 	;an000; dms;
+Set_Instance:;set the instance table 	;an000; dms;
 
 	cli					;disable interrupts		;an000; dms;
 	push	cx				;				;an000; dms;
 
-	mov	bp,offset cs:Instance_Table	;get pointer to instance table	;an000; dms;
+	mov	bp,Instance_Table	;get pointer to instance table	;an000; dms;
 	mov	cx,Instance_Count		;number of instances		;an000; dms;
 
 Set_Instance_Loop:
 
-	cmp	cs:[bp].IE_Alloc_Byte,Unallocated;unallocated entry?		 ;an000; dms;
+	cmp	[cs:bp].IE_Alloc_Byte,Unallocated;unallocated entry?		 ;an000; dms;
 	je	Set_Instance_Found		;open entry			;an000; dms;
 	add	bp,Instance_Size		;next instance			;an000; dms;
 	loop	Set_Instance_Loop		;continue			;an000; dms;
@@ -2338,7 +2338,7 @@ Set_Instance_Loop:
 
 Set_Instance_Found:
 
-	mov	cs:[bp].IE_Alloc_Byte,Allocated ;instance allocated		;an000; dms;
+	mov	[cs:bp].IE_Alloc_Byte,Allocated ;instance allocated		;an000; dms;
 	clc					;signal good exit		;an000; dms;
 
 Set_Instance_Exit:
@@ -2348,7 +2348,7 @@ Set_Instance_Exit:
 
 	ret					;return 			;an000; dms;
 
-Set_Instance	endp				;				;an000; dms;
+; ENDP Set_Instance;				;an000; dms;
 
 ;=========================================================================
 ; Reset_Instance	This routine accesses the instance table.
@@ -2358,26 +2358,26 @@ Set_Instance	endp				;				;an000; dms;
 ;	Outputs : Instance_Table - Deactivated instance entry
 ;=========================================================================
 
-Reset_Instance	proc
+Reset_Instance:
 
 	cli					;turn off interrupts		;an000; dms;
-	mov	cs:[bp].IE_Alloc_Byte,Unallocated;deallocate instance		 ;an000; dms;
+	mov	[cs:bp].IE_Alloc_Byte,Unallocated;deallocate instance		 ;an000; dms;
 	sti					;set interrupts 		;an000; dms;
 
 	ret					;return 			;an000; dms;
 
-Reset_Instance	endp				;				;an000; dms;
+; ENDP Reset_Instance;				;an000; dms;
 
 
-;ษออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
-;บ	Entry point for UNSUPPORTED FUNCTION CALLS			บ
-;ศออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
-UNSUPPORTED PROC
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ	Entry point for UNSUPPORTED FUNCTION CALLS			ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
+UNSUPPORTED:
 
 GET_PORT_ARRAY:
 GET_L_TO_P:
 	RET
-UNSUPPORTED ENDP
+; ENDP UNSUPPORTED
 
 
 ;=========================================================================
@@ -2399,7 +2399,7 @@ UNSUPPORTED ENDP
 ;		  SI (Pointer to 1st. page of CX contiguous pages)
 ;=========================================================================
 
-EMS_Page_Contig_Chk	proc	near			;determine contiguity	;an001; dms;
+EMS_Page_Contig_Chk:;determine contiguity	;an001; dms;
 
 	push	ax					;save regs		;an001; dms;
 	push	bx					;			;an001; dms;
@@ -2461,7 +2461,7 @@ EMS_Page_Contig_Exit:
 
 	ret						;return to caller	;an001; dms;
 
-EMS_Page_Contig_Chk	endp				;end proc		;an001; dms;
+; ENDP EMS_Page_Contig_Chk;end proc		;an001; dms;
 
 
 
@@ -2478,7 +2478,7 @@ EMS_Page_Contig_Chk	endp				;end proc		;an001; dms;
 ;=========================================================================
 
 
-EMS_Link_Set	proc	near				;set contig links	;an001; dms;
+EMS_Link_Set:;set contig links	;an001; dms;
 
 	push	ax					;save regs		;an001; dms;
 	push	bx					;			;an001; dms;
@@ -2554,38 +2554,38 @@ EMS_Link_Set_Up_Exit:
 
 	ret						;return to caller	;an001; dms;
 
-EMS_Link_Set	endp					;			;an001; dms;
+; ENDP EMS_Link_Set;			;an001; dms;
 
 
 
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฟ
-;ณ								     ณ
-;ณ	LIM 4.0 functions are kept in a seperate include file,	     ณ
-;ณ	LIM40.INC						     ณ
-;ณ								     ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤู
-include lim40.inc
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยฟ
+;ยณ								     ยณ
+;ยณ	LIM 4.0 functions are kept in a seperate include file,	     ยณ
+;ยณ	LIM40.INC						     ยณ
+;ยณ								     ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+%include "lim40.inc"
 
 Instance_Table	db	Instance_Size*Instance_Count dup(Unallocated)  ;instance table	     ;an000; dms;
 
 RESIDENT:				;last address that must stay resident
-PAGE
-PAGE
+; PAGE
+; PAGE
 
-INCLUDE EMSINIT.INC			;Main file for throwaway
+%include "EMSINIT.INC";Main file for throwaway
 					; initialization code
-INCLUDE XMA1DIAG.INC			;XMA 1 diagnostics and routines
-INCLUDE PS2_5060.INC			;Diagnostics for PS/2 models 50    @RH2
+%include "XMA1DIAG.INC";XMA 1 diagnostics and routines
+%include "PS2_5060.INC";Diagnostics for PS/2 models 50    @RH2
 					; and 60.  Support for XMA/A and   @RH2
 					; MXO cards	 		   @RH2
-INCLUDE XMA2EMS.CL1
+%include "XMA2EMS.CL1"
 
 
 TEMP_STACK DB	STACK_SIZE DUP(0)	;RESERVE FOR TEMP STACK
-TOP_OF_STACK DB ?			;DURING INITIALIZATION
+TOP_OF_STACK: db 0;DURING INITIALIZATION
 
-CSEG	ENDS
-	END	START
+; END SECTION .CSEG
+	; END	START
 
 

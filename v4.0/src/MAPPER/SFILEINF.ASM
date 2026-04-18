@@ -1,18 +1,18 @@
 ; 0
-page 80,132
+; page 80,132
 
-title CP/DOS DosSetFileInfo mapper
-
-
-FileAttributeSegment	segment word public 'fat'
-
-	extrn	FileAttributeTable:word
-
-FileAttributeSegment	ends
+; title CP/DOS DosSetFileInfo mapper
 
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .FileAttributeSegment
+
+	extern FileAttributeTable
+
+; END SECTION .FileAttributeSegment
+
+
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -32,30 +32,30 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-	    public   dossetfileinfo
-	    .sall
-	    .xlist
-	    include  macros.inc
-	    .list
+	    global dossetfileinfo
+	    ; .sall
+	    ; .xlist
+	    %include "macros.inc"
+	    ; .list
 
 
 
-str	    struc
-old_bp	    dw	     ?
-return	    dd	     ?
-BufferSize  dw	     ?		; file info buufer size
-BufferPtr   dd	     ?		; file info buffer
-Level	    dw	     ?		; file info level
-Handle	    dw	     ?		; file handle
-str	    ends
+struc str
+old_bp: resw 1
+return: resd 1
+BufferSize: resw 1; file info buufer size
+BufferPtr: resd 1; file info buffer
+Level: resw 1; file info level
+Handle: resw 1; file handle
+endstruc
 
-dossetfileinfo	proc	 far
+dossetfileinfo:
 	Enter	dossetfileinfo	      ; push registers
 
 	mov	bx,[bp].Handle	      ; fill registers for function call
 	lds	si,[bp].BufferPtr     ; date/time pointer
-	mov	dx,word ptr [si]+8    ; date to be set
-	mov	cx,word ptr [si]+10   ; time to be set
+	mov	dx,word [si]+8    ; date to be set
+	mov	cx,word [si]+10   ; time to be set
 
 	mov	ax,5701h
 	int	21h
@@ -80,10 +80,10 @@ dossetfileinfo	proc	 far
 
 ErrorExit:
 	mexit			       ; pop registers
-	ret	size  str - 6	       ; return
+	ret	str_size - 6	       ; return
 
-dossetfileinfo endp
+; ENDP dossetfileinfo
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

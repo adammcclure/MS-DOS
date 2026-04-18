@@ -1,55 +1,55 @@
-TITLE	CHKPROC - PART1 Procedures called from chkdsk
-page	,132					;
+; TITLE	CHKPROC - PART1 Procedures called from chkdsk
+; page	,132;
 
-	.xlist
-	include chkseg.inc
-	INCLUDE CHKCHNG.INC
-	INCLUDE DOSSYM.INC
-	INCLUDE CHKEQU.INC
-	INCLUDE CHKMACRO.INC
-	include pathmac.inc
-	.list
+	; .xlist
+	%include "chkseg.inc"
+	%include "CHKCHNG.INC"
+	%include "DOSSYM.INC"
+	%include "CHKEQU.INC"
+	%include "CHKMACRO.INC"
+	%include "pathmac.inc"
+	; .list
 
 
-DATA	SEGMENT PUBLIC PARA 'DATA'
-	EXTRN	FIXMES_ARG:word,DIREC_ARG:word
-	EXTRN	NULDMES:byte,NULNZ:byte,BADCLUS:byte,NORECDOT:byte
-	EXTRN	NoRecDDot:Byte
-	EXTRN	BADCHAIN:byte,NDOTMES:byte,CDDDMES:byte
-	EXTRN	NORECDDOT1:byte,NORECDDOT2:byte,NORECDDOT3:byte
-	EXTRN	STACKMES:byte
-	EXTRN	BADDPBDIR:byte, BadSubDir:byte
-	EXTRN	BADTARG_PTR:byte,BADTARG2:byte,JOINMES:byte
-	EXTRN	PTRANDIR:byte,PTRANDIR2:byte
-	EXTRN	CROSS_ARG:word,NOISY_ARG:word
-	EXTRN	FILE_ARG1:WORD,FILE_ARG2:WORD,FILE_ARG:word
-	EXTRN	DOTMES:byte,NOISY:byte,DOTENT:byte,HAVFIX:byte
-	EXTRN	DOFIX:byte,DIRBUF:byte,PARSTR:byte,DDOTENT:byte
-	EXTRN	NUL:byte,ERRSUB:word,SECONDPASS:byte,ALLFILE:byte
-	EXTRN	HIDCNT:dword,HIDSIZ:word,FILCNT:dword,FILSIZ:word	   ;an049;bgb
-	EXTRN	DIRCNT:dword							;an049;bgb
-	EXTRN	DIRSIZ:word							;an049;bgb
-	EXTRN	DIRTYFAT:byte,
-	EXTRN	HECODE:byte
-	EXTRN	ALLDRV:byte,FIXMFLG:byte,DIRCHAR:byte
-	EXTRN	BIGFAT:byte,EOFVAL:word,BADVAL:word
-	Extrn	fTrunc:BYTE							;ac048;bgb
-	Extrn	dirsec:word							;ac048;bgb
+SECTION .DATA
+	extern FIXMES_ARG,DIREC_ARG
+	extern NULDMES,NULNZ,BADCLUS,NORECDOT
+	extern NoRecDDot
+	extern BADCHAIN,NDOTMES,CDDDMES
+	extern NORECDDOT1,NORECDDOT2,NORECDDOT3
+	extern STACKMES
+	extern BADDPBDIR, BadSubDir
+	extern BADTARG_PTR,BADTARG2,JOINMES
+	extern PTRANDIR,PTRANDIR2
+	extern CROSS_ARG,NOISY_ARG
+	extern FILE_ARG1,FILE_ARG2,FILE_ARG
+	extern DOTMES,NOISY,DOTENT,HAVFIX
+	extern DOFIX,DIRBUF,PARSTR,DDOTENT
+	extern NUL,ERRSUB,SECONDPASS,ALLFILE
+	extern HIDCNT,HIDSIZ,FILCNT,FILSIZ;an049;bgb
+	extern DIRCNT;an049;bgb
+	extern DIRSIZ;an049;bgb
+	extern DIRTYFAT,
+	extern HECODE
+	extern ALLDRV,FIXMFLG,DIRCHAR
+	extern BIGFAT,EOFVAL,BADVAL
+	extern fTrunc;ac048;bgb
+	extern dirsec;ac048;bgb
 
-	EXTRN	THISDPB:dword,DOTSNOGOOD:byte,NUL_ARG:byte,STACKLIM:word
-	EXTRN	ZEROTRUNC:byte,NAMBUF:byte,SRFCBPT:word,FATMAP:word
-	EXTRN	ISCROSS:byte,MCLUS:word,CSIZE:byte,SSIZE:word,fattbl:byte
-	EXTRN	DSIZE:word,ARG1:word,ARG_BUF:byte,TMP_SPC:BYTE
-	EXTRN	SECBUF:word
-	EXTRN	Inv_XA_Msg:Byte,Alloc_XA_Msg:Byte
-	Extrn	Data_Start_Low:Word,Data_Start_High:Word
-	EXTRN	Read_Write_Relative:Byte
-	EXTRN	MClus:Word,Chain_End:Word
+	extern THISDPB,DOTSNOGOOD,NUL_ARG,STACKLIM
+	extern ZEROTRUNC,NAMBUF,SRFCBPT,FATMAP
+	extern ISCROSS,MCLUS,CSIZE,SSIZE,fattbl
+	extern DSIZE,ARG1,ARG_BUF,TMP_SPC
+	extern SECBUF
+	extern Inv_XA_Msg,Alloc_XA_Msg
+	extern Data_Start_Low,Data_Start_High
+	extern Read_Write_Relative
+	extern MClus,Chain_End
 
 XA_Buffer XAL	<>				;XA buffer space to read in 1st sector	;AN000;
 Head_Mark db	0				;Flag for MarkMap			;AN000;
 BClus	dw	0				;Bytes/Cluster
-public cross_clus
+global cross_clus
 Cross_Clus dw	0				;Cluster crosslink occurred on
 Cluster_Count dw 0				;				;AN000;
 First_Cluster dw 0				;				;AN000;
@@ -61,54 +61,54 @@ Chain_Size_Low	dw	0			;				;AN000;
 Chain_Size_High dw	0			;				;AN000;
 
 
-public Head_Mark
-public BClus
-public Cluster_Count
-public First_Cluster
-public Previous_Cluster
-public XA_Pass
-public File_Size_High
-public File_Size_Low
-public Chain_Size_Low
-public Chain_Size_High
-DATA	ENDS
+global Head_Mark
+global BClus
+global Cluster_Count
+global First_Cluster
+global Previous_Cluster
+global XA_Pass
+global File_Size_High
+global File_Size_Low
+global Chain_Size_Low
+global Chain_Size_High
+; END SECTION .DATA
 
 
-CODE	SEGMENT PUBLIC PARA 'CODE'
-ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
+SECTION .CODE
+; ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
 ;Structures used by DIRPROC
-SRCHFCB STRUC
-	DB	44 DUP (?)
-SRCHFCB ENDS
-SFCBSIZ EQU	SIZE SRCHFCB
-	EXTRN	PRINTF_CRLF:NEAR,SUBERRP:NEAR,FCB_TO_ASCZ:NEAR
-	EXTRN	FIGREC:NEAR,EPRINT:NEAR
-	EXTRN	DOINT26:NEAR,PROMPTYN:NEAR
-	EXTRN	DOTCOMBMES:NEAR,FATAL:NEAR,MARKMAP:NEAR,GETFILSIZ:NEAR
-	EXTRN	SYSTIME:NEAR, Read_Disk:Near,DoCRLF:Near
-	extrn	crosschk:near
-	extrn	UNPACK:near, PACK:near
-public DOTDOTHARDWAY, NODOT, DOEXTMES1, MESD1, CANTREC, DOTGOON, NODDOT
-public DOEXTMES2, MESD2, NFIX, CANTREC2, NULLDIRERR, DOEXTMES3, DOTSBAD
-public dotsbad2, DIRPROC, STACKISOK, NOPRINT, JOINERR
-public NONULLDERr, DOTOK, DATTOK, DLINKOK, BADDSIZ, DSIZOK, CHKDOTDOT
-public DOTDOTOK, DDATTOK, DDLINKOK, BADDDSIZ, DDSIZOK, ROOTDIR
-public DODDH, DIRDONE, MOREDIR, FPROC1, NOPRINT2, HIDENFILE, NORMFILE, NEWDIR
-public DPROC1, CONVDIR, DPROC2, CANTTARG, BogusDir, ASKCONV
-public PRINTTRMES, CROSSLOOK, CHLP, CROSSLINK, CHAINDONE
-public FIXENT2, RET20, FIXENT, GETENT, CLUSISOK
-public SKIPLP, GOTCLUS, DOROOTDIR, RDRETRY, RDOK2, WANTROOT, CHECKNOFMES, ret14
-public CHECKERR, get_currdirERR, ok_pri_dir, get_thiselERR, ok_pri_el
-public get_THISEL, get_THISEL2, get_currdir, GET_END, ERRLOOP, LPDONE
-public CHECK_SPLICE, NT_SPLC, MarkFAT, Bad_Cluster, Check_Chain_Sizes
-public print_filename								;ac048;bgb
-public NOTROOT									;ac048;bgb
-public FIXDOT									;ac048;bgb
+struc SRCHFCB
+	resb 44
+endstruc
+SFCBSIZ EQU	SRCHFCB_size
+	extern PRINTF_CRLF,SUBERRP,FCB_TO_ASCZ
+	extern FIGREC,EPRINT
+	extern DOINT26,PROMPTYN
+	extern DOTCOMBMES,FATAL,MARKMAP,GETFILSIZ
+	extern SYSTIME, Read_Disk,DoCRLF
+	extern crosschk
+	extern UNPACK, PACK
+global DOTDOTHARDWAY, NODOT, DOEXTMES1, MESD1, CANTREC, DOTGOON, NODDOT
+global DOEXTMES2, MESD2, NFIX, CANTREC2, NULLDIRERR, DOEXTMES3, DOTSBAD
+global dotsbad2, DIRPROC, STACKISOK, NOPRINT, JOINERR
+global NONULLDERr, DOTOK, DATTOK, DLINKOK, BADDSIZ, DSIZOK, CHKDOTDOT
+global DOTDOTOK, DDATTOK, DDLINKOK, BADDDSIZ, DDSIZOK, ROOTDIR
+global DODDH, DIRDONE, MOREDIR, FPROC1, NOPRINT2, HIDENFILE, NORMFILE, NEWDIR
+global DPROC1, CONVDIR, DPROC2, CANTTARG, BogusDir, ASKCONV
+global PRINTTRMES, CROSSLOOK, CHLP, CROSSLINK, CHAINDONE
+global FIXENT2, RET20, FIXENT, GETENT, CLUSISOK
+global SKIPLP, GOTCLUS, DOROOTDIR, RDRETRY, RDOK2, WANTROOT, CHECKNOFMES, ret14
+global CHECKERR, get_currdirERR, ok_pri_dir, get_thiselERR, ok_pri_el
+global get_THISEL, get_THISEL2, get_currdir, GET_END, ERRLOOP, LPDONE
+global CHECK_SPLICE, NT_SPLC, MarkFAT, Bad_Cluster, Check_Chain_Sizes
+global print_filename;ac048;bgb
+global NOTROOT;ac048;bgb
+global FIXDOT;ac048;bgb
 
 
 	pathlabl chkproc
-SUBTTL	DIRPROC -- Recursive directory processing
-PAGE
+; SUBTTL	DIRPROC -- Recursive directory processing
+; PAGE
 ;**************************************************************************
 ; DOTDOTHARDWAY - change dir to the previous directory using '..'
 ;
@@ -127,7 +127,7 @@ PAGE
 ;    needed.
 ;**************************************************************************
 procedure dotdothardway,near
-	MOV	DX,OFFSET DG:PARSTR
+	MOV	DX,PARSTR
 	DOS_Call ChDir				;				;AC000;
 	RET
 endproc dotdothardway
@@ -174,9 +174,9 @@ NODOT:						;No .				;ac048;bgb
 ;	$ELSE				;display /v msgs			;ac048;bgb
 	JMP SHORT $$EN1
 $$IF1:
-DOEXTMES1:  mov     si,offset dg:dotmes ;first find out where we are		;ac048;bgb
+DOEXTMES1:  mov     si,dotmes ;first find out where we are		;ac048;bgb
 	    call    get_currdirerr						;ac048;bgb
-	    mov     dx,offset dg:ndotmes ;print dir, dot, and 'not found' msg	;ac048;bgb
+	    mov     dx,ndotmes ;print dir, dot, and 'not found' msg	;ac048;bgb
 	    call    eprint							;ac048;bgb
 ;	$ENDIF									;ac048;bgb
 $$EN1:
@@ -188,7 +188,7 @@ MESD1:	XOR	AX,AX			;set entry number to zero		;ac048;bgb
 	CALL	GETENT			;get the sector number			;ac048;bgb
 	POP	BP			;restore bp				;ac048;bgb
 	PUSH	BP			;put it back				;ac048;bgb
-	CMP	BYTE PTR [DI],0E5H	;is this 1st entry erased/open? 	;ac048;bgb
+	CMP	byte [DI],0E5H	;is this 1st entry erased/open? 	;ac048;bgb
 ;	$if	nz								;ac048;bgb
 	JZ $$IF4
 ;cant fill . entry			 ;JNZ	  CANTREC			;ac048;bgb  ;Nope
@@ -197,7 +197,7 @@ CANTREC:    INC     [DOTSNOGOOD]						;ac048;bgb
 ;	    $if     nz								;ac048;bgb
 	    JZ $$IF5
 						 ;JZ	  DOTGOON		;ac048;bgb
-		MOV	DX,OFFSET DG:NORECDOT					;ac048;bgb
+		MOV	DX,NORECDOT					;ac048;bgb
 		CALL	EPRINT							;ac048;bgb
 ;	    $endif								;ac048;bgb
 $$IF5:
@@ -206,7 +206,7 @@ $$IF5:
 $$IF4:
 
 ;get filename
-fixdot: MOV	SI,OFFSET DG:DOTENT	;point to valid . entry
+fixdot: MOV	SI,DOTENT	;point to valid . entry
 	MOV	CX,11			;move filename and ext
 	REP	MOVSB				;Name
 	PUSH	AX			;save disk number
@@ -242,23 +242,23 @@ $$IF8:
 DOTGOON: POP	 BP
 	POP	BX
 	POP	AX
-	MOV	SI,OFFSET DG:DIRBUF
+	MOV	SI,DIRBUF
 	JMP	CHKDOTDOT			;Go look for ..
 ;*****************************************************************************
 
 
 
 
-NODDOT	label	far				;No ..
+NODDOT:;No ..
 	PUSH	AX				;Return from SRCH
 	CMP	[NOISY],OFF			;				;AC000;
 	JNZ	DOEXTMES2
 	CALL	SUBERRP
 	JMP	SHORT MESD2
 DOEXTMES2:
-	MOV	SI,OFFSET DG:PARSTR
+	MOV	SI,PARSTR
 	CALL	get_currdirERR
-	MOV	DX,OFFSET DG:NDOTMES
+	MOV	DX,NDOTMES
 	CALL	EPRINT
 
 MESD2:
@@ -268,9 +268,9 @@ MESD2:
 	CALL	GETENT
 	POP	BP
 	PUSH	BP
-	CMP	BYTE PTR [DI],0E5H		;Place to put it?
+	CMP	byte [DI],0E5H		;Place to put it?
 	JNZ	CANTREC2			;Nope
-	MOV	SI,OFFSET DG:DDOTENT
+	MOV	SI,DDOTENT
 	MOV	CX,11
 	REP	MOVSB				;Name
 	PUSH	AX
@@ -298,28 +298,28 @@ MESD2:
 	CALL	DOINT26
 NFIX:
 	restorereg <bp,bx,ax>							;ac048;bgb
-	MOV	SI,OFFSET DG:DIRBUF
-	JMP	far ptr ROOTDIR 			;Process files
+	MOV	SI,DIRBUF
+	JMP	far ROOTDIR 			;Process files
 
 CANTREC2:
 	restorereg <bp,bx,ax>							;ac048;bgb
 	CMP	[NOISY],OFF			;				;AC000;
 	JZ	DOTSBAD2
-	MOV	DX,OFFSET DG:NORECDDOT
+	MOV	DX,NORECDDOT
 	JMP	DOTSBAD
 
-NULLDIRERR label far	    ;dir is empty
+NULLDIRERR:;dir is empty
 	CMP	[NOISY],OFF			;				;AC000;
 	JNZ	DOEXTMES3
 	CALL	SUBERRP
 	JMP	SHORT DOTSBAD2
 DOEXTMES3:
-	MOV	SI,OFFSET DG:NUL
+	MOV	SI,NUL
 	CALL	get_currdirERR
-	MOV	DX,OFFSET DG:NULDMES
+	MOV	DX,NULDMES
 DOTSBAD:					;Can't recover
-	mov	[file_arg2],offset dg:badtarg2
-	inc	byte ptr [nul_arg]
+	mov	[file_arg2],badtarg2
+	inc	byte [nul_arg]
 	MOV	fTrunc,TRUE
 	CALL	EPRINT
 dotsbad2:
@@ -332,7 +332,7 @@ dotsbad2:
 
 
 
-PAGE
+; PAGE
 ;***************************************************************************
 ; DIRPROC - recursive tree walker
 ;
@@ -356,7 +356,7 @@ DIRPROC:
 ;   $IF     NA
     JA $$IF10
 ;;;;;;;;JA	STACKISOK
-	MOV	BX,OFFSET DG:STACKMES		;Out of stack
+	MOV	BX,STACKMES		;Out of stack
 	JMP	FATAL
 ;   $ENDIF
 $$IF10:
@@ -371,9 +371,9 @@ STACKISOK:
 ;	$IF	Z		      ;only print on the first pass
 	JNZ $$IF13
 ;;;;;;;;;;;;JNZ     NOPRINT			    ;Don't do it again on second pass
-	    MOV     SI,OFFSET DG:NUL
+	    MOV     SI,NUL
 	    CALL    get_CURRDIR
-	    mov     dx,offset dg:DIREC_arg	    ;Tell user where we are
+	    mov     dx,DIREC_arg	    ;Tell user where we are
 	    CALL    PRINTf_crlf
 ;	$ENDIF
 $$IF13:
@@ -382,7 +382,7 @@ $$IF12:
 
 ; initialize search fcb
 NOPRINT:
-    MOV     SI,OFFSET DG:ALLFILE    ;extended fcb
+    MOV     SI,ALLFILE    ;extended fcb
     MOV     DI,SP
     PUSH    DI
     MOV     CX,SFCBSIZ		    ;move 44dec bytes
@@ -392,10 +392,10 @@ NOPRINT:
     MOV     BX,DX			    ;BX points to SRCH FCB
     DOS_Call Dir_Search_First		;search for any file		    ;AC000;
 ;
-    CMP     WORD PTR [BP+6],0	 ;attribute byte- root will = zero
+    CMP     word [BP+6],0	 ;attribute byte- root will = zero
 ;   $if     z
     JNZ $$IF16
-	jmp  far ptr rootdir	 ;yes, we are at the root
+	jmp  far rootdir	 ;yes, we are at the root
 ;   $endif
 $$IF16:
 	OR	AL,AL		 ;check return code from search first
@@ -408,12 +408,12 @@ $$IF16:
 ;	$endif
 $$IF18:
 JOINERR:
-	MOV	SI,OFFSET DG:NUL
+	MOV	SI,NUL
 	CALL	get_currdir
 	mov	fTrunc,TRUE
-	mov	dx,offset dg:joinmes		;				;AC000;
+	mov	dx,joinmes		;				;AC000;
 	call	Printf_Crlf			;				;AC000;
-	mov	dx,offset dg:badtarg2		;				;AC000;
+	mov	dx,badtarg2		;				;AC000;
 	call	Printf_CRLF			;				;AC000;
 	CALL	DOTDOTHARDWAY
 	MOV	SP,BP				;Pop local vars
@@ -423,8 +423,8 @@ JOINERR:
 
 
 NONULLDERR:
-	MOV	SI,OFFSET DG:DIRBUF + DIRNAM
-	MOV	DI,OFFSET DG:DOTENT
+	MOV	SI,DIRBUF + DIRNAM
+	MOV	DI,DOTENT
 	MOV	CX,11
 	REP	CMPSB
 	JZ	DOTOK				;Got a . as first entry
@@ -445,48 +445,48 @@ $$EN20:
 ;;;;;;;;JMP	NODOT				;No .				;an045;bgb
 
 DOTOK:
-	MOV	SI,OFFSET DG:DIRBUF
-	MOV	AL,[SI.DIRATT]
+	MOV	SI,DIRBUF
+	MOV	AL,[SI+DIRATT]
 	TEST	AL,ISDIR
 	JNZ	DATTOK
 	PUSH	SI				;. not a dir?
-	MOV	SI,OFFSET DG:DOTMES
+	MOV	SI,DOTMES
 						;MOV	 DX,OFFSET DG:BADATT
-	mov	dx,offset dg:norecddot2 	;				;AN000;
+	mov	dx,norecddot2 	;				;AN000;
 	CALL	DOTCOMBMES
 	POP	SI
-	OR	[SI.DIRATT],ISDIR
+	OR	[SI+DIRATT],ISDIR
 	CALL	FIXENT				;Fix it
 DATTOK:
-	MOV	AX,[SI.DIRCLUS]
+	MOV	AX,[SI+DIRCLUS]
 	CMP	AX,[BP+6]			;. link = MYSELF?
 	JZ	DLINKOK
 	PUSH	SI				;Link messed up
-	MOV	SI,OFFSET DG:DOTMES
+	MOV	SI,DOTMES
 						;MOV	 DX,OFFSET DG:CLUSBAD
-	mov	dx,offset dg:norecddot1 	;				;AN000;
+	mov	dx,norecddot1 	;				;AN000;
 	CALL	DOTCOMBMES
 	POP	SI
 	MOV	AX,[BP+6]
-	MOV	[SI.DIRCLUS],AX
+	MOV	[SI+DIRCLUS],AX
 	CALL	FIXENT				;Fix it
 DLINKOK:
-	MOV	AX,WORD PTR [SI.DIRESIZ]
+	MOV	AX,word [SI+DIRESIZ]
 	OR	AX,AX
 	JNZ	BADDSIZ
-	MOV	AX,WORD PTR [SI.DIRESIZ+2]
+	MOV	AX,word [SI+DIRESIZ+2]
 	OR	AX,AX
 	JZ	DSIZOK
 BADDSIZ:					;Size should be zero
 	PUSH	SI
-	MOV	SI,OFFSET DG:DOTMES
+	MOV	SI,DOTMES
 						;MOV	 DX,OFFSET DG:BADSIZM
-	mov	dx,offset dg:norecddot3 	;				;AN000;
+	mov	dx,norecddot3 	;				;AN000;
 	CALL	DOTCOMBMES
 	POP	SI
 	XOR	AX,AX
-	MOV	WORD PTR [SI.DIRESIZ],AX
-	MOV	WORD PTR [SI.DIRESIZ+2],AX
+	MOV	word [SI+DIRESIZ],AX
+	MOV	word [SI+DIRESIZ+2],AX
 	CALL	FIXENT				;Fix it
 DSIZOK: 					;Get next (should be ..)
 	MOV	DX,BX
@@ -496,8 +496,8 @@ CHKDOTDOT:					;Come here after . failure
 	JZ	DOTDOTOK
 	 JMP	NODDOT				;No ..
 DOTDOTOK:
-	MOV	SI,OFFSET DG:DIRBUF + DIRNAM
-	MOV	DI,OFFSET DG:DDOTENT
+	MOV	SI,DIRBUF + DIRNAM
+	MOV	DI,DDOTENT
 	MOV	CX,11
 	REP	CMPSB
 ;	$if	nz
@@ -506,36 +506,36 @@ DOTDOTOK:
 ;;; ;;;;;;;;JNZ     NODDOT			    ;No ..
 ;	$endif
 $$IF23:
-	MOV	SI,OFFSET DG:DIRBUF
-	MOV	AL,[SI.DIRATT]
+	MOV	SI,DIRBUF
+	MOV	AL,[SI+DIRATT]
 	TEST	AL,ISDIR
 	JNZ	DDATTOK 			;.. must be a dir
 	PUSH	SI
-	MOV	SI,OFFSET DG:PARSTR
+	MOV	SI,PARSTR
 						;MOV	 DX,OFFSET DG:BADATT
-	mov	dx,offset dg:norecddot2 	;				;AN000;
+	mov	dx,norecddot2 	;				;AN000;
 	CALL	DOTCOMBMES
 	POP	SI
-	OR	[SI.DIRATT],ISDIR
+	OR	[SI+DIRATT],ISDIR
 	CALL	FIXENT				;Fix it
 DDATTOK:
 	PUSH	SI
-	MOV	AX,[SI.DIRCLUS]
+	MOV	AX,[SI+DIRCLUS]
 	CMP	AX,[BP+4]			;.. link must be PARENT
 	JZ	DDLINKOK
-	MOV	SI,OFFSET DG:PARSTR
+	MOV	SI,PARSTR
 						;MOV	 DX,OFFSET DG:CLUSBAD
-	mov	dx,offset dg:norecddot1 	;				;AN000;
+	mov	dx,norecddot1 	;				;AN000;
 	CALL	DOTCOMBMES
 	POP	SI
 	MOV	AX,[BP+4]
-	MOV	[SI.DIRCLUS],AX
+	MOV	[SI+DIRCLUS],AX
 	CALL	FIXENT				;Fix it
 DDLINKOK:
-	MOV	AX,WORD PTR [SI.DIRESIZ]
+	MOV	AX,word [SI+DIRESIZ]
 	OR	AX,AX
 	JNZ	BADDDSIZ
-	MOV	AX,WORD PTR [SI.DIRESIZ+2]
+	MOV	AX,word [SI+DIRESIZ+2]
 	OR	AX,AX
 ;	$if	z
 	JNZ $$IF25
@@ -544,30 +544,30 @@ DDLINKOK:
 $$IF25:
 BADDDSIZ:					;.. size should be 0
 	PUSH	SI
-	MOV	SI,OFFSET DG:PARSTR
+	MOV	SI,PARSTR
 						;MOV	 DX,OFFSET DG:BADSIZM
-	mov	dx,offset dg:norecddot3 	;				;AN000;
+	mov	dx,norecddot3 	;				;AN000;
 	CALL	DOTCOMBMES
 	POP	SI
 	XOR	AX,AX
-	MOV	WORD PTR [SI.DIRESIZ],AX
-	MOV	WORD PTR [SI.DIRESIZ+2],AX
+	MOV	word [SI+DIRESIZ],AX
+	MOV	word [SI+DIRESIZ+2],AX
 	CALL	FIXENT				;Fix it
 
 
 ;***************************************************************************
 ; DDSIZOK - search for the next file in this directory
 ;***************************************************************************
-DDSIZOK label far
+DDSIZOK:
 	MOV	DX,BX				;search for Next entry
 	DOS_Call Dir_Search_Next		;func=12			;AC000;
 
-ROOTDIR label far	;come here after search first .. failure also
+ROOTDIR:;come here after search first .. failure also
 	OR	AL,AL			; was a matching filename found?
 	JZ	MOREDIR     ;zero = yes 	;More to go
-	CMP	WORD PTR [BP+6],0 ;nz=no	;Am I the root?
+	CMP	word [BP+6],0 ;nz=no	;Am I the root?
 	JZ	DIRDONE 			;Yes, no chdir
-	MOV	DX,OFFSET DG:PARSTR
+	MOV	DX,PARSTR
 	DOS_Call ChDir				;				;AC000;
 	JNC	DIRDONE 			;Worked
 
@@ -577,9 +577,9 @@ ROOTDIR label far	;come here after search first .. failure also
 
 	CMP	[NOISY],OFF			;				;AC000;
 	JZ	DODDH
-	MOV	SI,OFFSET DG:NUL
+	MOV	SI,NUL
 	CALL	get_currdirERR
-	MOV	DX,OFFSET DG:CDDDMES
+	MOV	DX,CDDDMES
 	CALL	EPRINT
 DODDH:
 	CALL	DOTDOTHARDWAY			;Try again
@@ -594,8 +594,8 @@ DIRDONE:
 ; found at least one file in this subdir!
 ;*****************************************************************
 MOREDIR:
-	MOV	SI,OFFSET DG:DIRBUF  ;point to where ext fcb of found file is
-	TEST	[SI.DIRATT],ISDIR    ;attr 010h = sub-directory
+	MOV	SI,DIRBUF  ;point to where ext fcb of found file is
+	TEST	[SI+DIRATT],ISDIR    ;attr 010h = sub-directory
 	JNZ	NEWDIR				;Is a new directory?
 	CMP	[SECONDPASS],False		;no, same dir			;AC000;
 	JZ	FPROC1				;2nd pass here
@@ -612,13 +612,13 @@ $$IF27:
 NOPRINT2:
 	mov	Cluster_Count,0 		;No clusters for vol label	;AN000;
 	mov	cx,0				;setup cx for 0 size vol labels ;an016;bgb
-	TEST	[SI.DIRATT],VOLIDA   ;attr=08	;Don't chase chains on labels   ;AC000;
+	TEST	[SI+DIRATT],VOLIDA   ;attr=08	;Don't chase chains on labels   ;AC000;
 ;	$IF	Z		     ;no, regular file
 	JNZ $$IF29
 	    MOV     AL,81H			    ;Head of file
-	    mov     di,word ptr [si].DIRESIZ+0	    ;Get file size
+	    mov     di,word [si].DIRESIZ+0	    ;Get file size
 	    mov     File_Size_Low,di		    ;
-	    mov     di,word ptr [si].DIRESIZ+2	    ;
+	    mov     di,word [si].DIRESIZ+2	    ;
 	    mov     File_Size_High,di		    ;
 	    mov     di,[si].DirClus		    ;First cluster of file	    ;AN000;
 	    CALL    MARKFAT
@@ -627,18 +627,18 @@ NOPRINT2:
 ;;;;;;;;;;;;CALL    Check_Extended_Attributes	    ;See if XA exist, and handle    ;AN000;
 ;;;;;;;;;;;;POP     CX				    ;Get File length clusters
 ;;;;;;;;;;;;ADD     CX,Cluster_Count		    ;Add in XA clusters
-	    TEST    [SI.DIRATT],HIDDN		    ;
+	    TEST    [SI+DIRATT],HIDDN		    ;
 	    JZ	    NORMFILE			    ;
 ;	$ENDIF
 $$IF29:
 hidenfile:
-	add	word ptr hidcnt,1	;found another hidden file	       ;an049;bgb
-	adc	word ptr hidcnt+2,0	;add high word if > 64k files	     ;an049;bgb
+	add	word hidcnt,1	;found another hidden file	       ;an049;bgb
+	adc	word hidcnt+2,0	;add high word if > 64k files	     ;an049;bgb
 	add	hidsiz,cx		;it was this many bytes 	     ;an049;bgb
 	JMP	ddsizok 			;Next
 NORMFILE:
-	add	word ptr filcnt,1	;inc file counter		     ;an049;bgb
-	adc	word ptr filcnt+2,0	;add high word if >64k files	     ;an049;bgb
+	add	word filcnt,1	;inc file counter		     ;an049;bgb
+	adc	word filcnt+2,0	;add high word if >64k files	     ;an049;bgb
 	add	filsiz,cx		;add in size of file		     ;an049;bgb
 	JMP	ddsizok 			;Next
 
@@ -658,13 +658,13 @@ DPROC1: 				;1st pass
 	mov	File_Size_Low,0 	;	;Set to zero, shouldn't         ;AN000;
 	mov	File_Size_High,0		; be looked at for dir		;AN000;
 	CALL	MARKFAT
-	add	word ptr dircnt,1	 ;add 1 to the dir counter	     ;an047;bgb
-	adc	word ptr dircnt+2,0	 ;add 1 to the high word if carry    ;an047;bgb
+	add	word dircnt,1	 ;add 1 to the dir counter	     ;an047;bgb
+	adc	word dircnt+2,0	 ;add 1 to the high word if carry    ;an047;bgb
 	MOV	CX,Cluster_Count		;Add count of clusters in files ;AN000;
 	CMP	[ZEROTRUNC],0		;did we modify the file size?		;an026;bgb
 	JZ	DPROC2				;Dir not truncated
 CONVDIR:				;yes, dir size truncated
-	AND	[SI.DIRATT],NOT ISDIR		;Turn into file
+	AND	[SI+DIRATT],NOT ISDIR		;Turn into file
 	CALL	FIXENT
 	POP	BX			;Get my SRCH FCB pointer back
 	POP	[ERRSUB]		;restore from prev dir
@@ -679,7 +679,7 @@ DPROC2:
 	PUSH	[BP+6]				; His PARENT is me
 ;copy fcb name to msg string name
 	ADD	SI,DIRNAM		;point to name, +08
-	MOV	DI,OFFSET DG:NAMBUF
+	MOV	DI,NAMBUF
 	savereg <di,ax> 		;copy to msg string
 	CALL	FCB_TO_ASCZ
 	restorereg <ax,di>
@@ -702,7 +702,7 @@ CANTTARG:
 	ADD	SP,8				; Clean stack
 	mov	SI,dx				; Pointer to bad DIR
 	CALL	get_currdirERR
-	MOV	DX,OFFSET DG:BADTarg_PTR
+	MOV	DX,BADTarg_PTR
 	mov	fTrunc,TRUE
 	call	printf_crlf
 	JMP	ddsizok 			;Next
@@ -711,7 +711,7 @@ BogusDir:
 	ADD	SP,8				; clean off stack
 	MOV	SI,DX				; pointer to bad dir
 	CALL	get_currdirERR			; output message with dir
-	MOV	DX,OFFSET DG:BadSubDir		; real error message
+	MOV	DX,BadSubDir		; real error message
 	CALL	EPRINT				; to stderr...
 ASKCONV:
 	CMP	[SECONDPASS],False		;				;AC000;
@@ -724,12 +724,12 @@ $$IF31:
 	cmp	[NOISY],on		; /v entered ?			  ;An027;bgb
 ;	$IF	E			; no, skip next msg		  ;An027;bgb
 	JNE $$IF33
-	    MOV     DX,OFFSET DG:PTRANDIR   ;unrecoverable error in directory ;An027;bgb
+	    MOV     DX,PTRANDIR   ;unrecoverable error in directory ;An027;bgb
 	    call    printf_crlf 	    ;display msg		      ;An027;bgb
 ;	$ENDIF
 $$IF33:
 PRINTTRMES:
-	MOV	DX,OFFSET DG:PTRANDIR2	;either case - "convert dir to file?" ;An027;bgb
+	MOV	DX,PTRANDIR2	;either case - "convert dir to file?" ;An027;bgb
 	CALL	PROMPTYN			;Ask user what to do
 ;	$if	nz
 	JZ $$IF35
@@ -742,20 +742,20 @@ $$IF35:
 	MOV	AX,[BX+THISENT] 		;Entry number
 	CALL	GETENT				;Get the entry
 	MOV	SI,DI
-	MOV	DI,OFFSET DG:DIRBUF
+	MOV	DI,DIRBUF
 	PUSH	DI
 	ADD	DI,DIRNAM
 	MOV	CX,32
 	REP	MOVSB				;Transfer entry to DIRBUF
 	POP	SI
 	PUSH	SI
-	MOV	SI,[SI.DIRCLUS] 		;First cluster
+	MOV	SI,[SI+DIRCLUS] 		;First cluster
 	CALL	GETFILSIZ
 	POP	SI
 	POP	BX
 	POP	BP
-	MOV	WORD PTR [SI.DIRESIZ],AX	;Fix entry
-	MOV	WORD PTR [SI.DIRESIZ+2],DX
+	MOV	word [SI+DIRESIZ],AX	;Fix entry
+	MOV	word [SI+DIRESIZ+2],DX
 	JMP	CONVDIR 				   ;convert directory
 ;*****************************************************************************
 ;end of newdir
@@ -763,8 +763,8 @@ $$IF35:
 
 
 
-SUBTTL	fat-Look routines
-PAGE
+; SUBTTL	fat-Look routines
+; PAGE
 ;*****************************************************************************
 ; CROSSLOOK - look at the fat, check for cross linked files
 ; called by -
@@ -773,7 +773,7 @@ CROSSLOOK:
 ;Same as MRKFAT only simpler for pass 2
 	MOV	[SRFCBPT],BX				   ;an014;bgb
 	MOV	BX,SI					   ;an014;bgb
-	MOV	SI,[BX.DIRCLUS] 			   ;an014;bgb
+	MOV	SI,[BX+DIRCLUS] 			   ;an014;bgb
 	CALL	CROSSCHK				   ;an014;bgb
 	JNZ	CROSSLINK				   ;an014;bgb
 ;;;;;;;;mov	XA_Pass,False				   ;an014;bgb			   ;an014;bgb
@@ -828,7 +828,7 @@ Check_XA_Cross: 			;					;AN000;
 	 PUSH	 CX						   ;an014;bgb
 	 PUSH	 DI						   ;an014;bgb
 	 CALL	 get_THISELERR					   ;an014;bgb
-	 MOV	 DX,OFFSET dg:BADCHAIN				   ;an014;bgb
+	 MOV	 DX,BADCHAIN				   ;an014;bgb
 	 CALL	 EPRINT 					   ;an014;bgb
 	 POP	 SI						   ;an014;bgb
 	 MOV	 DX,0FFFH			 ;Insert EOF	   ;an014;bgb
@@ -845,7 +845,7 @@ Check_XA_Cross: 			;					;AN000;
  MRKOK:
 	 CALL	 MARKMAP					   ;an014;bgb
 	 JZ	 CHASELOOP					   ;an014;bgb
-Public	CrossLink
+global CrossLink
 CROSSLINK:					;File is cross linked
 	INC	[ISCROSS]					       ;an014;bgb
 	CMP	[SECONDPASS],False		;		       ;an014;bgb	   ;AC000;
@@ -853,11 +853,11 @@ CROSSLINK:					;File is cross linked
 	mov	[cross_clus],si 		;Cluster number    ;an014;bgb
 	CALL	get_THISEL					   ;an014;bgb
 	Message File_Arg			;Print file out    ;an014;bgb		   ;AN000;
-	MOV	DX,OFFSET DG:CROSS_arg		;Print message out ;an014;bgb		   ;AC000;
+	MOV	DX,CROSS_arg		;Print message out ;an014;bgb		   ;AC000;
 	CALL	PRINTf_crlf					   ;an014;bgb
-Public	ChainDone
+global ChainDone
 CHAINDONE:
-	 TEST	 [BX.DIRATT],ISDIR
+	 TEST	 [BX+DIRATT],ISDIR
 	 JNZ	 NOSIZE 			 ;Don't size dirs
 	 CMP	 [ISCROSS],0
 	 JNZ	 NOSIZE 			 ;Don't size cross linked files;an014;bgb
@@ -870,8 +870,8 @@ CHAINDONE:
 	 MUL	 CX
 	 MOV	 DI,DX				 ;Save allocation size
 	 MOV	 SI,AX
-	 SUB	 AX,WORD PTR [BX.DIRESIZ]
-	 SBB	 DX,WORD PTR [BX.DIRESIZ+2]
+	 SUB	 AX,word [BX+DIRESIZ]
+	 SBB	 DX,word [BX+DIRESIZ+2]
 	 JC	 BADFSIZ			 ;Size to big
 	 OR	 DX,DX
 	 JNZ	 BADFSIZ			 ;Size to small
@@ -879,15 +879,15 @@ CHAINDONE:
 	 CMP	 AX,DX
 	 JB	 NOSIZE 			 ;Size within one Alloc unit
 	 PUSH	 DX				 ;Size too small
- PUBLIC  BadFSiz
+ global BadFSiz
  BADFSIZ:
 	 POP	 DX
 	 PUSH	 CX				 ;Save size of file
-	 MOV	 WORD PTR [BX.DIRESIZ],SI
-	 MOV	 WORD PTR [BX.DIRESIZ+2],DI
+	 MOV	 word [BX+DIRESIZ],SI
+	 MOV	 word [BX+DIRESIZ+2],DI
 	 CALL	 FIXENT2			 ;Fix it
 	 CALL	 get_THISELERR
-	 MOV	 DX,OFFSET DG:BADCLUS
+	 MOV	 DX,BADCLUS
 	 CALL	 EPRINT
 	 POP	 CX				 ;Restore size of file
  NOSIZE:
@@ -899,32 +899,32 @@ CHAINDONE:
 						 ;File is zero length
 	 OR	 SI,SI
 	 JZ	 CHKSIZ 			 ;Firclus is OK, Check size
-	 MOV	 DX,OFFSET DG:NULNZ
+	 MOV	 DX,NULNZ
  ADJUST:
 	 PUSH	 DX
 	 CALL	 get_THISELERR
 	 POP	 DX
 	 CALL	 EPRINT
 	 XOR	 SI,SI
-	 MOV	 [BX.DIRCLUS],SI		 ;Set it to 0
-	 MOV	 WORD PTR [BX.DIRESIZ],SI	 ;Set size too
-	 MOV	 WORD PTR [BX.DIRESIZ+2],SI
+	 MOV	 [BX+DIRCLUS],SI		 ;Set it to 0
+	 MOV	 word [BX+DIRESIZ],SI	 ;Set size too
+	 MOV	 word [BX+DIRESIZ+2],SI
 	 CALL	 FIXENT2			 ;Fix it
 	 INC	 [ZEROTRUNC]			 ;Indicate truncation
 	 JMP	 CHAINDONE
 
- PUBLIC  ChkSiz
+ global ChkSiz
  CHKSIZ:
-	 MOV	 DX,OFFSET DG:BADCLUS
-	 CMP	 WORD PTR [BX.DIRESIZ],0
+	 MOV	 DX,BADCLUS
+	 CMP	 word [BX+DIRESIZ],0
 	 JNZ	 ADJUST 			 ;Size wrong
-	 CMP	 WORD PTR [BX.DIRESIZ+2],0
+	 CMP	 word [BX+DIRESIZ+2],0
 	 JNZ	 ADJUST 			 ;Size wrong
 	 JMP	 CHAINDONE			 ;Size OK
 
 
-SUBTTL	Routines for manipulating dir entries
-PAGE
+; SUBTTL	Routines for manipulating dir entries
+; PAGE
 
 FIXENT2:
 ;Same as FIXENT only [SRFCBPT] points to the search FCB, BX points to the entry
@@ -1041,7 +1041,7 @@ GETENT: 									;ac048;bgb
 	cmp	bx,[eofval]		;Last entry in cluster? 		;ac048;bgb
 ;	$IF	NB								;ac048;bgb
 	JB $$IF37
-	    mov     bx,offset dg:baddpbdir	    ;This should never happen	;ac048;bgb
+	    mov     bx,baddpbdir	    ;This should never happen	;ac048;bgb
 	    jmp     fatal			    ;Danger, warning Phil Robins;ac048;bgbon
 ;	$ENDIF									;ac048;bgb
 $$IF37:
@@ -1118,7 +1118,7 @@ CHECKNOFMES:
 	JNZ	RET14				;Don't print it more than once
 	CMP	[DOFIX],0
 	JNZ	RET14				;Don't print it if F switch specified
-	mov	dx,offset dg:FIXMES_arg
+	mov	dx,FIXMES_arg
 	CALL	PRINTf_crlf
 	call	DoCRLF				;				;AN000;
 ret14:	RET
@@ -1131,7 +1131,7 @@ CHECKERR:
 get_currdirERR:
 	CALL	CHECKERR
 	jz	ok_pri_dir
-	mov	byte ptr [arg_buf],0
+	mov	byte [arg_buf],0
 	ret
 ok_pri_dir:
 	CALL	get_currdir
@@ -1140,7 +1140,7 @@ ok_pri_dir:
 get_thiselERR:
 	CALL	CHECKERR
 	jz	ok_pri_el
-	mov	byte ptr [arg_buf],0
+	mov	byte [arg_buf],0
 ok_pri_el:
 	CALL	get_thisel
 	RET
@@ -1154,14 +1154,14 @@ get_THISEL:
 ;		SI
 ;*****************************************************************************
 get_THISEL2:
-	MOV	DI,OFFSET DG:NAMBUF
+	MOV	DI,NAMBUF
 	PUSH	DI
 	CALL	FCB_TO_ASCZ
 	POP	SI
 get_currdir:
 	PUSH	SI
 ; get drive letter prefix (c:\)
-	mov	di,offset dg:arg_buf
+	mov	di,arg_buf
 	MOV	al,[ALLDRV]
 	ADD	al,'@'
 	stosb
@@ -1182,11 +1182,11 @@ GET_END:
 	DEC	SI				; Point at NUL
 	MOV	DI,SI
 	POP	SI			;point to begin of string
-	CMP	BYTE PTR [SI],0
+	CMP	byte [SI],0
 	JZ	LPDONE				;If tail string NUL, no '/'
 ; move '\' for between path and filename
 	MOV	al,[DIRCHAR]
-	CMP	BYTE PTR [DI - 1],AL
+	CMP	byte [DI - 1],AL
 	JZ	ERRLOOP 			; Don't double '/' if root
 	stosb
 ERRLOOP:
@@ -1206,19 +1206,19 @@ CHECK_SPLICE:
 ; Carry set if current directory is NOT spliced (joined) onto.
 ; Carry clear if current directory is spliced (joined) onto.
 
-	MOV	SI,OFFSET DG:NUL
+	MOV	SI,NUL
 	CALL	get_currdir			; Build ASCIZ text of current dir
 						;  at arg_buf
-	mov	si,offset dg:arg_buf
-	mov	di,offset dg:TMP_SPC
+	mov	si,arg_buf
+	mov	di,TMP_SPC
 	DOS_Call xNameTrans			;				;AC000;
 	JC	NT_SPLC 			; Say NOT spliced if error
-	CMP	WORD PTR [TMP_SPC+1],"\" SHL 8 OR ":"
+	CMP	word [TMP_SPC+1],"\" SHL 8 OR ":"
 	JNZ	NT_SPLC
-	CMP	BYTE PTR [TMP_SPC+3],0
+	CMP	byte [TMP_SPC+3],0
 	JNZ	NT_SPLC
-	MOV	AL,BYTE PTR [arg_buf]		; Source drive letter
-	CMP	AL,BYTE PTR [TMP_SPC]		; Different from dest if spliced
+	MOV	AL,byte [arg_buf]		; Source drive letter
+	CMP	AL,byte [TMP_SPC]		; Different from dest if spliced
 	JZ	NT_SPLC 			; Drive letter didn't change
 	CLC
 	RET
@@ -1319,10 +1319,10 @@ Procedure MarkFAT				;			       ;AN000;
 ;	$IF	A				;				;AC000;
 	JNA $$IF44
 $$LL44:
-	    cmp word ptr [si].dirclus,0 ;if both cluster and size = 0,		;an025;bgb
+	    cmp word [si].dirclus,0 ;if both cluster and size = 0,		;an025;bgb
 ;	    $IF NE,OR			;then its not an error, 		;an025;bgb
 	    JNE $$LL45
-	    cmp word ptr [si].diresiz,0 ;and dont print msg			;an025;bgb
+	    cmp word [si].diresiz,0 ;and dont print msg			;an025;bgb
 ;	    $IF NE								;an025;bgb
 	    JE $$IF45
 $$LL45:
@@ -1352,7 +1352,7 @@ $$DO48:
 		 push	 si			;				;AN000;
 		 mov	 bx,si			; for the call			;AN000;
 		 call	 Get_ThisELErr		;				;AC000;
-		 mov	 dx,offset DG:Cross_arg ;Specify error message		;AC000;
+		 mov	 dx,Cross_arg ;Specify error message		;AC000;
 		 call	 EPrint 		;Go print file and error	;AC000;
 		 pop	 si			;				;AN000;
 		 pop	 bx			;				;AN000;
@@ -1402,7 +1402,7 @@ $$EN44:
 	pop	bx				;Restore registers		;AN000;
 	pop	si				;				;AN000;
 	ret					;				;AN000;
-MarkFAT endp					;				;AN000;
+; ENDP MarkFAT;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Bad_Cluster
@@ -1467,23 +1467,23 @@ Procedure Bad_Cluster				;				;AN000;
 ;	$IF	E			;yes	       ;			       ;AN000;
 	JNE $$IF62
 $$LL62:
-	    cmp word ptr [si].dirclus,0 ;is cluster num already 0?		;an025;bgb
+	    cmp word [si].dirclus,0 ;is cluster num already 0?		;an025;bgb
 ;	    $IF NE			;no, its bad				;an025;bgb
 	    JE $$IF63
-		mov	dx,offset DG:NulNZ	  ;1st cluster number is invalid;an025;bgb
+		mov	dx,NulNZ	  ;1st cluster number is invalid;an025;bgb
 		call	EPrint			  ;Go print file and error	;an025;bgb
-		mov	word ptr [si].dirclus,0   ;set cluster number to 0	;an025;bgb
+		mov	word [si].dirclus,0   ;set cluster number to 0	;an025;bgb
 		mov	zerotrunc,true	;modified the file size 		;an026;bgb
 ;	    $ENDIF			;already set to 0, dont print err msg	;an025;bgb
 $$IF63:
-	    mov     word ptr [si].DIRESIZ,0   ;set file size to 0	      ;Kill the file size	      ;AC000;
-	    mov     word ptr [si].DIRESIZ+2,0				      ;Kill the file size	    ;AC000;0;
+	    mov     word [si].DIRESIZ,0   ;set file size to 0	      ;Kill the file size	      ;AC000;
+	    mov     word [si].DIRESIZ+2,0				      ;Kill the file size	    ;AC000;0;
 	    mov  bx,si				 ;Get pointer to directory	 ;AN000;
 	    call    FixEnt2			 ;Write out updated directory	 ;AC000;
 ;	$ELSE					;Not first cluster in chain	;AN000;
 	JMP SHORT $$EN62
 $$IF62:
-	      mov     dx,offset dg:Badchain	;Tell user file and error	;AN000;
+	      mov     dx,Badchain	;Tell user file and error	;AN000;
 	      call    EPrint							;AN000;
 	   mov	   dx,Chain_End 		;Terminate chain at bad spot	;AC000;
 	   mov	   si,Previous_Cluster		;Change the last good cluster	;AC000;
@@ -1492,7 +1492,7 @@ $$IF62:
 $$EN62:
 	restorereg <dx,di,si>
 	ret					;
-Bad_Cluster endp				;				;AN000;
+; ENDP Bad_Cluster;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Check_Chain_Sizes
@@ -1602,7 +1602,7 @@ $$IF67:
 	pop	ax				;Restore used regs		;AN000;
 	pop	si				;SI = Dir pointer		;AN000;
 	ret					;				;     ;
-check_chain_sizes endp				;				;AN000;
+; ENDP check_chain_sizes;				;AN000;
 
 
 
@@ -1610,12 +1610,12 @@ Procedure print_filename			;AN000;
 	    PUSH    BX
 	    MOV     BX,SI
 	    CALL    get_THISEL
-	    mov     dx,offset dg:noisy_arg
+	    mov     dx,noisy_arg
 	    call    printf_crlf
 	    MOV     SI,BX
 	    POP     BX
 	    return
-print_filename	  endp				;				;AN000;
+; ENDP print_filename;				;AN000;
 
 ;these procedures were for the extended attribute support, which was removed	;an006;bgb
 
@@ -1665,14 +1665,14 @@ Procedure Bad_Chain_Size			;				;AN000;
 ;;;;;;;;$ELSE					;Normal file chain		;AN013;bgb
 	   mov	   ax,Chain_Size_Low		;Get length of allocation	;AN000;
 	   mov	   dx,Chain_Size_High		; chain for filesize		;AN000;
-	   mov	   word ptr [si].DirESiz,ax	;Put it in the directory	;AC000;
-	   mov	   word ptr [si+2].DirESiz,dx	;   "  "       "  "		;AC000;
+	   mov	   word [si].DirESiz,ax	;Put it in the directory	;AC000;
+	   mov	   word [si+2].DirESiz,dx	;   "  "       "  "		;AC000;
 	   push    bx				;				;AN000;
 	   push    si				;				;AN000;
 	   mov	   bx,si			;Get pointer to directory	;AN000;
 	   call    FixENT2			;Write dir to disk		;AC000;
 	   call    Get_ThisElErr		;Setup message			;AC000;
-	   mov	   dx,offset DG:BadClus 	;Specify error message		;AC000;
+	   mov	   dx,BadClus 	;Specify error message		;AC000;
 	   call    EPrint			;Go print file and error	;AC000;
 	   pop	   si				;				;AN000;
 	   pop	   bx				;				;AN000;
@@ -1681,7 +1681,7 @@ Procedure Bad_Chain_Size			;				;AN000;
 	pop	es
 	ret					;
 
-Bad_Chain_Size endp				;				;AN000;
+; ENDP Bad_Chain_Size;				;AN000;
 
 ;*****************************************************************************
 ;Routine name: Truncate_XA
@@ -1883,10 +1883,10 @@ Bad_Chain_Size endp				;				;AN000;
 ;WARNING!!! this must be the last label in the code section
 ;	    any changes to chkdsk.arf must take into account this area.
 ;	    it is used for reading things from disk into memory, such as dir
-Public	CHKPRMT_End
-Chkprmt_End label byte
+global CHKPRMT_End
+Chkprmt_End:
 ;****************************************************************************
 	pathlabl chkproc
-CODE	ENDS
-	END
+; END SECTION .CODE
+	; END
 

@@ -1,79 +1,79 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tenv2.asm	1.1 85/05/14
 ;	SCCSID = @(#)tenv2.asm	1.1 85/05/14
-TITLE	Part6 COMMAND Transient routines.
+; TITLE	Part6 COMMAND Transient routines.
 
 ;	Environment utilities and misc. routines
 
-	INCLUDE comsw.asm
+	%include "comsw.asm"
 
-.xlist
-.xcref
-	INCLUDE DOSSYM.INC
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-.list
-.cref
+; .xlist
+; .xcref
+	%include "DOSSYM.INC"
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
-DATARES SEGMENT PUBLIC BYTE		;AC000;
-	EXTRN	pipeflag:byte
-DATARES ENDS
+SECTION .DATARES;AC000;
+	extern pipeflag
+; END SECTION .DATARES
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	ACRLF_PTR:WORD
-	EXTRN	BadCD_Ptr:WORD
-	EXTRN	Badmkd_ptr:word
-	EXTRN	BADRMD_PTR:WORD
-	EXTRN	Extend_buf_ptr:word	;AN000;
-	EXTRN	Extend_buf_sub:byte	;AN022;
-	EXTRN	MD_exists_ptr:word	;AN006;
-	EXTRN	msg_disp_class:byte	;AC000;
-	EXTRN	NOSPACE_PTR:WORD
-	EXTRN	parse_chdir:byte	;AC000;
-	EXTRN	parse_mrdir:byte	;AC000;
-	EXTRN	PIPEEMES_PTR:WORD
-	EXTRN	string_buf_ptr:word
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern ACRLF_PTR
+	extern BadCD_Ptr
+	extern Badmkd_ptr
+	extern BADRMD_PTR
+	extern Extend_buf_ptr;AN000;
+	extern Extend_buf_sub;AN022;
+	extern MD_exists_ptr;AN006;
+	extern msg_disp_class;AC000;
+	extern NOSPACE_PTR
+	extern parse_chdir;AC000;
+	extern parse_mrdir;AC000;
+	extern PIPEEMES_PTR
+	extern string_buf_ptr
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	CURDRV:BYTE
-	EXTRN	DESTINFO:BYTE
-	EXTRN	DESTTAIL:WORD
-	EXTRN	DIRCHAR:BYTE
-	EXTRN	dirflag:byte		;AN015;
-	EXTRN	KPARSE:BYTE		;AC000;  3/3/KK
-	EXTRN	msg_numb:word		;AN022;
-	EXTRN	parse1_addr:dword	;AC000;
-	EXTRN	parse1_type:byte	;AC000;
-	EXTRN	PATHPOS:WORD
-	EXTRN	RESSEG:WORD
-	EXTRN	srcxname:byte		;AC000;
-	EXTRN	string_ptr_2:word
-	EXTRN	SWITCHAR:BYTE
-	EXTRN	USERDIR1:BYTE
-TRANSPACE	ENDS
+SECTION .TRANSPACE;AC000;
+	extern CURDRV
+	extern DESTINFO
+	extern DESTTAIL
+	extern DIRCHAR
+	extern dirflag;AN015;
+	extern KPARSE;AC000;  3/3/KK
+	extern msg_numb;AN022;
+	extern parse1_addr;AC000;
+	extern parse1_type;AC000;
+	extern PATHPOS
+	extern RESSEG
+	extern srcxname;AC000;
+	extern string_ptr_2
+	extern SWITCHAR
+	extern USERDIR1
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC byte
+SECTION .TRANCODE
 
-ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
 
-	EXTRN	cerror:near
+	extern cerror
 
-	PUBLIC	$chdir
-	PUBLIC	$mkdir
-	PUBLIC	$rmdir
-	PUBLIC	crlf2
-	PUBLIC	crprint
-	PUBLIC	delim
-	PUBLIC	error_output
-	PUBLIC	fcb_to_ascz
-	PUBLIC	pathchrcmp
-	PUBLIC	pathcrunch
-	PUBLIC	savudir
-	PUBLIC	savudir1
-	PUBLIC	scanoff
-	PUBLIC	strcomp
+	global $chdir
+	global $mkdir
+	global $rmdir
+	global crlf2
+	global crprint
+	global delim
+	global error_output
+	global fcb_to_ascz
+	global pathchrcmp
+	global pathcrunch
+	global savudir
+	global savudir1
+	global scanoff
+	global strcomp
 
 break	$Chdir
 
@@ -93,12 +93,12 @@ break	$Chdir
 ; *
 ; ****************************************************************
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 $CHDIR:
 
 	mov	si,81H
-	mov	di,offset trangroup:parse_chdir ;AN000; Get adderss of PARSE_CHDIR
+	mov	di,parse_chdir ;AN000; Get adderss of PARSE_CHDIR
 	xor	cx,cx				;AN000; clear cx,dx
 	xor	dx,dx				;AN000;
 	invoke	parse_with_msg			;AC018; call parser
@@ -113,7 +113,7 @@ $CHDIR:
 ;
 ; D: was found.  See if there is anything more.
 ;
-	mov	di,offset trangroup:parse_chdir ;AC000; get address of parse_chdir
+	mov	di,parse_chdir ;AC000; get address of parse_chdir
 	xor	dx,dx				;AC000;
 	invoke	parse_check_eol 		;AC000; call parser
 	jnz	ChDirErr			;AC000;
@@ -129,7 +129,7 @@ REALCD:
 	lds	si,parse1_addr			;AN000; get address of filespec
 	invoke	move_to_srcbuf			;AN000; move to srcbuf
 	pop	si				;AN000; restore position in line
-	mov	di,offset trangroup:parse_chdir ;AC000; get address of parse_chdir
+	mov	di,parse_chdir ;AC000; get address of parse_chdir
 	xor	dx,dx				;AC000;
 	invoke	parse_check_eol 		;AC000; call parser
 	jnz	ChDirErr			;AC000;
@@ -148,7 +148,7 @@ REALCD:
 	jmp	short  chdirerr 		;AN022;
 
 BadChDir:
-	MOV	DX,OFFSET TRANGROUP:BADCD_ptr
+	MOV	DX,BADCD_ptr
 
 ChDirErr:
 	invoke	Std_Eprintf
@@ -156,7 +156,7 @@ ChDirErr:
 
 break	$Mkdir
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 $MKDIR:
 	CALL	SETRMMK
@@ -175,7 +175,7 @@ $MKDIR:
 	jmp	short MkDirerr			;AC022; yes - go print it
 
 BADMDERR:
-	mov	dx,offset trangroup:srcxname	;AN006; Set Disk transfer address
+	mov	dx,srcxname	;AN006; Set Disk transfer address
 	mov	ah,Set_DMA			;AN006;
 	int	int_command			;AN006;
 	MOV	AH,Find_First			;AN006; see if file/dir exists
@@ -185,10 +185,10 @@ BADMDERR:
 	mov	dl,srcxname.find_buf_attr	;AN006; we found a file/dir
 	test	dl,attr_directory		;AN006; was it a directory?
 	jz	MD_other_err			;AN006; no - must have been a file
-	mov	dx,offset trangroup:MD_exists_ptr ;AN006; set up already exists error
+	mov	dx,MD_exists_ptr ;AN006; set up already exists error
 	jmp	short MkDirErr			;AN006; make sure we didn't have network error
 MD_other_err:					;AN006;
-	MOV	DX,OFFSET TRANGROUP:BADMKD_ptr
+	MOV	DX,BADMKD_ptr
 MkDirErr:
 	invoke	Std_Eprintf
 	return
@@ -214,14 +214,14 @@ Break	<Common MkDir/RmDir set up code>
 
 SETRMMK:
 	mov	si,81H
-	mov	di,offset trangroup:parse_mrdir ;AN000; Get adderss of PARSE_MRDIR
+	mov	di,parse_mrdir ;AN000; Get adderss of PARSE_MRDIR
 	xor	cx,cx				;AN000; clear cx,dx
 	xor	dx,dx				;AN000;
 	invoke	parse_with_msg			;AC000; call parser
 	cmp	ax,result_no_error		;AC000; did we have an error?
 	jnz	 NOARGERR			;AC000; yes - exit
 
-	mov	di,offset trangroup:srcxname	;AN000; get address of srcxname
+	mov	di,srcxname	;AN000; get address of srcxname
 	push	di				;AN000; save address
 	push	si				;AN000; save position in line
 	lds	si,parse1_addr			;AN000; get address of path
@@ -237,19 +237,19 @@ mrdir_move_filename:				;AN000; put filespec in srcxname
 ; we have scanned an argument.	See if any args beyond.
 ;
 
-	mov	di,offset trangroup:parse_mrdir ;AC000; get address of parse_mrdir
+	mov	di,parse_mrdir ;AC000; get address of parse_mrdir
 	invoke	parse_check_eol 		;AC000; are we at end of line?
 	pop	dx				;AC000; get address of SRCXNAME
 	retz					;yes - return no error
 NOARGERR:
-	mov	dx,offset TranGroup:Extend_Buf_ptr  ;AC000; get extended message pointer
+	mov	dx,Extend_Buf_ptr  ;AC000; get extended message pointer
 	XOR	AX,AX
 	STC
 	return
 
 break	$Rmdir
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 $RMDIR:
 	CALL	SETRMMK
@@ -269,7 +269,7 @@ $RMDIR:
 	jmp	short RmDirerr			;AC022; yes - go print it
 
 BADRDERR:
-	MOV	DX,OFFSET TRANGROUP:BADRMD_ptr
+	MOV	DX,BADRMD_ptr
 
 RmDirErr:
 	invoke	STD_Eprintf
@@ -288,17 +288,17 @@ RmDirErr:
 ;*
 ;****************************************************************
 
-Set_ext_error_subst  proc near			;AN022;
+Set_ext_error_subst:;AN022;
 
 	mov	msg_disp_class,ext_msg_class	;AN022; set up extended error msg class
 	mov	string_ptr_2,dx 		;AN022; get address of failed string
 	mov	Extend_buf_sub,one_subst	;AN022; put number of subst in control block
-	mov	dx,offset TranGroup:Extend_Buf_ptr ;AN022; get extended message pointer
+	mov	dx,Extend_Buf_ptr ;AN022; get extended message pointer
 	mov	Extend_Buf_ptr,ax		;AN022; get message number in control block
 
 	ret					;AN022; return
 
-Set_ext_error_subst  endp			;AN022;
+; ENDP Set_ext_error_subst;AN022;
 
 
 
@@ -321,7 +321,7 @@ Break	<SavUDir - preserve the users current directory on a particular drive>
 ;
 
 SAVUDIR:
-	MOV	DI,OFFSET TRANGROUP:USERDIR1
+	MOV	DI,USERDIR1
 
 SAVUDIR1:
 	MOV	AL,DL
@@ -338,7 +338,7 @@ GOTUDRV:
 	STOSW
 	PUSH	ES
 	POP	DS
-ASSUME	DS:NOTHING
+; ASSUME	DS:NOTHING
 
 	MOV	SI,DI
 	MOV	AH,CURRENT_DIR			; Get the Directory Text
@@ -346,14 +346,14 @@ ASSUME	DS:NOTHING
 	retc
 	PUSH	CS
 	POP	DS
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 
 	return
 
 
 CRLF2:
 	PUSH	DX
-	MOV	DX,OFFSET TRANGROUP:ACRLF_ptr
+	MOV	DX,ACRLF_ptr
 
 PR:
 	PUSH	DS
@@ -369,7 +369,7 @@ PR:
 ; These routines (SCANOFF, DELIM) are called in batch processing when DS
 ; may NOT be TRANGROUP
 ;
-ASSUME	DS:NOTHING,ES:NOTHING
+; ASSUME	DS:NOTHING,ES:NOTHING
 
 SCANOFF:
 	LODSB
@@ -400,7 +400,7 @@ DELIM:
 	return
 
 
-ASSUME	DS:TRANGROUP,ES:TRANGROUP
+; ASSUME	DS:TRANGROUP,ES:TRANGROUP
 
 
 FCB_TO_ASCZ:					; Convert DS:SI to ASCIZ ES:DI
@@ -443,7 +443,7 @@ STRCOMP:
 ;
 	CMPSB
 	retnz					; Strings not equal
-	cmp	byte ptr [SI-1],0		; Hit NUL terminator?
+	cmp	byte [SI-1],0		; Hit NUL terminator?
 	retz					; Yes, strings equal
 	jmp	short STRCOMP			; Equal so far, keep going
 
@@ -460,12 +460,12 @@ CRPRINT:
 	POP	ES
 
 	REPNZ	SCASB				; LOOK FOR TERMINATOR
-	mov	byte ptr [di-1],0		; nul terminate the string
+	mov	byte [di-1],0		; nul terminate the string
 	POP	ES
 	mov	string_ptr_2,dx
-	mov	dx,offset trangroup:string_buf_ptr
+	mov	dx,string_buf_ptr
 	invoke	std_printf
-	mov	ds:byte ptr [di-1],13		; now put the CR back
+	mov	ds:byte [di-1],13		; now put the CR back
 	JC	ERROR_OUTPUT
 
 	POP	DI
@@ -477,24 +477,24 @@ CRPRINT:
 ERROR_OUTPUT:
 	PUSH	CS
 	POP	DS
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 	MOV	ES,[RESSEG]
-ASSUME	ES:RESGROUP
+; ASSUME	ES:RESGROUP
 
-	MOV	DX,OFFSET TRANGROUP:NOSPACE_ptr
+	MOV	DX,NOSPACE_ptr
 	CMP	[PIPEFLAG],0
 	JZ	GO_TO_ERROR
 
 	invoke	PipeOff
-	MOV	DX,OFFSET TRANGROUP:PIPEEMES_ptr
+	MOV	DX,PIPEEMES_ptr
 GO_TO_ERROR:
 	JMP	CERROR
 
-ASSUME	DS:TRANGROUP,ES:TRANGROUP
+; ASSUME	DS:TRANGROUP,ES:TRANGROUP
 
 PATHCHRCMP:
 ;---- Mod for path invocation ----
-PUBLIC pathchrcmp
+global pathchrcmp
 ;----
 
 	push	ax
@@ -522,7 +522,7 @@ pccont:
 ;
 PATHCRUNCH:
 	mov	[msg_numb],0			;AN022; Set up message flag
-	MOV	DL,DS:[FCB]
+	MOV	DL,[DS:FCB]
 	CALL	SAVUDIR
 	jc	pcrunch_cderrJ			;AN022; if error on current dir - report
 
@@ -606,7 +606,7 @@ DELLOOP2:					; Set value of KPARSE
 TRYCD:
 	push	ax
 	mov	al,dot_chr
-	CMP	BYTE PTR [SI+1],al
+	CMP	byte [SI+1],al
 	pop	ax
 	JZ	PEELFAIL			; If . or .., pure cd should have worked
 	mov	al,[si-1]
@@ -622,7 +622,7 @@ PEELFAIL:
 	STC					; //
 	return
 NOTDOUBLESL:
-	MOV	BYTE PTR [SI],0
+	MOV	byte [SI],0
 	MOV	AH,CHDIR
 	INT	int_command
 	JNC	CDSUCC
@@ -658,6 +658,6 @@ pcrunch_end:
 	popf					;AN015; get flags back
 	return
 
-trancode    ends
-	    end
+; END SECTION .trancode
+	    ; end
 

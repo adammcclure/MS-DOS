@@ -1,5 +1,5 @@
-PAGE	,132
-TITLE	DOS - CONSOLE Code Page Switching Device Driver
+; PAGE	,132
+; TITLE	DOS - CONSOLE Code Page Switching Device Driver
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;  FILENAME:	 DISPLAY.ASM
@@ -75,31 +75,31 @@ TITLE	DOS - CONSOLE Code Page Switching Device Driver
 ;      Request Header (Common portion)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IF1					;
-	%OUT .Compiling:     DISPLAY.ASM
-	%OUT .		     ô CPS-CON driver
-	%OUT .		     õ Version 3.30
-	%OUT .Include Files:
-ENDIF					;
-	INCLUDE MACROS.INC		;
-	INCLUDE DEF-EQU.INC		;
+%if 1  ; IF1 - pass-specific;
+	%warning .Compiling:     DISPLAY.ASM
+	%warning .		     Ã´ CPS-CON driver
+	%warning .		     Ãµ Version 3.30
+	%warning .Include Files:
+%endif;
+	%include "MACROS.INC";
+	%include "DEF-EQU.INC";
 					;
-	PUBLIC	EOF_MARKER		;
-	PUBLIC	CPD_ACTIVE		;
-	PUBLIC	CPD_CLASS		;
-	PUBLIC	CPD_HDWR_N_MAX		;
-	PUBLIC	CPD_DESG_N_MAX		;
-	PUBLIC	CPD_HDWR_N		;
-	PUBLIC	CPD_DESG_N		;
-	PUBLIC	CPD_FONTS_N		;
-	PUBLIC	CPD_FONT_PNTER		;
-	PUBLIC	IRPT_2			;
-	PUBLIC	IRPT_CMD_EXIT		;
-	PUBLIC	DEV_HDR 		;
-	EXTRN	INIT:NEAR		;
+	global EOF_MARKER;
+	global CPD_ACTIVE;
+	global CPD_CLASS;
+	global CPD_HDWR_N_MAX;
+	global CPD_DESG_N_MAX;
+	global CPD_HDWR_N;
+	global CPD_DESG_N;
+	global CPD_FONTS_N;
+	global CPD_FONT_PNTER;
+	global IRPT_2;
+	global IRPT_CMD_EXIT;
+	global DEV_HDR;
+	extern INIT;
 					;
-CODE	SEGMENT BYTE PUBLIC 'CODE'      ;
-	ASSUME	CS:CODE,DS:CODE 	;
+SECTION .CODE;
+	; ASSUME	CS:CODE,DS:CODE;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;****************************************
 ;**	    Resident Code	       **
@@ -116,8 +116,8 @@ START	EQU	$			; begin resident data & code
 					    ;
 DEV_HDR:DD    -1			    ; Pointer to next device header
 	DW	0C053H			    ; Attribute (Char device)
-	DW	OFFSET STRATEGY 	    ; Pnter to device "strategy"
-	DW	OFFSET INTERRUPT	    ; Pnter to device "interrupt"
+	DW	STRATEGY 	    ; Pnter to device "strategy"
+	DW	INTERRUPT	    ; Pnter to device "interrupt"
 	DB	'CON     '                  ; Device name
 					    ; and of course a descriptive name
 					    ; which can be viewed by a TYPE!
@@ -126,40 +126,40 @@ DEV_HDR:DD    -1			    ; Pointer to next device header
 ;	Console Description Table
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-.XLIST					;
+; .XLIST;
 STACK_END	DW  1FFH+60H DUP(0)	; 200H + 'my' needs (re/ DOS 3.30 ref)
 STACK_START	DW  0			;
-OLD_STACK_S	DW  ?			;
-OLD_STACK_O	DW  ?			;
-.LIST					;
+OLD_STACK_S: dw 0;
+OLD_STACK_O: dw 0;
+; .LIST;
 					;
 BUF1:	   BUF_DATA <>			; exclude PAR_EXTRACTO
 					;
-CP_PNTER_TABLE	DW OFFSET CPD_HDWR_N	; TABLE OF POINTERS TO CP INFO
-		DW OFFSET CPD_DESG_N	;
-		DW OFFSET CPD_FONT_PNTER;
-		DW OFFSET CPD_FONT_WRITE;
-		DW OFFSET CPD_FONT_DATA ;
+CP_PNTER_TABLE	DW CPD_HDWR_N	; TABLE OF POINTERS TO CP INFO
+		DW CPD_DESG_N	;
+		DW CPD_FONT_PNTER;
+		DW CPD_FONT_WRITE;
+		DW CPD_FONT_DATA ;
 					;
-CPD_TABLE	LABEL WORD		; TABLE DATA INFO FOR CP's
+CPD_TABLE:; TABLE DATA INFO FOR CP's
 CPD_ACTIVE	DW     -1		; TEMPORARY
 CPD_CLASS	DB	'........'      ; THIS IS SET TO (EGA, LCD)
 CPD_FONTS_N	DW     -1		;
 CPD_HDWR_N	DW	0		;
-		DW  12	DUP(-1) 	; (HDWR_CP's)    (MAX=12)
+		times 12 dw -1; (HDWR_CP's)    (MAX=12)
 CPD_HDWR_N_MAX	EQU ($-CPD_HDWR_N)/2-1	;
 CPD_DESG_N	DW     -1		; # OF DESIG CP's
-		DW  12	DUP(-1) 	; (DESG CP's)    (MAX=12)
+		times 12 dw -1; (DESG CP's)    (MAX=12)
 CPD_DESG_N_MAX	EQU ($-CPD_DESG_N)/2-1	;
-CPD_FONT_PNTER	DW  12	DUP(0,0)	; SEG_OFFSET POINTER TO DATA BUFFERS
-CPD_FONT_WRITE	DW  12	DUP(0,0)	; SEG_OFFSET OF FONTS BEING WRITTEN
-CPD_FONT_DATA	DW  12	DUP(0)		; COUNT OF FONT DATA TO SKIP/COPY!
-FONT_PRIORITY	DB  8	DUP(-1) 	; USED TO CLASSIFY FONT PRIORITY
+CPD_FONT_PNTER: times 12 dw 0,0; SEG_OFFSET POINTER TO DATA BUFFERS
+CPD_FONT_WRITE: times 12 dw 0,0; SEG_OFFSET OF FONTS BEING WRITTEN
+CPD_FONT_DATA: times 12 dw 0; COUNT OF FONT DATA TO SKIP/COPY!
+FONT_PRIORITY: times 8 db -1; USED TO CLASSIFY FONT PRIORITY
 NUM_FONT_PRIORITY EQU ($-FONT_PRIORITY) ; DURING A DESIGNATION
 CPD_TEMP_DESG	DW	0		; # OF DESIG CP's TEMP BUFFER
-		DW  12	DUP(-1) 	; (DESG CP's)    (MAX=12)
+		times 12 dw -1; (DESG CP's)    (MAX=12)
 CPD_REQ_DESG	DW	0		; # OF DESIG CP's REQUESTED
-		DW  12	DUP(-1) 	; (DESG CP's)    (MAX=12)
+		times 12 dw -1; (DESG CP's)    (MAX=12)
 ;;;;;;;
 
 ANSI_DA_INFO	DA_INFO_PACKET	<>	;J.K. Information packet to ANSI used for MODE SET INT10 call.
@@ -170,8 +170,8 @@ ANSI_DA_INFO	DA_INFO_PACKET	<>	;J.K. Information packet to ANSI used for MODE SE
 ;      Retain the Request Header address for use by Interrupt routine
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	ASSUME	DS:NOTHING		;
-STRATEGY  PROC	FAR			;
+	; ASSUME	DS:NOTHING;
+STRATEGY:;
 	PUSH	BX			;
 	PUSH	BX			;
 	LEA	BX, BUF1		; BUF = BUF1  CS:[BX]
@@ -179,40 +179,40 @@ STRATEGY  PROC	FAR			;
 	MOV	BUF.RH_PTRS,ES		; SEGMENT
 	POP	BX			;
 	RET				;
-STRATEGY  ENDP				;
+; ENDP STRATEGY;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;      Table of command processing routine entry points
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CMD_TABLE LABEL WORD			;
-	DW	OFFSET INIT		;  0 - Initialization
-	DW	OFFSET NO_OPERATION	;  1 - Media check
-	DW	OFFSET NO_OPERATION	;  2 - Build BPB
-	DW	OFFSET NO_OPERATION	;  3 - IOCTL input
-	DW	OFFSET NO_OPERATION	;  4 - Input
-	DW	OFFSET NO_OPERATION	;  5 - Non destructive input no wait
-	DW	OFFSET NO_OPERATION	;  6 - Input status
-	DW	OFFSET NO_OPERATION	;  7 - Input flush
-	DW	OFFSET NO_OPERATION	;  8 - Write
-	DW	OFFSET NO_OPERATION	;  9 - Output with verify
-	DW	OFFSET NO_OPERATION	;  A - Output status
-	DW	OFFSET NO_OPERATION	;  B - Output flush
-	DW	OFFSET DESG_WRITE	;  C - IOCTL output
-	DW	OFFSET NO_OPERATION	;  D - Device OPEN
-	DW	OFFSET NO_OPERATION	;  E - Device CLOSE
-	DW	OFFSET NO_OPERATION	;  F - Removable media
-	DW	OFFSET NO_OPERATION	; 10 - Removable media
-	DW	OFFSET NO_OPERATION	; 11 - Removable media
-	DW	OFFSET NO_OPERATION	; 12 - Removable media
-	DW	OFFSET GENERIC_IOCTL	; 13 - Removable media
+CMD_TABLE:;
+	DW	INIT		;  0 - Initialization
+	DW	NO_OPERATION	;  1 - Media check
+	DW	NO_OPERATION	;  2 - Build BPB
+	DW	NO_OPERATION	;  3 - IOCTL input
+	DW	NO_OPERATION	;  4 - Input
+	DW	NO_OPERATION	;  5 - Non destructive input no wait
+	DW	NO_OPERATION	;  6 - Input status
+	DW	NO_OPERATION	;  7 - Input flush
+	DW	NO_OPERATION	;  8 - Write
+	DW	NO_OPERATION	;  9 - Output with verify
+	DW	NO_OPERATION	;  A - Output status
+	DW	NO_OPERATION	;  B - Output flush
+	DW	DESG_WRITE	;  C - IOCTL output
+	DW	NO_OPERATION	;  D - Device OPEN
+	DW	NO_OPERATION	;  E - Device CLOSE
+	DW	NO_OPERATION	;  F - Removable media
+	DW	NO_OPERATION	; 10 - Removable media
+	DW	NO_OPERATION	; 11 - Removable media
+	DW	NO_OPERATION	; 12 - Removable media
+	DW	GENERIC_IOCTL	; 13 - Removable media
 MAX_CMD EQU	($-CMD_TABLE)/2 	; highest valid command follows
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; CON Device "interrupt" entry point
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-INTERRUPT  PROC FAR			; device interrupt entry point
+INTERRUPT:; device interrupt entry point
 	PUSH	AX			;
 	PUSH	BX			;
 	PUSH	CX			;
@@ -227,7 +227,7 @@ INTERRUPT  PROC FAR			; device interrupt entry point
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	LEA	BX, BUF1		;
-	MOV	DI,OFFSET DEV_HDR	; CON Device header
+	MOV	DI,DEV_HDR	; CON Device header
 					;
 	MOV	BUF.DEV_HDRO,DI 	;
 	MOV	BUF.DEV_HDRS,CS 	;
@@ -238,8 +238,8 @@ INTERRUPT  PROC FAR			; device interrupt entry point
 	CMP	BUF.CON_STRAS, -1	;
 	JNE	L4			; has been linked to DOS CON
 					;  next device header :  ES:[DI]
-	LDS	SI,DWORD PTR BUF.DEV_HDRO;
-	LES	DI,DWORD PTR HP.DH_NEXTO;
+	LDS	SI,dword BUF.DEV_HDRO;
+	LES	DI,dword HP.DH_NEXTO;
 					;
 ;$SEARCH WHILE				;  pointer to next device header is NOT
 L1:					;
@@ -278,7 +278,7 @@ X2:	MOV	BUF.CON_INTRS,AX	;
 ;$ORELSE				; FInd next header to have the same
 	JMP	L4			; Device Name
 L3:					;
-	LES	DI,DWORD PTR NHD.DH_NEXTO;
+	LES	DI,dword NHD.DH_NEXTO;
 ;$ENDLOOP				;
 	JMP	L1			;
 L4:					;
@@ -288,7 +288,7 @@ L4:					;
 ;      ES:DI  REQUEST HEADER
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	LES	DI,DWORD PTR BUF.RH_PTRO; GET RH ADDRESS PASSED TO
+	LES	DI,dword BUF.RH_PTRO; GET RH ADDRESS PASSED TO
 					; "STRATEGY"  INTO ES:DI
 	MOV	AL,RH.RHC_CMD		; COMMAND CODE FROM REQUEST HEADER
 	CBW				; ZERO AH (IF AL > 7FH, NEXT COMPARE
@@ -316,7 +316,7 @@ L6:	CALL	PASS_CONTROL		; CALL ROUTINE TO HANDLE THE COMMAND
 ;      top of stack is return address, IRPT_CMD_EXIT
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 IRPT_CMD_EXIT:				; RETURN FROM COMMAND ROUTINE
-	LES	DI,DWORD PTR BUF.RH_PTRO; RESTORE ES:DI AS REQUEST HEADER PTR
+	LES	DI,dword BUF.RH_PTRO; RESTORE ES:DI AS REQUEST HEADER PTR
 	XOR	AX,AX			;
 	OR	AX,BUF.STATUS		;
 	JE	IRPT_0			;
@@ -331,7 +331,7 @@ IRPT_2: POP	SI			; RESTORE REGISTERS
 	POP	BX			;
 	POP	AX			;
 	RET				;
-INTERRUPT  ENDP 			;
+; ENDP INTERRUPT;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	PASS CONTROL
@@ -340,49 +340,49 @@ INTERRUPT  ENDP 			;
 ;	action on the call!
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-PASS_CONTROL	PROC			;
+PASS_CONTROL:;
 	PUSH	BX			;
 	PUSH	BX			;
 	POP	SI			;
-	LES	BX,DWORD PTR BUF.RH_PTRO; pass the request header to the
-	CALL	DWORD PTR CS:[SI].CON_STRAO ; CON strategy routine.
+	LES	BX,dword BUF.RH_PTRO; pass the request header to the
+	CALL	dword [CS:SI].CON_STRAO ; CON strategy routine.
 	POP	BX			;
-	CALL	DWORD PTR BUF.CON_INTRO ; interrupt the CON
+	CALL	dword BUF.CON_INTRO ; interrupt the CON
 	RET				;
-PASS_CONTROL	ENDP			;
+; ENDP PASS_CONTROL;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-NO_OPERATION	PROC			;
+NO_OPERATION:;
 	CLC				;
 	RET				;
-NO_OPERATION	ENDP			;
+; ENDP NO_OPERATION;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	PULL IN THE CODE PAGE FUNCTION CODE
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	INCLUDE INT2FCOM.INC		;
-	INCLUDE INT10COM.INC		;
-	INCLUDE CPS-FUNC.INC		;
-	INCLUDE WRITE.INC		; SPECIAL MARKER IN WRITE.INC
-	INCLUDE F-PARSER.INC		;
+	%include "INT2FCOM.INC";
+	%include "INT10COM.INC";
+	%include "CPS-FUNC.INC";
+	%include "WRITE.INC"; SPECIAL MARKER IN WRITE.INC
+	%include "F-PARSER.INC";
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;      Adjust the assembly-time instruction counter to a paragraph
 ;      boundary
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	IF	($-START) MOD 16	;
+	%if ($-START) MOD 16;
 	  ORG ($-START)+16-(($-START) MOD 16);
-	ENDIF				;
+	%endif;
 EOF_MARKER   EQU $			; end of resident code
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ;	END-OF-CODE
 ;
 ;;;;;;;;;;;;;;;;;
-CODE	ENDS	;
-	END	;
+; END SECTION .CODE;
+	; END;
 ;;;;;;;;;;;;;;;;;

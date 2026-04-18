@@ -1,9 +1,9 @@
-page 80,132
+; page 80,132
 
-title CP/DOS DosDevIOCTl   mapper
+; title CP/DOS DosDevIOCTl   mapper
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -25,23 +25,23 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dosdevioctl
-            .sall
-            .xlist
-            include  macros.inc
-            .list
+            global dosdevioctl
+            ; .sall
+            ; .xlist
+            %include "macros.inc"
+            ; .list
 
-str         struc
-Old_bp      dw       ?
-Return      dd       ?
-Handle      dw       ?       ; handle
-Category    dw       ?       ; device category
-Function    dw       ?       ; device function
-Parmlist    dd       ?       ; command arguments
-Data        dd       ?       ; data area
-str         ends
+struc str
+Old_bp: resw 1
+Return: resd 1
+Handle: resw 1; handle
+Category: resw 1; device category
+Function: resw 1; device function
+Parmlist: resd 1; command arguments
+Data: resd 1; data area
+endstruc
 
-dosdevioctl     proc  far
+dosdevioctl:
         Enter   dosdevioctl           ; push registers
 
         mov     bx,[bp].handle        ; get handle
@@ -80,14 +80,14 @@ continue1:                            ; only category 8 is supported
                                       ; therefore continue
 continue:
         lds     si,[bp].data          ; media changable
-        mov     byte ptr [si],al      ; save in data area
+        mov     byte [si],al      ; save in data area
         xor     ax,ax                 ; set no error coe
 
 exit:   mexit                         ; pop registers
-        ret     size str - 6          ; return
+        ret     str_size - 6          ; return
 
-dosdevioctl  endp
+; ENDP dosdevioctl
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

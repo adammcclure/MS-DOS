@@ -1,102 +1,102 @@
-.XLIST
-INCLUDE STRUC.INC
-.LIST
-.SALL
-	PAGE	,132			;
-	TITLE	TYPAMAT.SAL - TYPAMATIC RATE AND DELAY CONTROL FOR MODE COMMAND
+; .XLIST
+%include "STRUC.INC"
+; .LIST
+; .SALL
+	; PAGE	,132;
+	; TITLE	TYPAMAT.SAL - TYPAMATIC RATE AND DELAY CONTROL FOR MODE COMMAND
 
 
-;ฺฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
-;ณ
-;ณ SET_TYPAMATIC
-;ณ -------------
-;ณ Translate the input parameters into BIOS digestable values and make the
-;ณ required calls.  Typamatic support in BIOS exists only in machines with
-;ณ BIOS dated 11/15/85 or later, XT286 and all PS/2 products.
-;ณ
-;ณ
-;ณ; INPUT:	 A binary value from 1 to 32 indicating the typamatic rate
-;ณ		 desired and a binary value from 1 to 4 indicating the delay.
-;ณ		 Status is not supported on machines known today.
-;ณ		 The translation of the typamatic value to BIOS
-;ณ		 input is 32 - r where 'r' is the input value.  The translation
-;ณ		 from 'd' the input delay value to the BIOS is d - 1.  'r'
-;ณ		 is passed in BL, 'd' is passed in BH.
-;ณ
-;ณ  RETURN:	 none
-;ณ
-;ณ
-;ณ  MESSAGES:	 none
-;ณ
-;ณ
-;ณ
-;ณ  REGISTER
-;ณ  USAGE AND
-;ณ  COMVENTIONS: BX is used to pass parameters to BIOS
-;ณ		 The names used to represent the valid machines are: AT3, XT286,
-;ณ		 PS2Model30, PS2Model50, PS2Model60 and PS2Model80.
-;ณ
-;ณ  ASSUMPTIONS: Input values are valid.
-;ณ
-;ณ
-;ณ  SIDE EFFECT:
-;ณ
-;ณ
-;ณ   ๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙๙
-;ณ
-;ณ BEGIN
-;ณ
-;ณ IF (machine_type>AT) OR ((machine_type=AT) AND (BIOS_date >= 11/15/85)) OR
-;ณ    (machine_type=XT286) THEN
-;ณ    IF typamatic_rate <> 0 THEN						   ณ
-;ณ	 MOV	 BL,32-BL	    ;translate typamatic rate			   ณ
-;ณ    ELSE									   ณ
-;ณ	 MOV	 BL,previous_typamatic_rate	    ;not specified so no change    ณ
-;ณ    ENDIF									   ณ
-;ณ    IF delay <> 0 THEN							   ณ
-;ณ	 SUB	 BH,1		    ;translate delay				   ณ
-;ณ    ELSE									   ณ
-;ณ	 MOV	 BH,previous_delay_rate 					   ณ
-;ณ    ENDIF									   ณ
-;ณ    MOV	 AH,set_typamatic_rate_and_delay    ;INT 16 set typamatic function ณ
-;ณ    MOV	 AL,typamatic_function		    ;set typamatic subfunction	   ณ
-;ณ    INT	 16H								   ณ
-;ณ ELSE 									ณ
-;ณ    queue Function_not_supported						ณ
-;ณ ENDIF									ณ
-;ณ										ณ
-;ณ END										ณ
-;ณ
-;ภฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤฤ
-
-
-
-
-;ษออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
+;ยณ
+;ยณ SET_TYPAMATIC
+;ยณ -------------
+;ยณ Translate the input parameters into BIOS digestable values and make the
+;ยณ required calls.  Typamatic support in BIOS exists only in machines with
+;ยณ BIOS dated 11/15/85 or later, XT286 and all PS/2 products.
+;ยณ
+;ยณ
+;ยณ; INPUT:	 A binary value from 1 to 32 indicating the typamatic rate
+;ยณ		 desired and a binary value from 1 to 4 indicating the delay.
+;ยณ		 Status is not supported on machines known today.
+;ยณ		 The translation of the typamatic value to BIOS
+;ยณ		 input is 32 - r where 'r' is the input value.  The translation
+;ยณ		 from 'd' the input delay value to the BIOS is d - 1.  'r'
+;ยณ		 is passed in BL, 'd' is passed in BH.
+;ยณ
+;ยณ  RETURN:	 none
+;ยณ
+;ยณ
+;ยณ  MESSAGES:	 none
+;ยณ
+;ยณ
+;ยณ
+;ยณ  REGISTER
+;ยณ  USAGE AND
+;ยณ  COMVENTIONS: BX is used to pass parameters to BIOS
+;ยณ		 The names used to represent the valid machines are: AT3, XT286,
+;ยณ		 PS2Model30, PS2Model50, PS2Model60 and PS2Model80.
+;ยณ
+;ยณ  ASSUMPTIONS: Input values are valid.
+;ยณ
+;ยณ
+;ยณ  SIDE EFFECT:
+;ยณ
+;ยณ
+;ยณ   รนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรนรน
+;ยณ
+;ยณ BEGIN
+;ยณ
+;ยณ IF (machine_type>AT) OR ((machine_type=AT) AND (BIOS_date >= 11/15/85)) OR
+;ยณ    (machine_type=XT286) THEN
+;ยณ    IF typamatic_rate <> 0 THEN						   ยณ
+;ยณ	 MOV	 BL,32-BL	    ;translate typamatic rate			   ยณ
+;ยณ    ELSE									   ยณ
+;ยณ	 MOV	 BL,previous_typamatic_rate	    ;not specified so no change    ยณ
+;ยณ    ENDIF									   ยณ
+;ยณ    IF delay <> 0 THEN							   ยณ
+;ยณ	 SUB	 BH,1		    ;translate delay				   ยณ
+;ยณ    ELSE									   ยณ
+;ยณ	 MOV	 BH,previous_delay_rate 					   ยณ
+;ยณ    ENDIF									   ยณ
+;ยณ    MOV	 AH,set_typamatic_rate_and_delay    ;INT 16 set typamatic function ยณ
+;ยณ    MOV	 AL,typamatic_function		    ;set typamatic subfunction	   ยณ
+;ยณ    INT	 16H								   ยณ
+;ยณ ELSE 									ยณ
+;ยณ    queue Function_not_supported						ยณ
+;ยณ ENDIF									ยณ
+;ยณ										ยณ
+;ยณ END										ยณ
+;ยณ
+;ร€รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร
 
 
 
-DISPLAY MACRO	MESSAGE
-	MOV	DX,OFFSET MESSAGE
+
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
+
+
+
+%macro DISPLAY 1
+	MOV	DX,MESSAGE
 	CALL	PRINTF
-ENDM
+%endmacro
 
-SET	MACRO	REG,VALUE		;SET REG TO VALUE. DON'T SPECIFY AX FOR REG
+%macro SET 2;SET REG TO VALUE. DON'T SPECIFY AX FOR REG
 
 	PUSH	AX
 	MOV	AX,VALUE
 	MOV	REG,AX
 	POP	AX
 
-ENDM
+%endmacro
 
-;บ											  บ
-;ศออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 get_installed_state  EQU   0	  ;function of MODE INT 2FH handler
 get_typamatic_delay  EQU   04	  ;function of MODE INT 2FH handler
@@ -111,68 +111,68 @@ set_typamatic_rate_and_delay  EQU   3
 typamatic_function   EQU   5
 ten_chars_per_second EQU   0CH	  ;value for BIOS INT 16H
 
-INCLUDE modequat.inc		 ;definitions of machine types
-include version.inc		; defines version of DOS to be built
+%include "modequat.inc";definitions of machine types
+%include "version.inc"; defines version of DOS to be built
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออผ
-
-
-PRINTF_CODE SEGMENT PUBLIC
-	ASSUME	DS:NOTHING, CS:PRINTF_CODE
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+SECTION .PRINTF_CODE
+	; ASSUME	DS:NOTHING, CS:PRINTF_CODE
 
-EXTRN	 PRINTF:NEAR
-EXTRN	 MACHINE_TYPE:BYTE		     ;MACHINE TYPE as determined by "modeleng"
+
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
+
+extern PRINTF
+extern MACHINE_TYPE;MACHINE TYPE as determined by "modeleng"
 ;EXTRN	  typamatic_rate_set_to:WORD
 ;EXTRN	  chars_per_second:WORD
-EXTRN	 noerror:BYTE
+extern noerror
 ;EXTRN	  no_previous_typamatic_rate:WORD
-EXTRN	 Function_not_supported:BYTE		      ;see modedefs.inc
+extern Function_not_supported;see modedefs.inc
 ;EXTRN	  delay_set_to:WORD
 ;EXTRN	  second:WORD
 ;EXTRN	  no_previous_delay_setting:WORD
 ;EXTRN	  delay_set_to_one_half_second:WORD
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษออออออออออออออออออออออออออออออออออ D A T A อออออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร D A T A รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 thirty_two  DB	  20H			    ;adjustment and work area for typamatic rate
 
-;บ											  บ
-;ศออออออออออออออออออออออออออออออออออ D A T A อออออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร D A T A รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออผ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
 
 
-PAGE
+; PAGE
 ;*********************************************************************************************
 
-TYPAMAT PROC	NEAR
-PUBLIC	TYPAMAT
+TYPAMAT:
+global TYPAMAT
 
-if IBMCOPYRIGHT
-.IF <machine_type EQ AT4> OR
-.IF <machine_type EQ XT286> OR
+%if IBMCOPYRIGHT
+; .IF <machine_type EQ AT4> OR
+; .IF <machine_type EQ XT286> OR
 ;.IF <machine_type EQ AT> OR
-.IF <machine_type EQ PS2Model30> OR
-.IF <machine_type EQ PS2Model50> OR
-.IF <machine_type EQ PS2Model60> OR
-.IF <machine_type EQ PS2Model80> THEN
-endif
+; .IF <machine_type EQ PS2Model30> OR
+; .IF <machine_type EQ PS2Model50> OR
+; .IF <machine_type EQ PS2Model60> OR
+; .IF <machine_type EQ PS2Model80> THEN
+%endif
 ;  MOV	   AH,resident_MODE
 ;  MOV	   AL,get_installed_state
 ;  INT	   2FH
@@ -246,18 +246,18 @@ endif
    MOV	   AH,set_typamatic_rate_and_delay	    ;MOV	AH,set_typamatic_rate_and_delay    ;INT 16 set typamatic function
    MOV	   AL,typamatic_function		    ;MOV	AL,typamatic_function		   ;set typamatic subfunction
    INT	   16H					    ;INT	16H
-if IBMCOPYRIGHT
-.ELSE
+%if IBMCOPYRIGHT
+; .ELSE
    DISPLAY Function_not_supported
    MOV	 noerror,false
-.ENDIF
-endif
+; .ENDIF
+%endif
 
 RET
 
-TYPAMAT ENDP
+; ENDP TYPAMAT
 
 
-PRINTF_CODE ENDS
-	END
+; END SECTION .PRINTF_CODE
+	; END
 

@@ -1,4 +1,4 @@
-	PAGE
+	; PAGE
 ;-----------------------------------------------------------------------;
 ;	GET_PARMS extracts parameters from the command line buffer	;
 ;									;
@@ -13,10 +13,10 @@
 ;		    AX,BX,CX,DX,DI,SI,DS are destroyed			;
 ;-----------------------------------------------------------------------;
 
-include xma2emsp.inc			; include parser things
-include parse.asm
+%include "xma2emsp.inc"; include parser things
+%include "parse.asm"
 
-GET_PARMS PROC
+GET_PARMS:
 	LDS	BX,CS:RH_PTRA		;make ds:bx point to request header
 
 	LDS	SI,RH.RH0_BPBA		;make ds:si point to bios paramter buffer
@@ -65,22 +65,22 @@ check_frame:
 
 	mov	parse_flag,1		; set parse flag
 
-	mov	byte ptr frame_ctl+9,0	; turn this off so we don't allow another
+	mov	byte frame_ctl+9,0	; turn this off so we don't allow another
 	mov	frame_result.$P_Type,0	; clear this so we don't get fooled later
 
-	mov	byte ptr p0_ctl+9,0	; turn these off so we don't allow any
-	mov	byte ptr p1_ctl+9,0	; others that would conflict
-	mov	byte ptr p2_ctl+9,0
-	mov	byte ptr p3_ctl+9,0
+	mov	byte p0_ctl+9,0	; turn these off so we don't allow any
+	mov	byte p1_ctl+9,0	; others that would conflict
+	mov	byte p2_ctl+9,0
+	mov	byte p3_ctl+9,0
 
 	push	si						;save regs
 
-	mov	si,word ptr frame_result.$P_Picked_Val[+0]
+	mov	si,word frame_result.$P_Picked_Val[+0]
 
-	mov	word ptr ds:[si+0],0				;clear the
-	mov	word ptr ds:[si+4],0				;  pages
-	mov	word ptr ds:[si+8],0
-	mov	word ptr ds:[si+12],0
+	mov	word [ds:si+0],0				;clear the
+	mov	word [ds:si+4],0				;  pages
+	mov	word [ds:si+8],0
+	mov	word [ds:si+12],0
 
 	pop	si						;restore regs
 
@@ -97,16 +97,16 @@ check_p0:
 
 	mov	parse_flag,1		; set parse flag
 
-	mov	byte ptr p0_ctl+9,0	; turn this off so we don't allow another
+	mov	byte p0_ctl+9,0	; turn this off so we don't allow another
 	mov	p0_result.$P_Type,0	; clear this so we don't get fooled later
 
-	mov	byte ptr frame_ctl+9,0	; turn this off so we don't allow another
+	mov	byte frame_ctl+9,0	; turn this off so we don't allow another
 
 	push	si						;save regs
 
-	mov	si,word ptr p0_result.$P_Picked_Val[+0]
+	mov	si,word p0_result.$P_Picked_Val[+0]
 
-	mov	word ptr ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -121,16 +121,16 @@ check_p1:
 
 	mov	parse_flag,1		; set parse flag
 
-	mov	byte ptr p1_ctl+9,0	; turn this off so we don't allow another
+	mov	byte p1_ctl+9,0	; turn this off so we don't allow another
 	mov	p1_result.$P_Type,0	; clear this so we don't get fooled later
 
-	mov	byte ptr frame_ctl+9,0	; turn this off so we don't allow another
+	mov	byte frame_ctl+9,0	; turn this off so we don't allow another
 
 	push	si						;save regs
 
-	mov	si,word ptr p1_result.$P_Picked_Val[+0]
+	mov	si,word p1_result.$P_Picked_Val[+0]
 
-	mov	word ptr ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -145,16 +145,16 @@ check_p2:
 
 	mov	parse_flag,1		; set parse flag
 
-	mov	byte ptr p2_ctl+9,0	; turn this off so we don't allow another
+	mov	byte p2_ctl+9,0	; turn this off so we don't allow another
 	mov	p2_result.$P_Type,0	; clear this so we don't get fooled later
 
-	mov	byte ptr frame_ctl+9,0	; turn this off so we don't allow another
+	mov	byte frame_ctl+9,0	; turn this off so we don't allow another
 
 	push	si						;save regs
 
-	mov	si,word ptr p2_result.$P_Picked_Val[+0]
+	mov	si,word p2_result.$P_Picked_Val[+0]
 
-	mov	word ptr ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -169,16 +169,16 @@ check_p3:
 
 	mov	parse_flag,1		; set parse flag
 
-	mov	byte ptr p3_ctl+9,0	; turn this off so we don't allow another
+	mov	byte p3_ctl+9,0	; turn this off so we don't allow another
 	mov	p3_result.$P_Type,0	; clear this so we don't get fooled later
 
-	mov	byte ptr frame_ctl+9,0	; turn this off so we don't allow another
+	mov	byte frame_ctl+9,0	; turn this off so we don't allow another
 
 	push	si						;save regs
 
-	mov	si,word ptr p3_result.$P_Picked_Val[+0]
+	mov	si,word p3_result.$P_Picked_Val[+0]
 
-	mov	word ptr ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -193,14 +193,14 @@ check_p254:
 
 	mov	parse_flag,1		; set parse flag
 
-	mov	byte ptr p254_ctl+9,0	; turn this off so we don't allow another
+	mov	byte p254_ctl+9,0	; turn this off so we don't allow another
 	mov	p254_result.$P_Type,0	; clear this so we don't get fooled later
 
 	push	si						;save regs
 
-	mov	si,word ptr p254_result.$P_Picked_Val[+0]
+	mov	si,word p254_result.$P_Picked_Val[+0]
 
-	mov	word ptr ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -217,14 +217,14 @@ check_p255:
 do_p255:
 	mov	parse_flag,1		; set parse flag
 
-	mov	byte ptr p255_ctl+9,0	; turn this off so we don't allow another
+	mov	byte p255_ctl+9,0	; turn this off so we don't allow another
 	mov	p255_result.$P_Type,0	; clear this so we don't get fooled later
 
 	push	si						;save regs
 
-	mov	si,word ptr p255_result.$P_Picked_Val[+0]
+	mov	si,word p255_result.$P_Picked_Val[+0]
 
-	mov	word ptr ds:[si+0],0
+	mov	word [ds:si+0],0
 
 	pop	si						;restore regs
 ;	set flags for later code to fill in map_table
@@ -234,14 +234,14 @@ do_p255:
 	jmp	get_args		; go get another argument
 
 Check_X:
-	cmp	es:X_Result.$P_SYNONYM_Ptr,offset es:X_Switch.$P_KeyorSW ; switch Ptr	   ;an000; dms;
+	cmp	es:X_Result.$P_SYNONYM_Ptr,X_Switch.$P_KeyorSW ; switch Ptr	   ;an000; dms;
 	je	Do_X			; yes, process it
 	jmp	get_args		; no, must have been the positional, ignore it and go on
 
 Do_X:
 
 	push	ax			; save regs
-	mov	ax,es:word ptr X_Result.$P_Picked_Val ;get low word of result	 ;an000; dms;
+	mov	ax,es:word X_Result.$P_Picked_Val ;get low word of result	 ;an000; dms;
 	mov	cs:EMS_Pgs_Parm,ax	; pass to program			;an000; dms;
 	pop	ax			; restore regs
 
@@ -527,4 +527,4 @@ null_cmd_line:
 	ret				; return to calling routine
 
 
-GET_PARMS ENDP
+; ENDP GET_PARMS

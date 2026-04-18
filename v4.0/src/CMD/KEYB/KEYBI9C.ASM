@@ -1,6 +1,6 @@
 
-	PAGE	,132
-	TITLE	DOS KEYB Command  -  Interrupt 9 (US support)
+	; PAGE	,132
+	; TITLE	DOS KEYB Command  -  Interrupt 9 (US support)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - NLS Support - KEYB Command
@@ -39,43 +39,43 @@
 ;; ;AN002; - PTM 3090  ENABLING RIGHT CTL FOR RE-BOOTING
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-	INCLUDE KEYBEQU.INC	       ;;
-	INCLUDE DSEG.inc	       ;; System data segments
-	INCLUDE POSTEQU.inc	       ;; System equates
-	INCLUDE KEYBSHAR.INC	       ;;
-	INCLUDE KEYBI2F.INC	       ;;
-	INCLUDE KEYBI9.INC	       ;;
-	INCLUDE KEYBCPSD.INC	       ;;
-	INCLUDE KEYBCMD.INC	       ;;
+	%include "KEYBEQU.INC";;
+	%include "DSEG.inc";; System data segments
+	%include "POSTEQU.inc";; System equates
+	%include "KEYBSHAR.INC";;
+	%include "KEYBI2F.INC";;
+	%include "KEYBI9.INC";;
+	%include "KEYBCPSD.INC";;
+	%include "KEYBCMD.INC";;
 				       ;;
-	PUBLIC KEYB_INT_9	       ;;
-	PUBLIC K8		       ;; CTRL case tables
-	PUBLIC BUFFER_FILL	       ;;
-	PUBLIC COUNTRY_FLAG	       ;;
-	PUBLIC BEEP_PENDING	       ;;
-	PUBLIC SCAN_CODE	       ;;
-	PUBLIC ERROR_BEEP	       ;;
-	PUBLIC TEMP_HEAD	       ;;
-	PUBLIC TEMP_TAIL	       ;;
-	PUBLIC BUSY_TFLAG	       ;;
-	PUBLIC MYBUFF		       ;;
-	PUBLIC ENABLE_FL	       ;;
-	PUBLIC NEW_BUFF_CTR	       ;;
+	global KEYB_INT_9;;
+	global K8;; CTRL case tables
+	global BUFFER_FILL;;
+	global COUNTRY_FLAG;;
+	global BEEP_PENDING;;
+	global SCAN_CODE;;
+	global ERROR_BEEP;;
+	global TEMP_HEAD;;
+	global TEMP_TAIL;;
+	global BUSY_TFLAG;;
+	global MYBUFF;;
+	global ENABLE_FL;;
+	global NEW_BUFF_CTR;;
 
 
 ROM_SEG 	EQU	0F000H	       ;; BIOS ROM SEGMENT
 PC1DATE_ID	EQU	03138H	       ;; YEAR ROM WAS RELEASED IN ASCII
 SYSROM_DATE	EQU	0FFFBH	       ;; OFFSET OF ROM YEAR DIGIT
 				       ;;
-DIAGS	SEGMENT AT 0FFFFH	       ;;
+SECTION .DIAGS;;
 	ORG	0		       ;;
-RESET	LABEL	FAR		       ;;
-DIAGS	ENDS			       ;;
+RESET:;;
+; END SECTION .DIAGS;;
 				       ;;
 				       ;;
 				       ;;
-CODE	SEGMENT PUBLIC 'CODE'          ;;
-	ASSUME	CS:CODE,DS:DATA        ;;
+SECTION .CODE;;
+	; ASSUME	CS:CODE,DS:DATA;;
 				       ;;
 
 ;CNS***
@@ -85,7 +85,7 @@ CODE	SEGMENT PUBLIC 'CODE'          ;;
 	TEMP_HEAD	DW	 0		;AN000;
 	TEMP_TAIL	DW	 0		;AN000;
 	BUSY_TFLAG	DB	ACTIVE_OFF	;AN000;FLAG TO CHECK BUFFER ACTIVITY
-	MYBUFF	DB	16 DUP(0)		;AN000;
+	MYBUFF: times 16 db 0;AN000;
 	ENABLE_FL	DB	0			    ;NEW BUFFER TO BE USED
 	NEW_BUFF_CTR	DB	0		;ON THE FRONT END OF THE
 ;CNS***
@@ -102,21 +102,21 @@ SCAN_CODE	 DB    0	       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
 ;------ KEY_TABLE		       ;;
-K6	LABEL	BYTE		       ;;
+K6:;;
 	DB	INS_KEY 	       ;; INSERT KEY
 	DB	CAPS_KEY,NUM_KEY,SCROLL_KEY,ALT_KEY,CTL_KEY
 	DB	LEFT_KEY,RIGHT_KEY     ;;
 K6L	EQU	$-K6		       ;;
 				       ;;
 ;------ MASK_TABLE		       ;;
-K7	LABEL	BYTE		       ;;
+K7:;;
 	DB	INS_SHIFT	       ;; INSERT MODE SHIFT
 	DB	CAPS_SHIFT,NUM_SHIFT,SCROLL_SHIFT,ALT_SHIFT,CTL_SHIFT
 	DB	LEFT_SHIFT,RIGHT_SHIFT ;;
 				       ;;
 ;----------  TABLES FOR ALT CASE  -----;;
 ;------ ALT-INPUT-TABLE 	       ;;
-K30	LABEL	BYTE		       ;;
+K30:;;
 	DB	82,79,80,81,75	       ;;
 	DB	76,77,71,72,73	       ;; 10 NUMBERS ON KEYPAD
 ;------ SUPER-SHIFT-TABLE	       ;;
@@ -133,7 +133,7 @@ K30_LEN 	EQU	$-K30-10       ;;
 ;; if extended INT 16 support is available
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-K8	LABEL	BYTE		       ;;-------- CHARACTERS ---------
+K8:;;-------- CHARACTERS ---------
 	DB	27,-1,00,-1,-1,-1      ;; Esc, 1, 2, 3, 4, 5
 	DB	30,-1,-1,-1,-1,31      ;; 6, 7, 8, 9, 0, -
 	DB	-1,127,-1,17,23,5      ;; =, Bksp, Tab, Q, W, E
@@ -150,10 +150,10 @@ K8	LABEL	BYTE		       ;;-------- CHARACTERS ---------
 	DB	119,-1,132,-1,115,-1   ;; Home, Up, PgUp, -, Left, Pad5
 	DB	116,-1,117,-1,118,-1   ;; Right, +, End, Down, PgDn, Ins
 	DB	-1,-1,-1,-1,137,138    ;; Del, SysReq, Undef, WT, F11, F12
-PAGE				       ;;
+; PAGE;;
 ;-----	TABLES FOR LOWER CASE (USA)  --;;
 				       ;;
-K10	LABEL	BYTE		       ;;
+K10:;;
 	DB	27,'12345'             ;;
 	DB	'67890-'               ;;
 	DB	'=',08,09,'qwe'        ;;
@@ -171,7 +171,7 @@ K10	LABEL	BYTE		       ;;
 	DB	-1,-1		       ;; NL, SL
 				       ;;
 ;------ KEYPAD TABLE		       ;;
-K15	LABEL	BYTE		       ;;
+K15:;;
 	DB	71,72,73,-1,75,-1      ;; BASE STATE OF KEYPAD KEYS
 	DB	77,-1,79,80,81,82      ;;
 	DB	83		       ;;
@@ -179,7 +179,7 @@ K15	LABEL	BYTE		       ;;
 				       ;;
 ;-------  TABLES FOR UPPER CASE (USA)  ;;
 				       ;;
-K11	LABEL	BYTE		       ;;
+K11:;;
 	DB	27,'!@#$%'             ;;
 	DB	'^&*()_'               ;;
 	DB	'+',08,00,'QWE'        ;;
@@ -192,13 +192,13 @@ K11	LABEL	BYTE		       ;;
 	DB	-1,'*',-1,' |'         ;; R Shift, *, Alt, Sp, CL (REALLY WT KEY)
 				       ;;
 ;------ UC TABLE SCAN		       ;;
-K12	LABEL	BYTE		       ;;
+K12:;;
 	DB	84,85,86,87,88	       ;; SHIFTED STATE OF F1 - F10
 	DB	89,90,91,92,93	       ;;
 	DB	-1,-1		       ;; NL, SL
 				       ;;
 ;------ NUM STATE TABLE 	       ;;
-K14	LABEL	BYTE		       ;;
+K14:;;
 	DB	'789-456+1230.'        ;; NUMLOCK STATE OF KEYPAD KEYS
 	DB	-1,-1,'|',135,136      ;; SysRq, Undef, WT, F11, F12
 				       ;;
@@ -217,7 +217,7 @@ K14	LABEL	BYTE		       ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-KEYB_INT_9    PROC   NEAR	       ;;
+KEYB_INT_9:;;
 	JMP	KB_INT_1	; THIS JUMP AND ENSUING BYTE MUST BE HERE TO BE
  COUNTRY_FLAG	 DB	 -1	;  COMPATIBLE WITH APL.  APL WILL FORCE THIS
 				;  BYTE TO BE ZERO, ONLY BECAUSE IT'S 3 BYTES
@@ -255,7 +255,7 @@ KB_INT_1:			;  AWAY FROM WHERE THE INT9 VECTOR POINTS
 	CMP	CS:BUSY_TFLAG,ACTIVE_ON
 	JE	NO_INIT
 
-	MOV	DI,OFFSET CS:MYBUFF
+	MOV	DI,MYBUFF
 	MOV	CS:TEMP_HEAD,DI
 	MOV	CS:TEMP_TAIL,DI
 	MOV	CS:ENABLE_FL,0
@@ -279,7 +279,7 @@ NO_INIT:
 	OR     KB_FLAG,BL	       ;;  from INT 48 preprocessor
 	MOV    CS:SD.JR_KB_FLAG,0      ;; Clear JR KB_Flag
 	JMP    UP1MORE;UP1		       ;; Skip to key processing
-EVEN				       ;;
+align 2;;
 READ_CHAR_PORT: 		       ;;
 	IN	AL,KB_DATA	       ;; READ IN THE CHARACTER
 				       ;; FOR PC, XT, P12: RESET THE KEYBOARD
@@ -379,7 +379,7 @@ LOAD_TBUFF:
 LOAD_CHAR:
 
 	MOV	DI,CS:TEMP_TAIL 	;;AN003;MOVE PTR TO LATEST INSERT POSITION
-	MOV	BYTE PTR CS:[DI],AL	;;AN000;LOAD CHARACTER INTO MY BUFFER
+	MOV	byte [CS:DI],AL	;;AN000;LOAD CHARACTER INTO MY BUFFER
 	INC	CS:NEW_BUFF_CTR 	;;AN000;
 	INC	DI			;;AN000;TAIL POINTER NEEDS TO BE ADVANCED
 	MOV	CS:TEMP_TAIL,DI 	   ;;AN000;ADD ONE TO TAIL POINTER
@@ -505,7 +505,7 @@ GET_KB: 			       ;;AN000;AN000;
 	XOR	BX,BX		       ;;AN000;
 	CLI			       ;;AN000;DO NOT PROCESS UNTIL UNLOADED
 				       ;;AN000;
-	MOV	AL,BYTE PTR CS:[DI]    ;;AN000;TEMPORARY BUFFER
+	MOV	AL,byte [CS:DI]    ;;AN000;TEMPORARY BUFFER
 	STI			       ;;AN000;ENABLE SO I CAN KEEP PROCESSING
 	PUSH	AX
 	PUSH	BX
@@ -593,7 +593,7 @@ KB_INT_2:
 ;------ PROCESSING COMES BACK TOGETHER HERE
 
 UP0:	POP	AX			; RESTORE DATA IN
-PAGE
+; PAGE
 ;---------------------------------------------------------------------
 ;	      START OF KEY PROCESSING				     -
 ;---------------------------------------------------------------------
@@ -647,7 +647,7 @@ TST_ID_2:
 KX_BIT: OR	KB_FLAG_3,KBX		; INDICATE ENHANCED KEYBOARD WAS FOUND
 ID_EX:	;JMP	 PREP_EXIT		       ; EXIT
 	RET
-PAGE
+; PAGE
 NOT_ID:
 	CMP	AL,MC_E0		; IS THIS THE GENERAL MARKER CODE? RWV 7-19-85
 	JNE	TEST_E1 		;				   RWV 7-19-85
@@ -669,7 +669,7 @@ NOT_HC:
 	JZ	NOT_LC_E0		; JUMP IF NOT			    RWV
 
 	MOV	CX,2			; LENGTH OF SEARCH		    RWV
-	MOV	DI,OFFSET K6+6		; IS THIS A SHIFT KEY?		    RWV
+	MOV	DI,K6+6		; IS THIS A SHIFT KEY?		    RWV
 	REPNE	SCASB			; CHECK IT			    RWV
 	JNE	K16A			; NO, CONTINUE KEY PROCESSING	    RWV
 	JMP	SHORT K16B		; YES, THROW AWAY & RESET FLAG	    RWV
@@ -679,7 +679,7 @@ NOT_LC_E0:
 	JZ	T_SYS_KEY		; JUMP IF NOT			    RWV
 
 	MOV	CX,4			; LENGTH OF SEARCH		    RWV
-	MOV	DI,OFFSET K6+4		; IS THIS AN ALT, CTL, OR SHIFT?    RWV
+	MOV	DI,K6+4		; IS THIS AN ALT, CTL, OR SHIFT?    RWV
 	REPNE	SCASB			; CHECK IT			    RWV
 	JE	EXIT			; THROW AWAY IF SO		    RWV
 
@@ -690,7 +690,7 @@ NOT_LC_E0:
 	TEST	KB_FLAG_1,HOLD_STATE	;  NO, ARE WE PAUSED ALREADY?	    PED 6-25-86
 	JNZ	K16B			;   YES, THROW AWAY		    PED 6-25-86
 	JMP	K39P			;  NO, THIS IS THE REAL PAUSE STATE RWV
-PAGE
+; PAGE
 ;------ TEST FOR SYSTEM KEY
 
 T_SYS_KEY:
@@ -749,7 +749,7 @@ K16C:	AND	KB_FLAG_1,NOT SYS_SHIFT ; TURN OFF SHIFT KEY HELD DOWN
 	MOV	CS:ENABLE_FL,2
 	RET;JMP     KEY_EXIT		    ; IGNORE SYSTEM KEY
 ;***CNS
-PAGE
+; PAGE
 ;------ TEST FOR SHIFT KEYS
 ;
 ; HERE IS WHERE KBFLAGS ARE SET.  WHAT HAPPENS IS, THE SYSTEM SEARCHES TABLE
@@ -759,7 +759,7 @@ PAGE
 ; THEIR ORIGINAL COUNTERPARTS IN KB_FLAG
 
 K16A:	MOV	BL,KB_FLAG		; PUT STATE FLAGS IN BL 	   RWV 8-28-85
-	MOV	DI,OFFSET K6		; SHIFT KEY TABLE
+	MOV	DI,K6		; SHIFT KEY TABLE
 	MOV	CX,K6L			; LENGTH
 	REPNE	SCASB			; LOOK THROUGH THE TABLE FOR A MATCH
 	MOV	AL,AH			; RECOVER SCAN CODE
@@ -768,7 +768,7 @@ K16A:	MOV	BL,KB_FLAG		; PUT STATE FLAGS IN BL 	   RWV 8-28-85
 
 ;------ SHIFT KEY FOUND
 
-K17:	SUB	DI,OFFSET K6+1		; ADJUST PTR TO SCAN CODE MTCH
+K17:	SUB	DI,K6+1		; ADJUST PTR TO SCAN CODE MTCH
 	MOV	AH,CS:K7[DI]		; GET MASK INTO AH
 	MOV	CL,2			; SET UP COUNT FOR FLAG SHIFTS	   RWV 9-11-85
 	TEST	AL,80H			; TEST FOR BREAK KEY
@@ -978,7 +978,7 @@ HOLD_OFF:
 
 	RET;JMP     PREP_EXIT
 
-PAGE
+; PAGE
 ;------ NOT IN HOLD STATE
 					; AL, AH = SCAN CODE (ALL MAKES)
 K28:					; NO-HOLD-STATE
@@ -1021,7 +1021,7 @@ K29:					; TEST-RESET
 ;------ CTL-ALT-DEL HAS BEEN FOUND, DO I/O CLEANUP
 
 	MOV	RESET_FLAG,1234H	; SET FLAG FOR RESET FUNCTION
-	AND	WORD PTR KB_FLAG_3,KBX	; CLEAR ALL FLAG BITS EXCEPT KBX   PED 6-25-86
+	AND	word KB_FLAG_3,KBX	; CLEAR ALL FLAG BITS EXCEPT KBX   PED 6-25-86
 	JMP	RESET			; JUMP TO POWER ON DIAGNOSTICS
 
 ;------ IN ALTERNATE SHIFT, RESET NOT FOUND
@@ -1075,14 +1075,14 @@ K31C:	CMP	CS:COUNTRY_FLAG,0FFH
 ;------ LOOK FOR KEY PAD ENTRY
 
 K32:					; ALT-KEY-PAD
-	MOV	DI,OFFSET K30		; ALT-INPUT-TABLE
+	MOV	DI,K30		; ALT-INPUT-TABLE
 	MOV	CX,10			; LOOK FOR ENTRY USING KEYPAD
 	REPNE	SCASB			; LOOK FOR MATCH
 	JNE	K33			; NO_ALT_KEYPAD
 	TEST	BH,LC_E0		; IS THIS ONE OF THE NEW KEYS?	   RWV 10-08-85
 	JZ	K321			;  NO, PROCESS AS ALT-NUMPAD	   RWV 11-06-85
 	JMP	K37C			;  YES, JUMP, NOT NUMPAD KEY	   RWV 7-24-85
-K321:	SUB	DI,OFFSET K30+1 	; DI NOW HAS ENTRY VALUE
+K321:	SUB	DI,K30+1 	; DI NOW HAS ENTRY VALUE
 	MOV	AL,ALT_INPUT		; GET THE CURRENT BYTE
 	MOV	AH,10			; MULTIPLY BY 10
 	MUL	AH
@@ -1159,7 +1159,7 @@ K37C:
 	ADD	AL,80			; CONVERT SCAN CODE (EDIT KEYS)    RWV 10-07-85
 	MOV	AH,AL			; (SCAN CODE NOT IN AH FOR INSERT) RWV 10-07-85
 	JMP	K37A			; PUT IT IN THE BUFFER		   RWV 10-07-85
-PAGE
+; PAGE
 ;------ NOT IN ALTERNATE SHIFT
 
 K38:					; NOT-ALT-SHIFT
@@ -1249,7 +1249,7 @@ K40:					; PAUSE-LOOP
 	MOV	BX,HOLD_STATE*100H	; BH=HOLD_STATE, BL=0=NO TIME OUT  RWV from AAD
 	PUSH	DS			; MAKE ES:DI POINT TO KB_FLAG_1    RWV from AAD
 	POP	ES			;				   RWV from AAD
-	MOV	DI,OFFSET KB_FLAG_1	;				   RWV from AAD
+	MOV	DI,KB_FLAG_1	;				   RWV from AAD
 	INT	15H			; SLEEP UNTIL OUT OF HOLD	   RWV from AAD
 K40A:
 
@@ -1295,13 +1295,13 @@ K421:					; NOT-KEY-55
 	MOV	AX,9500h		;   YES, SPECIAL CODE FOR THIS ONE RWV 10-04-85
 	JMP	K57			;   BUFFER FILL 		   RWV 10-04-85
 
-K42A:	MOV	BX,OFFSET K8		; SET UP TO TRANSLATE CTL
+K42A:	MOV	BX,K8		; SET UP TO TRANSLATE CTL
 	CMP	AL,59			; IS IT IN CHARACTER TABLE?
 	JAE	K42B			;  NO, CTL-TABLE-TRANSLATE-SCAN    RWV 11-06-85
 	JMP	K56			;	GO TRANSLATE CHAR
-K42B:	MOV	BX,OFFSET K8		; SET UP TO TRANSLATE CTL	   RWV 10-07-85
+K42B:	MOV	BX,K8		; SET UP TO TRANSLATE CTL	   RWV 10-07-85
 	JMP	K64			;      GO TRANSLATE_SCAN	   RWV 8-06-85
-PAGE
+; PAGE
 ;------ NOT IN CONTROL SHIFT
 
 K44:
@@ -1362,7 +1362,7 @@ K456:	CMP	AL,53			; IS THIS THE "/" KEY?             RWV 8-01-85
 K45A:
 
 K45A1:	MOV	CX,K30_LEN	; LENGTH OF SEARCH		   RWV 7-30-85
-	MOV	DI,OFFSET K30+10	; POINT TO TABLE OF A-Z CHARS	   RWV 7-30-85
+	MOV	DI,K30+10	; POINT TO TABLE OF A-Z CHARS	   RWV 7-30-85
 	REPNE	SCASB			; IS THIS A LETTER KEY? 	   RWV 7-30-85
 	JNE	K45B			;  NO, SYMBOL KEY		   RWV 7-30-85
 
@@ -1372,13 +1372,13 @@ K45B:	TEST	BL,LEFT_SHIFT+RIGHT_SHIFT ; ARE WE IN SHIFT STATE?	   RWV 7-30-85
 	JNZ	K45E			  ; YES, UPPERCASE		   RWV 7-30-85
 					  ; NO, LOWERCASE		   RWV 7-30-85
 K45C:				       ;;
-K45C1:	MOV	BX,OFFSET K10		; XLATE TO LOWERCASE US LETTERS    RWV 8-06-85
+K45C1:	MOV	BX,K10		; XLATE TO LOWERCASE US LETTERS    RWV 8-06-85
 	JMP	SHORT K45E2
 K45D:					; ALMOST-CAPS-STATE		   RWV 7-30-85
 	TEST	BL,LEFT_SHIFT+RIGHT_SHIFT ; CL ON. IS SHIFT ON, TOO?	   RWV 7-30-85
 	JNZ	K45C1			; SHIFTED TEMP OUT OF CAPS STATE   RWV 7-30-85
 K45E:
-K45E1:	MOV	BX,OFFSET K11		; XLATE TO UPPERCASE US LETTERS    RWV 8-06-85
+K45E1:	MOV	BX,K11		; XLATE TO UPPERCASE US LETTERS    RWV 8-06-85
 K45E2:	JMP	SHORT K56		; GO TRANSLATE			   RWV 8-06-85
 
 
@@ -1417,7 +1417,7 @@ K49:	CMP	AL,76			; SPECIAL CASE FOR BASE STATE 5    RWV 10-04-85
 
 K491:	MOV	AL,0F0h 		; SPECIAL ASCII CODE		   RWV 10-04-85
 	JMP	K57			; BUFFER FILL			   RWV 10-04-85
-K49A:	MOV	BX,OFFSET K10		; BASE CASE TABLE		   RWV 7-30-85
+K49A:	MOV	BX,K10		; BASE CASE TABLE		   RWV 7-30-85
 	JMP	SHORT K64		; CONVERT TO PSEUDO SCAN
 
 ;------ MIGHT BE NUM LOCK, TEST SHIFT STATUS
@@ -1447,9 +1447,9 @@ K53:	TEST	CS:SD.SYSTEM_FLAG,EXT_16   ; IS THE EXTENDED INT 16 THERE?    RWV 11-0
 K53A:	TEST	BL,LEFT_SHIFT+RIGHT_SHIFT ;TEST SHIFT STATE		   RWV 7-30-85
 	JZ	K49			  ; JUMP, LOWERCASE PSEUDO SC'S    RWV 7-30-85
 
-	MOV	BX,OFFSET K11		; UPPER CASE PSEUDO SCAN CODES
+	MOV	BX,K11		; UPPER CASE PSEUDO SCAN CODES
 	JMP	SHORT K64		; TRANSLATE_SCAN
-PAGE
+; PAGE
 ;------ TRANSLATE THE CHARACTER
 
 K56:					; TRANSLATE-CHAR
@@ -1486,7 +1486,7 @@ K59:				       ;;
 
 				       ;;
 				       ;;
-KEYB_INT_9   ENDP		       ;;
+; ENDP KEYB_INT_9;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1504,7 +1504,7 @@ KEYB_INT_9   ENDP		       ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-BUFFER_FILL	PROC   NEAR	       ;;
+BUFFER_FILL:;;
 				       ;;
 	CMP	AL,-1		       ;; IS THIS AN IGNORE CHAR
 	JE	K61B		       ;; YES, EXIT
@@ -1514,7 +1514,7 @@ BUFFER_FILL	PROC   NEAR	       ;;
 ;; BUFFER_FILL_ANY_CHAR is an alternate entry point to this PROC.
 ;; Entry at this point will avoid trashing ASCII values of 255.
 ;;
-BUFFER_FILL_ANY_CHAR  LABEL  NEAR      ;;
+BUFFER_FILL_ANY_CHAR:;;
 				       ;;
 	PUSH	SI		       ;;
 	PUSH	BX		       ;;
@@ -1537,14 +1537,14 @@ BUFFER_FILL_ANY_CHAR  LABEL  NEAR      ;;
 	PUSH	DS		       ;;
 	MOV	AX,ROM_SEG	       ;; SET DS TO POINT AT BIOS ROM SEGMENT
 	MOV	DS,AX		       ;; TEST FOR PC1 ROM INSTALLED
-	CMP	WORD PTR DS:SYSROM_DATE,PC1DATE_ID
+	CMP	word DS:SYSROM_DATE,PC1DATE_ID
 	POP	DS		       ;; RESTORE DS,AX
 	POP	AX		       ;;
 	JNE	NOT_PC1 	       ;; IF IT'S A LATER ROM RELEASE, BRANCH
 				       ;;
-	CMP	BX,OFFSET KB_BUFFER_END ; AT END OF BUFFER?
+	CMP	BX,KB_BUFFER_END ; AT END OF BUFFER?
 	JNE	K5		       ;; NO, CONTINUE
-	MOV	BX,OFFSET KB_BUFFER    ;; YES, RESET TO BUFFER BEGINNING
+	MOV	BX,KB_BUFFER    ;; YES, RESET TO BUFFER BEGINNING
 	JMP	K5		       ;;
 NOT_PC1:			       ;;
 	CMP	BX,BUFFER_END	       ;; AT END OF BUFFER?
@@ -1570,8 +1570,8 @@ K61A:				       ;;
 	POP	SI		       ;;
 K61B:				       ;;
 	RET			       ;;
-BUFFER_FILL	ENDP		       ;;
-PAGE				       ;;
+; ENDP BUFFER_FILL;;
+; PAGE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1591,7 +1591,7 @@ PAGE				       ;;
 				       ;;
 BEEPING 	DB	0	       ;; 1 if beep already in progress
 				       ;;
-KB_NOISE    PROC		       ;;
+KB_NOISE:;;
 	CMP	CS:BEEPING,0	       ;; ARE WE BEEPING?
 	JE	NOT_BEEPING_YET        ;;
 	RET			       ;; YES - RETURN
@@ -1623,7 +1623,7 @@ LOOP03: 			       ;;
 				       ;;
 	MOV	CS:BEEPING,0	       ;; indicate beep over
 	RET			       ;;
-KB_NOISE    ENDP		       ;;
+; ENDP KB_NOISE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1635,9 +1635,9 @@ KB_NOISE    ENDP		       ;;
 ;;     for XT & older machines
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-DUMBJMP     PROC		       ;;
+DUMBJMP:;;
 	JMP	UP1		       ;; ARE WE BEEPING?
-DUMBJMP    ENDP 		      ;;
+; ENDP DUMBJMP;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1655,7 +1655,7 @@ DUMBJMP    ENDP 		      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
 				       ;;
-ERROR_BEEP	PROC	NEAR	       ;;
+ERROR_BEEP:;;
 				       ;;
 	PUSH	AX		       ;; SAVE REGS
 	PUSH	BX		       ;;
@@ -1697,7 +1697,7 @@ BEEP_IT:			       ;;
 	POP	BX		       ;;
 	POP	AX		       ;;
 	RET			       ;; RETURN
-ERROR_BEEP	ENDP		       ;;
+; ENDP ERROR_BEEP;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1708,7 +1708,7 @@ ERROR_BEEP	ENDP		       ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-SHIP_IT PROC	NEAR		       ;;
+SHIP_IT:;;
 				       ;;
 ;------- TEST SYSTEM TYPE	       ;;
 				       ;;
@@ -1728,7 +1728,7 @@ SI1:	PUSH	AX		       ;; SAVE DATA TO SEND
 	OUT	STATUS_PORT,AL	       ;; SEND TO KEYBOARD CONTROLLER
 	STI			       ;; ENABLE INTERRUPTS AGAIN
 	RET			       ;; RETURN TO CALLER
-SHIP_IT ENDP			       ;;
+; ENDP SHIP_IT;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1745,7 +1745,7 @@ SHIP_IT ENDP			       ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-WAIT_ON_STATUS_PORT   PROC NEAR        ;;
+WAIT_ON_STATUS_PORT:;;
 				       ;;
 ;---- WAIT FOR COMMAND TO BE ACCEPTED  ;;
 				       ;;
@@ -1762,7 +1762,7 @@ W02:				       ;;
 				       ;;
 	RET			       ;;
 				       ;;
-WAIT_ON_STATUS_PORT   ENDP	       ;;
+; ENDP WAIT_ON_STATUS_PORT;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1774,7 +1774,7 @@ WAIT_ON_STATUS_PORT   ENDP	       ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-SND_DATA PROC	NEAR		       ;;
+SND_DATA:;;
 	PUSH	AX		       ;; SAVE REGISTERS
 	PUSH	BX		       ;; *
 	PUSH	CX		       ;;
@@ -1809,7 +1809,7 @@ SD4:	POP	CX		       ;; RESTORE REGISTERS
 	POP	BX		       ;;
 	POP	AX		       ;; *
 	RET			       ;; RETURN, GOOD TRANSMISSION
-SND_DATA ENDP			       ;;
+; ENDP SND_DATA;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1819,7 +1819,7 @@ SND_DATA ENDP			       ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-SND_LED PROC	NEAR		       ;;
+SND_LED:;;
 	CLI			       ;; TURN OFF INTERRUPTS
 	TEST	KB_FLAG_2,KB_PR_LED    ;; CHECK FOR MODE INDICATOR UPDATE
 	JNZ	SL1		       ;; DONT UPDATE AGAIN IF UPDATE UNDERWAY
@@ -1862,8 +1862,8 @@ SL3:	AND	KB_FLAG_2,NOT(KB_PR_LED+KB_ERR) ; TURN OFF MODE INDICATOR
 				       ;; UPDATE AND TRANSMIT ERROR FLAG
 SL1:	STI			       ;; ENABLE INTERRUPTS
 	RET			       ;; RETURN TO CALLER
-SND_LED ENDP			       ;;
-PAGE				       ;;
+; ENDP SND_LED;;
+; PAGE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1874,7 +1874,7 @@ PAGE				       ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-MAKE_LED PROC	NEAR		       ;;
+MAKE_LED:;;
 	PUSH	CX		       ;; SAVE CX
 	MOV	AL,KB_FLAG	       ;; GET CAPS & NUM LOCK INDICATORS
 	AND	AL,CAPS_STATE+NUM_STATE+SCROLL_STATE ; ISOLATE INDICATORS
@@ -1883,12 +1883,12 @@ MAKE_LED PROC	NEAR		       ;;
 	AND	AL,07H		       ;; MAKE SURE ONLY MODE BITS ON
 	POP	CX		       ;;
 	RET			       ;; RETURN TO CALLER
-MAKE_LED ENDP			       ;;
+; ENDP MAKE_LED;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;CNS***
 
-CODE	ENDS
-	END
+; END SECTION .CODE
+	; END

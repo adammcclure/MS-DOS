@@ -1,5 +1,5 @@
-TITLE MISC - Miscellanious routines for MS-DOS
-NAME  MISC
+; TITLE MISC - Miscellanious routines for MS-DOS
+; NAME  MISC
 ;
 ; Miscellaneous system calls most of which are CAVEAT
 ;
@@ -15,25 +15,25 @@ NAME  MISC
 ; $CREATE_PROCESS_DATA_BLOCK
 ; SETMEM
 ;
-.xlist
+; .xlist
 ;
 ; get the appropriate segment definitions
 ;
-INCLUDE DOSSEG.ASM
+%include "DOSSEG.ASM"
 
-CODE    SEGMENT BYTE PUBLIC  'CODE'
-        ASSUME  SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+        ; ASSUME  SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.ASM
-INCLUDE DEVSYM.ASM
-.cref
-.list
+; .xcref
+%include "DOSSYM.ASM"
+%include "DEVSYM.ASM"
+; .cref
+; .list
 
 
-ifndef  Kanji
+%ifndef Kanji
 Kanji   equ 0
-endif
+%endif
 
 ENTRYPOINTSEG   EQU     0CH
 MAXDIF          EQU     0FFFH
@@ -57,7 +57,7 @@ SAVEXIT         EQU     10
         i_need  ENTLAST,WORD
         i_need  THISDRV,BYTE
 
-ASSUME  SS:DOSGROUP
+; ASSUME  SS:DOSGROUP
 
 BREAK <SleazeFunc -- get a pointer to media byte>
 
@@ -65,7 +65,7 @@ BREAK <SleazeFunc -- get a pointer to media byte>
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;                                                                          ;
         procedure   $SLEAZEFUNC,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       None
@@ -84,27 +84,27 @@ ASSUME  DS:NOTHING,ES:NOTHING
     entry   $SLEAZEFUNCDL
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     AL,DL
         invoke  GETTHISDRV
         MOV     AL,-1
         JC      BADSLDRIVE
         invoke  FATREAD
-        MOV     DX,ES:[BP.dpb_max_cluster]
+        MOV     DX,[ES:BP+dpb_max_cluster]
         DEC     DX
-        MOV     AL,ES:[BP.dpb_cluster_mask]
+        MOV     AL,[ES:BP+dpb_cluster_mask]
         INC     AL
-        MOV     CX,ES:[BP.dpb_sector_size]
+        MOV     CX,[ES:BP+dpb_sector_size]
         ADD     BP,dpb_media
 BADSLDRIVE:
         invoke  get_user_stack
-ASSUME  DS:NOTHING
-        MOV     [SI.user_CX],CX
-        MOV     [SI.user_DX],DX
-        MOV     [SI.user_BX],BP
-        MOV     [SI.user_DS],ES
+; ASSUME  DS:NOTHING
+        MOV     [SI+user_CX],CX
+        MOV     [SI+user_DX],DX
+        MOV     [SI+user_BX],BP
+        MOV     [SI+user_DS],ES
         return
-$SLEAZEFUNC    ENDP
+; ENDP $SLEAZEFUNC
 ;                                                                          ;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
@@ -113,7 +113,7 @@ $SLEAZEFUNC    ENDP
 
 BREAK <$ABORT -- Terminate a process>
         procedure   $ABORT,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       CS:00 must point to valid program header block
@@ -133,7 +133,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         MOV     AH,[exit_type]
         MOV     [exit_code],AX
         invoke  Get_user_stack
-        MOV     DS,[SI.user_CS]         ; set up old interrupts
+        MOV     DS,[SI+user_CS]         ; set up old interrupts
         XOR     AX,AX
         MOV     ES,AX
         MOV     SI,SAVEXIT
@@ -145,11 +145,11 @@ ASSUME  DS:NOTHING,ES:NOTHING
         MOVSW
         MOVSW
         transfer    reset_environment
-$ABORT   ENDP
+; ENDP $ABORT
 
 BREAK <$Dir_Search_First -- Start a directory search>
         procedure   $DIR_SEARCH_FIRST,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX Points to unopenned FCB
@@ -160,7 +160,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       AL = -1 if no entries matched, otherwise 0
 
         invoke  GETFILE
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
 SAVPLCE:
 ; Search-for-next enters here to save place and report
 ; findings.
@@ -171,13 +171,13 @@ SAVPLCE:
         MOV     AX,[LASTENT]
         INC     DL
 KILLIT:
-        MOV     ES:[DI.FILDIRENT],AX
-        MOV     AX,WORD PTR [THISDPB]
-        MOV     ES:[DI.fcb_DRVBP],AX
-        MOV     AX,WORD PTR [THISDPB+2]
-        MOV     ES:[DI.fcb_DRVBP+2],AX
+        MOV     [ES:DI+FILDIRENT],AX
+        MOV     AX,word [THISDPB]
+        MOV     [ES:DI+fcb_DRVBP],AX
+        MOV     AX,word [THISDPB+2]
+        MOV     [ES:DI+fcb_DRVBP+2],AX
         MOV     AX,[DIRSTART]
-        MOV     ES:[DI.fcb_DRVBP+4],AX
+        MOV     [ES:DI+fcb_DRVBP+4],AX
 ; Information in directory entry must be copied into the first
 ; 33 bytes starting at the disk transfer address.
         MOV     SI,BX
@@ -197,38 +197,38 @@ NORMFCB:
         STOSB   ; Set drive number
         OR      DL,DL
         JZ      DOSRELATIVE
-        MOV     DS,WORD PTR [CURBUF+2]
-ASSUME  DS:NOTHING
+        MOV     DS,word [CURBUF+2]
+; ASSUME  DS:NOTHING
 DOSRELATIVE:
 
-        IF      KANJI
+        %if KANJI
         MOVSW
-        CMP     BYTE PTR ES:[DI-2],5
+        CMP     byte [ES:DI-2],5
         JNZ     NOTKTRAN
-        MOV     BYTE PTR ES:[DI-2],0E5H
+        MOV     byte [ES:DI-2],0E5H
 NOTKTRAN:
         MOV     CX,15
-        ELSE
+        %else
         MOV     CX,16
-        ENDIF
+        %endif
 
         REP     MOVSW   ; Copy 32 bytes of directory entry
         XOR     AL,AL
         return
 
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
 KILLSRCH1:
         PUSH    DS
         POP     ES      ; Make ES:DI point to the FCB
 KILLSRCH:
         MOV     AX,-1
-        MOV     WORD PTR ES:[DI.FILDIRENT],AX
+        MOV     word [ES:DI+FILDIRENT],AX
         return
-$DIR_SEARCH_FIRST ENDP
+; ENDP $DIR_SEARCH_FIRST
 
 BREAK <$Dir_Search_Next -- Find next matching directory entry>
         procedure   $DIR_SEARCH_NEXT,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX points to unopenned FCB returned by $DIR_SEARCH_FIRST
@@ -239,34 +239,34 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       AL = -1 if no entries matched, otherwise 0
 
         invoke  MOVNAMENOSET
-ASSUME  ES:DOSGROUP
+; ASSUME  ES:DOSGROUP
         MOV     DI,DX
-        JC      NEAR PTR KILLSRCH1
-        MOV     AX,[DI.FILDIRENT]
-        LES     BP,DWORD PTR [DI.fcb_DRVBP]
+        JC      near KILLSRCH1
+        MOV     AX,[DI+FILDIRENT]
+        LES     BP,dword [DI+fcb_DRVBP]
         OR      AX,AX
-        JS      NEAR PTR KILLSRCH1
-        MOV     BX,[DI.fcb_DRVBP+4]
+        JS      near KILLSRCH1
+        MOV     BX,[DI+fcb_DRVBP+4]
         PUSH    DX
         PUSH    DS
         PUSH    AX
-        MOV     WORD PTR [THISDPB],BP
-        MOV     WORD PTR [THISDPB+2],ES
+        MOV     word [THISDPB],BP
+        MOV     word [THISDPB+2],ES
         invoke  SetDirSrch
-        ASSUME  DS:DOSGROUP
+        ; ASSUME  DS:DOSGROUP
         POP     AX
         MOV     [ENTLAST],-1
         invoke  GetEnt
         invoke  NextEnt
         POP     ES
-        ASSUME  ES:NOTHING
+        ; ASSUME  ES:NOTHING
         POP     DI
         JMP     SAVPLCE
-$DIR_SEARCH_NEXT ENDP
+; ENDP $DIR_SEARCH_NEXT
 
-BREAK <$Get_FCB_File_Length -- Return size of file in current records>
+BREAK <$Get_FCB_File_Length -- Return of_size file in current records>
         procedure   $GET_FCB_FILE_LENGTH,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX points to unopenned FCB
@@ -276,11 +276,11 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       AL = -1 if no entries matched, otherwise 0
 
         invoke  GETFILE
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     AL,-1
         retc
         ADD     DI,fcb_RR       ; Write size in RR field
-        MOV     CX,WORD PTR ES:[DI.fcb_RECSIZ-fcb_RR]
+        MOV     CX,word [ES:DI+fcb_RECSIZ-fcb_RR]
         OR      CX,CX
         JNZ     RECOK
         MOV     CX,128
@@ -288,8 +288,8 @@ RECOK:
         XOR     DX,DX           ; Intialize size to zero
         INC     SI
         INC     SI              ; Point to length field
-        MOV     DS,WORD PTR [CURBUF+2]
-ASSUME  DS:NOTHING
+        MOV     DS,word [CURBUF+2]
+; ASSUME  DS:NOTHING
         MOV     AX,[SI+2]       ; Get high word of size
         DIV     CX
         PUSH    AX              ; Save high part of result
@@ -308,13 +308,13 @@ DEVSIZ:
         MOV     AL,0
         CMP     CX,64
         JAE     RET14           ; Only 3-byte field if fcb_RECSIZ >= 64
-        MOV     ES:[DI],AH
+        MOV     [ES:DI],AH
 RET14:  return
-$GET_FCB_FILE_LENGTH ENDP
+; ENDP $GET_FCB_FILE_LENGTH
 
 BREAK <$Get_Fcb_Position -- Set random record field to current position>
         procedure   $GET_FCB_POSITION,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:DX points to openned FCB
@@ -324,17 +324,17 @@ ASSUME  DS:NOTHING,ES:NOTHING
 ;       None
 
         invoke  GETREC
-        MOV     WORD PTR [DI+fcb_RR],AX
+        MOV     word [DI+fcb_RR],AX
         MOV     [DI+fcb_RR+2],DL
-        CMP     [DI.fcb_RECSIZ],64
+        CMP     [DI+fcb_RECSIZ],64
         JAE     RET16
         MOV     [DI+fcb_RR+2+1],DH      ; Set 4th byte only if record size < 64
 RET16:  return
-$GET_FCB_POSITION ENDP
+; ENDP $GET_FCB_POSITION
 
 BREAK <$Disk_Reset -- Flush out all dirty buffers>
         procedure   $DISK_RESET,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       None
@@ -345,27 +345,27 @@ ASSUME  DS:NOTHING,ES:NOTHING
 
         PUSH    SS
         POP     DS
-ASSUME  DS:DOSGROUP
+; ASSUME  DS:DOSGROUP
         MOV     AL,-1
         invoke  FLUSHBUF
-        MOV     WORD PTR [LASTBUFFER+2],-1
-        MOV     WORD PTR [LASTBUFFER],-1
+        MOV     word [LASTBUFFER+2],-1
+        MOV     word [LASTBUFFER],-1
         invoke  SETVISIT
-ASSUME  DS:NOTHING
+; ASSUME  DS:NOTHING
 NBFFR:                                  ; Free ALL buffers
-        MOV     [DI.VISIT],1            ; Mark as visited
-        CMP     BYTE PTR [DI.BUFDRV],-1
+        MOV     [DI+VISIT],1            ; Mark as visited
+        CMP     byte [DI+BUFDRV],-1
         JZ      SKPBF                   ; Save a call to PLACEBUF
-        MOV     WORD PTR [DI.BUFDRV],00FFH
+        MOV     word [DI+BUFDRV],00FFH
         invoke  SCANPLACE
 SKPBF:
         invoke  SKIPVISIT
         JNZ     NBFFR
         return
-$DISK_RESET ENDP
+; ENDP $DISK_RESET
 
         procedure   $RAW_CON_IO,NEAR   ; System call 6
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DL = -1 if input
@@ -378,7 +378,7 @@ ASSUME  DS:NOTHING,ES:NOTHING
         MOV     AL,DL
         CMP     AL,-1
         JNZ     RAWOUT
-        LES     DI,DWORD PTR [user_SP]                ; Get pointer to register save area
+        LES     DI,dword [user_SP]                ; Get pointer to register save area
         XOR     BX,BX
         invoke  GET_IO_FCB
         retc
@@ -386,12 +386,12 @@ ASSUME  DS:NOTHING,ES:NOTHING
         invoke  IOFUNC
         JNZ     RESFLG
         invoke  SPOOLINT
-        OR      BYTE PTR ES:[DI.user_F],40H ; Set user's zero flag
+        OR      byte [ES:DI+user_F],40H ; Set user's zero flag
         XOR     AL,AL
         return
 
 RESFLG:
-        AND     BYTE PTR ES:[DI.user_F],0FFH-40H    ; Reset user's zero flag
+        AND     byte [ES:DI+user_F],0FFH-40H    ; Reset user's zero flag
 
 RILP:
         invoke  SPOOLINT
@@ -424,12 +424,12 @@ entry   RAWOUT
         invoke  GET_IO_FCB
         JC      RAWRET1
 
-        TEST    [SI.fcb_DEVID],080H             ; output to file?
+        TEST    [SI+fcb_DEVID],080H             ; output to file?
         JZ      RAWNORM                         ; if so, do normally
         PUSH    DS
         PUSH    SI
-        LDS     SI,DWORD PTR [SI.fcb_FIRCLUS]   ; output to special?
-        TEST    BYTE PTR [SI+SDEVATT],ISSPEC
+        LDS     SI,dword [SI+fcb_FIRCLUS]   ; output to special?
+        TEST    byte [SI+SDEVATT],ISSPEC
         POP     SI
         POP     DS
         JZ      RAWNORM                         ; if not, do normally
@@ -464,24 +464,24 @@ RAWOSTRT:
         CALL    IOFUNC
         CLC                     ; Clear carry indicating successful
         return
-$RAW_CON_IO   ENDP
+; ENDP $RAW_CON_IO
 
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 ; This routine is called at DOS init
 
         procedure   OUTMES,NEAR ; String output for internal messages
-        LODS    CS:BYTE PTR [SI]
+        lodsb
         CMP     AL,"$"
         retz
         invoke  OUT
         JMP     SHORT OUTMES
         return
-OutMes  ENDP
-        ASSUME  SS:DOSGROUP
+; ENDP OutMes
+        ; ASSUME  SS:DOSGROUP
 
 BREAK <$Parse_File_Descriptor -- Parse an arbitrary string into an FCB>
         procedure   $PARSE_FILE_DESCRIPTOR,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING
 
 ; Inputs:
 ;       DS:SI Points to a command line
@@ -503,22 +503,22 @@ ASSUME  DS:NOTHING,ES:NOTHING
         invoke  MAKEFCB
         PUSH    SI
         invoke  get_user_stack
-        POP     [SI.user_SI]
+        POP     [SI+user_SI]
         return
-$PARSE_FILE_DESCRIPTOR ENDP
+; ENDP $PARSE_FILE_DESCRIPTOR
 
 BREAK <$Create_Process_Data_Block,SetMem -- Set up process data block>
 ;----+----+----+----+----+----+----+----+----+----+----+----+----+----+----;
 ;            C  A  V  E  A  T     P  R  O  G  R  A  M  M  E  R             ;
 ;                                                                          ;
         procedure   $Dup_PDB,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING
-        MOV     BYTE PTR [CreatePDB], 0FFH  ; indicate a new process
-$Dup_PDB    ENDP
+; ASSUME  DS:NOTHING,ES:NOTHING
+        MOV     byte [CreatePDB], 0FFH  ; indicate a new process
+; ENDP $Dup_PDB
 
 
         procedure   $CREATE_PROCESS_DATA_BLOCK,NEAR
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ; Inputs:
 ;       DX = Segment number of new base
@@ -529,14 +529,14 @@ ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
 ; Called at DOS init
 
         MOV     ES,DX
-        TEST    BYTE PTR [CreatePDB],0FFh
+        TEST    byte [CreatePDB],0FFh
         JZ      create_PDB_old
         MOV     DS,[CurrentPDB]
         JMP     SHORT Create_copy
 
 Create_PDB_old:
         invoke  get_user_stack
-        MOV     DS,[SI.user_CS]
+        MOV     DS,[SI+user_CS]
 
 Create_copy:
         XOR     SI,SI                   ; copy all 80h bytes
@@ -544,7 +544,7 @@ Create_copy:
         MOV     CX,80H
         REP     MOVSW
 
-        TEST    BYTE PTR [CreatePDB],0FFh   ; Shall we create a process?
+        TEST    byte [CreatePDB],0FFh   ; Shall we create a process?
         JZ      Create_PDB_cont         ; nope, old style call
 ;
 ; Here we set up for a new process...
@@ -552,7 +552,7 @@ Create_copy:
 
         PUSH    CS
         POP     DS
-        ASSUME  DS:DOSGROUP
+        ; ASSUME  DS:DOSGROUP
         XOR     BX,BX                   ; dup all jfns
         MOV     CX,FilPerProc
 
@@ -564,15 +564,15 @@ Create_dup_jfn:
         PUSH    DI
         invoke  get_sf_from_jfn         ; get sf pointer
         JC      create_no_inc
-        INC     ES:[DI].sf_ref_count    ; new fh
+        INC     [ES:DI].sf_ref_count    ; new fh
 
 create_no_inc:
         POP     DI
         POP     ES                      ; get old jfn
-        MOV     AL,ES:[DI]              ; get sfn
+        MOV     AL,[ES:DI]              ; get sfn
         POP     ES
         PUSH    ES
-        MOV     AL,ES:[BX]              ; copy into new place!
+        MOV     AL,[ES:BX]              ; copy into new place!
 
 create_skip:
         POP     ES
@@ -582,19 +582,19 @@ create_skip:
         PUSH    [CurrentPDB]            ; get current process
         POP     BX
         PUSH    BX
-        POP     ES:[PDB_Parent_PID]     ; stash in child
+        POP     [ES:PDB_Parent_PID]     ; stash in child
         MOV     [CurrentPDB],ES
-        ASSUME  DS:NOTHING
+        ; ASSUME  DS:NOTHING
         MOV     DS,BX
 ;
 ; end of new process create
 ;
 Create_PDB_cont:
-        MOV     BYTE PTR [CreatePDB],0h ; reset flag
-        MOV     AX,DS:[2]               ; set up size for fall through
+        MOV     byte [CreatePDB],0h ; reset flag
+        MOV     AX,[DS:2]               ; set up size for fall through
 
 entry SETMEM
-ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
+; ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
 
 ; Inputs:
 ;       AX = Size of memory in paragraphs
@@ -621,7 +621,7 @@ ASSUME  DS:NOTHING,ES:NOTHING,SS:NOTHING
         MOV     DI,SAVEXIT
         MOV     CX,6
         REP     MOVSW
-        MOV     ES:[2],AX
+        MOV     [ES:2],AX
         SUB     AX,DX
         CMP     AX,MAXDIF
         JBE     HAVDIF
@@ -632,17 +632,17 @@ HAVDIF:
         MOV     CL,4
         SHL     AX,CL
         MOV     DS,DX
-        MOV     WORD PTR DS:[PDB_CPM_Call+1],AX
-        MOV     WORD PTR DS:[PDB_CPM_Call+3],BX
-        MOV     DS:[PDB_Exit_Call],(int_abort SHL 8) + mi_INT
-        MOV     BYTE PTR DS:[PDB_CPM_Call],mi_Long_CALL
-        MOV     WORD PTR DS:[PDB_Call_System],(int_command SHL 8) + mi_INT
-        MOV     BYTE PTR DS:[PDB_Call_System+2],mi_Long_RET
+        MOV     word [DS:PDB_CPM_Call+1],AX
+        MOV     word [DS:PDB_CPM_Call+3],BX
+        MOV     [DS:PDB_Exit_Call],(int_abort SHL 8) + mi_INT
+        MOV     byte [DS:PDB_CPM_Call],mi_Long_CALL
+        MOV     word [DS:PDB_Call_System],(int_command SHL 8) + mi_INT
+        MOV     byte [DS:PDB_Call_System+2],mi_Long_RET
         return
 
-$CREATE_PROCESS_DATA_BLOCK ENDP
+; ENDP $CREATE_PROCESS_DATA_BLOCK
         do_ext
 
- CODE   ENDS
-        END
+ ; END SECTION .CODE
+        ; END
                                                                             

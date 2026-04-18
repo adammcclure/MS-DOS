@@ -1,6 +1,6 @@
-	page	60,132
+	; page	60,132
 ;			$SALUT (4,25,30,41)
-			INCLUDE pridefs.INC
+			%include "pridefs.INC"
 
 BREAK			<Resident Portion Messages>
 
@@ -17,18 +17,18 @@ BREAK			<Resident Portion Messages>
 ;				Routines
 ;
 
-CodeR			Segment public para
+SECTION .CodeR
 
-			ASSUME CS:CodeR,DS:nothing,ES:nothing,SS:nothing
+			; ASSUME CS:CodeR,DS:nothing,ES:nothing,SS:nothing
 
-			public R_MES_BUFF
+			global R_MES_BUFF
 					;--------------------------------------
 					;INT 24 messages A La COMMAND
 					;--------------------------------------
 
-R_MES_BUFF		LABEL WORD	; Room is generated for:
+R_MES_BUFF:; Room is generated for:
 
-			db   512 dup(?) ;  ERR0
+			times 512 db 0;  ERR0
 					;  ERR1
 					;  ERR2
 					;  ERR3
@@ -43,7 +43,7 @@ R_MES_BUFF		LABEL WORD	; Room is generated for:
 					;  ERR12
 					;
 
-CodeR			EndS
+; END SECTION .CodeR
 
-			End
+			; End
 

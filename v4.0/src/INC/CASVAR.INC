@@ -80,9 +80,9 @@ MAXNUMOBJS     EQU  20			     ;Maximum possible number of
 					     ; data files.  (i.e. panel, help,
 					     ; error, color, input objects,,,)
 ;
-LIBVER	       MACRO
+%macro LIBVER 0
 	       DB   "Version 4.0"            ;CAS library version number
-ENDM
+%endmacro
 ;
-INCLUDE        CASRN.INC		     ;Include the CAS routine numbers
+%include "CASRN.INC";Include the CAS routine numbers
 ;

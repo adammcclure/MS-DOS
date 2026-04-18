@@ -3,14 +3,14 @@
 ; Standard device IO for MSDOS (first 12 function calls)
 ;
 
-.xlist
-.xcref
-include stdsw.asm
-include dosseg.asm
-.cref
-.list
+; .xlist
+; .xcref
+%include "stdsw.asm"
+%include "dosseg.asm"
+; .cref
+; .list
 
-TITLE   STDCPMIO - device IO for MSDOS
-NAME    STDCPMIO
+; TITLE   STDCPMIO - device IO for MSDOS
+; NAME    STDCPMIO
 
-include cpmio.asm
+%include "cpmio.asm"

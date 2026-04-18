@@ -1,35 +1,35 @@
 ; find.inc
 
-        if1
-                %out    find.inc
-        endif
+        %if 1  ; IF1 - pass-specific
+                %warning find.inc
+        %endif
 
-FileFindBuf     struc
-Create_Date     dw      ?
-Create_Time     dw      ?
-Access_Date     dw      ?
-Access_Time     dw      ?
-Write_Date      dw      ?
-Write_Time      dw      ?
-File_Size       dd      ?
-FAlloc_Size     dd      ?
-Attributes      dw      ?
-String_Len      db      ?
-File_Name       db      12 dup (?)
-FileFindBuf     ends
+struc FileFindBuf
+Create_Date: resw 1
+Create_Time: resw 1
+Access_Date: resw 1
+Access_Time: resw 1
+Write_Date: resw 1
+Write_Time: resw 1
+File_Size: resd 1
+FAlloc_Size: resd 1
+Attributes: resw 1
+String_Len: resb 1
+File_Name: resb 12
+endstruc
 
 ;
 ; dta buffer structure
 ;
 
-dtastr  struc
-                db      21 dup (?)
-DTAFileAttrib   db      ?
-DTAFileTime     dw      ?
-DTAFileDate     dw      ?
-DTAFileSize     dd      ?
-DTAFileName     db      13 dup (?)
-dtastr  ends
+struc dtastr
+                resb 21
+DTAFileAttrib: resb 1
+DTAFileTime: resw 1
+DTAFileDate: resw 1
+DTAFileSize: resd 1
+DTAFileName: resb 13
+endstruc
 
 MaxFinds        equ     8
 OpenedHandle    equ     08000h

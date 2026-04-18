@@ -6,13 +6,13 @@ BREAK <Disk I/O Buffer Header>
 
 ; Field definition for I/O buffer information
 
-BUFFINFO	STRUC
-buf_next	DW	?		; Pointer to next buffer in list
-buf_prev	DW	?		; Pointer to prev buffer in list
-buf_ID		DB	?		; Drive of buffer (bit 7 = 0)
+struc BUFFINFO
+buf_next: resw 1; Pointer to next buffer in list
+buf_prev: resw 1; Pointer to prev buffer in list
+buf_ID: resb 1; Drive of buffer (bit 7 = 0)
 					; SFT table index (bit 7 = 1)
 					; = FFH if buffer free
-buf_flags	DB	?		; Bit 7 = 1 if Remote file buffer
+buf_flags: resb 1; Bit 7 = 1 if Remote file buffer
 					;	= 0 if Local device buffer
 					; Bit 6 = 1 if buffer dirty
 					; Bit 5 = Reserved
@@ -21,16 +21,16 @@ buf_flags	DB	?		; Bit 7 = 1 if Remote file buffer
 					; Bit 2 = 1 if buffer is DIR
 					; Bit 1 = 1 if buffer is FAT
 					; Bit 0 = Reserved
-buf_sector	DD	?		; Sector number of buffer (bit 7 = 0)
+buf_sector: resd 1; Sector number of buffer (bit 7 = 0)
 ; The next two items are often refed as a word (bit 7 = 0)
-buf_wrtcnt	DB	?		; For FAT sectors, # times sector written out
-buf_wrtcntinc	DW	?		; "   "     "   , # sectors between each write
-buf_DPB 	DD	?		; Pointer to drive parameters
-buf_fill	DW	?		; How full buffer is (bit 7 = 1)
-buf_reserved	DB	?		; make DWORD boundary for 386
-BUFFINFO	ENDS
+buf_wrtcnt: resb 1; For FAT sectors, # times sector written out
+buf_wrtcntinc: resw 1; "   "     "   , # sectors between each write
+buf_DPB: resd 1; Pointer to drive parameters
+buf_fill: resw 1; How full buffer is (bit 7 = 1)
+buf_reserved: resb 1; make DWORD boundary for 386
+endstruc
 
-buf_offset	EQU	DWORD PTR buf_sector
+buf_offset	EQU	dword buf_sector
 					;For bit 7 = 1, this is the byte
 					;offset of the start of the buffer in
 					;the file pointed to by buf_ID.  Thus
@@ -38,7 +38,7 @@ buf_offset	EQU	DWORD PTR buf_sector
 					;buf_offset in the file and contains
 					;buf_fill bytes.
 
-BUFINSIZ	EQU	SIZE BUFFINFO
+BUFINSIZ	EQU	BUFFINFO_size
 					; Size of structure in bytes
 
 buf_Free	EQU	0FFh		; buf_id of free buffer
@@ -61,12 +61,12 @@ buf_NetID	EQU	BUFINSIZ
 ;
 ; Buffer Hash Entry Structure
 
-BUFFER_HASH_ENTRY	STRUC		; DOS 4.00
+struc BUFFER_HASH_ENTRY; DOS 4.00
 EMS_PAGE_NUM	DW	-1		; logical page number for EMS handle
-BUFFER_BUCKET	DD	 ?		; pointer to buffers
+BUFFER_BUCKET: resd 1; pointer to buffers
 DIRTY_COUNT	DB	 0		; number of dirty buffers
 BUFFER_RESERVED DB	 0		; reserved
-BUFFER_HASH_ENTRY	ENDS
+endstruc
 
 MaxBuffinBucket EQU	15		; Max number of buffers per bucket
 MaxBucketinPage EQU	 2		; Max number of buckets per 16kb page

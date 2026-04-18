@@ -1,10 +1,10 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosGetDateTime mapper
+; title CP/DOS DosGetDateTime mapper
 ;
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -22,17 +22,17 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-	    public   dosgetdatetime
-	    .sall
-	    include  macros.inc
+	    global dosgetdatetime
+	    ; .sall
+	    %include "macros.inc"
 
-str	    struc
-old_bp	    dw	     ?
-return	    dd	     ?
-data	    dd	     ?	     ; date and time info return pointer
-str	    ends
+struc str
+old_bp: resw 1
+return: resd 1
+data: resd 1; date and time info return pointer
+endstruc
 
-dosgetdatetime	proc far
+dosgetdatetime:
 
 	    Enter    dosgetdatetime	   ; push registers
 
@@ -41,27 +41,27 @@ dosgetdatetime	proc far
 	    mov      ah,2ch		   ; get time information
 	    int      21h
 					   ; save info in return data are
-	    mov      byte ptr [si],ch	   ; save hour
-	    mov      byte ptr [si]+1,cl    ;	 minutes
-	    mov      byte ptr [si]+2,dh    ;	 seconds
-	    mov      byte ptr [si]+3,dl    ;	 hundredths
+	    mov      byte [si],ch	   ; save hour
+	    mov      byte [si]+1,cl    ;	 minutes
+	    mov      byte [si]+2,dh    ;	 seconds
+	    mov      byte [si]+3,dl    ;	 hundredths
 
 	    mov      ah,2ah		   ; get date  and save it
 	    int      21h		   ;	in return data area
 
-	    mov      byte ptr [si]+4,dl    ; save day
-	    mov      byte ptr [si]+5,dh    ;	 month
-	    mov      word ptr [si]+6,cx    ;	 year
-	    mov      word ptr [si]+8,360   ;	 min. from GMT
-	    mov      byte ptr [si]+10,al   ;	 day of week
+	    mov      byte [si]+4,dl    ; save day
+	    mov      byte [si]+5,dh    ;	 month
+	    mov      word [si]+6,cx    ;	 year
+	    mov      word [si]+8,360   ;	 min. from GMT
+	    mov      byte [si]+10,al   ;	 day of week
 
 exit:	    sub      ax,ax		   ; set good return code
 
 	    Mexit			   ; pop registers
-	    ret      size str - 6	   ; return
+	    ret      str_size - 6	   ; return
 
-dosgetdatetime endp
+; ENDP dosgetdatetime
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

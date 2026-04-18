@@ -1,8 +1,8 @@
 
 
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	RetReal - Return-To-Real routine(s) for the 386
+	; title	RetReal - Return-To-Real routine(s) for the 386
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -44,41 +44,41 @@ page	58,132
 ;	  will leave the CS non writeable.
 ;
 ;******************************************************************************
-.lfcond 				; list false conditionals
-.386p
-	page
+; .lfcond; list false conditionals
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	RetReal
-	public	Real_Seg
+	global RetReal
+	global Real_Seg
 
-	page
+	; page
 ;******************************************************************************
 ;			I N C L U D E	F I L E S
 ;******************************************************************************
 
-include VDMSEG.INC
-include VDMSEL.INC
-include INSTR386.INC
-include OEMDEP.INC
+%include "VDMSEG.INC"
+%include "VDMSEL.INC"
+%include "INSTR386.INC"
+%include "OEMDEP.INC"
 
 ;
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 ;
-_DATA	segment
-	extrn	Active_Status:byte
-_DATA	ends
+SECTION ._DATA
+	extern Active_Status
+; END SECTION ._DATA
 
-_TEXT	segment
+SECTION ._TEXT
 
-	extrn	SelToSeg:near		; selector to segment	(I286)
-	extrn	DisableA20:near 	; disable A20 line	(MODESW)
+	extern SelToSeg; selector to segment	(I286)
+	extern DisableA20; disable A20 line	(MODESW)
 
-_TEXT	ends
+; END SECTION ._TEXT
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
@@ -86,22 +86,22 @@ _TEXT	ends
 FALSE	equ	0
 TRUE	equ	not FALSE
 
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 
-_TEXT	segment
-	assume	cs:_TEXT, ds:DGROUP
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP
 
 ;***	RetReal - cause a 386 mode switch to real mode
 ;
 ;	ENTRY	Ring 0 protected mode
 ;		CLI - interrupts disabled
 ;		NMI should also be disabled here.
-ifndef NOHIMEM
+%ifndef NOHIMEM
 ;		FS = Diag segment selector
-endif
+%endif
 ;
 ;	EXIT	Real Mode
 ;		DGROUP:[Active_Status] = 0
@@ -112,22 +112,22 @@ endif
 ;		flags modified
 ;		interrupts disabled
 ;		A20 disabled
-ifndef NOHIMEM
+%ifndef NOHIMEM
 ;		high system memory LOCKED
-endif
+%endif
 ;
 ;	USES	see exit conditions above
 ;
 ;	DESCRIPTION
 ;
-real_gdt	label	qword
+real_gdt:
 real_idt	dw	0FFFFh		; limit
 		dw	0000		; base
 		dw	0000
 		dw	0000		; just in case
 
-	public	RetReal
-RetReal proc near
+	global RetReal
+RetReal:
 	PUSH_EAX			; save two scratch registers
 	push	bx
 	cli				; disable ints
@@ -148,7 +148,7 @@ rl386_a:
 	mov	ax, GDTD_GSEL
 	mov	es, ax			; ES:0 = ptr to gdt
 
-	and	byte ptr ES:[TSS_GSEL + 5], 11111101B
+	and	byte [ES:TSS_GSEL + 5], 11111101B
 
 ;
 ;   lock high system ROM before returning to real
@@ -195,12 +195,12 @@ rl386_a:
 
 					; flush prefetched instructions with:
 	db	0EAh			; Far Jump opcode
-	dw	offset _TEXT:rl386_b	; destination offset
-Real_Seg	label	word
+	dw	rl386_b	; destination offset
+Real_Seg:
 	dw	_TEXT			; destination segment
 rl386_b:
 	OP32				; load up full IDT address
-	lidt	qword ptr cs:[real_idt]
+	lidt	qword [cs:real_idt]
 
 	sti
 
@@ -221,8 +221,8 @@ rl386_b:
 	pop	bx
 	POP_EAX
 	ret				; *** RETURN ***
-RetReal endp
+; ENDP RetReal
 
-_TEXT	ends
-	end
+; END SECTION ._TEXT
+	; end
 

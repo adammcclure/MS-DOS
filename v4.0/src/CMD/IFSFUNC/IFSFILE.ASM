@@ -1,7 +1,7 @@
-        PAGE    ,132                            ;                                       ;AN000;
+        ; PAGE    ,132;                                       ;AN000;
 ;       SCCSID = @(#)ifsfile.asm        1.0 87/05/11                                     ;AN000;
-TITLE   IFS FILE ROUTINES - Routines for IFS dispatch                                    ;AN000;
-NAME    IFSFILE                                                                          ;AN000;
+; TITLE   IFS FILE ROUTINES - Routines for IFS dispatch;AN000;
+; NAME    IFSFILE;AN000;
 ;************************************************************************************
 ;
 ; FILE (WFP_START) related Network calls
@@ -57,71 +57,71 @@ NAME    IFSFILE                                                                 
 ;
 ;************************************************************************************
 
-.xlist                                                                                   ;AN000;
-.xcref                                                                                   ;AN000;
-INCLUDE IFSSYM.INC                                                                       ;AN000;
-INCLUDE IFSFSYM.INC                                                                      ;AN000;
-INCLUDE DOSSYM.INC                                                                       ;AN000;
-INCLUDE DEVSYM.INC                                                                       ;AN000;
-INCLUDE DOSCNTRY.INC
-.cref                                                                                    ;AN000;
-.list                                                                                    ;AN000;
+; .xlist;AN000;
+; .xcref;AN000;
+%include "IFSSYM.INC";AN000;
+%include "IFSFSYM.INC";AN000;
+%include "DOSSYM.INC";AN000;
+%include "DEVSYM.INC";AN000;
+%include "DOSCNTRY.INC"
+; .cref;AN000;
+; .list;AN000;
                                                                                          ;AN000;
 AsmVars <IBM, Installed, DEBUG>                                                          ;AN000;
                                                                                          ;AN000;
 ; then define the base code segment of the ifsfunc support first                         ;AN000;
                                                                                          ;AN000;
-IFSSEG  SEGMENT BYTE PUBLIC 'IFSSEG'                                                     ;AN000;
-IFSSEG  ENDS                                                                             ;AN000;
+SECTION .IFSSEG;AN000;
+; END SECTION .IFSSEG;AN000;
                                                                                          ;AN000;
 ; include the rest of the segment definitions for normal MSDOS                           ;AN000;
                                                                                          ;AN000;
-include dosseg.asm                                                                       ;AN000;
+%include "dosseg.asm";AN000;
                                                                                          ;AN000;
-DATA            SEGMENT WORD PUBLIC 'DATA'                                               ;AN000;
+SECTION .DATA;AN000;
         ;DOSGROUP Data                                                                   ;AN000;
-        Extrn   REN_WFP:WORD                                                             ;AN000;
-        Extrn   WFP_START:WORD                                                           ;AN000;
-        Extrn   SATTRIB:BYTE                                                             ;AN000;
-        Extrn   ATTRIB:BYTE                                                              ;AN000;
-        Extrn   THISCDS:DWORD                                                            ;AN000;
-        Extrn   THISSFT:DWORD                                                            ;AN000;
-        Extrn   DMAADD:DWORD                                                             ;AN000;
-        Extrn   CDSADDR:DWORD                                                            ;AN000;
-        Extrn   SAVE_BX:WORD                                                             ;AN000;
-        Extrn   SAVE_CX:WORD                                                             ;AN000;
-        Extrn   SAVE_DX:WORD                                                             ;AN000;
-        Extrn   SAVE_SI:WORD                                                             ;AN000;
-        Extrn   SAVE_DI:WORD                                                             ;AN000;
-        Extrn   SAVE_DS:WORD                                                             ;AN000;
-        Extrn   SAVE_ES:WORD                                                             ;AN000;
-        Extrn   Name1:BYTE                                                               ;AN000;
-        Extrn   DEVPT:DWORD                                                              ;AN000;
-        Extrn   CPSWFLAG:BYTE
-        Extrn   COUNTRY_CDPG:BYTE
-if debug                                                                                 ;AN000;
-        Extrn   BugLev:WORD                                                              ;AN000;
-        Extrn   BugTyp:WORD                                                              ;AN000;
-        include bugtyp.asm                                                               ;AN000;
-endif                                                                                    ;AN000;
-DATA            ENDS                                                                     ;AN000;
+        extern REN_WFP;AN000;
+        extern WFP_START;AN000;
+        extern SATTRIB;AN000;
+        extern ATTRIB;AN000;
+        extern THISCDS;AN000;
+        extern THISSFT;AN000;
+        extern DMAADD;AN000;
+        extern CDSADDR;AN000;
+        extern SAVE_BX;AN000;
+        extern SAVE_CX;AN000;
+        extern SAVE_DX;AN000;
+        extern SAVE_SI;AN000;
+        extern SAVE_DI;AN000;
+        extern SAVE_DS;AN000;
+        extern SAVE_ES;AN000;
+        extern Name1;AN000;
+        extern DEVPT;AN000;
+        extern CPSWFLAG
+        extern COUNTRY_CDPG
+%if debug;AN000;
+        extern BugLev;AN000;
+        extern BugTyp;AN000;
+        %include "bugtyp.asm";AN000;
+%endif;AN000;
+; END SECTION .DATA;AN000;
                                                                                          ;AN000;
                                                                                          ;AN000;
 ; define our own code segment                                                            ;AN000;
                                                                                          ;AN000;
-IFSSEG  SEGMENT BYTE PUBLIC 'IFSSEG'                                                     ;AN000;
-        ASSUME  SS:DOSGROUP,CS:IFSSEG                                                    ;AN000;
+SECTION .IFSSEG;AN000;
+        ; ASSUME  SS:DOSGROUP,CS:IFSSEG;AN000;
                                                                                          ;AN000;
         ;IFS Data                                                                        ;AN000;
-        Extrn   IFSR:WORD                                                                ;AN000;
-        Extrn   IFSDRV:BYTE                                                              ;AN000;
-        Extrn   IFSPROC_FLAGS:WORD                                                       ;AN000;
-        Extrn   UNC_FS_HDR:DWORD                                                         ;AN000;
-        Extrn   THISIFS:DWORD                                                            ;AN000;
-        Extrn   THISDFL:DWORD                                                            ;AN000;
-        Extrn   DEVICE_CB@_OFFSET:WORD                                                   ;AN000;
-        Extrn   SFT_SERIAL_NUMBER:WORD                                                   ;AN004;
-        Extrn   fAssign:BYTE                                                             ;AN014;
+        extern IFSR;AN000;
+        extern IFSDRV;AN000;
+        extern IFSPROC_FLAGS;AN000;
+        extern UNC_FS_HDR;AN000;
+        extern THISIFS;AN000;
+        extern THISDFL;AN000;
+        extern DEVICE_CB@_OFFSET;AN000;
+        extern SFT_SERIAL_NUMBER;AN004;
+        extern fAssign;AN014;
                                                                                          ;AN000;
 BREAK <IFS_DISK_INFO Get disk Info>                                                      ;AN000;
                                                                                          ;AN000;
@@ -188,7 +188,7 @@ BREAK <IFS_DISK_INFO Get disk Info>                                             
 ;************************************************************************************    ;AN000;
                                                                                          ;AN000;
         procedure   IFS_DISK_INFO,NEAR                                                   ;AN000;
-ASSUME  DS:DOSGROUP,ES:NOTHING                                                           ;AN000;
+; ASSUME  DS:DOSGROUP,ES:NOTHING;AN000;
                                                                                          ;AN000;
         MOV     AX,DI                           ; set ifsDrv for possible I24            ;AN000;
         invoke  IFSDrvFromCDS                                                            ;AN000;
@@ -208,9 +208,9 @@ ASSUME  DS:DOSGROUP,ES:NOTHING                                                  
                                                 ;           ES:BX -> IFSRH               ;AN000;
                                                 ;           IFSR_DEVICE_CB@              ;AN000;
                                                 ;           ds - IFSSEG                  ;AN000;
-        MOV     ES:[BX.IFSR_LENGTH],LENGTH_DISKATTR         ; prep IFSRH                 ;AN000;
-        MOV     ES:[BX.IFSR_FUNCTION],IFSEXECAPI                                         ;AN000;
-        MOV     ES:[BX.IFSR_APIFUNC],IFSDISKATTR                                         ;AN000;
+        MOV     [ES:BX+IFSR_LENGTH],LENGTH_DISKATTR         ; prep IFSRH                 ;AN000;
+        MOV     [ES:BX+IFSR_FUNCTION],IFSEXECAPI                                         ;AN000;
+        MOV     [ES:BX+IFSR_APIFUNC],IFSDISKATTR                                         ;AN000;
                                                                                          ;AN000;
         invoke  CALL_IFS                        ; call fs with diskattr request          ;AN000;
                                                                                          ;AN000;
@@ -218,11 +218,11 @@ ASSUME  DS:DOSGROUP,ES:NOTHING                                                  
         RestoreReg <DI,ES>                      ; error - restore stack                  ;AN000;
         JMP     FA_1000                         ;         go return                      ;AN000;
 DA_20:                                                                                   ;AN000;
-        MOV     DX,ES:[BX.IFSR_AVAILALLOC]      ; no error - load return regs            ;AN000;
-        MOV     CX,ES:[BX.IFSR_SECTSIZE]                                                 ;AN000;
-        MOV     AX,ES:[BX.IFSR_ALLOCSIZE]                                                ;AN000;
-        MOV     AH,ES:[BX.IFSR_FSID]                                                     ;AN000;
-        MOV     BX,ES:[BX.IFSR_ALLOCUNITS]                                               ;AM002;
+        MOV     DX,[ES:BX+IFSR_AVAILALLOC]      ; no error - load return regs            ;AN000;
+        MOV     CX,[ES:BX+IFSR_SECTSIZE]                                                 ;AN000;
+        MOV     AX,[ES:BX+IFSR_ALLOCSIZE]                                                ;AN000;
+        MOV     AH,[ES:BX+IFSR_FSID]                                                     ;AN000;
+        MOV     BX,[ES:BX+IFSR_ALLOCUNITS]                                               ;AM002;
         RestoreReg <DI,ES>                      ; restore cds into es:di                 ;AN000;
         invoke  CD_TO_CDS                                                                ;AN000;
         CLC                                                                              ;AN000;
@@ -254,7 +254,7 @@ BREAK <IFS_SEQ_SET_FILE_ATTRIBUTE  - Seq Set File Attributes>                   
                                                                                          ;AN000;
         PUSH    CS                              ; get addressability to IFSSEG           ;AN000;
         POP     DS                              ; prep ifsflags for set                  ;AN000;
-ASSUME  DS:IFSSEG                                                                        ;AN000;
+; ASSUME  DS:IFSSEG;AN000;
         MOV     IFSPROC_FLAGS,ZERO                                                       ;AN000;
         JMP     SHORT SFA_20                    ; cont. in ifs_seq_get_fa                ;AN000;
                                                                                          ;AN000;
@@ -302,7 +302,7 @@ BREAK <IFS_SEQ_GET_FILE_INFO       - Seq Get File Attributes>                   
                                                                                          ;AN000;
         PUSH    CS                              ; prep ifsflags for get & seq            ;AN000;
         POP     DS                                                                       ;AN000;
-ASSUME  DS:IFSSEG                                                                        ;AN000;
+; ASSUME  DS:IFSSEG;AN000;
         MOV     IFSPROC_FLAGS,ISGET                                                      ;AN000;
                                                                                          ;AN000;
 SFA_20:                                                                                  ;AN000;
@@ -443,11 +443,11 @@ FA_10:                                                                          
         MOV     CS:IFSPROC_FLAGS,ISGET          ;  set for get                           ;AN000;
                                                                                          ;AN000;
 FA_20:                                                                                   ;AN000;
-ASSUME  DS:DOSGROUP,ES:NOTHING                                                           ;AN000;
-        CMP     WORD PTR [THISCDS],NULL_PTR     ; determine CDS or DFL                   ;AN000;
+; ASSUME  DS:DOSGROUP,ES:NOTHING;AN000;
+        CMP     word [THISCDS],NULL_PTR     ; determine CDS or DFL                   ;AN000;
         JE      FA_100                                                                   ;AN000;
         LDS     SI,[THISCDS]                                                             ;AN000;
-ASSUME  DS:NOTHING                                                                       ;AN000;
+; ASSUME  DS:NOTHING;AN000;
         TEST    CS:IFSPROC_FLAGS,ISGET                                                   ;AN000;
         JZ      FA_40                                                                    ;AN000;
         SaveReg <DS,SI>                         ; preserve ds:si -> cds                  ;AN000;
@@ -479,33 +479,33 @@ FA_100:                                                                         
 FA_200:                                                                                  ;AN000;
         invoke  DRIVE_FROM_CDS                  ; set IFSDrv for possible I24            ;AN000;
                                                                                          ;AN000;
-        MOV     ES:[BX.IFSR_LENGTH],LENGTH_FILEATTR     ; continue prepping ifsr         ;AN000;
-        MOV     ES:[BX.IFSR_FUNCTION],IFSEXECAPI                                         ;AN000;
-        MOV     ES:[BX.IFSR_APIFUNC],IFSFILEATTR                                         ;AN000;
+        MOV     [ES:BX+IFSR_LENGTH],LENGTH_FILEATTR     ; continue prepping ifsr         ;AN000;
+        MOV     [ES:BX+IFSR_FUNCTION],IFSEXECAPI                                         ;AN000;
+        MOV     [ES:BX+IFSR_APIFUNC],IFSFILEATTR                                         ;AN000;
         TEST    IFSPROC_FLAGS,ISGET                                                      ;AN000;
         JNZ     FA_220                                                                   ;AN000;
-        MOV     ES:[BX.IFSR_FUNC],FUNC_SET_BY_NAME                                       ;AN000;
-        POP     ES:[BX.IFSR_ATTR]               ; retrieve attr from stack               ;AN000;
+        MOV     [ES:BX+IFSR_FUNC],FUNC_SET_BY_NAME                                       ;AN000;
+        POP     [ES:BX+IFSR_ATTR]               ; retrieve attr from stack               ;AN000;
         JMP     SHORT FA_240                                                             ;AN000;
 FA_220:                                                                                  ;AN000;
-        MOV     ES:[BX.IFSR_FUNC],FUNC_GET_BY_NAME ; get file info                       ;AN000;
+        MOV     [ES:BX+IFSR_FUNC],FUNC_GET_BY_NAME ; get file info                       ;AN000;
                                                                                          ;AN000;
 FA_240:                                                                                  ;AN000;
         PUSH    DS                              ; save ds - IFSSEG                       ;AN000;
         PUSH    SS                              ; get ds = dosgroup so can access        ;AN000;
         POP     DS                              ; wfp_start, sattrib                     ;AN000;
-ASSUME  DS:DOSGROUP                                                                      ;AN000;
+; ASSUME  DS:DOSGROUP;AN000;
                                                                                          ;AN000;
         MOV     SI,[WFP_START]                                                           ;AN000;
         invoke  STRIP_WFP_START                                                          ;AN000;
-        MOV     ES:WORD PTR [BX.IFSR_NAME@],SI  ; ifsr_name@                             ;AN000;
-        MOV     ES:WORD PTR [BX.IFSR_NAME@+2],DS                                         ;AN000;
+        MOV     ES:word [BX+IFSR_NAME@],SI  ; ifsr_name@                             ;AN000;
+        MOV     ES:word [BX+IFSR_NAME@+2],DS                                         ;AN000;
         MOV     AL,[SATTRIB]                                                             ;AN000;
         XOR     AH,AH                                                                    ;AN000;
-        MOV     ES:[BX.IFSR_MATCHATTR],AX       ; ifsr_matchattr                         ;AN000;
+        MOV     [ES:BX+IFSR_MATCHATTR],AX       ; ifsr_matchattr                         ;AN000;
                                                                                          ;AN000;
         POP     DS                              ; restore ds=IFSSEG                      ;AN000;
-ASSUME  DS:IFSSEG                                                                        ;AN000;
+; ASSUME  DS:IFSSEG;AN000;
 
 ;************************************************
         invoke  CALL_IFS                        ; call ifs with file attr request        ;AN000;
@@ -520,11 +520,11 @@ ASSUME  DS:IFSSEG                                                               
 FA_260:                                         ; request successful                     ;AN000;
         TEST    IFSPROC_FLAGS,ISGET             ; if get - prep return regs with         ;AN000;
         JZ      FA_270                          ; file info                              ;AN000;
-        MOV     AX,ES:[BX.IFSR_ATTR]                                                     ;AN000;
-        MOV     CX,ES:[BX.IFSR_TIME]                                                     ;AN000;
-        MOV     DX,ES:[BX.IFSR_DATE]                                                     ;AN000;
-        MOV     DI,ES:WORD PTR [BX.IFSR_SIZE]                                            ;AN000;
-        MOV     BX,ES:WORD PTR [BX.IFSR_SIZE+2]                                          ;AC016;
+        MOV     AX,[ES:BX+IFSR_ATTR]                                                     ;AN000;
+        MOV     CX,[ES:BX+IFSR_TIME]                                                     ;AN000;
+        MOV     DX,[ES:BX+IFSR_DATE]                                                     ;AN000;
+        MOV     DI,ES:word [BX+IFSR_SIZE]                                            ;AN000;
+        MOV     BX,ES:word [BX+IFSR_SIZE+2]                                          ;AC016;
 FA_270:                                                                                  ;AN000;
         TEST    IFSPROC_FLAGS,ISCDS             ; if cds - update cds w/cd               ;AN000;
         JZ      FA_280                                                                   ;AN000;
@@ -646,7 +646,7 @@ SD_10:                                                                          
 SD_20:                                          ; welcome ifs_seq_rename code            ;AN000;
         PUSH    CS                                                                       ;AN000;
         POP     DS                                                                       ;AN000;
-ASSUME  DS:IFSSEG                                                                        ;AN000;
+; ASSUME  DS:IFSSEG;AN000;
         OR      IFSPROC_FLAGS,ISSEQ             ; SEQ - UNC                              ;AN000;
         invoke  SET_THISIFS_UNC                 ;     set [THISIFS] = UNC IFS            ;AN000;
         JMP     SHORT D_30                      ;     cont. in ifs_delete                ;AN000;
@@ -749,9 +749,9 @@ BREAK <IFS_DELETE Delete>                                                       
         MOV     CS:IFSPROC_FLAGS,ZERO           ; Clear IFS processing flags             ;AN000;
                                                                                          ;AN000;
 D_20:                                           ; (Welcome ifs_ren)                      ;AN000;
-ASSUME  DS:DOSGROUP                                                                      ;AN000;
+; ASSUME  DS:DOSGROUP;AN000;
         invoke  DRIVE_FROM_CDS                  ; ds - dosgroup                          ;AN000;
-        CMP     WORD PTR [THISCDS],NULL_PTR     ; CDS must not be null                   ;AN000;
+        CMP     word [THISCDS],NULL_PTR     ; CDS must not be null                   ;AN000;
         JNE     D_30                                                                     ;AN000;
         MOV     AX,error_invalid_function                                                ;AN000;
         invoke  SET_EXTERR_INFO                                                          ;AN000;
@@ -762,33 +762,33 @@ D_30:                                           ; (Welcome seq ren/del code)    
         invoke  STRIP_WFP_START                                                          ;AN000;
         TEST    CS:IFSPROC_FLAGS,ISREN                                                   ;AN000;
         JZ      D_40                            ; rename                                 ;AN000;
-        MOV     ES:WORD PTR [BX.IFSR_NAME1@],SI ; ifsr_name1@ & 2@                       ;AN000;
-        MOV     ES:WORD PTR [BX.IFSR_NAME1@+2],DS                                        ;AN000;
+        MOV     ES:word [BX+IFSR_NAME1@],SI ; ifsr_name1@ & 2@                       ;AN000;
+        MOV     ES:word [BX+IFSR_NAME1@+2],DS                                        ;AN000;
         MOV     SI,[REN_WFP]                                                             ;AN000;
-        CMP     BYTE PTR DS:[SI+1],":"                                                   ;AN000;
+        CMP     byte [DS:SI+1],":"                                                   ;AN000;
         JNE     D_36                                                                     ;AN000;
         ADD     SI,2                                                                     ;AN000;
 D_36:                                                                                    ;AN000;
-        MOV     ES:WORD PTR [BX.IFSR_NAME2@],SI                                          ;AN000;
-        MOV     ES:WORD PTR [BX.IFSR_NAME2@+2],DS                                        ;AN000;
-        MOV     ES:[BX.IFSR_LENGTH],LENGTH_RENFILE ; ifsr_length                         ;AN000;
-        MOV     ES:[BX.IFSR_APIFUNC],IFSRENFILE    ; ifsr_apifunc                        ;AN000;
+        MOV     ES:word [BX+IFSR_NAME2@],SI                                          ;AN000;
+        MOV     ES:word [BX+IFSR_NAME2@+2],DS                                        ;AN000;
+        MOV     [ES:BX+IFSR_LENGTH],LENGTH_RENFILE ; ifsr_length                         ;AN000;
+        MOV     [ES:BX+IFSR_APIFUNC],IFSRENFILE    ; ifsr_apifunc                        ;AN000;
         JMP     SHORT D_60                                                               ;AN000;
 D_40:                                              ; delete                              ;AN000;
-        MOV     ES:WORD PTR [BX.IFSR_NAME@],SI     ; ifsr_name@                          ;AN000;
-        MOV     ES:WORD PTR [BX.IFSR_NAME@+2],DS                                         ;AN000;
-        MOV     ES:[BX.IFSR_LENGTH],LENGTH_DELFILE ; ifsr_length                         ;AN000;
-        MOV     ES:[BX.IFSR_APIFUNC],IFSDELFILE    ; ifsr_apifunc                        ;AN000;
+        MOV     ES:word [BX+IFSR_NAME@],SI     ; ifsr_name@                          ;AN000;
+        MOV     ES:word [BX+IFSR_NAME@+2],DS                                         ;AN000;
+        MOV     [ES:BX+IFSR_LENGTH],LENGTH_DELFILE ; ifsr_length                         ;AN000;
+        MOV     [ES:BX+IFSR_APIFUNC],IFSDELFILE    ; ifsr_apifunc                        ;AN000;
 D_60:                                                                                    ;AN000;
         MOV     AL,[SATTRIB]                                                             ;AN000;
         XOR     AH,AH                                                                    ;AN000;
-        MOV     ES:[BX.IFSR_MATCHATTR],AX          ; ifsr_matchattr                      ;AN000;
-        MOV     ES:[BX.IFSR_FUNCTION],IFSEXECAPI   ; ifsr_function                       ;AN000;
+        MOV     [ES:BX+IFSR_MATCHATTR],AX          ; ifsr_matchattr                      ;AN000;
+        MOV     [ES:BX+IFSR_FUNCTION],IFSEXECAPI   ; ifsr_function                       ;AN000;
                                                                                          ;AN000;
         TEST    CS:IFSPROC_FLAGS,ISSEQ          ; if unc, don't do cds stuff             ;AN000;
         JNZ     D_70                                                                     ;AN000;
         LDS     SI,[THISCDS]                                                             ;AN000;
-ASSUME  DS:NOTHING                                                                       ;AN000;
+; ASSUME  DS:NOTHING;AN000;
         SaveReg <DS,SI>                         ; preserve ds:si -> cds                  ;AN000;
         MOV     CS:DEVICE_CB@_OFFSET,IFSR_DEVICE_CB@                                     ;AN000;
         invoke  CDS_TO_CD                       ; CDS: sets [THISIFS]                    ;AN000;
@@ -996,7 +996,7 @@ SXO_10:                                                                         
 SXO_20:                                                                                  ;AN000;
         PUSH    CS                              ; ds-ifsseg                              ;AN000;
         POP     DS                                                                       ;AN000;
-ASSUME  DS:IFSSEG                                                                        ;AN000;
+; ASSUME  DS:IFSSEG;AN000;
                                                                                          ;AN000;
         OR      IFSPROC_FLAGS,ISSEQ             ; SEQ = UNC                              ;AN000;
         invoke  SET_THISIFS_UNC                 ; set [THISIFS] = UNC IFS                ;AN000;
@@ -1139,19 +1139,19 @@ BREAK <IFS_XOPEN Open>                                                          
         JMP     SHORT XO_25                                                              ;AN008; BAF
                                                                                          ;AN000;
 XO_20:                                          ; (welcome all old open/create calls)    ;AN000;
-ASSUME  DS:DOSGROUP                                                                      ;AN000;
+; ASSUME  DS:DOSGROUP;AN000;
         MOV     [SAVE_DI],-1                    ; set no parms list on old calls         ;AN008; BAF
 XO_25:                                                                                   ;AN008; BAF
         invoke  PREP_IFSR                       ; zero out ifsr                          ;AN000;
         MOV     CS:DEVICE_CB@_OFFSET,IFSR_DEVICE_CB@                                     ;AN000;
                                                                                          ;AN000;
         LEA     SI,COUNTRY_CDPG                 ; load cp and cpsw                       ;AN000;
-        MOV     AX,DS:[SI.ccDosCodePage]        ;      |                                 ;AN000;
-        MOV     ES:[BX.IFSR_CP],AX              ;      |                                 ;AN000;
+        MOV     AX,[DS:SI+ccDosCodePage]        ;      |                                 ;AN000;
+        MOV     [ES:BX+IFSR_CP],AX              ;      |                                 ;AN000;
         MOV     AL,[CPSWFLAG]                   ;      |                                 ;AN000;
-        MOV     ES:[BX.IFSR_CPSW],AL            ;      |                                 ;AN000;
+        MOV     [ES:BX+IFSR_CPSW],AL            ;      |                                 ;AN000;
 
-        CMP     WORD PTR [THISCDS],NULL_PTR     ; determine CDS or DFL                   ;AN000;
+        CMP     word [THISCDS],NULL_PTR     ; determine CDS or DFL                   ;AN000;
         JE      XO_100                                                                   ;AN000;
                                                                                          ;AN000;
         LDS     SI,[THISCDS]                    ; cds--cds--cds--cds--cds--cds           ;AN000;
@@ -1169,12 +1169,12 @@ XO_60:                                                                          
                                                                                          ;AN000;
 XO_100:                                                                                  ;AN000;
         SaveReg <ES>                            ; if deviceless attach, skip device stuff;AN014;
-        LES     DI,CS:[THISDFL]                                                          ;AN014;
-        CMP     WORD PTR [THISDFL],NULL_PTR                                              ;AN014;
+        LES     DI,[CS:THISDFL]                                                          ;AN014;
+        CMP     word [THISDFL],NULL_PTR                                              ;AN014;
         RestoreReg <ES>                                                                  ;AN014;
         JNE     XO_110                                                                   ;AN014;
         OR      CS:IFSPROC_FLAGS,IsSeq                                                   ;AN014;
-        CMP     CS:[fAssign],ZERO
+        CMP     [CS:fAssign],ZERO
         JNE     XO_200
         ADD     SP,2
         MOV     AX,72
@@ -1199,9 +1199,9 @@ XO_200:                                         ; (welcome seq open/create)     
         invoke  SFT_TO_SFF                      ; SFT: sets IFSR_OPEN_CB@                ;AN000;
                                                 ;           ES:BX -> IFSRH               ;AN000;
                                                 ;           ds - IFSSEG                  ;AN000;
-        MOV     ES:[BX.IFSR_LENGTH],LENGTH_OPENFILE ; prep IFRH                          ;AN000;
-        MOV     ES:[BX.IFSR_FUNCTION],IFSEXECAPI                                         ;AN000;
-        MOV     ES:[BX.IFSR_APIFUNC],IFSOPENFILE                                         ;AN000;
+        MOV     [ES:BX+IFSR_LENGTH],LENGTH_OPENFILE ; prep IFRH                          ;AN000;
+        MOV     [ES:BX+IFSR_FUNCTION],IFSEXECAPI                                         ;AN000;
+        MOV     [ES:BX+IFSR_APIFUNC],IFSOPENFILE                                         ;AN000;
         POP     AX                              ; restore input AX              ;AN000;
         TEST    IFSPROC_FLAGS,ISOLDOPEN         ; check for old open/create              ;AN000;
         JZ      XO_220                                                                   ;AN000;
@@ -1210,32 +1210,32 @@ XO_200:                                         ; (welcome seq open/create)     
         SaveReg <DS,SI>                         ; old redirector does this               ;AN013;
         Context DS                                                                       ;AN013;
         LDS     SI,[THISSFT]                                                             ;AN013;
-        TEST    DS:[SI.SF_MODE],sf_isFCB                                                 ;AN013;
+        TEST    [DS:SI+SF_MODE],sf_isFCB                                                 ;AN013;
         RestoreReg <SI,DS>                                                               ;AN013;
         JZ      XO_210                                                                   ;AN013;
         MOV     AL,-1                                                                    ;AN013;
 XO_210:                                                                                  ;AN013;
 
-        MOV     ES:[BX.IFSR_MODE],AX                                                     ;AN000;
-        MOV     ES:[BX.IFSR_FLAG],OLDOPEN_FLAG                                           ;AN000;
+        MOV     [ES:BX+IFSR_MODE],AX                                                     ;AN000;
+        MOV     [ES:BX+IFSR_FLAG],OLDOPEN_FLAG                                           ;AN000;
         XOR     AH,AH                                                                    ;AN000;
         JMP     SHORT XO_240                                                             ;AN000;
 XO_220:                                                                                  ;AN000;
         TEST    IFSPROC_FLAGS,ISOLDCREATE                                                ;AN000;
         JZ      XO_260                                                                   ;AN000;
-        MOV     ES:[BX.IFSR_MODE],OLDCREATE_MODE        ; old create                     ;AC006;AC010;
-        MOV     ES:[BX.IFSR_FLAG],OLDCREATE_FLAG                                         ;AN000;
+        MOV     [ES:BX+IFSR_MODE],OLDCREATE_MODE        ; old create                     ;AC006;AC010;
+        MOV     [ES:BX+IFSR_FLAG],OLDCREATE_FLAG                                         ;AN000;
         OR      AH,AH                           ; is this create new??                   ;AN000;
         JZ      XO_230                                                                   ;AN000;
-        MOV     ES:[BX.IFSR_FLAG],OLDCREATENEW_FLAG                                      ;AN000;
+        MOV     [ES:BX+IFSR_FLAG],OLDCREATENEW_FLAG                                      ;AN000;
 XO_230:                                                                                  ;AN000;
         XCHG    AH,AL                                                                    ;AN000;
 XO_240:                                                                                  ;AN000;
         PUSH    SS                              ; get ds = dosgroup so can access        ;AN000;
         POP     DS                              ; wfp_start                              ;AN000;
-ASSUME  DS:DOSGROUP                                                                      ;AN000;
+; ASSUME  DS:DOSGROUP;AN000;
         MOV     AL,[SATTRIB]                                                             ;AN000;
-        MOV     ES:[BX.IFSR_MATCHATTR],AX                                                ;AN000;
+        MOV     [ES:BX+IFSR_MATCHATTR],AX                                                ;AN000;
         JMP     SHORT XO_280                    ; go call FS                             ;AN000;
                                                                                          ;AN000;
 XO_260:                                         ; -------extended open/create------------;AN000;
@@ -1244,7 +1244,7 @@ XO_260:                                         ; -------extended open/create---
 ;;;;;;;;POP     ES:[BX.IFSR_FLAG]               ; input dx - flag                        ;AD012;
         SaveReg <AX>                            ; check if create, if so set flag        ;AN012;
         MOV     AX,[SAVE_DX]                                                             ;AN012;
-        MOV     ES:[BX.IFSR_FLAG],AX
+        MOV     [ES:BX+IFSR_FLAG],AX
         MOV     AH,AL                                                                    ;AN012;
         AND     AX,0FF0H                                                                 ;AN012;
         CMP     AL,NOTEXIST_ACT_CREATE*16                                                ;AN012;
@@ -1254,10 +1254,10 @@ XO_260:                                         ; -------extended open/create---
 XO_270:                                                                                  ;AN012;
 
         PUSH    [SAVE_BX]                                                                ;AN000;
-        POP     ES:[BX.IFSR_MODE]               ; input bx - mode                        ;AN000;
+        POP     [ES:BX+IFSR_MODE]               ; input bx - mode                        ;AN000;
         XCHG    AH,AL                           ; attr                                   ;AN000;
         MOV     AL,[SATTRIB]                                                             ;AN000;
-        MOV     ES:[BX.IFSR_MATCHATTR],AX                                                ;AN000;
+        MOV     [ES:BX+IFSR_MATCHATTR],AX                                                ;AN000;
 ;       MOV     DI,[SAVE_DI]                    ; parm list                              ;AD011;
 ;       CMP     DI,NULL_PTR                     ;  if offset -1, then no parm list       ;AD011;
 ;       JE      XO_280                          ;    |                                   ;AD011;
@@ -1268,11 +1268,11 @@ XO_270:                                                                         
 XO_280:                                                                                  ;AN000;
         MOV     SI,[WFP_START]                                                           ;AN000;
         invoke  STRIP_WFP_START                                                          ;AN000;
-        MOV     WORD PTR ES:[BX.IFSR_NAME@],SI                                           ;AN000;
-        MOV     WORD PTR ES:[BX.IFSR_NAME@+2],DS                                         ;AN000;
+        MOV     word [ES:BX+IFSR_NAME@],SI                                           ;AN000;
+        MOV     word [ES:BX+IFSR_NAME@+2],DS                                         ;AN000;
         PUSH    CS                                                                       ;AN000;
         POP     DS                                                                       ;AN000;
-ASSUME  DS:IFSSEG                                                                        ;AN000;
+; ASSUME  DS:IFSSEG;AN000;
                                                                                          ;AN000;
 ;******************************************************************************          ;AN000;
         invoke  CALL_IFS                        ; call fs with open/create request       ;AN000;
@@ -1291,13 +1291,13 @@ XO_300:                                         ; request SUCCEEDED -           
         JNZ     XO_310                                                                   ;AN007; BAF
         SaveReg <DS,SI>                                                                  ;AN007; BAF
         CallInstall Get_User_Stack,multDOS,24   ; Set action take back into CX           ;AN007; BAF                                          ;AN000;
-ASSUME  DS:DOSGROUP                                                                      ;AN007; BAF
-        MOV     AX,ES:[BX.IFSR_ACTION]          ; action take only if Ext Open           ;AN007; BAF
-        MOV     DS:[SI].USER_CX,AX                                                       ;AN007; BAF
+; ASSUME  DS:DOSGROUP;AN007; BAF
+        MOV     AX,[ES:BX+IFSR_ACTION]          ; action take only if Ext Open           ;AN007; BAF
+        MOV     [DS:SI].USER_CX,AX                                                       ;AN007; BAF
         RestoreReg <SI,DS>                                                               ;AN007; BAF
-ASSUME  DS:IFSSEG                                                                        ;AN007; BAF
+; ASSUME  DS:IFSSEG;AN007; BAF
 XO_310:                                         ; request SUCCEEDED -                    ;AN007; BAF
-        MOV     AX,ES:[BX.IFSR_MATCHATTR]                                                ;AN000;
+        MOV     AX,[ES:BX+IFSR_MATCHATTR]                                                ;AN000;
                                                                                          ;AN000;
         invoke  SFF_TO_SFT                      ;   update sft                           ;AN000;
         TEST    IFSPROC_FLAGS,ISCDS                                                      ;AN000;
@@ -1321,16 +1321,16 @@ XO_340:                                                                         
 XO_360:                                                                                  ;AN000;
         Context DS                                                                       ;AN000;
         LDS     SI,[THISSFT]                    ; set some fields in sft                 ;AN000;
-        MOV     DS:[SI.sf_attr],AL                                                       ;AN000;
+        MOV     [DS:SI+sf_attr],AL                                                       ;AN000;
 ;;;;;;;;MOV     DS:[SI.sf_attr_hi],AH                                                    ;AD015;
-        MOV     WORD PTR DS:[SI.sf_devptr],DI                                            ;AN000;
-        MOV     WORD PTR DS:[SI.sf_devptr+2],ES                                          ;AN000;
+        MOV     word [DS:SI+sf_devptr],DI                                            ;AN000;
+        MOV     word [DS:SI+sf_devptr+2],ES                                          ;AN000;
         TEST    CS:IFSPROC_FLAGS,IsCDS + IsSeq  ; let deviceless attach stuff thru here  ;AC014;
         JZ      XO_380                                                                   ;AN000;
-        MOV     AL,CS:[IFSDRV]                  ; drive                                  ;AN000;
+        MOV     AL,[CS:IFSDRV]                  ; drive                                  ;AN000;
         AND     AX,devid_file_mask_drive ; Drive in correct bits                         ;AN000;
         OR      AX,sf_isnet + devid_file_clean                                           ;AN000;
-        MOV     DS:[SI.sf_flags],AX                                                      ;AN000;
+        MOV     [DS:SI+sf_flags],AX                                                      ;AN000;
                                                 ; now set sf_name to filename in form:   ;AN000;
                                                 ; filename ext  (8 char fn spaced out -  ;AN000;
                                                 ; 3 char ext spaced out)                 ;AN000;
@@ -1354,7 +1354,7 @@ XO_360:                                                                         
         DEC     SI                              ; si now on null                         ;AN000;
 XO_362:                                                                                  ;AN000;
         DEC     SI                              ; mov back one                           ;AN000;
-        CMP     BYTE PTR DS:[SI],"\"            ; looking for \ just before fn           ;AN000;
+        CMP     byte [DS:SI],"\"            ; looking for \ just before fn           ;AN000;
         JNE     XO_362                                                                   ;AN000;
                                                                                          ;AN000;
         INC     SI                              ; si now pointing to 1st char fn         ;AN000;
@@ -1371,11 +1371,11 @@ XO_364:                                                                         
         JMP     SHORT XO_364                                                             ;AN000;
                                                                                          ;AN000;
 XO_366:                                                                                  ;AN000;
-        MOV     BYTE PTR ES:[DI-1]," "                                                   ;AN000;
+        MOV     byte [ES:DI-1]," "                                                   ;AN000;
         JMP     SHORT XO_378                                                             ;AN000;
                                                                                          ;AN000;
 XO_368:                                                                                  ;AN000;
-        MOV     BYTE PTR ES:[DI-1]," "                                                   ;AN000;
+        MOV     byte [ES:DI-1]," "                                                   ;AN000;
         ADD     DI,CX                                                                    ;AN000;
 XO_369:                                                                                  ;AN000;
         MOV     CX,3                                                                     ;AN000;
@@ -1388,7 +1388,7 @@ XO_370:                                                                         
         JCXZ    XO_378                                                                   ;AN000;
         JMP     SHORT XO_370                                                             ;AN000;
 XO_372:                                                                                  ;AN000;
-        MOV     BYTE PTR ES:[DI-1]," "                                                   ;AN000;
+        MOV     byte [ES:DI-1]," "                                                   ;AN000;
                                                                                          ;AN000;
 XO_378:                                                                                  ;AN000;
         RestoreReg <SI,DS,CX>           ; dssi -> sft, cx=action code                    ;AN000;
@@ -1397,7 +1397,7 @@ XO_378:                                                                         
 XO_380:                                                                                  ;AN000;
 ;;;;;;;;TEST    CS:IFSPROC_FLAGS,ISSEQ                                                   ;AD014;
 ;;;;;;;;JNZ     XO_500                                                                   ;AD014;
-        MOV     DS:[SI.sf_flags],sf_isnet+devid_file_clean+sf_net_spool+devid_device     ;AN000;
+        MOV     [DS:SI+sf_flags],sf_isnet+devid_file_clean+sf_net_spool+devid_device     ;AN000;
         SaveReg <CX,DS,SI>                      ; sft ptr, action                        ;AN003;
         invoke  XCHGP                           ; dssi -> dfl, esdi -> sft               ;AN000;
         ADD     DI,sf_name                                                               ;AN000;
@@ -1410,27 +1410,27 @@ XO_380:                                                                         
         RestoreReg <SI,DS,CX>                   ; sft ptr, action                        ;AN003/AC005;
 
 XO_500:                                                                                  ;AN000;
-        MOV     AX,WORD PTR CS:[THISIFS]        ; set sf_ifs_hdr                         ;AN003;
-        MOV     WORD PTR DS:[SI.SF_IFS_HDR],AX                                           ;AN003;
-        MOV     AX,WORD PTR CS:[THISIFS+2]                                               ;AN003;
-        MOV     WORD PTR DS:[SI.SF_IFS_HDR+2],AX                                         ;AN003;
+        MOV     AX,word [CS:THISIFS]        ; set sf_ifs_hdr                         ;AN003;
+        MOV     word [DS:SI+SF_IFS_HDR],AX                                           ;AN003;
+        MOV     AX,word [CS:THISIFS+2]                                               ;AN003;
+        MOV     word [DS:SI+SF_IFS_HDR+2],AX                                         ;AN003;
 
-        MOV     AX,CS:[SFT_SERIAL_NUMBER]       ; give new sft serial number for         ;AN004;
-        MOV     DS:[SI.SF_FIRCLUS],AX           ; fcb processing                         ;AN004;
-        INC     CS:[SFT_SERIAL_NUMBER]                                                   ;AN004;
+        MOV     AX,[CS:SFT_SERIAL_NUMBER]       ; give new sft serial number for         ;AN004;
+        MOV     [DS:SI+SF_FIRCLUS],AX           ; fcb processing                         ;AN004;
+        INC     [CS:SFT_SERIAL_NUMBER]                                                   ;AN004;
 
-        MOV     WORD PTR DS:[SI.SF_POSITION],0                                           ;AN012;
-        MOV     WORD PTR DS:[SI.SF_POSITION+2],0                                         ;AN012;
+        MOV     word [DS:SI+SF_POSITION],0                                           ;AN012;
+        MOV     word [DS:SI+SF_POSITION+2],0                                         ;AN012;
 
         TEST    CS:IFSPROC_FLAGS,IsCreate       ; if create, set sf time/date            ;AN012;
         JZ      XO_520                                                                   ;AN012;
         push    ds                              ;AN017: SAVE DS   **RPS
         CallInstall DATE16,MultDOS,13                                                    ;AN012;
         pop     ds                              ;AN017: SAVE DS   **RPS
-        MOV     DS:[SI.SF_TIME],DX                                                       ;AN012;
-        MOV     DS:[SI.SF_DATE],AX                                                       ;AN012;
-        MOV     WORD PTR DS:[SI.SF_SIZE],0                                               ;AN012;
-        MOV     WORD PTR DS:[SI.SF_SIZE+2],0                                             ;AN012;
+        MOV     [DS:SI+SF_TIME],DX                                                       ;AN012;
+        MOV     [DS:SI+SF_DATE],AX                                                       ;AN012;
+        MOV     word [DS:SI+SF_SIZE],0                                               ;AN012;
+        MOV     word [DS:SI+SF_SIZE+2],0                                             ;AN012;
 XO_520:                                                                                  ;AN012;
 
         PUSH    SS                              ; Preserve input DS                      ;AN000;
@@ -1463,7 +1463,7 @@ BREAK <IFS_SEQ_SEARCH>                                                          
 ;************************************************************************************    ;AN000;
                                                                                          ;AN000;
         procedure   IFS_SEQ_SEARCH_FIRST,NEAR                                            ;AN000;
-ASSUME  DS:DOSGROUP,ES:NOTHING                                                           ;AN000;
+; ASSUME  DS:DOSGROUP,ES:NOTHING;AN000;
                                                                                          ;AN000;
         MOV     AX,error_path_not_found                                                  ;AN000;
         STC                                                                              ;AN000;
@@ -1488,7 +1488,7 @@ EndProc IFS_SEQ_SEARCH_FIRST                                                    
 ;************************************************************************************    ;AN000;
                                                                                          ;AN000;
         procedure   IFS_SEQ_SEARCH_NEXT,NEAR                                             ;AN000;
-ASSUME  DS:DOSGROUP,ES:NOTHING                                                           ;AN000;
+; ASSUME  DS:DOSGROUP,ES:NOTHING;AN000;
                                                                                          ;AN000;
         JMP     IFS_SEQ_SEARCH_FIRST                                                     ;AN000;
                                                                                          ;AN000;
@@ -1607,12 +1607,12 @@ BREAK <IFS_SEARCH_FIRST Search for first entry>                                 
         MOV     CS:IFSPROC_FLAGS,ZERO                                                    ;AN000;
         invoke  PREP_IFSR                       ; zero ifsr                              ;AN000;
                                                                                          ;AN000;
-ASSUME  DS:DOSGROUP                                                                      ;AN000;
+; ASSUME  DS:DOSGROUP;AN000;
         LES     DI,[DMAADD]                     ; esdi -> dmaadd                         ;AN001;
         LDS     SI,[THISCDS]                    ; dssi -> cds                            ;AN000;
 
         invoke  DRIVE_FROM_CDS                  ; set ifsdrv (0-based)                   ;AN001;
-        MOV     AL,CS:[IFSDRV]                  ; put 1-based drive # in dmaadd          ;AN001;
+        MOV     AL,[CS:IFSDRV]                  ; put 1-based drive # in dmaadd          ;AN001;
         INC     AL                                                                       ;AN001;
         OR      AL,80H                          ; turn on ifs indicator                  ;AN001;
         STOSB                                                                            ;AN001;
@@ -1628,14 +1628,14 @@ ASSUME  DS:DOSGROUP                                                             
                                                                                          ;AN000;
         MOV     SI,[WFP_START]                                                           ;AN000;
         invoke  STRIP_WFP_START                 ; remove leading d:\ if present          ;AN000;
-        MOV     ES:WORD PTR[BX.IFSR_NAME@],SI                                            ;AN000;
-        MOV     ES:WORD PTR[BX.IFSR_NAME@+2],DS                                          ;AN000;
+        MOV     ES:word[BX+IFSR_NAME@],SI                                            ;AN000;
+        MOV     ES:word[BX+IFSR_NAME@+2],DS                                          ;AN000;
         MOV     AL,[SATTRIB]                                                             ;AN000;
         XOR     AH,AH                                                                    ;AN000;
-        MOV     ES:[BX.IFSR_MATCHATTR],AX                                                ;AN000;
+        MOV     [ES:BX+IFSR_MATCHATTR],AX                                                ;AN000;
                                                                                          ;AN000;
         POP     DS                                                                       ;AN000;
-ASSUME  DS:IFSSEG,ES:IFSSEG                                                              ;AN000;
+; ASSUME  DS:IFSSEG,ES:IFSSEG;AN000;
                                                                                          ;AN000;
         MOV     AL,IFSSEARCH_FIRST                                                       ;AN000;
         JMP     SHORT SN_60                     ; rest of processing is in               ;AN000;
@@ -1667,7 +1667,7 @@ BREAK <IFS_SEARCH_NEXT Search for next>                                         
 ;************************************************************************************    ;AN000;
                                                                                          ;AN000;
         procedure   IFS_SEARCH_NEXT,NEAR                                                 ;AN000;
-ASSUME  DS:DOSGROUP,ES:NOTHING                                                           ;AN000;
+; ASSUME  DS:DOSGROUP,ES:NOTHING;AN000;
                                                                                          ;AN000;
         ifsr_fcn_def  EXECAPI                   ; define ifsr for search                 ;AN000;
         ifsr_api_def  SEARCHFILE                                                         ;AN000;
@@ -1680,9 +1680,9 @@ SN_20:                                                                          
         LODSB                                                                            ;AN000;
         AND     AL,NOT 80H                      ; turn off ifs indicator                 ;AN000;
         DEC     AL                              ; make 0-based                           ;AN000;
-        MOV     CS:[IFSDRV],AL                  ; set this for possible i24              ;AN000;
+        MOV     [CS:IFSDRV],AL                  ; set this for possible i24              ;AN000;
         CallInstall GetCDSFromDrv,multDOS,23,AX,AX                                       ;AN000;
-ASSUME  DS:NOTHING                                                                       ;AN000;
+; ASSUME  DS:NOTHING;AN000;
         JNC     SN_40                                                                    ;AN000;
         MOV     AX,error_invalid_drive          ;   no cds, set error &                  ;AN000;
         invoke  SET_EXTERR_INFO                                                          ;AN000;
@@ -1698,21 +1698,21 @@ SN_40:                                          ; (welcome lock)                
 ;       JZ      SN_60                                                                    ;AD011;
 ;       INC     AL                              ; inc subfunc to search same             ;AD011;
 SN_60:                                                                                   ;AN000;
-        MOV     ES:[BX.IFSR_SUBFUNC],AL                                                  ;AN000;
-        MOV     ES:[BX.IFSR_LENGTH],LENGTH_SEARCHFILE                                    ;AN000;
-        MOV     ES:[BX.IFSR_FUNCTION],IFSEXECAPI                                         ;AN000;
-        MOV     ES:[BX.IFSR_APIFUNC],IFSSEARCHFILE                                       ;AN000;
+        MOV     [ES:BX+IFSR_SUBFUNC],AL                                                  ;AN000;
+        MOV     [ES:BX+IFSR_LENGTH],LENGTH_SEARCHFILE                                    ;AN000;
+        MOV     [ES:BX+IFSR_FUNCTION],IFSEXECAPI                                         ;AN000;
+        MOV     [ES:BX+IFSR_APIFUNC],IFSSEARCHFILE                                       ;AN000;
                                                                                          ;AN000;
         PUSH    DS                                                                       ;AN000;
         Context DS                                                                       ;AN000;
-        MOV     AX,WORD PTR [DMAADD]                                                     ;AN000;
+        MOV     AX,word [DMAADD]                                                     ;AN000;
         INC     AX                                                                       ;AN000;
-        MOV     ES:WORD PTR[BX.IFSR_CONTINFO@],AX                                        ;AN000;
-        MOV     AX,WORD PTR [DMAADD+2]                                                   ;AN000;
-        MOV     ES:WORD PTR[BX.IFSR_CONTINFO@+2],AX                                      ;AN000;
+        MOV     ES:word[BX+IFSR_CONTINFO@],AX                                        ;AN000;
+        MOV     AX,word [DMAADD+2]                                                   ;AN000;
+        MOV     ES:word[BX+IFSR_CONTINFO@+2],AX                                      ;AN000;
                                                                                          ;AN000;
         POP     DS                                                                       ;AN000;
-ASSUME  DS:IFSSEG                                                                        ;AN000;
+; ASSUME  DS:IFSSEG;AN000;
         invoke  CALL_IFS                        ; call FS                                ;AN000;
         RestoreReg <DI,ES>                      ; restore cds ptr into es:di             ;AN000;
         JC      SN_1000                                                                  ;AN000;
@@ -1743,14 +1743,14 @@ BREAK <OPEN_CHECK_DEVICE  - check that device to be opened is real>             
 ;************************************************************************************    ;AN000;
                                                                                          ;AN000;
         procedure   OPEN_CHECK_DEVICE,NEAR                                               ;AN000;
-ASSUME  DS:DOSGROUP,ES:NOTHING                                                           ;AN000;
+; ASSUME  DS:DOSGROUP,ES:NOTHING;AN000;
                                                                                          ;AN000;
         MOV     SI,[WFP_START]                  ; dssi -> path to open                   ;AN000;
 ;       invoke  PARSE_DEVICE_PATH               ; dssi -> device name (asciiz)           ;AN000;
                                                                                          ;AN000;
         PUSH    SS                              ; Now check if this device is real       ;AN000;
         POP     ES                                                                       ;AN000;
-        MOV     DI,OFFSET DOSGROUP:NAME1                                                 ;AN000;
+        MOV     DI,NAME1                                                 ;AN000;
         MOV     CX,4                                                                     ;AN000;
         REP     MOVSW                           ; Transfer name to NAME1                 ;AN000;
         MOV     AX,2020H                                                                 ;AN000;
@@ -1759,7 +1759,7 @@ ASSUME  DS:DOSGROUP,ES:NOTHING                                                  
                                                                                          ;AN000;
         PUSH    ES                                                                       ;AN000;
         POP     DS                                                                       ;AN000;
-ASSUME  DS:DOSGROUP                                                                      ;AN000;
+; ASSUME  DS:DOSGROUP;AN000;
         MOV     [ATTRIB],attr_hidden + attr_system + attr_directory                      ;AN000;
                                 ; Must set this to something interesting                 ;AN000;
                                 ; to call DEVNAME.                                       ;AN000;
@@ -1774,5 +1774,5 @@ OCD_120:                                                                        
 EndProc OPEN_CHECK_DEVICE                                                                ;AN000;
                                                                                          ;AN000;
                                                                                          ;AN000;
-IFSSEG  ENDS                                                                             ;AN000;
-    END                                                                                  ;AN000;
+; END SECTION .IFSSEG;AN000;
+    ; END;AN000;

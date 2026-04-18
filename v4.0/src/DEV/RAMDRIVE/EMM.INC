@@ -18,12 +18,12 @@ BREAK	<EMM control sector layout>
 
 ; Layout of each EMM record.
 
-EMM_REC 	STRUC
+struc EMM_REC
 EMM_FLAGS	DW	0
 EMM_SYSTEM	DW	0
-EMM_BASE	DD	?		; 24 bit address of start of region
-EMM_KSIZE	DW	?		; Size of region in kbytes
-EMM_REC 	ENDS
+EMM_BASE: resd 1; 24 bit address of start of region
+EMM_KSIZE: resw 1; Size of region in kbytes
+endstruc
 
 ; EMM_FLAGS Bits
 EMM_ALLOC	EQU	0000000000000001B	; Zero -> record is free
@@ -38,17 +38,17 @@ EMM_APPLICATION EQU	3
 
 ; Layout of EMM control 1024 byte record
 
-EMM_CTRL	STRUC
-EMM_VER 	DB	50 DUP(?)
-EMM_TOTALK	DW	?		; EXCLUDING the 1k of this record
-EMM_AVAILK	DW	?		; Amount of above NOT allocated
-		DB	SIZE EMM_REC DUP(?) ; NULL (0th) RECORD
-EMM_RECORD	DB	(1024 - 50 - 4 - 10 - (SIZE EMM_REC)) DUP(?)
+struc EMM_CTRL
+EMM_VER: resb 50
+EMM_TOTALK: resw 1; EXCLUDING the 1k of this record
+EMM_AVAILK: resw 1; Amount of above NOT allocated
+		resb 1; NULL (0th) RECORD
+EMM_RECORD	DB	(1024 - 50 - 4 - 10 - (EMM_REC_size)) DUP(?)
 					  ; EMM_REC structures
-EMM_TAIL_SIG	DB	10 DUP(?)
-EMM_CTRL	ENDS
+EMM_TAIL_SIG: resb 10
+endstruc
 
-EMM_NUMREC	EQU	(1024 - 50 - 4 - 10 - (SIZE EMM_REC)) / (SIZE EMM_REC)
+EMM_NUMREC	EQU	(1024 - 50 - 4 - 10 - (EMM_REC_size)) / (EMM_REC_size)
 
 
 ;

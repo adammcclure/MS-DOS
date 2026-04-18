@@ -2,10 +2,10 @@
 ; memory routines
 ;
 
-.xlist
-include	version.inc
-include cmacros.inc
-.list
+; .xlist
+%include "version.inc"
+%include "cmacros.inc"
+; .list
 
 sBegin	code
 assumes cs,code
@@ -70,4 +70,4 @@ cEnd
 
 sEnd
 
-end
+; end

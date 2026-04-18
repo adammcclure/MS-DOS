@@ -1,68 +1,68 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)tucode.asm 4.2 85/05/31
 ;	SCCSID = @(#)tucode.asm 4.2 85/05/31
-Title	COMMAND Language midifiable Code Transient
+; Title	COMMAND Language midifiable Code Transient
 
 
-.xlist
-.xcref
-	INCLUDE dossym.inc
-	INCLUDE comsw.asm
-	INCLUDE comseg.asm
-	INCLUDE comequ.asm
-.list
-.cref
+; .xlist
+; .xcref
+	%include "dossym.inc"
+	%include "comsw.asm"
+	%include "comseg.asm"
+	%include "comequ.asm"
+; .list
+; .cref
 
 
-DATARES 	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	ECHOFLAG:BYTE
-DATARES ENDS
+SECTION .DATARES;AC000;
+	extern ECHOFLAG
+; END SECTION .DATARES
 
-TRANDATA	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	BAD_ON_OFF_ptr:word
-	EXTRN	ctrlcmes_ptr:word
-	EXTRN	DEL_Y_N_PTR:WORD
-	EXTRN	ECHOMES_ptr:word
-	EXTRN	extend_buf_ptr:word	;AC000;
-	EXTRN	offmes_ptr:word
-	EXTRN	onmes_ptr:word
-	EXTRN	PARSE_BREAK:BYTE	;AN000;
-	EXTRN	promptdat_moday:word	;AC000;
-	EXTRN	promptdat_ptr:word	;AC000;
-	EXTRN	promptdat_yr:word	;AC000;
-	EXTRN	string_buf_ptr:word
-	EXTRN	SUREMES_ptr:word
-	EXTRN	VERIMES_ptr:BYTE
-	EXTRN	WeekTab:word
-TRANDATA	ENDS
+SECTION .TRANDATA;AC000;
+	extern BAD_ON_OFF_ptr
+	extern ctrlcmes_ptr
+	extern DEL_Y_N_PTR
+	extern ECHOMES_ptr
+	extern extend_buf_ptr;AC000;
+	extern offmes_ptr
+	extern onmes_ptr
+	extern PARSE_BREAK;AN000;
+	extern promptdat_moday;AC000;
+	extern promptdat_ptr;AC000;
+	extern promptdat_yr;AC000;
+	extern string_buf_ptr
+	extern SUREMES_ptr
+	extern VERIMES_ptr
+	extern WeekTab
+; END SECTION .TRANDATA
 
-TRANSPACE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	arg_buf:byte
-	EXTRN	BWDBUF:BYTE
-	EXTRN	DEST:BYTE
-	EXTRN	destdir:byte
-	EXTRN	dirchar:byte
-	EXTRN	PARSE1_CODE:BYTE	;AN000;
-	EXTRN	RESSEG:WORD
-	EXTRN	string_ptr_2:word
+SECTION .TRANSPACE;AC000;
+	extern arg_buf
+	extern BWDBUF
+	extern DEST
+	extern destdir
+	extern dirchar
+	extern PARSE1_CODE;AN000;
+	extern RESSEG
+	extern string_ptr_2
 
-TRANSPACE	ENDS
+; END SECTION .TRANSPACE
 
-TRANCODE	SEGMENT PUBLIC BYTE
+SECTION .TRANCODE
 
-	EXTRN	CERROR:NEAR
-	EXTRN	CRLF2:NEAR
-	EXTRN	extend_setup:near	;AN022;
+	extern CERROR
+	extern CRLF2
+	extern extend_setup;AN022;
 
-	PUBLIC	CNTRLC
-	PUBLIC	ECHO
-	PUBLIC	GetDate
-	PUBLIC	NOTEST2
-	PUBLIC	PRINT_DATE
-	PUBLIC	SLASHP_ERASE		;AN000;
-	PUBLIC	VERIFY
+	global CNTRLC
+	global ECHO
+	global GetDate
+	global NOTEST2
+	global PRINT_DATE
+	global SLASHP_ERASE;AN000;
+	global VERIFY
 
-ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
 
 ; ****************************************************************
 ; *
@@ -96,11 +96,11 @@ ALLFIL:
 	JNZ	NOPRMPT
 
 ASKAGN:
-	MOV	DX,OFFSET TRANGROUP:SUREMES_ptr ; "Are you sure (Y/N)?"
+	MOV	DX,SUREMES_ptr ; "Are you sure (Y/N)?"
 	invoke	std_printf
 	MOV	SI,80H
 	MOV	DX,SI
-	MOV	WORD PTR [SI],120		; zero length
+	MOV	word [SI],120		; zero length
 	MOV	AX,(STD_CON_INPUT_FLUSH SHL 8) OR STD_CON_STRING_INPUT
 	INT	21H
 	LODSW
@@ -132,7 +132,7 @@ eraerr:
 	invoke	RESTUDIR
 	pop	dx				;AN022; restore message
 
-	cmp	word ptr extend_buf_ptr,error_no_more_files ;AN022; convert no more files to
+	cmp	word extend_buf_ptr,error_no_more_files ;AN022; convert no more files to
 	jnz	cerrorj2			;AN022; 	file not found
 	mov	Extend_Buf_ptr,error_file_not_found  ;AN000; get message number in control block
 
@@ -156,12 +156,12 @@ cerrorj2:
 ; *
 ; ****************************************************************
 
-ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
+; ASSUME	CS:TRANGROUP,DS:TRANGROUP,ES:TRANGROUP,SS:NOTHING
 
 SLASHP_ERASE:					;AN000; entry point
 	invoke	build_dir_string		;AN000; set up current directory string for output
 	mov	ah,Set_DMA			;AN000; issue set dta int 21h
-	mov	dx,offset trangroup:destdir	;AN000; use Destdir for target
+	mov	dx,destdir	;AN000; use Destdir for target
 	int	21H				;AN000;
 	mov	ah,Dir_Search_First		;AN000; do dir search first int 21h
 	mov	dx,FCB				;AN000; use FCB at 5Ch for target
@@ -170,33 +170,33 @@ SLASHP_ERASE:					;AN000; entry point
 	jz	eraerr				;AN022; go to error exit
 
 delete_prompt_loop:				;AN000;
-	mov	si,offset trangroup:destdir+1	;AN000; set up FCB as source
-	mov	di,offset trangroup:dest	;AN000; set up dest as target
+	mov	si,destdir+1	;AN000; set up FCB as source
+	mov	di,dest	;AN000; set up dest as target
 	mov	al,dirchar			;AN000; store a "\" in the first char
 	stosb					;AN000;     of DEST
 	invoke	fcb_to_ascz			;AN000; convert filename from FCB to ASCIIZ string
 
 slashp_askagn:					;AN000;
 	call	crlf2				;AN000; print out carriage return, line feed
-	mov	dx,offset trangroup:bwdbuf	;AN000; print out current directory string
+	mov	dx,bwdbuf	;AN000; print out current directory string
 	mov	bx,dx				;AN000; get string pointer in bx
-	cmp	byte ptr [bx+3],end_of_line_out ;AN000; see if only D:\,0
+	cmp	byte [bx+3],end_of_line_out ;AN000; see if only D:\,0
 	jnz	not_del_root			;AN000; no continue
-	mov	byte ptr [bx+2],end_of_line_out ;AN000; yes, get rid of \
+	mov	byte [bx+2],end_of_line_out ;AN000; yes, get rid of \
 
 Not_del_root:					;AN000;
 	mov	string_ptr_2,dx 		;AN000;
-	mov	dx,offset trangroup:string_buf_ptr ;AN000;
+	mov	dx,string_buf_ptr ;AN000;
 	invoke	std_printf			;AN000;
-	mov	dx,offset trangroup:dest	;AN000; print out file name string
+	mov	dx,dest	;AN000; print out file name string
 	mov	string_ptr_2,dx 		;AN000;
-	mov	dx,offset trangroup:string_buf_ptr ;AN000;
+	mov	dx,string_buf_ptr ;AN000;
 	invoke	std_printf			;AN000;
-	mov	dx,offset trangroup:Del_Y_N_Ptr ;AN000; issue ",    Delete (Y/N)?" message
+	mov	dx,Del_Y_N_Ptr ;AN000; issue ",    Delete (Y/N)?" message
 	invoke	std_printf			;AN000;
 	mov	si,80H				;AN000; set up buffer for input
 	mov	dx,si				;AN000;
-	mov	word ptr [si],combuflen 	;AN000;
+	mov	word [si],combuflen 	;AN000;
 	mov	ax,(std_con_input_flush shl 8) or std_con_string_input	 ;AN000;
 	int	int_command			;AN000; get input from the user
 	lodsw					;AN000;
@@ -213,7 +213,7 @@ Not_del_root:					;AN000;
 
 delete_this_file:				;AN000;
 	mov	ah,fcb_delete			;AN000; delete the file
-	mov	dx,offset trangroup:destdir	;AN000; use Destdir for target
+	mov	dx,destdir	;AN000; use Destdir for target
 	int	int_command			;AN000;
 	inc	al				;AN000; did an error occur?
 	jnz	next_del_file			;AN000; no - get next file
@@ -244,13 +244,13 @@ good_erase_exit:
 
 	break	Echo
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 ECHO:
 	CALL	ON_OFF
 	JC	DOEMES
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	JNZ	ECH_OFF
 	OR	[ECHOFLAG],1
 	RET
@@ -267,7 +267,7 @@ CERRORJ:
 ; delimiters on the command line, we issue the ECHO is ON/OFF message.
 ;
 
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 
 DOEMES:
 	cmp	cl,0				;AC000; was anything on the line?
@@ -278,17 +278,17 @@ DOEMES:
 
 PECHO:
 	MOV	DS,[RESSEG]
-ASSUME	DS:RESGROUP
+; ASSUME	DS:RESGROUP
 	MOV	BL,[ECHOFLAG]
 	PUSH	CS
 	POP	DS
-ASSUME	DS:TRANGROUP
+; ASSUME	DS:TRANGROUP
 	AND	BL,1
-	MOV	DX,OFFSET TRANGROUP:ECHOMES_ptr
+	MOV	DX,ECHOMES_ptr
 	JMP	SHORT PYN
 
 	break	Break
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 CNTRLC:
 	CALL	ON_OFF
@@ -312,13 +312,13 @@ pccont:
 	XOR	AL,AL
 	INT	21H
 	MOV	BL,DL
-	MOV	DX,OFFSET TRANGROUP:CTRLCMES_ptr
+	MOV	DX,CTRLCMES_ptr
 
 PYN:
-	mov	si,offset trangroup:onmes_ptr	;AC000; get ON pointer
+	mov	si,onmes_ptr	;AC000; get ON pointer
 	OR	BL,BL
 	JNZ	PRINTVAL
-	mov	si,offset trangroup:offmes_ptr	;AC000; get OFF pointer
+	mov	si,offmes_ptr	;AC000; get OFF pointer
 
 PRINTVAL:
 	push	dx				;AN000; save offset of message block
@@ -327,15 +327,15 @@ PRINTVAL:
 	mov	dh,util_msg_class		;AN000; this is a utility message
 	invoke	Tsysgetmsg			;AN000; get the address of the message
 	add	bx,ptr_off_pos			;AN000; point to offset of ON/OFF
-	mov	word ptr [bx],si		;AN000; put the offset in the message block
+	mov	word [bx],si		;AN000; put the offset in the message block
 	pop	dx				;AN000; get message back
 	invoke	std_printf			;AC000; go print message
-	mov	word ptr [bx],0 		;AN000; zero out message pointer
+	mov	word [bx],0 		;AN000; zero out message pointer
 
 	ret					;AN000; exit
 
 	break	Verify
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 VERIFY:
 	CALL	ON_OFF
@@ -356,7 +356,7 @@ PVERIFY:
 	MOV	AH,GET_VERIFY_ON_WRITE
 	INT	21H
 	MOV	BL,AL
-	MOV	DX,OFFSET TRANGROUP:VERIMES_ptr
+	MOV	DX,VERIMES_ptr
 	JMP	PYN
 
 ; ****************************************************************
@@ -383,7 +383,7 @@ PVERIFY:
 ; *
 ; ****************************************************************
 
-assume	ds:trangroup,es:trangroup
+; assume	ds:trangroup,es:trangroup
 
 ON_OFF:
 	MOV	SI,81h
@@ -399,7 +399,7 @@ scan_on_off:					;AN032; scan off leading blanks & equal
 	dec	si				;AN032; if none of above - back up
 
 parse_on_off:					;AN032;    and start parsing
-	mov	di,offset trangroup:parse_break ;AN000; Get adderss of PARSE_BREAK
+	mov	di,parse_break ;AN000; Get adderss of PARSE_BREAK
 	xor	cx,cx				;AN000; clear cx,dx
 	xor	dx,dx				;AN000;
 	invoke	cmd_parse			;AC000; call parser
@@ -420,7 +420,7 @@ good_on_off:					;AN014;
 	xor	ax,ax				;AC000; set up return code for
 	or	al,parse1_code			;AC000;    ON or OFF in AX
 	pushf					;AN000; save flags
-	mov	di,offset trangroup:parse_break ;AN000; Get adderss of PARSE_BREAK
+	mov	di,parse_break ;AN000; Get adderss of PARSE_BREAK
 	xor	dx,dx				;AN000;
 	invoke	cmd_parse			;AN000; call parser
 	cmp	ax,end_of_line			;AN000; are we at end of line?
@@ -438,7 +438,7 @@ BADONF_flags:
 ; and return the error
 ;
 BADONF:
-	MOV	DX,OFFSET TRANGROUP:BAD_ON_OFF_ptr
+	MOV	DX,BAD_ON_OFF_ptr
 	STC
 
 ON_OFF_END:
@@ -459,7 +459,7 @@ PRINT_DATE:
 	xchg	dh,dl				;AN000; switch month & day
 	mov	promptDat_yr,cx 		;AC000; put year into message control block
 	mov	promptDat_moday,dx		;AC000; put month and day into message control block
-	mov	dx,offset trangroup:promptDat_ptr ;AC000; set up message for output
+	mov	dx,promptDat_ptr ;AC000; set up message for output
 	invoke	std_printf
 ;AD061; mov	promptDat_yr,0			;AC000; reset year, month and day
 ;AD061; mov	promptDat_moday,0		;AC000;     pointers in control block
@@ -472,7 +472,7 @@ PRINT_DATE:
 ;
 
 GetDate:
-	mov	di,offset trangroup:arg_buf	;AC000; target for day of week
+	mov	di,arg_buf	;AC000; target for day of week
 	MOV	AH,GET_DATE			;AC000; get current date
 	INT	int_command			;AC000; Get date in CX:DX
 	CBW					;AC000;
@@ -503,9 +503,9 @@ GetDate:
 ;g   No, if AL=1, the character is Yes.
 ;g
 
-assume	ds:trangroup
+; assume	ds:trangroup
 
-char_in_xlat	proc	near
+char_in_xlat:
 
 	mov	dl,al				;AC000; get character into DX
 	xor	dh,dh				;AC000;
@@ -514,7 +514,7 @@ char_in_xlat	proc	near
 
 	ret
 
-char_in_xlat	endp
+; ENDP char_in_xlat
 
-TRANCODE	ENDS
-	END
+; END SECTION .TRANCODE
+	; END

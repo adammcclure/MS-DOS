@@ -1,6 +1,6 @@
 ;	SCCSID = @(#)finfo.asm	1.1 85/04/11
-TITLE	FILE_INFO - Internal Get/Set File Info routines
-NAME	FILE_INFO
+; TITLE	FILE_INFO - Internal Get/Set File Info routines
+; NAME	FILE_INFO
 ; Low level routines for returning file information and setting file
 ;   attributes
 ;
@@ -15,21 +15,21 @@ NAME	FILE_INFO
 ;
 ; get the appropriate segment definitions
 ;
-.xlist
-include dosseg.asm
+; .xlist
+%include "dosseg.asm"
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-INCLUDE DOSSYM.INC
-INCLUDE DEVSYM.INC
-include fastxxxx.inc
-include fastopen.inc
-.cref
-.list
+; .xcref
+%include "DOSSYM.INC"
+%include "DEVSYM.INC"
+%include "fastxxxx.inc"
+%include "fastopen.inc"
+; .cref
+; .list
 
-Installed = TRUE
+Installed equ TRUE
 
 	i_need	THISCDS,DWORD
 	i_need	CURBUF,DWORD
@@ -41,8 +41,8 @@ Installed = TRUE
 	i_need	DMAADD,DWORD
 	i_need	FastOpenFlg,BYTE
 
-SUBTTL GET_FILE_INFO -- Get File Information
-PAGE
+; SUBTTL GET_FILE_INFO -- Get File Information
+; PAGE
 
 ; Inputs:
 ;	[WFP_START] Points to WFP string ("d:/" must be first 3 chars, NUL
@@ -73,7 +73,7 @@ PAGE
 
 	procedure   GET_FILE_INFO,NEAR
 	DOSAssume   CS,<DS>,"Get_File_Info"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	Invoke	TestNet
 	JNC	Local_Info
@@ -92,13 +92,13 @@ share_okok:
 ;	POP	WORD PTR [DMAADD]	       ;IFS. retor DMAADD		;AN000;
 ;	POP	WORD PTR [DMAADD+2]	       ;IFS.				;AN000;
 ifsshare:
-IF NOT Installed
+%if ~Installed
 	transfer NET_GET_FILE_INFO
-ELSE
+%else
 	MOV	AX,(multNET SHL 8) OR 15
 	INT	2FH
 	return
-ENDIF
+%endif
 nofiles:
 ;	POP	WORD PTR [DMAADD]	       ;IFS. retor DMAADD		;AN000;
 ;	POP	WORD PTR [DMAADD+2]	       ;IFS.				;AN000;
@@ -113,7 +113,7 @@ info_check:
 
 NO_PATH:
 	DOSAssume   CS,<DS>,"FINFO/No_Path"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	JNZ	bad_path
 	OR	CL,CL
@@ -134,19 +134,19 @@ info_check_dev:
 	OR	AH,AH
 	JS	info_no_file		; device
 	PUSH	DS
-	MOV	DS,WORD PTR [CURBUF+2]
-ASSUME	DS:NOTHING
+	MOV	DS,word [CURBUF+2]
+; ASSUME	DS:NOTHING
 	MOV	SI,BX
 	XOR	BX,BX			; Assume size=0 (dir)
 	MOV	DI,BX
-	MOV	CX,[SI.dir_time]
-	MOV	DX,[SI.dir_date]
+	MOV	CX,[SI+dir_time]
+	MOV	DX,[SI+dir_date]
 	XOR	AH,AH
-	MOV	AL,[SI.dir_attr]
+	MOV	AL,[SI+dir_attr]
 	TEST	AL,attr_directory
 	JNZ	NO_SIZE
-	MOV	DI,[SI.dir_size_l]
-	MOV	BX,[SI.dir_size_h]
+	MOV	DI,[SI+dir_size_l]
+	MOV	BX,[SI+dir_size_h]
 NO_SIZE:
 	POP	DS
 	CLC
@@ -189,7 +189,7 @@ Break	<SET_FILE_ATTRIBUTE -- Set File Attribute>
 
 	procedure   SET_FILE_ATTRIBUTE,NEAR
 	DOSAssume   CS,<DS>,"Set_File_Attribute"
-	ASSUME	ES:NOTHING
+	; ASSUME	ES:NOTHING
 
 	TEST	AX,NOT attr_changeable
 	JZ	set_look
@@ -205,15 +205,15 @@ set_look:
 	Invoke	TestNet
 	JNC	Local_Set
 
-IF NOT Installed
+%if ~Installed
 	transfer NET_SEQ_SET_FILE_ATTRIBUTE
-ELSE
+%else
 	PUSH	AX
 	MOV	AX,(multNET SHL 8) OR 14
 	INT	2FH
 	POP	BX			; clean stack
 	return
-ENDIF
+%endif
 
 LOCAL_SET:
 	EnterCrit   critDisk
@@ -240,13 +240,13 @@ set_check_share:
 
 set_do:
 	LES	DI,[CURBUF]
-	AND	BYTE PTR ES:[BX].dir_attr,NOT attr_changeable
-	OR	BYTE PTR ES:[BX].dir_attr,AL
+	AND	byte [ES:BX].dir_attr,NOT attr_changeable
+	OR	byte [ES:BX].dir_attr,AL
 
-	TEST	ES:[DI.buf_flags],buf_dirty  ;LB. if already dirty		;AN000;
+	TEST	[ES:DI+buf_flags],buf_dirty  ;LB. if already dirty		;AN000;
 	JNZ	yesdirty		  ;LB.	  don't increment dirty count   ;AN000;
 	invoke	INC_DIRTY_COUNT 	  ;LB.					;AN000;
-	OR	ES:[DI.buf_flags],buf_dirty
+	OR	[ES:DI+buf_flags],buf_dirty
 yesdirty:
 	MOV	AL,[THISDRV]
 ;;;; 10/1/86 F.C update fastopen cache
@@ -271,7 +271,7 @@ EndProc SET_FILE_ATTRIBUTE
 
 
 	procedure   GET_FAST_PATH,NEAR
-	ASSUME	DS:NOTHING,ES:NOTHING
+	; ASSUME	DS:NOTHING,ES:NOTHING
 
 	OR	[FastOpenFlg],FastOpen_Set ;FO. trigger fastopen		;AN000;
 	invoke	GetPath
@@ -282,5 +282,5 @@ EndProc SET_FILE_ATTRIBUTE
 
 EndProc GET_FAST_PATH
 
-CODE	ENDS
-    END
+; END SECTION .CODE
+    ; END

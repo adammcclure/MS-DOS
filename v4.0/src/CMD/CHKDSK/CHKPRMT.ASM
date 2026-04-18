@@ -1,26 +1,26 @@
-TITLE	CHKPRMT - Procedures called from chkdsk which prompt			;an000;bgb
-page	,132					;				;an000;bgb
+; TITLE	CHKPRMT - Procedures called from chkdsk which prompt;an000;bgb
+; page	,132;				;an000;bgb
 										;an000;bgb
-	.xlist									;an000;bgb
-	include chkseg.inc							;an000;bgb
-	INCLUDE CHKCHNG.INC							;an000;bgb
-	INCLUDE SYSCALL.INC							;an000;bgb
-	INCLUDE CHKEQU.INC							;an000;bgb
-	INCLUDE CHKMACRO.INC							;an000;bgb
-	include pathmac.inc							;an000;bgb
-	.list									;an000;bgb
-										;an000;bgb
-										;an000;bgb
-CONST	SEGMENT PUBLIC PARA 'DATA'						;an000;bgb
-	EXTRN	YES_BYTE:BYTE,NO_BYTE:BYTE					;an000;bgb
-	EXTRN	YN_ARG:WORD							;an000;bgb
-	EXTRN	HECODE:byte,CONBUF:byte 					;an000;bgb
-CONST	ENDS									;an000;bgb
+	; .xlist;an000;bgb
+	%include "chkseg.inc";an000;bgb
+	%include "CHKCHNG.INC";an000;bgb
+	%include "SYSCALL.INC";an000;bgb
+	%include "CHKEQU.INC";an000;bgb
+	%include "CHKMACRO.INC";an000;bgb
+	%include "pathmac.inc";an000;bgb
+	; .list;an000;bgb
 										;an000;bgb
 										;an000;bgb
-CODE	SEGMENT PUBLIC PARA 'CODE'						;an000;bgb
-ASSUME	CS:DG,DS:DG,ES:DG,SS:DG 						;an000;bgb
-	EXTRN	PRINTF_CRLF:NEAR,DOCRLF:NEAR					;an000;bgb
+SECTION .CONST;an000;bgb
+	extern YES_BYTE,NO_BYTE;an000;bgb
+	extern YN_ARG;an000;bgb
+	extern HECODE,CONBUF;an000;bgb
+; END SECTION .CONST;an000;bgb
+										;an000;bgb
+										;an000;bgb
+SECTION .CODE;an000;bgb
+; ASSUME	CS:DG,DS:DG,ES:DG,SS:DG;an000;bgb
+	extern PRINTF_CRLF,DOCRLF;an000;bgb
 										;an000;bgb
 	pathlabl chkprmt							;an000;bgb
 ;*****************************************************************************	;an000;bgb
@@ -59,11 +59,11 @@ Procedure PromptYN				;				;an000;bgb;AN000;
 ;	$DO					;				;an000;bgb;AC000;
 $$DO1:
 	   Call    Display_Interface		;Display the message		;an000;bgb;AC000;
-	   MOV	   DX,OFFSET DG:CONBUF		;Point at input buffer		;an000;bgb
+	   MOV	   DX,CONBUF		;Point at input buffer		;an000;bgb
 	   DOS_Call Std_Con_String_Input	;Get input			;an000;bgb;AC000;
 	   CALL    DOCRLF			;				;an000;bgb
-	   MOV	   SI,OFFSET DG:CONBUF+2	;Point at contents of buffer	;an000;bgb
-	   CMP	   BYTE PTR [SI-1],0		;Was there input?		;an000;bgb
+	   MOV	   SI,CONBUF+2	;Point at contents of buffer	;an000;bgb
+	   CMP	   byte [SI-1],0		;Was there input?		;an000;bgb
 ;	   $IF	   NE				;Yep				;an000;bgb;AC000;
 	   JE $$IF2
 	      mov     al,23h			;See if it is Y/N		;an000;bgb;AN000;
@@ -85,9 +85,9 @@ $$EN2:
 	JC $$DO1
 	pop	si				;				;an000;bgb
 	ret					;				;an000;bgb
-PromptYN endp					;				;an000;bgb;AN000;
+; ENDP PromptYN;				;an000;bgb;AN000;
 	pathlabl chkprmt							;an000;bgb
 										;an000;bgb
-CODE	ENDS									;an000;bgb
-	END									;an000;bgb
+; END SECTION .CODE;an000;bgb
+	; END;an000;bgb
 

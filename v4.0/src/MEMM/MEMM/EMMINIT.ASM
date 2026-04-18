@@ -1,8 +1,8 @@
 
 
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	title	EMMINIT - Expanded Memory Manager initialization
+	; title	EMMINIT - Expanded Memory Manager initialization
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -40,21 +40,21 @@
 ;   and sets the current emm data break address (_emm_brk).
 ;
 ;******************************************************************************
-.lfcond
-.386p
-	page
+; .lfcond
+CPU 386
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 ;
-	public	EMM_Init
-	page
+	global EMM_Init
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include	vdmseg.inc
-	include emmdef.inc
+	%include "vdmseg.inc"
+	%include "emmdef.inc"
 
 FALSE	equ	0
 TRUE	equ	not FALSE
@@ -65,70 +65,70 @@ EMM_HW_ERROR	equ	81h		; EMM h/w error status
 ;			E X T E R N A L    R E F E R E N C E S
 ;******************************************************************************
 ;
-_DATA	segment
+SECTION ._DATA
 
-extrn	pool_size:word    	; size of EMM Pages Pool in kbytes
-extrn	xbase_addr_h:byte	; bit 16-24 of address of first byte of emm memory
-extrn	xbase_addr_l:word	; bit  0-15 of address of first byte of emm memory
-extrn	sys_size:word		; number of 16k pages taken away from conv. mem
-extrn	PageT_Seg:word		; segment of system page table
+extern pool_size; size of EMM Pages Pool in kbytes
+extern xbase_addr_h; bit 16-24 of address of first byte of emm memory
+extern xbase_addr_l; bit  0-15 of address of first byte of emm memory
+extern sys_size; number of 16k pages taken away from conv. mem
+extern PageT_Seg; segment of system page table
 
-extrn	_PF_Base:word		 ; segment addr of page frame base
-extrn	_page_frame_pages:word	; number of pages in 3.2 page frame
+extern _PF_Base; segment addr of page frame base
+extern _page_frame_pages; number of pages in 3.2 page frame
 
-extrn	_EMMstatus:word		; status of EMM
+extern _EMMstatus; status of EMM
 
-extrn	_page_frame_base:word	; pointers into page tables for each window
-extrn	_mappable_pages:word	; mappable page array
-extrn	_EMM_MPindex:byte	; index into mappable page array
-extrn	_physical_page_count:word   ; number of physical pages
-extrn	_mappable_page_count:word   ; number of mappable pages
+extern _page_frame_base; pointers into page tables for each window
+extern _mappable_pages; mappable page array
+extern _EMM_MPindex; index into mappable page array
+extern _physical_page_count; number of physical pages
+extern _mappable_page_count; number of mappable pages
 
-extrn	_cntxt_pages:word	; pages in a context
-extrn	_cntxt_bytes:word	; bytes in a context
+extern _cntxt_pages; pages in a context
+extern _cntxt_bytes; bytes in a context
 
-extrn	_emm_page:word		; ptr to array of EMM pages
-extrn	_free_count:word	; # of free EMM pages
-extrn	_emmpt_start:word	; start of empty part of emm page
-extrn	_emm_free:word		; ptr to array of free EMM pages
-extrn	_free_top:word		; top of _emm_free
+extern _emm_page; ptr to array of EMM pages
+extern _free_count; # of free EMM pages
+extern _emmpt_start; start of empty part of emm page
+extern _emm_free; ptr to array of free EMM pages
+extern _free_top; top of _emm_free
 
-extrn	_total_pages:word	; total # of EMM pages available
-extrn	_pft386:word		; ptr to array of page table entries
+extern _total_pages; total # of EMM pages available
+extern _pft386; ptr to array of page table entries
 
-extrn	_emm_brk:word		; offset for emm data break address
+extern _emm_brk; offset for emm data break address
 
-extrn	FRS_array:word		; 
-extrn	CurRegSetn:byte
-extrn	CurRegSet:word
-extrn	FRS_free:byte
+extern FRS_array; 
+extern CurRegSetn
+extern CurRegSet
+extern FRS_free
 
-extrn	_handle_table:word
-extrn	_handle_count:word
+extern _handle_table
+extern _handle_count
 
-_DATA	ends
+; END SECTION ._DATA
 
-ifndef	NOHIMEM
-else
-VDATA	segment
-extrn	vdata_begin:byte
-VDATA	ends
-endif
+%ifndef NOHIMEM
+%else
+SECTION .VDATA
+extern vdata_begin
+; END SECTION .VDATA
+%endif
 
-LAST	segment
-extrn	mappable_segs:byte
-LAST	ends
+SECTION .LAST
+extern mappable_segs
+; END SECTION .LAST
 
-_TEXT	segment
-extrn  InitELIM:far
-_TEXT	ends
+SECTION ._TEXT
+extern InitELIM
+; END SECTION ._TEXT
 
-LAST	segment
-extrn	InitEPage:near
-LAST	ends
+SECTION .LAST
+extern InitEPage
+; END SECTION .LAST
 
 
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T   D E F I N I T I O N
 ;******************************************************************************
@@ -152,11 +152,11 @@ LAST	ends
 ;	USES:	Reg
 ;
 ;******************************************************************************
-Get_FRS_window	MACRO	Reg
+%macro Get_FRS_window 1
 
-	mov	Reg, word ptr [CurRegSet]	; just offset (assume dgroup)
+	mov	Reg, word [CurRegSet]	; just offset (assume dgroup)
 	add	Reg, FRS_window			; points to FRS window entries
-	ENDM
+	%endmacro
 
 ;******************************************************************************
 ;**init_PAGE_FRAME_BASE: macro to fill in the page_frame_base array.  this
@@ -168,7 +168,7 @@ Get_FRS_window	MACRO	Reg
 ;	  BX = Segment of physical page
 ;
 ;******************************************************************************
-init_page_frame_base	MACRO
+%macro init_page_frame_base 0
 ;
     push    si
     push    bx
@@ -183,7 +183,7 @@ init_page_frame_base	MACRO
     pop     bx
     pop     si
 ;
-    ENDM
+    %endmacro
 
 ;******************************************************************************
 ;**init_MAPPABLE_PAGES: macro to fill the _mappable_pages array.  this array
@@ -195,7 +195,7 @@ init_page_frame_base	MACRO
 ;	  DI = Index into _mappable_pages
 ;
 ;******************************************************************************
-init_mappable_pages	MACRO
+%macro init_mappable_pages 0
 ;
     push    di
 ;
@@ -206,7 +206,7 @@ init_mappable_pages	MACRO
 ;
     pop     di
 ;
-    ENDM
+    %endmacro
 
 ;******************************************************************************
 ;**init_MAPPABLE_INDEX: macro to fill in EMM_MPIndex array.  This array
@@ -220,7 +220,7 @@ init_mappable_pages	MACRO
 ;	  BX = Segment of physical page
 ;
 ;******************************************************************************
-init_mappable_index	MACRO
+%macro init_mappable_index 0
 ;
     push    ax
     push    bx
@@ -234,7 +234,7 @@ init_mappable_index	MACRO
     pop     bx
     pop     ax
 ;
-    ENDM
+    %endmacro
 
 ;******************************************************************************
 ; INVALIDATE_MAPPABLE_PAGE_ENTRY: macro to remove the page from the mappable
@@ -245,7 +245,7 @@ init_mappable_index	MACRO
 ;
 ;  ENTRY: BX = Segment of physical page
 ;******************************************************************************
-inv_mpbl    MACRO
+%macro inv_mpbl 0
 ;
     push    bx
 ;
@@ -255,18 +255,18 @@ inv_mpbl    MACRO
     pop     bx
 ;
 
-    ENDM
+    %endmacro
 
 ;
-LAST	segment     USE16
-	assume	cs:LAST, ds:DGROUP, es:DGROUP
+SECTION .LAST
+	; assume	cs:LAST, ds:DGROUP, es:DGROUP
 
 ;******************************************************************************
 ; LOCAL VARIABLES
 ;******************************************************************************
 first_sys_ppage  dw	 0ffffh      ; physical page number of first system page
 
-	page
+	; page
 ;******************************************************************************
 ;
 ; CODE FOR INITIALISATION
@@ -274,7 +274,7 @@ first_sys_ppage  dw	 0ffffh      ; physical page number of first system page
 ;******************************************************************************
 
 
-	page
+	; page
 ;******************************************************************************
 ;	EMM_Init - initialization routine for EMM.
 ;			Patches int 67h vector.
@@ -289,7 +289,7 @@ first_sys_ppage  dw	 0ffffh      ; physical page number of first system page
 ;	USED: none
 ;
 ;******************************************************************************
-EMM_Init	proc	near
+EMM_Init:
 ;
 	pusha
 	push	ds
@@ -318,14 +318,14 @@ EMM_Init	proc	near
 ;
 	shl	cx,1			; CX = bytes in total_pages words
 
-ifndef	NOHIMEM
-else
+%ifndef NOHIMEM
+%else
 	mov	ax,seg VDATA
 	sub	ax,seg DGROUP
 	shl	ax,4			; convert into offset from dgroup
-	add	ax,offset VDATA:vdata_begin
+	add	ax,vdata_begin
 	mov	[_emm_page],ax
-endif
+%endif
 
 
 	mov	ax,[_emm_page]		; AX = ptr to emm_page array
@@ -509,7 +509,7 @@ EMIN_7:
     ;
     ; store the physical page # of the 1st system page.
     ;
-	mov	cs:[first_sys_ppage],si
+	mov	[cs:first_sys_ppage],si
     ;
     ; setup the segment and the count of pages we have to look for. also
     ; the index into the mappable_segs array
@@ -574,10 +574,10 @@ EMIN_9:
 ; initialize FRS_array
 ;
 	lea	si,FRS_array		; DS:SI <-- FRS_array
-	mov	[si.FRS_alloc], 1	; mark FRS set 0 as allocated
+	mov	[si+FRS_alloc], 1	; mark FRS set 0 as allocated
 	mov	[CurRegSetn], 0		; use FRS set 0
 	mov	[FRS_free], FRS_COUNT-1	; one less FRS set
-	mov	word ptr [CurRegSet], SI; save current FRS pointer
+	mov	word [CurRegSet], SI; save current FRS pointer
 
 ;
 ; NOW for some Handle 0 initialisation.  We have to reclaim the pages we
@@ -640,7 +640,7 @@ EMIN_9:
     ;
 	GET_FRS_WINDOW	di	    ; get pointer to FRS area
 
-	mov	bx,cs:[first_sys_ppage]
+	mov	bx,[cs:first_sys_ppage]
 	shl	bx,1
 	add	di,bx		    ;
     ;
@@ -670,9 +670,9 @@ EMIN_9:
 	clc
 	ret
 ;
-EMM_Init	endp
+; ENDP EMM_Init
 
 ;
-LAST	ends
+; END SECTION .LAST
 
-	end
+	; end

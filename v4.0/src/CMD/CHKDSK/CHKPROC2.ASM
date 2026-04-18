@@ -1,61 +1,61 @@
-TITLE	CHKPROC2 - PART2 Procedures called from chkdsk
-page	,132					;
+; TITLE	CHKPROC2 - PART2 Procedures called from chkdsk
+; page	,132;
 
-	.xlist
-	include chkseg.inc							;an005;bgb
-	INCLUDE CHKCHNG.INC
-	INCLUDE DOSSYM.INC
-	INCLUDE CHKEQU.INC
-	INCLUDE CHKMACRO.INC
-	include pathmac.inc
+	; .xlist
+	%include "chkseg.inc";an005;bgb
+	%include "CHKCHNG.INC"
+	%include "DOSSYM.INC"
+	%include "CHKEQU.INC"
+	%include "CHKMACRO.INC"
+	%include "pathmac.inc"
 
-CONST	SEGMENT PUBLIC PARA  'DATA'
-	EXTRN	FIXMES_ARG:word 						;an049;bgb
-	EXTRN	FATAL_ARG:word
-	EXTRN	BADW_ARG:word,FATAL_END:word
-	EXTRN	badrw_num:word,BADRW_STR:WORD,HAVFIX:byte
-	EXTRN	DIRTYFAT:byte,CROSSCNT:dword,DOFIX:byte,SECONDPASS:byte
-	EXTRN	BADSIZ:word,ORPHSIZ:word,ORPHFCB:byte
-	EXTRN	HECODE:byte,USERDIR:byte,FRAGMENT:byte
-	EXTRN	ORPHEXT:byte,ALLDRV:byte,FIXMFLG:byte,DIRCHAR:byte
-	EXTRN	EOFVAL:word,BADVAL:word
-	extrn	fTrunc:BYTE
-CONST	ENDS
+SECTION .CONST
+	extern FIXMES_ARG;an049;bgb
+	extern FATAL_ARG
+	extern BADW_ARG,FATAL_END
+	extern badrw_num,BADRW_STR,HAVFIX
+	extern DIRTYFAT,CROSSCNT,DOFIX,SECONDPASS
+	extern BADSIZ,ORPHSIZ,ORPHFCB
+	extern HECODE,USERDIR,FRAGMENT
+	extern ORPHEXT,ALLDRV,FIXMFLG,DIRCHAR
+	extern EOFVAL,BADVAL
+	extern fTrunc
+; END SECTION .CONST
 
-DATA	SEGMENT PUBLIC PARA 'DATA'
-	extrn	fatcnt:byte, orph_arg:word			  ;an005;bgb;an049;bgb
-	EXTRN	THISDPB:dword,NUL_ARG:byte
-	EXTRN	NAMBUF:byte,SRFCBPT:word,FATMAP:word
-	EXTRN	MCLUS:word,CSIZE:byte,SSIZE:word
-	EXTRN	DSIZE:word,ARG_BUF:byte,ERRCNT:byte
-	EXTRN	USERDEV:byte,HARDCH:dword,CONTCH:dword
-	EXTRN	ExitStatus:Byte,Read_Write_Relative:Byte
-	extrn	bytes_per_sector:word						;an005;bgb
-	extrn	fattbl_seg:word, fatsiz:word,  paras_per_fat:word		;an005;bgb
-	extrn	fatmsg1:word							;an024;bgb
-	extrn	fatmsg2:word							;an024;bgb
-	EXTRN	dbcs_vector:byte						;an055;bgb
-	EXTRN	dbcs_vector_off:word						;an055;bgb
-	EXTRN	dbcs_vector_seg:word						;an055;bgb
-DATA	ENDS
+SECTION .DATA
+	extern fatcnt, orph_arg;an005;bgb;an049;bgb
+	extern THISDPB,NUL_ARG
+	extern NAMBUF,SRFCBPT,FATMAP
+	extern MCLUS,CSIZE,SSIZE
+	extern DSIZE,ARG_BUF,ERRCNT
+	extern USERDEV,HARDCH,CONTCH
+	extern ExitStatus,Read_Write_Relative
+	extern bytes_per_sector;an005;bgb
+	extern fattbl_seg, fatsiz,  paras_per_fat;an005;bgb
+	extern fatmsg1;an024;bgb
+	extern fatmsg2;an024;bgb
+	extern dbcs_vector;an055;bgb
+	extern dbcs_vector_off;an055;bgb
+	extern dbcs_vector_seg;an055;bgb
+; END SECTION .DATA
 
-CODE	SEGMENT PUBLIC PARA 'CODE'
-ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
-	EXTRN	PRINTF_CRLF:NEAR,FCB_TO_ASCZ:NEAR
-	EXTRN	PROMPTYN:NEAR,DIRPROC:NEAR
-	EXTRN	DOCRLF:NEAR,UNPACK:NEAR,PACK:NEAR
-	EXTRN	CHECKNOFMES:NEAR
-	EXTRN	multiply_32_bits:near					     ;an047;bgb
-	extrn	nowrite:near, done:near, pack:near, unpack:near
-	extrn	promptrecover:near, findchain:near
-public RECOVER, DoAsk
-public MAKORPHNAM, NAM0, NAMMADE
-public GETFILSIZ, NCLUS, GOTEOF, CHKCROSS, RET8
-public FATAL, hav_fatal_arg,  INT_23, RDONE
-public Systime									;an005;bgb
-public int_24									;an005;bgb
-public CHECK_DBCS_CHARACTER							;an055;bgb
-	.list
+SECTION .CODE
+; ASSUME	CS:DG,DS:DG,ES:DG,SS:DG
+	extern PRINTF_CRLF,FCB_TO_ASCZ
+	extern PROMPTYN,DIRPROC
+	extern DOCRLF,UNPACK,PACK
+	extern CHECKNOFMES
+	extern multiply_32_bits;an047;bgb
+	extern nowrite, done, pack, unpack
+	extern promptrecover, findchain
+global RECOVER, DoAsk
+global MAKORPHNAM, NAM0, NAMMADE
+global GETFILSIZ, NCLUS, GOTEOF, CHKCROSS, RET8
+global FATAL, hav_fatal_arg,  INT_23, RDONE
+global Systime;an005;bgb
+global int_24;an005;bgb
+global CHECK_DBCS_CHARACTER;an055;bgb
+	; .list
 
 
 
@@ -84,7 +84,7 @@ RECOVER:
 	cmp	[dofix],0		; yes - is the /f flag off?
 ;	$IF	Z			; yes - display the dont fix msg
 	JNZ $$IF2
-	    mov     dx,offset dg:FIXMES_arg
+	    mov     dx,FIXMES_arg
 	    CALL    PRINTf_crlf
 	    call    DoCRLF			    ;				    ;AN000;
 ;	$ENDIF
@@ -96,7 +96,7 @@ CHAINREPORT:
 ;;;;mov     si,orphsiz		   ;get number of bad clusters found (recover)	;an005;bgb;an049;bgb
 ;;;;mov     [orph_num],si	   ; Prints "XXX lost clusters found in YYY chains.";an049;bgb
     call    findchain		   ;   On entry SI is the XXX value and the YYY value is
-    mov     dx,offset dg:orph_arg  ;   in orphan-count.
+    mov     dx,orph_arg  ;   in orphan-count.
     call    printf_crlf
     TEST    fTrunc,-1
 ;   $IF     NZ
@@ -127,12 +127,12 @@ $$EN5:
 ;*****************************************************************************
 MAKORPHNAM:
 	PUSH	SI
-	MOV	SI,OFFSET DG:ORPHEXT - 1
+	MOV	SI,ORPHEXT - 1
 NAM0:
-	INC	BYTE PTR [SI]
-	CMP	BYTE PTR [SI],'9'
+	INC	byte [SI]
+	CMP	byte [SI],'9'
 	JLE	NAMMADE
-	MOV	BYTE PTR [SI],'0'
+	MOV	byte [SI],'0'
 	DEC	SI
 	JMP	NAM0
 
@@ -227,14 +227,14 @@ EndProc getfilsiz
 
 ;*****************************************************************************
 ;*****************************************************************************
-Public Chkcross
+global Chkcross
 CHKCROSS:
 ;Check for Crosslinks, do second pass if any to find pairs
-	MOV	SI,word ptr CROSSCNT
-	cmp	word ptr crosscnt,0	;if there is at least one crossed
+	MOV	SI,word CROSSCNT
+	cmp	word crosscnt,0	;if there is at least one crossed
 ;	$if	nz,or
 	JNZ $$LL13
-	cmp	word ptr crosscnt+2,0
+	cmp	word crosscnt+2,0
 ;	$if	nz
 	JZ $$IF13
 $$LL13:
@@ -254,11 +254,11 @@ RET8:	RET
 ;*****************************************************************************
 FATAL:
 ;Unrecoverable error
-	mov	dx,offset dg:FATAL_arg
+	mov	dx,FATAL_arg
 	mov	[fatmsg1],bx							;an024;bgb
-	cmp	byte ptr [nul_arg],0
+	cmp	byte [nul_arg],0
 	jnz	hav_fatal_arg
-	mov	[fatmsg2],offset dg:fatal_end
+	mov	[fatmsg2],fatal_end
 hav_fatal_arg:
 	CALL	PRINTf_crlf
 	MOV	DL,[USERDEV]			;At least leave on same drive
@@ -273,8 +273,8 @@ hav_fatal_arg:
 
 ;*****************************************************************************
 ;*****************************************************************************
-iNT_24	PROC	FAR
-aSSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
+iNT_24:
+; aSSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 	PUSHF
 	push	ax				;Save AX register		;AN000;
 	test	al,Disk_Error			;Is it a disk critical err?
@@ -289,7 +289,7 @@ aSSUME	DS:NOTHING,ES:NOTHING,SS:NOTHING
 ;	   $IF	   E				;				;AN000;
 	   JNE $$IF16
 $$LL16:
-	      CALL    dword ptr HardCh		; let parent's handler decide what to do
+	      CALL    dword HardCh		; let parent's handler decide what to do
 ;	   $ELSE				;Other error			;AN000;
 	   JMP SHORT $$EN16
 $$IF16:
@@ -300,7 +300,7 @@ $$EN16:
 ;	$ELSE					;Not disk error
 	JMP SHORT $$EN15
 $$IF15:
-	   CALL    dword ptr HardCh		; let parent's handler decide what to do
+	   CALL    dword HardCh		; let parent's handler decide what to do
 ;	$ENDIF
 $$EN15:
 	CMP	AL,2				;Abort? 			;AC000;
@@ -312,24 +312,24 @@ $$EN15:
 ;	$ENDIF					;AN000;
 $$IF21:
 	IRET
-iNT_24	ENDP
+; ENDP iNT_24
 
 
 
 
 ;*****************************************************************************
 ;*****************************************************************************
-INT_23	proc	far
+INT_23:
 	STI
 	LDS	DX,[HARDCH]
 	mov	al,24h				;				;AC000;
 	DOS_Call Set_Interrupt_Vector		;				;AC000;
-	LDS	DX,cs:[CONTCH]							;ac039;bgb
+	LDS	DX,[cs:CONTCH]							;ac039;bgb
 	mov	al,23h				;				;AC000;
 	DOS_Call Set_Interrupt_Vector		;				;AC000;
 	PUSH	CS
 	POP	DS
-ASSUME	DS:DG
+; ASSUME	DS:DG
 	MOV	[FRAGMENT],0
 RDONE:
 	CALL	NOWRITE 			;Restore users drive and directory
@@ -339,7 +339,7 @@ RDONE:
 	mov	ExitStatus,Bad_Exit		;Get return code			;AC000;
 	stc
 	ret					;Ret for common exit			;AN000;
-int_23	endp
+; ENDP int_23
 
 
 
@@ -352,7 +352,7 @@ int_23	endp
 ;   AX - HHHHHMMMMMMSSSSS  hours minutes seconds/2
 ;   DX - YYYYYYYMMMMDDDDD  years months days
 ;
-public	Systime
+global Systime
 Systime:
 	DOS_Call Get_Time			;				;AC000;
 	SHL	CL,1				;Minutes to left part of byte
@@ -427,13 +427,13 @@ Procedure	Check_DBCS_Character		      ; 			;an055;bgb
 	push	ax				; "  "	  "  "			;an055;bgb
 ;;;;;;;;push	ds				; "  "	  "  "			;an055;bgb
 ;;;;;;;;pop	es				;Establish addressability	;an055;bgb
-	cmp	byte ptr es:DBCS_VECTOR,Yes	;Have we set this yet?		;an055;bgb
+	cmp	byte es:DBCS_VECTOR,Yes	;Have we set this yet?		;an055;bgb
 ;	$IF	NE				;Nope				;an055;bgb
 	JE $$IF23
 	   push    ax				   ;Save input charACter	   ;an055;bgb
 	   mov	   al,0 			;Get DBCS environment vectors	;an055;bgb
 	   DOS_Call Hongeul			;  "  "    "  " 		;an055;bgb
-	   mov	   byte ptr es:DBCS_VECTOR,YES	;Indicate we've got vector      ;an055;bgb
+	   mov	   byte es:DBCS_VECTOR,YES	;Indicate we've got vector      ;an055;bgb
 	   mov	   es:DBCS_Vector_Off,si	;Save the vector		;an055;bgb
 	   mov	   ax,ds			;				;an055;bgb
 	   mov	   es:DBCS_Vector_Seg,ax	;				;an055;bgb
@@ -445,13 +445,13 @@ $$IF23:
 	mov	si,es:DBCS_Vector_Off		;				;an055;bgb
 ;	$SEARCH 				;Check all the vectors		;an055;bgb
 $$DO25:
-	   cmp	   word ptr ds:[si],End_Of_Vector ;End of vector table? 	;an055;bgb
+	   cmp	   word [ds:si],End_Of_Vector ;End of vector table? 	;an055;bgb
 ;	$LEAVE	E				;Yes, done			;an055;bgb
 	JE $$EN25
-	   cmp	   al,ds:[si]			;See if char is in vector	;an055;bgb
+	   cmp	   al,[ds:si]			;See if char is in vector	;an055;bgb
 ;	$EXITIF AE,AND				;If >= to lower, ANd		;an055;bgb
 	JNAE $$IF25
-	   cmp	   al,ds:[si+1] 		; =< thAN higher rANge		;an055;bgb
+	   cmp	   al,[ds:si+1] 		; =< thAN higher rANge		;an055;bgb
 ;	$EXITIF BE				; then DBCS charACter		;an055;bgb
 	JNBE $$IF25
 	   stc					;Set CY to indicate DBCS	;an055;bgb
@@ -469,11 +469,11 @@ $$SR25:
 	pop	si				; "  "	  "  "			;an055;bgb
 	pop	ds				;Restore data segment		;an055;bgb
 	ret					;				;an055;bgb
-Check_DBCS_CharACter endp			;				;an055;bgb
+; ENDP Check_DBCS_CharACter;				;an055;bgb
 
 
 
 	pathlabl chkproc2
-CODE	ENDS
-	END
+; END SECTION .CODE
+	; END
 

@@ -1,8 +1,8 @@
 
 
-	page 58,132
+	; page 58,132
 ;******************************************************************************
-	TITLE	M_STATE:MODULE to establish machine state at emm boot time
+	; TITLE	M_STATE:MODULE to establish machine state at emm boot time
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -26,17 +26,17 @@
 ;   Functional Description:
 ;
 ;******************************************************************************
-.lfcond
-.386p
+; .lfcond
+CPU 386
 
-	page
+	; page
 ;******************************************************************************
 ;		P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
 
-	public	estb_mach_state
+	global estb_mach_state
 
-	page
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
@@ -45,25 +45,25 @@
 ;******************************************************************************
 ;			INCLUDE FILES
 ;******************************************************************************
-    include  vdmseg.inc     ; segment definitions
+    %include "vdmseg.inc"; segment definitions
 
-	page
+	; page
 ;******************************************************************************
 ;			E X T E R N A L    R E F E R E N C E S
 ;******************************************************************************
 ;
 ;
-_DATA	segment
-_DATA	ends
+SECTION ._DATA
+; END SECTION ._DATA
 
 ;
-LAST	segment
+SECTION .LAST
 ;
-	extrn	estb_a20_state:near
+	extern estb_a20_state
 ;
-LAST	ends
+; END SECTION .LAST
 
-	page
+	; page
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
@@ -75,13 +75,13 @@ LAST	ends
 ;
 ;******************************************************************************
 ;
-_TEXT	segment
-_TEXT	ends
+SECTION ._TEXT
+; END SECTION ._TEXT
 
-LAST	segment
-	assume	cs:LAST, ds:DGROUP, es:DGROUP
+SECTION .LAST
+	; assume	cs:LAST, ds:DGROUP, es:DGROUP
 
-	page
+	; page
 ;-----------------------------------------------------------------------;
 ; estb_mach_state							;
 ;                                                                       ;
@@ -100,15 +100,15 @@ LAST	segment
 ; History:                                                              ;
 ;	ISP (isp).					;
 ;-----------------------------------------------------------------------;
-estb_mach_state proc	near
+estb_mach_state:
 ;
 	call	estb_a20_state
 	ret
 ;
-estb_mach_state endp
+; ENDP estb_mach_state
 
-LAST	ends				; End of segment
+; END SECTION .LAST; End of segment
 ;
 
-	end				; End of module
+	; end; End of module
 

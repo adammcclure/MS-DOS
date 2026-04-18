@@ -1,6 +1,6 @@
-page	60,132
-name	_msgret
-title	C	to Message Retriever
+; page	60,132
+; name	_msgret
+; title	C	to Message Retriever
 ;-------------------------------------------------------------------
 ;
 ;	MODULE: 	_msgret
@@ -17,41 +17,41 @@ title	C	to Message Retriever
 ;
 ;-------------------------------------------------------------------
 
-	INCLUDE SYSMSG.INC		;PERMIT SYSTEM MESSAGE HANDLER DEFINITION ;AN000;
+	%include "SYSMSG.INC";PERMIT SYSTEM MESSAGE HANDLER DEFINITION ;AN000;
 
 	MSG_UTILNAME <BACKUP>		;IDENTIFY THE COMPONENT 		;AN000;
 
-	.8087
-_TEXT	SEGMENT BYTE PUBLIC 'CODE'
-_TEXT	ENDS
-_DATA	SEGMENT WORD PUBLIC 'DATA'
-_DATA	ENDS
-CONST	SEGMENT WORD PUBLIC 'CONST'
-CONST	ENDS
-_BSS	SEGMENT WORD PUBLIC 'BSS'
-_BSS	ENDS
-DGROUP	GROUP	CONST, _BSS, _DATA
-	ASSUME	CS: _TEXT, DS: _TEXT, SS: DGROUP, ES: DGROUP
+	; .8087
+SECTION ._TEXT
+; END SECTION ._TEXT
+SECTION ._DATA
+; END SECTION ._DATA
+SECTION .CONST
+; END SECTION .CONST
+SECTION ._BSS
+; END SECTION ._BSS
+; DGROUP	GROUP	CONST, _BSS, _DATA
+	; ASSUME	CS: _TEXT, DS: _TEXT, SS: DGROUP, ES: DGROUP
 
 
-	public	_sysloadmsg
-	public	_sysdispmsg
-	public	_update_logfile
+	global _sysloadmsg
+	global _sysdispmsg
+	global _update_logfile
 
 ;-------------------------------------------------------------------
 ;-------------------------------------------------------------------
 
-_DATA	segment
-.XLIST
-.XCREF
+SECTION ._DATA
+; .XLIST
+; .XCREF
 	MSG_SERVICES <MSGDATA>		;DATA AREA FOR THE MESSAGE HANDLER	     ;AN000;
 
-.LIST
-.CREF
-_DATA	ends
+; .LIST
+; .CREF
+; END SECTION ._DATA
 
 
-_TEXT	segment
+SECTION ._TEXT
 
 ;-------------------------------------------------------------------
 					;DEFAULT=CHECK DOS VERSION
@@ -60,15 +60,15 @@ _TEXT	segment
 					;DEFAULT=NUMmsg
 					;DEFAULT=NO TIMEmsg
 					;DEFAULT=NO DATEmsg
-.XLIST
-.XCREF
+; .XLIST
+; .XCREF
 	MSG_SERVICES <LOADmsg,DISPLAYmsg,GETmsg,INPUTmsg,CHARmsg,NUMmsg,TIMEmsg,DATEmsg,FARmsg> ;AN000;
 	MSG_SERVICES <BACKUP.CTL,BACKUP.CLA,BACKUP.CL1,BACKUP.CL2> ;AN000;
-.LIST
-.CREF
+; .LIST
+; .CREF
 ;-------------------------------------------------------------------
 
-_sysloadmsg proc near
+_sysloadmsg:
 
 	push	bp			; save user's base pointer
 	mov	bp,sp			; set bp to current sp
@@ -122,7 +122,7 @@ _sysloadmsg proc near
 	pop	bp			; restore user's bp
 	ret
 
-_sysloadmsg endp
+; ENDP _sysloadmsg
 
 
 ;============================================================================
@@ -130,7 +130,7 @@ _sysloadmsg endp
 ;============================================================================
 
 
-_update_logfile proc near
+_update_logfile:
 
 	push	bp			; save user's base pointer
 	mov	bp,sp			; set bp to current sp
@@ -190,18 +190,18 @@ _update_logfile proc near
 	pop	ds			;AN000;9
 	ret
 
-	handle	dw	?		;AN000;9
-	len	dw	?		;AN000;9
-	offst	dw	?		;AN000;9
-	save_ds dw	?		;AN000;9
-_update_logfile endp
+	handle: dw 0;AN000;9
+	len: dw 0;AN000;9
+	offst: dw 0;AN000;9
+	save_ds: dw 0;AN000;9
+; ENDP _update_logfile
 
 ;============================================================================
 ;============================================================================
 ;============================================================================
 
 
-_sysdispmsg proc near
+_sysdispmsg:
 
 	push	bp			; save user's base pointer
 	mov	bp,sp			; set bp to current sp
@@ -249,7 +249,7 @@ _sysdispmsg proc near
 	pop	bp			; restore user's bp
 	ret
 
-_sysdispmsg endp
+; ENDP _sysdispmsg
 
 ;============================================================================
 ;============================================================================
@@ -259,10 +259,10 @@ _sysdispmsg endp
 ;============================================================================
 ;============================================================================
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
 
-_TEXT	ends				; end code segment
-	end
+; END SECTION ._TEXT; end code segment
+	; end
 
 

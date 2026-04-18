@@ -7,7 +7,7 @@ chk_Error   equ     1
 Stderr	equ	2
 
 FALSE	EQU	0
-TRUE	EQU	NOT FALSE
+TRUE	EQU	~FALSE
 
 ; NOTE WARNING DANGER.
 ; THIS EQU DEFINES AN OFFSET INTO THE SEARCH FCB OF THE LASTENT VALUE.
@@ -65,12 +65,12 @@ No_Ext_Attrib	equ	0							;AN000;
 No_Entry	equ	0
 XA_Chain	equ	84h			;Mark head of XA chain		;AN000;
 
-ifdef	fsexec									;an038;bgb
+%ifdef fsexec;an038;bgb
 Len_FS_String_Buffer	equ	13						;an038;bgb
 FAT12_File_System equ 01h							;an038;bgb;AN000;
 FAT16_File_System equ 04h							;an038;bgb;AN000;
 New_File_System equ 06h 							;an038;bgb;AN000;
-endif
+%endif
 
 Bad_Exit	equ	0FFh			;Errorlevel = 0FFh		;AN000;
 
@@ -107,8 +107,8 @@ BIG_FAT_THRESHOLD equ 4086							;AN000;
 ;****************************************************************************
 ; Structures
 ;****************************************************************************
-ifdef	fsexec									;an038;bgb
-Exec_Block_Parms struc								;an038;bgb
+%ifdef fsexec;an038;bgb
+struc Exec_Block_Parms;an038;bgb
 Segment_Env dw	0								;an038;bgb
 Offset_Command dw 0								;an038;bgb
 Segment_Command dw 0								;an038;bgb
@@ -116,90 +116,90 @@ Offset_FCB1 dw	0								;an038;bgb
 Segment_FCB1 dw 0								;an038;bgb
 Offset_FCB2 dw	0								;an038;bgb
 Segment_FCB2 dw 0								;an038;bgb
-Exec_Block_Parms ends								;an038;bgb
+endstruc;an038;bgb
 
-Media_ID struc									;AN000;
+struc Media_ID;AN000;
 Media_ID_Info_Level dw 0							;AN000;
 Media_ID_Serial_Number dd 0							;AN000;
-Media_ID_Volume_Label db 11 dup(" ")                                            ;AN000;
-Media_ID_File_System db 8  dup(" ")                                             ;AN000;
-Media_ID ends									;AN000;
-endif										;an038;bgb
+Media_ID_Volume_Label: resb 11;AN000;
+Media_ID_File_System: resb 8;AN000;
+endstruc;AN000;
+%endif;an038;bgb
 
-Sublist_Struc struc
-Sublist_Size	db	?			;				;AN000;
-Sublist_Rsv	db	?			;				;AN000;
-Sublist_Offset	dw	?			;				;AN000;
-Sublist_Segment dw	?			;				;AN000;
-Sublist_Number	db	?			;				;AN000;
-Sublist_Type	db	?			;				;AN000;
-Sublist_Max	db	?			;				;AN000;
-Sublist_Min	db	?			;				;AN000;
-Sublist_Char	db	?			;				;AN000;
-Sublist_Struc ends
+struc Sublist_Struc
+Sublist_Size: resb 1;				;AN000;
+Sublist_Rsv: resb 1;				;AN000;
+Sublist_Offset: resw 1;				;AN000;
+Sublist_Segment: resw 1;				;AN000;
+Sublist_Number: resb 1;				;AN000;
+Sublist_Type: resb 1;				;AN000;
+Sublist_Max: resb 1;				;AN000;
+Sublist_Min: resb 1;				;AN000;
+Sublist_Char: resb 1;				;AN000;
+endstruc
 
-A_DeviceParameters	struc
+struc A_DeviceParameters
 
-SpecialFunctions	db	?    ;1  0
-DeviceType		db	?    ;1  1
-DeviceAttributes	dw	?    ;2  2
-NumberOfCylinders	dw	?    ;2  4
-MediaType		db	?    ;1  6
-BytePerSector		dw	?    ;2  7
-SectorsPerCluster	db	?    ;
-ReservedSectors 	dw	?
-NumberOfFATs		db	?
-RootEntries		dw	?
-TotalSectors		dw	?
-MediaDescriptor 	db	?
-SectorsPerFAT		dw	?
-SectorsPerTrack 	dw	?
-Heads			dw	?
-HiddenSectors		dd	?
-Ext_Total_Sectors	dd	?
-ReservedArea		db	6 dup(?)
+SpecialFunctions: resb 1;1  0
+DeviceType: resb 1;1  1
+DeviceAttributes: resw 1;2  2
+NumberOfCylinders: resw 1;2  4
+MediaType: resb 1;1  6
+BytePerSector: resw 1;2  7
+SectorsPerCluster: resb 1;
+ReservedSectors: resw 1
+NumberOfFATs: resb 1
+RootEntries: resw 1
+TotalSectors: resw 1
+MediaDescriptor: resb 1
+SectorsPerFAT: resw 1
+SectorsPerTrack: resw 1
+Heads: resw 1
+HiddenSectors: resd 1
+Ext_Total_Sectors: resd 1
+ReservedArea: resb 6
 
-A_DeviceParameters	ends
-
-
+endstruc
 
 
-Relative_Sector_Buffer	struc			;				;AN000;
-
-Start_Sector_Low	dw	?		;Low word of RBA sector 	;AN000;
-Start_Sector_High	dw	?		;High word of RBA sector	;AN000;
-Number_Sectors		dw	?		;Number of sectors		;AN000;
-Buffer_Offset		dw	?		;Address of data buffer 	;AN000;
-Buffer_Segment		dw	?		;				;AN000;
-
-Relative_Sector_Buffer ends			;				;AN000;
 
 
-XAL	struc									;AN000;
+struc Relative_Sector_Buffer;				;AN000;
 
-XAL_Tsize	dw	?							;AN000;
-XAL_TCount	dw	?							;AN000;
-XAL_LSize	dw	?							;AN000;
-XAL_LCount	dw	?							;AN000;
-XAL_Data	db	512-8 dup(?)						;AN000;
+Start_Sector_Low: resw 1;Low word of RBA sector 	;AN000;
+Start_Sector_High: resw 1;High word of RBA sector	;AN000;
+Number_Sectors: resw 1;Number of sectors		;AN000;
+Buffer_Offset: resw 1;Address of data buffer 	;AN000;
+Buffer_Segment: resw 1;				;AN000;
 
-XAL	ends									;AN000;
+endstruc;				;AN000;
 
-DIRENT	STRUC
-	DB	7 DUP (?)		;Ext FCB junk
-	DB	?			;Drive
-DIRNAM	DB	11 DUP (?)			;
-DIRATT	DB	?				;
-DIRCP	DW	?				;				;AN000;
-DIR_XA	DW	?				;				;AN000;
-DIRATT2 db	?				;				;AN000;
-DIRRES	DB	5 DUP (?)			;				;AC000;
-DIRTIM	DW	?				;
-DIRDAT	DW	?				;
-DIRCLUS DW	?				;
-DIRESIZ DD	?				;
-DIRENT	ENDS					;
-ENTSIZ	EQU	SIZE DIRENT
+
+struc XAL;AN000;
+
+XAL_Tsize: resw 1;AN000;
+XAL_TCount: resw 1;AN000;
+XAL_LSize: resw 1;AN000;
+XAL_LCount: resw 1;AN000;
+XAL_Data	db	512-times 8 db 0						;AN000;
+
+endstruc;AN000;
+
+struc DIRENT
+	resb 7;Ext FCB junk
+	resb 1;Drive
+DIRNAM: resb 11;
+DIRATT: resb 1;
+DIRCP: resw 1;				;AN000;
+DIR_XA: resw 1;				;AN000;
+DIRATT2: resb 1;				;AN000;
+DIRRES: resb 5;				;AC000;
+DIRTIM: resw 1;
+DIRDAT: resw 1;
+DIRCLUS: resw 1;
+DIRESIZ: resd 1;
+endstruc;
+ENTSIZ	EQU	DIRENT_size
 
 ;-------------------------------------------------------------------------------
 

@@ -1,6 +1,6 @@
-page	58,132
+; page	58,132
 ;******************************************************************************
-	title	EMMSUP - EMM support routines
+	; title	EMMSUP - EMM support routines
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -50,48 +50,48 @@ page	58,132
 ;
 ;
 ;******************************************************************************
-.lfcond					; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 
 ;******************************************************************************
 ;	P U B L I C S
 ;******************************************************************************
-	public _source_addr
-	public _dest_addr
-	public _copyout
-	public _copyin
-	public _wcopy
-	public _wcopyb
-	public _valid_handle
-	public SetDescInfoResident
-	public SegOffTo24Resident
+	global _source_addr
+	global _dest_addr
+	global _copyout
+	global _copyin
+	global _wcopy
+	global _wcopyb
+	global _valid_handle
+	global SetDescInfoResident
+	global SegOffTo24Resident
 ;
 ;******************************************************************************
 ;	 D E F I N E S
 ;******************************************************************************
 
-	include	vdmseg.inc
-	include vdmsel.inc
-	include desc.inc
-	include page.inc
+	%include "vdmseg.inc"
+	%include "vdmsel.inc"
+	%include "desc.inc"
+	%include "page.inc"
 ;	include instr386.inc
-	include	emmdef.inc
+	%include "emmdef.inc"
 
 FALSE		equ	0
 TRUE		equ	not FALSE
 CR		equ	0dh
 LF		equ	0ah
 
-	page
+	; page
 ;******************************************************************************
 ;	E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 
-_DATA	SEGMENT
+SECTION ._DATA
 ;
 ;  pointer to entry stack frame
 ;	stored as offset, SS
-extrn	_regp:word
+extern _regp
 
 ;
 ;   current state of mapping registers and # of mapping registers emulated
@@ -102,57 +102,57 @@ extrn	_regp:word
 ;
 ; total # of EMM pages in system
 ;
-extrn	_total_pages:word
+extern _total_pages
 
 ;
 ; table of offsets into in to the first page table
 ; for user logical emm page map
 ;
-extrn	_page_frame_base:dword
+extern _page_frame_base
 
 ;
 ; ptr to table of emm page # for each handle's logical pages.
 ;
-extrn	_emm_page:word
+extern _emm_page
 
 ;
 ; ptr to table of page table entries for the EMM pages
 ;
-extrn	_pft386:word		; note: actually a dword array
+extern _pft386; note: actually a dword array
 
 ;
 ;  handle data structure
 ;
-extrn	_handle_table:word
-extrn	_handle_table_size:word
+extern _handle_table
+extern _handle_table_size
 
 ;
 ;   save area for handles
 ;
-extrn	_save_map:byte
+extern _save_map
 
-_DATA	ENDS
+; END SECTION ._DATA
 
 
-	page
+	; page
 ;******************************************************************************
 ;	L O C A L   D A T A
 ;******************************************************************************
-_DATA	SEGMENT
+SECTION ._DATA
 ;
 ; kludge to prevent unresolved from C compiler
 ;
-public	__acrtused
-__acrtused	label	dword
+global __acrtused
+__acrtused:
 	dd (0)
-_DATA	ENDS
+; END SECTION ._DATA
 
-	page
+	; page
 ;******************************************************************************
 ;	C O D E
 ;******************************************************************************
-_TEXT	SEGMENT
-assume	cs:_TEXT, ds:DGROUP, ss:DGROUP
+SECTION ._TEXT
+; assume	cs:_TEXT, ds:DGROUP, ss:DGROUP
 
 ;***********************************************
 ;
@@ -168,15 +168,15 @@ assume	cs:_TEXT, ds:DGROUP, ss:DGROUP
 ;
 ; 05/09/88  ISP   No update needed for MEMM
 ;***********************************************
-_source_addr	proc	near
+_source_addr:
 ;
 	push	bp
 ;
 	mov	bp,[_regp]			; get entry stack frame pointer
-	test	[bp.PFlag],PFLAG_VIRTUAL	;Q: real/virtual mode ?
+	test	[bp+PFlag],PFLAG_VIRTUAL	;Q: real/virtual mode ?
 	jnz	sa_pm				; N: go get selector/offset
-	mov	ax,word ptr [bp.rSI]		; Y: get offset
-	mov	dx,word ptr [bp.rDS]		;    get segment
+	mov	ax,word [bp+rSI]		; Y: get offset
+	mov	dx,word [bp+rDS]		;    get segment
 	jmp	sa_exit				;    return DX:AX = seg:offset
 ;
 ;  protected mode - set up selector to client's DS
@@ -192,8 +192,8 @@ sa_pm:
 	;
 	; compute physical address
 	;
-	mov	ax,word ptr [bp.rDS]	; ax <-- base addr
-	mov	dx,word ptr [bp.rSI]	; dx <-- offset
+	mov	ax,word [bp+rDS]	; ax <-- base addr
+	mov	dx,word [bp+rSI]	; dx <-- offset
 	call	SegOffTo24Resident	; converts to physical addr
 
 	;
@@ -226,7 +226,7 @@ sa_exit:
 	pop	bp
 	ret
 ;
-_source_addr	endp
+; ENDP _source_addr
 
 ;***********************************************
 ;
@@ -242,15 +242,15 @@ _source_addr	endp
 ;
 ; 05/09/88  ISP   No update needed for MEMM
 ;***********************************************
-_dest_addr	proc	near
+_dest_addr:
 ;
 	push	bp
 ;
 	mov	bp,[_regp]			; get entry stack frame pointer
-	test	[bp.PFlag],PFLAG_VIRTUAL	;Q: real/virtual mode ?
+	test	[bp+PFlag],PFLAG_VIRTUAL	;Q: real/virtual mode ?
 	jnz	da_pm				; N: go get selector/offset
-	mov	ax,word ptr [bp.rDI]		; Y: get offset
-	mov	dx,word ptr [bp.rES]		;    get segment
+	mov	ax,word [bp+rDI]		; Y: get offset
+	mov	dx,word [bp+rES]		;    get segment
 	jmp	da_exit				;    return DX:AX = seg:offset
 ;
 ;  protected mode - set up selector to client's DS
@@ -266,8 +266,8 @@ da_pm:
 	;
 	; compute physical address
 	;
-	mov	ax,word ptr [bp.rES]	; ax <-- base addr
-	mov	dx,word ptr [bp.rDI]	; dx <-- offset
+	mov	ax,word [bp+rES]	; ax <-- base addr
+	mov	dx,word [bp+rDI]	; dx <-- offset
 	call	SegOffTo24Resident	; converts to physical addr
 
 	;
@@ -300,9 +300,9 @@ da_exit:
 	pop	bp
 	ret
 ;
-_dest_addr	endp
+; ENDP _dest_addr
 
-	page
+	; page
 ;***********************************************
 ;
 ; _copyout
@@ -321,10 +321,10 @@ _dest_addr	endp
 ;
 ; 05/09/88  ISP   No update needed for MEMM
 ;***********************************************
-destptr	=	4
-srcptr	=	8
-count	=	10
-_copyout	proc	near
+destptr equ 4
+srcptr equ 8
+count equ 10
+_copyout:
 	push	bp		; entry prolog
 	mov	bp,sp
 	push	di		; reg var
@@ -340,8 +340,8 @@ _copyout	proc	near
 	pop	di		; restore reg var
 	pop	bp		
 	ret
-_copyout	endp
-	page
+; ENDP _copyout
+	; page
 
 ;***********************************************
 ;
@@ -361,10 +361,10 @@ _copyout	endp
 ;
 ; 05/09/88  ISP   Written for MEMM.
 ;***********************************************
-destptr	=	4
-srcptr	=	6
-count	=	10
-_copyin	proc	near
+destptr equ 4
+srcptr equ 6
+count equ 10
+_copyin:
 	push	bp		; entry prolog
 	mov	bp,sp
 	push	di		; reg var
@@ -385,8 +385,8 @@ _copyin	proc	near
 	pop	di		; restore reg var
 	pop	bp		
 	ret
-_copyin	endp
-	page
+; ENDP _copyin
+	; page
 ;***********************************************
 ;
 ; _wcopy
@@ -406,10 +406,10 @@ _copyin	endp
 ;
 ; 05/09/88  ISP   No update needed for MEMM
 ;***********************************************
-srcptr	=	4
-destptr	=	6
-count	=	8
-_wcopy	proc	near
+srcptr equ 4
+destptr equ 6
+count equ 8
+_wcopy:
 	push	bp		; entry prolog
 	mov	bp,sp
 	push	di		; reg var
@@ -427,8 +427,8 @@ _wcopy	proc	near
 	pop	di		; restore reg var
 	pop	bp		
 	ret
-_wcopy	endp
-	page
+; ENDP _wcopy
+	; page
 ;***********************************************
 ;
 ; _wcopyb
@@ -449,10 +449,10 @@ _wcopy	endp
 ;
 ; 05/20/88  ISP   Shifted in from win386 and updated for 16 bit ptrs
 ;***********************************************
-srcptr	=	4
-destptr	=	6
-count	=	8
-_wcopyb	proc	near
+srcptr equ 4
+destptr equ 6
+count equ 8
+_wcopyb:
 	push	bp		; entry prolog
 	mov	bp,sp
 	push	di		; reg var
@@ -460,14 +460,14 @@ _wcopyb	proc	near
 
 	mov	ax,ds		;
 	mov	es,ax		; mov es,ds 
-	mov	di, word ptr [bp+destptr]      ; destination address
-	mov	si, word ptr [bp+srcptr]       ; source address
-	mov	cx, word ptr [bp+count]        ; word count
+	mov	di, word [bp+destptr]      ; destination address
+	mov	si, word [bp+srcptr]       ; source address
+	mov	cx, word [bp+count]        ; word count
 	dec	cx
 	shl	cx, 1				; offset of 'last' word to move
 	add	si, cx
 	add	di, cx
-	mov	cx, word ptr [bp+count]        ; recover word count
+	mov	cx, word [bp+count]        ; recover word count
 
 	std			; set dir flag (backward move)
 	rep movsw		; do it
@@ -477,8 +477,8 @@ _wcopyb	proc	near
 	pop	di		; restore reg var
 	pop	bp		
 	ret
-_wcopyb	endp
-	page
+; ENDP _wcopyb
+	; page
 ;***********************************************
 ;
 ; _valid_handle - validate current handle
@@ -494,18 +494,18 @@ _wcopyb	endp
 ;
 ; 05/09/88  ISP   No update needed for MEMM
 ;***********************************************
-_valid_handle	proc	near
+_valid_handle:
 ;
 	push	bp
 	mov	bp,[_regp]		; get entry args pointer
 	push	bx
 ;
-	mov	bx,word ptr [bp.rDX]	; BX = entry handle
+	mov	bx,word [bp+rDX]	; BX = entry handle
 	cmp	bx,[_handle_table_size]	;Q: handle in range ?
 	jae	vh_fail			;  N: return invalid handle error
 	shl	bx,2			;  Y: BX = handle's table offset
-	add	bx,offset DGROUP:_handle_table	; BX = offset to handle's data
-	cmp	[bx.ht_index],NULL_PAGE	;Q: is this an active handle ?
+	add	bx,_handle_table	; BX = offset to handle's data
+	cmp	[bx+ht_index],NULL_PAGE	;Q: is this an active handle ?
 	je	vh_fail			;    N: return invalid handle error
 	mov	ax,bx			;    Y: return ptr to handle's data
 ;
@@ -514,12 +514,12 @@ vh_exit:
 	pop	bp
 	ret
 vh_fail:
-	mov	byte ptr [bp.rAX+1],INVALID_HANDLE	; set AH on stack
+	mov	byte [bp+rAX+1],INVALID_HANDLE	; set AH on stack
 	mov	ax,NULL_HANDLE		; return NULL_HANDLE to caller
 	jmp	short vh_exit
 
 ;
-_valid_handle	endp
+; ENDP _valid_handle
 
 ;***********************************************
 ;
@@ -531,12 +531,12 @@ _valid_handle	endp
 ;
 ; 05/09/88  ISP   Shifted in from WIN386
 ;***********************************************
-_flush_tlb	proc	near
-public	_flush_tlb
+_flush_tlb:
+global _flush_tlb
 	mov	eax, cr3
 	mov	cr3, eax
 	ret
-_flush_tlb	endp
+; ENDP _flush_tlb
 
 ;***********************************************
 ;
@@ -549,10 +549,10 @@ _flush_tlb	endp
 ;
 ; 05/09/88  ISP   Shifted in from WIN386 and modified for 16 bit ptrs
 ;***********************************************
-name1	=	4
-name2	=	6
-	public	_Names_Match
-_Names_Match proc    near
+name1 equ 4
+name2 equ 6
+	global _Names_Match
+_Names_Match:
 	push	bp		; entry prolog
 	mov	bp,sp
 	push	di		; reg var
@@ -563,8 +563,8 @@ _Names_Match proc    near
 
 	xor	ax, ax	; Assume it did NOT work
 
-	mov	di, word ptr [bp+name1]	; First name
-	mov	si, word ptr [bp+name2]	; Second name
+	mov	di, word [bp+name1]	; First name
+	mov	si, word [bp+name2]	; Second name
 	cld
 	mov	cx, 2				; Compare 2 dwords
 	rep 	cmpsd		; do it
@@ -576,9 +576,9 @@ Names_Dont_Match:
 	pop	di		; restore reg var
 	pop	bp
 	ret
-_Names_Match endp
+; ENDP _Names_Match
 
-	page
+	; page
 ;**	SetDescInfoResident - set descriptor information
 ;
 ;	The limit field of a specified descriptor is set.
@@ -597,27 +597,27 @@ _Names_Match endp
 ;	WARNING This code only works on a 286. It can be called in
 ;		either mode.
 
-SetDescInfoResident proc near
+SetDescInfoResident:
 	push	bx			; save selector
 	and	bl,SEL_LOW_MASK
 
 ;	fill in the limit field
 
-	mov	es:[bx],cx
+	mov	[es:bx],cx
 
 ;	fill in base address
 
-	mov	es:[bx + 2],dx
-	mov	es:[bx + 4],al
+	mov	[es:bx + 2],dx
+	mov	[es:bx + 4],al
 
 ;	fill in access rights byte
 
-	mov	es:[bx + 5],ah
+	mov	[es:bx + 5],ah
 	pop	bx
 	ret
-SetDescInfoResident endp
+; ENDP SetDescInfoResident
 
-	page
+	; page
 ;**	SegOffTo24Resident - convert seg:off to 24 bit physical address
 ;
 ;	The specified real mode segment:offset is converted to
@@ -631,7 +631,7 @@ SetDescInfoResident endp
 ;	WARNING This code only works on a 286. It can be called in
 ;		either mode.
 
-SegOffTo24Resident proc near
+SegOffTo24Resident:
 	push	cx
 
 ;	Convert AX:DX into 24 bit addr in AL, DX
@@ -645,8 +645,8 @@ SegOffTo24Resident proc near
 
 	pop	cx
 	ret
-SegOffTo24Resident endp
+; ENDP SegOffTo24Resident
 
-_TEXT	ENDS
-END
+; END SECTION ._TEXT
+; END
 

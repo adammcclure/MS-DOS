@@ -1,10 +1,10 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosQVerify mapper
+; title CP/DOS DosQVerify mapper
 ;
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -21,19 +21,19 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dosqverify
-            .sall
-            .xlist
-            include  macros.inc
-            .list
+            global dosqverify
+            ; .sall
+            ; .xlist
+            %include "macros.inc"
+            ; .list
 
-str         struc
-old_bp      dw       ?
-return      dd       ?
-verify      dd       ?     ; return data area pointer
-str         ends
+struc str
+old_bp: resw 1
+return: resd 1
+verify: resd 1; return data area pointer
+endstruc
 
-dosqverify  proc    far
+dosqverify:
             Enter   dosqverify             ; save registers
 
             mov      ah,54h
@@ -41,14 +41,14 @@ dosqverify  proc    far
 
             lds      si,[bp].verify        ; setup return data area
             cbw                            ; fill word
-            mov      word ptr [si],ax      ; save verify flag setting
+            mov      word [si],ax      ; save verify flag setting
             sub      ax,ax                 ; set good return code
 
 exit:       Mexit                          ; pop registers
-            ret      size str - 6          ; return
+            ret      str_size - 6          ; return
 
-dosqverify  endp
+; ENDP dosqverify
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end

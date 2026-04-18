@@ -4,60 +4,60 @@
 ;
 ;**** Default assemble swiches definition **************************
 
-IFNDEF	FarSW
+%ifndef FarSW
 FarSW	equ	0	; Near call expected
-ENDIF
+%endif
 
-IFNDEF	DateSW
+%ifndef DateSW
 DateSW	equ	0	; Check date format
-ENDIF
+%endif
 
-IFNDEF	TimeSW
+%ifndef TimeSW
 TimeSW	equ	0	; Check time format
-ENDIF
+%endif
 
-IFNDEF	FileSW
+%ifndef FileSW
 FileSW	equ	1	; Check file specification
-ENDIF
+%endif
 
-IFNDEF	CAPSW
+%ifndef CAPSW
 CAPSW	equ	0	; Perform CAPS if specified
-ENDIF
+%endif
 
-IFNDEF	CmpxSW
+%ifndef CmpxSW
 CmpxSW	equ	0	; Check complex list
-ENDIF
+%endif
 
-IFNDEF	NumSW
+%ifndef NumSW
 NumSW	equ	1	; Check numeric value
-ENDIF
+%endif
 
-IFNDEF	KeySW
+%ifndef KeySW
 KeySW	equ	0	; Support keywords
-ENDIF
+%endif
 
-IFNDEF	SwSW
+%ifndef SwSW
 SwSW	equ	1	; Support switches
-ENDIF
+%endif
 
-IFNDEF	Val1SW
+%ifndef Val1SW
 Val1SW	equ	1	; Support value definition 1
-ENDIF
+%endif
 
-IFNDEF	Val2SW
+%ifndef Val2SW
 Val2SW	equ	0	; Support value definition 2
-ENDIF
+%endif
 
-IFNDEF	Val3SW
+%ifndef Val3SW
 Val3SW	equ	1	; Support value definition 3
-ENDIF
+%endif
 
-IFNDEF	DrvSW
+%ifndef DrvSW
 DrvSW	equ	1	; Support drive only format
-ENDIF
+%endif
 
-IFNDEF	QusSW
+%ifndef QusSW
 QusSW	equ	0	; Support quoted string format
-ENDIF
+%endif
 
 

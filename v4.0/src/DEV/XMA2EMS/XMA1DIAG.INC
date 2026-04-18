@@ -11,16 +11,16 @@
 ;-----------------------------------------------------------------------;
 
 MEM_INST	DB	'1'
-TEST_ID 	DB	?		;SAVE AREA FOR CURRENT TEST ID
-CTRLPARM	DW	?		;SAVE AREA FOR CONTROL PARM
+TEST_ID: db 0;SAVE AREA FOR CURRENT TEST ID
+CTRLPARM: dw 0;SAVE AREA FOR CONTROL PARM
 PAGE_UNDER_TEST DW	0		;SAVE AREA FOR PAGE UNDER TEST
-CUR_SAVE	DW	?		;SAVE AREA FOR NEXT AVAILABLE LINE
+CUR_SAVE: dw 0;SAVE AREA FOR NEXT AVAILABLE LINE
 					;FOR MESSAGES
-ACTIVE_PAGE	DB	?		;ACTIVE DISPLAY PAGE
-TESTABLE_SEGMENTS DW	?
+ACTIVE_PAGE: db 0;ACTIVE DISPLAY PAGE
+TESTABLE_SEGMENTS: dw 0
 
 
-PAGE
+; PAGE
 ;-----------------------------------------------------------------------;
 ;	EQUATES THAT ARE UNIQUE TO THE DIAGNOSTICS PORTION OF		;
 ;	THE DEVICE DRIVER.						;
@@ -91,7 +91,7 @@ MEM_TEST	EQU	10		;MEMORY TEST ID
 ;		   AX,BX,CX,DX ARE DESTROYED
 ;-------------------------------------------------------------------------
 ;
-PRESTST 	PROC
+PRESTST:
 ;
 		MOV	AL,PRES_TEST
 		MOV	CS:TEST_ID,AL
@@ -124,14 +124,14 @@ END_PRES:
 		POPF				;RESTORE FLAGS
 		RET				;BACK TO CALLER
 ;
-PRESTST 	ENDP
+; ENDP PRESTST
 
-PAGE
+; PAGE
 
 ;------------------------------------------------------------------------;
 ;	   Diagnostics...on exit if ZF=0 then error			 ;
 ;------------------------------------------------------------------------;
-XMA1DIAGS	PROC
+XMA1DIAGS:
 
 		MOV	CS:TEST_ID,00H			;CLEAR TEST ID BYTE
 		MOV	CS:CTRLPARM,0100H		;SAVE CONTROL PARM
@@ -152,11 +152,11 @@ XMA1DIAGS	PROC
 		JNE	FOUND_ERROR			;JUMP IF ERROR
 FOUND_ERROR:
 		RET
-XMA1DIAGS	ENDP
+; ENDP XMA1DIAGS
 
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -183,7 +183,7 @@ PAGE
 ;
 ;-------------------------------------------------------------------------
 ;
-CUR_POS 	PROC
+CUR_POS:
 ;
 		PUSH	AX
 		PUSH	BX
@@ -228,13 +228,13 @@ CUR_POS 	PROC
 
 		RET				;RETURN TO CALLER
 
-CUR_POS 	ENDP
+; ENDP CUR_POS
 
 
 
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -262,7 +262,7 @@ PAGE
 ;		   AX,BX,CX,DX ARE DESTROYED
 ;-------------------------------------------------------------------------
 ;
-TRY4MEG 	PROC
+TRY4MEG:
 
 ;MEMORY TEST MUST RUN IN PAGE MODE
 ;BEFORE CARD IS PUT INTO PAGE MODE...MUST SET UP XLAT TABLE TO	PASSOVER
@@ -417,10 +417,10 @@ TR2M6:
 ;
 		RET				;RETURN TO CALLER
 
-TRY4MEG 	ENDP
+; ENDP TRY4MEG
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -460,7 +460,7 @@ PAGE
 ;
 ;-------------------------------------------------------------------------
 ;
-REGTST PROC
+REGTST:
 ;
 		MOV	AL,REG_TEST
 		MOV	CS:TEST_ID,AL
@@ -523,12 +523,12 @@ R_EXIT:
 		OUT	DX,AL			;restore mode reg
 		RET
 ;
-REGTST		ENDP
+; ENDP REGTST
 
 
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -568,7 +568,7 @@ PAGE
 ;
 ;-------------------------------------------------------------------------
 
-MEMARRAY	PROC
+MEMARRAY:
 
 		MOV	AL,MEM_TEST
 		MOV	CS:TEST_ID,AL
@@ -639,12 +639,12 @@ MA3:
 		POP	AX			;RESTORE THESE REGS
 		RET
 ;
-MEMARRAY	ENDP
+; ENDP MEMARRAY
 
 
 
 
-PAGE
+; PAGE
 ;---------------------------------------------------------------------
 ;---------------------------------------------------------------------
 ;			LO MEMORY TEST
@@ -676,7 +676,7 @@ PAGE
 ;			AX,BX,CX,DX,DI,SI,ES,DS ARE DESTROYED
 ;
 ;-----------------------------------------------------------------------
-LOMEMTST	PROC
+LOMEMTST:
 
 		MOV	AL,LOMEM_TEST
 		MOV	CS:TEST_ID,AL
@@ -757,20 +757,20 @@ LM5:
 		RET
 
 
-READ_ONLY	PROC		;INTERNAL PROC TO READ MEMORY WITHOUT DESTROYING CONTENTS
+READ_ONLY:;INTERNAL PROC TO READ MEMORY WITHOUT DESTROYING CONTENTS
 		XOR	SI,SI				;start of segment
 		XOR	CX,CX				;test 64k
 
 		LODSW					;just read each byte
 		XOR	AX,AX				;and set zf=1 for return
 		RET					;back to caller
-READ_ONLY	ENDP
+; ENDP READ_ONLY
 
-LOMEMTST	ENDP
+; ENDP LOMEMTST
 
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -806,7 +806,7 @@ PAGE
 ;		   AX,BX,CX,DX,ES,DS,SI,DI ARE DESTROYED
 ;-------------------------------------------------------------------------
 ;
-PAGETST 	PROC
+PAGETST:
 ;
 		MOV	AL,PAGE_TEST
 		MOV	CS:TEST_ID,AL
@@ -906,10 +906,10 @@ PT4X:
 		POP	AX
 		JMP	PT4			;TO ADJUST STACK
 ;
-PAGETST 	ENDP
+; ENDP PAGETST
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -945,7 +945,7 @@ PAGE
 ;-------------------------------------------------------------------------
 ;
 ;
-CAPTST		PROC
+CAPTST:
 ;
 		MOV	AL,DMA_CAPTURE
 		MOV	CS:TEST_ID,AL
@@ -1009,11 +1009,11 @@ CAPT_ERROR:
 CAPT_EXIT:
 		RET
 
-CAPTST		ENDP
+; ENDP CAPTST
 
 
 
-PAGE
+; PAGE
 
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
@@ -1037,7 +1037,7 @@ PAGE
 ;		   the value specified in AL.
 ;-------------------------------------------------------------------------
 ;
-CAPT_FILL	PROC	NEAR
+CAPT_FILL:
 ;
 	MOV	DX,IDREG
 	OUT	DX,AL			;LOAD ID REG WITH PAT TO BE CAPTURED
@@ -1066,12 +1066,12 @@ CF2:
 CF3:
 	RET				;RETURN TO CALLER
 ;
-CAPT_FILL	ENDP
+; ENDP CAPT_FILL
 
 
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -1098,7 +1098,7 @@ PAGE
 ;		   AL,CX,DX,ARE DESTROYED
 ;-------------------------------------------------------------------------
 ;
-CAPT_RMW	PROC	NEAR
+CAPT_RMW:
 ;
 	MOV	CX,3			;REP FOR CHANNELS 7,6,5
 RMW1:
@@ -1134,9 +1134,9 @@ RMW3:
 RMW4:
 	RET				;RETURN TO CALLER
 ;
-CAPT_RMW    ENDP
+; ENDP CAPT_RMW
 ;
-RMW	PROC
+RMW:
 ;
 	OUT	DX,AL			;SETUP TO READ FROM DMA CAPTURE REG
 	IN	AL,DX			;READ IT
@@ -1152,12 +1152,12 @@ RMW	PROC
 RMW5:
 	RET				;RETURN TO CALLER
 ;
-RMW		ENDP
+; ENDP RMW
 
 
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -1193,7 +1193,7 @@ PAGE
 ;		   AX,BH,CX,DX ARE DESTROYED
 ;-------------------------------------------------------------------------
 ;
-INHIBLK 	PROC
+INHIBLK:
 ;
 	;ADJUST SI FOR TRANSLATE TABLE ENTRY
 		XCHG	AL,AH		;ROTATE RIGHT BY 8
@@ -1236,12 +1236,12 @@ INHIBLK_EXIT:
 		POP	AX
 		RET
 ;
-INHIBLK 	ENDP
+; ENDP INHIBLK
 
 
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -1275,7 +1275,7 @@ PAGE
 ;
 ;-------------------------------------------------------------------------
 ;
-STGTST		PROC
+STGTST:
 ;
 		CMP	CS:WARM_START,'Y'               ;is this a warm start?
 		JNE	STG1A				;if no then do mem test
@@ -1441,20 +1441,20 @@ STG6:
 
 
 
-CLEAR_MEM	PROC		;INTERNAL PROC TO CLEAR MEMORY
+CLEAR_MEM:;INTERNAL PROC TO CLEAR MEMORY
 		XOR	DI,DI				;start of segment
 		XOR	CX,CX				;clear entire segment
 		XOR	AX,AX				;write zeroes
 
 		STOSB					;just write
 		RET					;back to caller
-CLEAR_MEM	ENDP
+; ENDP CLEAR_MEM
 
 
-STGTST		ENDP
+; ENDP STGTST
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -1484,7 +1484,7 @@ PAGE
 ;		   DS:SI point to failing location
 ;-------------------------------------------------------------------------
 ;
-STG_CNT 	PROC
+STG_CNT:
 ;
 		MOV	CX,2000H		;8K WORDS			;an000; dms;
 		SUB	DI,DI			;FIRST LOCATION
@@ -1499,12 +1499,12 @@ SC1:
 SC2:
 		RET
 
-STG_CNT 	ENDP
+; ENDP STG_CNT
 
 
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -1534,7 +1534,7 @@ PAGE
 ;
 ;-------------------------------------------------------------------------
 ;
-KB_OK		PROC
+KB_OK:
 ;
 		PUSH	AX
 		PUSH	BX
@@ -1566,8 +1566,8 @@ K1:
 		MOV	CX,4
 K2:
 		POP	AX		;ASCII DIGIT GOES INTO AL
-		MOV	BX,OFFSET MEM_OK
-		MOV	CS:[BX+SI],AL	;BUILD ASCII MESSAGE
+		MOV	BX,MEM_OK
+		MOV	[CS:BX+SI],AL	;BUILD ASCII MESSAGE
 		INC	SI
 		LOOP	K2
 	;MOVE THE CURSOR AND PRINT MESSAGE
@@ -1577,7 +1577,7 @@ K2:
 
 		INT	10H			;BIOS VIDEO CALL SET CURSOR
 		MOV	AH,9			;DOS PRINT STRING
-		MOV	DX,OFFSET SIZE_MSG1 + 1 ;OFFSET OF MEM_OK MSG
+		MOV	DX,SIZE_MSG1 + 1 ;OFFSET OF MEM_OK MSG
 		INT	21H			;DISPLAY MESSAGE
 
 		POP	DS
@@ -1590,10 +1590,10 @@ K2:
 
 		RET				;RETURN TO CALLER
 
-KB_OK		ENDP
+; ENDP KB_OK
 
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -1638,7 +1638,7 @@ PAGE
 ;
 ;-------------------------------------------------------------------------
 ;
-SETXLAT 	PROC
+SETXLAT:
 ;
 	;ADJUST AX FOR TRANSLATE TABLE ENTRY
 		XCHG	AL,AH		;ROTATE RIGHT BY 8
@@ -1663,9 +1663,9 @@ SETX1:
 SETXLAT_EXIT:
 		RET
 ;
-SETXLAT 	ENDP
+; ENDP SETXLAT
 
- PAGE
+ ; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -1696,7 +1696,7 @@ SETXLAT 	ENDP
 ;-------------------------------------------------------------------------
 ;
 ;
-INCTST		PROC
+INCTST:
 ;
 		MOV	AL,AUTO_INC
 		MOV	CS:TEST_ID,AL
@@ -1755,9 +1755,9 @@ AI4:
 INC_ERROR:
 INC_EXIT:	RET
 ;
-INCTST		ENDP
+; ENDP INCTST
 
-PAGE
+; PAGE
 ;-------------------------------------------------------------------------
 ;-------------------------------------------------------------------------
 ;
@@ -1785,7 +1785,7 @@ PAGE
 ;		   (31A0) address in TT of failure
 ;-------------------------------------------------------------------------
 ;
-XLATST		PROC
+XLATST:
 ;
 		MOV	AL,XLAT_TABLE_TEST
 		MOV	CS:TEST_ID,AL
@@ -1867,4 +1867,4 @@ X6:
 XLA_ERROR:
 XLA_EXIT:	RET
 ;
-XLATST		ENDP
+; ENDP XLATST

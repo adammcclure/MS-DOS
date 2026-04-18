@@ -29,9 +29,9 @@
 ;   Functional Description:
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 ;	SCCSID = @(#)keybxx.inc 1.1 85/10/09
 ;------------------------------------------------------
@@ -89,11 +89,11 @@ SysShift	equ	004h	;SysReq key held down
 ;
 ;	Note: an accent key is an accent in both normal and shifted mode.
 ;
-AccChStruc	struc
+struc AccChStruc
 normal	dw	0	;chr & scan code for unshifted accent key
 shift	dw	0	; "     "     "  for shifted      "    "
 ctrl	dw	-1
 alt	dw	-1
-AccChStruc	ends
+endstruc
 
-.list		; end of KBD.INC
+; .list; end of KBD.INC

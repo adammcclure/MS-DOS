@@ -1,5 +1,5 @@
-	PAGE	,132
-	TITLE	DOS - Keyboard Definition File
+	; PAGE	,132
+	; TITLE	DOS - Keyboard Definition File
 
 ;; LATEST CHANGE P12 NUMERIC
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -13,16 +13,16 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-	INCLUDE KEYBSHAR.INC	       ;;
-	INCLUDE POSTEQU.INC	       ;;
-	INCLUDE KEYBMAC.INC	       ;;
+	%include "KEYBSHAR.INC";;
+	%include "POSTEQU.INC";;
+	%include "KEYBMAC.INC";;
 				       ;;
-	PUBLIC NO_LOGIC 	       ;;
-	PUBLIC NO_865_XLAT	       ;;
-	PUBLIC NO_850_XLAT	       ;;
+	global NO_LOGIC;;
+	global NO_865_XLAT;;
+	global NO_850_XLAT;;
 				       ;;
-CODE	SEGMENT PUBLIC 'CODE'          ;;
-	ASSUME CS:CODE,DS:CODE	       ;;
+SECTION .CODE;;
+	; ASSUME CS:CODE,DS:CODE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Standard translate table options are a linear search table
@@ -372,7 +372,7 @@ LOGIC_END:			       ;;
 ;; dead keys are on the same keytops for all code pages.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC NO_COMMON_XLAT		       ;;
+ global NO_COMMON_XLAT;;
 NO_COMMON_XLAT: 		       ;;
 				       ;;
    DW	 COMMON_XLAT_END-$	       ;; length of section
@@ -743,7 +743,7 @@ COM_NA_UP_K1_END:			       ;;
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 13			       ;; number of entries
    DB	  3,'"'                        ;;
-   DB	  4,'ú'                        ;;
+   DB	  4,'¬ú'                        ;;
    DB	  7,'&'                        ;;
    DB	  8,'/'                        ;;
    DB	  9,'('                        ;;
@@ -778,7 +778,7 @@ COM_NA_UP_K2_END:			       ;;
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 13			       ;; number of entries
    DB	  3,'"'                        ;;
-   DB	  4,'ú'                        ;;
+   DB	  4,'¬ú'                        ;;
    DB	  7,'&'                        ;;
    DB	  8,'/'                        ;;
    DB	  9,'('                        ;;
@@ -813,7 +813,7 @@ COM_NA_UP_K3_END:			       ;;
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 7			       ;; number of entries
    DB	  3,'@'                        ;;
-   DB	  4,09CH		       ;; ú
+   DB	  4,09CH		       ;; ¬ú
    DB	  5,'$'                        ;;
    DB	  8,'{'                        ;;
    DB	  9,'['                        ;;
@@ -973,11 +973,11 @@ COM_FOURTH_K1_END:		       ;;
    DW	 COM_GR_LO_T1_END-$	       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 5			       ;; number of scans
-   DB	 18,'ä'                        ;; scan code,ASCII - e
-   DB	 22,'ó'                        ;; scan code,ASCII - u
-   DB	 23,'ç'                        ;; scan code,ASCII - i
-   DB	 24,'ï'                        ;; scan code,ASCII - o
-   DB	 30,'Ö'                        ;; scan code,ASCII - a
+   DB	 18,'¬ä'                        ;; scan code,ASCII - e
+   DB	 22,'¬ó'                        ;; scan code,ASCII - u
+   DB	 23,'¬ç'                        ;; scan code,ASCII - i
+   DB	 24,'¬ï'                        ;; scan code,ASCII - o
+   DB	 30,'¬Ö'                        ;; scan code,ASCII - a
 COM_GR_LO_T1_END:		       ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1021,11 +1021,11 @@ COM_GR_SP_END:			       ;; length of state section
    DW	 COM_CI_LO_T1_END-$	       ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 5			       ;; number of scans
-   DB	 18,'à'                        ;; scan code,ASCII - e
-   DB	 22,'ñ'                        ;; scan code,ASCII - u
-   DB	 23,'å'                        ;; scan code,ASCII - i
-   DB	 24,'ì'                        ;; scan code,ASCII - o
-   DB	 30,'É'                        ;; scan code,ASCII - a
+   DB	 18,'¬à'                        ;; scan code,ASCII - e
+   DB	 22,'¬ñ'                        ;; scan code,ASCII - u
+   DB	 23,'¬å'                        ;; scan code,ASCII - i
+   DB	 24,'¬ì'                        ;; scan code,ASCII - o
+   DB	 30,'¬É'                        ;; scan code,ASCII - a
 COM_CI_LO_T1_END:		       ;;
 				       ;;
    DW	 0			       ;;
@@ -1069,7 +1069,7 @@ COM_CI_SP_END:			       ;; length of state section
     DW	  COM_TI_LO_T1_END-$		;; Size of xlat table
     DB	  STANDARD_TABLE+ZERO_SCAN	;; xlat options:
     DB	  1				;; number of scans
-    DB	  49,0A4H			;; scan code,ASCII - §
+    DB	  49,0A4H			;; scan code,ASCII - ¬§
  COM_TI_LO_T1_END:			;;
 					;;
     DW	  0				;;
@@ -1091,7 +1091,7 @@ COM_CI_SP_END:			       ;; length of state section
     DW	  COM_TI_UP_T1_END-$		;; Size of xlat table
     DB	  STANDARD_TABLE+ZERO_SCAN	;; xlat options:
     DB	  1				;; number of scans
-    DB	  49,0A5H			;; scan code,ASCII - •
+    DB	  49,0A5H			;; scan code,ASCII - ¬•
  COM_TI_UP_T1_END:			;;
 					;;
     DW	  0				;; Size of xlat table - null table
@@ -1133,7 +1133,7 @@ COMMON_XLAT_END:		       ;;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC NO_865_XLAT		       ;;
+ global NO_865_XLAT;;
 NO_865_XLAT:			       ;;
 				       ;;
    DW	  CP865_XLAT_END-$	       ;; length of section
@@ -1177,11 +1177,11 @@ CP865_NA_K1_UP_END:		       ;;
    DW	 CP865_AC_LO_T1_END-$		 ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 5			       ;; number of scans
-   DB	 18,'Ç'                        ;; scan code,ASCII - e
-   DB	 22,'£'                        ;; scan code,ASCII - u
-   DB	 23,'°'                        ;; scan code,ASCII - i
-   DB	 24,'¢'                        ;; scan code,ASCII - o
-   DB	 30,'†'                        ;; scan code,ASCII - a
+   DB	 18,'¬Ç'                        ;; scan code,ASCII - e
+   DB	 22,'¬£'                        ;; scan code,ASCII - u
+   DB	 23,'¬°'                        ;; scan code,ASCII - i
+   DB	 24,'¬¢'                        ;; scan code,ASCII - o
+   DB	 30,'¬†'                        ;; scan code,ASCII - a
 CP865_AC_LO_T1_END:			 ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1203,7 +1203,7 @@ CP865_AC_LO_END:			 ;;
    DW	 CP865_AC_UP_T1_END-$		 ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 1			       ;; number of entries
-   DB	 18,'ê'                        ;; scan code,ASCII - ê
+   DB	 18,'¬ê'                        ;; scan code,ASCII - ¬ê
 CP865_AC_UP_T1_END:			 ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1247,12 +1247,12 @@ CP865_AC_SP_END:			 ;;
    DW	 CP865_DI_LO_T1_END-$		 ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 6			       ;; number of scans
-   DB	 18,'â'                        ;; scan code,ASCII - e
-   DB	 21,'ò'                        ;; scan code,ASCII - y
-   DB	 22,'Å'                        ;; scan code,ASCII - u
-   DB	 23,'ã'                        ;; scan code,ASCII - i
-   DB	 24,'î'                        ;; scan code,ASCII - o
-   DB	 30,'Ñ'                        ;; scan code,ASCII - a
+   DB	 18,'¬â'                        ;; scan code,ASCII - e
+   DB	 21,'¬ò'                        ;; scan code,ASCII - y
+   DB	 22,'¬Å'                        ;; scan code,ASCII - u
+   DB	 23,'¬ã'                        ;; scan code,ASCII - i
+   DB	 24,'¬î'                        ;; scan code,ASCII - o
+   DB	 30,'¬Ñ'                        ;; scan code,ASCII - a
 CP865_DI_LO_T1_END:			 ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1274,9 +1274,9 @@ CP865_DI_LO_END:			 ;; length of state section
    DW	 CP865_DI_UP_T1_END-$		 ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 3			       ;; number of scans
-   DB	 22,'ö'                        ;; scan code,ASCII - U
-   DB	 24,'ô'                        ;; scan code,ASCII - O
-   DB	 30,'é'                        ;; scan code,ASCII - A
+   DB	 22,'¬ö'                        ;; scan code,ASCII - U
+   DB	 24,'¬ô'                        ;; scan code,ASCII - O
+   DB	 30,'¬é'                        ;; scan code,ASCII - A
 CP865_DI_UP_T1_END:			 ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1317,7 +1317,7 @@ CP865_XLAT_END: 		       ;;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC NO_850_XLAT		       ;;
+ global NO_850_XLAT;;
 NO_850_XLAT:			       ;;
 				       ;;
    DW	  CP850_XLAT_END-$	       ;; length of section
@@ -1361,12 +1361,12 @@ CP850_NA_K1_UP_END:		       ;;
    DW	 CP850_AC_LO_T1_END-$		 ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 6			       ;; number of scans
-   DB	 18,'Ç'                        ;; scan code,ASCII - e
+   DB	 18,'¬Ç'                        ;; scan code,ASCII - e
    DB	 21,0ECH		       ;; y acute
-   DB	 22,'£'                        ;; scan code,ASCII - u
-   DB	 23,'°'                        ;; scan code,ASCII - i
-   DB	 24,'¢'                        ;; scan code,ASCII - o
-   DB	 30,'†'                        ;; scan code,ASCII - a
+   DB	 22,'¬£'                        ;; scan code,ASCII - u
+   DB	 23,'¬°'                        ;; scan code,ASCII - i
+   DB	 24,'¬¢'                        ;; scan code,ASCII - o
+   DB	 30,'¬†'                        ;; scan code,ASCII - a
 CP850_AC_LO_T1_END:			 ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1437,12 +1437,12 @@ CP850_AC_SP_END:			 ;;
    DW	 CP850_DI_LO_T1_END-$		 ;; Size of xlat table
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 6			       ;; number of scans
-   DB	 18,'â'                        ;; scan code,ASCII - e
-   DB	 21,'ò'                        ;; scan code,ASCII - y
-   DB	 22,'Å'                        ;; scan code,ASCII - u
-   DB	 23,'ã'                        ;; scan code,ASCII - i
-   DB	 24,'î'                        ;; scan code,ASCII - o
-   DB	 30,'Ñ'                        ;; scan code,ASCII - a
+   DB	 18,'¬â'                        ;; scan code,ASCII - e
+   DB	 21,'¬ò'                        ;; scan code,ASCII - y
+   DB	 22,'¬Å'                        ;; scan code,ASCII - u
+   DB	 23,'¬ã'                        ;; scan code,ASCII - i
+   DB	 24,'¬î'                        ;; scan code,ASCII - o
+   DB	 30,'¬Ñ'                        ;; scan code,ASCII - a
 CP850_DI_LO_T1_END:			 ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1465,10 +1465,10 @@ CP850_DI_LO_END:			 ;; length of state section
    DB	 STANDARD_TABLE+ZERO_SCAN      ;; xlat options:
    DB	 5			       ;; number of scans
    DB	 18,0D3H		       ;;    E Diaeresis
-   DB	 22,'ö'                        ;;    U Diaeresis
+   DB	 22,'¬ö'                        ;;    U Diaeresis
    DB	 23,0D8H		       ;;    I Diaeresis
-   DB	 24,'ô'                        ;;    O Diaeresis
-   DB	 30,'é'                        ;;    A Diaeresis
+   DB	 24,'¬ô'                        ;;    O Diaeresis
+   DB	 30,'¬é'                        ;;    A Diaeresis
 CP850_DI_UP_T1_END:			 ;;
 				       ;;
    DW	 0			       ;; Size of xlat table - null table
@@ -1603,5 +1603,5 @@ CP850_CI_UP_END:		       ;; length of state section
 CP850_XLAT_END: 		       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-CODE	 ENDS			       ;;
-	 END			       ;;
+; END SECTION .CODE;;
+	 ; END;;

@@ -1,7 +1,7 @@
-TITLE   MORE Messages
+; TITLE   MORE Messages
 
-CODE    SEGMENT PUBLIC
-        PUBLIC  MORETXT,BADVER,CRLFTXT,BUFFER
+SECTION .CODE
+        global MORETXT,BADVER,CRLFTXT,BUFFER
 
 MORETXT DB      13,"-- More --$"
 BADVER  DB      "MORE: Incorrect DOS version"
@@ -9,9 +9,9 @@ CRLFTXT DB      13,10,"$"
 ;
 ; THIS VARIABLE MUST BE DEFINED LAST!
 ;
-BUFFER  DB      4098 DUP (?)
+BUFFER: times 4098 db 0
 
-CODE    ENDS
-        END
+; END SECTION .CODE
+        ; END
 
 

@@ -1,4 +1,4 @@
-       TITLE   HRDDRV.SYS for the ALTOS ACS-86C.
+       ; TITLE   HRDDRV.SYS for the ALTOS ACS-86C.
 
 ; Hard Disk Drive for Version 2.x of MSDOS.
 
@@ -12,13 +12,13 @@ ROM_DISKIO      EQU     08      ;Perform disk I/O from IOPB in ES:CX.
 ROM_INIT        EQU     10      ;Returns boot console and top memory ES:DX.
 
 
-CODE    SEGMENT
-ASSUME  CS:CODE,DS:CODE,ES:CODE,SS:CODE
+SECTION .CODE
+; ASSUME  CS:CODE,DS:CODE,ES:CODE,SS:CODE
 
         ORG     0               ;Starts at an offset of zero.
 
-        PAGE
-        SUBTTL  Device driver tables.
+        ; PAGE
+        ; SUBTTL  Device driver tables.
 
 ;-----------------------------------------------+
 ;     DWORD pointer to next device              | 1 word offset.
@@ -57,8 +57,8 @@ DSKDEV:                         ;Header for hard disk driver.
         DW      DSK_INT
 MEMMAX  DB      1               ;Number of Units
 
-        PAGE
-        SUBTTL  Dispatch tables for each device.
+        ; PAGE
+        ; SUBTTL  Dispatch tables for each device.
 
 DSK_TBL:DW      DSK_INI         ;0  - Initialize Driver.
         DW      MEDIAC          ;1  - Return current media code.
@@ -74,22 +74,22 @@ DSK_TBL:DW      DSK_INI         ;0  - Initialize Driver.
         DW      EXIT            ;11 - Flush output buffer. (Not used.)
         DW      EXIT            ;12 - IO Control.
 
-        PAGE
-        SUBTTL  Strategy and Software Interrupt routines.
+        ; PAGE
+        ; SUBTTL  Strategy and Software Interrupt routines.
 
 ;Define offsets for io data packet
 
-IODAT   STRUC
-CMDLEN  DB      ?               ;LENGTH OF THIS COMMAND
-UNIT    DB      ?               ;SUB UNIT SPECIFIER
-CMD     DB      ?               ;COMMAND CODE
-STATUS  DW      ?               ;STATUS
-        DB      8 DUP (?)
-MEDIA   DB      ?               ;MEDIA DESCRIPTOR
-TRANS   DD      ?               ;TRANSFER ADDRESS
-COUNT   DW      ?               ;COUNT OF BLOCKS OR CHARACTERS
-START   DW      ?               ;FIRST BLOCK TO TRANSFER
-IODAT   ENDS
+struc IODAT
+CMDLEN: resb 1;LENGTH OF THIS COMMAND
+UNIT: resb 1;SUB UNIT SPECIFIER
+CMD: resb 1;COMMAND CODE
+STATUS: resw 1;STATUS
+        resb 8
+MEDIA: resb 1;MEDIA DESCRIPTOR
+TRANS: resd 1;TRANSFER ADDRESS
+COUNT: resw 1;COUNT OF BLOCKS OR CHARACTERS
+START: resw 1;FIRST BLOCK TO TRANSFER
+endstruc
 
 PTRSAV  DD      0               ;Strategy pointer save.
 
@@ -100,14 +100,14 @@ PTRSAV  DD      0               ;Strategy pointer save.
 ;   later processing by the individual interrupt routines.
 ;
 
-STRATP  PROC    FAR
+STRATP:
 
 STRATEGY:
-        MOV     WORD PTR CS:[PTRSAV],BX
-        MOV     WORD PTR CS:[PTRSAV+2],ES
+        MOV     word [CS:PTRSAV],BX
+        MOV     word [CS:PTRSAV+2],ES
         RET
 
-STRATP  ENDP
+; ENDP STRATP
 
 
 ;
@@ -116,7 +116,7 @@ STRATP  ENDP
 
 DSK_INT:
         PUSH    SI              ;Save SI from caller.
-        MOV     SI,OFFSET DSK_TBL
+        MOV     SI,DSK_TBL
 
 ;
 ; Common program for handling the simplistic I/O packet
@@ -132,28 +132,28 @@ ENTRY:  PUSH    AX              ;Save all nessacary registers.
         PUSH    ES
         PUSH    BX
 
-        LDS     BX,CS:[PTRSAV]  ;Retrieve pointer to I/O Packet.
+        LDS     BX,[CS:PTRSAV]  ;Retrieve pointer to I/O Packet.
 
-        MOV     AL,[BX.UNIT]    ;AL = Unit code.
-        MOV     AH,[BX.MEDIA]   ;AH = Media descriptor.
-        MOV     CX,[BX.COUNT]   ;CX = Contains byte/sector count.
-        MOV     DX,[BX.START]   ;DX = Starting Logical sector.
+        MOV     AL,[BX+UNIT]    ;AL = Unit code.
+        MOV     AH,[BX+MEDIA]   ;AH = Media descriptor.
+        MOV     CX,[BX+COUNT]   ;CX = Contains byte/sector count.
+        MOV     DX,[BX+START]   ;DX = Starting Logical sector.
         XCHG    DI,AX           ;Save Unit and Media Temporarily.
-        MOV     AL,[BX.CMD]     ;Retrieve Command type. (1 => 11)
+        MOV     AL,[BX+CMD]     ;Retrieve Command type. (1 => 11)
         XOR     AH,AH           ;Clear upper half of AX for calculation.
         ADD     SI,AX           ;Compute entry pointer in dispatch table.
         ADD     SI,AX
         CMP     AL,11           ;Verify that not more than 11 commands.
         JA      CMDERR          ;Ah, well, error out.
         XCHG    AX,DI
-        LES     DI,[BX.TRANS]   ;DI contains addess of Transfer address.
+        LES     DI,[BX+TRANS]   ;DI contains addess of Transfer address.
                                 ;ES contains segment.
         PUSH    CS
         POP     DS              ;Data segment same as Code segment.
         JMP     [SI]            ;Perform I/O packet command.
 
-        PAGE
-        SUBTTL  Common error and exit points.
+        ; PAGE
+        ; SUBTTL  Common error and exit points.
 
 BUS_EXIT:                       ;Device busy exit.
         MOV     AH,00000011B    ;Set busy and done bits.
@@ -185,11 +185,11 @@ ERR_EXIT:
         STC                     ;Set carry bit also.
         JMP     SHORT EXIT1     ;Quick way out.
 
-EXITP   PROC    FAR             ;Normal exit for device drivers.
+EXITP:;Normal exit for device drivers.
 
 EXIT:   MOV     AH,00000001B    ;Set done bit for MSDOS.
-EXIT1:  LDS     BX,CS:[PTRSAV]
-        MOV     [BX.STATUS],AX  ;Save operation compete and status.
+EXIT1:  LDS     BX,[CS:PTRSAV]
+        MOV     [BX+STATUS],AX  ;Save operation compete and status.
 
         POP     BX              ;Restore registers.
         POP     ES
@@ -201,11 +201,11 @@ EXIT1:  LDS     BX,CS:[PTRSAV]
         POP     AX
         POP     SI
         RET                             ;RESTORE REGS AND RETURN
-EXITP   ENDP
+; ENDP EXITP
 
-        PAGE
+        ; PAGE
 
-        subttl  Hard Disk drive control.
+        ; subttl  Hard Disk drive control.
 
 ;
 ;       Read command    = 09 hex.
@@ -229,67 +229,67 @@ hd_read equ     09h
 hd_writ equ     02h
 hd_wmsk equ     5dh
 hd_rmsk equ     9ch
-        page
+        ; page
 
-        SUBTTL  Altos monitor ram and 8089 IOPB structures.
+        ; SUBTTL  Altos monitor ram and 8089 IOPB structures.
 
 ;
 ; Structure to reference 8089 and ROM command table.
 ;
 
-SIOPB   STRUC
-        DB      4 DUP (?)       ;Monitor Use Only
-OPCODE  DB      ?               ;I/O operation code.
-DRIVE   DB      ?               ;Logical drive spec.
-TRACK   DW      ?               ;Logical track number.
-HEAD    DB      ?               ;Logical head number.
-SECTOR  DB      ?               ;Logical sector to start with.
-SCOUNT  DB      ?               ;Number of logical sectors in buffer.
-RETCODE DB      ?               ;Error code after masking.
-RETMASK DB      ?               ;Error mask.
-RETRIES DB      ?               ;Number of retries before error exit.
-DMAOFF  DW      ?               ;Buffer offset address.
-DMASEG  DW      ?               ;Buffer segment.
-SECLENG DW      ?               ;Sector Length.
-        DB      6 DUP (?)       ;8089 use only.
-SIOPB   ENDS
+struc SIOPB
+        resb 4;Monitor Use Only
+OPCODE: resb 1;I/O operation code.
+DRIVE: resb 1;Logical drive spec.
+TRACK: resw 1;Logical track number.
+HEAD: resb 1;Logical head number.
+SECTOR: resb 1;Logical sector to start with.
+SCOUNT: resb 1;Number of logical sectors in buffer.
+RETCODE: resb 1;Error code after masking.
+RETMASK: resb 1;Error mask.
+RETRIES: resb 1;Number of retries before error exit.
+DMAOFF: resw 1;Buffer offset address.
+DMASEG: resw 1;Buffer segment.
+SECLENG: resw 1;Sector Length.
+        resb 6;8089 use only.
+endstruc
 
 IOPB    SIOPB   <,0,0,0,0,0,0,0,0,0,0,0,0,>
 
-        PAGE
-        SUBTTL  Common Drive parameter block definitions on Altos.
+        ; PAGE
+        ; SUBTTL  Common Drive parameter block definitions on Altos.
 
-DBP     STRUC
+struc DBP
 
-JMPNEAR DB      3 DUP (?)       ;Jmp Near xxxx  for boot.
-NAMEVER DB      8 DUP (?)       ;Name / Version of OS.
+JMPNEAR: resb 3;Jmp Near xxxx  for boot.
+NAMEVER: resb 8;Name / Version of OS.
 
 ;-------  Start of Drive Parameter Block.
 
-SECSIZE DW      ?               ;Sector size in bytes.                  (dpb)
-ALLOC   DB      ?               ;Number of sectors per alloc. block.    (dpb)
-RESSEC  DW      ?               ;Reserved sectors.                      (dpb)
-FATS    DB      ?               ;Number of FAT's.                       (dpb)
-MAXDIR  DW      ?               ;Number of root directory entries.      (dpb)
-SECTORS DW      ?               ;Number of sectors per diskette.        (dpb)
-MEDIAID DB      ?               ;Media byte ID.                         (dpb)
-FATSEC  DW      ?               ;Number of FAT Sectors.                 (dpb)
+SECSIZE: resw 1;Sector size in bytes.                  (dpb)
+ALLOC: resb 1;Number of sectors per alloc. block.    (dpb)
+RESSEC: resw 1;Reserved sectors.                      (dpb)
+FATS: resb 1;Number of FAT's.                       (dpb)
+MAXDIR: resw 1;Number of root directory entries.      (dpb)
+SECTORS: resw 1;Number of sectors per diskette.        (dpb)
+MEDIAID: resb 1;Media byte ID.                         (dpb)
+FATSEC: resw 1;Number of FAT Sectors.                 (dpb)
 
 ;-------  End of Drive Parameter Block.
 
-SECTRK  DW      ?               ;Number of Sectors per track.
-HEADS   DW      ?               ;Number of heads per cylinder.
-HIDDEN  DW      ?               ;Number of hidden sectors.
+SECTRK: resw 1;Number of Sectors per track.
+HEADS: resw 1;Number of heads per cylinder.
+HIDDEN: resw 1;Number of hidden sectors.
 
-DBP     ENDS
+endstruc
 
 HDDRIVE DBP     <,,512,4,0,2,256,4000,0F5H,3,12,4,0>
 
 
-INI_TAB DW      OFFSET HDDRIVE.SECSIZE
+INI_TAB DW      HDDRIVE.SECSIZE
 
-        PAGE
-        SUBTTL  Media check routine
+        ; PAGE
+        ; SUBTTL  Media check routine
 
 ;
 ; Media check routine.
@@ -303,12 +303,12 @@ INI_TAB DW      OFFSET HDDRIVE.SECSIZE
 ;       [MEDIA FLAG] = 1 if not changed.
 ;
 
-MEDIAC: LDS     BX,CS:[PTRSAV]
-        MOV     BYTE PTR [BX.TRANS],1
+MEDIAC: LDS     BX,[CS:PTRSAV]
+        MOV     byte [BX+TRANS],1
         JMP     EXIT
 
-        PAGE
-        SUBTTL  Build and return Bios Parameter Block for a diskette.
+        ; PAGE
+        ; SUBTTL  Build and return Bios Parameter Block for a diskette.
 
 ;
 ; Build Bios Parameter Blocks.
@@ -322,14 +322,14 @@ MEDIAC: LDS     BX,CS:[PTRSAV]
 ;
 
 GET_BPB:
-        MOV     SI,OFFSET HDDRIVE+11
-        LDS     BX,CS:[PTRSAV]
-        MOV     WORD PTR [BX.COUNT],SI
-        MOV     WORD PTR [BX.COUNT+2],CS
+        MOV     SI,HDDRIVE+11
+        LDS     BX,[CS:PTRSAV]
+        MOV     word [BX+COUNT],SI
+        MOV     word [BX+COUNT+2],CS
         JMP     EXIT
 
-        PAGE
-        SUBTTL  MSDOS 2.x Disk I/O drivers.
+        ; PAGE
+        ; SUBTTL  MSDOS 2.x Disk I/O drivers.
 
 ;
 ; Disk READ/WRITE functions.
@@ -355,31 +355,31 @@ DSK_WRV:
 DSK_WRT:
         MOV     AH,HD_WRIT
 DSK_COM:
-        MOV     SI,OFFSET HDDRIVE       ;Keeps code size down.
+        MOV     SI,HDDRIVE       ;Keeps code size down.
         MOV     [IOPB.DMASEG],ES
         MOV     [IOPB.DMAOFF],DI
-        MOV     DI,[SI.SECSIZE]
+        MOV     DI,[SI+SECSIZE]
         MOV     [IOPB.SECLENG],DI
         MOV     [IOPB.RETRIES],1
         MOV     [IOPB.RETMASK],05DH     ;Error return mask.
         MOV     [IOPB.OPCODE],AH
         MOV     [IOPB.DRIVE],4		;Drive 4 is only available.
-        ADD     DX,[SI.HIDDEN]          ;Account for invisible sectors.
+        ADD     DX,[SI+HIDDEN]          ;Account for invisible sectors.
         MOV     BP,CX                   ;Save number of sectors to R/W
 DSK_IO1:
         PUSH    DX                      ;Save starting sector.
         MOV     AX,DX
         MOV     DX,0                    ;32 bit divide coming up.
-        MOV     CX,[SI.SECTRK]
+        MOV     CX,[SI+SECTRK]
         DIV     CX                      ;Get track+head and start sector.
         MOV     [IOPB.SECTOR],DL        ;Starting sector.
         MOV     BL,DL                   ;Save starting sector for later.
         MOV     DX,0
-        MOV     CX,[SI.HEADS]
+        MOV     CX,[SI+HEADS]
         DIV     CX                      ;Compute head we are on.
         MOV     [IOPB.HEAD],DL
         MOV     [IOPB.TRACK],AX         ;Track to read/write.
-        MOV     AX,[SI.SECTRK]          ;Now see how many sectors
+        MOV     AX,[SI+SECTRK]          ;Now see how many sectors
         INC     AL                      ;  we can burst read.
         SUB     AL,BL                   ;BL is the starting sector.
         MOV     AH,0
@@ -394,7 +394,7 @@ DSK_IO2:MOV     AX,BP                   ;Only read enough of sector
 DSK_IO3:MOV     [IOPB.SCOUNT],AL
         MOV     DI,AX                   ;Save number sectors for later.
         MOV     BX,ROM_DISKIO
-        MOV     CX,OFFSET IOPB
+        MOV     CX,IOPB
         PUSH    CS
         POP     ES
         CALL    ROM_CALL                ;Do disk operation.
@@ -402,7 +402,7 @@ DSK_IO3:MOV     [IOPB.SCOUNT],AL
         OR      AL,AL
         JNZ     DERROR
         MOV     AX,DI                   ;Retrieve number of sectors read.
-        MOV     CX,[SI.SECSIZE]         ;Number of bytes per sector.
+        MOV     CX,[SI+SECSIZE]         ;Number of bytes per sector.
         PUSH    DX
         MUL     CX
         POP     DX
@@ -419,25 +419,25 @@ DSK_IO3:MOV     [IOPB.SCOUNT],AL
 SERR1:  MOV     AL,12
         JMP	ERR_EXIT
 
-        PAGE
-        SUBTTL  Disk Error processing.
+        ; PAGE
+        ; SUBTTL  Disk Error processing.
 
 ;
 ; Disk error routine.
 ;
 
 DERROR:
-        LDS     BX,CS:[PTRSAV]
-        MOV     [BX.COUNT],0
+        LDS     BX,[CS:PTRSAV]
+        MOV     [BX+COUNT],0
         PUSH    CS
         POP     DS
 
         MOV     BL,-1
         MOV     AH,AL
         MOV     BH,14           ;Lenght of table.
-        MOV     SI,OFFSET DERRTAB
+        MOV     SI,DERRTAB
 DERROR2:INC     BL              ;Increment to next error code.
-        LODS    BYTE PTR CS:[SI]
+        LODS    byte [CS:SI]
         CMP     AH,AL           ;See if error code matches disk status.
         JZ      DERROR3         ;Got the right error, exit.
         DEC     BH
@@ -460,8 +460,8 @@ DERRTAB DB      00H             ; 0. Write protect error
         DB      04H             ;11. Read fault.
         DB      01H             ;12. General type of failure.
 
-        PAGE
-        SUBTTL  Common ROM call routine.
+        ; PAGE
+        ; SUBTTL  Common ROM call routine.
 
 ;
 ;  Save all registers except CX, BX and AX.
@@ -474,7 +474,7 @@ ROM_CALL:
         PUSH    BP
         PUSH    DX
         PUSH    ES
-        CALL    CS:DWORD PTR [ROMRTN]
+        CALL    CS:dword [ROMRTN]
         POP     ES
         POP     DX
         POP     BP
@@ -483,19 +483,20 @@ ROM_CALL:
         RET
 
 
-        PAGE
-        SUBTTL  Hard Disk Drive initalization routine.
+        ; PAGE
+        ; SUBTTL  Hard Disk Drive initalization routine.
 
 DSK_INI:
-        LDS     BX,CS:[PTRSAV]
-        MOV     BYTE PTR [BX.MEDIA],1
-        MOV     WORD PTR [BX.TRANS],OFFSET DSK_INI
-        MOV     WORD PTR [BX.TRANS+2],CS
-        MOV     WORD PTR [BX.COUNT],OFFSET INI_TAB
-        MOV     WORD PTR [BX.COUNT+2],CS
+        LDS     BX,[CS:PTRSAV]
+        MOV     byte [BX+MEDIA],1
+        MOV     word [BX+TRANS],DSK_INI
+        MOV     word [BX+TRANS+2],CS
+        MOV     word [BX+COUNT],INI_TAB
+        MOV     word [BX+COUNT+2],CS
         JMP     EXIT
 
-CODE    ENDS
+; END SECTION .CODE
 
-        END
-                                                                                                                                                                                                            
+        ; END
+                                        
+                                                                                                                                                                    

@@ -3,13 +3,13 @@
 ; Pseudo EXEC system call for DOS
 ;
 
-.xlist
-.xcref
-include mssw.asm
-.cref
-.list
+; .xlist
+; .xcref
+%include "mssw.asm"
+; .cref
+; .list
 
-TITLE	IBMPROC - process maintenance
-NAME	IBMPROC
+; TITLE	IBMPROC - process maintenance
+; NAME	IBMPROC
 
-include proc.asm
+%include "proc.asm"

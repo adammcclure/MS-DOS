@@ -57,7 +57,7 @@ tmp_vid db  "NO NAME    ",0
 ;
 
 Set_Volume_ID:
-	PUBLIC SET_VOLUME_ID						  ;3.30
+	global SET_VOLUME_ID;3.30
 	push	dx			; save registers
 	push	ax
 	CALL	HasChange		; does drive have changeline support?
@@ -81,7 +81,7 @@ SetErr:
 
 
 
-root_sec	DW	?	;Root sector #
+root_sec: dw 0;Root sector #
 
 
 
@@ -113,34 +113,34 @@ read_volume_id:
 	pop	es
 	push	cs			; get DS segment correct
 	pop	ds
-	mov	di,offset tmp_vid
-	mov	si,offset nul_vid
+	mov	di,tmp_vid
+	mov	si,nul_vid
 	mov	cx,vid_size
 	rep	movsb			; initialize tmp_vid to null vi_id
 
 	pop	DI			; Restore Current BDS
 	pop	DS
-	mov	al,byte ptr ds:[di].cFAT    ; # of fats
-	mov	cx,word ptr ds:[di].csecfat ; sectors / fat
+	mov	al,byte [ds:di].cFAT    ; # of fats
+	mov	cx,word [ds:di].csecfat ; sectors / fat
 	mul	cl			    ; size taken by fats
-	add	ax,word ptr ds:[di].ressec  ; add on reserved sectors
+	add	ax,word [ds:di].ressec  ; add on reserved sectors
 					; AX is now sector # (0 based)
-	mov	cs:[root_sec],ax	; set initial value
+	mov	[cs:root_sec],ax	; set initial value
 	mov	ax,[di].cDir		; # root dir entries
 	mov	cl,4			; 16 entries/sector
 	shr	ax,cl			; divide by 16
 	mov	cx,ax			; cx is # of sectors to scan
 next_sec:
 	push	cx			; save outer loop counter
-	mov	ax,cs:[root_sec]	; get sector #
-	mov	cx,word ptr ds:[di].seclim    ; sectors / track
+	mov	ax,[cs:root_sec]	; get sector #
+	mov	cx,word [ds:di].seclim    ; sectors / track
 	xor	DX,DX
 	div	cx
 			; set up registers for call to read_sector
 	inc	DX		; dx= sectors into track, ax= track count from 0
 	mov	cl,dl		; sector to read
 	xor	DX,DX
-	div	word ptr ds:[di].hdlim ; # heads on this disc
+	div	word [ds:di].hdlim ; # heads on this disc
 	mov	dh,dl		; Head number
 	mov	ch,al		; Track #
 	call	read_sector	; get first sector of the root directory,
@@ -149,17 +149,17 @@ next_sec:
 	mov	cx,16		; # of dir entries in a block of root
 	mov	al,08h		; volume label bit
 fvid_loop:
-	cmp	byte ptr es:[bx],0	; End of dir?
+	cmp	byte [es:bx],0	; End of dir?
 	jz	no_vid			; yes, no vol id
-	cmp	byte ptr es:[bx],0E5h	; empty entry?
+	cmp	byte [es:bx],0E5h	; empty entry?
 	jz	ent_loop		; yes, skip
-	test	es:[bx+11],al		; is volume label bit set in fcb?
+	test	[es:bx+11],al		; is volume label bit set in fcb?
 	jnz	found_vid		; jmp yes
 ent_loop:
 	ADD	BX,32		;MJB003 ADD LENGTH OF DIRECTORY ENTRY	  ;3.30
 	loop	fvid_loop
 	pop	cx			; outer loop
-	inc	cs:[root_sec]		; next sector
+	inc	[cs:root_sec]		; next sector
 	loop	next_sec		; continue
 NotFound:
 	XOR	SI,SI
@@ -174,7 +174,7 @@ found_vid:
 	pop	ds			; source segment
 	push	cs
 	pop	es			; destination segment
-	mov	di,offset tmp_vid	; dest of volume_id
+	mov	di,tmp_vid	; dest of volume_id
 	mov	cx,vid_size -1		; length of string minus NUL
 	rep	movsb			; mov volume label to tmp_vid
 	xor	al,al
@@ -266,7 +266,7 @@ FAT_CHECK:
 	push	AX
 	xor	SI, SI			 ; say FAT ID's are same.
 	mov	AL, cs:MedByt
-	cmp	AL, byte ptr [DI].Mediad ; compare it with the BDS medbyte
+	cmp	AL, byte [DI].Mediad ; compare it with the BDS medbyte
 	jz	OKRET1			 ; carry clear
 	dec	SI
 OkRet1: clc
@@ -289,7 +289,7 @@ init_vid_loop:
 	pop	es
 	push	cs
 	pop	ds
-	mov	si,offset tmp_vid   ; source
+	mov	si,tmp_vid   ; source
 	add	di,volid
 	mov	cx,vid_size
 	pop	ax

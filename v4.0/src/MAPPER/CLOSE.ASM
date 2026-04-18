@@ -1,10 +1,10 @@
 ;0
-page 80,132
+; page 80,132
 
-title CP/DOS  DosClose  mapper   * * *
+; title CP/DOS  DosClose  mapper   * * *
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -31,20 +31,20 @@ dosxxx	segment byte public 'dos'
 ; *
 ; *************************************************************************
 
-	public	DosClose
-	.sall
-	.xlist
-	include macros.inc
-	.list
+	global DosClose
+	; .sall
+	; .xlist
+	%include "macros.inc"
+	; .list
 
-str	struc
-old_bp	   dw	  ?
-return	   dd	  ?
-FileHandle dw	  ?	     ; file or device handle
-str	ends
+struc str
+old_bp: resw 1
+return: resd 1
+FileHandle: resw 1; file or device handle
+endstruc
 
 
-DosClose  proc	 far
+DosClose:
 	Enter	DosClose	       ; push registers
 
 ; Only files are closed.  Devices are not closed, since OPEN creates
@@ -65,10 +65,10 @@ GoodExit:
 
 ErrorExit:
 	mexit			       ; pop registers
-	ret	size str - 6	       ; return
+	ret	str_size - 6	       ; return
 
-DosClose  endp
+; ENDP DosClose
 
-dosxxx	ends
+; END SECTION .dosxxx
 
-	end
+	; end

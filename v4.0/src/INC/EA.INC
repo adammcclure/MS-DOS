@@ -50,23 +50,23 @@ BY_XA		      equ  0000100B	     ; set by Get/Set XA by Handle
 
 ;Extended Attribute Structure
 
-EA	    STRUC			      ; extended attribute list
-EA_TYPE     DB	      ? 		      ; type
-EA_FLAGS    DW	      ? 		      ; flags
-EA_RC	    DB	      ? 		      ; reason code
-EA_NAMELEN  DB	      ? 		      ; name length
-EA_VALLEN   DW	      ? 		      ; value length
-EA_NAME     DB	      ? 		      ; name
-EA	    ENDS
+struc EA; extended attribute list
+EA_TYPE: resb 1; type
+EA_FLAGS: resw 1; flags
+EA_RC: resb 1; reason code
+EA_NAMELEN: resb 1; name length
+EA_VALLEN: resw 1; value length
+EA_NAME: resb 1; name
+endstruc
 
 
 ;Query Extended Attribute list
 
-QEA	     STRUC			       ; extended attribute list
-QEA_TYPE     DB        ?		       ; type
-QEA_FLAGS    DW        ?		       ; flags
-QEA_NAMELEN  DB        ?		       ; name length
-QEA_NAME     DB        ?		       ; name
-QEA	     ENDS
+struc QEA; extended attribute list
+QEA_TYPE: resb 1; type
+QEA_FLAGS: resw 1; flags
+QEA_NAMELEN: resb 1; name length
+QEA_NAME: resb 1; name
+endstruc
 
 

@@ -1,76 +1,76 @@
-TITLE   PART5 - COMMAND Transient routines.
+; TITLE   PART5 - COMMAND Transient routines.
 
-        INCLUDE COMSW.ASM
+        %include "COMSW.ASM"
 
-.xlist
-.xcref
-        INCLUDE DOSSYM.ASM
-        INCLUDE DEVSYM.ASM
-        INCLUDE COMSEG.ASM
-.list
-.cref
+; .xlist
+; .xcref
+        %include "DOSSYM.ASM"
+        %include "DEVSYM.ASM"
+        %include "COMSEG.ASM"
+; .list
+; .cref
 
-        INCLUDE COMEQU.ASM
+        %include "COMEQU.ASM"
 
-CODERES SEGMENT PUBLIC
+SECTION .CODERES
 
-        IF      IBMVER
-        EXTRN   EXEC_WAIT:NEAR
-        ENDIF
+        %if IBMVER
+        extern EXEC_WAIT
+        %endif
 
-CODERES ENDS
-
-
-DATARES SEGMENT PUBLIC
-        EXTRN   BATCH:WORD,BATLOC:DWORD,BATBYT:BYTE,ECHOFLAG:BYTE
-        EXTRN   SINGLECOM:WORD,RE_OUTSTR:BYTE,PIPEFLAG:BYTE,PIPEPTR:WORD
-        EXTRN   RE_INSTR:BYTE,RE_OUT_APP:BYTE,PARMBUF:BYTE,PIPESTR:BYTE
-        EXTRN   LTPA:WORD,ENVIRSEG:WORD
-DATARES ENDS
-
-TRANDATA        SEGMENT PUBLIC
-        EXTRN   PIPEEMES:BYTE,NULPATH:BYTE,NOSPACE:BYTE
-        EXTRN   DBACK:BYTE,PROMPT_TABLE:BYTE
-TRANDATA        ENDS
-
-TRANSPACE       SEGMENT PUBLIC
-        EXTRN   PATHCNT:WORD,PATHPOS:WORD,PATHSW:WORD
-        EXTRN   DESTISDIR:BYTE,DESTTAIL:WORD,DESTINFO:BYTE
-        EXTRN   BATHAND:WORD,RESSEG:WORD,TPA:WORD,SWITCHAR:BYTE
-        EXTRN   BYTCNT:WORD,COMBUF:BYTE,DIRBUF:BYTE,CHARBUF:BYTE
+; END SECTION .CODERES
 
 
-        IF      KANJI
-        EXTRN   KPARSE:BYTE
-        ENDIF
+SECTION .DATARES
+        extern BATCH,BATLOC,BATBYT,ECHOFLAG
+        extern SINGLECOM,RE_OUTSTR,PIPEFLAG,PIPEPTR
+        extern RE_INSTR,RE_OUT_APP,PARMBUF,PIPESTR
+        extern LTPA,ENVIRSEG
+; END SECTION .DATARES
 
-TRANSPACE       ENDS
+SECTION .TRANDATA
+        extern PIPEEMES,NULPATH,NOSPACE
+        extern DBACK,PROMPT_TABLE
+; END SECTION .TRANDATA
+
+SECTION .TRANSPACE
+        extern PATHCNT,PATHPOS,PATHSW
+        extern DESTISDIR,DESTTAIL,DESTINFO
+        extern BATHAND,RESSEG,TPA,SWITCHAR
+        extern BYTCNT,COMBUF,DIRBUF,CHARBUF
 
 
-TRANCODE        SEGMENT PUBLIC BYTE
-ASSUME  CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+        %if KANJI
+        extern KPARSE
+        %endif
 
-        IF      KANJI
-        EXTRN   TESTKANJ:NEAR
-        ENDIF
+; END SECTION .TRANSPACE
 
-        EXTRN   CERROR:NEAR,UPCONV:NEAR,PIPEERRSYN:NEAR,SETREST1:NEAR
-        EXTRN   SWITCH:NEAR,SETREST1:NEAR,BATCLOSE:NEAR,MOVE_NAME:NEAR
-        EXTRN   FIND_PROMPT:NEAR,FIND_PATH:NEAR,DELETE_PATH:NEAR
-        EXTRN   STORE_CHAR:NEAR,SCAN_DOUBLE_NULL:NEAR,SCASB2:NEAR
-        EXTRN   PRINT_DRIVE:NEAR,SAVUDIR:NEAR,CRLF2:NEAR,PAUSE:NEAR
+
+SECTION .TRANCODE
+; ASSUME  CS:TRANGROUP,DS:NOTHING,ES:NOTHING,SS:NOTHING
+
+        %if KANJI
+        extern TESTKANJ
+        %endif
+
+        extern CERROR,UPCONV,PIPEERRSYN,SETREST1
+        extern SWITCH,SETREST1,BATCLOSE,MOVE_NAME
+        extern FIND_PROMPT,FIND_PATH,DELETE_PATH
+        extern STORE_CHAR,SCAN_DOUBLE_NULL,SCASB2
+        extern PRINT_DRIVE,SAVUDIR,CRLF2,PAUSE
  
-        PUBLIC  PRINT_B,PRINT_G,DISPSIZE,GETNUM,OUTBYTE
-        PUBLIC  DELIM,OUT,OUT2,SETPATH,PATHCRUNCH
-        PUBLIC  CRPRINT,SCANOFF,FCB_TO_ASCZ
-        PUBLIC  PRINT_L,PATH,PATHCHRCMP,PRINT_ESC,PRINT_BACK
-        PUBLIC  PRINT_EQ,PRINT,ZPRINT,PRINT_PROMPT
-        PUBLIC  DISP32BITS,ERROR_PRINT,ERROR_OUTPUT
-        PUBLIC  FREE_TPA,ALLOC_TPA,PRESCAN,GETBATBYT
+        global PRINT_B,PRINT_G,DISPSIZE,GETNUM,OUTBYTE
+        global DELIM,OUT,OUT2,SETPATH,PATHCRUNCH
+        global CRPRINT,SCANOFF,FCB_TO_ASCZ
+        global PRINT_L,PATH,PATHCHRCMP,PRINT_ESC,PRINT_BACK
+        global PRINT_EQ,PRINT,ZPRINT,PRINT_PROMPT
+        global DISP32BITS,ERROR_PRINT,ERROR_OUTPUT
+        global FREE_TPA,ALLOC_TPA,PRESCAN,GETBATBYT
 
 
 FREE_TPA:
-ASSUME  DS:TRANGROUP,ES:NOTHING
+; ASSUME  DS:TRANGROUP,ES:NOTHING
         PUSH    ES
         MOV     ES,[TPA]
         MOV     AH,DEALLOC
@@ -79,7 +79,7 @@ ASSUME  DS:TRANGROUP,ES:NOTHING
         return
 
 ALLOC_TPA:
-ASSUME DS:TRANGROUP,ES:RESGROUP
+; ASSUME DS:TRANGROUP,ES:RESGROUP
         MOV     BX,0FFFFH       ; Re-allocate the transient
         MOV     AH,ALLOC
         INT     int_command
@@ -101,11 +101,11 @@ SAVSIZ2:
 
 
 PRESCAN:                        ; Cook the input buffer
-ASSUME  DS:TRANGROUP,ES:TRANGROUP
+; ASSUME  DS:TRANGROUP,ES:TRANGROUP
         XOR     CX,CX
         MOV     ES,[RESSEG]
-ASSUME  ES:RESGROUP
-        MOV     SI,OFFSET TRANGROUP:COMBUF+2
+; ASSUME  ES:RESGROUP
+        MOV     SI,COMBUF+2
         MOV     DI,SI
 
 CountQuotes:
@@ -118,7 +118,7 @@ CountEnd:
         CMP     AL,13                   ; end of road?
         JNZ     CountQuotes             ; no, go back for next char
 
-        IF      KANJI
+        %if KANJI
         PUSH    CX                      ; save count
         MOV     SI,DI                   ; get back beginning of buffer
 KanjiScan:
@@ -146,13 +146,13 @@ KanjiEnd:
         CMP     AL,13                   ; end of line character?
         JNZ     KanjiScan               ; go back to beginning
         POP     CX                      ; get back original count
-        ENDIF
+        %endif
 
         MOV     SI,DI                   ; restore pointer to begining
 PRESCANLP:
         LODSB
 
-        IF      KANJI
+        %if KANJI
         CALL    TESTKANJ
         JZ      NOTKANJ6
         MOV     [DI],AL
@@ -164,7 +164,7 @@ PRESCANLP:
         INC     CL
         JMP     PRESCANLP
 NOTKANJ6:
-        ENDIF
+        %endif
 
         CMP     AL,22H          ; " character
         JNZ     TRYGREATER
@@ -182,7 +182,7 @@ QLOOP:
 TRYGREATER:
         CMP     AL,'>'
         JNZ     NOOUT
-        CMP     BYTE PTR [SI],'>'
+        CMP     byte [SI],'>'
         JNZ     NOAPPND
         LODSB
         INC     [RE_OUT_APP]            ; Flag >>
@@ -190,11 +190,11 @@ NOAPPND:
         CALL    SCANOFF
         CMP     AL,0DH
         JNZ     GOTREOFIL
-        MOV     WORD PTR [RE_OUTSTR],09H     ; Cause an error later
+        MOV     word [RE_OUTSTR],09H     ; Cause an error later
         JMP     SHORT PRESCANEND
 GOTREOFIL:
         PUSH    DI
-        MOV     DI,OFFSET RESGROUP:RE_OUTSTR
+        MOV     DI,RE_OUTSTR
 SETREOUTSTR:                            ; Get the output redirection name
         LODSB
         CMP     AL,0DH
@@ -212,11 +212,11 @@ NOOUT:
         CALL    SCANOFF
         CMP     AL,0DH
         JNZ     GOTREIFIL
-        MOV     WORD PTR [RE_INSTR],09H ; Cause an error later
+        MOV     word [RE_INSTR],09H ; Cause an error later
         JMP     SHORT PRESCANEND
 GOTREIFIL:
         PUSH    DI
-        MOV     DI,OFFSET RESGROUP:RE_INSTR
+        MOV     DI,RE_INSTR
         JMP     SHORT SETREOUTSTR       ; Get the input redirection name
 
 CHKPIPE:
@@ -236,7 +236,7 @@ PIPEERRSYNJ5:
 
 GOTRESTR:
         XCHG    AH,AL
-        CMP     BYTE PTR ES:[DI-1],':'  ; Trailing ':' OK on devices
+        CMP     byte [ES:DI-1],':'  ; Trailing ':' OK on devices
         JNZ     NOTTRAILCOL
         DEC     DI              ; Back up over trailing ':'
 NOTTRAILCOL:
@@ -253,9 +253,9 @@ CONTPRESCAN:
 PRESCANEND:
         CMP     [PIPEFLAG],0
         JZ      ISNOPIPE
-        MOV     DI,OFFSET RESGROUP:PIPESTR
+        MOV     DI,PIPESTR
         MOV     [PIPEPTR],DI
-        MOV     SI,OFFSET TRANGROUP:COMBUF+2
+        MOV     SI,COMBUF+2
         CALL    SCANOFF
 PIPESETLP:                      ; Transfer the pipe into the resident pipe buffer
         LODSB
@@ -269,7 +269,7 @@ ISNOPIPE:
         POP     ES
         return
 
-ASSUME  DS:TRANGROUP,ES:TRANGROUP
+; ASSUME  DS:TRANGROUP,ES:TRANGROUP
 
 PATHCHRCMP:
         CMP     [SWITCHAR],'/'
@@ -290,7 +290,7 @@ PATHCRUNCH:
 ; Carry set if no CHDIRs worked, FCB not altered.
 ; DESTISDIR set non zero if PATHCHRs in path (via SETPATH)
 
-        MOV     DL,DS:[FCB]
+        MOV     DL,[DS:FCB]
         CALL    SAVUDIR
         CALL    SETPATH
         TEST    [DESTINFO],2
@@ -311,15 +311,15 @@ TRYPEEL:
         DEC     SI              ; Point at NUL
         MOV     AL,[SI-1]
 
-        IF      KANJI
+        %if KANJI
         CMP     [KPARSE],0
         JNZ     DELSTRT         ; Last char is second KANJI byte, might be '\'
-        ENDIF
+        %endif
 
         CALL    PATHCHRCMP
         JZ      PEELFAIL                ; Trailing '/'
 
-        IF      KANJI
+        %if KANJI
 DELSTRT:
         MOV     CX,SI
         MOV     SI,DX
@@ -359,7 +359,7 @@ DELLOOP2:                       ; Set value of KPARSE
         JMP     DELLOOP2
 
 KSET:
-        ELSE
+        %else
 DELLOOP:
         CMP     SI,DX
         JZ      BADRET
@@ -368,19 +368,19 @@ DELLOOP:
         JZ      TRYCD
         DEC     SI
         JMP     SHORT DELLOOP
-        ENDIF
+        %endif
 
 TRYCD:
-        CMP     BYTE PTR [SI+1],'.'
+        CMP     byte [SI+1],'.'
         JZ      PEELFAIL                ; If . or .., pure cd should have worked
         mov     al,[si-1]
         CMP     al,DRVCHAR                  ; Special case dDRVCHAR,DIRCHARfile
         JZ      BADRET
 
-        IF      KANJI
+        %if KANJI
         CMP     [KPARSE],0
         JNZ     NOTDOUBLESL     ; Last char is second KANJI byte, might be '\'
-        ENDIF
+        %endif
 
         CALL    PATHCHRCMP
         JNZ     NOTDOUBLESL
@@ -388,7 +388,7 @@ PEELFAIL:
         STC                                 ; //
         return
 NOTDOUBLESL:
-        MOV     BYTE PTR [SI],0
+        MOV     byte [SI],0
         MOV     AH,CHDIR
         INT     int_command
         JNC     CDSUCC
@@ -416,8 +416,8 @@ CDSUCC:
 
 
 DISPSIZE:
-        MOV     SI,WORD PTR[DIRBUF+29+7]
-        MOV     DI,WORD PTR[DIRBUF+31+7]
+        MOV     SI,word[DIRBUF+29+7]
+        MOV     DI,word[DIRBUF+31+7]
 
 DISP32BITS:
 ; Prints the 32-bit number DI:SI on the console in decimal. Uses a total
@@ -440,7 +440,7 @@ CONVLP:
 
 ; Conversion complete. Print 9-digit number.
 
-        MOV     DI,OFFSET TRANGROUP:CHARBUF
+        MOV     DI,CHARBUF
         MOV     CX,1810H        ; Allow leading zero blanking for 8 digits
         XCHG    DX,AX
         CALL    DIGIT
@@ -450,7 +450,7 @@ CONVLP:
         CALL    OUTWORD
         XOR     AX,AX
         STOSB
-        MOV     DX,OFFSET TRANGROUP:CHARBUF
+        MOV     DX,CHARBUF
         JMP     ZPRINT
 
 OUTWORD:
@@ -493,11 +493,11 @@ GETBATBYT:
 ; Get one byte from the batch file and return it in AL. End-of-file
 ; returns <CR> and ends batch mode. DS must be set to resident segment.
 ; AH, CX, DX destroyed.
-ASSUME  DS:RESGROUP
-        ADD     WORD PTR [BATLOC],1     ; Add one to file location
-        ADC     WORD PTR [BATLOC+2],0
+; ASSUME  DS:RESGROUP
+        ADD     word [BATLOC],1     ; Add one to file location
+        ADC     word [BATLOC+2],0
         PUSH    BX
-        MOV     DX,OFFSET RESGROUP:BATBYT
+        MOV     DX,BATBYT
         MOV     BX,[BATHAND]
         MOV     AH,READ
         MOV     CX,1
@@ -524,7 +524,7 @@ BATEOF:
 NOSETSING2:
         MOV     [ECHOFLAG],1
         return
-ASSUME  DS:TRANGROUP
+; ASSUME  DS:TRANGROUP
 
 SCANOFF:
         LODSB
@@ -554,7 +554,7 @@ PRINT_PROMPT:
         PUSH    ES
         CALL    FIND_PROMPT     ; LOOK FOR PROMPT STRING
         JC      PP0             ; CAN'T FIND ONE
-        CMP     BYTE PTR ES:[DI],0
+        CMP     byte [ES:DI],0
         JNZ     PP1
 PP0:
         CALL    PRINT_DRIVE     ; USE DEFAULT PROMPT
@@ -563,7 +563,7 @@ PP0:
         JMP     SHORT PP5
 
 PP1:
-        MOV     AL,ES:[DI]      ; GET A CHAR
+        MOV     AL,[ES:DI]      ; GET A CHAR
         INC     DI
         OR      AL,AL
         JZ      PP5             ; NUL TERMINATED
@@ -574,9 +574,9 @@ PPP1:
         JMP     PP1
 
 PP2:
-        MOV     AL,ES:[DI]
+        MOV     AL,[ES:DI]
         INC     DI
-        MOV     BX,OFFSET TRANGROUP:PROMPT_TABLE-3
+        MOV     BX,PROMPT_TABLE-3
         OR      AL,AL
         JZ      PP5
 
@@ -585,7 +585,7 @@ PP3:
         CALL    UPCONV
         CMP     AL,[BX]
         JZ      PP4
-        CMP     BYTE PTR [BX],0
+        CMP     byte [BX],0
         JNZ     PP3
         JMP     PP1
 
@@ -605,7 +605,7 @@ PP5:
         return
 
 PRINT_BACK:
-        MOV     DX,OFFSET TRANGROUP:DBACK
+        MOV     DX,DBACK
         JMP     ZPRINT
 
 PRINT_EQ:
@@ -652,16 +652,16 @@ GETPATH:
         MOV     DX,SI
 SKIPPATH:
 
-        IF      KANJI
+        %if KANJI
         MOV     [KPARSE],0
 SKIPPATH2:
-        ENDIF
+        %endif
 
         JCXZ    PATHDONE
         DEC     CX
         LODSB
 
-        IF      KANJI
+        %if KANJI
         CALL    TESTKANJ
         JZ      TESTPPSEP
         DEC     CX
@@ -670,7 +670,7 @@ SKIPPATH2:
         JMP     SKIPPATH2
 
 TESTPPSEP:
-        ENDIF
+        %endif
 
         CALL    PATHCHRCMP
         JNZ     TESTPMETA
@@ -736,7 +736,7 @@ PATHSLP:                        ; Get the user specified path
         CMP     AL,0DH
         JZ      GOTPATHS
 
-        IF      KANJI
+        %if KANJI
         CALL    TESTKANJ
         JZ      NOTKANJ2
         CALL    STORE_CHAR
@@ -745,7 +745,7 @@ PATHSLP:                        ; Get the user specified path
         JMP     SHORT PATHSLP
 
 NOTKANJ2:
-        ENDIF
+        %endif
 
         CALL    UPCONV
         CMP     AL,';'          ; ';' not a delimiter on PATH
@@ -767,10 +767,10 @@ DISPPATH:
         return
 
 PRINT_PATH:
-        CMP     BYTE PTR ES:[DI],0
+        CMP     byte [ES:DI],0
         JNZ     PATH1
 PATH0:
-        MOV     DX,OFFSET TRANGROUP:NULPATH
+        MOV     DX,NULPATH
         PUSH    CS
         POP     DS
         JMP     PRINT
@@ -779,7 +779,7 @@ PATH1:
         POP     DS
         SUB     DI,5
         MOV     DX,DI
-ASSUME  DS:RESGROUP
+; ASSUME  DS:RESGROUP
         CALL    SCASB2                  ; LOOK FOR NUL
         CMP     CX,0FFH
         JZ      PATH0
@@ -828,7 +828,7 @@ OKRET:
         return
 
 INDIG:
-        MOV     AL,BYTE PTR[SI]
+        MOV     AL,byte[SI]
         SUB     AL,"0"
         retc
         CMP     AL,10
@@ -867,7 +867,7 @@ OUT_CHAR:
         PUSH    AX
         PUSH    CS
         POP     DS
-        MOV     BX,OFFSET TRANGROUP:CHARBUF
+        MOV     BX,CHARBUF
         MOV     [BX],DL
         MOV     DX,BX
         MOV     BX,1
@@ -936,18 +936,18 @@ STRING_OUT:
 ERROR_OUTPUT:
         PUSH    CS
         POP     DS
-ASSUME  DS:TRANGROUP
+; ASSUME  DS:TRANGROUP
         MOV     ES,[RESSEG]
-ASSUME  ES:RESGROUP
-        MOV     DX,OFFSET TRANGROUP:NOSPACE
+; ASSUME  ES:RESGROUP
+        MOV     DX,NOSPACE
         CMP     [PIPEFLAG],0
         JZ      GO_TO_ERROR
         MOV     [PIPEFLAG],0
-        MOV     DX,OFFSET TRANGROUP:PIPEEMES
+        MOV     DX,PIPEEMES
 GO_TO_ERROR:
         JMP     CERROR
 
 
-TRANCODE    ENDS
-            END
+; END SECTION .TRANCODE
+            ; END
                                                        

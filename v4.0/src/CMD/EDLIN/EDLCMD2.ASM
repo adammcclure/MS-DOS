@@ -1,5 +1,5 @@
-	PAGE 60,132
-TITLE Edlcmd2 - PART2 procedures called from EDLIN
+	; PAGE 60,132
+; TITLE Edlcmd2 - PART2 procedures called from EDLIN
 
 
 ;======================= START OF SPECIFICATIONS =========================
@@ -43,69 +43,69 @@ TITLE Edlcmd2 - PART2 procedures called from EDLIN
 ;
 ;======================= END OF SPECIFICATIONS ===========================
 
-include edlequ.asm
+%include "edlequ.asm"
 
-CODE	SEGMENT PUBLIC
-CODE	ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-CONST	SEGMENT PUBLIC WORD
-CONST	ENDS
+SECTION .CONST
+; END SECTION .CONST
 
-cstack	segment stack
-cstack	ends
+SECTION .cstack
+; END SECTION .cstack
 
-DATA	SEGMENT PUBLIC WORD
-DATA	ENDS
+SECTION .DATA
+; END SECTION .DATA
 
 
-DG	GROUP	CODE,CONST,cstack,DATA
+; DG	GROUP	CODE,CONST,cstack,DATA
 
-CONST	SEGMENT PUBLIC WORD
-	extrn	crlf_ptr:byte,lf_ptr:byte,qmes_ptr:byte,ask_ptr:byte
-	extrn	bak:byte,$$$file:byte,delflg:byte,loadmod:byte,txt1:byte
-	extrn	txt2:byte,memful_ptr:word,YES_BYTE:BYTE
+SECTION .CONST
+	extern crlf_ptr,lf_ptr,qmes_ptr,ask_ptr
+	extern bak,$$$file,delflg,loadmod,txt1
+	extern txt2,memful_ptr,YES_BYTE
 
-	extrn	Del_Bak_Ptr:byte		;an000;dms;
-	extrn	cont_ptr:byte			;an000;dms:6/10/87
+	extern Del_Bak_Ptr;an000;dms;
+	extern cont_ptr;an000;dms:6/10/87
 
-CONST	ENDS
+; END SECTION .CONST
 
-DATA	SEGMENT PUBLIC WORD
-	extrn	ParamCt:WORD
-	extrn	current:word,pointer:word,start:word,endtxt:word
-	extrn	wrt_handle:word,editbuf:byte,ext_ptr:word,qflg:byte
-	extrn	temp_path:byte,line_num:word,line_flag:byte
-	extrn	line_num_buf_ptr:byte,arg_buf:byte,arg_buf_ptr:word
-	extrn	olddat:byte,oldlen:word,newlen:word,param1:word,param2:word
-	extrn	srchflg:byte,srchmod:byte,comline:word,lstfnd:word,numpos:word
-	extrn	lstnum:word,last:word,srchcnt:word,amnt_req:word
+SECTION .DATA
+	extern ParamCt
+	extern current,pointer,start,endtxt
+	extern wrt_handle,editbuf,ext_ptr,qflg
+	extern temp_path,line_num,line_flag
+	extern line_num_buf_ptr,arg_buf,arg_buf_ptr
+	extern olddat,oldlen,newlen,param1,param2
+	extern srchflg,srchmod,comline,lstfnd,numpos
+	extern lstnum,last,srchcnt,amnt_req
 
-	extrn	lc_adj:byte			;an000;dms:6/10/87
-	extrn	continue:byte			;an000;dms:6/10/87
-	extrn	pg_count:byte			;an000;dms:6/10/87
-	extrn	Disp_Len:byte			;an000;dms;
-	extrn	Disp_Width:byte 		;an000;dms;
-	extrn	lc_flag:byte			;an000;dms:6/10/87
+	extern lc_adj;an000;dms:6/10/87
+	extern continue;an000;dms:6/10/87
+	extern pg_count;an000;dms:6/10/87
+	extern Disp_Len;an000;dms;
+	extern Disp_Width;an000;dms;
+	extern lc_flag;an000;dms:6/10/87
 
-	if	kanji
-	extrn	lbtbl:dword
-	endif
+	%if kanji
+	extern lbtbl
+	%endif
 
-DATA	ENDS
+; END SECTION .DATA
 
-CODE SEGMENT PUBLIC
+SECTION .CODE
 
-ASSUME	CS:DG,DS:DG,SS:CStack,ES:DG
+; ASSUME	CS:DG,DS:DG,SS:CStack,ES:DG
 
-	public	findlin,shownum,loadbuf,crlf,lf,abortcom,unquote
-	public	kill_bl,make_caps,display,dispone,make_cntrl
-	public	query,quit,scanln,delbak,scaneof,memerr
-	public	fndfirst,fndnext,replace
-	if	kanji
-	public	testkanj
-	endif
-	extrn	std_printf:near,command:near,chkrange:near,ComErr:NEAR
-	extrn	Xerror:near
+	global findlin,shownum,loadbuf,crlf,lf,abortcom,unquote
+	global kill_bl,make_caps,display,dispone,make_cntrl
+	global query,quit,scanln,delbak,scaneof,memerr
+	global fndfirst,fndnext,replace
+	%if kanji
+	global testkanj
+	%endif
+	extern std_printf,command,chkrange,ComErr
+	extern Xerror
 
 
 FINDLIN:
@@ -126,7 +126,7 @@ FINDLIN:
 	OR	BX,BX			; special case of EOF?
 	JZ	FINDIT			; yes
 	MOV	DX,1			; set up for scan at beginning
-	MOV	DI,OFFSET DG:START
+	MOV	DI,START
 	CMP	BX,DX			; at beginning?
 	retz
 FINDIT:
@@ -151,7 +151,7 @@ RET4:	return
 ; AX, CX, DX destroyed. No other registers affected.
 
 SHOWNUM:
-	mov	dx,offset dg:line_num_buf_ptr
+	mov	dx,line_num_buf_ptr
 	mov	line_num,bx
 	MOV	line_flag,"*"
 	CMP	BX,[CURRENT]
@@ -189,7 +189,7 @@ DISPLAY:
 
 	push	ax				;an000;save affected regs
 
-	mov	al,dg:disp_len			;an000;length of video display
+	mov	al,disp_len			;an000;length of video display
 	mov	pg_count,al			;an000;init. screen size ctr.
 
 	pop	ax				;an000;restore affected regs
@@ -205,13 +205,13 @@ DISPLN:
 	SaveReg <CX,DX>
 	CALL	SHOWNUM
 	RestoreReg  <DX,CX>
-	mov	di,offset dg:arg_buf
+	mov	di,arg_buf
 ;
 ; Copy chars until CR/LF or end of line hit
 ;
 OUTLN:
 	LODSB
-	CMP	DI,254+offset dg:arg_buf ; are we at end of buffer?
+	CMP	DI,254+arg_buf ; are we at end of buffer?
 	JAE	StoreDone		; Yes, do NOT store
 	CMP	AL," "
 	JAE	SEND
@@ -234,12 +234,12 @@ StoreDone:
 ;
 ; Make sure buffer ends with CRLF
 ;
-	cmp	byte ptr [di-1],10
+	cmp	byte [di-1],10
 	jz	Terminate
 ;
 ; No LF seen.  See if CR
 ;
-	cmp	byte ptr [di-1],CR
+	cmp	byte [di-1],CR
 	jz	StoreLF
 	mov	al,CR
 	stosb
@@ -247,12 +247,12 @@ StoreLF:
 	mov	al,10
 	stosb
 Terminate:
-	mov	byte ptr [di],0
+	mov	byte [di],0
 
 	call	EDLIN_DISP_COUNT		;an000;determine lines printed
 						;      DMS:6/10/87
 	push	dx
-	mov	dx,offset dg:arg_buf_ptr
+	mov	dx,arg_buf_ptr
 	call	std_printf
 	pop	dx
 	JCXZ	ret7
@@ -267,28 +267,28 @@ Terminate:
 ret7:	return
 
 FNDFIRST:
-	MOV	DI,1+OFFSET DG:TXT1
-	mov	byte ptr[olddat],1     ;replace with old value if none new
+	MOV	DI,1+TXT1
+	mov	byte[olddat],1     ;replace with old value if none new
 	CALL	GETTEXT
 	OR	AL,AL		;Reset zero flag in case CX is zero
 	JCXZ	RET7
 	cmp	al,1ah		;terminated with a ^Z ?
 	jne	sj8
-	mov	byte ptr[olddat],0     ;do not replace with old value
+	mov	byte[olddat],0     ;do not replace with old value
 sj8:
 	MOV	[OLDLEN],CX
 	XOR	CX,CX
 	CMP	AL,0DH
 	JZ	SETBUF
-	CMP	BYTE PTR [SRCHFLG],0
+	CMP	byte [SRCHFLG],0
 	JZ	NXTBUF
 SETBUF:
 	DEC	SI
 NXTBUF:
 	MOV	[COMLINE],SI
-	MOV	DI,1+OFFSET DG:TXT2
+	MOV	DI,1+TXT2
 	CALL	GETTEXT
-	CMP	BYTE PTR [SRCHFLG],0
+	CMP	byte [SRCHFLG],0
 	JNZ	NOTREPL
 	CMP	AL,0DH
 	JNZ	HAVCHR
@@ -300,7 +300,7 @@ NOTREPL:
 	MOV	BX,[PARAM1]
 	OR	BX,BX
 	JNZ	CALLER
-	cmp	byte ptr[srchmod],0
+	cmp	byte[srchmod],0
 	jne	sj9
 	mov	bx,1	 ;start from line number 1
 	jmp	short sj9a
@@ -350,15 +350,15 @@ SCAN:
 	REPNE	SCASB		;look for first byte of string
 
 	retnz			;return if you don't find
-if	kanji
+%if kanji
 	call	kanji_check	;see if the found byte is on a character boundary
 	jnz	scan
-endif
+%endif
 	MOV	DX,CX
 	MOV	BX,DI		;Save search position
 	MOV	CX,[OLDLEN]
 	DEC	CX
-	MOV	SI,2 + OFFSET DG:TXT1
+	MOV	SI,2 + TXT1
 	CMP	AL,AL		;Set zero flag in case CX=0
 	REPE	CMPSB
 	MOV	CX,DX
@@ -383,7 +383,7 @@ GETLIN:
 	XOR	AL,AL
 	return
 
-if	kanji
+%if kanji
 
 ;Kanji_check		idea is to scan backwards to the first
 ;			character which can't be a kanji or part of one
@@ -444,7 +444,7 @@ testkanj:
 	xchg	ah,al		    ;put byte in ah
 	push	ds
 	push	si
-	lds	si,cs:[lbtbl]	       ;get pointer to lead byte table
+	lds	si,[cs:lbtbl]	       ;get pointer to lead byte table
 ktlop:
 	lodsb			    ;direction flag should be OK
 	or	al,al		    ;are we at the end of table?
@@ -464,7 +464,7 @@ notlead:
 	cmp	al,al
 	jmp	notl_exit
 
-endif
+%endif
 
 GETTEXT:
 
@@ -506,18 +506,18 @@ DEFCHK:
 	JZ	OLDTXT
 	PUSH	DI
 	SUB	DI,CX
-	MOV	BYTE PTR [DI-1],cl
+	MOV	byte [DI-1],cl
 	POP	DI
 	return
 
 OLDTXT:
-	cmp	byte ptr[olddat],1	;replace with old text?
+	cmp	byte[olddat],1	;replace with old text?
 	je	sj11			;yes...
-	mov	byte ptr[di-1],cl	;zero text buffer char count
+	mov	byte[di-1],cl	;zero text buffer char count
 	return
 
 sj11:
-	MOV	CL,BYTE PTR [DI-1]
+	MOV	CL,byte [DI-1]
 	ADD	DI,CX
 	return
 
@@ -567,13 +567,13 @@ COPYIN:
 	return
 
 MEMERR:
-	MOV	DX,OFFSET DG:MEMFUL_ptr
+	MOV	DX,MEMFUL_ptr
 	call	std_printf
 	JMP	COMMAND
 
 
 LOADBUF:
-	MOV	DI,2 + OFFSET DG:EDITBUF
+	MOV	DI,2 + EDITBUF
 	MOV	CX,255
 	MOV	DX,-1
 LOADLP:
@@ -599,7 +599,7 @@ SCANEOF:
 
 ;----- Load till physical end of file
 
-	cmp	cx,word ptr[amnt_req]
+	cmp	cx,word[amnt_req]
 	jb	sj51
 	xor	al,al
 	inc	al		;reset zero flag
@@ -609,7 +609,7 @@ sj51:
 	push	di		;get rid of any ^Z at the end of the file
 	add	di,cx
 	dec	di		;points to last char
-	cmp	byte ptr [di],1ah
+	cmp	byte [di],1ah
 	pop	di
 	jne	sj51b
 	dec	cx
@@ -653,14 +653,14 @@ check_end:
 	push	di			;save pointer to buffer
 	add	di,cx			;points to one past end on text
 	dec	di			;points to last character
-	cmp	di,offset dg:start
+	cmp	di,start
 	je	check_no
-	cmp	byte ptr[di],0ah	;is a LF the last character?
+	cmp	byte[di],0ah	;is a LF the last character?
 	je	check_done		;yes, exit
 check_no:
-	mov	byte ptr[di+1],0dh	;no, put a CR
+	mov	byte[di+1],0dh	;no, put a CR
 	inc	cx			;one more char in text
-	mov	byte ptr[di+2],0ah	;put a LF
+	mov	byte[di+2],0ah	;put a LF
 	inc	cx			;another character at the end
 check_done:
 	pop	di
@@ -670,12 +670,12 @@ not_end:
 
 CRLF:
 	push	dx
-	mov	dx,offset dg:crlf_ptr
+	mov	dx,crlf_ptr
 	call	std_printf
 	pop	dx
 	return
 LF:
-	MOV	dx,offset dg:lf_ptr
+	MOV	dx,lf_ptr
 	call	std_printf
 	return
 
@@ -693,14 +693,14 @@ ABORTCOM:
 DELBAK:
 	;Delete old backup file (.BAK)
 
-	MOV	BYTE PTR [DELFLG],1
+	MOV	byte [DELFLG],1
 	MOV	DI,[EXT_PTR]
-	MOV	SI,OFFSET DG:BAK
+	MOV	SI,BAK
 	MOVSW
 	MOVSW
 	MOVSB
 	MOV	AH,UNLINK
-	MOV	DX,OFFSET DG:TEMP_PATH
+	MOV	DX,TEMP_PATH
 	INT	21H
 ;	$if	c					;error ?		;an000; dms;
 	JNC $$IF1
@@ -712,20 +712,20 @@ DELBAK:
 			int	21h			;close it		;an000; dms;
 
 			mov	di,[Ext_Ptr]		;point to extension	;an000; dms;
-			mov	si,offset dg:$$$File	;point to .$$$ extension;an000; dms;
+			mov	si,$$$File	;point to .$$$ extension;an000; dms;
 			movsw				;get .$$$ extension	;an000; dms;
 			movsw				;			;an000; dms;
 			movsb				;			;an000; dms;
-			mov	dx,offset dg:Temp_Path	;point to .$$$ file	;an000; dms;
+			mov	dx,Temp_Path	;point to .$$$ file	;an000; dms;
 			mov	ah,Unlink		;delete it		;an000; dms;
 			int	21h			;			;an000; dms;
 
 			mov	di,[Ext_Ptr]		;point to extension	;an000; dms;
-			mov	si,offset dg:BAK	;point to .BAK extension;an000; dms;
+			mov	si,BAK	;point to .BAK extension;an000; dms;
 			movsw				;get .BAK extension	;an000; dms;
 			movsw				;			;an000; dms;
 			movsb				;			;an000; dms;
-			mov	dx,offset dg:Del_Bak_Ptr;point to error message ;an000; dms;
+			mov	dx,Del_Bak_Ptr;point to error message ;an000; dms;
 			jmp	Xerror			;display message & exit ;an000; dms;
 ;		$endif
 $$IF2:
@@ -733,7 +733,7 @@ $$IF2:
 $$IF1:
 
 	MOV	DI,[EXT_PTR]
-	MOV	SI,OFFSET DG:$$$FILE
+	MOV	SI,$$$FILE
 	MOVSW
 	MOVSW
 	MOVSB
@@ -762,9 +762,9 @@ unq_loop:
 	push	cx		;save chars left in buffer
 	push	di		;save pointer to quoted character
 	push	ax		;save quote character
-	mov	al,byte ptr[di] ;get quoted character
+	mov	al,byte[di] ;get quoted character
 	call	make_cntrl
-	mov	byte ptr[di],al
+	mov	byte[di],al
 	pop	ax		;restore quote character
 	mov	si,di
 	dec	di		;points to the quote character
@@ -775,7 +775,7 @@ unq_loop:
 	jcxz	sj13		;if quote char was last of line do not adjust
 	dec	cx		;one less char left in the buffer
 sj13:	pop	si
-	dec	byte ptr[si-1]	;one less character in total buffer count also
+	dec	byte[si-1]	;one less character in total buffer count also
 	push	si
 	jmp	short unq_loop
 
@@ -823,14 +823,14 @@ kill_bl_cont:
 	    cmp al,' '
 	    je	kill_bl_cont		;an000;we have a space
 
-	if kanji			;an000;is this a kanji assembly
+	%if kanji;an000;is this a kanji assembly
 	     call testkanj		;an000;do we have a dbcs lead byte
 ;	     $if  nz			;an000;yes, we have a lead byte
 	     JZ $$IF5
 		  cmp  al,dbcs_lead_byte;an000;is it 81h
 ;		  $if  z		;an000;it is 81h
 		  JNZ $$IF6
-		       mov  bl,ds:[si]	;an000;set up for compare
+		       mov  bl,[ds:si]	;an000;set up for compare
 		       cmp  bl,asian_blk;an000;is it 40h
 ;		       $if  z		;an000;we have an asian blank
 		       JNZ $$IF7
@@ -843,7 +843,7 @@ $$IF6:
 					;      found
 ;	     $endif			;an000;end test for dbcs lead byte
 $$IF5:
-	endif				;an000;end conditional assembly
+	%endif;an000;end conditional assembly
 
 	pop	bx			;an000;restore affected reg.
 	return
@@ -864,11 +864,11 @@ MAKE_CAPS:
 	CMP	AL,"a"
 	JB	CAPS1
 	CMP	AL,"z"
-if KANJI
+%if KANJI
 	JA	CAPS1		; M003 MSKK TAR 476, kana chars
-else
+%else
 	JG	CAPS1
-endif
+%endif
 	AND	AL,0DFH
 CAPS1:
 	return
@@ -879,17 +879,17 @@ QUIT:
 CERR:	JMP	ComErr
 Quit1:	CMP	Param1,0
 	JNZ	CERR
-	MOV	DX,OFFSET DG:QMES_ptr
+	MOV	DX,QMES_ptr
 	call	std_printf
 
-IF	KANJI
+%if KANJI
 	CALL	TESTKANJ
 	JZ	ASCII
 	MOV	AX, (STD_CON_INPUT_FLUSH SHL 8) + 0
 	INT	21H		; Eat the trailing byte.
 	JMP	CRLF
 ASCII:
-ENDIF
+%endif
 ;=========================================================================
 ; We are invoking the VAL_YN proc here.  This will replace the
 ; method of Y/N validation used prior to DOS 4.00.
@@ -904,14 +904,14 @@ ENDIF
 ;	$if	ne		;an000; dms; neither N or Y - reprompt
 	JE $$IF11
 		push	dx			;an000; dms; must be N
-		mov	dx,offset dg:crlf_ptr	;an000; dms; spit out CRLF
+		mov	dx,crlf_ptr	;an000; dms; spit out CRLF
 		call	std_printf		;an000; dms;   and return
 		pop	dx			;an000; dms;   to caller
 		jmp	Quit1			;an000; dms; reprompt
 ;	$endif			;an000; dms;
 $$IF11:
 	push	dx		;an000; dms; must be N
-	mov	dx,offset dg:crlf_ptr	;an000; dms; spit out CRLF
+	mov	dx,crlf_ptr	;an000; dms; spit out CRLF
 	call	std_printf		;an000; dms;   and return
 	pop	dx			;an000; dms;   to caller
 	return				;an000; dms;
@@ -924,7 +924,7 @@ NOCRLF:
 	MOV	BX,[WRT_HANDLE]
 	MOV	AH,CLOSE
 	INT	21H
-	MOV	DX,OFFSET DG:TEMP_PATH
+	MOV	DX,TEMP_PATH
 	MOV	AH,UNLINK
 	INT	21H
 	mov	ah,exit
@@ -932,14 +932,14 @@ NOCRLF:
 	INT	21H
 
 QUERY:
-	TEST	BYTE PTR [QFLG],-1
+	TEST	byte [QFLG],-1
 	retz
-	MOV	DX,OFFSET DG:ASK_ptr
+	MOV	DX,ASK_ptr
 	call	std_printf
 	PUSH	AX
 	CALL	CRLF
 	POP	AX
-IF	KANJI
+%if KANJI
 	CALL	TESTKANJ
 	JZ	ASCII1
 	PUSH	AX
@@ -950,7 +950,7 @@ IF	KANJI
 	POP	AX
 	return
 ASCII1:
-ENDIF
+%endif
 	CMP	AL,13		;Carriage return means yes
 	retz
 ;=========================================================================
@@ -1003,7 +1003,7 @@ Query_Exit:
 ;	Date	   : 6/10/87
 ;=========================================================================
 
-EDLIN_DISP_COUNT	proc	near		;an000;lines printed
+EDLIN_DISP_COUNT:;an000;lines printed
 
 	push	dx				;an000;save affected regs
 	push	di				;an000;
@@ -1011,12 +1011,12 @@ EDLIN_DISP_COUNT	proc	near		;an000;lines printed
 	push	bx				;an000;
 	push	cx				;an000;
 
-	mov	bx,offset dg:arg_buf		;an000;arg_buf holds line
+	mov	bx,arg_buf		;an000;arg_buf holds line
 						;      printed
 	mov	ax,di				;an000;where print line ends
 	sub	ax,bx				;an000;diff = line's length
 	add	ax,10				;an000;adjust for leading blks
-	mov	cl,dg:disp_width		;an000;set up for division
+	mov	cl,disp_width		;an000;set up for division
 	div	cl				;an000;divide AX by the
 						;      width of the console
 	cmp	ah,0				;an000;see if a remainder
@@ -1037,7 +1037,7 @@ $$IF13:
 
 	ret					;an000;return to caller
 
-EDLIN_DISP_COUNT	endp			;an000;end proc
+; ENDP EDLIN_DISP_COUNT;an000;end proc
 
 ;=========================================================================
 ; EDLIN_PG_COUNT : This routine determines whether or not we will continue
@@ -1056,7 +1056,7 @@ EDLIN_DISP_COUNT	endp			;an000;end proc
 ;	Date	   : 6/10/87
 ;=========================================================================
 
-EDLIN_PG_COUNT		proc	near		;an000;track remaining lines
+EDLIN_PG_COUNT:;an000;track remaining lines
 
 	push	ax				;an000;save affected regs
 
@@ -1088,7 +1088,7 @@ $$EN15:
 		   cmp	  continue,true 	;an000;did user say continue
 ;		   $if	  z			;an000;continue
 		   JNZ $$IF20
-			  mov	al,dg:disp_len	;an000;begin init of screen
+			  mov	al,disp_len	;an000;begin init of screen
 ;			  dec	al		;an000;    length
 			  mov	pg_count,al	;an000;
 ;		   $else			;an000;do not continue
@@ -1110,7 +1110,7 @@ $$EN18:
 
 	ret					;an000;return to caller
 
-EDLIN_PG_COUNT		endp			;an000;end procedure
+; ENDP EDLIN_PG_COUNT;an000;end procedure
 
 ;=========================================================================
 ; EDLIN_PG_PROMPT : This routine prompts the user as to whether or not to
@@ -1125,14 +1125,14 @@ EDLIN_PG_COUNT		endp			;an000;end procedure
 ;	Date	   : 6/10/87
 ;=========================================================================
 
-EDLIN_PG_PROMPT 	proc	near		;an000;ask user to continue?
+EDLIN_PG_PROMPT:;an000;ask user to continue?
 
 	push	dx				;an000;save affected regs.
 	push	ax				;an000;
 
 EPP_Reprompt:
 
-	mov	dx,offset dg:cont_ptr		;an000;point to Continue msg.
+	mov	dx,cont_ptr		;an000;point to Continue msg.
 	call	std_printf			;an000;invoke message ret.
 
 	push	ax				;an000;save affected regs.
@@ -1163,7 +1163,7 @@ EPP_Exit:
 
 	ret					;an000;return to caller
 
-EDLIN_PG_PROMPT 	endp			;an000;end procedure
+; ENDP EDLIN_PG_PROMPT;an000;end procedure
 
 ;=========================================================================
 ; val_yn: This proc validates a Y/N response entered by the user.  The
@@ -1176,7 +1176,7 @@ EDLIN_PG_PROMPT 	endp			;an000;end procedure
 ;	      - 01h = "Y"es
 ;=========================================================================
 
-val_yn	proc	near		;an000;validate Y/N response
+val_yn:;an000;validate Y/N response
 
 	push	dx		;an000;save affected registers
 	push	cx		;an000;
@@ -1194,10 +1194,10 @@ val_yn	proc	near		;an000;validate Y/N response
 
 	ret			;an000;return to caller
 
-val_yn	endp			;an000;end proc
+; ENDP val_yn;an000;end proc
 
 
 
-code	ends
-	end
+; END SECTION .code
+	; end
 

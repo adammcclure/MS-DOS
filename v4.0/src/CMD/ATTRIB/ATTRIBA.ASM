@@ -1,5 +1,5 @@
-	page	,132			;
-	title	New_C.C - DOS entry to the KWC's 'C' programs
+	; page	,132;
+	; title	New_C.C - DOS entry to the KWC's 'C' programs
 
 ;
 ;	This module has been modified extensively for my personal
@@ -32,28 +32,28 @@ ABORT	   equ	 2			;AN000; ;if >=, retry
 XABORT	   equ	 1			;AN000; ;errorlevel return in al
 
 
-	   extrn _inmain:near		;AC000;
-	   extrn _Reset_appendx:near	;AN000;
-	   extrn _old_int24_off:dword	;AN000;
+	   extern _inmain;AC000;
+	   extern _Reset_appendx;AN000;
+	   extern _old_int24_off;AN000;
 
 
-psp	   segment at 0 		;<--emk
-psp_ret    dw	 ?			;int 20h
-psp_memsz  dw	 ?			;memory size
+SECTION .psp;<--emk
+psp_ret: dw 0;int 20h
+psp_memsz: dw 0;memory size
 	   org	 2ch
-psp_env    dw	 ?			;segid of environment
+psp_env: dw 0;segid of environment
 	   org	 80h
-psp_parlen db	 ?			;length of DOS command line parms
-psp_par    db	 127 dup(?)		;DOS command line parms
-psp	   ends
-	   page
+psp_parlen: db 0;length of DOS command line parms
+psp_par: times 127 db 0;DOS command line parms
+; END SECTION .psp
+	   ; page
 
 ;
 ; The following segment serves only to force "pgroup" lower in
 ; memory.
 ;
 
-base	   segment PARA PUBLIC 'DATA'
+SECTION .base
 
 	   db	 00dh,00ah
 	   db	 "----------\x0d\x0a"
@@ -61,7 +61,7 @@ base	   segment PARA PUBLIC 'DATA'
 	   db	 "--------------------\x0d\x0a"
 	   db	 00dh,00ah,01ah
 
-base	   ends
+; END SECTION .base
 
 
 ;
@@ -69,36 +69,36 @@ base	   ends
 ; of the base and top of the stack.
 ;
 
-_data	   segment PARA public 'DATA'
+SECTION ._data
 
-	   irp	 name,<_top,_base,_cs,_ss,_psp,_env,_rax,_rbx,_rcx,_rdx,_rds,_rsi,_rbp,_res,_rdi>
-	   public name
-name	   dw	 0
-	   endm
+	   ; irp	 name,<_top,_base,_cs,_ss,_psp,_env,_rax,_rbx,_rcx,_rdx,_rds,_rsi,_rbp,_res,_rdi>
+	   global name
+; name	   dw	 0
+	   %endmacro
 
-_data	   ends
+; END SECTION ._data
 
 ;
 ; The stack segment is included to prevent the warning from the
 ; linker, and also to define the base (lowest address) of the stack.
 ;
 
-stack	   segment PARA stack 'data'
+SECTION .stack
 
-SBase	   dw	 128 dup (?)
+SBase: times 128 dw 0
 
-stack	   ends
+; END SECTION .stack
 
-null	   segment para public 'BEGDATA'
-null	   ends
-const	   segment word public 'CONST'
-const	   ends
-_bss	   segment word public 'BSS'
-_bss	   ends
-pgroup	   group base,_text
-dgroup	   group null, _data, const, _bss, stack
+SECTION .null
+; END SECTION .null
+SECTION .const
+; END SECTION .const
+SECTION ._bss
+; END SECTION ._bss
+; pgroup	   group base,_text
+; dgroup	   group null, _data, const, _bss, stack
 
-	   page
+	   ; page
 
 ;
 ; The main program must set up the initial segment registers
@@ -108,20 +108,20 @@ dgroup	   group null, _data, const, _bss, stack
 ; them supplied to the C main module _main (which calls main).
 ;
 
-_text	   segment PARA public 'CODE'
+SECTION ._text
 
-	   public XCMAIN
+	   global XCMAIN
 
-	   assume cs:pgroup
-	   assume ds:psp		;<--emk
-	   assume es:psp		;<--emk
-	   assume ss:stack		;<--emk
+	   ; assume cs:pgroup
+	   ; assume ds:psp;<--emk
+	   ; assume es:psp;<--emk
+	   ; assume ss:stack;<--emk
 
-XCMAIN	   proc  far
+XCMAIN:
 
 	   mov	 ax,dgroup
 	   mov	 ds,ax			;initialize ds and ss
-	   assume ds:dgroup
+	   ; assume ds:dgroup
 
 	   mov	 bx,psp_memsz		;total memory size (paragraphs)
 	   sub	 bx,ax
@@ -141,13 +141,13 @@ $$EN1:
 	   mov	 ss,ax			; set ss <---kwc
 	   mov	 sp,bx			; set stack pointer <---kwc
 	   sti				;enable interrupts
-	   assume ss:DGroup		;<--emk
+	   ; assume ss:DGroup;<--emk
 
 	   mov	 _ss,ss
 	   mov	 _cs,cs
 	   mov	 _top,bx		;save top of stack
 
-	   mov	 ax,offset DGroup:SBase
+	   mov	 ax,SBase
 	   mov	 _base,ax		;store ptr to bottom of stack
 
 ; code added here to allow allocates and exec's in the c code
@@ -171,12 +171,12 @@ $$EN1:
 	   mov	 _psp,es		; save pointer to psp for setblock <---kwc
 	   mov	 cl,psp_parlen		;get number of bytes <--emk
 	   xor	 ch,ch			;cx = number of bytes of parms!
-	   mov	 si,offset psp_par	;point to DOS command line parms <--emk
+	   mov	 si,psp_par	;point to DOS command line parms <--emk
 
 ; more modified code, picking up argv[0] from the environment!
 
 	   mov	 ds,psp_env		;set ds to segid of environment from es:psp
-	   assume ds:nothing
+	   ; assume ds:nothing
 
 	   mov	 _env,ds		;remember where environment is
 
@@ -190,7 +190,7 @@ $$DO4:
 	       inc   si 		;bump index to look at next byte in env
 ;	   $STRTDO
 $$SD4:
-	       cmp   word ptr [si],0	;is this a double null delimiter?
+	       cmp   word [si],0	;is this a double null delimiter?
 ;	   $ENDDO E			;ifdouble null found, exit
 	   JNE $$DO4
 ;At end of env is the double null and a word counter
@@ -226,18 +226,18 @@ $$DO7:
 	   xchg  cx,dx			; length of argv[0] to copy, save length of parms
 	   rep	 movsb			; (ds:si) already point to argv[0]
 	   pop	 es
-	   mov	 ss:byte ptr [di],' '	;store trailing blank!
+	   mov	 ss:byte [di],' '	;store trailing blank!
 	   inc	 di
 	   mov	 _rdi,di		;AN000; save start of command parms
 	   xchg  cx,dx			; restore length of parms
 ;	   $IF	 NCXZ			;if some bytes to move,
 	   JCXZ $$IF9
 
-	       mov   si,offset psp_par	;point to DOS command line parms in psp
+	       mov   si,psp_par	;point to DOS command line parms in psp
 ;	       $DO
 $$DO10:
-		   mov	 al,es:[si]	;move bytes to stack
-		   mov	 ss:[di],al
+		   mov	 al,[es:si]	;move bytes to stack
+		   mov	 [ss:di],al
 		   inc	 si
 		   inc	 di
 ;	       $ENDDO LOOP
@@ -245,13 +245,13 @@ $$DO10:
 ;	   $ENDIF			;bytes to move?
 $$IF9:
 	   xor	 ax,ax
-	   mov	 ss:[di],al		;store null byte
+	   mov	 [ss:di],al		;store null byte
 	   mov	 ax,ss
 	   mov	 ds,ax			;es, ds, and ss are all equal
-	   assume ds:DGroup
+	   ; assume ds:DGroup
 
 	   mov	 es,ax			;es, ds, and ss are all equal
-	   assume es:DGroup
+	   ; assume es:DGroup
 
 	   mov	 ax,_rdi		;AN000; restore offset of parms on stack
 	   push  ax			;ptr to command line
@@ -261,9 +261,9 @@ $$IF9:
 	   mov	 ah,ret_cd_exit 	;return to DOS
 	   int	 21h			;errorlevel ret code in al
 
-XCMAIN	   endp
+; ENDP XCMAIN
 
-	   page
+	   ; page
 
 ;
 ; name		XCEXIT -- terminate execution of C program
@@ -276,69 +276,69 @@ XCMAIN	   endp
 ;	input - al = binary return code for dos/ERRORLEVEL
 ;
 
-	   assume cs:PGroup
-	   assume ds:DGroup
-	   assume es:DGroup
-	   assume ss:DGroup
+	   ; assume cs:PGroup
+	   ; assume ds:DGroup
+	   ; assume es:DGroup
+	   ; assume ss:DGroup
 
-	   public xcexit
-XCEXIT	   proc  far
+	   global xcexit
+XCEXIT:
 
 	   mov	 ah,ret_cd_exit 	;				<--- kwc
 	   int	 021h			;				<--- kwc
 
-XCEXIT	   endp
+; ENDP XCEXIT
 
 ;--------------------------------------------------------------------------
 
-	   PAGE
+	   ; PAGE
 
-CENTER	   MACRO NAMELIST
+%macro CENTER 1
 	   PUSH  BP			; SAVE CURRENT BP
 	   MOV	 BP,SP			; POINT AT STACK WITH BP
-WORKOFS    =	 0
-	   IRP	 ANAME,<NAMELIST>	; FOR EACH WORKING VARIABLE
-	   IFNB  <&ANAME>
-WORKOFS        =     WORKOFS-2		;  WE WILL ALLOCATE ONE
+WORKOFS equ 0
+	   ; IRP	 ANAME,<NAMELIST>; FOR EACH WORKING VARIABLE
+	   %if 1  ; IFNB <&ANAME>
+WORKOFS equ WORKOFS-2;  WE WILL ALLOCATE ONE
 	       DOEQU &ANAME,%WORKOFS	;   WORD ON THE STACK THAT
-	   ENDIF
-	   ENDM 			;    IS UNDER SS,BP
+	   %endif
+	   %endmacro;    IS UNDER SS,BP
 	   ADD	 SP,WORKOFS
-	   ENDM
+	   %endmacro
 
-DOEQU	   MACRO NAME,VALUE
+%macro DOEQU 2
 &NAME	   EQU	 &VALUE
-	   ENDM
+	   %endmacro
 
-CEXIT	   MACRO VALUE
+%macro CEXIT 1
 	   MOV	 SP,BP
 	   POP	 BP
 	   RET
-	   ENDM
+	   %endmacro
 
-	   PAGE
+	   ; PAGE
 
 ; INPUT PARAMATERS PASSED ON STACK
 
-PARMS	   STRUC
+struc PARMS
 
-OLD_BP	   DW	 ?			; SAVED BP
-RETADD	   DW	 ?			; RETURN ADDRESS
-PARM_1	   DW	 ?
-PARM_2	   DW	 ?
-PARM_3	   DW	 ?
-PARM_4	   DW	 ?
-PARM_5	   DW	 ?
-PARM_6	   DW	 ?
-PARM_7	   DW	 ?
-PARM_8	   DW	 ?
+OLD_BP: resw 1; SAVED BP
+RETADD: resw 1; RETURN ADDRESS
+PARM_1: resw 1
+PARM_2: resw 1
+PARM_3: resw 1
+PARM_4: resw 1
+PARM_5: resw 1
+PARM_6: resw 1
+PARM_7: resw 1
+PARM_8: resw 1
 
-PARMS	   ENDS
+endstruc
 
 SAVE_SS    DW	 0
 SAVE_SP    DW	 0
 
-	   PAGE
+	   ; PAGE
 
 ;************************************************************************
 ;									;
@@ -361,13 +361,13 @@ SAVE_SP    DW	 0
 
 MOFFSET    EQU	 PARM_1 		;AN000;
 
-	   ASSUME CS:PGROUP		;AN000;
-	   ASSUME DS:DGROUP		;AN000;
-	   ASSUME ES:DGROUP		;AN000;
-	   ASSUME SS:DGROUP		;AN000;
+	   ; ASSUME CS:PGROUP;AN000;
+	   ; ASSUME DS:DGROUP;AN000;
+	   ; ASSUME ES:DGROUP;AN000;
+	   ; ASSUME SS:DGROUP;AN000;
 
-	   PUBLIC _GETPSPBYTE		;AN000;
-_GETPSPBYTE PROC NEAR			;AN000;
+	   global _GETPSPBYTE;AN000;
+_GETPSPBYTE:;AN000;
 
 	   CENTER			;AN000;
 
@@ -382,7 +382,7 @@ _GETPSPBYTE PROC NEAR			;AN000;
 
 	   CEXIT			;AN000;
 
-_GETPSPBYTE ENDP
+; ENDP _GETPSPBYTE
 
 
 ;************************************************************************
@@ -409,13 +409,13 @@ _GETPSPBYTE ENDP
 MVALUE	   EQU	 PARM_2 		;AN000;
 MOFFSET    EQU	 PARM_1 		;AN000;
 
-	   ASSUME CS:PGROUP		;AN000;
-	   ASSUME DS:DGROUP		;AN000;
-	   ASSUME ES:DGROUP		;AN000;
-	   ASSUME SS:DGROUP		;AN000;
+	   ; ASSUME CS:PGROUP;AN000;
+	   ; ASSUME DS:DGROUP;AN000;
+	   ; ASSUME ES:DGROUP;AN000;
+	   ; ASSUME SS:DGROUP;AN000;
 
-	   PUBLIC _PUTPSPBYTE		;AN000;
-_PUTPSPBYTE PROC NEAR			;AN000;
+	   global _PUTPSPBYTE;AN000;
+_PUTPSPBYTE:;AN000;
 
 	   CENTER			;AN000;
 
@@ -430,7 +430,7 @@ _PUTPSPBYTE PROC NEAR			;AN000;
 
 	   CEXIT			;AN000;
 
-_PUTPSPBYTE ENDP
+; ENDP _PUTPSPBYTE
 
 
 ;-------------------------------------------------------------------
@@ -443,24 +443,24 @@ _PUTPSPBYTE ENDP
 ;	CALLING FORMAT:
 ;			crit_err_handler;
 ;-------------------------------------------------------------------
-	   public _crit_err_handler				       ;AN000;
-	   public vector					       ;AN000;
+	   global _crit_err_handler;AN000;
+	   global vector;AN000;
 vector	   dd	 0						       ;AN000;
 ;								       ;AN000;
-_crit_err_handler proc near					       ;AN000;
+_crit_err_handler:;AN000;
 	   pushf						       ;AN000;
 	   push  ax			; save registers	       ;AN000;
 	   push  ds						       ;AN000;
 	   mov	 ax,dgroup		;get C data segment	       ;AN000;
 	   mov	 ds,ax						       ;AN000;
-	   mov	 ax,word ptr ds:_old_int24_off ;get int24 offset       ;AN000;
-	   mov	 word ptr cs:vector,ax				       ;AN000;
-	   mov	 ax,word ptr ds:_old_int24_off+2 ;get int24 segment    ;AN000;
-	   mov	 word ptr cs:vector+2,ax			       ;AN000;
+	   mov	 ax,word ds:_old_int24_off ;get int24 offset       ;AN000;
+	   mov	 word cs:vector,ax				       ;AN000;
+	   mov	 ax,word ds:_old_int24_off+2 ;get int24 segment    ;AN000;
+	   mov	 word cs:vector+2,ax			       ;AN000;
 	   pop	 ds			;restore registers	       ;AN000;
 	   pop	 ax						       ;AN000;
 ;								       ;AN000;
-	   call  dword ptr cs:vector	; invoke DOS err hndlr	       ;AN000;
+	   call  dword cs:vector	; invoke DOS err hndlr	       ;AN000;
 	   cmp	 al,ABORT		; what was the user's response ;AN000;
 	   jnge  retry			;			       ;AN000;
 ;								       ;AN000;
@@ -474,7 +474,7 @@ _crit_err_handler proc near					       ;AN000;
 retry:								       ;AN000;
 	   iret 						       ;AN000;
 ;								       ;AN000;
-_crit_err_handler endp						       ;AN000;
-_text	   ends 						       ;AN000;
-	   end	 XCMAIN 					       ;AN000;
+; ENDP _crit_err_handler;AN000;
+; END SECTION ._text;AN000;
+	   ; end	 XCMAIN;AN000;
 

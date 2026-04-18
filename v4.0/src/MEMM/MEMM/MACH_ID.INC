@@ -23,9 +23,9 @@
 ;   04/09/86  Original
 ;
 ;******************************************************************************
-ifndef INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 ;   STANDARD ROM BIOS MACHINE TYPES used in ROM_BIOS_Machine_ID
 

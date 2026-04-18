@@ -23,18 +23,18 @@
 ;   07/06/86  0.04	Changed save area struct (SBP).
 ;   05/25/88            Changed to meet LIM 4.0 Spec (PC)
 ;******************************************************************************
-ifndef	INC_LIST
-.xlist
-endif
+%ifndef INC_LIST
+; .xlist
+%endif
 
 ;******************************************************************************
 ;	G E N E R A L	D E F I N E S
 ;******************************************************************************
-EMM_PAGE_CNT	= 2048			; maximum of 2048 EMM pages (32MB)
-HANDLE_CNT	= 255			; maximum of 255 EMM handles
-FRS_COUNT	= 16			; number of 'Fast Register Sets'
+EMM_PAGE_CNT equ 2048; maximum of 2048 EMM pages (32MB)
+HANDLE_CNT equ 255; maximum of 255 EMM handles
+FRS_COUNT equ 16; number of 'Fast Register Sets'
 
-EMM32_PHYS_PAGES = 4				; page frame contains 4 pages
+EMM32_PHYS_PAGES equ 4; page frame contains 4 pages
 ;
 ; The 0 to 1M contains 64 physical pages.  Of these we are not mapping anything
 ; between E000 and FFFF, 0000 and 4000.  So the Maximum physcial pages we can
@@ -43,7 +43,7 @@ EMM32_PHYS_PAGES = 4				; page frame contains 4 pages
 TOT_PHYS_PAGES	equ	64
 MAX_PHYS_PAGES	equ	40			; Life, the Universe
 						; and Everything
-PAGE_SIZE	= 1000h
+PAGE_SIZE equ 1000h
 ;
 ; Of the above mappable pages the regions C000h to Dfffh have to be searched
 ; for the mappable pages.
@@ -70,64 +70,64 @@ PAGE_MAPPABLE	    equ     0FFh		    ;
 PAGE_NOT_MAPPABLE   equ       0h		    ;
 
 
-NULL_PAGE	= 0FFFFh
-NULL_HANDLE	= 00FFFh
+NULL_PAGE equ 0FFFFh
+NULL_HANDLE equ 00FFFh
 
 
 ;
 ; Flags for memory move/xchg
 ;
-Source_GT_Dest_Flag = 80h		; Source > Destination for copy / xchg
-Overlap_Flag	    = 40h		; Copy overlapping memory
-Backward_Copy_Flag  = 20h		; copy is going to be backward
+Source_GT_Dest_Flag equ 80h; Source > Destination for copy / xchg
+Overlap_Flag equ 40h; Copy overlapping memory
+Backward_Copy_Flag equ 20h; copy is going to be backward
 ;
 ; Flags for PFlag use in Alter Map and Jump
 ;
-PFLAG_VM		= 0002h		; VM bit in High word of EFLAG
-PFLAG_VIRTUAL		= 0020h		; wheather it's call from virtual or proected mode
-PFLAG_PATCH_CS_IP	= 0008h		; Tell Protected mode dispatch to
+PFLAG_VM equ 0002h; VM bit in High word of EFLAG
+PFLAG_VIRTUAL equ 0020h; wheather it's call from virtual or proected mode
+PFLAG_PATCH_CS_IP equ 0008h; Tell Protected mode dispatch to
 					; patch new CS:IP onto it's return address
 ;******************************************************************************
 ;	S T A T U S   D E F I N E S
 ;******************************************************************************
-OK			=	0
-EMM_SW_MALFUNCTION	=	80h
-EMM_HW_MALFUNCTION	=	81h
-INVALID_HANDLE		=	83h
-INVALID_FUNCTION	=	84h
-NO_MORE_HANDLES 	=	85h
-SAVED_PAGE_DEALLOC	=	86h
-NOT_ENOUGH_EXT_MEM	=	87h
-NOT_ENOUGH_FREE_MEM	=	88h
-ZERO_PAGES		=	89h
-LOG_PAGE_RANGE		=	8Ah
-PHYS_PAGE_RANGE 	=	8Bh
-SAVE_AREA_FULL		=	8Ch
-MAP_PREV_SAVED		=	8Dh
-NO_MAP_SAVED		=	8Eh
-INVALID_SUBFUNCTION	=	8Fh
+OK equ 0
+EMM_SW_MALFUNCTION equ 80h
+EMM_HW_MALFUNCTION equ 81h
+INVALID_HANDLE equ 83h
+INVALID_FUNCTION equ 84h
+NO_MORE_HANDLES equ 85h
+SAVED_PAGE_DEALLOC equ 86h
+NOT_ENOUGH_EXT_MEM equ 87h
+NOT_ENOUGH_FREE_MEM equ 88h
+ZERO_PAGES equ 89h
+LOG_PAGE_RANGE equ 8Ah
+PHYS_PAGE_RANGE equ 8Bh
+SAVE_AREA_FULL equ 8Ch
+MAP_PREV_SAVED equ 8Dh
+NO_MAP_SAVED equ 8Eh
+INVALID_SUBFUNCTION equ 8Fh
 
 ; LIM 4.0 extras
 
-VALID_OVERLAP		=	92h
-INSUFFICIENT_EMM_PAGES	=	93h
+VALID_OVERLAP equ 92h
+INSUFFICIENT_EMM_PAGES equ 93h
 CONVENTIONAL_EMM_OVERLAP=	94h
-INVALID_OFFSET		=	95h
-INVALID_REGION_LENGTH	=	96h
-OVERLAPPING_EXCHANGE	=	97h
-INVALID_MEMORY_TYPE	=	98h
-FRSETS_UNSUPPORTED	=	99h
-INVALID_FRSET		=	9Ah
-NO_MORE_FRSETS		=	9Bh
-FRSET_NON_ZERO		=	9Ch
-FRSET_UNDEFINED 	=	9Dh
-FRSET_NO_DMA		=	9Eh
-FRSET_INVALID_DMA	=	9Fh
-HANDLE_NAME_NOT_FOUND	=      0A0h
-DUPLICATE_HANDLE_NAME	=      0A1h
-INVALID_WRAPAROUND	=      0A2h
-SOURCE_CORRUPTED	=      0A3h
-ACCESS_DENIED		=      0A4h
+INVALID_OFFSET equ 95h
+INVALID_REGION_LENGTH equ 96h
+OVERLAPPING_EXCHANGE equ 97h
+INVALID_MEMORY_TYPE equ 98h
+FRSETS_UNSUPPORTED equ 99h
+INVALID_FRSET equ 9Ah
+NO_MORE_FRSETS equ 9Bh
+FRSET_NON_ZERO equ 9Ch
+FRSET_UNDEFINED equ 9Dh
+FRSET_NO_DMA equ 9Eh
+FRSET_INVALID_DMA equ 9Fh
+HANDLE_NAME_NOT_FOUND equ 0A0h
+DUPLICATE_HANDLE_NAME equ 0A1h
+INVALID_WRAPAROUND equ 0A2h
+SOURCE_CORRUPTED equ 0A3h
+ACCESS_DENIED equ 0A4h
 
 
 ;******************************************************************************
@@ -152,134 +152,134 @@ OS_DISABLED	equ	2
 ;
 ;  stack frame after pushad on real/virtual mode entry
 ;
-r67_Frame	struc
-rDI	dd	?
-rSI	dd	?
-rBP	dd	?
-rSP	dd	?
-rBX	dd	?
-rDX	dd	?
-rCX	dd	?
-rAX	dd	?
-retaddr dw	?
-rCS	dw	?
-PFlag	dw	?
-rDS	dw	?
-rES	dw	?
-rGS	dw	?
-rFS	dw	?
-r67_Frame	ends
+struc r67_Frame
+rDI: resd 1
+rSI: resd 1
+rBP: resd 1
+rSP: resd 1
+rBX: resd 1
+rDX: resd 1
+rCX: resd 1
+rAX: resd 1
+retaddr: resw 1
+rCS: resw 1
+PFlag: resw 1
+rDS: resw 1
+rES: resw 1
+rGS: resw 1
+rFS: resw 1
+endstruc
 
 
 ;
 ; for _handle_table
 ;
-HandleTable_struc	struc
+struc HandleTable_struc
 ht_index	dw	NULL_PAGE	; index into emm_page for handle's pgs
 ht_count	dw	0		; number of emm_pages for this handle
-HandleTable_struc	ends
+endstruc
 
 ;
 ; for _save_area
 ;
-SaveMap_struc	struc
+struc SaveMap_struc
 s_handle	dw	NULL_HANDLE				; owning handle
 s_map		dw	EMM32_PHYS_PAGES dup (NULL_PAGE)	; EMM page #s
-SaveMap_struc	ends
+endstruc
 
 ;
 ; structure linking segment with physical page number
 ;
-Mappable_Page	struc
-mappable_seg	dw	?
-mappable_pg	dw	?
-Mappable_Page	ends
+struc Mappable_Page
+mappable_seg: resw 1
+mappable_pg: resw 1
+endstruc
 
 ;
 ; Get Partial Page Map
 ;
-gppm_struc	struc
-gppm_count	dw	?
-gppm_segs	dw	?
-gppm_struc	ends
+struc gppm_struc
+gppm_count: resw 1
+gppm_segs: resw 1
+endstruc
 
 ;
 ; Structures used as arguments to Map Handle Array function
 ;
 
 ; For subfunction 0:
-mha_array0	struc
-mha0_log_pg	dw	?
-mha0_phys_pg	dw	?
-mha_array0	ends
+struc mha_array0
+mha0_log_pg: resw 1
+mha0_phys_pg: resw 1
+endstruc
 
 ; For subfunction 1:
-mha_array1	struc
-mha1_log_pg	dw	?
-mha1_seg	dw	?
-mha_array1	ends
+struc mha_array1
+mha1_log_pg: resw 1
+mha1_seg: resw 1
+endstruc
 
 ; Used by Map and Jump and Map and Call -- Identical to mha_array0 and 1
-log_phys_map_struct  struc
-log_page_number      dw ?
-phys_page_number_seg dw ?
-log_phys_map_struct  ends
+struc log_phys_map_struct
+log_page_number: resw 1
+phys_page_number_seg: resw 1
+endstruc
 
 ; Map and Jump structure
-maj_struct	struc
-maj_target_address   dd ?
-maj_log_phys_map_len db ?
-maj_map_address      dd ?
-maj_struct	ends
+struc maj_struct
+maj_target_address: resd 1
+maj_log_phys_map_len: resb 1
+maj_map_address: resd 1
+endstruc
 
 ; Map and Call structure
-mac_struct	struc
-mac_target_address   dd ?
-mac_new_page_map_len db ?
-mac_new_map_address  dd ?
-mac_old_page_map_len db ?
-mac_old_map_address  dd ?
-mac_reserved         dw 4 dup (?)
-mac_struct	ends
+struc mac_struct
+mac_target_address: resd 1
+mac_new_page_map_len: resb 1
+mac_new_map_address: resd 1
+mac_old_page_map_len: resb 1
+mac_old_map_address: resd 1
+mac_reserved: resb 8
+endstruc
 
 ; Move / Exchange memory structure
-mem_memory_descriptor_struct	struc
-mem_memory_type      db ?
-mem_handle	     dw ?
-mem_initial_offset   dw ?
-mem_initial_seg_page dw ?
-mem_memory_descriptor_struct	ends
+struc mem_memory_descriptor_struct
+mem_memory_type: resb 1
+mem_handle: resw 1
+mem_initial_offset: resw 1
+mem_initial_seg_page: resw 1
+endstruc
 
 
-mem_struct	struc
-mem_region_length   dd	?
-mem_source	    db	(SIZE mem_memory_descriptor_struct) dup (?)
-mem_dest	    db	(SIZE mem_memory_descriptor_struct) dup (?)
-mem_struct	ends
+struc mem_struct
+mem_region_length: resd 1
+mem_source	    db	(mem_memory_descriptor_struct_size) dup (?)
+mem_dest	    db	(mem_memory_descriptor_struct_size) dup (?)
+endstruc
 
 ;
 ; Fast Register Set Description
 ;
-FRS_struc	struc
+struc FRS_struc
 FRS_Window	dw	MAX_PHYS_PAGES dup (NULL_PAGE)	; emm page numbers
 FRS_alloc	dw	0				; Is this set allocated
-FRS_struc	ends
+endstruc
 
-	page
+	; page
 ;****************************************************************************
 ;
 ;   Dword_Align -- Aligns code to dword boundry by inserting nops
 ;
 ;****************************************************************************
 
-Dword_Align MACRO Seg_Name
-IF (($ - OFFSET Seg_Name:0) MOD 4)
+%macro Dword_Align 1
+%if (($ - 0) MOD 4)
 	db	90h		     ;; Nop in code / else byte of 90h in data
 	Dword_Align Seg_Name
-ENDIF
-	    ENDM
+%endif
+	    %endmacro
 
-	page
+	; page
 ;***********************************************
 ;
 ; Validate_Handle - check the handle in DX
@@ -292,18 +292,18 @@ ENDIF
 ;	USES:	EDX
 ;
 ;***********************************************
-Validate_Handle MACRO	Death_Label
+%macro Validate_Handle 1
 
 	cmp	dx, [_handle_table_size]	;Q: handle in range ?
 	jae	Death_Label			;  N: go to error label
 	shl	dx, 2				;  Y: convert handle to
-	add	dx, offset _handle_table	;     pointer
+	add	dx, _handle_table	;     pointer
 	xchg	bx, dx
-	cmp	[bx.ht_index], NULL_PAGE	;Q: is this handle active ?
+	cmp	[bx+ht_index], NULL_PAGE	;Q: is this handle active ?
 	xchg	bx, dx
 	je	Death_Label			;  N: return error
 
-	ENDM
+	%endmacro
 
 ;***********************************************
 ;
@@ -317,14 +317,14 @@ Validate_Handle MACRO	Death_Label
 ;	USES:	EDX
 ;
 ;***********************************************
-Handle2HandlePtr MACRO
+%macro Handle2HandlePtr 0
 
 	shl	dx, 2				;  Y: convert handle to
-	add	dx, offset _handle_table	;     pointer
+	add	dx, _handle_table	;     pointer
 
-	ENDM
+	%endmacro
 
-.list		; end of EMMDEF.INC
+; .list; end of EMMDEF.INC
 
 
 

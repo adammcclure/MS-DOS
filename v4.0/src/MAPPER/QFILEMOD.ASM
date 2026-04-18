@@ -1,9 +1,9 @@
-page 80,132
+; page 80,132
 
-title CP/DOS DosQFileMode mapper
+; title CP/DOS DosQFileMode mapper
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ;**********************************************************************
 ;*
@@ -22,23 +22,23 @@ dosxxx	segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-	    public   dosqfilemode
-	    .sall
-	    .xlist
-	    include  macros.inc
-	    .list
+	    global dosqfilemode
+	    ; .sall
+	    ; .xlist
+	    %include "macros.inc"
+	    ; .list
 
 error_code  equ      0002h
 
-str	    struc
-old_bp	    dw	     ?
-return	    dd	     ?
-rsrvd	    dd	     ?
-Attrib	    dd	     ?	     ; current attribute pointer
-Path	    dd	     ?	     ; file path name pointer
-str	    ends
+struc str
+old_bp: resw 1
+return: resd 1
+rsrvd: resd 1
+Attrib: resd 1; current attribute pointer
+Path: resd 1; file path name pointer
+endstruc
 
-dosqfilemode proc    far
+dosqfilemode:
 	    Enter    dosqfilemode	 ; push registers
 
 	    lds      dx,[bp].path	 ; set path name
@@ -48,17 +48,17 @@ dosqfilemode proc    far
 	    jc	     error		 ; jump if error
 
 	    lds      si,[bp].attrib	 ; setup return data area
-	    mov      word ptr [si],cx	 ; save attribute there
+	    mov      word [si],cx	 ; save attribute there
 	    sub      ax,ax		 ; set good return code
 	    jmp      short exit 	 ; return
 
 error:	    mov      ax,error_code	 ; set error code
 
 exit:	    mexit			 ; pop registers
-	    ret      size str - 6	 ; return
+	    ret      str_size - 6	 ; return
 
-dosqfilemode endp
+; ENDP dosqfilemode
 
-dosxxx	    ends
+; END SECTION .dosxxx
 
-	    end
+	    ; end

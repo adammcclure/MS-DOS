@@ -4,28 +4,28 @@
 ; if it is near enough or 3 byte jump to <lbl>
 ;
 
-jump	macro lbl
-	local a
-.xcref
+%macro jump 1
+	; LOCAL a
+; .xcref
 
-	ifndef lbl&_j			;; is this the first invocation
+	%ifndef lbl;; is this the first invocation
 a:
 				JMP lbl
-	ELSE
-	    IF (lbl&_J GE $) OR ($-lbl&_J GT 126)
+	%else
+	    %if (lbl&_J GE $) OR ($-lbl&_J GT 126)
 a:
 				JMP lbl ;; is the jump too far away?
-	    ELSE
+	    %else
 a:
 			       JMP lbl&_J  ;; do the short one...
-	    ENDIF
-	ENDIF
+	    %endif
+	%endif
 lbl&_j = a
-.cref
-	endm
-.xcref	jump
+; .cref
+	%endmacro
+; .xcref	jump
 ;REDEFINE THE ABOVE MACRO TO ALWAYS TRY A 3 BYTE NEAR JUMP		 
-JUMP MACRO LBL								 
+%macro JUMP 1
 					JMP LBL 			 
-	ENDM					;;End of Modification
+	%endmacro;;End of Modification
 

@@ -2,26 +2,26 @@
 ; *** MACROS **** MACROS **** MACROS ****
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-IF1                                     ;
-        %OUT .               ®MACROS  .INC¯
-ENDIF                                   ;
+%if 1  ; IF1 - pass-specific;
+        %warning .               Â®MACROS  .INCÂ¯
+%endif;
                                         ;
-JUMP    MACRO   LBL                     ;
-        LOCAL   A                       ;
-.XCREF                                  ;
-      IFNDEF LBL&_J                     ; IS THIS FIRST INVOKATION
+%macro JUMP 1;
+        ; LOCAL A;
+; .XCREF;
+      %ifndef LBL; IS THIS FIRST INVOKATION
 A:       JMP     LBL                    ;
-      ELSE                              ;
-         IF (LBL&_J GE $) OR ($-LBL&_J GT 126)
+      %else;
+         %if (LBL&_J GE $) OR ($-LBL&_J GT 126)
 A:          JMP     LBL                 ; IS THE JUMP TOO FAR AWAY?
-         ELSE                           ;
+         %else;
 A:          JMP     LBL&_J              ; PERFORM SHORT JUMP
-         ENDIF                          ;
-      ENDIF                             ;
+         %endif;
+      %endif;
 LBL&_J=A                                ;
-.CREF                                   ;
-        ENDM                            ;
-.XCREF JUMP                             ;
+; .CREF;
+        %endmacro;
+; .XCREF JUMP;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; *** MACROS **** MACROS **** MACROS ****

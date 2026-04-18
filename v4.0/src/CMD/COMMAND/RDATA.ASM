@@ -1,14 +1,14 @@
- page 80,132
+ ; page 80,132
 ;	SCCSID = @(#)rdata.asm	4.2 85/09/22
 ;	SCCSID = @(#)rdata.asm	4.2 85/09/22
-TITLE	COMMAND Resident DATA
+; TITLE	COMMAND Resident DATA
 
-include comsw.asm
-.xlist
-.xcref
-include comseg.asm
-.list
-.cref
+%include "comsw.asm"
+; .xlist
+; .xcref
+%include "comseg.asm"
+; .list
+; .cref
 
 ;
 ; Equates for initialization (from COMEQU)
@@ -17,159 +17,159 @@ initInit    equ     01h 		; initialization in progress
 initSpecial equ     02h 		; in initialization time/date routine
 initCtrlC   equ     04h 		; already in ^C handler
 
-Tokenized = FALSE
+Tokenized equ FALSE
 
-CODERES 	SEGMENT PUBLIC BYTE	;AC000;
-	PUBLIC	RSTACK
-	EXTRN	EXT_EXEC:NEAR
-	EXTRN	THEADFIX:NEAR
-	EXTRN	TREMCHECK:NEAR
+SECTION .CODERES;AC000;
+	global RSTACK
+	extern EXT_EXEC
+	extern THEADFIX
+	extern TREMCHECK
 
 	DB	(80H - 3) DUP (?)
 
-RSTACK	LABEL	WORD
+RSTACK:
 
-CODERES ENDS
+; END SECTION .CODERES
 
-TRANCODE	SEGMENT PUBLIC BYTE	;AC000;
-	EXTRN	COMMAND:NEAR
-TRANCODE	ENDS
+SECTION .TRANCODE;AC000;
+	extern COMMAND
+; END SECTION .TRANCODE
 
 ; Data for resident portion
 
-DATARES SEGMENT PUBLIC BYTE
+SECTION .DATARES
 
-	IF	Tokenized
-	PUBLIC	IOTYP
-	PUBLIC	MESADD
-	ENDIF
+	%if Tokenized
+	global IOTYP
+	global MESADD
+	%endif
 
-	PUBLIC	abort_char
-	PUBLIC	append_flag		;AN020;
-	PUBLIC	append_state		;AN020;
-	PUBLIC	BADFAT_BLOCK		;AC000;
-	PUBLIC	BADFAT_OP_SEG		;AC000;
-	PUBLIC	BADFAT_SUBST		;AC000;
-	PUBLIC	BATCH
-	PUBLIC	Batch_Abort
-	PUBLIC	call_batch_flag
-	PUBLIC	call_flag
-	PUBLIC	CDEVAT			;AC000;
-	PUBLIC	COM_FCB1
-	PUBLIC	COM_FCB2
-	PUBLIC	COM_PTR
-	PUBLIC	COM_XLAT_ADDR
-	PUBLIC	COMDRV
-	PUBLIC	COMPRMT1_BLOCK		;AC000;
-	PUBLIC	COMPRMT1_SEG		;AC000;
-	PUBLIC	COMPRMT1_SEG2		;AC000;
-	PUBLIC	COMPRMT1_SUBST		;AC000;
-	PUBLIC	COMSPEC
-	PUBLIC	crit_msg_off		;AC000;
-	PUBLIC	crit_msg_seg		;AC000;
-	PUBLIC	critical_msg_start	;AC000;
-	PUBLIC	comspec_print
-	PUBLIC	comspec_end
-	PUBLIC	cpdrv
-	PUBLIC	crit_err_INFO
-	PUBLIC	DATARESEND
-	PUBLIC	dbcs_vector_addr	;AN000;
-	PUBLIC	DEVE_OP_OFF		;AC000;
-	PUBLIC	DEVE_OP_SEG		;AC000;
-	PUBLIC	DEVE_OP_SEG2		;AC000;
-	PUBLIC	DEVEMES_BLOCK		;AC000;
-	PUBLIC	DEVEMES_SUBST		;AC000;
-	PUBLIC	DEVENAM 		;AC000;
-	PUBLIC	DISP_CLASS		;AN000;
-	PUBLIC	DRVLET
-	PUBLIC	DRVNUM_BLOCK		;AC000;
-	PUBLIC	DRVNUM_OP_OFF		;AC000;
-	PUBLIC	DRVNUM_OP_SEG		;AC000;
-	PUBLIC	DRVNUM_OP_SEG2		;AC000;
-	PUBLIC	DRVNUM_SUBST		;AC000;
-	PUBLIC	ECHOFLAG
-	PUBLIC	ENVIRSEG
-	PUBLIC	ERR15_OP_SEG		;AC000;
-	PUBLIC	ERR15_OP_SEG2		;AC000;
-	PUBLIC	ERR15_OP_SEG3		;AC000;
-	PUBLIC	ERR15MES_BLOCK		;AC000;
-	PUBLIC	ERR15MES_SUBST		;AC000;
-	PUBLIC	ERRCD_24
-	PUBLIC	ErrType
-	PUBLIC	EXEC_BLOCK
-	PUBLIC	EXECEMES_BLOCK		;AC000;
-	PUBLIC	EXECEMES_SUBST		;AC000;
-	PUBLIC	EXECEMES_OFF		;AC000;
-	PUBLIC	EXECEMES_SEG		;AC000;
-	PUBLIC	EXTCOM
-	PUBLIC	extended_msg_start	;AN000;
-	PUBLIC	extmsgend		;AN000;
-	PUBLIC	fail_char		;AC000;
-	PUBLIC	fFail
-	PUBLIC	FORFLAG
-	PUBLIC	forptr
-	PUBLIC	fucase_addr		;AN000;
-	PUBLIC	HANDLE01
-	PUBLIC	IFFlag
-	PUBLIC	ignore_char
-	PUBLIC	In_Batch
-	PUBLIC	InitFlag
-	PUBLIC	INPIPEPTR
-	PUBLIC	INT_2E_RET
-	PUBLIC	IO_SAVE
-	PUBLIC	LOADING
-	PUBLIC	LTPA
-	PUBLIC	MEMSIZ
+	global abort_char
+	global append_flag;AN020;
+	global append_state;AN020;
+	global BADFAT_BLOCK;AC000;
+	global BADFAT_OP_SEG;AC000;
+	global BADFAT_SUBST;AC000;
+	global BATCH
+	global Batch_Abort
+	global call_batch_flag
+	global call_flag
+	global CDEVAT;AC000;
+	global COM_FCB1
+	global COM_FCB2
+	global COM_PTR
+	global COM_XLAT_ADDR
+	global COMDRV
+	global COMPRMT1_BLOCK;AC000;
+	global COMPRMT1_SEG;AC000;
+	global COMPRMT1_SEG2;AC000;
+	global COMPRMT1_SUBST;AC000;
+	global COMSPEC
+	global crit_msg_off;AC000;
+	global crit_msg_seg;AC000;
+	global critical_msg_start;AC000;
+	global comspec_print
+	global comspec_end
+	global cpdrv
+	global crit_err_INFO
+	global DATARESEND
+	global dbcs_vector_addr;AN000;
+	global DEVE_OP_OFF;AC000;
+	global DEVE_OP_SEG;AC000;
+	global DEVE_OP_SEG2;AC000;
+	global DEVEMES_BLOCK;AC000;
+	global DEVEMES_SUBST;AC000;
+	global DEVENAM;AC000;
+	global DISP_CLASS;AN000;
+	global DRVLET
+	global DRVNUM_BLOCK;AC000;
+	global DRVNUM_OP_OFF;AC000;
+	global DRVNUM_OP_SEG;AC000;
+	global DRVNUM_OP_SEG2;AC000;
+	global DRVNUM_SUBST;AC000;
+	global ECHOFLAG
+	global ENVIRSEG
+	global ERR15_OP_SEG;AC000;
+	global ERR15_OP_SEG2;AC000;
+	global ERR15_OP_SEG3;AC000;
+	global ERR15MES_BLOCK;AC000;
+	global ERR15MES_SUBST;AC000;
+	global ERRCD_24
+	global ErrType
+	global EXEC_BLOCK
+	global EXECEMES_BLOCK;AC000;
+	global EXECEMES_SUBST;AC000;
+	global EXECEMES_OFF;AC000;
+	global EXECEMES_SEG;AC000;
+	global EXTCOM
+	global extended_msg_start;AN000;
+	global extmsgend;AN000;
+	global fail_char;AC000;
+	global fFail
+	global FORFLAG
+	global forptr
+	global fucase_addr;AN000;
+	global HANDLE01
+	global IFFlag
+	global ignore_char
+	global In_Batch
+	global InitFlag
+	global INPIPEPTR
+	global INT_2E_RET
+	global IO_SAVE
+	global LOADING
+	global LTPA
+	global MEMSIZ
 ;AD054; PUBLIC	MESBAS			;AC000;
-	PUBLIC	MYSEG
-	PUBLIC	MYSEG1
-	PUBLIC	MYSEG2
-	PUBLIC	nest
-	PUBLIC	next_batch
-	PUBLIC	no_char
-	PUBLIC	NULLFLAG
-	PUBLIC	NUMBER_SUBST		;AN000;
-	PUBLIC	olderrno
-	PUBLIC	OldTerm
-	PUBLIC	OUTPIPEPTR
-	PUBLIC	PARENT
+	global MYSEG
+	global MYSEG1
+	global MYSEG2
+	global nest
+	global next_batch
+	global no_char
+	global NULLFLAG
+	global NUMBER_SUBST;AN000;
+	global olderrno
+	global OldTerm
+	global OUTPIPEPTR
+	global PARENT
 ;AD060; PUBLIC	pars_msg_off		;AN000;
 ;AD060; PUBLIC	pars_msg_seg		;AN000;
-	PUBLIC	parse_msg_start 	;AN000;
-	PUBLIC	PERMCOM
-	PUBLIC	PIPE1
-	PUBLIC	pipe1t
-	PUBLIC	PIPE2
-	PUBLIC	pipe2t
-	PUBLIC	PIPEFILES
-	PUBLIC	PIPEFLAG
-	PUBLIC	PIPEPTR
-	PUBLIC	PIPESTR
-	PUBLIC	RDIRCHAR
-	PUBLIC	RE_OUT_APP
-	PUBLIC	RE_OUTSTR
-	PUBLIC	RemMsg
-	PUBLIC	resmsgend		;AN000;
-	PUBLIC	RES_TPA
-	PUBLIC	RESTDIR
-	PUBLIC	ResTest
-	PUBLIC	RETCODE
-	PUBLIC	retry_char
-	PUBLIC	rsrc_xa_seg		;AN030;
-	PUBLIC	RSWITCHAR
-	PUBLIC	SAVE_PDB
-	PUBLIC	SINGLECOM
-	PUBLIC	SUM
-	PUBLIC	SUPPRESS
-	PUBLIC	TRANS
-	PUBLIC	TranVarEnd
-	PUBLIC	TRANVARS
-	PUBLIC	TRNSEG
-	PUBLIC	TrnMvFlg
-	PUBLIC	VERVAL
-	PUBLIC	VolName
-	PUBLIC	VOLSER			;AN000;
-	PUBLIC	yes_char
+	global parse_msg_start;AN000;
+	global PERMCOM
+	global PIPE1
+	global pipe1t
+	global PIPE2
+	global pipe2t
+	global PIPEFILES
+	global PIPEFLAG
+	global PIPEPTR
+	global PIPESTR
+	global RDIRCHAR
+	global RE_OUT_APP
+	global RE_OUTSTR
+	global RemMsg
+	global resmsgend;AN000;
+	global RES_TPA
+	global RESTDIR
+	global ResTest
+	global RETCODE
+	global retry_char
+	global rsrc_xa_seg;AN030;
+	global RSWITCHAR
+	global SAVE_PDB
+	global SINGLECOM
+	global SUM
+	global SUPPRESS
+	global TRANS
+	global TranVarEnd
+	global TRANVARS
+	global TRNSEG
+	global TrnMvFlg
+	global VERVAL
+	global VolName
+	global VOLSER;AN000;
+	global yes_char
 
 ;AD054;MESBAS  DW      19		       ;AC000;	 error_write_protect
 ;AD054;        DW      20		       ;AC000;	 error_bad_unit
@@ -195,18 +195,18 @@ DATARES SEGMENT PUBLIC BYTE
 
 
 
-IF Tokenized
-MESADD	LABEL WORD
-	DW	OFFSET ResGroup:NEWLIN		;"0"
-	DW	OFFSET ResGroup:COM$1		;"1"
-	DW	OFFSET ResGroup:ERR3		;"2"
-	DW	OFFSET ResGroup:ALLOC$3 	;"3"
-	DW	OFFSET ResGroup:FILE$4		;"4"
-	DW	OFFSET ResGroup:RROR$5		;"5"
-	DW	OFFSET ResGroup:CAN$6		;"6"
-	DW	OFFSET ResGroup:EMORY$7 	;"7"
-	DW	OFFSET ResGroup:BAT$8		;"8"
-	DW	OFFSET ResGroup:INS$9		;"9"
+%if Tokenized
+MESADD:
+	DW	NEWLIN		;"0"
+	DW	COM$1		;"1"
+	DW	ERR3		;"2"
+	DW	ALLOC$3 	;"3"
+	DW	FILE$4		;"4"
+	DW	RROR$5		;"5"
+	DW	CAN$6		;"6"
+	DW	EMORY$7 	;"7"
+	DW	BAT$8		;"8"
+	DW	INS$9		;"9"
 
 ERR0	DB	"Write protec","t"+80h
 ERR1	DB	"Bad uni","t"+80h
@@ -229,7 +229,7 @@ ERR17	DB	"Sharing buffer exceede","d"+80h
 
 ;--- Extra message for error 15
 Err15Mes	db     "Please Insert disk "
-VolName 	db	11 dup(?)
+VolName: times 11 db 0
 		db	13,10,"$"
 
 MREAD		DB	"read"
@@ -240,7 +240,7 @@ DRVNUM		DB	" drive "
 DRVLET		DB	"A"
 NEWLIN		DB	13,10+80h
 DEVEMES 	DB	" device "
-DEVENAM 	DB	8 DUP (?)
+DEVENAM: times 8 db 0
 		DB	13,10,"$"               ;Must be $ terminated
 COM$1		DB	" COMMAN","D"+80h
 ALLOC$3 	DB	" allocation"," "+80h
@@ -252,7 +252,7 @@ BAT$8		DB	" batc","h"+80h
 INS$9		DB	"Inser","t"+80h
 
 
-CDEVAT		DB	?
+CDEVAT: db 0
 BADFAT		DB	"0File 3table bad",","+80h
 COMBAD		DB	"0Invalid1.COM","0"+80h
 comprmt1	DB	"9 disk with"," "+80h
@@ -270,9 +270,9 @@ FRETMES 	DB	"06start1, exiting","0"+80h
 RBADNAM 	DB	"2or4name","0"+80h
 AccDen		DB	"Access Denied","0"+80h
 Patricide	DB	13,10,"Top level process aborted, cannot continue."," "+80h
-COMSPEC_PRINT	DW	?
+COMSPEC_PRINT: dw 0
 
-ELSE
+%else
 
 
 parm_block_size EQU	11			;AN000; size of message subst block
@@ -294,7 +294,7 @@ DRVNUM_OP_SEG	dw	0			;AN000;segment of arg
 		db	blank			;AN000;pad character
 		db	parm_block_size 	;AN000;size of sublist
 		db	0			;AN000;reserved
-		dw	OFFSET RESGROUP:DRVLET	;AN000;offset of arg
+		dw	DRVLET	;AN000;offset of arg
 DRVNUM_OP_SEG2	dw	0			;AN000;segment of arg
 		db	2			;AN000;second subst
 		db	Char_field_Char 	;AN000;one character
@@ -316,7 +316,7 @@ DEVE_OP_SEG	dw	0			;AN000;segment of arg
 		db	blank			;AN000;pad character
 		db	parm_block_size 	;AN000;size of sublist
 		db	0			;AN000;reserved
-		dw	OFFSET RESGROUP:DEVENAM ;AN000;offset of arg
+		dw	DEVENAM ;AN000;offset of arg
 DEVE_OP_SEG2	dw	0			;AN000;segment of arg
 		db	2			;AN000;second subst
 		db	Char_field_ASCIIZ	;AN000;character string
@@ -324,13 +324,13 @@ DEVE_OP_SEG2	dw	0			;AN000;segment of arg
 		db	8			;AN019;minimum width
 		db	blank			;AN000;pad character
 
-DEVENAM 	DB	8 DUP (?)
+DEVENAM: times 8 db 0
 
 ;--- Extra message for error 15
 ERR15MES_SUBST	db	3			;AN000; number of subst
 ERR15MES_BLOCK	db	parm_block_size 	;AN000;size of sublist
 		db	0			;AN000;reserved
-		dw	OFFSET RESGROUP:VOLNAME ;AN000;offset of arg
+		dw	VOLNAME ;AN000;offset of arg
 ERR15_OP_SEG	dw	0			;AN000;segment of arg
 		db	1			;AN000;first subst
 		db	Char_field_ASCIIZ	;AN000;character string
@@ -339,7 +339,7 @@ ERR15_OP_SEG	dw	0			;AN000;segment of arg
 		db	blank			;AN000;pad character
 		db	parm_block_size 	;AN000;size of sublist
 		db	0			;AN000;reserved
-		dw	OFFSET RESGROUP:VOLSER+2;AN000;offset of arg
+		dw	VOLSER+2;AN000;offset of arg
 ERR15_OP_SEG2	dw	0			;AN000;segment of arg
 		db	2			;AN000;second subst
 		db	right_align+Bin_Hex_Word ;AN000;long binary to decimal
@@ -348,7 +348,7 @@ ERR15_OP_SEG2	dw	0			;AN000;segment of arg
 		db	"0"                     ;AN000;pad character
 		db	parm_block_size 	;AN000;size of sublist
 		db	0			;AN000;reserved
-		dw	OFFSET RESGROUP:VOLSER	;AN000;offset of arg
+		dw	VOLSER	;AN000;offset of arg
 ERR15_OP_SEG3	dw	0			;AN000;segment of arg
 		db	3			;AN000;third subst
 		db	right_align+Bin_Hex_Word ;AN000;long binary to decimal
@@ -360,19 +360,19 @@ ERR15_OP_SEG3	dw	0			;AN000;segment of arg
 ;* DO NOT SEPARATE VOLNAME & VOLSER *
 ;************************************
 				   ;*
-VolName 	DB	11 dup(?)  ;*
+VolName: times 11 db 0;*
 		DB	0	   ;*
 VolSer		DD	0	   ;*
 				   ;*
 ;************************************
 
 
-CDEVAT		DB	?
+CDEVAT: db 0
 
 BADFAT_SUBST	db	1			;AN000; number of subst
 BADFAT_BLOCK	db	parm_block_size 	;AN000;size of sublist
 		db	0			;AN000;reserved
-		dw	OFFSET RESGROUP:DRVLET	;AN000;offset of arg
+		dw	DRVLET	;AN000;offset of arg
 BADFAT_OP_SEG	dw	0			;AN000;segment of arg
 		db	1			;AN000;first subst
 		db	Char_field_Char 	;AN000;one character
@@ -384,7 +384,7 @@ BADFAT_OP_SEG	dw	0			;AN000;segment of arg
 COMPRMT1_SUBST	db	2			;AN000; number of subst
 COMPRMT1_BLOCK	db	parm_block_size 	;AN000;size of sublist
 		db	0			;AN000;reserved
-COMSPEC_PRINT	dw	?			;AN000;offset of arg
+COMSPEC_PRINT: dw 0;AN000;offset of arg
 COMPRMT1_SEG	dw	0			;AN000;segment of arg
 		db	1			;AN000;first subst
 		db	Char_field_ASCIIZ	;AN000;character string
@@ -393,7 +393,7 @@ COMPRMT1_SEG	dw	0			;AN000;segment of arg
 		db	blank			;AN000;pad character
 		db	parm_block_size 	;AN000;size of sublist
 		db	0			;AN000;reserved
-		dw	OFFSET RESGROUP:CPDRV	;AN000;offset of arg
+		dw	CPDRV	;AN000;offset of arg
 COMPRMT1_SEG2	dw	0			;AN000;segment of arg
 		db	2			;AN000;second subst
 		db	Char_field_Char 	;AN000;one character
@@ -428,35 +428,35 @@ no_char 	db	"N"
 ;
 ; End of characters that MUST remain in order
 ;
-ENDIF
+%endif
 
-RemMsg		DD	?			;Pointer to message in error 15
-ErrType 	DB	?			; Error message style, 0=old, 1=new
+RemMsg: dd 0;Pointer to message in error 15
+ErrType: db 0; Error message style, 0=old, 1=new
 
-INT_2E_RET	DD	?			; Magic command executer return address
-SAVE_PDB	DW	?
-PARENT		DW	?
-OldTerm 	DD	?
-ERRCD_24	DW	?
-HANDLE01	DW	?
+INT_2E_RET: dd 0; Magic command executer return address
+SAVE_PDB: dw 0
+PARENT: dw 0
+OldTerm: dd 0
+ERRCD_24: dw 0
+HANDLE01: dw 0
 LOADING 	DB	0
 BATCH		DW	0			; Assume no batch mode initially
-COMSPEC 	DB	64 DUP(0)
-comspec_end	dw	?
-TRANS		DW	OFFSET TRANGROUP:COMMAND
-TRNSEG		DW	?
+COMSPEC: times 64 db 0
+comspec_end: dw 0
+TRANS		DW	COMMAND
+TRNSEG: dw 0
 ; BAS DEBUG
 TrnMvFlg	DB	0			; Indicate if transient portion has been moved
 
 In_Batch	DB	0			; Indicate if we are in Batch processing mode.
 Batch_Abort	DB	0			; Indicate if user wants to abort from batch mode.
 
-COMDRV		DB	?			; DRIVE SPEC TO LOAD AUTOEXEC AND COMMAND
-MEMSIZ		DW	?
-SUM		DW	?
+COMDRV: db 0; DRIVE SPEC TO LOAD AUTOEXEC AND COMMAND
+MEMSIZ: dw 0
+SUM: dw 0
 EXTCOM		DB	1			; For init, pretend just did an external
-RETCODE 	DW	?
-CRIT_ERR_INFO	DB	?			;G hold critical error flags for R,I,F
+RETCODE: dw 0
+CRIT_ERR_INFO: db 0;G hold critical error flags for R,I,F
 rsrc_xa_seg	DW	-1			;AN030; holds segment of xa copy buffer
 
 ;
@@ -465,7 +465,7 @@ rsrc_xa_seg	DW	-1			;AN030; holds segment of xa copy buffer
 ;
 ECHOFLAG	DB	00000001B		; low bit TRUE => echo commands
 SUPPRESS	DB	1			; used for echo, 1=echo line
-IO_SAVE 	DW	?
+IO_SAVE: dw 0
 RESTDIR 	DB	0
 PERMCOM 	DB	0			; TRUE => permanent command
 SINGLECOM	DW	0			; TRUE => single command version
@@ -481,8 +481,8 @@ CALL_FLAG	DB	0			; NO CALL (BATCH COMMAND) IN PROGRESS
 CALL_BATCH_FLAG DB	0
 NEXT_BATCH	DW	0			; ADDRESS OF NEXT BATCH SEGMENT
 NULLFLAG	DB	0			; FLAG IF NO COMMAND ON COMMAND LINE
-COM_XLAT_ADDR	DB	5 DUP (0)		;G BUFFER FOR TRANSLATE TABLE ADDRESS
-FUCASE_ADDR	DB	5 DUP (0)		;AN000;  BUFFER FOR FILE UCASE ADDRESS
+COM_XLAT_ADDR: times 5 db 0;G BUFFER FOR TRANSLATE TABLE ADDRESS
+FUCASE_ADDR: times 5 db 0;AN000;  BUFFER FOR FILE UCASE ADDRESS
 CRIT_MSG_OFF	DW	0			;AN000;  SAVED CRITICAL ERROR MESSAGE OFFSET
 CRIT_MSG_SEG	DW	0			;AN000;  SAVED CRITICAL ERROR MESSAGE SEGMENT
 ;AD060; PARS_MSG_OFF	DW	0			;AN000;  SAVED PARSE ERROR MESSAGE OFFSET
@@ -493,7 +493,7 @@ APPEND_STATE	DW	0			;AN020; current state of append (if flag = -1)
 APPEND_FLAG	DB	0			;AN020; set if APPEND state valid
 
 RE_OUT_APP	DB	0
-RE_OUTSTR	DB	64+3+13 DUP (?)
+RE_OUTSTR	DB	64+3+times 13 db 0
 
 ;
 ; We flag the state of COMMAND in order to correctly handle the ^Cs at
@@ -536,50 +536,50 @@ Pipe2		db	"_:/"
 Pipe2T		db	0
 		db	"_______.___",0
 
-PIPEPTR 	DW	?
-PIPESTR 	DB	129 DUP(?)
-INPIPEPTR	DW	OFFSET ResGroup:PIPE1
-OUTPIPEPTR	DW	OFFSET ResGroup:PIPE2
+PIPEPTR: dw 0
+PIPESTR: times 129 db 0
+INPIPEPTR	DW	PIPE1
+OUTPIPEPTR	DW	PIPE2
 
-EXEC_BLOCK	LABEL	BYTE			; The data block for EXEC calls
-ENVIRSEG	DW	?
-COM_PTR 	LABEL	DWORD
+EXEC_BLOCK:; The data block for EXEC calls
+ENVIRSEG: dw 0
+COM_PTR:
 		DW	80H			; Point at unformatted parameters
-		DW	?
-COM_FCB1	LABEL	DWORD
+		dw 0
+COM_FCB1:
 		DW	5CH
-		DW	?
-COM_FCB2	LABEL	DWORD
+		dw 0
+COM_FCB2:
 		DW	6CH
-		DW	?
+		dw 0
 
-TRANVARS	LABEL	BYTE			; Variables passed to transient
-		DW	OFFSET ResGroup:THEADFIX
+TRANVARS:; Variables passed to transient
+		DW	THEADFIX
 MYSEG		DW	0			; Put our own segment here
 LTPA		DW	0			; WILL STORE TPA SEGMENT HERE
 RSWITCHAR	DB	"-"
 RDIRCHAR	DB	"/"
-		DW	OFFSET ResGroup:EXT_EXEC
-MYSEG1		DW	?
-		DW	OFFSET ResGroup:TREMCHECK
+		DW	EXT_EXEC
+MYSEG1: dw 0
+		DW	TREMCHECK
 MYSEG2		DW	0
 ResTest 	DW	0
 RES_TPA 	DW	0			; Original TPA (not rounded to 64K)
-TranVarEnd	LABEL	BYTE
+TranVarEnd:
 
-olderrno	dw	?
+olderrno: dw 0
 
 RESMSGEND	DW	0			;AN000;; holds offset of msg end (end of resident)
 
-.xlist
-.xcref
+; .xlist
+; .xcref
 
-INCLUDE SYSMSG.INC				;AN000; include message services
+%include "SYSMSG.INC";AN000; include message services
 
-.list
-.cref
+; .list
+; .cref
 
-ASSUME DS:RESGROUP,ES:RESGROUP,CS:RESGROUP
+; ASSUME DS:RESGROUP,ES:RESGROUP,CS:RESGROUP
 
 MSG_UTILNAME <COMMAND>				;AN000; define utility name
 
@@ -587,25 +587,25 @@ MSG_UTILNAME <COMMAND>				;AN000; define utility name
 MSG_SERVICES <COMR,MSGDATA,COMMAND.CLA>  ;AN054; get message services data and resident messages
 
 
-CRITICAL_MSG_START	LABEL	BYTE		;AN000; start of critical error messages
+CRITICAL_MSG_START:;AN000; start of critical error messages
 
 MSG_SERVICES <COMR,COMMAND.CLD> 		;AN000; get critical error messages
 
-DATARESEND		LABEL	BYTE		;AC060; end of resident portion if /msg not used
+DATARESEND:;AC060; end of resident portion if /msg not used
 
-PARSE_MSG_START 	LABEL	BYTE		;AN000; start of parse error messages
+PARSE_MSG_START:;AN000; start of parse error messages
 
 MSG_SERVICES <COMR,COMMAND.CLC> 		;AN000; get parse error messages
 
 ;AD060; DATARESEND		LABEL	BYTE		; end of resident portion if /msg not used
 
-EXTENDED_MSG_START	LABEL	BYTE		;AN000; start of extended error messages
+EXTENDED_MSG_START:;AN000; start of extended error messages
 
 MSG_SERVICES <COMR,COMMAND.CLE> 		;AN000; get extended error messages
 
-EXTMSGEND		LABEL	BYTE		;AN000; end of extended error messages
+EXTMSGEND:;AN000; end of extended error messages
 
-include msgdcl.inc
+%include "msgdcl.inc"
 
-DATARES ENDS
-	END
+; END SECTION .DATARES
+	; END

@@ -1,5 +1,5 @@
-	PAGE	90,132			;A2
-	title	LABEL.SAL - DOS LABEL COMMAND
+	; PAGE	90,132;A2
+	; title	LABEL.SAL - DOS LABEL COMMAND
 ;*****************************************************************************
 ;*									     *
 ;*  MODULE NAME:       LABEL						     *
@@ -125,15 +125,15 @@
 ;*									     *
 ;*****************************************************************************
 	HEADER	<DEFINITIONS - LOCAL MACROS AND LOCAL EQUATES>
-IF1
-	%OUT	COMPONENT=LABEL, MODULE=LABEL.SAL
-ENDIF
-HEADER	MACRO	TEXT
-.XLIST
-	SUBTTL	&TEXT
-.LIST
-	PAGE
-	ENDM
+%if 1  ; IF1 - pass-specific
+	%warning COMPONENT=LABEL, MODULE=LABEL.SAL
+%endif
+%macro HEADER 1
+; .XLIST
+	; SUBTTL	&TEXT
+; .LIST
+	; PAGE
+	%endmacro
 ;*****************************************************************************
 ; Equate Area
 ;*****************************************************************************
@@ -225,28 +225,28 @@ BIN_HEX_WORD	   equ	23h	   ;AN000;M a0100011
 RIGHT_ALIGN	   equ	80h	   ;AN000;M 10xxxxxx
 CHAR_FIELD_CHAR    equ	0	   ;AN000;M a0000000
 		   HEADER <MAIN CODE - PSP, ENTRY POINT>
-CSEG		   segment public
+SECTION .CSEG
 
-		   ASSUME cs:CSEG,ds:CSEG,es:CSEG,ss:CSEG
+		   ; ASSUME cs:CSEG,ds:CSEG,es:CSEG,ss:CSEG
 
-		   EXTRN SYSDISPMSG:NEAR ;SYSTEM DISPLAY MESSAGE ROUTINE
-		   EXTRN SYSLOADMSG:NEAR ;SYSTEM MESSAGE LOADER ROUTINE
+		   extern SYSDISPMSG;SYSTEM DISPLAY MESSAGE ROUTINE
+		   extern SYSLOADMSG;SYSTEM MESSAGE LOADER ROUTINE
 
 		   org	5Ch
-FCB1		   label byte
+FCB1:
 
 		   org	80h
-Num_Parms	   label byte
+Num_Parms:
 
 		   org	81h
-Parm_Area	   label byte
+Parm_Area:
 
 		   org	100h
 Start:				   ;DOS ENTRY POINT
 		   jmp	Main_Begin ;SKIP CONSTANTS
 		   HEADER <DATA AREAS - STACK, BUFFERS, FCB'S, MESSAGE SUBLISTS>
-		   EVEN
-Stack_Area	   db	512 dup ("S") ;Added in DOS 3.20 to support hardware requiring
+		   align 2
+Stack_Area: times 512 db "S";Added in DOS 3.20 to support hardware requiring
 End_Stack_Area	   db	0	   ;large stacks. DO NOT PUT DATA ABOVE THIS !
 New_Vol_Path	   db	" :\"	   ;Path for new vol label
 New_Vol_Name	   db	"        " ;Where first 8 chars go
@@ -266,12 +266,12 @@ Vol_FCB 	   db	0FFh	   ;Extended FCB
 		   db	VOL_ATTRIBUTE ;Attribute for vol label
 FCB_Drive	   db	0	   ;Drive number
 Vol_Name	   db	"???????????" ;Match any vol name found
-		   db	25 dup (0) ;Rest of the opened FCB
+		   times 25 db 0;Rest of the opened FCB
 Label_Name	   db	"???????????",0 ;AN000;
 FCB_Drive_Char	   db	" "	   ;AN000;K printable version of FCB_Drive above
 
 TranSrc 	   db	"A:CON",0,0 ;AN000;A Device so we don't hit the drive
-TranDst 	   db	64 dup(' ') ;AN000;A
+TranDst: times 64 db ' ';AN000;A
 Label_Word	   db	"LABEL",0  ;AN000;M Message substitution parm
 
 Del_FCB 	   db	0FFh	   ;Extended FCB
@@ -282,35 +282,35 @@ Del_Name	   db	"???????????" ;Match any vol name found
 
 ;		MESSAGE SUBLIST STRUCTURES
 
-Sublist1	   Label Dword	   ;AN000;M Substitution list
+Sublist1:;AN000;M Substitution list
 s1_nxtlst	   db	SUBLIST_LENGTH ;AN000;M (11)Ptr to next sublist
 s1_reserve	   db	RESERVED   ;AN000;M (0)Reserved
-s1_offset	   dw	?	   ;AN000;M Time/date or data pointer
-s1_segment	   dw	?	   ;AN000;M Time/date or data pointer
+s1_offset: dw 0;AN000;M Time/date or data pointer
+s1_segment: dw 0;AN000;M Time/date or data pointer
 s1_id		   db	1	   ;AN000;M N of %n
-s1_flags	   db	?	   ;AN000;M Data-type flags (a0sstttt)
-s1_maxwidth	   db	?	   ;AN000;M Maximum field width
-s1_minwidth	   db	?	   ;AN000;M Minimum field width
-s1_padchar	   db	?	   ;AN000;M Char to pad field
+s1_flags: db 0;AN000;M Data-type flags (a0sstttt)
+s1_maxwidth: db 0;AN000;M Maximum field width
+s1_minwidth: db 0;AN000;M Minimum field width
+s1_padchar: db 0;AN000;M Char to pad field
 
-Sublist2	   Label Dword	   ;AN000;M Substitution list
+Sublist2:;AN000;M Substitution list
 s2_nxtlst	   db	SUBLIST_LENGTH ;AN000;M (11)Ptr to next sublist
 s2_reserve	   db	RESERVED   ;AN000;M (0)Reserved
-s2_offset	   dw	?	   ;AN000;M Time/date or data pointer
-s2_segment	   dw	?	   ;AN000;M Time/date or data pointer
+s2_offset: dw 0;AN000;M Time/date or data pointer
+s2_segment: dw 0;AN000;M Time/date or data pointer
 s2_id		   db	2	   ;AN000;M N of %n
-s2_flags	   db	?	   ;AN000;M Data-type flags (a0sstttt)
-s2_maxwidth	   db	?	   ;AN000;M Maximum field width
-s2_minwidth	   db	?	   ;AN000;M Minimum field width
-s2_padchar	   db	?	   ;AN000;M Char to pad field
+s2_flags: db 0;AN000;M Data-type flags (a0sstttt)
+s2_maxwidth: db 0;AN000;M Maximum field width
+s2_minwidth: db 0;AN000;M Minimum field width
+s2_padchar: db 0;AN000;M Char to pad field
 
 ;		GET_MEDIA_ID STRUCTURE
 
-SerNumBuf	   Label Byte	   ;AN000;S GET_MEDIA_ID buffer
+SerNumBuf:;AN000;S GET_MEDIA_ID buffer
 		   dw	0	   ;AN000;S Info level (set on input)
 SerNum		   dd	0	   ;AN000;S Serial #
-		   db	11 DUP(' ') ;AN000;S Volume label
-		   db	8 DUP(' ') ;AN000;S File system type
+		   times 11 db ' ';AN000;S Volume label
+		   times 8 db ' ';AN000;S File system type
 
 ;		CHK_DBCS STRUCTURE
 DBCSev_Off	   dw	0	   ;AC000;D offset of DBCS EV
@@ -354,9 +354,9 @@ DBCSev_Seg	   dw	0	   ;AC000;D segment of DBCS EV
 ;*			  Get_User_Input	      Setup_TooMany	     *
 ;*									     *
 ;*****************************************************************************
-   PUBLIC MAIN_BEGIN
-Main_Begin Proc Near
-   mov	sp,offset End_Stack_Area   ;Move stack to user area(Added in DOS 3.20)
+   global MAIN_BEGIN
+Main_Begin:
+   mov	sp,End_Stack_Area   ;Move stack to user area(Added in DOS 3.20)
    cld
    call Preload_Messages	   ;AN000;M Check DOS version & load msgs
    call Drive_Setup		   ;Get Drive letters
@@ -367,15 +367,15 @@ Main_Begin Proc Near
    call Create_New_Label	   ;Make new Vol file
    mov	ax,(EXIT shl 8)+ERRORLEVEL_0 ;all done, pass back zero ret code
    INT	21H
-Main_Begin ENDP
+; ENDP Main_Begin
 
    HEADER <DRIVE_SETUP - VERIFY DRIVE, GET DEFAULT, SETUP DRIVE ID>
 ;*****************************************************************************
 ;  Verify specified drive, get default if needed, setup drive letters
 ;*****************************************************************************
 
-   PUBLIC DRIVE_SETUP
-Drive_Setup PROC NEAR
+   global DRIVE_SETUP
+Drive_Setup:
    cmp	al,DRIVE_INVALID	   ;Was specified drive ok ?
 ;  $if	e			   ;AN000;K No
    JNE $$IF1
@@ -426,7 +426,7 @@ $$IF7:
    add	al,ASCII_DRV		   ;AN000;K ("A"-1) Convert to Ascii
    mov	New_Vol_Path,al 	   ;Put drive letter in path
    ret
-Drive_Setup ENDP
+; ENDP Drive_Setup
 
    HEADER <CHECK_TRANSLATE_DRIVE - SEE IF DRIVE IS SUBST OR ASSIGN>
 ;*****************************************************************************
@@ -436,18 +436,18 @@ Drive_Setup ENDP
 ;	   assigned by SUBST or ASSIGN
 ;  Input:  Drive
 
-   PUBLIC CHECK_TRANS_DRIVE
-Check_Trans_Drive PROC NEAR	   ;AN000;A
+   global CHECK_TRANS_DRIVE
+Check_Trans_Drive:;AN000;A
    mov	bl,FCB_Drive_Char	   ;AN000;A Get drive
-   mov	byte ptr [TranSrc],bl	   ;AN000;A Make string "x:\"
-   mov	si,offset TranSrc	   ;AN000;A Point to translate string
-   mov	di,offset TranDst	   ;AN000;A Point at output buffer
+   mov	byte [TranSrc],bl	   ;AN000;A Make string "x:\"
+   mov	si,TranSrc	   ;AN000;A Point to translate string
+   mov	di,TranDst	   ;AN000;A Point at output buffer
    mov	ah,XNAMETRANS		   ;AN000;A (60H) Get real path
    INT	21H			   ;AN000;A
-   mov	bl,byte ptr [TranSrc]	   ;AN000;A Get drive letter from path
-   cmp	bl,byte ptr [TranDst]	   ;AN000;A Did drive letter change?
+   mov	bl,byte [TranSrc]	   ;AN000;A Get drive letter from path
+   cmp	bl,byte [TranDst]	   ;AN000;A Did drive letter change?
    ret				   ;AN000;A
-Check_Trans_Drive ENDP		   ;AN000;A
+; ENDP Check_Trans_Drive;AN000;A
 
    HEADER <FIND_OLD_LABEL - GET THE EXISTING VOLUME LABEL>
 ;*****************************************************************************
@@ -458,27 +458,27 @@ Check_Trans_Drive ENDP		   ;AN000;A
 ;	   PROGRAM_FLAG = LABEL_FND if one is found
 ;	   LABEL_NAME gets found label name
 
-   PUBLIC FIND_OLD_LABEL
-Find_Old_Label PROC NEAR
-   mov	dx,offset Vol_FCB	   ;Point at FCB to find vol
+   global FIND_OLD_LABEL
+Find_Old_Label:
+   mov	dx,Vol_FCB	   ;Point at FCB to find vol
    mov	ah,SET_DTA		   ;(1AH)
    INT	21H
-   mov	dx,offset Vol_FCB	   ;Point at FCB to find vol
+   mov	dx,Vol_FCB	   ;Point at FCB to find vol
    mov	ah,FCB_SEARCH		   ;(11H)
    INT	21H			   ;Find vol label
    cmp	al,VOL_NOT_FOUND	   ;Find one
 ;  $if	ne			   ;AN000;K Yes
    JE $$IF9
        or   Program_Flag,LABEL_FND ;Yes, set flag
-       mov  si,offset Vol_Name	   ;Found name
-       mov  di,offset Label_Name   ;Where to put it
+       mov  si,Vol_Name	   ;Found name
+       mov  di,Label_Name   ;Where to put it
        mov  cx,MAX_CHARS	   ;How many characters
        rep  movsb		   ;Move the string
 ;  $endif			   ;AN000;K
 $$IF9:
 ;			     Find_Return:
    ret
-Find_Old_Label ENDP
+; ENDP Find_Old_Label
 
    HEADER <GET_NEW_LABEL - PARSE NEW VOL LABEL NAME INTO PATH>
 ;*****************************************************************************
@@ -488,13 +488,13 @@ Find_Old_Label ENDP
 ;  Output: NEW_VOL_NAME has ASCIIZ string for new label, or an END_OF_STRING
 ;	   if nothing entered
 
-   PUBLIC GET_NEW_LABEL
-Get_New_Label PROC NEAR
+   global GET_NEW_LABEL
+Get_New_Label:
 ;  $do				   ;AN000;K
 $$DO11:
        xor  cx,cx		   ;Zero counter
-       mov  si,offset Parm_Area    ;Input buffer
-       mov  di,offset New_Vol_Name ;Target Buffer
+       mov  si,Parm_Area    ;Input buffer
+       mov  di,New_Vol_Name ;Target Buffer
        call Find_First_Char	   ;Get first not blank char
        test Program_Flag,GET_INPUT ;Find input?
        jnz  Need_User_Input	   ;No, go get it
@@ -522,7 +522,7 @@ Input_New_Label:
    JMP SHORT $$DO11
 $$EN11:
    ret
-Get_New_Label ENDP
+; ENDP Get_New_Label
 
    HEADER <FIND_FIRST_CHAR - LOCATE FIRST NON BLANK IN INPUT>
 ;*****************************************************************************
@@ -533,8 +533,8 @@ Get_New_Label ENDP
 ;	   AL = First not blank character
 ;  Notes:  GET_INPUT set if nothing follows drive letter
 
-   PUBLIC FIND_FIRST_CHAR
-Find_First_Char PROC NEAR
+   global FIND_FIRST_CHAR
+Find_First_Char:
 ;  $do				   ;AN000;K
 $$DO17:
        and  Program_Flag,not GET_INPUT ;Clear flag
@@ -563,7 +563,7 @@ $$IF21:
 ;  $endif			   ;AN000;K
 $$IF23:
    ret
-Find_First_Char ENDP
+; ENDP Find_First_Char
 
    HEADER <CHK_DBCS -SEE IF SPECIFIED BYTE IS A DBCS LEAD BYTE>
 ;*****************************************************************************
@@ -574,8 +574,8 @@ Find_First_Char ENDP
 ;  Output:   If CF is on then a lead byte of DBCS
 ;  Register: FL is used for the output, others are unchanged.
 
-   PUBLIC CHK_DBCS
-Chk_DBCS PROC			   ;AC000;D
+   global CHK_DBCS
+Chk_DBCS:;AC000;D
    push ds			   ;AC000;D save regs, about to be clobbered
    push si			   ;AC000;D
    cmp	DBCSev_Seg,ZERO 	   ;AC000;D Already set ?
@@ -584,7 +584,7 @@ Chk_DBCS PROC			   ;AC000;D
        push ax			   ;AC000;D
        mov  ax,GET_DBCS_ENV	   ;AC000;D GET DBCS EV call
        INT  21H 		   ;AC000;D ds:si points to the dbcs vector
-       ASSUME ds:NOTHING	   ;AN000;K that function clobbered old DS
+       ; ASSUME ds:NOTHING;AN000;K that function clobbered old DS
        mov  DBCSev_Off,si	   ;AC000;D remem where dbcs vector is so next
        mov  DBCSev_Seg,ds	   ;AC000;D time don't have to look for it
        pop  ax			   ;AC000;D
@@ -594,7 +594,7 @@ $$IF25:
    mov	ds,DBCSev_Seg		   ;AC000;D  the dbcs vector
 ;  $search			   ;AN000;K
 $$DO27:
-       cmp  word ptr [si],ZERO	   ;AC000;D vec ends with nul terminator entry
+       cmp  word [si],ZERO	   ;AC000;D vec ends with nul terminator entry
 ;  $leave e			   ;AN000;K if that was terminator entry, quit
    JE $$EN27
        cmp  al,[si]		   ;AC000;D look at LOW value of vector
@@ -617,9 +617,9 @@ $$EN27:
 $$SR27:
    pop	si			   ;AC000;D restore the regs
    pop	ds			   ;AC000;D
-   ASSUME ds:CSEG		   ;AN000;K tell masm, DS back to normal
+   ; ASSUME ds:CSEG;AN000;K tell masm, DS back to normal
    ret				   ;AC000;D
-Chk_DBCS ENDP			   ;AC000;D
+; ENDP Chk_DBCS;AC000;D
 
    HEADER <CHK_DBCS_BLANK - PROCESS DBCS BLANK CHAR>
 ;*****************************************************************************
@@ -630,22 +630,22 @@ Chk_DBCS ENDP			   ;AC000;D
 ;	     SI = Points to next byte
 ;  Output:   SI = UNchanged
 
-   PUBLIC CHK_DBCS_BLANK
-Chk_DBCS_Blank PROC NEAR	   ;AN000;D
+   global CHK_DBCS_BLANK
+Chk_DBCS_Blank:;AN000;D
    cmp	al,DBCSBLK_BYTEONE	   ;AN000;D Is the leading byte 81h?
 ;  $if	e,and			   ;AN000;K
    JNE $$IF33
-   cmp	byte ptr [si],DBCSBLK_BYTETWO ;AN000;D Is the 2nd byte 40h?
+   cmp	byte [si],DBCSBLK_BYTETWO ;AN000;D Is the 2nd byte 40h?
 ;  $if	e			   ;AN000;K Yes, change to 2 SBCS blanks
    JNE $$IF33
 ;		 Convert_DBCS_Blank: ;AN000;D
-       mov  word ptr es:[si]-1,SBCSBLANKS ;AN000;D Fill it up with blank-blank
+       mov  word [es:si]-1,SBCSBLANKS ;AN000;D Fill it up with blank-blank
        mov  al,BLANK		   ;AN000;K pretend this char is a blank
 ;  $endif			   ;AN000;K
 $$IF33:
 ;		  DBCS_Blank_Exit: ;AN000;D
    ret				   ;AN000;D And leave
-Chk_DBCS_Blank ENDP		   ;AN000;D
+; ENDP Chk_DBCS_Blank;AN000;D
 
    HEADER <CHECK_FOR_DRIVE_LETTER - PARSE FOR DRIVE IN STRING>
 ;*****************************************************************************
@@ -655,8 +655,8 @@ Chk_DBCS_Blank ENDP		   ;AN000;D
 ;	   CX = character count
 ;  Output: SI = SI+1 if drive letter entered
 
-   PUBLIC CHECK_FOR_DRIVE_LETTER
-Check_For_Drive_Letter PROC NEAR
+   global CHECK_FOR_DRIVE_LETTER
+Check_For_Drive_Letter:
    test Program_Flag,USER_INPUT    ;Input not from command line?
 ;  $if	z			   ;AN000;K
    JNZ $$IF35
@@ -666,7 +666,7 @@ Check_For_Drive_Letter PROC NEAR
 	   cmp	al,CR		   ;First char a CR ?
 ;	   $if	ne
 	   JE $$IF37
-	       cmp  byte ptr [si],COLON ;Drive letter entered?
+	       cmp  byte [si],COLON ;Drive letter entered?
 ;	       $if  e		   ;AN000;K
 	       JNE $$IF38
 		   inc	si	   ;Yes, point past the colon
@@ -681,7 +681,7 @@ $$IF36:
 $$IF35:
 Drive_Letter_Ret:
    ret
-Check_For_Drive_Letter ENDP
+; ENDP Check_For_Drive_Letter
 
    HEADER <PROCESS_STRING - MOV STRING TO BUF, CHECK BAD CHARS>
 ;*****************************************************************************
@@ -695,8 +695,8 @@ Check_For_Drive_Letter ENDP
 ;  Notes:  Insert a "." in string to seperate 8th and 9th characters so
 ;	   ASCIIZ string is the result.
 
-   PUBLIC PROCESS_STRING
-Process_String PROC NEAR
+   global PROCESS_STRING
+Process_String:
    cmp	al,CR			   ;is it an ENTER ?
 ;  $if	e
    JNE $$IF43
@@ -749,7 +749,7 @@ Get_Next_Char:
 $$EN43:
 Process_String_Return:
    ret
-Process_String ENDP
+; ENDP Process_String
 
    HEADER <CHARACTER_CHECK - SEE IF CHAR IS VALID FOR FILENAME>
 ;*****************************************************************************
@@ -759,8 +759,8 @@ Process_String ENDP
 ;  Output: AL = character
 ;	   PROGRAM_FLAG = CHAR_BAD if invalid characters found
 
-   PUBLIC CHARACTER_CHECK
-Character_Check PROC NEAR
+   global CHARACTER_CHECK
+Character_Check:
    or	Program_Flag,CHAR_BAD	   ;Assume bad character
    cmp	al,"*"
    je	Char_Check_Done
@@ -799,7 +799,7 @@ Character_Check PROC NEAR
    and	Program_Flag,not CHAR_BAD  ;Char is ok
 Char_Check_Done:
    ret
-Character_Check ENDP
+; ENDP Character_Check
 
    HEADER <OUTPUT_OLD_LABEL - DISPLAY THE ORIGINAL VOL LABEL>
 ;*****************************************************************************
@@ -809,8 +809,8 @@ Character_Check ENDP
 ;  Output: None
 ;  Notes:  Print the volume label
 
-   PUBLIC OUTPUT_OLD_LABEL
-Output_Old_Label PROC NEAR
+   global OUTPUT_OLD_LABEL
+Output_Old_Label:
    mov	ax,HAS_LABEL_MSG	   ;Assume label
    call Setup_HasLabel		   ;AN000;M
    test Program_Flag,LABEL_FND	   ;Is there one?
@@ -830,7 +830,7 @@ $$IF50:
 ;  $endif			   ;AN000;K
 $$IF52:
    ret
-Output_Old_Label ENDP
+; ENDP Output_Old_Label
 
    HEADER <GET_SERIAL_NUM - GET VOL SER NUMBER FROM "GET_MEDIA_ID">
 ;*****************************************************************************
@@ -840,15 +840,15 @@ Output_Old_Label ENDP
 ;  Output: SerNum if no carry
 ;  Notes:  Only DOS Version 4.0 and above will contain serial numbers
 
-   PUBLIC GET_SERIAL_NUM
-Get_Serial_Num PROC NEAR	   ;AN000;S
+   global GET_SERIAL_NUM
+Get_Serial_Num:;AN000;S
    mov	ax,GET_MEDIA_ID 	   ;AN000;S
    mov	bh,0			   ;AN000;S
    mov	bl,FCB_Drive		   ;AN000;S Which drive to check
    lea	dx,SerNumBuf		   ;AN000;S Pt to the buffer
    INT	21H			   ;AN000;S Make the call
    ret				   ;AN000;S
-Get_Serial_Num ENDP		   ;AN000;S
+; ENDP Get_Serial_Num;AN000;S
 
    HEADER <GET_USER_INPUT - READ FROM USER NEW VOL LABEL>
 ;*****************************************************************************
@@ -858,8 +858,8 @@ Get_Serial_Num ENDP		   ;AN000;S
 ;  Output: New string placed in PARM_AREA
 ;  Notes:  Print bad character message if needed and prompt and get user input
 
-   PUBLIC GET_USER_INPUT
-Get_User_Input PROC NEAR
+   global GET_USER_INPUT
+Get_User_Input:
    test Program_Flag,CHAR_BAD	   ;Do we need bad char message
 ;  $if	nz			   ;AN000;K
    JZ $$IF54
@@ -872,14 +872,14 @@ $$IF54:
    mov	ax,NEW_LABEL_MSG	   ;Tell user to input new label
    call Setup_NewLabel		   ;AN000;M
    call Display_Msg		   ;AC000;M Set up msg and display
-   mov	dx,offset Parm_Area	   ;Point where to put new name
+   mov	dx,Parm_Area	   ;Point where to put new name
    mov	cx,MAX_INPUT		   ;Number of characters to read
    mov	bx,STDIN		   ;Read from keyboard
    mov	ah,READ 		   ;(3FH)
    INT	21H
    or	Program_Flag,USER_INPUT    ;Indicate user input has been received
    ret
-Get_User_Input ENDP
+; ENDP Get_User_Input
 
    HEADER <CHECK_DELETE - SEE IF OLD LABEL SHOULD BE DELETED>
 ;*****************************************************************************
@@ -889,8 +889,8 @@ Get_User_Input ENDP
 ;  Output: PROGRAM_FLAG = NO_DELETE if label should not be deleted
 ;  Notes:  Get user Y/N if to delete previous label
 
-   PUBLIC CHECK_DELETE
-Check_Delete PROC NEAR
+   global CHECK_DELETE
+Check_Delete:
    test Program_Flag,LABEL_FND	   ;AN001; Is there a vol label
    jz	Check_Delete_Return	   ;AN001; No, no need for prompt
    cmp	New_Vol_Name,END_OF_STRING ;AN001; Did user enter label
@@ -914,7 +914,7 @@ Check_Delete_Return:		   ;AN001;
    call Setup_CRLF		   ;AN001;M Prepare message
    call Display_Msg		   ;AN001;M Call to Sysdispmsg
    ret				   ;AN001;
-Check_Delete ENDP
+; ENDP Check_Delete
 
    HEADER <DELETE_OLD_LABEL - DELETE ORIGINAL VOLUME LABEL>
 ;*****************************************************************************
@@ -925,8 +925,8 @@ Check_Delete ENDP
 ;  Output: Vol label deleted if it exists and user say's it is okay
 ;  Notes:  Ask user if old label should be deleted.
 
-   PUBLIC DELETE_OLD_LABEL
-Delete_Old_Label PROC NEAR
+   global DELETE_OLD_LABEL
+Delete_Old_Label:
    test Program_Flag,NO_DELETE	   ;Need to delete label ?
 ;  $if	z			   ;AN000;K
    JNZ $$IF56
@@ -936,19 +936,19 @@ Delete_Old_Label PROC NEAR
 ;  $endif			   ;AN000;K
 $$IF56:
    ret
-Delete_Old_Label ENDP
+; ENDP Delete_Old_Label
 
    HEADER <CREATE_NEW_LABEL - OUTPUT NEW VOL LABEL>
 ;*****************************************************************************
 ;  Create new volume label file if user specified one
 ;*****************************************************************************
 
-   PUBLIC CREATE_NEW_LABEL
-Create_New_Label PROC NEAR
+   global CREATE_NEW_LABEL
+Create_New_Label:
    cmp	New_Vol_Name,END_OF_STRING ;Did user enter a vol label
 ;  $if	ne			   ;AN000;K
    JE $$IF58
-       mov  dx,offset New_Vol_Path ;Point at path for file
+       mov  dx,New_Vol_Path ;Point at path for file
        mov  cx,VOL_ATTRIBUTE	   ;Set it as a volume label
        mov  ah,CREATE_FILE	   ;(5BH) Go make it
        INT  21H
@@ -971,14 +971,14 @@ $$IF59:
 	       JE $$IF62
 				   ;need to restore the previous label
 				   ;because the new one did not stick
-		   mov	si,offset Label_Name ;AN000;K where old name was kept
-		   mov	di,offset New_Vol_Name ;AN000;K where to put old name
+		   mov	si,Label_Name ;AN000;K where old name was kept
+		   mov	di,New_Vol_Name ;AN000;K where to put old name
 		   mov	cx,8	   ;AN000;K count of filename up to "."
 		   rep	movsb	   ;AN000;K
 		   inc	di	   ;AN000;K skip the "."
 		   mov	cx,3	   ;AN000;K length of extension
 		   rep	movsb	   ;AN000;K
-		   mov	dx,offset New_Vol_Path ;AN000;K drive\path\filename
+		   mov	dx,New_Vol_Path ;AN000;K drive\path\filename
 		   mov	cx,VOL_ATTRIBUTE ;AN000;K make it a label
 		   mov	ah,CREATE_FILE ;AN000;K make a label
 		   INT	21H	   ;AN000;K at least, try to, anyway...
@@ -998,7 +998,7 @@ $$EN59:
 ;  $endif			   ;AN000;K
 $$IF58:
    ret
-Create_New_Label ENDP
+; ENDP Create_New_Label
 
    HEADER <PRELOAD_MESSAGES - SET UP SYS MSGS, DOS VERSION CHK>
 ;*****************************************************************************
@@ -1009,8 +1009,8 @@ Create_New_Label ENDP
 ;  Notes:  Checks DOS version, if incorrect, or if error loading messages, will
 ;	     display error message and terminate
 
-   PUBLIC PRELOAD_MESSAGES
-Preload_Messages PROC NEAR	   ;AN000;M
+   global PRELOAD_MESSAGES
+Preload_Messages:;AN000;M
    push ax			   ;AN000;M
    push bp			   ;AN000;M
    mov	bp,sp			   ;AN000;M
@@ -1034,7 +1034,7 @@ $$IF68:
    pop	bp			   ;AN000;M
    pop	ax			   ;AN000;M
    ret				   ;AN000;M
-Preload_Messages ENDP		   ;AN000;M
+; ENDP Preload_Messages;AN000;M
 
    HEADER <DISPLAY_MSG - SEND MSG TO SYSTEM MESSAGE HANDLER>
 ;*****************************************************************************
@@ -1045,8 +1045,8 @@ Preload_Messages ENDP		   ;AN000;M
 ;  Notes:  The message called is displayed to stdout/stderr unless AX returns
 ;	     with error code (then setup for extended error to display)
 
-   PUBLIC DISPLAY_MSG
-Display_Msg PROC NEAR		   ;AN000;M
+   global DISPLAY_MSG
+Display_Msg:;AN000;M
    push bp			   ;AN000;M
    mov	bp,sp			   ;AN000;M
    push di			   ;AN000;M
@@ -1072,7 +1072,7 @@ $$IF70:
    mov	sp,bp			   ;AN000;M
    pop	bp			   ;AN000;M
    ret				   ;AN000;M Bye,bye
-Display_Msg ENDP		   ;AN000;M
+; ENDP Display_Msg;AN000;M
 
    HEADER <SETUP_TOOMANY - "Too many files open">
 ;*****************************************************************************
@@ -1081,15 +1081,15 @@ Display_Msg ENDP		   ;AN000;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_TOOMANY
-Setup_TooMany PROC NEAR 	   ;AN000;M
+   global SETUP_TOOMANY
+Setup_TooMany:;AN000;M
    mov	ax,4			   ;AN000;M Utility's message number
    mov	bx,STDERR		   ;AN000;M Error msg, so stderr
    mov	cx,0			   ;AN000;M Substitution count
    mov	dl,NO_INPUT		   ;AN000;M No input characters
    mov	dh,EXT_ERR_CLASS	   ;AN000;M DOS Extended error class
    ret				   ;AN000;M Now display the message
-Setup_TooMany ENDP		   ;AN000;M
+; ENDP Setup_TooMany;AN000;M
 
    HEADER <SETUP_NOROOM - "Cannot make directory entry">
 ;*****************************************************************************
@@ -1098,15 +1098,15 @@ Setup_TooMany ENDP		   ;AN000;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_NOROOM
-Setup_NoRoom PROC NEAR		   ;AN000;M
+   global SETUP_NOROOM
+Setup_NoRoom:;AN000;M
    mov	ax,82			   ;AN000;M Utility's message number
    mov	bx,STDERR		   ;AN000;M Error msg, so stderr
    mov	cx,0			   ;AN000;M Substitution count
    mov	dl,NO_INPUT		   ;AN000;M No input characters
    mov	dh,EXT_ERR_CLASS	   ;AN000;M DOS Extended error class
    ret				   ;AN000;M
-Setup_NoRoom ENDP
+; ENDP Setup_NoRoom
 
    HEADER <SETUP_INVCHAR - "Invalid characters in volume label">
 ;*****************************************************************************
@@ -1115,15 +1115,15 @@ Setup_NoRoom ENDP
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_INVCHAR
-Setup_InvChar PROC NEAR 	   ;AN000;M
+   global SETUP_INVCHAR
+Setup_InvChar:;AN000;M
    mov	ax,3			   ;AN000;M Utility's message number
    mov	bx,STDERR		   ;AN000;M Error msg, so stderr
    mov	cx,0			   ;AN000;M Substitution count
    mov	dl,NO_INPUT		   ;AN000;M No input characters
    mov	dh,UTILITY_MSG_CLASS	   ;AN000;M Utility message class
    ret				   ;AN000;M
-Setup_InvChar ENDP		   ;AN000;M
+; ENDP Setup_InvChar;AN000;M
 
    HEADER <SETUP_NEWLABEL - "Volume label (11 characters, ENTER for none)?">
 ;*****************************************************************************
@@ -1132,15 +1132,15 @@ Setup_InvChar ENDP		   ;AN000;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_NEWLABEL
-Setup_NewLabel PROC NEAR	   ;AN000;M
+   global SETUP_NEWLABEL
+Setup_NewLabel:;AN000;M
    mov	ax,6			   ;AN000;M Utility's message number
    mov	bx,STDOUT		   ;AN000;M Info msg, so stdout
    mov	cx,0			   ;AN000;M Substitution count
    mov	dl,NO_INPUT		   ;AN000;M No input characters
    mov	dh,UTILITY_MSG_CLASS	   ;AN000;M Utility message class
    ret				   ;AN000;M
-Setup_NewLabel ENDP		   ;AN000;M
+; ENDP Setup_NewLabel;AN000;M
 
    HEADER <SETUP_INVDRIVE - "Invalid drive specification">
 ;*****************************************************************************
@@ -1149,9 +1149,9 @@ Setup_NewLabel ENDP		   ;AN000;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_INVDRIVE
-Setup_InvDrive PROC NEAR	   ;AN000;M
-   mov	s1_offset,offset FCB_Drive_Char ;AN000;M
+   global SETUP_INVDRIVE
+Setup_InvDrive:;AN000;M
+   mov	s1_offset,FCB_Drive_Char ;AN000;M
    mov	s1_segment,ds		   ;AN000;M Setup segment
    mov	s1_flags,CHAR_FIELD_CHAR   ;AN000;M Set up the parm formatting
    mov	s1_maxwidth,MAXWIDTH	   ;AN000;M 0 ensures no padding
@@ -1164,7 +1164,7 @@ Setup_InvDrive PROC NEAR	   ;AN000;M
    mov	dl,NO_INPUT		   ;AN000;M No input characters
    mov	dh,EXT_ERR_CLASS	   ;AN000;M DOS Extended error class
    ret				   ;AN000;M
-Setup_InvDrive ENDP		   ;AN000;M
+; ENDP Setup_InvDrive;AN000;M
 
    HEADER <SETUP_NETDRIVE - "Cannot %1 a Network drive">
 ;*****************************************************************************
@@ -1173,9 +1173,9 @@ Setup_InvDrive ENDP		   ;AN000;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_NETDRIVE
-Setup_NetDrive PROC NEAR	   ;AN000;M
-   mov	s1_offset,offset Label_Word ;AN000;M Cannot LABEL a network...
+   global SETUP_NETDRIVE
+Setup_NetDrive:;AN000;M
+   mov	s1_offset,Label_Word ;AN000;M Cannot LABEL a network...
    mov	s1_segment,ds		   ;AN000;M Setup segment
    mov	s1_flags,STR_INPUT	   ;AN000;M Set up the parm formatting
    mov	s1_maxwidth,MAXWIDTH	   ;AN000;M 0 ensures no padding
@@ -1188,7 +1188,7 @@ Setup_NetDrive PROC NEAR	   ;AN000;M
    mov	dl,NO_INPUT		   ;AN000;M No input characters
    mov	dh,UTILITY_MSG_CLASS	   ;AN000;M Utility message class
    ret				   ;AN000;M
-Setup_NetDrive ENDP		   ;AN000;M
+; ENDP Setup_NetDrive;AN000;M
 
    HEADER <SETUP_SUBSTASGN - "Cannot %1 a SUBSTed or ASSIGNed drive">
 ;*****************************************************************************
@@ -1197,9 +1197,9 @@ Setup_NetDrive ENDP		   ;AN000;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_SUBSTASGN
-Setup_SubstAsgn PROC NEAR	   ;AN000;M
-   mov	s1_offset,offset Label_Word ;AN000;M Cannot LABEL a SUBSTed...
+   global SETUP_SUBSTASGN
+Setup_SubstAsgn:;AN000;M
+   mov	s1_offset,Label_Word ;AN000;M Cannot LABEL a SUBSTed...
    mov	s1_segment,ds		   ;AN000;M Setup segment
    mov	s1_flags,STR_INPUT	   ;AN000;M Set up the parm formatting
    mov	s1_maxwidth,MAXWIDTH	   ;AN000;M 0 ensures no padding
@@ -1212,7 +1212,7 @@ Setup_SubstAsgn PROC NEAR	   ;AN000;M
    mov	dl,NO_INPUT		   ;AN000;M No input characters
    mov	dh,UTILITY_MSG_CLASS	   ;AN000;M Utility message class
    ret				   ;AN000;M
-Setup_SubstAsgn ENDP		   ;AN000;M
+; ENDP Setup_SubstAsgn;AN000;M
 
    HEADER <SETUP_NOLABEL - "Volume in drive %1 has no label">
 ;*****************************************************************************
@@ -1221,9 +1221,9 @@ Setup_SubstAsgn ENDP		   ;AN000;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_NOLABEL
-Setup_NoLabel PROC NEAR 	   ;AN000;M
-   mov	s1_offset,offset FCB_Drive_Char ;AN000;M
+   global SETUP_NOLABEL
+Setup_NoLabel:;AN000;M
+   mov	s1_offset,FCB_Drive_Char ;AN000;M
    mov	s1_segment,ds		   ;AN000;M Setup segment
    mov	s1_flags,CHAR_FIELD_CHAR   ;AN000;M Set up the parm formatting
    mov	s1_maxwidth,MAXWIDTH	   ;AN000;M 0 ensures no padding
@@ -1236,7 +1236,7 @@ Setup_NoLabel PROC NEAR 	   ;AN000;M
    mov	dl,NO_INPUT		   ;AN000;M No input characters
    mov	dh,UTILITY_MSG_CLASS	   ;AN000;M Utility message class
    ret				   ;AN000;M
-Setup_NoLabel ENDP		   ;AN000;M
+; ENDP Setup_NoLabel;AN000;M
 
    HEADER <SETUP_SERIALNUM - "Volume Serial Number is %1-%2">
 ;*****************************************************************************
@@ -1245,15 +1245,15 @@ Setup_NoLabel ENDP		   ;AN000;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_SERIALNUM
-Setup_SerialNum PROC NEAR	   ;AN000;M
-   mov	s1_offset,offset SerNum+2  ;AN000;M
+   global SETUP_SERIALNUM
+Setup_SerialNum:;AN000;M
+   mov	s1_offset,SerNum+2  ;AN000;M
    mov	s1_segment,ds		   ;AN000;M Setup segment
    mov	s1_flags,BIN_HEX_WORD+RIGHT_ALIGN ;AN000;M Set up the parm formatting
    mov	s1_maxwidth,DWORD	   ;AN000;M 0 ensures no padding
    mov	s1_minwidth,DWORD	   ;AN000;M At least 1 char to insert
    mov	s1_padchar,CHAR_ZERO	   ;AN000;M In case, pad with ZERO CHAR
-   mov	s2_offset,offset SerNum    ;AN000;M
+   mov	s2_offset,SerNum    ;AN000;M
    mov	s2_segment,ds		   ;AN000;M Setup segment
    mov	s2_flags,BIN_HEX_WORD+RIGHT_ALIGN ;AN000;M Set up the parm formatting
    mov	s2_maxwidth,DWORD	   ;AN000;M 0 ensures no padding
@@ -1266,7 +1266,7 @@ Setup_SerialNum PROC NEAR	   ;AN000;M
    mov	dl,NO_INPUT		   ;AN000;M No input characters
    mov	dh,UTILITY_MSG_CLASS	   ;AN000;M Utility message class
    ret				   ;AN000;M
-Setup_SerialNum ENDP		   ;AN000;M
+; ENDP Setup_SerialNum;AN000;M
 
    HEADER <SETUP_HASLABEL - "Volume in drive %1 is %2">
 ;*****************************************************************************
@@ -1275,15 +1275,15 @@ Setup_SerialNum ENDP		   ;AN000;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_HASLABEL
-Setup_HasLabel PROC NEAR	   ;AN000;M
-   mov	s1_offset,offset FCB_Drive_Char ;AN000;M
+   global SETUP_HASLABEL
+Setup_HasLabel:;AN000;M
+   mov	s1_offset,FCB_Drive_Char ;AN000;M
    mov	s1_segment,ds		   ;AN000;M Setup segment
    mov	s1_flags,CHAR_FIELD_CHAR   ;AN000;M Set up the parm formatting
    mov	s1_maxwidth,MAXWIDTH	   ;AN000;M 0 ensures no padding
    mov	s1_minwidth,MINWIDTH	   ;AN000;M At least 1 char to insert
    mov	s1_padchar,BLANK	   ;AN000;M In case, pad with blanks
-   mov	s2_offset,offset Label_Name ;AN000;M
+   mov	s2_offset,Label_Name ;AN000;M
    mov	s2_segment,ds		   ;AN000;M Setup segment
    mov	s2_flags,STR_INPUT	   ;AN000;M Set up the parm formatting
    mov	s2_maxwidth,MAXWIDTH	   ;AN000;M 0 ensures no padding
@@ -1296,7 +1296,7 @@ Setup_HasLabel PROC NEAR	   ;AN000;M
    mov	dl,NO_INPUT		   ;AN000;M No input characters
    mov	dh,UTILITY_MSG_CLASS	   ;AN000;M Utility message class
    ret				   ;AN000;M
-Setup_HasLabel ENDP		   ;AN000;M
+; ENDP Setup_HasLabel;AN000;M
 
    HEADER <SETUP_DELLABEL - "Delete current volume label (Y/N)?">
 ;*****************************************************************************
@@ -1305,15 +1305,15 @@ Setup_HasLabel ENDP		   ;AN000;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_DELLABEL
-Setup_DelLabel PROC NEAR	   ;AN001;M
+   global SETUP_DELLABEL
+Setup_DelLabel:;AN001;M
    mov	ax,9			   ;AN001;M Utility's message number
    mov	bx,STDOUT		   ;AN001;M Info msg, so stdout
    mov	cx,0			   ;AN001;M Substitution count
    mov	dl,DOS_CON_INPUT	   ;AN001;M Input Y/N character
    mov	dh,UTILITY_MSG_CLASS	   ;AN001;M Utility message class
    ret				   ;AN001;M
-Setup_DelLabel ENDP		   ;AN001;M
+; ENDP Setup_DelLabel;AN001;M
 
    HEADER <SETUP_CRLF - Carriage return, line feed>
 ;*****************************************************************************
@@ -1322,30 +1322,30 @@ Setup_DelLabel ENDP		   ;AN001;M
 ;  Input:  None
 ;  Output: None
 
-   PUBLIC SETUP_CRLF
-Setup_CRLF PROC NEAR		   ;AN001;M
+   global SETUP_CRLF
+Setup_CRLF:;AN001;M
    mov	ax,10			   ;AN001;M Utility's message number
    mov	bx,STDOUT		   ;AN001;M Info msg, so stdout
    mov	cx,0			   ;AN001;M Substitution count
    mov	dl,NO_INPUT		   ;AN001;M Input Y/N character
    mov	dh,UTILITY_MSG_CLASS	   ;AN001;M No input characters
    ret				   ;AN001;M
-Setup_CRLF ENDP 		   ;AN001;M
+; ENDP Setup_CRLF;AN001;M
 
    HEADER <ERROR_EXIT - ABNORMAL RETURN TO DOS>
 ;*****************************************************************************
 ;  Error on exit
 ;*****************************************************************************
 
-   PUBLIC ERROR_EXIT
-Error_Exit PROC NEAR		   ;AC000;M
+   global ERROR_EXIT
+Error_Exit:;AC000;M
    mov	ax,(EXIT SHL 8)+ERRORLEVEL_1 ;AN000;K Terminate, with ret code
    INT	21H
-Error_Exit ENDP 		   ;AN000;M
+; ENDP Error_Exit;AN000;M
 
-End_Of_Program label byte
-   Public End_Of_Program
+End_Of_Program:
+   global End_Of_Program
 
-CSEG ends
-   end	Start
+; END SECTION .CSEG
+   ; end	Start
 

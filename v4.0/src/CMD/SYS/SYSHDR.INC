@@ -1,4 +1,4 @@
-        page    80,132
+        ; page    80,132
 ;******************* START OF SPECIFICATIONS ***********************************
 ;
 ; MODULE NAME:          SYS1.SAL + SYS2.SAL + SYSSR.SAL
@@ -130,66 +130,66 @@
         BREAK   <SYS1 - Program Organization>
 ;******************+ START OF PSEUDOCODE +**************************************
 ;
-;������Ŀ   �����������������Ŀ     ����������Ŀ
-;� Main ���´Init_Input_Output�����´SysLoadMsg� (DOS version check)
-;��������  ��������������������    �������������
-;          �                       �������������������Ŀ
-;          �                       ��Parse_Command_Line�
-;          �                        ��������������������
-;          ����������������������Ŀ �������������������Ŀ
-;          ôValidate_Target_Drive�´Check_Default_Drive�
-;          �����������������������ٳ���������������������
-;          �                       �������������������Ŀ
-;          �                       ôCheck_Target_Drive�
-;          �                       ���������������������
-;          �                       ������������������Ŀ
-;          �                       ��Check_For_Network�
-;          �                        �������������������
-;          �����������������Ŀ      ����������������Ŀ
-;          ôGet_System_Files������´Prompt_For_Media�
-;          �������������������     �������������������
-;          �                       ����������������Ŀ
-;          �                       ôCheck_Removable�
-;          �                       ������������������
-;          �                       ����������Ŀ
-;          �                       ôOpen_File�
-;          �                       ������������
-;          �                       ������������Ŀ
-;          �                       ��Fill_Memory�
-;          �                        �������������
-;          ���������������������Ŀ  ������������������Ŀ
-;          ôCheck_SYS_Conditions��´Verify_File_System�
-;          ����������������������� ���������������������
-;          �                       ���������������Ŀ         �� � � � � � � � �
-;          �                       ôRead_Directory���������ĴPrompt_For_Media�
-;          �                       �����������������         �� � � � � � � � �
-;          �                       ���������������������Ŀ
-;          �                       ôVerify_File_Location�
-;          �                       �����������������������
-;          �                       ���������������������Ŀ   �����������Ŀ
-;          �                       ��Determine_Free_Space���ĴGet_Cluster�
-;          �                        ����������������������   �������������
-;          �������Ŀ                �������������Ŀ          �����������Ŀ
-;          ôDo_SYS����������������´Create_System����������ĴCreate_File�
-;          ���������               ����������������          �������������
-;          �                       ��� � � � � Ŀ
-;          �                       ôFill_Memory�
-;          �                       ��� � � � � ��
-;          �                       ������������Ŀ
-;          �                       ��Dump_Memory�
-;          �                        �������������
-;          �������Ŀ                �����������Ŀ
-;          ôDo_End����������������´Close_Files�
-;          ���������               ��������������
-;          �                       ������������������Ŀ      ����������������Ŀ
-;          �                       ��Write_Boot_Record������´Create_Serial_ID�
-;          �                        �������������������     �������������������
-;          �                                                ���������Ŀ
-;          �                                                ��FAT_Size�
-;          �                                                 ����������
-;          �����������Ŀ            �������������Ŀ
-;          ��Message   ������������ĴGet_DOS_Error�
-;           ������������            ���������������
+;ÚÄÄÄÄÄÄ¿   ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿     ÚÄÄÄÄÄÄÄÄÄÄ¿
+;³ Main ÃÄÄÂ´Init_Input_OutputÃÄÄÄÄÂ´SysLoadMsg³ (DOS version check)
+;ÀÄÄÄÄÄÄÙ  ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ    ³ÀÄÄÄÄÄÄÄÄÄÄÙ
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+;          ³                       À´Parse_Command_Line³
+;          ³                        ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿ ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+;          Ã´Validate_Target_DriveÃÂ´Check_Default_Drive³
+;          ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+;          ³                       Ã´Check_Target_Drive³
+;          ³                       ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+;          ³                       À´Check_For_Network³
+;          ³                        ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿      ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+;          Ã´Get_System_FilesÃÄÄÄÄÄÂ´Prompt_For_Media³
+;          ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ     ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+;          ³                       Ã´Check_Removable³
+;          ³                       ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄ¿
+;          ³                       Ã´Open_File³
+;          ³                       ³ÀÄÄÄÄÄÄÄÄÄÙ
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄÄÄ¿
+;          ³                       À´Fill_Memory³
+;          ³                        ÀÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿  ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+;          Ã´Check_SYS_ConditionsÃÄÂ´Verify_File_System³
+;          ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿         ÚÄ Ä Ä Ä Ä Ä Ä Ä ¿
+;          ³                       Ã´Read_DirectoryÃÄÄÄÄÄÄÄÄÄ´Prompt_For_Media³
+;          ³                       ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ         ÀÄ Ä Ä Ä Ä Ä Ä Ä Ù
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+;          ³                       Ã´Verify_File_Location³
+;          ³                       ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿   ÚÄÄÄÄÄÄÄÄÄÄÄ¿
+;          ³                       À´Determine_Free_SpaceÃÄÄÄ´Get_Cluster³
+;          ³                        ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ   ÀÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³ÚÄÄÄÄÄÄ¿                ÚÄÄÄÄÄÄÄÄÄÄÄÄÄ¿          ÚÄÄÄÄÄÄÄÄÄÄÄ¿
+;          Ã´Do_SYSÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ´Create_SystemÃÄÄÄÄÄÄÄÄÄÄ´Create_File³
+;          ³ÀÄÄÄÄÄÄÙ               ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÙ          ÀÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³                       ³ÚÄ Ä Ä Ä Ä Ä¿
+;          ³                       Ã´Fill_Memory³
+;          ³                       ³ÀÄ Ä Ä Ä Ä ÄÙ
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄÄÄ¿
+;          ³                       À´Dump_Memory³
+;          ³                        ÀÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³ÚÄÄÄÄÄÄ¿                ÚÄÄÄÄÄÄÄÄÄÄÄ¿
+;          Ã´Do_EndÃÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂ´Close_Files³
+;          ³ÀÄÄÄÄÄÄÙ               ³ÀÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³                       ³ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿      ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+;          ³                       À´Write_Boot_RecordÃÄÄÄÄÄÂ´Create_Serial_ID³
+;          ³                        ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ     ³ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;          ³                                                ³ÚÄÄÄÄÄÄÄÄ¿
+;          ³                                                À´FAT_Size³
+;          ³                                                 ÀÄÄÄÄÄÄÄÄÙ
+;          ³ÚÄÄÄÄÄÄÄÄÄÄ¿            ÚÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
+;          À´Message   ÃÄÄÄÄÄÄÄÄÄÄÄÄ´Get_DOS_Error³
+;           ÀÄÄÄÄÄÄÄÄÄÄÙ            ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
 ;
 ;******************-  END  OF PSEUDOCODE -**************************************
         BREAK   <SYS - Segment Definition>
@@ -205,43 +205,43 @@
 
 
 ;       INCLUDE DOSSYM.INC              ;also defines version of dos
-.xlist
-.xcref
-        INCLUDE DOSSYM.INC
-.cref
-.list
+; .xlist
+; .xcref
+        %include "DOSSYM.INC"
+; .cref
+; .list
 
 
 ;       INCLUDE IOCTL.INC               ; Get / Set Device Parameters IOCTL
-.xlist
-.xcref
-        INCLUDE IOCTL.INC
-.cref
-.list
+; .xlist
+; .xcref
+        %include "IOCTL.INC"
+; .cref
+; .list
 
 
 ;       INCLUDE BOOTFORM.INC            ; Boot Record Structure
-.xlist
-.xcref
-        INCLUDE BOOTFORM.INC
-.cref
+; .xlist
+; .xcref
+        %include "BOOTFORM.INC"
+; .cref
 
 
 ;       INCLUDE PATHMAC.INC            ; PATH macro for PATHGEN
-.xlist
-.xcref
-        INCLUDE PATHMAC.INC
-.cref
-.list
+; .xlist
+; .xcref
+        %include "PATHMAC.INC"
+; .cref
+; .list
 
 IBMJAPVER EQU   FALSE                   ; this and the following are mutually
 IBMVER  EQU     TRUE                    ; exclusive
 
-CODE    SEGMENT PARA PUBLIC
-CODE    ENDS
+SECTION .CODE
+; END SECTION .CODE
 
-DATA    SEGMENT PARA PUBLIC
-DATA    ENDS
+SECTION .DATA
+; END SECTION .DATA
 
 ;                       $SALUT (4,25,30,41)
                                         ;--------------------------------------
@@ -302,19 +302,19 @@ FAT_BUF                 equ  512 * 13   ; This space is used to do a number
 
 ;                 BITS DEFINED FOR THE MODE WORD
 ;                       FORMAT = 0WF0000CISSS0AAA
-;              Write   �����������ٳ    ���   ���� Access code
-;                0 = no commit     �    ���             0 = read
-;                1 = auto commit   �    ���             1 = write
-;                                  �    ���             2 = read/write
-;          Fail action �������������    ���             3 = execute
-;            0 = INT 24h                ���             4 = FCB
-;            1 = return error           ���
-;                                       ������  Sharing mode
-;             Code Page support ��������ٳ         0 = compatability
-;               0 = validate code page   �         1 = deny read/write
-;               1 = no code page check   �         2 = deny write
-;                                        �         3 = deny read
-;                                        �         4 = deny none
+;              Write   ÄÄÄÄÄÄÄÄÄÄÄÙ³    ³³³   ÀÄÄÄ Access code
+;                0 = no commit     ³    ³³³             0 = read
+;                1 = auto commit   ³    ³³³             1 = write
+;                                  ³    ³³³             2 = read/write
+;          Fail action ÄÄÄÄÄÄÄÄÄÄÄÄÙ    ³³³             3 = execute
+;            0 = INT 24h                ³³³             4 = FCB
+;            1 = return error           ³³³
+;                                       ³³ÀÄÄÄ  Sharing mode
+;             Code Page support ÄÄÄÄÄÄÄÄÙ³         0 = compatability
+;               0 = validate code page   ³         1 = deny read/write
+;               1 = no code page check   ³         2 = deny write
+;                                        ³         3 = deny read
+;                                        ³         4 = deny none
 ;                                      Inherit
 ;                                        0 = pass handle to child
 ;                                        1 = no inherit

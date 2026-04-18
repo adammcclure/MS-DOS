@@ -3,7 +3,7 @@
 ;*************************************
 ; COMMAND EQUs which are not switch dependant
 
-EMGDEBUG = FALSE
+EMGDEBUG equ FALSE
 
 SYM		EQU	">"
 
@@ -51,7 +51,7 @@ bat_not_open	EQU	-1		;AN000; batch handle will be set to this if not open
 bat_open_handle EQU	19		;AN000; handle will be in this position in JFN table
 Ptr_seg_pos	equ	7		;AN000; Offset from start of message block for subst segment
 Ptr_off_pos	equ	5		;AN000; Offset from start of message block for subst offset
-Parm_off_pos	equ	word ptr 2	;AN000; Offset from start of subst list for subst offset
+Parm_off_pos	equ	word 2	;AN000; Offset from start of subst list for subst offset
 parm_block_size equ	11		;AN000; size of message subst block
 blank		equ	" "             ;AN000; blank character
 no_subst	equ	0		;AN000; no substitutions for messages
@@ -140,13 +140,13 @@ AltPipeChr	equ	"|"             ; alternate pipe character
 
 FCB		EQU	5CH
 
-VARSTRUC	STRUC
-ISDIR		DB	?
-SIZ		DB	?
-TTAIL		DW	?
-INFO		DB	?
-BUF		DB	DIRSTRLEN + 20 DUP (?)
-VARSTRUC	ENDS
+struc VARSTRUC
+ISDIR: resb 1
+SIZ: resb 1
+TTAIL: resw 1
+INFO: resb 1
+BUF		DB	DIRSTRLEN + times 20 db 0
+endstruc
 
 fCheckDrive	equ	00000001b
 fSwitchAllowed	equ	00000010b
@@ -173,16 +173,16 @@ fParse		EQU	0001h		; display results of parseline
 
 BatchType   equ 0
 
-BatchSegment	struc
+struc BatchSegment
 BatType 	DB	BatchType	; signature
 Batechoflag	DB	0		; G state of echo
 Batlast 	DW	0		; G segment of last batch file
 Batforptr	DW	0		; G segment for FOR command
 Batforflag	DB	0		; G state of FOR
-BatSeek 	DD	?		; lseek position of next char
-BatParm 	DW	10 dup (?)	; pointers to parameters
-BatFile 	DB	?		; beginning of batch file name
-BatchSegment	ends
+BatSeek: resd 1; lseek position of next char
+BatParm: resb 20; pointers to parameters
+BatFile: resb 1; beginning of batch file name
+endstruc
 
 ANULL		equ	0		; terminates an argv string
 ARGMAX		equ	64		; max args on a command line
@@ -191,22 +191,22 @@ tplen		equ	64		; max size of one argument
 arg_cnt_error	equ	1		; number of args > MAXARG
 arg_buf_ovflow	equ	2		; overflowed argbuffer
 
-argv_ele   STRUC			; elements in the argv array
+struc argv_ele; elements in the argv array
     argpointer	DW	(?)		; pointer to the argstring
     argflags	DB	(?)		; cparse flags for this argstring
     argstartel	DW	(?)		; the result of cparse's [STARTEL]
     arglen	DW	(?)		; cparse's char count + one (for null)
     argsw_word	DW	(?)		; any switches after this?  what kinds?
     arg_ocomptr DW	(?)		; pointer into original command string
-argv_ele   ENDS
+endstruc
 
-arg_unit    STRUC
-    argv	DB	(ARGMAX * SIZE argv_ele) DUP (?)
+struc arg_unit
+    argv	DB	(ARGMAX * argv_ele_size) DUP (?)
     argvcnt	DW	(?)		; number of arguments
     argswinfo	DW	(?)		; Switch information for entire line
     argbuf	DW	ARGBLEN DUP (?) ; storage for argv strings
     argforcombuf db	COMBUFLEN DUP (?) ; Original for loop command string
-arg_unit    ENDS
+endstruc
 
 parseflags RECORD special_delim:1, unused:4, path_sep:1, wildcard:1, sw_flag:1
 
@@ -224,14 +224,14 @@ SwitchCopy	EQU	SwitchV + SwitchA + SwitchB + fSwitch
 break <Trap:  Get the attention of MSDOS>
 ;   TRAP snares the operating system for a service call
 ; AX, as well as any other registers MS-DOS takes a fancy to, will be crunched.
-trap	MACRO	dos_function,dos_info
-    ifnb    <dos_info>
+%macro trap 2
+    %if 1  ; IFNB <dos_info>
 	mov	AX, (dos_function SHL 8) + dos_info
-    else
+    %else
 	mov	AX, (dos_function SHL 8)
-    endif
+    %endif
 	int	int_command
-ENDM
+%endmacro
 
 ;
 ; Equates for initialization

@@ -1,11 +1,11 @@
 
-page 80,132
+; page 80,132
 ;0
-title CP/DOS  DosSetFsInfo	mapper
+; title CP/DOS  DosSetFsInfo	mapper
 
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -27,22 +27,22 @@ dosxxx	segment byte public 'dos'
 ; *
 ; *************************************************************************
 
-	public	DosSetFsInfo
-	.sall
-	.xlist
-	include macros.inc
-	include error.inc
-	.list
+	global DosSetFsInfo
+	; .sall
+	; .xlist
+	%include "macros.inc"
+	%include "error.inc"
+	; .list
 
-str	struc
-old_bp	dw	?
-return	dd	?
-sbufsize dw	?	; info buffer size
-sbuffoff dw	?	; info buffer offset
-sbuffseg dw	?	; info buffer segment
-slevel	dw	?	; info level
-sdrive	dw	?	; drive number
-str	ends
+struc str
+old_bp: resw 1
+return: resd 1
+sbufsize: resw 1; info buffer size
+sbuffoff: resw 1; info buffer offset
+sbuffseg: resw 1; info buffer segment
+slevel: resw 1; info level
+sdrive: resw 1; drive number
+endstruc
 
 
 ;-----------------------------------------------
@@ -53,7 +53,7 @@ Ext_FCB 	db	0FFh			;Indicates extended FCB
 FCB_Attr	db	08			;Attribute for vol label
 FCBDrive	db	0			;Drive number
 VLabel		db	"???????????"           ;Match any vol name found
-		db	25 dup (0)		;Rest of the opened FCB
+		times 25 db 0;Rest of the opened FCB
 
 
 
@@ -62,7 +62,7 @@ VLabel		db	"???????????"           ;Match any vol name found
 
 
 
-DosSetFsInfo proc   far
+DosSetFsInfo:
 	Enter	DosSetfsinfo	; push registers
 	mov	ax,[bp].sdrive	; Get drive number
 	mov	FCBDrive,al	; Place it in the extended FCB
@@ -72,7 +72,7 @@ DosSetFsInfo proc   far
 	mov	ah,013h 	; FCB Delete
 	push	cs
 	pop	ds
-	mov	dx,offset Ext_FCB
+	mov	dx,Ext_FCB
 	int	021h		; Call DOS to delete volume label
 ;---------------------------------
 ;-- Handle_Create new Volume label
@@ -96,10 +96,10 @@ deleted:
 	sub	ax,ax		   ; set good return code
 retrn:
 	mexit			   ; pop registers
-	ret	size str - 6	   ; return
+	ret	str_size - 6	   ; return
 
-DosSetFsInfo  endp
+; ENDP DosSetFsInfo
 
-dosxxx	ends
+; END SECTION .dosxxx
 
-	end
+	; end

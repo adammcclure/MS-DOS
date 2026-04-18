@@ -1,7 +1,7 @@
 
 
 ;******************************************************************************
-        title	DMATRAP.ASM - Trap handlers for DMA ports
+        ; title	DMATRAP.ASM - Trap handlers for DMA ports
 ;******************************************************************************
 ;
 ;   (C) Copyright MICROSOFT Corp. 1986
@@ -68,10 +68,10 @@
 ;
 ;******************************************************************************
 
-.lfcond 				; list false conditionals
-.386p
+; .lfcond; list false conditionals
+CPU 386
 
-	page
+	; page
 ;******************************************************************************
 ;			P U B L I C   D E C L A R A T I O N S
 ;******************************************************************************
@@ -79,67 +79,67 @@
 ;
 ; routines called from C
 ;
-	public	_GetPte
-	public	_SetPte
-	public	_GetCRSEntry
-	public	_GetDMALinAdr
-	public	_Exchange16K
-        public  _FatalError
+	global _GetPte
+	global _SetPte
+	global _GetCRSEntry
+	global _GetDMALinAdr
+	global _Exchange16K
+        global _FatalError
 
-	public	InitELIM		; initialization routine for LIMulator
-	public	InitDMA 		; init DMA register save area
-	public	DMARegSav
-	public	_DMA_Pages
-	public	DMA_Pages
-	public	_DMA_PAGE_COUNT
-	public	DMA_PAGE_COUNT
-
-
-
-        public  DMA_DMAFixup
-	public	DMABase0
-	public	DMABase1
-	public	DMABase2
-	public	DMABase3
-	public	DMABase5
-	public	DMABase6
-	public	DMABase7
-
-	public	DMACnt0
-	public	DMACnt1
-	public	DMACnt2
-	public	DMACnt3
-	public	DMACnt5
-	public	DMACnt6
-	public	DMACnt7
-	public	DMAPg0
-	public	DMAPg1
-	public	DMAPg2
-	public	DMAPg3
-	public	DMAPg5
-	public	DMAPg6
-	public	DMAPg7
-	public	DMAClrFF1
-	public	DMAClrFF2
-	public	DMAMode1
-	public	DMAMode2
+	global InitELIM; initialization routine for LIMulator
+	global InitDMA; init DMA register save area
+	global DMARegSav
+	global _DMA_Pages
+	global DMA_Pages
+	global _DMA_PAGE_COUNT
+	global DMA_PAGE_COUNT
 
 
-	page
+
+        global DMA_DMAFixup
+	global DMABase0
+	global DMABase1
+	global DMABase2
+	global DMABase3
+	global DMABase5
+	global DMABase6
+	global DMABase7
+
+	global DMACnt0
+	global DMACnt1
+	global DMACnt2
+	global DMACnt3
+	global DMACnt5
+	global DMACnt6
+	global DMACnt7
+	global DMAPg0
+	global DMAPg1
+	global DMAPg2
+	global DMAPg3
+	global DMAPg5
+	global DMAPg6
+	global DMAPg7
+	global DMAClrFF1
+	global DMAClrFF2
+	global DMAMode1
+	global DMAMode2
+
+
+	; page
 ;******************************************************************************
 ;			L O C A L   C O N S T A N T S
 ;******************************************************************************
 ;
-	include VDMseg.inc
-	include VDMsel.inc
-	include desc.inc
-	include elim.inc
-	include mach_id.inc
-	include page.inc
-	include oemdep.inc
-	include instr386.inc
-	include vm386.inc
-	include emmdef.inc
+	%include "VDMseg.inc"
+	%include "VDMsel.inc"
+	%include "desc.inc"
+	%include "elim.inc"
+	%include "mach_id.inc"
+	%include "page.inc"
+	%include "oemdep.inc"
+	%include "instr386.inc"
+	%include "vm386.inc"
+	%include "emmdef.inc"
 
 ;******************************************************************************
 ;
@@ -152,11 +152,11 @@
 ;	USES:	Reg
 ;
 ;******************************************************************************
-Get_FRS_window	MACRO	Reg
+%macro Get_FRS_window 1
 
-	mov	Reg, word ptr [CurRegSet]	; just offset (assume dgroup)
+	mov	Reg, word [CurRegSet]	; just offset (assume dgroup)
 	add	Reg, FRS_window			; points to FRS window entries
-	ENDM
+	%endmacro
 
 ;****************************************************************************
 ;
@@ -167,7 +167,7 @@ Get_FRS_window	MACRO	Reg
 ;
 ;-----------------------------------------------------------------------------
 
-InitDMARegSav	MACRO	chan_num
+%macro InitDMARegSav 1
 
 	lea	di,[DMARegSav.Chnl&chan_num]	; pt to channel's save area
 
@@ -206,7 +206,7 @@ InitDMARegSav	MACRO	chan_num
 
 	add	di, 4			; skip 4 bytes - 3 ports+mode byte
 
-	ENDM
+	%endmacro
 
 
 ;******************************************************************************
@@ -221,8 +221,8 @@ InitDMARegSav	MACRO	chan_num
 ;
 ;   USED:
 ;------------------------------------------------------------------------------
-DMA_WADDR_TO_BADDR	MACRO
-	LOCAL	Not_AT
+%macro DMA_WADDR_TO_BADDR 0
+	; LOCAL Not_AT
 
 	cmp	[ROM_BIOS_Machine_ID], RBMI_Sys80
 	jbe	short Not_AT			; If running on EBIOS machine
@@ -233,7 +233,7 @@ DMA_WADDR_TO_BADDR	MACRO
 					        ; 'A0' offset
 Not_At:
 	shl	ecx, 1				; Adjust for word units
-	ENDM
+	%endmacro
 
 
 ;******************************************************************************
@@ -248,8 +248,8 @@ Not_At:
 ;
 ;   USED:
 ;------------------------------------------------------------------------------
-DMA_BADDR_TO_WADDR	MACRO
-	LOCAL	Not_AT
+%macro DMA_BADDR_TO_WADDR 0
+	; LOCAL Not_AT
 
 	cmp	[ROM_BIOS_Machine_ID], RBMI_Sys80
 	jbe	short Not_AT			; If running on EBIOS machine
@@ -260,42 +260,42 @@ DMA_BADDR_TO_WADDR	MACRO
 	shl	eax, 1				; Adjust for unused Pg Reg D0
 	pop	ax				; Restore A16-A1
 Not_At:
-        ENDM
+        %endmacro
 
 ;******************************************************************************
 ;			E X T E R N A L   R E F E R E N C E S
 ;******************************************************************************
 
-_DATA	segment
-extrn	ROM_BIOS_Machine_ID:byte
-extrn	_page_frame_base:word
-extrn	CurRegSet:word
-extrn	Page_Dir:word		
-SaveAL  db      ?
-_DATA	ends
+SECTION ._DATA
+extern ROM_BIOS_Machine_ID
+extern _page_frame_base
+extern CurRegSet
+extern Page_Dir
+SaveAL: db 0
+; END SECTION ._DATA
 
-_TEXT	segment
+SECTION ._TEXT
 
-extrn	PortTrap:near		; set port bit in I/O bit Map
-extrn	MapLinear:near
-extrn   ErrHndlr:near
+extern PortTrap; set port bit in I/O bit Map
+extern MapLinear
+extern ErrHndlr
 ;
 ; Swap pages so that DMA Xfer area is physically contiguous.
 ; defined in mapdma.c
 ;
-extrn	_SwapDMAPages:near	
+extern _SwapDMAPages
 
-_TEXT	ends
+; END SECTION ._TEXT
 
 ;******************************************************************************
 ;			S E G M E N T	D E F I N I T I O N
 ;******************************************************************************
 
-_DATA	segment
+SECTION ._DATA
 
 DMARegSav   DMARegBuf	<>		; DMA Register buffer
 
-DMAP_Page label word
+DMAP_Page:
 ;	dw	DMA_P0			; DMA page registers
 	dw	DMA_P1
 	dw	DMA_P2
@@ -312,7 +312,7 @@ DMAP_Page label word
 	dw	DMA_P6+10h
 	dw	DMA_P7+10h
 ;	 dw	 DMA_P4+10h
-DMAP_Addr label word
+DMAP_Addr:
 ;	dw	DMA_B0			; DMA base registers
 	dw	DMA_B1
 	dw	DMA_B2
@@ -320,7 +320,7 @@ DMAP_Addr label word
 	dw	DMA_B5
 	dw	DMA_B6
 	dw	DMA_B7
-DMAP_Count label word
+DMAP_Count:
 ;	dw	DMA_C0			; DMA count registers
 	dw	DMA_C1
 	dw	DMA_C2
@@ -330,11 +330,11 @@ DMAP_Count label word
 	dw	DMA_C7
 	dw	DMA1_CLR_FF		; reset flip-flop commands
 	dw	DMA2_CLR_FF
-DMAP_Mode label word
+DMAP_Mode:
 	dw	DMA1_MODE
 	dw	DMA2_MODE
 
-LIMDMAP_CNT	   =	   ($ - DMAP_Page) / 2
+LIMDMAP_CNT equ ($ - DMAP_Page) / 2
 ;
 ;    DMA_Pages - EMM Pages for DMA relocation. Each is an index into pft386.
 ;	To access actual entry in pft386 you need to multiply index by 4.
@@ -342,20 +342,20 @@ LIMDMAP_CNT	   =	   ($ - DMAP_Page) / 2
 ;	entries are left at NULL_PAGE.
 ;	This array should be initialized at boot time.
 ;
-_DMA_Pages	LABEL	WORD
-DMA_Pages	dw	8 dup (NULL_PAGE)   ; null for start
-_DMA_PAGE_COUNT	LABEL	WORD
+_DMA_Pages:
+DMA_Pages: times 8 dw NULL_PAGE; null for start
+_DMA_PAGE_COUNT:
 DMA_PAGE_COUNT	dw	0		    ; number of above initialised
 
 
-_DATA	ends
+; END SECTION ._DATA
 
-	page
+	; page
 
 ;------------------------------------------------------------------------------
 
-_TEXT	segment
-	assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
+SECTION ._TEXT
+	; assume	cs:_TEXT, ds:DGROUP, es:DGROUP, ss:DGROUP
 
 ;******************************************************************************
 ;
@@ -369,7 +369,7 @@ _TEXT	segment
 ;
 ;------------------------------------------------------------------------------
 
-InitDMA	proc	near
+InitDMA:
 
 	push	eax
 	push	di
@@ -412,7 +412,7 @@ InitDMA	proc	near
 	pop	eax
 	ret
 
-InitDMA	endp
+; ENDP InitDMA
 
 ;******************************************************************************
 ;
@@ -429,7 +429,7 @@ InitDMA	endp
 ;       CLC => I/O emulated or performed
 ;
 ;------------------------------------------------------------------------------
-DMABase0to7   proc    near
+DMABase0to7:
 
 DMABase4:                                    ; I/O port C0h
 DMABase5:                                    ; I/O port C4h
@@ -497,7 +497,7 @@ DMABaseN:
                                                 ;  N: save value "written"
         mov     [SaveAL], al                    ; save AL in Save area.
 	xor	bh, bh             		; Make BX = Flip Flop state
-        mov     byte ptr DMARegSav.DMALinAdr[bx][si], al
+        mov     byte DMARegSav.DMALinAdr[bx][si], al
 
 	in	al, dx				; Just a Dummy I/O to
 						; toggle the real flip-flop
@@ -516,7 +516,7 @@ Base_rd_port:
 ;
 ; bh is already zero, therefore BX = flip flop state
 ;
-        mov     al,byte ptr DMARegSav.DMALinAdr[bx][si]
+        mov     al,byte DMARegSav.DMALinAdr[bx][si]
         mov     [SaveAL], al
 DBExit:
 	pop	si
@@ -528,9 +528,9 @@ DBExit:
         clc
         ret
 
-DMABase0to7  endp
+; ENDP DMABase0to7
 
-        page
+        ; page
 
 ;******************************************************************************
 ;
@@ -548,7 +548,7 @@ DMABase0to7  endp
 ;
 ;------------------------------------------------------------------------------
 
-DMACnt0to7   proc    near
+DMACnt0to7:
 
 DMACnt4:                                     ; I/O port C2h
 DMACnt5:                                     ; I/O port C6h
@@ -616,7 +616,7 @@ DMACntN:
 						;  N: save value "written"
         mov     [SaveAL], al                    ; save AL in Save area.
 	xor	bh, bh				; make BX = Flip Flop state
-        mov     byte ptr DMARegSav.DMACount[bx][si], al       ; save cnt
+        mov     byte DMARegSav.DMACount[bx][si], al       ; save cnt
         out     dx, al                          ; do the I/O
 
 	xor	bl,1				; Toggle flip-flop for Wrt
@@ -641,10 +641,10 @@ DMA_CntN_rd:
         in      al, dx                          ; get 2nd byte of Count reg
         jmp     $+2                             ; timing ...
         jmp     $+2                             ; timing ...
-        mov     byte ptr DMARegSav.DMACount[bx][si], al  ; save it
+        mov     byte DMARegSav.DMACount[bx][si], al  ; save it
         xor     bl, 1                           ; flip to other byte
         in      al, dx                          ; get 1st byte of Count reg
-        mov     byte ptr DMARegSav.DMACount[bx][si], al  ; save it
+        mov     byte DMARegSav.DMACount[bx][si], al  ; save it
 DCExit:
 	pop	si
         pop     dx
@@ -656,9 +656,9 @@ DCExit:
         clc                                     ; I/O emulated, return
         ret
 
-DMACnt0to7   endp
+; ENDP DMACnt0to7
 
-        page
+        ; page
 ;******************************************************************************
 ;
 ;   DMAPgN - Write/Read DMA Channel N Page Register
@@ -697,7 +697,7 @@ DMACnt0to7   endp
 ;
 ;
 ;------------------------------------------------------------------------------
-DMAPg0to7            proc    near
+DMAPg0to7:
 
 DMAPg0:
 	push 	si
@@ -763,13 +763,13 @@ DMAPgN:
 PgN_FF:
 	xor	bh, bh				; make BX = flip-flop state
 
-        mov     byte ptr DMARegSav.DMALinAdr.HighWord[si], al ; save value
+        mov     byte DMARegSav.DMALinAdr.HighWord[si], al ; save value
         call    DMA_DMAFixup                    ; Translate Lin to Phys
 						; & Update DMARegSav
 	call	DMA_WrtAdrReg 		        ; emulate the write
 	jmp	short DPExit
 Pg_rd_port:
-        mov     al, byte ptr DMARegSav.DMALinAdr.HighWord[si]
+        mov     al, byte DMARegSav.DMALinAdr.HighWord[si]
         mov     [SaveAL], al
 DPExit:
         pop     dx
@@ -781,9 +781,9 @@ DPExit:
         clc
         ret
 
-DMAPg0to7            endp
+; ENDP DMAPg0to7
 
-        page
+        ; page
 
 ;******************************************************************************
 ;
@@ -802,7 +802,7 @@ DMAPg0to7            endp
 ;
 ;------------------------------------------------------------------------------
 
-DMAClrFF1    proc    near
+DMAClrFF1:
         push    ax
         push    bx
         push    cx
@@ -830,9 +830,9 @@ DMACFFexit:
         clc
         ret
 
-DMAClrFF1    endp
+; ENDP DMAClrFF1
 
-DMAClrFF2    proc    near
+DMAClrFF2:
 
         push    ax
         push    bx
@@ -852,9 +852,9 @@ DMAClrFF2    proc    near
         mov     [DMARegSav.DMAFF2], 0
         jmp     DMACFFexit
 
-DMAClrFF2    endp
+; ENDP DMAClrFF2
 
-        page
+        ; page
 ;******************************************************************************
 ;
 ;   DMAMode1 - Track Controller 1's Mode Register
@@ -872,7 +872,7 @@ DMAClrFF2    endp
 ;
 ;------------------------------------------------------------------------------
 
-DMAMode1    proc    near
+DMAMode1:
         push    ax
         push    bx
         push    cx
@@ -913,9 +913,9 @@ DMExit:
         mov     al, [SaveAL]
         clc
         ret
-DMAMode1    endp
+; ENDP DMAMode1
 
-DMAMode2    proc    near
+DMAMode2:
 
         push    ax
         push    bx
@@ -942,11 +942,11 @@ DMAMode2    proc    near
 	or	bl, DMA_M_16BIT			; 16 bit for controller 2
 	jmp	DMA_Mboth
 
-DMAMode2    endp
+; ENDP DMAMode2
 
 ;	INCLUDE VDMAD2.ASM
 
-        page
+        ; page
 ;******************************************************************************
 ;DMA_GetLinAdr - return Linear Address, count and mode from DMARegSave area
 ;
@@ -962,11 +962,11 @@ DMAMode2    endp
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-DMA_GetLinAdr proc    near
+DMA_GetLinAdr:
 
-        mov     eax, dword ptr DMARegSav.DMALinAdr[si]
-        mov     ecx, dword ptr DMARegSav.DMACount[si]
-        mov     dl, byte ptr DMARegSav.DMAMode[si]
+        mov     eax, dword DMARegSav.DMALinAdr[si]
+        mov     ecx, dword DMARegSav.DMACount[si]
+        mov     dl, byte DMARegSav.DMAMode[si]
         inc     ecx                             ; ECX = SIZE of transfer
 	test	dl, DMA_M_16BIT			; Word transfer?
         jz      short GLexit                    ; N: no special treatment
@@ -975,9 +975,9 @@ DMA_GetLinAdr proc    near
 GLexit:
         ret
 
-DMA_GetLinAdr endp
+; ENDP DMA_GetLinAdr
 
-        page
+        ; page
 ;******************************************************************************
 ;   DMA_SetPhyAdr - Load the Page and Base DMA registers with the input
 ;               Physical Address and save this addr as current phy addr.
@@ -989,7 +989,7 @@ DMA_GetLinAdr endp
 ;
 ;   USED:  Flags
 ;------------------------------------------------------------------------------
-DMA_SetPhyAdr proc    near
+DMA_SetPhyAdr:
 ;
         push    eax
         push    bx
@@ -1005,22 +1005,22 @@ DMA_SPA1:
 	jz	short SaveIt			;   no, no translation
         DMA_BADDR_TO_WADDR
 SaveIt:
-        mov     dword ptr DMARegSav.DMAPhyAdr[si], eax
+        mov     dword DMARegSav.DMAPhyAdr[si], eax
 
         ; set page register
 	xor	dh, dh
-        mov     dl, byte ptr DMARegSav.DMAPagePort[si]
-        mov     al, byte ptr DMARegSav.DMAPhyAdr.HighWord[si]
+        mov     dl, byte DMARegSav.DMAPagePort[si]
+        mov     al, byte DMARegSav.DMAPhyAdr.HighWord[si]
         out     dx, al
 
         ; set base address register
-        mov     dl, byte ptr DMARegSav.DMABasePort[si]
-        mov     al, byte ptr DMARegSav.DMAPhyAdr[si][bx]
+        mov     dl, byte DMARegSav.DMABasePort[si]
+        mov     al, byte DMARegSav.DMAPhyAdr[si][bx]
         out     dx,al                           ; send out 1st byte
         xor     bl,1                            ; toggle FF
         jmp     $+2
         jmp     $+2
-        mov     al, byte ptr DMARegSav.DMAPhyAdr[si][bx]
+        mov     al, byte DMARegSav.DMAPhyAdr[si][bx]
         out     dx,al                           ; send out other byte
         xor     bl,1                            ; toggle FF to original state
 
@@ -1029,9 +1029,9 @@ SaveIt:
         pop     eax
         ret
 ;
-DMA_SetPhyAdr endp
+; ENDP DMA_SetPhyAdr
 
-        page
+        ; page
 ;******************************************************************************
 ;   DMALoadCount - Load the Count DMA register with the input
 ;
@@ -1039,26 +1039,26 @@ DMA_SetPhyAdr endp
 ;               si = DMA channel # * 16
 ;
 ;------------------------------------------------------------------------------
-DMALoadCount  proc    near
+DMALoadCount:
         push    bx
         push    ax
         push    dx
 
 	xor	bh, bh
-        mov     bl, byte ptr [DMARegSav.DMAFF1]
+        mov     bl, byte [DMARegSav.DMAFF1]
         cmp     si,4*16                         ;Q: Adrs from 2nd cntlr
         jb      short DMA_SC1                   ; N: save it as is
-        mov     bl, byte ptr [DMARegSav.DMAFF2]
+        mov     bl, byte [DMARegSav.DMAFF2]
 
 DMA_SC1:
-        mov     dl, byte ptr DMARegSav.DMACntPort[si]
+        mov     dl, byte DMARegSav.DMACntPort[si]
 	xor	dh, dh
-        mov     al, byte ptr DMARegSav.DMACount[bx][si]
+        mov     al, byte DMARegSav.DMACount[bx][si]
         out     dx, al
         jmp     $+2
         jmp     $+2
         xor     bl, 1
-        mov     al, byte ptr DMARegSav.DMACount[bx][si]
+        mov     al, byte DMARegSav.DMACount[bx][si]
         out     dx, al
 
         pop     dx
@@ -1066,9 +1066,9 @@ DMA_SC1:
         pop     bx
         ret
 
-DMALoadCount  endp
+; ENDP DMALoadCount
 
-        page
+        ; page
 ;******************************************************************************
 ;   DMA_DMAFixup - Fixup Linear to Physical mapping for DMA
 ;
@@ -1087,10 +1087,10 @@ DMALoadCount  endp
 ;               is not yet valid
 ;
 ;------------------------------------------------------------------------------
-DMA_DMAFixup  proc    near
+DMA_DMAFixup:
                                                 ;Q: LinAddr = 0?
 
-        mov     eax, dword ptr DMARegSav.DMALinAdr[si]
+        mov     eax, dword DMARegSav.DMALinAdr[si]
         or      eax,eax                         
         jz      short DMA_nofixup               ; Y:DMA not programmed yet
                                                 ;Do the fixup.....
@@ -1128,16 +1128,16 @@ DMA_DMAFixup  proc    near
 	jz	short SavIt				;   no, no translation
 	DMA_BADDR_TO_WADDR			; Y: Put in special format
 SavIt:
-        mov     dword ptr DMARegSav.DMAPhyAdr[si], eax
+        mov     dword DMARegSav.DMAPhyAdr[si], eax
 	clc					; Done fixup
 	ret
 DMA_nofixup:
 	stc
 	ret
 
-DMA_DMAFixup  endp
+; ENDP DMA_DMAFixup
 
-        page
+        ; page
 ;******************************************************************************
 ;   DMA_WrtAdrReg - Write registers associated with DMA address
 ;
@@ -1152,7 +1152,7 @@ DMA_DMAFixup  endp
 ;   USED:  Flags, EAX
 ;   STACK:
 ;------------------------------------------------------------------------------
-DMA_WrtAdrReg proc    near
+DMA_WrtAdrReg:
 
 ; Must Update Page and Base registers simultaneously when remapping occurs...
 	push	bx
@@ -1167,31 +1167,31 @@ DMA_WrtAdrReg proc    near
 						; since we write twice....
                                                 ; BX = flip flop state
 
-        mov     dl, byte ptr DMARegSav.DMABasePort[si]
-        mov     al, byte ptr DMARegSav.DMAPhyAdr[bx][si]
+        mov     dl, byte DMARegSav.DMABasePort[si]
+        mov     al, byte DMARegSav.DMAPhyAdr[bx][si]
         out     dx, al                          ; output the byte
         jmp     $+2                             ; timing
         jmp     $+2                             ; timing
         xor     bx, 1                           ; toggle flip-flop
 
-        mov     al, byte ptr DMARegSav.DMAPhyAdr[bx][si]
+        mov     al, byte DMARegSav.DMAPhyAdr[bx][si]
         out     dx, al                          ; output the byte
         jmp     $+2                             ; timing
         jmp     $+2                             ; timing
         xor     bx, 1                           ; toggle flip-flop
 
 						; Page Register...
-        mov     al, byte ptr DMARegSav.DMAPhyAdr.HighWord[si] ; fetch value
-        mov     dl, byte ptr DMARegSav.DMAPagePort[si]
+        mov     al, byte DMARegSav.DMAPhyAdr.HighWord[si] ; fetch value
+        mov     dl, byte DMARegSav.DMAPagePort[si]
         out     dx,al                           ; output the byte
 
 	pop	dx
 	pop	bx
         ret
 
-DMA_WrtAdrReg endp
+; ENDP DMA_WrtAdrReg
 
-	page
+	; page
 ;******************************************************************************
 ;   InitELIM - initialize LIM h/w trapping data structures and
 ;		I/O bit map for this ports.
@@ -1206,7 +1206,7 @@ DMA_WrtAdrReg endp
 ;   USED:  Flags
 ;   STACK:
 ;------------------------------------------------------------------------------
-InitELIM proc	 far
+InitELIM:
 
 	push	ax
 	push	bx
@@ -1229,7 +1229,7 @@ InitELIM proc	 far
 ;   now set DMA ports in I/O Bit Map
 ;
 	mov	cx,LIMDMAP_CNT
-	mov	si,offset DGROUP:DMAP_Page	; DS:SI -> DMA ports
+	mov	si,DMAP_Page	; DS:SI -> DMA ports
 	mov	bx,8000h			; trap it every 1k
 IE_maploop:
 	lodsw					; AX = port to trap
@@ -1245,7 +1245,7 @@ IE_maploop:
 	pop	ax
 	ret
 
-InitELIM endp
+; ENDP InitELIM
 
 
 ;
@@ -1282,7 +1282,7 @@ Arg2	equ	[BP+6]
 ;
 ;*****************************************************************************
 
-_GetPte	proc	near
+_GetPte:
 
 	push	bp
 	mov	bp, sp
@@ -1292,7 +1292,7 @@ _GetPte	proc	near
         mov     ax, PAGET_GSEL
         mov     ds, ax
 
-        mov     si, WORD PTR Arg1
+        mov     si, word Arg1
         shl     si, 2                   ; dword entries in the PT
 
 	cld
@@ -1305,7 +1305,7 @@ _GetPte	proc	near
 	pop	si
 	pop	bp
 	ret
-_GetPte	endp
+; ENDP _GetPte
 
 ;*****************************************************************************
 ;
@@ -1328,7 +1328,7 @@ _GetPte	endp
 ;*****************************************************************************
 
 
-_SetPte	proc	near
+_SetPte:
 	
 	push	bp
 	mov	bp, sp
@@ -1337,10 +1337,10 @@ _SetPte	proc	near
 
         mov     ax, PAGET_GSEL
         mov     es, ax
-        mov     di, WORD PTR Arg1
+        mov     di, word Arg1
         shl     di, 2
 
-	mov	eax, DWORD PTR Arg2 
+	mov	eax, dword Arg2 
 	and	ax, 0F000H	                ; clear low 12 bits
 	or 	ax, P_AVAIL	; page control bits - user, present, write
 
@@ -1359,7 +1359,7 @@ _SetPte	proc	near
         pop     di
 	pop	bp
 	ret
-_SetPte	endp
+; ENDP _SetPte
 
 ;*****************************************************************************
 ;
@@ -1376,22 +1376,22 @@ _SetPte	endp
 ;			    cld added for safety
 ;*****************************************************************************
 
-_GetCRSEntry	proc near
+_GetCRSEntry:
 
 	push	bp
 	mov	bp, sp
 	push	di
 	
-	mov	bx, WORD PTR Arg1
+	mov	bx, word Arg1
 	shl	bx, 1		                ; each FRS entry is a word
 	Get_FRS_Window	DI	                ; di = address of Current FRS
 	add	di, bx
-	mov	ax, word ptr [di]               ; load FRS entry
+	mov	ax, word [di]               ; load FRS entry
 
 	pop	di
 	pop	bp
 	ret
-_GetCRSEntry	endp
+; ENDP _GetCRSEntry
 
 ;
 ; Equates for picking up long Arguments from C code
@@ -1419,7 +1419,7 @@ LArg2	equ	[BP+8]
 ;
 ;*****************************************************************************
 
-_GetDMALinAdr proc near
+_GetDMALinAdr:
 
 	push	bp
 	mov	bp, sp
@@ -1429,7 +1429,7 @@ _GetDMALinAdr proc near
 ;
 ; convert the DMAPhyAdr into a linear address.
 ;
-	mov	eax, dword ptr LArg1
+	mov	eax, dword LArg1
 	call	MapLinear
 ;
 ;	eax = 32 bit linear adr for the DMA Xfer area.
@@ -1443,7 +1443,7 @@ _GetDMALinAdr proc near
 	pop	si
 	pop	bp
 	ret
-_GetDMALinAdr	endp
+; ENDP _GetDMALinAdr
 	
 ;******************************************************************************
 ;
@@ -1456,7 +1456,7 @@ _GetDMALinAdr	endp
 ;
 ;******************************************************************************
 
-set_selector	proc	near
+set_selector:
 
 	push	eax
 	push	di
@@ -1466,20 +1466,20 @@ set_selector	proc	near
 	push	GDTD_GSEL
 	pop	es			; ES:DI -> selector entry
 
-	mov	es:[di+2],ax		; low word of base address
+	mov	[es:di+2],ax		; low word of base address
 
 	shr	eax,16			; AX = high word of address
-	mov	es:[di+4],al		; low byte of high word of address
+	mov	[es:di+4],al		; low byte of high word of address
 	xor	al,al			; clear limit/G bit
 	or	al, 1			; set LSB0 i.e. Limit16 bit for 128K Xfer
-	mov	es:[di+6],ax		; set high byte of high word of addr
+	mov	[es:di+6],ax		; set high byte of high word of addr
 					;   and high nibble of limit/G bit
                                         ;   and Limit Bit 16 for 128K transfer
 	mov	ax,0FFFFh
-	mov	es:[di],ax		; set limit bits 0-15
+	mov	[es:di],ax		; set limit bits 0-15
 	
 	mov	al,D_DATA0		; writeable DATA seg / ring 0
-	mov	es:[di+5],al
+	mov	[es:di+5],al
 
 	pop	es	
 	pop	di
@@ -1487,7 +1487,7 @@ set_selector	proc	near
 
 	ret
 
-set_selector	endp
+; ENDP set_selector
 
 ;****************************************************************************
 ; _Exchange16K - called from C 
@@ -1502,7 +1502,7 @@ set_selector	endp
 ;				    DWORD PTR mentioned explicitly
 ;*****************************************************************************
 
-_Exchange16K proc near
+_Exchange16K:
 
 	push	bp
 	mov	bp, sp
@@ -1511,20 +1511,20 @@ _Exchange16K proc near
 	push	ds
 
 	mov	di,MBSRC_GSEL			; source selector
-	mov	eax,dword ptr LArg1		; load linear adr
+	mov	eax,dword LArg1		; load linear adr
 	call	set_selector			; set up a selector in GDT
 	mov	es,di
 
 	mov	di,MBTAR_GSEL			; destination selector
-	mov	eax,dword ptr LArg2
+	mov	eax,dword LArg2
 	call	set_selector			; set up selector
 	mov	ds,di
 	mov	cx,1000h			; 16k bytes (4 at a time)
 	xor	di,di				; initialize index
 	cld
 sloop:
-	mov	eax,dword ptr es:[di]		; pick a dword at LArg1
-	xchg	eax,dword ptr ds:[di]		; swap with dword at LArg2
+	mov	eax,dword [es:di]		; pick a dword at LArg1
+	xchg	eax,dword [ds:di]		; swap with dword at LArg2
 	stosd					; store new dword at LArg1
 	loop	sloop				
 
@@ -1534,12 +1534,12 @@ sloop:
 	pop	bp
 	ret
 
-_Exchange16K endp
+; ENDP _Exchange16K
 
 ; 
 ; signals an exception error
 ;
-_FatalError proc near
+_FatalError:
 
 	push	bp
 	mov	bp, sp
@@ -1551,10 +1551,10 @@ _FatalError proc near
 	pop	bp
 	ret
 
-_FatalError endp
+; ENDP _FatalError
 
-_TEXT	ends				        ; end of segment
+; END SECTION ._TEXT; end of segment
 
-end				                ; end of module
+; end; end of module
  
 

@@ -1,24 +1,24 @@
 ;
-page 60,132
+; page 60,132
 ;
-title CP/DOS  DOSExecPrg  mapper
+; title CP/DOS  DOSExecPrg  mapper
 
-buffer	segment word public 'buffer'
-			public	DosExecPgmCalled
+SECTION .buffer
+			global DosExecPgmCalled
 DosExecPgmCalled	db	0			  ;????????????
-			public	DosExecPgmReturnCode
+			global DosExecPgmReturnCode
 DosExecPgmReturnCode	dw	0
 
-DosExecParameterBlock	label	word
+DosExecParameterBlock:
 EnvironmentSegment	dw	0
 ArgumentPointer 	dd	0
 Default_5C_FCB		dd	0
 Default_6C_FCB		dd	0
 
-buffer	ends
+; END SECTION .buffer
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -46,50 +46,50 @@ dosxxx	segment byte public 'dos'
 ; *
 ; *************************************************************************
 
-	public	dosexecpgm
-	.sall
-	.xlist
-	include macros.inc
-	.list
+	global dosexecpgm
+	; .sall
+	; .xlist
+	%include "macros.inc"
+	; .list
 
 inv_parm equ 0002
 not_suf_mem equ 0004
 
-str	struc
-old_bp	dw	?
-return	dd	?
-Pgmpointer dd	?	; address of program file name
-Processid  dd	?	; this is used when only sync exec
-EnvPointer dd	?	; address of environment string
-ArgPointer dd	?	; address of argument string
-Traceindic dw	?	; ignored,  what is a trace process?
-Asyncindic dw	?	; ignored,  PC-DOS always waits!
-str	ends
+struc str
+old_bp: resw 1
+return: resd 1
+Pgmpointer: resd 1; address of program file name
+Processid: resd 1; this is used when only sync exec
+EnvPointer: resd 1; address of environment string
+ArgPointer: resd 1; address of argument string
+Traceindic: resw 1; ignored,  what is a trace process?
+Asyncindic: resw 1; ignored,  PC-DOS always waits!
+endstruc
 
-dosexecpgm proc   far				; push registers
+dosexecpgm:; push registers
 	Enter	dosexecpgm
 
 	mov	ax,seg buffer			; setup buffer segment
 	mov	ds,ax				;   and copy info into
-	assume	ds:buffer			;      data buffer
+	; assume	ds:buffer;      data buffer
 
-	mov	ax,word ptr [bp+2].EnvPointer	; seg portion only for pc-dos
+	mov	ax,word [bp+2].EnvPointer	; seg portion only for pc-dos
 	mov	EnvironmentSegment,ax		; copy environment string
 
 	les	di,[bp].ArgPointer
-	mov	word ptr ArgumentPointer+0,di	; copy argument string
-	mov	word ptr ArgumentPointer+2,es
+	mov	word ArgumentPointer+0,di	; copy argument string
+	mov	word ArgumentPointer+2,es
 
 	xor	ax,ax
-	mov	word ptr Default_5C_FCB+0,ax	; setup defaults
-	mov	word ptr Default_5C_FCB+2,ax
+	mov	word Default_5C_FCB+0,ax	; setup defaults
+	mov	word Default_5C_FCB+2,ax
 
-	mov	word ptr Default_6C_FCB+0,ax
-	mov	word ptr Default_6C_FCB+2,ax
+	mov	word Default_6C_FCB+0,ax
+	mov	word Default_6C_FCB+2,ax
 
 	mov	bx,ds
 	mov	es,bx
-	mov	bx,offset buffer:DosExecParameterBlock
+	mov	bx,DosExecParameterBlock
 
 	lds	dx,[bp].PgmPointer	   ; setup program name
 	mov	ax,4b00h
@@ -108,10 +108,10 @@ dosexecpgm proc   far				; push registers
 
 ErrorExit:
 	Mexit				   ; pop registers
-	ret	size str - 6		   ; return
+	ret	str_size - 6		   ; return
 
-dosexecpgm  endp
+; ENDP dosexecpgm
 
-dosxxx	ends
+; END SECTION .dosxxx
 
-	end
+	; end

@@ -1,7 +1,7 @@
 ;	SCCSID = @(#)fcb.asm	1.2 85/07/23
 ;	SCCSID = @(#)fcb.asm	1.2 85/07/23
-TITLE	FCB - FCB parse calls for MSDOS
-NAME	FCB
+; TITLE	FCB - FCB parse calls for MSDOS
+; NAME	FCB
 ; Low level routines for parsing names into FCBs and analyzing
 ;    filename characters
 ;
@@ -21,25 +21,25 @@ NAME	FCB
 ;
 ; get the appropriate segment definitions
 ;
-.xlist
-include dosseg.asm
+; .xlist
+%include "dosseg.asm"
 
 
 TableLook   equ -1
 
-Table	Segment
-Zero	label byte
-Table	ENDS
+SECTION .Table
+Zero:
+; END SECTION .Table
 
-CODE	SEGMENT BYTE PUBLIC  'CODE'
-	ASSUME	SS:DOSGROUP,CS:DOSGROUP
+SECTION .CODE
+	; ASSUME	SS:DOSGROUP,CS:DOSGROUP
 
-.xcref
-include dossym.inc
-include devsym.inc
-include doscntry.inc			;AN000; 	2/12/KK
-.cref
-.list
+; .xcref
+%include "dossym.inc"
+%include "devsym.inc"
+%include "doscntry.inc";AN000; 	2/12/KK
+; .cref
+; .list
 
 	i_need	Name1,BYTE
 	i_need	Creating,BYTE
@@ -51,15 +51,15 @@ include doscntry.inc			;AN000; 	2/12/KK
 	i_need	DOS34_FLAG,WORD 	;AN000; 	2/12/KK
 
 	procedure   MakeFcb,NEAR
-ScanSeparator	=   1
+ScanSeparator equ 1
 DRVBIT	EQU	2
 NAMBIT	EQU	4
 EXTBIT	EQU	8
-	MOV	BYTE PTR [SpaceFlag],0
+	MOV	byte [SpaceFlag],0
 	XOR	DL,DL		; Flag--not ambiguous file name
 	TEST	AL,DRVBIT	; Use current drive field if default?
 	JNZ	DEFDRV
-	MOV	BYTE PTR ES:[DI],0	; No - use default drive
+	MOV	byte [ES:DI],0	; No - use default drive
 DEFDRV:
 	INC	DI
 	MOV	CX,8
@@ -93,11 +93,11 @@ SKPSPC:
 NOSCAN:
 	CALL	GETLET
 	JBE	NODRV		; Quit if termination character
- IF  DBCS			;AN000;
+ %if DBCS;AN000;
 	CALL	TESTKANJ	;AN000;; 2/18/KK
 	JNE	NODRV		;AN000;; 2/18/KK
- ENDIF				;AN000;
-	CMP	BYTE PTR[SI],":"        ; Check for potential drive specifier
+ %endif;AN000;
+	CMP	byte[SI],":"        ; Check for potential drive specifier
 	JNZ	NODRV
 	INC	SI		; Skip over colon
 	SUB	AL,"@"          ; Convert drive letter to drive number (A=1)
@@ -123,7 +123,7 @@ NODRV:
 
 	MOV	CX,8
 	CALL	GETWORD 	; Get 8-letter file name
-	CMP	BYTE PTR [SI],"."
+	CMP	byte [SI],"."
 	JNZ	NODOT
 	INC	SI		; Skip over dot if present
 	TEST	[DOS34_FLAG],DBCS_VOLID2					;AN000;
@@ -159,7 +159,7 @@ MUSTGETWORD:
 ;
 	JB	FILLNAM
 	JNZ	MustCheckCX
-	TEST	BYTE PTR [SpaceFlag],0FFh
+	TEST	byte [SpaceFlag],0FFh
 	JZ	FILLNAM
 	CMP	AL," "
 	JNZ	FILLNAM
@@ -174,7 +174,7 @@ MustCheckCX:
 NOSTAR:
 	STOSB
 
- IF   DBCS							  ;AN000;
+ %if DBCS;AN000;
 	CALL	TESTKANJ					  ;AN000;
 	JZ	NOTDUAL3					  ;AN000;
 	JCXZ	BNDERR		; Attempt to straddle boundry	  ;AN000;
@@ -198,7 +198,7 @@ notvolumeid:
 	JMP	MUSTGETWORD	;PTM.				   ;AN000;
 
 NOTDUAL3:							   ;AN000;
-  ENDIF 							   ;AN000;
+  %endif;AN000;
 
 	CMP	AL,"?"
 	JNZ	MUSTGETWORD
@@ -214,17 +214,17 @@ SCANB:
 	LODSB
 	CALL	SPCHK
 	JZ	SCANB
- IF  DBCS			;AN000; 						;AN000;
+ %if DBCS;AN000; 						;AN000;
 	CMP	AL,81H		;AN000;; 1ST BYTE OF DBCS BLANK 2/18/KK 		;AN000;
 	JNE	SCANB_EXIT	;AN000;; 2/18/KK  3/31/KK revoved			;AN000;
 	CALL	TESTKANJ	;AN000;; 2/23/KK  3/31/KK revoved			;AN000;
 	JE	SCANB_EXIT	;AN000;; 2/18/KK  3/31/KK revoved			;AN000;
-	CMP	BYTE PTR [SI],40H;AN000;H ; 2ND BYTE OF DBCS BLANK 2/18/KK 3/31/KK revove;AN000;
+	CMP	byte [SI],40H;AN000;H ; 2ND BYTE OF DBCS BLANK 2/18/KK 3/31/KK revove;AN000;
 	JNE	SCANB_EXIT	;AN000;; 2/18/KK  3/31/KK revoved			;AN000;
 	INC	SI		;AN000;; 2/18/KK  3/31/KK revoved			;AN000;
 	JMP	SCANB		;AN000;; 2/18/KK  3/31/KK revoved			;AN000;
     SCANB_EXIT: 		;AN000;; 2/18/KK  3/31/KK revoved			;AN000;
- ENDIF				;AN000;
+ %endif;AN000;
 	DEC	SI
 	return
 EndProc MakeFCB
@@ -239,10 +239,10 @@ EndProc MakeFCB
 ;		DS:SI advanced after name
 ;   Registers modified: DI,AX,DX,CX
 procedure   NameTrans,near
-	ASSUME	DS:NOTHING,ES:NOTHING
-	MOV	BYTE PTR [SpaceFlag],1
+	; ASSUME	DS:NOTHING,ES:NOTHING
+	MOV	byte [SpaceFlag],1
 	context ES
-	MOV	DI,OFFSET DOSGROUP:NAME1
+	MOV	DI,NAME1
 	PUSH	DI
 	MOV	AX,'  '
 	MOV	CX,5
@@ -254,13 +254,13 @@ procedure   NameTrans,near
 	POP	DI
 
 	CALL	NORMSCAN
-IF DBCS 			;AN000;;KK.
+%if DBCS;AN000;;KK.
 	MOV	AL,[NAME1]	;AN000;;KK. check 1st char
 	invoke	testkanj	;AN000;;KK. dbcs ?
 	JZ	notdbcs 	;AN000;;KK. no
 	return			;AN000;;KK. yes
 notdbcs:			;AN000;
-ENDIF				;AN000;
+%endif;AN000;
 	CMP	[NAME1],0E5H
 	retnz
 	MOV	[NAME1],5	; Magic name translation
@@ -270,17 +270,17 @@ EndProc nametrans
 
 Break	<GETLET, DELIM -- CHECK CHARACTERS AND CONVERT>
 
-If TableLook
-ChType	Macro	ch,bits
+%if TableLook
+%macro ChType 2
 	ORG	CharType-Zero+ch
 	db	bits
-	ENDM
+	%endmacro
 
-Table	SEGMENT
-	PUBLIC	CharType
-Public FCB001S,FCB001E
-FCB001S  label byte
-CharType    DB	256 dup (-1)
+SECTION .Table
+	global CharType
+global FCB001S,FCB001E
+FCB001S:
+CharType: times 256 db -1
 	ChType	".", <LOW (NOT (     fChk))>
 	ChType	'"', <LOW (NOT (fFCB+fChk))>
 	ChType	"/", <LOW (NOT (fFCB+fChk))>
@@ -329,9 +329,9 @@ CharType    DB	256 dup (-1)
 	ChType	31,  <LOW (NOT (fFCB+fChk))>	       ; ^_
 	ChType	" ", <LOW (NOT (     fChk+fDelim+fSpChk))>
 	ChType	255, -1
-FCB001E label byte
-Table	ENDS
-ENDIF
+FCB001E:
+; END SECTION .Table
+%endif
 ;
 ; Get a byte from [SI], convert it to upper case, and compare for delimiter.
 ; ZF set if a delimiter, CY set if a control character (other than TAB).
@@ -341,7 +341,7 @@ ENDIF
 	LODSB
   entry GetLet2 			    ;AN000;; called by uCase
 	PUSH	BX
-	MOV	BX,OFFSET DOSGROUP:FILE_UCASE_TAB+2
+	MOV	BX,FILE_UCASE_TAB+2
   getget:
 	CMP	AL,"a"
 	JB	CHK1
@@ -353,12 +353,12 @@ CHK1:
 	JB	GOTIT		; DOS 3.3
 	SUB	AL,80H		;translate to upper case with this index
 ;
-	XLAT	BYTE PTR CS:[BX]
-If TableLook
+	XLAT	byte [CS:BX]
+%if TableLook
 GOTIT:
 	PUSH	AX
-	MOV	BX,OFFSET DOSGROUP:CharType
-	XLAT	BYTE PTR CS:[BX]
+	MOV	BX,CharType
+	XLAT	byte [CS:BX]
 
 	TEST	AL,fChk
 	POP	AX
@@ -368,7 +368,7 @@ GOTIT:
 	PUSH	BX			     ;AN000;
 	JMP	getget			     ;AN000;
 
-ELSE
+%else
 GOTIT:
 	POP	BX
 	CMP	AL,"."
@@ -381,20 +381,20 @@ GOTIT:
 	retz
 	CMP	AL,"]"
 	retz
-ENDIF
+%endif
 
 entry	DELIM
 
-IF TableLook
+%if TableLook
 	PUSH	AX
 	PUSH	BX
-	MOV	BX,OFFSET DOSGroup:CharType
-	XLAT	BYTE PTR CS:[BX]
+	MOV	BX,CharType
+	XLAT	byte [CS:BX]
 	TEST	AL,fDelim
 	POP	BX
 	POP	AX
 	RET
-ELSE
+%else
 	CMP	AL,":"
 	retz
 
@@ -413,24 +413,24 @@ ELSE
 	retz
 	CMP	AL,","
 	retz
-ENDIF
+%endif
 entry SPCHK
-IF  TableLook
+%if TableLook
 	PUSH	AX
 	PUSH	BX
-	MOV	BX,OFFSET DOSGroup:CharType
-	XLAT	BYTE PTR CS:[BX]
+	MOV	BX,CharType
+	XLAT	byte [CS:BX]
 	TEST	AL,fSpChk
 	POP	BX
 	POP	AX
 	RET
-ELSE
+%else
 	CMP	AL,9		; Filter out tabs too
 	retz
 ; WARNING! " " MUST be the last compare
 	CMP	AL," "
 	return
-ENDIF
+%endif
 EndProc GetLet
 
 Procedure   PATHCHRCMP,NEAR
@@ -447,7 +447,7 @@ PathRet:
 EndProc PathChrCMP
 
 
- IF  DBCS
+ %if DBCS
 ;---------------------	2/12/KK
 ; Function: Check if an input byte is in the ranges of DBCS vectors.
 ;
@@ -470,16 +470,16 @@ TK_DBCS:
 	return									;AN000;
 EndProc TESTKANJ								;AN000;
 ;
-Chk_DBCS	PROC								;AN000;
+Chk_DBCS:;AN000;
 	PUSH	DS								;AN000;
 	PUSH	SI								;AN000;
 	PUSH	BX								;AN000;
 	Context DS								;AN000;
-	MOV	BX,offset DOSGROUP:COUNTRY_CDPG.ccSetDBCS			;AN000;
+	MOV	BX,COUNTRY_CDPG.ccSetDBCS			;AN000;
 	LDS	SI,[BX+1]		; set EV address to DS:SI		;AN000;
 	ADD	SI,2			; Skip length				;AN000;
 DBCS_LOOP:
-	CMP	WORD PTR [SI],0 	; terminator ?				;AN000;
+	CMP	word [SI],0 	; terminator ?				;AN000;
 	JE	NON_DBCS		; if yes, no DBCS			;AN000;
 	CMP	AL,[SI] 		; else					;AN000;
 	JB	DBCS01			; check if AL is			;AN000;
@@ -497,8 +497,8 @@ DBCS_EXIT:
 	POP	SI								;AN000;
 	POP	DS								;AN000;
 	RET									;AN000;
-Chk_DBCS	ENDP								;AN000;
- ENDIF										;AN000;
-CODE	ENDS
-    END
+; ENDP Chk_DBCS;AN000;
+ %endif;AN000;
+; END SECTION .CODE
+    ; END
 										;AN000;

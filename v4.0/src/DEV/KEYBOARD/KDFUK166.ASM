@@ -3,8 +3,8 @@
 
 
 
-	PAGE	,132
-	TITLE	DOS - Keyboard Definition File
+	; PAGE	,132
+	; TITLE	DOS - Keyboard Definition File
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; DOS - - NLS Support - Keyboard Defintion File
@@ -17,16 +17,16 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
-	INCLUDE KEYBSHAR.INC	       ;;
-	INCLUDE POSTEQU.INC	       ;;
-	INCLUDE KEYBMAC.INC	       ;;
+	%include "KEYBSHAR.INC";;
+	%include "POSTEQU.INC";;
+	%include "KEYBMAC.INC";;
 				       ;;
-	PUBLIC UK2_LOGIC		;;
-	PUBLIC UK2_437_XLAT		;;
-	PUBLIC UK2_850_XLAT		;;
+	global UK2_LOGIC;;
+	global UK2_437_XLAT;;
+	global UK2_850_XLAT;;
 				       ;;
-CODE	SEGMENT PUBLIC 'CODE'          ;;
-	ASSUME CS:CODE,DS:CODE	       ;;
+SECTION .CODE;;
+	; ASSUME CS:CODE,DS:CODE;;
 				       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Standard translate table options are a liner search table
@@ -302,7 +302,7 @@ LOGIC_END:			       ;;
 ;; dead keys are on the same keytops for all code pages.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC UK2_COMMON_XLAT 		;;
+ global UK2_COMMON_XLAT;;
 UK2_COMMON_XLAT:			;;
 				       ;;
    DW	 COMMON_XLAT_END-$	       ;; length of section
@@ -452,9 +452,9 @@ COM_NA_LO_K3_END:			  ;;
    DW	 COM_NA_UP_T1_K1_END-$		  ;; Size of xlat table
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 5			       ;; number of entries
-   DB	 41,0AAh		       ;; ª
+   DB	 41,0AAh		       ;; Âª
    DB	 3,'"'                         ;; "
-   DB	 4,09CH 		       ;; œ
+   DB	 4,09CH 		       ;; Âœ
    DB	 40,'@'                        ;; at sign
    DB	 43,07EH		       ;; ~
 COM_NA_UP_T1_K1_END:			  ;;
@@ -481,7 +481,7 @@ COM_NA_UP_K1_END:			  ;;
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 5			       ;; number of entries
    DB	 3,'"'                         ;; "
-   DB	 4,09CH 		       ;; œ
+   DB	 4,09CH 		       ;; Âœ
    DB	 41,07EH		       ;; ~
    DB	 40,'@'                        ;; at sign
    DB	 43,07CH		       ;; Broken vertical bar
@@ -508,9 +508,9 @@ COM_NA_UP_K2_END:			  ;;
    DW	 COM_NA_UP_T1_K3_END-$		  ;; Size of xlat table
    DB	 STANDARD_TABLE 	       ;; xlat options:
    DB	 5			       ;; number of entries
-   DB	 41,07Ch		       ;; ª
+   DB	 41,07Ch		       ;; Âª
    DB	 3,'"'                         ;; "
-   DB	 4,09CH 		       ;; œ
+   DB	 4,09CH 		       ;; Âœ
    DB	 40,'@'                        ;; at sign
    DB	 43,07EH		       ;; ~
 COM_NA_UP_T1_K3_END:			  ;;
@@ -532,7 +532,7 @@ COMMON_XLAT_END:		       ;;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC UK2_437_XLAT			;;
+ global UK2_437_XLAT;;
 UK2_437_XLAT:				;;
 				       ;;
    DW	  CP437_XLAT_END-$	       ;; length of section
@@ -593,7 +593,7 @@ CP437_XLAT_END: 		       ;;
 ;;***************************************
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 				       ;;
- PUBLIC UK2_850_XLAT			;;
+ global UK2_850_XLAT;;
 UK2_850_XLAT:				;;
 				       ;;
    DW	  CP850_XLAT_END-$	       ;; length of section
@@ -651,5 +651,5 @@ CP850_NA_UP_K1_END:			    ;;
 				       ;;
 CP850_XLAT_END: 		       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-CODE	 ENDS			       ;;
-	 END			       ;;
+; END SECTION .CODE;;
+	 ; END;;

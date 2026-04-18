@@ -1,6 +1,6 @@
 
-;ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ  P R O L O G  ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»
-;º											  º
+;Ã‰ÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃ  P R O L O G  ÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÂ»
+;Âº											  Âº
 
 ;  AX001 - P3976: Need to have all pieces of messages in MODE.SKL so have to
 ;		  implement the SYSGETMSG method of getting addressability to
@@ -15,18 +15,18 @@
 ;		  in MODEPARSE.ASM.  Had to enlarge the possible parm size for
 ;		  "Function not supported on this computer - ?????????????"
 
-;º											  º
-;ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ  P R O L O G  ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼
+;Âº											  Âº
+;ÃˆÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃ  P R O L O G  ÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÂ¼
 
 
-;ÉÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ  P U B L I C S  ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ»
-;º											  º
+;Ã‰ÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃ  P U B L I C S  ÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÂ»
+;Âº											  Âº
 
 ;PUBLICs for the sublists are handled in modemes.asm
-PUBLIC	 Utility_Msg_Class		  ;AN001;
+global Utility_Msg_Class;AN001;
 
-;º											  º
-;ÈÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ  P U B L I C S  ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼
+;Âº											  Âº
+;ÃˆÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃ  P U B L I C S  ÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÃÂ¼
 
 
 ;
@@ -42,7 +42,7 @@ PUBLIC	 Utility_Msg_Class		  ;AN001;
 ;*****************************************************************************
 ;
 
-INCLUDE  common.stc	   ;contains the following structure
+%include "common.stc";contains the following structure
 
 ;sublist_def  STRUC
 
@@ -60,7 +60,7 @@ INCLUDE  common.stc	   ;contains the following structure
 
 
 
-INCLUDE  modequat.inc	   ;contains the following two equates for this file
+%include "modequat.inc";contains the following two equates for this file
 
 ;FLAGS field bit(s) values
 
@@ -112,15 +112,15 @@ to_be_filled_in 	EQU	 77H	  ;conspicious number
 ;
 
 ;---------------------------			;
-first_sublist  LABEL BYTE
+first_sublist:
 
-sublist_invalid_switch	    label byte		;AN000;description of %0
-sublist_invalid_parameter   label byte		;AN000;description of %0
+sublist_invalid_switch:;AN000;description of %0
+sublist_invalid_parameter:;AN000;description of %0
 						;
 	db		Sublist_Length		;fixed				;AN000;
 	db		Reserved		;not used yet			;AN000;
-offending_parameter_ptr LABEL WORD
-	dw		offset	 offending_parameter	 ;pointer to string or binary value	;AN000;
+offending_parameter_ptr:
+	dw		offending_parameter	 ;pointer to string or binary value	;AN000;
 	dw		to_be_filled_in 	;
 	db		0			;ID, special end of message format ;AN000;
 sub_typ db		Left_Align+char_field_ASCIIZ ;maybe changed	     ;AN000;
@@ -129,12 +129,12 @@ sub_typ db		Left_Align+char_field_ASCIIZ ;maybe changed	     ;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
 
-sublist_err1		label byte		;AN000;description of %0
+sublist_err1:;AN000;description of %0
 						;
 	db		Sublist_Length		;fixed				;AN000;
 	db		Reserved		;not used yet			;AN000;
-illegal_device_ptr	LABEL WORD
-	dw		?			;pointer to device name string filled in by modecom;AN000;
+illegal_device_ptr:
+	dw 0;pointer to device name string filled in by modecom;AN000;
 	dw		to_be_filled_in 	;
 	db		0			;ID, special end of message format ;AN000;
 	db		Left_Align+char_field_ASCIIZ ;		;AN000;
@@ -142,11 +142,11 @@ illegal_device_ptr	LABEL WORD
 	db		4			;"COM3"                        ;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_PT80		label byte		;				;AN000;
+Sublist_PT80:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset PT80N		;where the printer number is stashed ;AN000;
+	dw		PT80N		;where the printer number is stashed ;AN000;
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;ID, only one sublist		;AN000;
 	db		Left_Align+Char_Field_Char ;			   ;AN000;
@@ -154,11 +154,11 @@ Sublist_PT80		label byte		;				;AN000;
 	db		1			;				;AN000;
 	db		Blank			;no filler needed but still have this field to fill
 ;---------------------------			;
-Sublist_PT132		label byte		;				;AN000;
+Sublist_PT132:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset PT132N		;				;AN000;
+	dw		PT132N		;				;AN000;
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_Char ;			   ;AN000;
@@ -166,11 +166,11 @@ Sublist_PT132		label byte		;				;AN000;
 	db		1			;				;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_initmsg 	label byte		;CR,LF,"COM%c: %3s,%c,%c,%c,%c",CR,LF,EOM
+Sublist_initmsg:;CR,LF,"COM%c: %3s,%c,%c,%c,%c",CR,LF,EOM
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset device		;				;AN000;
+	dw		device		;				;AN000;
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;first of 6		       ;AN000;
 	db		Left_Align+char_field_char			      ;AN000;
@@ -180,8 +180,8 @@ Sublist_initmsg 	label byte		;CR,LF,"COM%c: %3s,%c,%c,%c,%c",CR,LF,EOM
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-pbaud_ptr   label byte
-	dw		offset pbaud		;				;AN000;
+pbaud_ptr:
+	dw		pbaud		;				;AN000;
 	dw		to_be_filled_in 	;				;AN000;
 	db		2			;second of 6			;AN000;
 	db		Left_Align+char_field_ASCIIZ			      ;AN000;
@@ -191,8 +191,8 @@ pbaud_ptr   label byte
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-pparity_ptr LABEL BYTE				;allow access from invoke
-	dw		offset pparity		;				;AN000;
+pparity_ptr:;allow access from invoke
+	dw		pparity		;				;AN000;
 	dw		to_be_filled_in 	;				;AN000;
 	db		3			;third of 6		       ;AN000;
 	db		Left_Align+char_field_char			      ;AN000;
@@ -202,7 +202,7 @@ pparity_ptr LABEL BYTE				;allow access from invoke
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset pdata		;				;AN000;
+	dw		pdata		;				;AN000;
 	dw		to_be_filled_in 	;				;AN000;
 	db		4			;fourth of 6			;AN000;
 	db		Left_Align+char_field_char			      ;AN000;
@@ -212,8 +212,8 @@ pparity_ptr LABEL BYTE				;allow access from invoke
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-pstop_ptr   LABEL BYTE
-	dw		offset pstop		;				;AN000;
+pstop_ptr:
+	dw		pstop		;				;AN000;
 	dw		to_be_filled_in 	;				;AN000;
 	db		5			;fifth of 6		       ;AN000;
 	db		Left_Align+char_field_ASCIIZ			      ;AN000;
@@ -223,7 +223,7 @@ pstop_ptr   LABEL BYTE
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		offset pparm		;				;AN000;
+	dw		pparm		;				;AN000;
 	dw		to_be_filled_in 	;				;AN000;
 	db		6			;last of 6		      ;AN000;
 	db		Left_Align+char_field_char			      ;AN000;
@@ -231,13 +231,13 @@ pstop_ptr   LABEL BYTE
 	db		1			;one char "P" or "-"
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_shift_msg	label byte		;				;AN000;
+Sublist_shift_msg:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-lftm_or_rghtm_ptr	label word
+lftm_or_rghtm_ptr:
 ;AC001; dw		offset leftmost   ;filled in with pointer to "leftmost 0?" or "rightmost 9?"
-	dw		?		  ;AC001;filled in with pointer to "leftmost 0?" or "rightmost 9?"
+	dw 0;AC001;filled in with pointer to "leftmost 0?" or "rightmost 9?"
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;only 1 sub list			       ;AN000;
 	db		Left_Align+char_field_ASCIIZ			  ;AN000;
@@ -245,11 +245,11 @@ lftm_or_rghtm_ptr	label word
 	db		10			;leftmost 0?		       ;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_redirmsg	label byte		;AN000; CR,LF,"LPT%1: rerouted to COM%2:",CR,LF,EOM
+Sublist_redirmsg:;AN000; CR,LF,"LPT%1: rerouted to COM%2:",CR,LF,EOM
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		Offset REDPT		;filled with printer number
+	dw		REDPT		;filled with printer number
 	dw		to_be_filled_in
 	db		1			;first of 2			;AN000;
 	db		Left_Align+char_field_char ;			  ;AN000;
@@ -259,7 +259,7 @@ Sublist_redirmsg	label byte		;AN000; CR,LF,"LPT%1: rerouted to COM%2:",CR,LF,EOM
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		Offset REDCOM		;filled with COM port number
+	dw		REDCOM		;filled with COM port number
 	dw		to_be_filled_in
 	db		2			;second of 2			 ;AN000;
 	db		Left_Align+char_field_char ;			  ;AN000;
@@ -268,11 +268,11 @@ Sublist_redirmsg	label byte		;AN000; CR,LF,"LPT%1: rerouted to COM%2:",CR,LF,EOM
 	db		Blank			;				;AN000;
 
 ;---------------------------			;
-Sublist_notremsg	label byte		;AN000; CR,LF,"LPT%1: not rerouted",CR,LF,EOM
+Sublist_notremsg:;AN000; CR,LF,"LPT%1: not rerouted",CR,LF,EOM
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		Offset NOTREDPT 	;filled with printer number
+	dw		NOTREDPT 	;filled with printer number
 	dw		to_be_filled_in
 	db		1			;only one
 	db		Left_Align+char_field_char ;			  ;AN000;
@@ -281,13 +281,13 @@ Sublist_notremsg	label byte		;AN000; CR,LF,"LPT%1: not rerouted",CR,LF,EOM
 	db		Blank			;				;AN000;
 
 ;---------------------------			;
-Sublist_retparto	label byte	  ;	;AN000;
+Sublist_retparto:;	;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
 ;AC001;inf_or_no_ptr	       LABEL WORD	       ;filled in with pointer to "No" or "infinit"
 ;AC001; dw		offset infinite      ;				     ;AN000;
-	dw		?			;AC001;filled in with pointer to "No" or "infinit"
+	dw 0;AC001;filled in with pointer to "No" or "infinit"
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_ASCIIZ			   ;AN000;
@@ -295,13 +295,13 @@ Sublist_retparto	label byte	  ;	;AN000;
 	db		2			;				;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_cant_shift	label byte	    ;"Unable to shift screen ...." ;AN000;
+Sublist_cant_shift:;"Unable to shift screen ...." ;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-LEFT_OR_RIGHT_PTR	LABEL WORD						;AN000;
+LEFT_OR_RIGHT_PTR:;AN000;
 ;AC001; dw		offset left		;FILLED WITH OFFSET OF 'left' or 'right'
-	dw		?			;AC001;FILLED WITH OFFSET OF 'left' or 'right'
+	dw 0;AC001;FILLED WITH OFFSET OF 'left' or 'right'
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_ASCIIZ			   ;AN000;
@@ -309,12 +309,12 @@ LEFT_OR_RIGHT_PTR	LABEL WORD						;AN000;
 	db		4			;				;AN000;
 	db		Blank			;				;AN000;
 ;---------------------------			;
-Sublist_CPMSG2		label byte		;				;AN000;
+Sublist_CPMSG2:;				;AN000;
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-CPMSGLST2DEV		LABEL WORD		;filled with pointer to device name
-	dw		?
+CPMSGLST2DEV:;filled with pointer to device name
+	dw 0
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_ASCIIZ ;			   ;AN000;
@@ -323,12 +323,12 @@ CPMSGLST2DEV		LABEL WORD		;filled with pointer to device name
 	db		Blank			;				;AN000;
 
 ;---------------------------			;
-Sublist_CPMSG6		label byte		;"Active codepage for device %S is %D",CR,LF,EOM
+Sublist_CPMSG6:;"Active codepage for device %S is %D",CR,LF,EOM
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-CPMSGLST6DEV		LABEL WORD		;filled with pointer to device name
-	dw		?
+CPMSGLST6DEV:;filled with pointer to device name
+	dw 0
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_ASCIIZ ;			   ;AN000;
@@ -338,7 +338,7 @@ CPMSGLST6DEV		LABEL WORD		;filled with pointer to device name
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		OFFSET CPMSGLST6CP	;pointer to area FILLED IN BY "QUERY" ROUTINE WITH CODEPAGE ID
+	dw		CPMSGLST6CP	;pointer to area FILLED IN BY "QUERY" ROUTINE WITH CODEPAGE ID
 	dw		to_be_filled_in 	;				;AN000;
 	db		2			;2nd of 2			;AN000;
 	db		Left_Align+Unsgn_Bin_Word ;AN000;00100001B
@@ -347,12 +347,12 @@ CPMSGLST6DEV		LABEL WORD		;filled with pointer to device name
 	db		Blank			;				;AN000;
 
 ;---------------------------			;
-Sublist_CPMSG7		label byte		;"Device %1 not prepared",CR,LF,EOM
+Sublist_CPMSG7:;"Device %1 not prepared",CR,LF,EOM
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-CPMSGLST7DEV		LABEL WORD		;FILLED IN BY "QUERY" ROUTINE WITH PTR TO DEVICE NAME
-	dw		?
+CPMSGLST7DEV:;FILLED IN BY "QUERY" ROUTINE WITH PTR TO DEVICE NAME
+	dw 0
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_ASCIIZ ;			   ;AN000;
@@ -361,11 +361,11 @@ CPMSGLST7DEV		LABEL WORD		;FILLED IN BY "QUERY" ROUTINE WITH PTR TO DEVICE NAME
 	db		Blank			;				;AN000;
 
 ;---------------------------			;
-Sublist_CPMSG8		label byte		;"%1 codepages:",CR,LF,EOM
+Sublist_CPMSG8:;"%1 codepages:",CR,LF,EOM
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		?			;filled in with OFFSET TO "HARDWARE" OR "PREPARED"
+	dw 0;filled in with OFFSET TO "HARDWARE" OR "PREPARED"
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_ASCIIZ ;			   ;AN000;
@@ -375,11 +375,11 @@ Sublist_CPMSG8		label byte		;"%1 codepages:",CR,LF,EOM
 
 
 ;---------------------------			;
-Sublist_CPMSG9		label byte		;"  Codepage %d",CR,LF,EOM
+Sublist_CPMSG9:;"  Codepage %d",CR,LF,EOM
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		OFFSET CPMSGLST9CP	;pointer to area filled in by "DISPLAY_CPID" in modecp.sal
+	dw		CPMSGLST9CP	;pointer to area filled in by "DISPLAY_CPID" in modecp.sal
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Unsgn_Bin_Word ;00100001B
@@ -388,10 +388,10 @@ Sublist_CPMSG9		label byte		;"  Codepage %d",CR,LF,EOM
 	db		Blank			;				;AN000;
 
 ;---------------------------			;
-Sublist_CPMSG10 	label byte		;"MODE %1 Codepage function completed",CR,LF,EOM
+Sublist_CPMSG10:;"MODE %1 Codepage function completed",CR,LF,EOM
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		?			;;FILLED IN TO POINT TO:
+	dw 0;;FILLED IN TO POINT TO:
 						;	     "Status",EOM
 						;	     "Prepare",EOM
 						;	     "Select",EOM
@@ -405,12 +405,12 @@ Sublist_CPMSG10 	label byte		;"MODE %1 Codepage function completed",CR,LF,EOM
 	db		Blank			;				;AN000;
 
 ;---------------------------			;
-Sublist_CPMSG13 	label byte		;"   %D - %S Codepage",CR,LF,EOM
+Sublist_CPMSG13:;"   %D - %S Codepage",CR,LF,EOM
 						;
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-CPMSGLST13CP   LABEL WORD			;FILLED IN WITH CODEPAGE ID
-	dw		?
+CPMSGLST13CP:;FILLED IN WITH CODEPAGE ID
+	dw 0
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_ASCIIZ ;			   ;AN000;
@@ -420,10 +420,10 @@ CPMSGLST13CP   LABEL WORD			;FILLED IN WITH CODEPAGE ID
 
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-CPMSGLST13TYP  LABEL WORD			;FILLED IN TO POINT TO:
+CPMSGLST13TYP:;FILLED IN TO POINT TO:
 							       ; "Selected",EOM
 							       ; "System",EOM
-	dw		?
+	dw 0
 	dw		to_be_filled_in 	;				;AN000;
 	db		2			;2nd of 2			;AN000;
 	db		Left_Align+Char_Field_ASCIIZ ;			   ;AN000;
@@ -433,10 +433,10 @@ CPMSGLST13TYP  LABEL WORD			;FILLED IN TO POINT TO:
 
 
 ;---------------------------			;
-Sublist_CPMSG17 	label byte		;"Device error during %1",BEEP,CR,LF,EOM
+Sublist_CPMSG17:;"Device error during %1",BEEP,CR,LF,EOM
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-	dw		?			;;FILLED IN TO POINT TO:
+	dw 0;;FILLED IN TO POINT TO:
 						;     "Status",EOM
 						;     "Prepare",EOM
 						;     "Select",EOM
@@ -451,11 +451,11 @@ Sublist_CPMSG17 	label byte		;"Device error during %1",BEEP,CR,LF,EOM
 
 
 ;---------------------------			;
-Sublist_LINES_equal	label byte		;"LINES=%1",CR,LF,EOM
+Sublist_LINES_equal:;"LINES=%1",CR,LF,EOM
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-ROW_PTR   LABEL  WORD		;FILLED IN TO POINT TO: "NONE", or a row value
-	dw		?			;
+ROW_PTR:;FILLED IN TO POINT TO: "NONE", or a row value
+	dw 0;
 	dw		to_be_filled_in 	;filled in at initialization time with PRINTF_CODE
 	db		1			;				;AN000;
 row_type db		Right_Align+Char_Field_ASCIIZ ; 		    ;AN000;
@@ -464,11 +464,11 @@ row_type db		Right_Align+Char_Field_ASCIIZ ; 		    ;AN000;
 	DB		blank
 
 ;---------------------------			;
-Sublist_COLUMNS_equal	  label byte		  ;"COLUMNS=%1",CR,LF,EOM
+Sublist_COLUMNS_equal:;"COLUMNS=%1",CR,LF,EOM
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-COLUMNS_PTR   LABEL  WORD	    ;FILLED IN TO POINT TO: "NONE", or a columns value
-	dw		?			;
+COLUMNS_PTR:;FILLED IN TO POINT TO: "NONE", or a columns value
+	dw 0;
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 COLUMNS_type db 	    Right_Align+Char_Field_ASCIIZ ;			;AN000;
@@ -476,11 +476,11 @@ COLUMNS_type db 	    Right_Align+Char_Field_ASCIIZ ;			;AN000;
 	db		2			;				;AN000;
 	DB		blank
 ;---------------------------			;
-Sublist_RATE_equal     label byte	       ;"RATE=%1",CR,LF,EOM
+Sublist_RATE_equal:;"RATE=%1",CR,LF,EOM
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-RATE_PTR   LABEL  WORD		 ;FILLED IN TO POINT TO: "NONE", or a rate value
-	dw		?			;
+RATE_PTR:;FILLED IN TO POINT TO: "NONE", or a rate value
+	dw 0;
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 RATE_type db		 Right_Align+Char_Field_ASCIIZ ;		     ;AN000;
@@ -488,11 +488,11 @@ RATE_type db		 Right_Align+Char_Field_ASCIIZ ;		     ;AN000;
 	db		2			;				;AN000;
 	DB		blank
 ;---------------------------			;
-Sublist_DELAY_equal	label byte		;"DELAY=%1",CR,LF,EOM
+Sublist_DELAY_equal:;"DELAY=%1",CR,LF,EOM
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-DELAY_PTR   LABEL  WORD 	  ;FILLED IN TO POINT TO: "NONE", or a delay value
-	dw		?			;
+DELAY_PTR:;FILLED IN TO POINT TO: "NONE", or a delay value
+	dw 0;
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 DELAY_type db		  Right_Align+Char_Field_ASCIIZ ;		      ;AN000;
@@ -500,11 +500,11 @@ DELAY_type db		  Right_Align+Char_Field_ASCIIZ ;		      ;AN000;
 	db		1			;				;AN000;
 	DB		blank
 ;---------------------------			;
-Sublist_not_supported	label byte		;"Function not supported on this computer -%1"
+Sublist_not_supported:;"Function not supported on this computer -%1"
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-not_supported_PTR   LABEL  WORD 		;FILLED IN TO POINT TO: the parameter that is not supported
-	dw		OFFSET nada	     ;
+not_supported_PTR:;FILLED IN TO POINT TO: the parameter that is not supported
+	dw		nada	     ;
 	dw		to_be_filled_in 	;filled with segment of the .COM file	;AN000;
 	db		1			;				;AN000;
 	db		Left_Align+Char_Field_ASCIIZ ;			   ;AN000;
@@ -512,11 +512,11 @@ not_supported_PTR   LABEL  WORD 		;FILLED IN TO POINT TO: the parameter that is 
 	db		1			;				;AN000;
 	DB		blank
 ;---------------------------			;
-Sublist_status_for_device label byte		  ;"Status for device %1:"
+Sublist_status_for_device:;"Status for device %1:"
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-stat_dev_ptr   LABEL  WORD	     ;FILLED IN TO POINT TO ONE of the device names in parse.asm
-	dw		?			;
+stat_dev_ptr:;FILLED IN TO POINT TO ONE of the device names in parse.asm
+	dw 0;
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Char_Field_ASCIIZ ; 		    ;AN000;
@@ -526,11 +526,11 @@ dev_name_size	  db	4			;changed by invoke: 3 for CON, 4 for others
 
 ;---------------------------			;
 
-Sublist_retry_equal label byte			;"RETRY=%1"
+Sublist_retry_equal:;"RETRY=%1"
 	db		Sublist_Length		;				;AN000;
 	db		Reserved		;				;AN000;
-retry_type_ptr	  LABEL BYTE
-	dw		?			;
+retry_type_ptr:
+	dw 0;
 	dw		to_be_filled_in 	;				;AN000;
 	db		1			;				;AN000;
 	db		Right_Align+Char_Field_ASCIIZ ; 		    ;AN000;
@@ -539,12 +539,12 @@ retry_type_ptr	  LABEL BYTE
 	db		Blank			;				;AN000;
 
 ;---------------------------			;
-sublist_syntax_error   label byte	   ;AN000;description of %0
+sublist_syntax_error:;AN000;description of %0
 						;
 	db		Sublist_Length		;fixed				;AN000;
 	db		Reserved		;not used yet			;AN000;
-syntax_error_ptr	LABEL WORD
-	dw		offset	 offending_parameter	 ;pointer to string or binary value	;AN000;
+syntax_error_ptr:
+	dw		offending_parameter	 ;pointer to string or binary value	;AN000;
 	dw		to_be_filled_in 	;
 	db		0			;ID, special end of message format ;AN000;
 	db		Left_Align+char_field_ASCIIZ	   ;AN000;
@@ -571,7 +571,7 @@ PT132N		DB  " "   ;PT132 - CR,LF,"LPT%c: set for 132",CR,LF,EOM
 
 ;INITMSG - CR,LF,"COM%c: %3s,%c,%c,%c,%c",CR,LF,EOM
 DEVICE	       DB  " "
-pBAUD	       DB  5 DUP(" "),EOM
+pBAUD: times 5 db " "
 pPARITY        DB  "e"        ;DEFAULT IS EVEN PARITY
 pDATA	       DB  "7"        ;DEFAULT IS 7 DATA BITS PER BYTE
 pSTOP	       DB  "1",EOM    ;DEFAULT FOR BAUD > 110, CHANGED TO 2 FOR 110
@@ -585,7 +585,7 @@ REDCOM		DB  " "
 ;NOTREMSG - CR,LF,"LPT%c: not rerouted",CR,LF,EOM
 NOTREDPT	DB  " "
 
-OFFENDING_PARAMETER  DB 123 DUP (EOM)
+OFFENDING_PARAMETER: times 123 db EOM
 
 nada	    DB	  8,8,8,"   ",0        ;backspace over the " - "
 
@@ -595,4 +595,4 @@ CPMSGLST6CP    DW    44H   ;AC665;FILLED IN BY "QUERY" ROUTINE WITH CODEPAGE ID
 CPMSGLST9CP    DW    99H		 ;FILLED IN BY "QUERY" ROUTINE WITH CODEPAGE ID
 
 
-row_value      DB    ?	   ;filled in by invoke.asm with screen lines requested or current setting
+row_value: db 0;filled in by invoke.asm with screen lines requested or current setting

@@ -1,47 +1,47 @@
-	PAGE	,132			;
-	TITLE	MODEVID.SAL
+	; PAGE	,132;
+	; TITLE	MODEVID.SAL
 
-.XLIST
-INCLUDE STRUC.INC		 ;macro library for 'struc'
-.LIST
+; .XLIST
+%include "STRUC.INC";macro library for 'struc'
+; .LIST
 
-;ษออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออป				   ;AN000;
-;บ											  บ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
 															   ;AN000;
 ;  AC000 - P3200: Was displaying a message that Sam Nunn had deleted from the
 ;		  USA.MSG file because it looked like a common message.  Now
 ;		  I use a different (better) message.  It was "Invalid paramters",
 ;		  is now "Function not supported - ????".
 
-;บ											  บ				   ;AN000;
-;ศออออออออออออออออออออออออออออออออ  P R O L O G  อออออออออออออออออออออออออออออออออออออออออผ				   ;AN000;
+;ยบ											  ยบ				   ;AN000;
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P R O L O G  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ				   ;AN000;
 															   ;AN000;
-SIGNITURE SEGMENT AT 0C000H
+SECTION .SIGNITURE
 	ORG	0
-SIGWORD DW	?			;SIGNITURE OF THE EGA IS STORED HERE IF THE CARD IS PRESENT
-SIGNITURE ENDS
+SIGWORD: dw 0;SIGNITURE OF THE EGA IS STORED HERE IF THE CARD IS PRESENT
+; END SECTION .SIGNITURE
 
 
-LOW_MEM SEGMENT AT 0
+SECTION .LOW_MEM
 	ORG	410H
 EQUIP_FLAG EQU	THIS WORD
-LOW_MEM ENDS
+; END SECTION .LOW_MEM
 
 
-;ษออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 
-DISPLAY MACRO	MSG
-	MOV	DX,OFFSET MSG
+%macro DISPLAY 1
+	MOV	DX,MSG
 	CALL	PRINTF
-ENDM
+%endmacro
 
 
 ;-------------------------------------------------------------------------------
 
 
-find_number   MACRO    num, list
+%macro find_number 2
 
 ;Purpose: See if num is in the list of numbers.
 
@@ -61,7 +61,7 @@ PUSH  DI
 PUSH  CX
 
 MOV	AL,num
-MOV	DI,OFFSET list
+MOV	DI,list
 CLD				;want to increment DI
 MOV	CX,list&_len		;CX=number of nums in the list
 REPNE	SCASB
@@ -69,39 +69,39 @@ REPNE	SCASB
 POP   CX
 POP   DI
 
-ENDM
+%endmacro
 
 ;-------------------------------------------------------------------------------
 
 
-SET_CURSOR_POS MACRO
+%macro SET_CURSOR_POS 0
 	MOV	AH,2			;SET CURSOR
 	MOV	DX,0			;ROW=0,COL=0
 	MOV	BH,0			;SELECT SCREEN 0
 	INT	10H
 
-	ENDM
+	%endmacro
 
-MODE_VIDEO MACRO OPTION
+%macro MODE_VIDEO 1
 	MOV	AH,0			;SET MODE
 	MOV	AL,OPTION
 	INT	10H
 
-	ENDM
+	%endmacro
 
-SET_CURSOR_TYPE MACRO
+%macro SET_CURSOR_TYPE 0
 	MOV	AH,1			;SET CURSOR TYPE
 	MOV	CX,CURSOR_TYPE		;ROW=0,COL=0
 	INT	10H
 
-	ENDM
+	%endmacro
 
-;บ											  บ
-;ศออออออออออออออออออออออออออออออออ  M A C R O S  อออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  M A C R O S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
 B	EQU	0		       ;POSITION OF "B" IN PARM1 FOR BW?0
 W	EQU	1		       ;POSITION OF "W" IN PARM1 FOR BW?0
@@ -148,35 +148,35 @@ BITBW80 EQU	20H		       ;80X25 BW USING COLOR CARD
 BITMONO EQU	30H		       ;80X25 BW CARD
 video_info_DI	  EQU	[DI]
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E Q U A T E S  ออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E Q U A T E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
 
 
-;ษอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-PUBLIC	ALT_SELECT
-PUBLIC	BW40
-PUBLIC	BW80
-PUBLIC	CHECK_BUFF
-PUBLIC	CO40
-PUBLIC	CO80
-PUBLIC	COLOR_ON_IT
-PUBLIC	EGA_INFO
-PUBLIC	GET_VIDEO_INFO
-PUBLIC	MONO
+global ALT_SELECT
+global BW40
+global BW80
+global CHECK_BUFF
+global CO40
+global CO80
+global COLOR_ON_IT
+global EGA_INFO
+global GET_VIDEO_INFO
+global MONO
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  P U B L I C S  ออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  P U B L I C S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
 
-;ษอออออออออออออออออออออออออออออ  S T R U C T U R E S  ออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  S T R U C T U R E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-INCLUDE  common.stc		    ;definition of the following struc
+%include "common.stc";definition of the following struc
 
 ;parm_list_entry   STRUC		   ;used by parse_parameters and invoke
 ;
@@ -189,18 +189,18 @@ INCLUDE  common.stc		    ;definition of the following struc
 ;parm_list_entry   ENDS
 
 
-info_block  STRUC				;layout of info returned by INT 10 AH=1B
+struc info_block;layout of info returned by INT 10 AH=1B
    who_cares1	     DB    025H  DUP ("V")
    active_display    DB    "V"
    alternate_display DB    "V"
-   who_cares2	     DB    6	 DUP ("V")
+   who_cares2: resb 6
    misc_state_info   DB    "V"
    who_cares3	     DB    12H	 DUP ("V")
-info_block  ENDS
+endstruc
 
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออ  S T R U C T U R E S  ออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  S T R U C T U R E S  รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
 
@@ -225,15 +225,15 @@ FLAG	RECORD	PR:2,NA1:1,GAME:1,COMN:3,NA2:1,DISKD:2,VIDEO:2,RAM:2,NA3:1,IPL:1
 
 
 
-	PAGE
-PRINTF_CODE SEGMENT PUBLIC
-	ASSUME	CS:PRINTF_CODE,DS:PRINTF_CODE,SS:PRINTF_CODE
+	; PAGE
+SECTION .PRINTF_CODE
+	; ASSUME	CS:PRINTF_CODE,DS:PRINTF_CODE,SS:PRINTF_CODE
 
 
-;ษออออออออออออออออออออออออออออออออออออ D A T A อออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร D A T A รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-color_combos   label byte	       ;list of adapter/display combinations supporting color modes
+color_combos:;list of adapter/display combinations supporting color modes
    DB	 bw0B
    DB	 color6
    DB	 color8
@@ -246,43 +246,43 @@ color_combos_len  EQU	$ - color_combos
 CURSOR_TYPE	DW	0607H		;HOLDER OF APPROPRIATE CURSOR TYPE
 information_block    info_block  <>	  ;area to hold info returned from INT 10 AH=1B
 
-mono_combos    label byte
+mono_combos:
    DB	 mono_card
    DB	 ega_mono
    DB	 bw7
 mono_combos_len   EQU	$ - mono_combos
 
-;บ											  บ
-;ศออออออออออออออออออออออออออออออออออออ D A T A อออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร D A T A รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
-;ษอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออป
-;บ											  บ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยป
+;ยบ											  ยบ
 
-EXTRN	Function_not_supported:WORD	;'INVALID PARAMETERS'
-EXTRN	NOERROR:BYTE			;INDICATE THAT NO ERROR MESSAGES HAVE BEEN ISSUED YET
-EXTRN	not_supported_ptr:WORD		;pointer to the screen mode that the configuration can't do.
-EXTRN	machine_type:BYTE		;holder of model byte
-EXTRN	parm_lst:BYTE			;the array of the structure parm_list_entry  max_pos_parms DUP (<>)
-EXTRN	PRINTF:NEAR			;"C" LIKE FORMATTED SCREEN OUTPUT ROUTINE
-EXTRN	PARM1:BYTE			;PARAMETER HOLDING AREA, SEE "RESCODE"
-EXTRN	P14_model_byte:ABS
+extern Function_not_supported;'INVALID PARAMETERS'
+extern NOERROR;INDICATE THAT NO ERROR MESSAGES HAVE BEEN ISSUED YET
+extern not_supported_ptr;pointer to the screen mode that the configuration can't do.
+extern machine_type;holder of model byte
+extern parm_lst;the array of the structure parm_list_entry  max_pos_parms DUP (<>)
+extern PRINTF;"C" LIKE FORMATTED SCREEN OUTPUT ROUTINE
+extern PARM1;PARAMETER HOLDING AREA, SEE "RESCODE"
+extern P14_model_byte
 
-;บ											  บ
-;ศอออออออออออออออออออออออออออออออ  E X T R N S	ออออออออออออออออออออออออออออออออออออออออออผ
+;ยบ											  ยบ
+;รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรร  E X T R N S	รรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรรยผ
 
 
 
 ;***********************************************************
 ;SET VIDEO TO 40 X 25, BLACK AND WHITE
-BW40	PROC	NEAR
+BW40:
 
 	CALL	get_video_info
-	.IF    <video_info_DI.active_display EQ all> OR
+	; .IF    <video_info_DI.active_display EQ all> OR
 	find_number  <video_info_DI.active_display>,color_combos
-	.IF    Z OR
+	; .IF    Z OR
 	find_number  <video_info_DI.alternate_display>,color_combos
-	.IF    Z THEN
+	; .IF    Z THEN
 
 	    MOV     DL,BITBW40		;SET FOR BW 40 X 80
 	    MOV     DH,OPTION_BW4025
@@ -291,29 +291,29 @@ BW40	PROC	NEAR
 					;DH HAS BYTE OF VIDEO OPTION
 	    CALL    setup
 
-	.ELSE
+	; .ELSE
 
 	    MOV   DI,0			  ;the screen mode is always the first parm					   ;AC000;
-	    MOV   BP,OFFSET parm_lst   ;address the parm list via parm_list which is [BP]				   ;AC000;
+	    MOV   BP,parm_lst   ;address the parm list via parm_list which is [BP]				   ;AC000;
 	    MOV   CX,parm_list[DI].value1										   ;AC000;
 	    MOV   not_supported_ptr,CX	       ;FILL IN pointer to the parameter that is not supported			  ;AC000;
 	    DISPLAY Function_not_supported	;'Function not supported - BW40"
 	    MOV     NOERROR,FALSE
 
-	.ENDIF
+	; .ENDIF
 
 	RET				;RETURN TO MAIN ROUTINE
-BW40	ENDP
+; ENDP BW40
 ;******************************************************
 ;SET VIDEO TO 80 X 25, BLACK AND WHITE
-BW80	PROC	NEAR
+BW80:
 
 	CALL	get_video_info
-	.IF    <video_info_DI.active_display EQ all> OR
+	; .IF    <video_info_DI.active_display EQ all> OR
 	find_number  <video_info_DI.active_display>,color_combos
-	.IF    Z OR
+	; .IF    Z OR
 	find_number  <video_info_DI.alternate_display>,color_combos
-	.IF    Z THEN
+	; .IF    Z THEN
 
 	    MOV     DL,BITBW80		;80 X 25 BW USING GRAPHICS CARD
 	    MOV     DH,OPTION_BW8025
@@ -322,29 +322,29 @@ BW80	PROC	NEAR
 					;DH HAS BYTE OF VIDEO OPTION
 	    CALL    setup
 
-	.ELSE
+	; .ELSE
 
 	    MOV   DI,0			  ;the screen mode is always the first parm					   ;AC000;
-	    MOV   BP,OFFSET parm_lst   ;address the parm list via parm_list which is [BP]				   ;AC000;
+	    MOV   BP,parm_lst   ;address the parm list via parm_list which is [BP]				   ;AC000;
 	    MOV   CX,parm_list[DI].value1										   ;AC000;
 	    MOV   not_supported_ptr,CX	       ;FILL IN pointer to the parameter that is not supported			  ;AC000;
 	    DISPLAY Function_not_supported	;'Function not supported - BW80"
 	    MOV     NOERROR,FALSE
 
-	.ENDIF
+	; .ENDIF
 
 	RET
-BW80	ENDP
+; ENDP BW80
 ;******************************************************
 ;SET VIDEO TO 80 X 25, MONOCHROME
-MONO	PROC	NEAR
+MONO:
 
 	CALL	get_video_info
-	.IF    <video_info_DI.active_display EQ all> OR
+	; .IF    <video_info_DI.active_display EQ all> OR
 	find_number  <video_info_DI.active_display>,mono_combos
-	.IF    Z OR
+	; .IF    Z OR
 	find_number  <video_info_DI.alternate_display>,mono_combos
-	.IF    Z THEN
+	; .IF    Z THEN
 
 	    MOV     DL,BITMONO	    ;EQUIP FLAG INDICATING 80 X 25 BW USING MONO CARD
 	    MOV     DH,OPTION_MONO  ;MONOCHROME MODE
@@ -354,28 +354,28 @@ MONO	PROC	NEAR
 					;DH HAS BYTE OF VIDEO OPTION
 		CALL	SETUP
 
-	.ELSE
+	; .ELSE
 
 	    MOV   DI,0			  ;the screen mode is always the first parm					   ;AC000;
-	    MOV   BP,OFFSET parm_lst   ;address the parm list via parm_list which is [BP]				   ;AC000;
+	    MOV   BP,parm_lst   ;address the parm list via parm_list which is [BP]				   ;AC000;
 	    MOV   CX,parm_list[DI].value1										   ;AC000;
 	    MOV   not_supported_ptr,CX	       ;FILL IN pointer to the parameter that is not supported			  ;AC000;
 	    DISPLAY Function_not_supported	;'Function not supported - MONO"
 	    MOV     NOERROR,FALSE
 
-	.ENDIF
+	; .ENDIF
 
 	RET				;RETURN TO MAIN ROUTINE
-MONO	ENDP
+; ENDP MONO
 ;*******************************************************
-CO40	PROC	NEAR
+CO40:
 
 	CALL	get_video_info
-	.IF    <video_info_DI.active_display EQ all> OR
+	; .IF    <video_info_DI.active_display EQ all> OR
 	find_number  <video_info_DI.active_display>,color_combos
-	.IF    Z OR
+	; .IF    Z OR
 	find_number  <video_info_DI.alternate_display>,color_combos
-	.IF    Z THEN
+	; .IF    Z THEN
 
 	   MOV	   DL,BITBW40	       ;40 X 25 USING COLOR CARD
 	   MOV	   DH,OPTION_CO4025    ; REQUEST COLOR
@@ -384,28 +384,28 @@ CO40	PROC	NEAR
 				    ;DH HAS BYTE OF VIDEO OPTION
 	   CALL    setup
 
-	.ELSE
+	; .ELSE
 
 	    MOV   DI,0			  ;the screen mode is always the first parm					   ;AC000;
-	    MOV   BP,OFFSET parm_lst   ;address the parm list via parm_list which is [BP]				   ;AC000;
+	    MOV   BP,parm_lst   ;address the parm list via parm_list which is [BP]				   ;AC000;
 	    MOV   CX,parm_list[DI].value1										   ;AC000;
 	    MOV   not_supported_ptr,CX	       ;FILL IN pointer to the parameter that is not supported			  ;AC000;
 	    DISPLAY Function_not_supported	;'Function not supported - CO40"
 	    MOV     NOERROR,FALSE
 
-	.ENDIF
+	; .ENDIF
 
 	RET				;RETURN TO MAIN ROUTINE
-CO40	ENDP
+; ENDP CO40
 ;******************************************************
-CO80	PROC	NEAR
+CO80:
 
 	CALL	get_video_info
-	.IF    <video_info_DI.active_display EQ all> OR
+	; .IF    <video_info_DI.active_display EQ all> OR
 	find_number  <video_info_DI.active_display>,color_combos
-	.IF    Z OR
+	; .IF    Z OR
 	find_number  <video_info_DI.alternate_display>,color_combos
-	.IF    Z THEN
+	; .IF    Z THEN
 
 	   MOV	   DL,BITBW80	       ;80 X 25 USING COLOR CARD
 	   MOV	   DH,OPTION_CO8025    ; REQUEST COLOR
@@ -415,21 +415,21 @@ CO80	PROC	NEAR
 					;DH HAS BYTE OF VIDEO OPTION
 	   CALL    setup
 
-	.ELSE
+	; .ELSE
 
 	    MOV   DI,0			  ;the screen mode is always the first parm					   ;AC000;
-	    MOV   BP,OFFSET parm_lst   ;address the parm list via parm_list which is [BP]				   ;AC000;
+	    MOV   BP,parm_lst   ;address the parm list via parm_list which is [BP]				   ;AC000;
 	    MOV   CX,parm_list[DI].value1										   ;AC000;
 	    MOV   not_supported_ptr,CX	       ;FILL IN pointer to the parameter that is not supported			  ;AC000;
 	    DISPLAY Function_not_supported	;'Function not supported - CO80"
 	    MOV     NOERROR,FALSE
 
-	.ENDIF
+	; .ENDIF
 
 	RET				;RETURN TO MAIN ROUTINE
-CO80	ENDP
+; ENDP CO80
 ;******************************************************
-SETUP	PROC	NEAR
+SETUP:
 ;INPUT: DL HAS BYTE TO BE OR'ED INTO EQUIP_FLAG
 ;	DH HAS BYTE OF VIDEO OPTION
 
@@ -447,9 +447,9 @@ SETUP	PROC	NEAR
 	SET_CURSOR_TYPE 		;TO 6,7 FOR COLOR MODES, B,C FOR MONO
 
 	RET				;RETURN TO CALLER
-SETUP	ENDP
+; ENDP SETUP
 ;******************************************************
-GET_VIDEO_INFO	  PROC	  NEAR
+GET_VIDEO_INFO:
 
 ;Determine what display adapters are in the machine.
 
@@ -480,82 +480,82 @@ XOR   AX,AX				  ;ZAP previous contents
 MOV   AH,01BH				  ;functionality/state information
 PUSH  CS
 POP   ES
-MOV   DI,OFFSET information_block	     ;initialize 'video_info_DI'
+MOV   DI,information_block	     ;initialize 'video_info_DI'
 MOV   BX,0				     ;parm to allow for future expansion
 INT   010H
-.IF <AL EQ 01BH> THEN NEAR		     ;IF the call is supported THEN
+; .IF <AL EQ 01BH> THEN NEAR;IF the call is supported THEN
 					     ;ES:DI=>info returned from BIOS
-   .IF <video_info_DI.alternate_display EQ 0> THEN NEAR  ;only 1 display, so see if it can handle all modes
+   ; .IF <video_info_DI.alternate_display EQ 0> THEN NEAR;only 1 display, so see if it can handle all modes
 
       TEST  video_info_DI.misc_state_info,AMOAMA      ;check the 'all modes on all monitors active' bit
-      .IF   NZ				     ;IF all modes are supported THEN
+      ; .IF   NZ;IF all modes are supported THEN
 	 MOV   video_info_DI.active_display,all 	      ;return the active display type as everything
-      .ENDIF
+      ; .ENDIF
 
-   .ENDIF
+   ; .ENDIF
 
-.ELSE					;display code call not supported, look for EGA
+; .ELSE;display code call not supported, look for EGA
    ;SINCE the display type call was not supported SEE IF IN AN EGA ADVANCED MODE
 
    MOV	   AX,SIGNITURE
    MOV	   ES,AX	       ;PUT SEGMENT OF SIGNITURE OF EGA IN ES
-   .IF	 <ES:SIGWORD EQ EGA_SIG> AND	     ;IF maybe an EGA IN THE MACHINE THEN
+   ; .IF	 <ES:SIGWORD EQ EGA_SIG> AND;IF maybe an EGA IN THE MACHINE THEN
    MOV	   AH,ALT_SELECT       ;AH GETS INT FUNCTION SPECIFIER
    MOV	   BL,EGA_INFO	       ;SPECIFY IN BL THE OPTION OF THE FUNCTION OF INT 10 WE
    INT	   10H		       ;RETURN MONITOR TYPE HOOKED TO EGA IN BH
-   .IF	 <BL NE 010H> THEN     ;EGA support available
-      .IF   <BH EQ COLOR_ON_IT> THEN		     ;IF COLOR HOOKED TO EGA THEN
+   ; .IF	 <BL NE 010H> THEN;EGA support available
+      ; .IF   <BH EQ COLOR_ON_IT> THEN;IF COLOR HOOKED TO EGA THEN
 	  MOV  video_info_DI.active_display,ega_color
 
 	  MOV	  AX,0B000H	      ;GET BASE OF MONO SCREEN BUFFER
 	  CALL	  check_buff	      ;IF THERE IS MEMORY WHERE THE MONO CARD HAS IT
-	  .IF  <AH EQ AL> THEN	       ;IF there is a monchrome card buffer present THEN
+	  ; .IF  <AH EQ AL> THEN;IF there is a monchrome card buffer present THEN
 	     MOV   video_info_DI.alternate_display,mono_card
-	  .ENDIF
+	  ; .ENDIF
 
-      .ELSE
+      ; .ELSE
 	  MOV  video_info_DI.active_display,ega_mono
 
 	  MOV	  AX,0B800H		  ;AX= BASE OF GRAPHICS SCREEN BUFFER
 	  CALL	  CHECK_BUFF		  ;DATA PUT OUT IN AL, DATA RETURNED IN AH
-	  .IF  <AH EQ AL> THEN		  ;IF WHAT I GOT BACK IS SAME AS I PUT OUT, THEN BUFFER IS PRESENT
+	  ; .IF  <AH EQ AL> THEN;IF WHAT I GOT BACK IS SAME AS I PUT OUT, THEN BUFFER IS PRESENT
 	     MOV   video_info_DI.alternate_display,cga
-	  .ENDIF
-      .ENDIF
-   .ELSE				  ;no display type call, no EGA
+	  ; .ENDIF
+      ; .ENDIF
+   ; .ELSE;no display type call, no EGA
 					  ;check for convertible
-      .IF   <machine_type EQ P14_model_byte> AND
+      ; .IF   <machine_type EQ P14_model_byte> AND
       MOV     AH,get_sys_stat
       INT     15H			   ;AL=system status
       AND     AL,LCD_bit		   ;check bit 0
-      .IF   <AL EQ LCD_attached> THEN
+      ; .IF   <AL EQ LCD_attached> THEN
 	 MOV   video_info_DI.active_display,all 	;LCD supports mono and color
-      .ELSE					;no analog displays, no EGA, no LCD
+      ; .ELSE;no analog displays, no EGA, no LCD
 
 	  MOV	  AX,0B000H	      ;GET BASE OF MONO SCREEN BUFFER
 	  CALL	  check_buff	      ;IF THERE IS MEMORY WHERE THE MONO CARD HAS IT
-	  .IF  <AH EQ AL> THEN	       ;IF there is a monchrome card buffer present THEN
+	  ; .IF  <AH EQ AL> THEN;IF there is a monchrome card buffer present THEN
 	    MOV   video_info_DI.active_display,mono_card
-	  .ENDIF
+	  ; .ENDIF
 
 	  MOV	  AX,0B800H		  ;AX= BASE OF GRAPHICS SCREEN BUFFER
 	  CALL	  CHECK_BUFF		  ;DATA PUT OUT IN AL, DATA RETURNED IN AH
-	  .IF  <AH EQ AL> THEN		  ;IF WHAT I GOT BACK IS SAME AS I PUT OUT, THEN BUFFER IS PRESENT
+	  ; .IF  <AH EQ AL> THEN;IF WHAT I GOT BACK IS SAME AS I PUT OUT, THEN BUFFER IS PRESENT
 	     MOV   video_info_DI.alternate_display,cga
-	  .ENDIF
+	  ; .ENDIF
 
-      .ENDIF
+      ; .ENDIF
 
-   .ENDIF
+   ; .ENDIF
 
-.ENDIF
+; .ENDIF
 
 POP   ES
 
 RET				;RETURN TO CALLER
 
 
-GET_VIDEO_INFO	  ENDP
+; ENDP GET_VIDEO_INFO
 ;******************************************************
 ;VMONO	 PROC	 NEAR
 ;;VERIFY THAT A MONOCHROME CARD EXISTS OR LCD IS ATTACHED
@@ -585,7 +585,7 @@ GET_VIDEO_INFO	  ENDP
 ;   CMP     AL,LCD_attached
 ;   $IF     E				 ;IF on a P1X AND LCD is attached THEN
 ;      POP     AX			 ;   clean the stack
-;      MOV     AX,0000H 		 ;   AH=AL๐OK to put in MONO mode
+;      MOV     AX,0000H 		 ;   AH=ALรฐOK to put in MONO mode
 ;   $ELSE				 ;ELSE
 ;      POP     AX			 ;   AX=mono buffer base
 ;      CALL    check_buff		 ;   see if the MONO card exists
@@ -593,7 +593,7 @@ GET_VIDEO_INFO	  ENDP
 ;RET					 ;RETURN TO MAIN ROUTINE
 ;VMONO	 ENDP
 ;******************************************************
-CHECK_BUFF PROC NEAR
+CHECK_BUFF:
 ;SEE IF MEMORY EXISTS AT THE SEGMENT PASSED IN AX
 
 	PUSH	DS			;SAVE DATA SEGMENT REGISTER
@@ -608,7 +608,7 @@ CHECK_BUFF PROC NEAR
 	MOV	DS:0,CH 		;REPAIR THE DAMAGE IN THE BUFFER
 	POP	DS			;RESTORE DATA SEGMENT REGISTER
 	RET
-CHECK_BUFF ENDP
+; ENDP CHECK_BUFF
 ;********************************************************
-PRINTF_CODE ENDS
-	END
+; END SECTION .PRINTF_CODE
+	; END

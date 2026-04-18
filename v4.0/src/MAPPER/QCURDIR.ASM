@@ -1,14 +1,14 @@
 ;
-page 80,132
+; page 80,132
 ;
-title CP/DOS DosQCurDir mapper
+; title CP/DOS DosQCurDir mapper
 
-buffer  segment word public 'buffer'
-CurrentDirectoryBuffer db      128 dup(?)
-buffer  ends
+SECTION .buffer
+CurrentDirectoryBuffer: times 128 db 0
+; END SECTION .buffer
 
-dosxxx  segment byte public 'dos'
-        assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+        ; assume  cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 
 ;**********************************************************************
 ;*
@@ -28,27 +28,27 @@ dosxxx  segment byte public 'dos'
 ;*
 ;*********************************************************************
 
-            public   dosqcurdir
-            .sall
-            include  macros.inc
+            global dosqcurdir
+            ; .sall
+            %include "macros.inc"
 
-str         struc
-old_bp      dw       ?
-return      dd       ?
-BufferLengthPtr dd      ?    ; directory path buffer length pointer
-BufferPtr       dd      ?    ; directory path buffer pointer
-Drive           dw      ?    ; driver number
-str         ends
+struc str
+old_bp: resw 1
+return: resd 1
+BufferLengthPtr: resd 1; directory path buffer length pointer
+BufferPtr: resd 1; directory path buffer pointer
+Drive: resw 1; driver number
+endstruc
 
 
-dosqcurdir  proc     far
+dosqcurdir:
 
         Enter   Dosqcurdir               ; push registers
 
         mov     ax,seg buffer            ; set temporary buffer  to receive
         mov     ds,ax                    ; dircetory path information
-        assume  ds:buffer
-        mov     si,offset buffer:CurrentDirectoryBuffer
+        ; assume  ds:buffer
+        mov     si,CurrentDirectoryBuffer
         mov     dx,[bp].drive            ; set driver number
 
         mov     ah,47h
@@ -57,11 +57,11 @@ dosqcurdir  proc     far
 
         mov     di,ds
         mov     es,di
-        assume  es:buffer
+        ; assume  es:buffer
 
 ; next calculate the size of the path name just received
 
-        mov     di,offset buffer:CurrentDirectoryBuffer
+        mov     di,CurrentDirectoryBuffer
         mov     cx,128
         mov     al,0                     ; look for the non-ascii chara
         cld                              ; in the buffer indciates the
@@ -71,8 +71,8 @@ dosqcurdir  proc     far
         sub     dx,cx                    ; calculate actual path length
 
         les     di,[bp].BufferLengthPtr  ; set path buffer lenght pointer
-        assume  es:nothing
-        mov     cx,es:[di]               ; check for directory path
+        ; assume  es:nothing
+        mov     cx,[es:di]               ; check for directory path
                                          ; buffe size
         cmp     cx,dx                    ; compare with needed length
         jnc     HaveThePathLength        ; branch if length is ok
@@ -82,11 +82,11 @@ dosqcurdir  proc     far
 
 HaveThePathLength:
         mov     cx,dx
-        mov     es:[di],dx               ; return path length
+        mov     [es:di],dx               ; return path length
 
         les     di,[bp].BufferPtr        ; prepare to move directory path name
                                          ; into return buffer
-        mov     si,offset buffer:CurrentDirectoryBuffer
+        mov     si,CurrentDirectoryBuffer
 
         rep     movsb                    ; copy dir path to return buffer
 
@@ -94,11 +94,11 @@ HaveThePathLength:
 
 ErrorExit:
         mexit                            ; pop registers
-        ret      size str - 6            ; return
+        ret      str_size - 6            ; return
 
-dosqcurdir  endp
+; ENDP dosqcurdir
 
-dosxxx      ends
+; END SECTION .dosxxx
 
-            end
+            ; end
 

@@ -1,19 +1,19 @@
-page 80,132
+; page 80,132
 ;0
-title CP/DOS  DosOpen  mapper
+; title CP/DOS  DosOpen  mapper
 
 
-FileAttributeSegment   segment word public 'fat'
+SECTION .FileAttributeSegment
 
-		       public	FileAttributeTable
+		       global FileAttributeTable
 
-FileAttributeTable     dw     100  dup(0)
+FileAttributeTable: times 100 dw 0
 
-FileAttributeSegment	ends
+; END SECTION .FileAttributeSegment
 
 
-dosxxx	segment byte public 'dos'
-	assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
+SECTION .dosxxx
+	; assume	cs:dosxxx,ds:nothing,es:nothing,ss:nothing
 ;
 ; ************************************************************************* *
 ; *
@@ -62,31 +62,31 @@ dosxxx	segment byte public 'dos'
 ; *
 ; *************************************************************************
 ;
-	public	DosOpen
-	.sall
-	.xlist
-	include macros.inc
-	.list
+	global DosOpen
+	; .sall
+	; .xlist
+	%include "macros.inc"
+	; .list
 
 ACT_FileExisted 	equ	1
 ACT_FileCreated 	equ	2
 
 
-str	struc
-old_bp		dw     ?
-return		dd     ?
-resrv34 	dd     ?     ; reserved
-OpenMode	dw     ?     ; open mode
-OpenFlag	dw     ?     ; open function type (1=Open only if already exist)
-OpenFileAttr	dw     ?     ; file attribute
-FileSize	dd     ?     ; file allocation size
-acttak34	dd     ?     ; action taken
-FileHandlePtr	dd     ?     ; New file handler
-FileNamePtr	dd     ?     ; file name pointer
-str	ends
+struc str
+old_bp: resw 1
+return: resd 1
+resrv34: resd 1; reserved
+OpenMode: resw 1; open mode
+OpenFlag: resw 1; open function type (1=Open only if already exist)
+OpenFileAttr: resw 1; file attribute
+FileSize: resd 1; file allocation size
+acttak34: resd 1; action taken
+FileHandlePtr: resd 1; New file handler
+FileNamePtr: resd 1; file name pointer
+endstruc
 
 ;
-DosOpen  proc	far
+DosOpen:
 	Enter	DosOpen 	       ; save registers
 	sub	sp,2		       ; allocate space on the stack
 SaveArea	equ	-2
@@ -99,7 +99,7 @@ SaveArea	equ	-2
 	jz	FileOpenRequest        ; branch if file open
 
 	lds	si,[bp].FileNamePtr    ; convert device name to upper case
-	mov	al,ds:[si]
+	mov	al,[ds:si]
 	cmp	al,'a'
 	jc	NoFold
 	cmp	al,'z'+1
@@ -120,7 +120,7 @@ NoFold:
 	neg	ax		       ;		   -2 to -27
 
 	lds	si,[bp].FileHandlePtr
-	mov	ds:[si],ax	       ; save dasd dummy device handle
+	mov	[ds:si],ax	       ; save dasd dummy device handle
 	jmp	GoodExit	       ; in return data area and return
 
 BadDASDName:
@@ -132,7 +132,7 @@ BadDASDName:
 
 
 FileOpenRequest:
-	lds	dx,dword ptr [bp].FileNamePtr ; load asciiz string address
+	lds	dx,dword [bp].FileNamePtr ; load asciiz string address
 	mov	ax,04300h	      ; query file mode
 	int	21h		      ; get file mode
 	jnc	SaveAttribute	      ; file does exist
@@ -147,8 +147,8 @@ SaveAttribute:
 
 ;  File exists - determine what to do
 
-	lds	si,dword ptr [bp].acttak34 ; Load action taken pointer
-	mov	word ptr[si],ACT_FileExisted   ; Indicate that file existed
+	lds	si,dword [bp].acttak34 ; Load action taken pointer
+	mov	word[si],ACT_FileExisted   ; Indicate that file existed
 	mov	ax,[bp].OpenFlag   ; load open flag
 	and	ax,00003h	   ; mask off the replace and open flags
 	cmp	ax,00003h	   ; check if both are requested
@@ -180,9 +180,9 @@ nxto34:;
 
 ;  open the file
 
-	lds	si,dword ptr [bp].acttak34 ; load action taken pointer
-	mov	word ptr [si],00h     ; clear action reported flag
-	lds	dx,dword ptr [bp].FileNamePtr ; load asciiz string address
+	lds	si,dword [bp].acttak34 ; load action taken pointer
+	mov	word [si],00h     ; clear action reported flag
+	lds	dx,dword [bp].FileNamePtr ; load asciiz string address
 	mov	ax,[bp].OpenMode   ; load the  file mode
 
 	mov	ah,03dh 	   ; load opcode
@@ -190,7 +190,7 @@ nxto34:;
 	jc	ErrorExit	   ; error return
 
 FileWasThere:
-	lds	si,dword ptr [bp].FileHandlePtr ; load file handle address
+	lds	si,dword [bp].FileHandlePtr ; load file handle address
 	mov	[si],ax 	   ; save file handle
 	jmp	PutAwayAttribute   ; normal return
 
@@ -210,16 +210,16 @@ creat34:;
 
 ;  file did not exist so it was created or replacement was requested
 
-	lds	si,dword ptr [bp].acttak34 ; load action taken pointer
-	mov	word ptr [si],ACT_FileCreated  ; file created -  action reported
-	lds	dx,dword ptr [bp].FileNamePtr ; load asciiz string address
+	lds	si,dword [bp].acttak34 ; load action taken pointer
+	mov	word [si],ACT_FileCreated  ; file created -  action reported
+	lds	dx,dword [bp].FileNamePtr ; load asciiz string address
 	mov	cx,[bp].OpenFileAttr	; set file attribute
 
 	mov	ah,03ch
 	int	21h		   ; create the file
 	jc	erret34 	   ; error return
 
-	lds	si,dword ptr [bp].FileHandlePtr ; load file handle address
+	lds	si,dword [bp].FileHandlePtr ; load file handle address
 	mov	[si],ax 		   ; save file handle
 ;
 ; set file length
@@ -233,9 +233,9 @@ creat34:;
 	jc	erret34 	   ; error return
 
 len134:;
-	lds	si,dword ptr [bp].FileHandlePtr ; load file handle address
+	lds	si,dword [bp].FileHandlePtr ; load file handle address
 	mov	bx,[si] 	   ; load file handle
-	lds	dx,dword ptr [bp].acttak34
+	lds	dx,dword [bp].acttak34
 	sub	cx,cx
 
 	mov	ah,040h
@@ -247,19 +247,19 @@ len234:;
 ;
 ;  close and reopen the file to make the length permanent
 ;
-	lds	si,dword ptr [bp].FileHandlePtr ; load file handle address
+	lds	si,dword [bp].FileHandlePtr ; load file handle address
 	mov	bx,[si] 		   ; load file handle
 	mov	ah,03eh
 	int	21h
 	jc	erret34 	   ; error return
 
-	lds	dx,dword ptr [bp].FileNamePtr ; load asciiz string address
+	lds	dx,dword [bp].FileNamePtr ; load asciiz string address
 	mov	ax,[bp].OpenMode   ; load the  file mode
 	mov	ah,03dh 	   ;
 	int	21h		   ; open the file
 	jc	erret34 	   ; error return
 
-	lds	si,dword ptr [bp].FileHandlePtr ; load file handle address
+	lds	si,dword [bp].FileHandlePtr ; load file handle address
 	mov	[si],ax 	   ; save file handle
 
 PutAwayAttribute:		   ; save file attribute for other mapper
@@ -268,7 +268,7 @@ PutAwayAttribute:		   ; save file attribute for other mapper
 
 	mov	ax,seg FileAttributeSegment
 	mov	ds,ax
-	assume	ds:FileAttributeSegment
+	; assume	ds:FileAttributeSegment
 
 	mov	ax,[bp].SaveArea
 	mov	FileAttributeTable[bx],ax	; save file attribute
@@ -280,10 +280,10 @@ erret34:;
 ErrorExit:
 	add	sp,2		   ; deallocate space
 	mexit			   ; restore registers
-	ret	size str - 6	   ; return
+	ret	str_size - 6	   ; return
 
-DosOpen  endp
+; ENDP DosOpen
 
-dosxxx	ends
+; END SECTION .dosxxx
 
-	end
+	; end

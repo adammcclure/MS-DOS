@@ -1,7 +1,7 @@
-PAGE	60,132
-TITLE	INDEMSG - 80386 XMA Emulator - Messages
+; PAGE	60,132
+; TITLE	INDEMSG - 80386 XMA Emulator - Messages
 
-COMMENT #
+; COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 *									      *
 * MODULE NAME	  : INDEMSUS						      *
@@ -56,21 +56,21 @@ COMMENT #
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #
 
-SUBTTL	   Messages							;   D0A
-PAGE									;   D0A
+; SUBTTL	   Messages;   D0A
+; PAGE;   D0A
 									;   D0A
-PROG	   SEGMENT PARA PUBLIC	'PROG'                                  ;   D0A
+SECTION .PROG;   D0A
 									;   D0A
-	   ASSUME  CS:PROG						;   D0A
-	   ASSUME  SS:NOTHING						;   D0A
-	   ASSUME  DS:PROG						;   D0A
-	   ASSUME  ES:NOTHING						;   D0A
+	   ; ASSUME  CS:PROG;   D0A
+	   ; ASSUME  SS:NOTHING;   D0A
+	   ; ASSUME  DS:PROG;   D0A
+	   ; ASSUME  ES:NOTHING;   D0A
 									;   D0A
-INDEMSG    LABEL   NEAR 						;   D0A
+INDEMSG:;   D0A
 									;   D0A
-	   INCLUDE INDEMSUS.INC 	; Use the US messages		    D0A
+	   %include "INDEMSUS.INC"; Use the US messages		    D0A
 									;   D0A
-	   include copyrigh.inc 					; DCL p1821
+	   %include "copyrigh.inc"; DCL p1821
 									;
-PROG	   ENDS 							;   D0A
-	   END								;   D0A
+; END SECTION .PROG;   D0A
+	   ; END;   D0A

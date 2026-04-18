@@ -35,7 +35,7 @@ CLRFCB:
 	MOV	SI,BX
 	MOV	DI,DX
 	REP
-	MOVB
+	movsb
 	MOV	DX,DI
 	MOV	BX,SI
 	MOV	[PUTFCB+32],AL
@@ -74,11 +74,11 @@ TRANLN:
 	CALL	LOAD
 	MOV	BX,OP1
 	CALL	GETOP
-	MOV	B,[BX],0
+	MOV	byte [BX],0
 	MOV	BX,OP2
 	CALL	GETOP
 DOLIN:
-	MOV	B,[BX],0
+	MOV	byte [BX],0
 	CALL	FINDOP
 ENLIN:
 	MOV	SP,STACK
@@ -224,7 +224,7 @@ LOADLP:
 	INC	BX
 	CALL	DELIM
 	JNZ	LOADLP
-	MOV	B,[BX],0
+	MOV	byte [BX],0
 	CMP	AL,':'
 	JNZ	RET
 	MOV	BX,OPCODE
@@ -248,7 +248,7 @@ OPCHAR:
 	LAHF
 	XCHG	AX,BP
 	SAHF
-	MOV	B,[BX],'['
+	MOV	byte [BX],'['
 	JP	NEXCH
 NOTLEF:
 	CMP	AL,')'
@@ -260,7 +260,7 @@ NOTLEF:
 	LAHF
 	XCHG	AX,BP
 	SAHF
-	MOV	B,[BX],']'
+	MOV	byte [BX],']'
 	JP	NEXCH
 NOTRIT:
 	MOV	[BX],AL
@@ -337,7 +337,7 @@ RWLK:
 	UP
 	MOV	DI,BX
 	REPNZ
-	SCAB
+	scasb
 	MOV	BX,DI
 	JNZ	NOTRW
 	PUSH	BX
@@ -396,12 +396,12 @@ NOTENC:
 	SAHF
 	POP	BX
 	DEC	BX
-	MOV	B,[BX],'['
+	MOV	byte [BX],'['
 	INC	BX
 	ADD	AL,RIX-1
 	MOV	[BX],AL
 	INC	BX
-	MOV	B,[BX],']'
+	MOV	byte [BX],']'
 	INC	BX
 	JP	ENDRW
 	RET
@@ -412,7 +412,7 @@ FINDOP:
 	UP
 	MOV	DI,BX
 	REPNZ
-	SCAB
+	scasb
 	MOV	BX,DI
 	JNZ	OPERR
 	MOV	AL,4
@@ -423,7 +423,7 @@ FINDOP:
 	MOV	CL,AL
 	DEC	BX
 	DEC	BX
-	OR	B,[BX],080H
+	OR	byte [BX],080H
 	MOV	AL,[OPCODE]
 	SUB	AL,'A'
 	JC	OPERR
@@ -450,7 +450,7 @@ LOOKOP:
 	MOV	CH,CL
 LOOKLP:
 	MOV	SI,DX
-	LODB
+	lodsb
 	CMP	AL,[BX]
 	JNZ	NEXOP
 	INC	DX
@@ -462,7 +462,7 @@ LOOKLP:
 	JMP	DX
 NEXOP:
 	RCR	SI
-	TEST	B,[BX],080H
+	TEST	byte [BX],080H
 	RCL	SI
 	LAHF
 	INC	BX
@@ -526,7 +526,7 @@ LCHECK:
 	CMP	AL,RAL
 	JNZ	RET
 	MOV	SI,DX
-	LODB
+	lodsb
 	CMP	AL,RCX
 	JZ	RET
 	CMP	AL,RDX
@@ -592,12 +592,12 @@ GETPORT:
 	UP
 	MOV	DI,BX
 	REPNZ
-	SCAB
+	scasb
 	MOV	BX,DI
 	LAHF
 	DEC	BX
 	SAHF
-	MOV	B,[BX],0
+	MOV	byte [BX],0
 	POP	BX
 NOBRAK:
 	MOV	AL,[BX]
@@ -626,7 +626,7 @@ LDAX:
 LSAX:
 	CALL	OUTSTR
 	MOV	SI,DX
-	LODB
+	lodsb
 	CALL	TRNTOK
 	JP	OUTSTR
 STAX:
@@ -813,7 +813,7 @@ NEXLAB:
 	MOV	AL,[BX]
 	CMP	AL,'9'+1
 	JNZ	RET
-	MOV	B,[BX],'0'
+	MOV	byte [BX],'0'
 	LAHF
 	DEC	BX
 	SAHF
@@ -869,11 +869,11 @@ L0005:
 
 BYTCHK:
 ;Check if memory reference and add "B," for byte mode
-	CMP	B,[OP1],"["	;Memory reference?
+	CMP	byte [OP1],"["	;Memory reference?
 	JNZ	RET
-	CMP	B,[OP1+1],RIX	;Referencing IX as a word?
+	CMP	byte [OP1+1],RIX	;Referencing IX as a word?
 	JZ	RET
-	CMP	B,[OP1+1],RIY
+	CMP	byte [OP1+1],RIY
 	JZ	RET
 BFLAG:
 	CALL	PUTCH
@@ -1177,37 +1177,37 @@ OPCDER:	DM	13,10,'*** Opcode Error '
 CRLF:	DM	13,10
 LABEL:	DB	'L0000',0
 	DM	':',9
-PUTPT:	DS	2
-GETPT:	DS	2
-CHAR:	DS	1
+PUTPT: times 2 db 0
+GETPT: times 2 db 0
+CHAR: times 1 db 0
 	DB	0
-OPCODE:	DS	80
-OP1:	DS	80
-OP2:	DS	80
-PUTBUF:	DS	128
-GETBUF:	DS	128
-PUTFCB:	DS	33
-	DS	50
+OPCODE: times 80 db 0
+OP1: times 80 db 0
+OP2: times 80 db 0
+PUTBUF: times 128 db 0
+GETBUF: times 128 db 0
+PUTFCB: times 33 db 0
+	times 50 db 0
 STACK:	EQU	$
 	ORG	1	;This is really just for equates without EQU
-RSI:	DS	1
-RDI:	DS	1
-ODDPAR:	DS	1
-EVEPAR:	DS	1
-	DS	5	;MINUS,PLUS,NOT ZERO,ZERO,NOT CARRY
-CY:	DS	1
-RAX:	DS	1
-STP:	DS	1
-RBX:	DS	1
-RDX:	DS	1
-RCX:	DS	1
-RBL:	DS	1
-RBH:	DS	1
-RDL:	DS	1
-RDH:	DS	1
-RGCL:	DS	1
-RCH:	DS	1
-RAL:	DS	1
-RIX:	DS	1
-RIY:	DS	1
+RSI: times 1 db 0
+RDI: times 1 db 0
+ODDPAR: times 1 db 0
+EVEPAR: times 1 db 0
+	times 5 db 0;MINUS,PLUS,NOT ZERO,ZERO,NOT CARRY
+CY: times 1 db 0
+RAX: times 1 db 0
+STP: times 1 db 0
+RBX: times 1 db 0
+RDX: times 1 db 0
+RCX: times 1 db 0
+RBL: times 1 db 0
+RBH: times 1 db 0
+RDL: times 1 db 0
+RDH: times 1 db 0
+RGCL: times 1 db 0
+RCH: times 1 db 0
+RAL: times 1 db 0
+RIX: times 1 db 0
+RIY: times 1 db 0
 
